@@ -18,7 +18,7 @@ import analyze
 from analyze import (
     CommandRunner, DependencyValidator,
     RepoCloner, BomtraceBuilder,
-    SpdxGenerator, SpdxValidator,
+    SpdxGenerator, MetadataCollector, SpdxValidator,
     SyftGenerator, BinaryCollector, DocWriter,
     AnalysisPipeline, load_config, timestamp,
 )
@@ -1821,6 +1821,7 @@ def _mock_pipeline():
     cloner = MagicMock()
     builder = MagicMock()
     spdx_gen = MagicMock()
+    metadata_collector = MagicMock()
     adg_spdx = MagicMock()
     adg_spdx.generate.return_value = []
     spdx_validator = MagicMock()
@@ -1833,6 +1834,7 @@ def _mock_pipeline():
         cloner=cloner,
         builder=builder,
         spdx_gen=spdx_gen,
+        metadata_collector=metadata_collector,
         adg_spdx=adg_spdx,
         spdx_validator=spdx_validator,
         syft_gen=syft_gen,
@@ -2339,6 +2341,202 @@ class TestAdgSpdxStep(unittest.TestCase):
             )
             # result is empty because generate returned None
             self.assertEqual(result, [])
+
+
+# ============================================================
+# MetadataCollector coverage
+# ============================================================
+
+class TestMetadataCollector(unittest.TestCase):
+    """Tests for MetadataCollector.collect()."""
+
+    def test_no_treedb(self):
+        """Returns False when treedb doesn't exist."""
+        mc = MetadataCollector()
+        with tempfile.TemporaryDirectory() as td:
+            paths = {
+                "output_dir": td,
+                "repos_dir": str(Path(td) / "repos"),
+            }
+            with patch("builtins.print"):
+                result = mc.collect(
+                    "nmap", {"output_binaries": []},
+                    paths,
+                )
+            self.assertFalse(result)
+
+    def test_collect_metadata_and_dynlibs(self):
+        """Full collection: metadata + per-binary dynlibs."""
+        with tempfile.TemporaryDirectory() as td:
+            # Set up directory structure
+            bom_dir = (
+                Path(td) / "omnibor" / "nmap"
+            )
+            meta_dir = bom_dir / "metadata"
+            bomsh = meta_dir / "bomsh"
+            bomsh.mkdir(parents=True)
+
+            # Create minimal treedb
+            import json as json_mod
+            treedb = {
+                "abc": {
+                    "file_path": "/usr/lib/libz.so",
+                },
+            }
+            (bomsh / "bomsh_omnibor_treedb").write_text(
+                json_mod.dumps(treedb)
+            )
+
+            # Create fake binary
+            repo_dir = Path(td) / "repos" / "nmap"
+            repo_dir.mkdir(parents=True)
+            (repo_dir / "nmap").write_bytes(b"ELF")
+
+            paths = {
+                "output_dir": td,
+                "repos_dir": str(Path(td) / "repos"),
+            }
+            repo_cfg = {
+                "output_binaries": ["nmap"],
+            }
+
+            mc = MetadataCollector()
+
+            # Mock the actual collection functions
+            with patch(
+                "collect_metadata.main",
+            ) as mock_meta, patch(
+                "collect_dynamic_libs.main",
+            ) as mock_dyn, patch(
+                "builtins.print",
+            ):
+                # Simulate collect_metadata writing file
+                def write_meta(treedb_p, repos, out):
+                    Path(out).mkdir(
+                        parents=True, exist_ok=True,
+                    )
+                    (
+                        Path(out)
+                        / "component_metadata.json"
+                    ).write_text("{}")
+
+                mock_meta.side_effect = write_meta
+                result = mc.collect(
+                    "nmap", repo_cfg, paths,
+                )
+
+            self.assertTrue(result)
+            mock_meta.assert_called_once()
+            mock_dyn.assert_called_once()
+
+    def test_skips_existing_dynlibs(self):
+        """Skips collection if dynamic_libs.json exists."""
+        with tempfile.TemporaryDirectory() as td:
+            bom_dir = (
+                Path(td) / "omnibor" / "nmap"
+            )
+            meta_dir = bom_dir / "metadata"
+            bomsh = meta_dir / "bomsh"
+            bomsh.mkdir(parents=True)
+
+            import json as json_mod
+            treedb = {"a": {"file_path": "/usr/x"}}
+            (bomsh / "bomsh_omnibor_treedb").write_text(
+                json_mod.dumps(treedb)
+            )
+
+            # Pre-create metadata + dynlibs
+            (meta_dir / "component_metadata.json"
+             ).write_text("{}")
+            bin_meta = meta_dir / "nmap"
+            bin_meta.mkdir(parents=True)
+            (bin_meta / "dynamic_libs.json"
+             ).write_text("{}")
+
+            repo_dir = Path(td) / "repos" / "nmap"
+            repo_dir.mkdir(parents=True)
+            (repo_dir / "nmap").write_bytes(b"ELF")
+
+            paths = {
+                "output_dir": td,
+                "repos_dir": str(Path(td) / "repos"),
+            }
+            repo_cfg = {
+                "output_binaries": ["nmap"],
+            }
+
+            mc = MetadataCollector()
+            with patch(
+                "builtins.print",
+            ):
+                result = mc.collect(
+                    "nmap", repo_cfg, paths,
+                )
+            self.assertTrue(result)
+
+    def test_binary_not_found(self):
+        """Warns and continues if binary doesn't exist."""
+        with tempfile.TemporaryDirectory() as td:
+            bom_dir = (
+                Path(td) / "omnibor" / "nmap"
+            )
+            meta_dir = bom_dir / "metadata"
+            bomsh = meta_dir / "bomsh"
+            bomsh.mkdir(parents=True)
+
+            import json as json_mod
+            treedb = {"a": {"file_path": "/usr/x"}}
+            (bomsh / "bomsh_omnibor_treedb").write_text(
+                json_mod.dumps(treedb)
+            )
+            (meta_dir / "component_metadata.json"
+             ).write_text("{}")
+
+            paths = {
+                "output_dir": td,
+                "repos_dir": str(Path(td) / "repos"),
+            }
+            repo_cfg = {
+                "output_binaries": ["nonexistent"],
+            }
+
+            mc = MetadataCollector()
+            with patch("builtins.print"):
+                result = mc.collect(
+                    "nmap", repo_cfg, paths,
+                )
+            self.assertTrue(result)
+
+    def test_collect_metadata_failure(self):
+        """Returns False if collect_metadata raises."""
+        with tempfile.TemporaryDirectory() as td:
+            bom_dir = (
+                Path(td) / "omnibor" / "nmap"
+            )
+            meta_dir = bom_dir / "metadata"
+            bomsh = meta_dir / "bomsh"
+            bomsh.mkdir(parents=True)
+
+            import json as json_mod
+            treedb = {"a": {"file_path": "/usr/x"}}
+            (bomsh / "bomsh_omnibor_treedb").write_text(
+                json_mod.dumps(treedb)
+            )
+
+            paths = {
+                "output_dir": td,
+                "repos_dir": str(Path(td) / "repos"),
+            }
+
+            mc = MetadataCollector()
+            with patch(
+                "collect_metadata.main",
+                side_effect=Exception("dpkg fail"),
+            ), patch("builtins.print"):
+                result = mc.collect(
+                    "nmap", {}, paths,
+                )
+            self.assertFalse(result)
 
 
 # ============================================================

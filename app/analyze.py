@@ -928,6 +928,130 @@ class SyftGenerator:
 
 
 # ============================================================
+# Metadata collection (per-binary)
+# ============================================================
+
+class MetadataCollector:
+    """Collect component metadata and dynamic lib info.
+
+    Runs after the instrumented build to gather:
+    1. component_metadata.json — dpkg metadata for all
+       system files found in the bomsh treedb
+    2. dynamic_libs.json — per-binary dynamic library
+       dependencies with dpkg metadata
+
+    Both outputs are consumed by AdgSpdxStep.
+    """
+
+    def __init__(self, runner=None):
+        self.runner = runner or CommandRunner()
+
+    def collect(
+        self, repo_name, repo_cfg, paths_cfg,
+    ):
+        """Collect metadata and dynamic libs.
+
+        Returns True if at least component_metadata.json
+        was created successfully.
+        """
+        bom_dir = (
+            Path(paths_cfg["output_dir"])
+            / "omnibor" / repo_name
+        )
+        meta_dir = bom_dir / "metadata"
+        repos_dir = paths_cfg["repos_dir"]
+        repo_dir = Path(repos_dir) / repo_name
+
+        treedb_path = (
+            meta_dir / "bomsh"
+            / "bomsh_omnibor_treedb"
+        )
+        if not treedb_path.exists():
+            print(
+                "[WARN] treedb not found — "
+                "skipping metadata collection"
+            )
+            return False
+
+        # Step 1: collect_metadata.py (once)
+        meta_out = meta_dir / "component_metadata.json"
+        if not meta_out.exists():
+            print(
+                "\n"
+                + "=" * 60
+                + "\n"
+                "  Collecting component metadata\n"
+                + "=" * 60
+            )
+            try:
+                from collect_metadata import (
+                    main as collect_meta,
+                )
+                collect_meta(
+                    str(treedb_path),
+                    repos_dir,
+                    str(meta_dir),
+                )
+            except Exception as e:
+                print(
+                    f"[ERROR] collect_metadata failed: "
+                    f"{e}"
+                )
+                return False
+
+        # Step 2: collect_dynamic_libs.py (per binary)
+        bins = repo_cfg.get("output_binaries", [])
+        for rel_path in bins:
+            bin_name = Path(rel_path).name
+            bin_path = repo_dir / rel_path
+            if not bin_path.exists():
+                print(
+                    f"[WARN] Binary not found: "
+                    f"{bin_path}"
+                )
+                continue
+
+            # Per-binary metadata dir
+            bin_meta = meta_dir / bin_name
+            dynlib_out = bin_meta / "dynamic_libs.json"
+            if dynlib_out.exists():
+                continue
+
+            bin_meta.mkdir(parents=True, exist_ok=True)
+            # Copy component_metadata.json to per-binary
+            # dir so AdgSpdxStep can find it
+            if meta_out.exists():
+                import shutil
+                comp_dst = (
+                    bin_meta
+                    / "component_metadata.json"
+                )
+                if not comp_dst.exists():
+                    shutil.copy2(
+                        str(meta_out), str(comp_dst),
+                    )
+
+            print(
+                f"\n  Collecting dynamic libs: "
+                f"{bin_name}"
+            )
+            try:
+                from collect_dynamic_libs import (
+                    main as collect_dynlibs,
+                )
+                collect_dynlibs(
+                    str(bin_path), str(bin_meta),
+                )
+            except Exception as e:
+                print(
+                    f"[ERROR] collect_dynamic_libs "
+                    f"failed for {bin_name}: {e}"
+                )
+
+        return meta_out.exists()
+
+
+# ============================================================
 # ADG SPDX generation (per-binary)
 # ============================================================
 
@@ -1218,8 +1342,9 @@ class AnalysisPipeline:
     """Orchestrates the full OmniBOR analysis workflow.
 
     Composes CommandRunner, RepoCloner, BomtraceBuilder,
-    SpdxGenerator, AdgSpdxStep, SpdxValidator,
-    SyftGenerator, BinaryCollector, and DocWriter.
+    SpdxGenerator, MetadataCollector, AdgSpdxStep,
+    SpdxValidator, SyftGenerator, BinaryCollector,
+    and DocWriter.
     """
 
     def __init__(
@@ -1229,6 +1354,7 @@ class AnalysisPipeline:
         cloner=None,
         builder=None,
         spdx_gen=None,
+        metadata_collector=None,
         adg_spdx=None,
         spdx_validator=None,
         syft_gen=None,
@@ -1248,6 +1374,10 @@ class AnalysisPipeline:
         )
         self.spdx_gen = spdx_gen or SpdxGenerator(
             self.runner
+        )
+        self.metadata_collector = (
+            metadata_collector
+            or MetadataCollector(self.runner)
         )
         self.adg_spdx = (
             adg_spdx or AdgSpdxStep()
@@ -1386,7 +1516,13 @@ def main():
             paths_cfg, omnibor_cfg,
         )
 
-    # Step 5b: Generate per-binary ADG SPDX
+    # Step 5b: Collect component metadata + dynamic libs
+    if success:
+        pipeline.metadata_collector.collect(
+            args.repo, repo_cfg, paths_cfg,
+        )
+
+    # Step 5c: Generate per-binary ADG SPDX
     adg_files = []
     if success:
         adg_files = pipeline.adg_spdx.generate(
