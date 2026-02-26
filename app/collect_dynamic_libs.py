@@ -34,6 +34,7 @@ def main(binary_path, out_dir):
 
     # Parse ldd output
     libs = {}
+    not_found = set()
     for line in ldd_out.strip().splitlines():
         line = line.strip()
         m = re.match(r"(\S+)\s+=>\s+(\S+)\s+\(", line)
@@ -44,6 +45,10 @@ def main(binary_path, out_dir):
             libs[soname] = {
                 "path": path, "direct": is_direct,
             }
+        elif "not found" in line:
+            m_nf = re.match(r"(\S+)\s+=>", line)
+            if m_nf:
+                not_found.add(m_nf.group(1))
         elif "ld-linux" in line:
             m2 = re.match(r"(\S+)\s+\(", line)
             if m2:
@@ -120,6 +125,36 @@ def main(binary_path, out_dir):
         ver = meta.get("Version", "?")
         print(f"  {soname:40s} {tag:12s} {source} ({ver})")
 
+    # Record project-built .so files that ldd
+    # could not resolve (e.g. libavcodec.so.62
+    # built by FFmpeg). These are NEEDED entries
+    # that show as "not found" in ldd output.
+    project_built_libs = {}
+    for soname in sorted(not_found):
+        is_direct = soname in needed
+        # Derive a readable name from soname:
+        # libavcodec.so.62 -> libavcodec
+        name = re.sub(r"\.so(\.\d+)*$", "", soname)
+        project_built_libs[soname] = {
+            "name": name,
+            "direct": is_direct,
+            "project_built": True,
+        }
+        tag = (
+            "DIRECT" if is_direct
+            else "transitive"
+        )
+        print(
+            f"  {soname:40s} {tag:12s} "
+            f"{name} (project-built)"
+        )
+
+    if project_built_libs:
+        print(
+            f"Project-built libs: "
+            f"{len(project_built_libs)}"
+        )
+
     # Also analyze libcurl.so NEEDED
     libcurl_needed = []
     libcurl_path = os.path.join(
@@ -148,6 +183,7 @@ def main(binary_path, out_dir):
         "binary": binary_path,
         "direct_needed": sorted(needed),
         "dynamic_libs": results,
+        "project_built_libs": project_built_libs,
         "libcurl_needed": sorted(libcurl_needed),
     }
 

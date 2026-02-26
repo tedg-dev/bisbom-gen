@@ -26,10 +26,11 @@ repos:
     url: https://github.com/FFmpeg/FFmpeg.git
     branch: master
     build_steps:
-    - ./configure --enable-gpl --enable-nonfree --enable-libx264 --enable-libx265 --enable-libvpx --enable-libopus --enable-libmp3lame
-      --enable-libfdk-aac --enable-libfreetype --enable-libfontconfig --enable-libfribidi --enable-libass --enable-openssl
-    - make -j$(nproc)
-    clean_cmd: make clean
+    - ./configure --enable-gpl --enable-nonfree --enable-shared --disable-static --enable-libx264 --enable-libx265 --enable-libvpx
+      --enable-libopus --enable-libmp3lame --enable-libfdk-aac --enable-libfreetype --enable-libfontconfig --enable-libfribidi
+      --enable-libass --enable-openssl
+    - make -j1
+    clean_cmd: make distclean
     description: Multimedia framework (~1.2M LoC, 20+ third-party libs)
     output_binaries:
     - ffmpeg
@@ -52,6 +53,33 @@ repos:
     - libass-dev
     - nasm
     - yasm
+  nmap:
+    url: https://github.com/nmap/nmap.git
+    branch: master
+    build_steps:
+    - ./configure --with-libpcre=/usr --with-libz=/usr --with-libssh2=/usr --with-openssl=/usr --with-libdnet=included --with-liblua=included --with-liblinear=included --without-zenmap --without-ndiff
+    - make -j$(nproc)
+    clean_cmd: make clean
+    description: Network scanner with 10 vendored libs + 10+ dynamic system deps (~420 source files, C/C++)
+    output_binaries:
+    - nmap
+    - ncat/ncat
+    - nping/nping
+    apt_deps:
+    - libpcap-dev
+    - flex
+    - bison
+    vendored_dirs:
+    - /libdnet-stripped/
+    - /liblinear/
+    - /liblua/
+    - /libnetutil/
+    - /libpcap/
+    - /libpcre/
+    - /libssh2/
+    - /libz/
+    - /nbase/
+    - /nsock/
   redis:
     url: https://github.com/redis/redis.git
     branch: unstable

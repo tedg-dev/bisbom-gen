@@ -14,9 +14,10 @@ Before committing any code changes, Cascade **must** complete the following gate
 
 ## 2. Verify Code Coverage
 
-- Code coverage must be **95% or higher**
-- If coverage drops below 95%, add or improve tests before committing
-- Report the coverage percentage to the user
+- Overall code coverage must be **97% or higher**
+- Every individual source file in `app/` must have **95% or higher** coverage
+- If overall coverage drops below 97% or any file drops below 95%, add or improve tests before committing
+- Report the per-file and overall coverage percentages to the user
 
 ## 3. Single-Step Git Execution
 
@@ -35,7 +36,7 @@ push, and cleanup commands in one execution step.
 
 The commit flow is:
 1. Full regression tests → all pass
-2. Code coverage check → 95%+
+2. Code coverage check → per-file 95%+, overall 97%+
 3. Git add + commit + push → single command execution
 
 **No code may be committed without passing gates 1 and 2.**

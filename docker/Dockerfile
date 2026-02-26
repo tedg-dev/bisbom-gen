@@ -56,6 +56,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libfontconfig1-dev \
     libfribidi-dev \
     libass-dev \
+    # Nmap dependencies
+    libpcap-dev \
+    flex \
+    bison \
     && rm -rf /var/lib/apt/lists/*
 
 # ============================================================
