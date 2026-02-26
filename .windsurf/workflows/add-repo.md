@@ -12,7 +12,7 @@ the `config.yaml` entry. Requires `gh` CLI authenticated on the host.
 The user provides just a repo name. Cascade runs:
 
 ```bash
-source .venv/bin/activate && python3 app/add_repo.py <NAME>
+.venv/bin/python3 app/add_repo.py <NAME>
 ```
 
 Accepts: repo name (`curl`), owner/repo (`curl/curl`), or full GitHub URL.
@@ -37,7 +37,7 @@ Show the user the generated entry and ask them to confirm or adjust:
 Once the user approves:
 
 ```bash
-source .venv/bin/activate && python3 app/add_repo.py <NAME> --write
+.venv/bin/python3 app/add_repo.py <NAME> --write
 ```
 
 This writes the entry to `app/config.yaml` and creates output directories.

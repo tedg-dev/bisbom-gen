@@ -13,6 +13,11 @@ output/binary-scan/*/
 !output/**/.gitkeep
 
 # ============================================================
+# User-specific infrastructure profile (IPs, instance IDs, SSH config)
+# ============================================================
+.windsurf/rules/infrastructure/active-profile.md
+
+# ============================================================
 # Credentials and secrets
 # ============================================================
 keys.json

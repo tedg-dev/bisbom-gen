@@ -20,12 +20,25 @@ python3 -m venv .venv
 
 ## System CLI tools
 
-Tools that are not Python packages (e.g. `doctl`, `gh`, `rsync`, `ssh`)
-are installed via Homebrew and are available system-wide. These do NOT
-go in the virtual environment.
+These tools are NOT Python packages and should be installed system-wide
+(e.g. via Homebrew on macOS, apt on Linux):
 
-Required system tools:
-- `gh` — GitHub CLI (PRs, issues)
-- `doctl` — DigitalOcean CLI (droplet power on/off)
-- `rsync` — file sync from droplet
-- `ssh` — remote access to droplet
+**Always needed:**
+
+- `git` — version control
+- `gh` — GitHub CLI (PRs, issues) — optional but recommended
+
+**If using a remote build host:**
+
+- `rsync` — file sync from remote build host
+- `ssh` — remote access to build host
+
+**If using local Docker:**
+
+- `docker` / `docker-compose` — container management
+
+**Provider-specific CLI** (depends on your infrastructure profile):
+
+- `doctl` — DigitalOcean CLI (`brew install doctl`)
+- `aws` — AWS CLI v2 (`brew install awscli`)
+- See `.windsurf/rules/infrastructure/active-profile.md` for your setup
