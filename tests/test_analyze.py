@@ -2002,5 +2002,383 @@ class TestMainFullRun(unittest.TestCase):
         p.spdx_gen.generate.assert_not_called()
 
 
+# ============================================================
+# SpdxGenerator — version detection branches
+# ============================================================
+
+class TestVersionDetection(unittest.TestCase):
+    """Cover _bomsh_version and _bomtrace_version branches."""
+
+    def test_bomsh_version_ver_and_commit(self):
+        """Lines 339-340: ver + commit returns 'ver-commit'."""
+        with patch(
+            "subprocess.check_output",
+            side_effect=[
+                "bomsh_create_bom.py 0.0.1",
+                "5823f7d",
+            ],
+        ):
+            ver = SpdxGenerator._bomsh_version()
+        self.assertEqual(ver, "0.0.1-5823f7d")
+
+    def test_bomsh_version_commit_only(self):
+        """Line 341-342: no ver, only commit."""
+        with patch(
+            "subprocess.check_output",
+            side_effect=[
+                Exception("no cmd"),
+                "abc1234",
+            ],
+        ):
+            ver = SpdxGenerator._bomsh_version()
+        self.assertEqual(ver, "git-abc1234")
+
+    def test_bomsh_version_ver_only(self):
+        """Line 343-344: ver but no commit."""
+        with patch(
+            "subprocess.check_output",
+            side_effect=[
+                "bomsh_create_bom.py 0.0.1",
+                Exception("no git"),
+            ],
+        ):
+            ver = SpdxGenerator._bomsh_version()
+        self.assertEqual(ver, "0.0.1")
+
+    def test_bomsh_version_empty_output(self):
+        """Line 321: empty output."""
+        with patch(
+            "subprocess.check_output",
+            side_effect=[
+                "",
+                Exception("no git"),
+            ],
+        ):
+            ver = SpdxGenerator._bomsh_version()
+        self.assertIsNotNone(ver)
+
+    def test_bomtrace_version_found(self):
+        """Lines 360-374: bomtrace3 found, version extracted."""
+        with patch("shutil.which", return_value="/usr/bin/bomtrace3"):
+            with patch(
+                "subprocess.check_output",
+                return_value="some stuff\n6.11-dirty\nmore stuff\n",
+            ):
+                ver = SpdxGenerator._bomtrace_version()
+        self.assertEqual(ver, "6.11-dirty")
+
+    def test_bomtrace_version_not_found(self):
+        """Line 358-359: bomtrace3 not in PATH."""
+        with patch("shutil.which", return_value=None):
+            ver = SpdxGenerator._bomtrace_version()
+        self.assertEqual(ver, "unknown")
+
+    def test_bomtrace_version_strings_fails(self):
+        """Lines 372-374: strings command fails."""
+        with patch("shutil.which", return_value="/usr/bin/bomtrace3"):
+            with patch(
+                "subprocess.check_output",
+                side_effect=Exception("no strings"),
+            ):
+                ver = SpdxGenerator._bomtrace_version()
+        self.assertEqual(ver, "unknown")
+
+    def test_bomtrace_version_no_match(self):
+        """Lines 366-374: strings output has no version."""
+        with patch("shutil.which", return_value="/usr/bin/bomtrace3"):
+            with patch(
+                "subprocess.check_output",
+                return_value="no version here\njust text\n",
+            ):
+                ver = SpdxGenerator._bomtrace_version()
+        self.assertEqual(ver, "unknown")
+
+
+# ============================================================
+# SpdxValidator — schema validation success + error overflow
+# ============================================================
+
+class TestSpdxValidatorCoverage(unittest.TestCase):
+    """Cover schema validation success and >10 error paths."""
+
+    def test_schema_validation_pass(self):
+        """Lines 790, 798-810: schema fetch succeeds,
+        validation passes."""
+        import json as json_mod
+        doc = {
+            "spdxVersion": "SPDX-2.3",
+            "dataLicense": "CC0-1.0",
+            "SPDXID": "SPDXRef-DOCUMENT",
+            "name": "test",
+            "documentNamespace": "https://test",
+            "creationInfo": {
+                "created": "2026-01-01T00:00:00Z",
+                "creators": ["Tool: test"],
+            },
+            "packages": [],
+            "relationships": [],
+        }
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / "test.spdx.json"
+            path.write_text(json_mod.dumps(doc))
+
+            # Mock schema fetch to return a permissive schema
+            schema = {"type": "object"}
+            mock_resp = MagicMock()
+            mock_resp.read.return_value = (
+                json_mod.dumps(schema).encode()
+            )
+            mock_resp.__enter__ = (
+                lambda s: mock_resp
+            )
+            mock_resp.__exit__ = (
+                lambda s, *a: None
+            )
+
+            v = SpdxValidator()
+            with patch(
+                "urllib.request.urlopen",
+                return_value=mock_resp,
+            ), patch(
+                "builtins.print",
+            ):
+                result = v.validate(str(path))
+            self.assertTrue(result["schema_ok"])
+
+    def test_validation_many_schema_errors(self):
+        """Lines 868-869, 881-882: >10 errors truncated."""
+        import json as json_mod
+
+        doc = {"bad": "doc"}
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / "test.spdx.json"
+            path.write_text(json_mod.dumps(doc))
+
+            # Schema that requires 15 properties
+            required = [f"prop{i}" for i in range(15)]
+            schema = {
+                "type": "object",
+                "required": required,
+            }
+            mock_resp = MagicMock()
+            mock_resp.read.return_value = (
+                json_mod.dumps(schema).encode()
+            )
+            mock_resp.__enter__ = (
+                lambda s: mock_resp
+            )
+            mock_resp.__exit__ = (
+                lambda s, *a: None
+            )
+
+            v = SpdxValidator()
+            with patch(
+                "urllib.request.urlopen",
+                return_value=mock_resp,
+            ), patch(
+                "builtins.print",
+            ):
+                result = v.validate(str(path))
+            self.assertFalse(result["schema_ok"])
+            self.assertGreater(
+                len(result["schema_errors"]), 10,
+            )
+
+    def test_validation_many_semantic_errors(self):
+        """Line 882: >10 semantic errors truncated."""
+        import json as json_mod
+
+        doc = {
+            "spdxVersion": "SPDX-2.3",
+            "SPDXID": "SPDXRef-DOCUMENT",
+            "name": "test",
+            "packages": [],
+            "relationships": [],
+        }
+
+        def _inject_errors(path, result):
+            result["semantic_ok"] = False
+            result["semantic_errors"] = [
+                f"error {i}" for i in range(15)
+            ]
+            return result
+
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / "test.spdx.json"
+            path.write_text(json_mod.dumps(doc))
+
+            v = SpdxValidator()
+            with patch.object(
+                v, "_validate_semantic",
+                side_effect=_inject_errors,
+            ), patch(
+                "urllib.request.urlopen",
+                side_effect=Exception("no net"),
+            ), patch(
+                "builtins.print",
+            ):
+                result = v.validate(str(path))
+            self.assertFalse(result["semantic_ok"])
+            self.assertEqual(
+                len(result["semantic_errors"]), 15,
+            )
+
+
+# ============================================================
+# AdgSpdxStep coverage
+# ============================================================
+
+class TestAdgSpdxStep(unittest.TestCase):
+    """Cover AdgSpdxStep.generate (lines 949-1023)."""
+
+    def test_no_output_binaries(self):
+        """Lines 963-968: no output_binaries returns []."""
+        from analyze import AdgSpdxStep
+        with tempfile.TemporaryDirectory() as td:
+            paths = {
+                "output_dir": td,
+                "repos_dir": str(Path(td) / "repos"),
+            }
+            result = AdgSpdxStep.generate(
+                "test", {}, paths,
+            )
+            self.assertEqual(result, [])
+
+    def test_generate_calls_adg_generator(self):
+        """Lines 949-1023: full generate path."""
+        from analyze import AdgSpdxStep
+        with tempfile.TemporaryDirectory() as td:
+            # Create dirs
+            bom_dir = (
+                Path(td) / "omnibor" / "nmap"
+                / "metadata" / "nmap"
+            )
+            bom_dir.mkdir(parents=True)
+            spdx_dir = (
+                Path(td) / "spdx" / "nmap"
+            )
+            spdx_dir.mkdir(parents=True)
+
+            paths = {
+                "output_dir": td,
+                "repos_dir": str(Path(td) / "repos"),
+            }
+            repo_cfg = {
+                "output_binaries": ["nmap"],
+                "vendored_dirs": ["/liblua/"],
+            }
+
+            mock_gen = MagicMock()
+            mock_gen.generate.return_value = (
+                str(spdx_dir / "nmap_adg.spdx.json")
+            )
+
+            with patch(
+                "spdx_from_adg.AdgSpdxGenerator",
+                return_value=mock_gen,
+            ):
+                result = AdgSpdxStep.generate(
+                    "nmap", repo_cfg, paths,
+                )
+
+            self.assertEqual(len(result), 1)
+            mock_gen.generate.assert_called_once()
+            call_kwargs = (
+                mock_gen.generate.call_args
+            )
+            self.assertEqual(
+                call_kwargs.kwargs.get(
+                    "binary_name"
+                ),
+                "nmap",
+            )
+
+    def test_generate_with_shared_lib(self):
+        """Lines 991-1002: direct_only=True when shared
+        lib is in output_binaries."""
+        from analyze import AdgSpdxStep
+        with tempfile.TemporaryDirectory() as td:
+            # Create per-binary metadata dir
+            meta = (
+                Path(td) / "omnibor" / "curl"
+                / "metadata" / "curl"
+            )
+            meta.mkdir(parents=True)
+
+            paths = {
+                "output_dir": td,
+                "repos_dir": str(Path(td) / "repos"),
+            }
+            repo_cfg = {
+                "output_binaries": [
+                    "src/.libs/curl",
+                    "lib/.libs/libcurl.so",
+                ],
+            }
+
+            mock_gen = MagicMock()
+            mock_gen.generate.return_value = None
+
+            with patch(
+                "spdx_from_adg.AdgSpdxGenerator",
+                return_value=mock_gen,
+            ):
+                result = AdgSpdxStep.generate(
+                    "curl", repo_cfg, paths,
+                )
+
+            # curl binary should have direct_only=True
+            calls = mock_gen.generate.call_args_list
+            curl_call = [
+                c for c in calls
+                if c.kwargs.get("binary_name") == "curl"
+            ]
+            self.assertEqual(len(curl_call), 1)
+            self.assertTrue(
+                curl_call[0].kwargs["direct_only"]
+            )
+            # result is empty because generate returned None
+            self.assertEqual(result, [])
+
+
+# ============================================================
+# main() — adg_files validation loop
+# ============================================================
+
+class TestMainAdgValidation(unittest.TestCase):
+    """Cover line 1400: adg_files validation loop."""
+
+    @patch("analyze.time.time")
+    @patch("analyze.AnalysisPipeline")
+    @patch(
+        "sys.argv",
+        ["analyze.py", "--repo", "curl"],
+    )
+    def test_adg_files_validated(
+        self, mock_cls, mock_time,
+    ):
+        p = _mock_pipeline()
+        mock_cls.return_value = p
+        p.builder.build.return_value = True
+        p.spdx_gen.generate.return_value = (
+            "/tmp/test.spdx.json"
+        )
+        p.adg_spdx.generate.return_value = [
+            "/tmp/a.spdx.json",
+            "/tmp/b.spdx.json",
+        ]
+        mock_time.side_effect = [100.0, 110.0]
+
+        with patch("builtins.print"):
+            analyze.main()
+
+        # adg files should be validated
+        calls = p.spdx_validator.validate.call_args_list
+        validated = [c[0][0] for c in calls]
+        self.assertIn("/tmp/test.spdx.json", validated)
+        self.assertIn("/tmp/a.spdx.json", validated)
+        self.assertIn("/tmp/b.spdx.json", validated)
+
+
 if __name__ == "__main__":
     unittest.main()
