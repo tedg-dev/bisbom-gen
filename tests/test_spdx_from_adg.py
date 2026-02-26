@@ -788,6 +788,95 @@ class TestSpdxEmitterVendored(unittest.TestCase):
         )
         self.assertEqual(len(own), 0)
 
+    def test_custom_vendored_dirs(self):
+        """Custom vendored_dirs override class defaults.
+
+        Nmap-style: the vendored dir IS the library,
+        not a container for multiple libraries.
+        """
+        emitter = SpdxEmitter(
+            repo_name="nmap",
+            repo_version="7.95",
+            distro="Ubuntu 22.04",
+            gcc_version="gcc 11.4.0",
+            binary_name="nmap",
+            vendored_dirs=[
+                "/liblua/", "/libdnet-stripped/",
+                "/nsock/",
+            ],
+        )
+        files = [
+            {"sha1": "a1", "file_path":
+                "/repos/nmap/liblua/lapi.c"},
+            {"sha1": "a2", "file_path":
+                "/repos/nmap/liblua/lapi.h"},
+            {"sha1": "a3", "file_path":
+                "/repos/nmap/libdnet-stripped/src/addr.c"},
+            {"sha1": "a4", "file_path":
+                "/repos/nmap/nsock/src/nsock_core.c"},
+            {"sha1": "a5", "file_path":
+                "/repos/nmap/nmap.cc"},
+        ]
+        vendored, own = (
+            emitter._detect_vendored_groups(files)
+        )
+        self.assertEqual(
+            sorted(vendored.keys()),
+            ["libdnet-stripped", "liblua", "nsock"],
+        )
+        self.assertEqual(len(vendored["liblua"]), 2)
+        self.assertEqual(
+            len(vendored["libdnet-stripped"]), 1,
+        )
+        self.assertEqual(len(vendored["nsock"]), 1)
+        self.assertEqual(len(own), 1)
+        self.assertEqual(
+            own[0]["file_path"],
+            "/repos/nmap/nmap.cc",
+        )
+
+    def test_custom_vendored_dirs_with_subdirs(self):
+        """Files in subdirs of specific vendored dirs
+        still group under the library name."""
+        emitter = SpdxEmitter(
+            repo_name="nmap",
+            repo_version="7.95",
+            distro="Ubuntu 22.04",
+            gcc_version="gcc 11.4.0",
+            binary_name="nmap",
+            vendored_dirs=["/libssh2/"],
+        )
+        files = [
+            {"sha1": "a1", "file_path":
+                "/repos/nmap/libssh2/src/session.c"},
+            {"sha1": "a2", "file_path":
+                "/repos/nmap/libssh2/src/channel.c"},
+            {"sha1": "a3", "file_path":
+                "/repos/nmap/libssh2/include/libssh2.h"},
+        ]
+        vendored, own = (
+            emitter._detect_vendored_groups(files)
+        )
+        self.assertEqual(
+            list(vendored.keys()), ["libssh2"],
+        )
+        self.assertEqual(len(vendored["libssh2"]), 3)
+        self.assertEqual(len(own), 0)
+
+    def test_default_vendored_dirs_unaffected(self):
+        """Without custom vendored_dirs, defaults work."""
+        emitter = self._emitter()
+        files = [
+            {"sha1": "a1", "file_path":
+                "/repos/redis/deps/lua/src/lapi.c"},
+        ]
+        vendored, own = (
+            emitter._detect_vendored_groups(files)
+        )
+        self.assertEqual(
+            list(vendored.keys()), ["lua"],
+        )
+
     def test_emit_creates_vendored_packages(self):
         """Vendored libs become SPDX packages."""
         emitter = self._emitter()

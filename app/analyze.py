@@ -971,6 +971,9 @@ class AdgSpdxStep:
             bom_dir=str(bom_dir),
             repos_dir=repos_dir,
             repo_name=repo_name,
+            vendored_dirs=repo_cfg.get(
+                "vendored_dirs"
+            ),
         )
 
         results = []

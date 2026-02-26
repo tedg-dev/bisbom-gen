@@ -307,6 +307,24 @@ class ComponentResolver:
             }
             components.append(comp)
 
+        # Project-built shared libraries
+        # (e.g. libavcodec.so built by FFmpeg)
+        proj_libs = self._dynamic_libs.get(
+            "project_built_libs", {}
+        )
+        for soname, info in sorted(
+            proj_libs.items()
+        ):
+            name = info.get("name", soname)
+            comp = {
+                "name": name,
+                "source": name,
+                "sonames": [soname],
+                "direct": info.get("direct", True),
+                "project_built": True,
+            }
+            components.append(comp)
+
         return components
 
     def _clean_version(self, version):
@@ -565,6 +583,7 @@ class SpdxEmitter:
         bomtrace_version="unknown",
         bomsh_version="unknown",
         binary_name=None,
+        vendored_dirs=None,
     ):
         self.repo_name = repo_name
         self.repo_version = repo_version
@@ -577,6 +596,12 @@ class SpdxEmitter:
         )
         self._spdx_id_counter = 0
         self._sub_versions = {}
+        if vendored_dirs is not None:
+            self._vendored_dirs = tuple(
+                vendored_dirs
+            )
+        else:
+            self._vendored_dirs = self.VENDORED_DIRS
 
     def _next_spdx_id(self, prefix="Package"):
         """Generate unique SPDX identifier."""
@@ -625,14 +650,22 @@ class SpdxEmitter:
         for art in project_files:
             fp = art["file_path"]
             matched = False
-            for vdir in self.VENDORED_DIRS:
+            for vdir in self._vendored_dirs:
                 idx = fp.find(vdir)
                 if idx < 0:
                     continue
-                # Extract library name: first path
-                # component after the vendored dir
-                rest = fp[idx + len(vdir):]
-                lib = rest.split("/")[0]
+                # Extract library name.
+                # Generic patterns (/deps/, /vendor/):
+                #   lib = first component after the dir
+                # Specific lib dirs (/liblua/):
+                #   lib = the directory name itself
+                if vdir in self.VENDORED_DIRS:
+                    rest = fp[idx + len(vdir):]
+                    lib = rest.split("/")[0]
+                else:
+                    lib = (
+                        vdir.strip("/").split("/")[-1]
+                    )
                 if lib:
                     vendored.setdefault(
                         lib, []
@@ -911,73 +944,101 @@ class SpdxEmitter:
                     else "transitive"
                 )
                 sonames = comp.get("sonames", [])
-                dpkg_pkgs = comp.get(
-                    "dpkg_packages", []
-                )
 
-                dl = (
-                    comp["homepage"]
-                    if comp.get("homepage")
-                    and comp["homepage"]
-                    != "NOASSERTION"
-                    else "NOASSERTION"
-                )
-                pkg = {
-                    "SPDXID": pkg_id,
-                    "name": comp["name"],
-                    "downloadLocation": dl,
-                    "filesAnalyzed": False,
-                    "primaryPackagePurpose":
-                        "LIBRARY",
-                    "externalRefs": [],
-                    "comment": (
-                        f"Dynamically linked "
-                        f"({linkage}). "
-                        f"sonames: "
-                        f"{', '.join(sonames)}. "
-                        f"dpkg: "
-                        f"{', '.join(dpkg_pkgs)}"
-                        f" ({comp.get('architecture', 'amd64')})"
-                    ),
-                }
-
-                # PURL
-                if comp.get("purl"):
-                    pkg["externalRefs"].append({
-                        "referenceCategory":
-                            "PACKAGE-MANAGER",
-                        "referenceType": "purl",
-                        "referenceLocator":
-                            comp["purl"],
-                    })
-
-                # CPE
-                if comp.get("cpe23"):
-                    pkg["externalRefs"].append({
-                        "referenceCategory":
-                            "SECURITY",
-                        "referenceType":
-                            "cpe23Type",
-                        "referenceLocator":
-                            comp["cpe23"],
-                    })
-
-                # Add optional fields only when known
-                if comp.get("version"):
-                    pkg["versionInfo"] = (
-                        comp["version"]
+                if comp.get("project_built"):
+                    # Project-built shared library
+                    # (e.g. libavcodec.so from FFmpeg)
+                    pkg = {
+                        "SPDXID": pkg_id,
+                        "name": comp["name"],
+                        "downloadLocation":
+                            "NOASSERTION",
+                        "filesAnalyzed": False,
+                        "primaryPackagePurpose":
+                            "LIBRARY",
+                        "externalRefs": [],
+                        "comment": (
+                            f"Project-built shared "
+                            f"library ({linkage}). "
+                            f"sonames: "
+                            f"{', '.join(sonames)}"
+                        ),
+                    }
+                    if self.repo_version:
+                        pkg["versionInfo"] = (
+                            self.repo_version
+                        )
+                else:
+                    # System (dpkg) library
+                    dpkg_pkgs = comp.get(
+                        "dpkg_packages", []
                     )
-                supplier = comp.get("supplier", "")
-                if (
-                    supplier
-                    and supplier != "NOASSERTION"
-                ):
-                    pkg["supplier"] = (
-                        f"Organization: {supplier}"
+                    dl = (
+                        comp["homepage"]
+                        if comp.get("homepage")
+                        and comp["homepage"]
+                        != "NOASSERTION"
+                        else "NOASSERTION"
                     )
-                hp = comp.get("homepage", "")
-                if hp and hp != "NOASSERTION":
-                    pkg["homepage"] = hp
+                    pkg = {
+                        "SPDXID": pkg_id,
+                        "name": comp["name"],
+                        "downloadLocation": dl,
+                        "filesAnalyzed": False,
+                        "primaryPackagePurpose":
+                            "LIBRARY",
+                        "externalRefs": [],
+                        "comment": (
+                            f"Dynamically linked "
+                            f"({linkage}). "
+                            f"sonames: "
+                            f"{', '.join(sonames)}. "
+                            f"dpkg: "
+                            f"{', '.join(dpkg_pkgs)}"
+                            f" ({comp.get('architecture', 'amd64')})"
+                        ),
+                    }
+
+                    # PURL
+                    if comp.get("purl"):
+                        pkg["externalRefs"].append({
+                            "referenceCategory":
+                                "PACKAGE-MANAGER",
+                            "referenceType": "purl",
+                            "referenceLocator":
+                                comp["purl"],
+                        })
+
+                    # CPE
+                    if comp.get("cpe23"):
+                        pkg["externalRefs"].append({
+                            "referenceCategory":
+                                "SECURITY",
+                            "referenceType":
+                                "cpe23Type",
+                            "referenceLocator":
+                                comp["cpe23"],
+                        })
+
+                    # Add optional fields
+                    if comp.get("version"):
+                        pkg["versionInfo"] = (
+                            comp["version"]
+                        )
+                    supplier = comp.get(
+                        "supplier", ""
+                    )
+                    if (
+                        supplier
+                        and supplier != "NOASSERTION"
+                    ):
+                        pkg["supplier"] = (
+                            f"Organization: "
+                            f"{supplier}"
+                        )
+                    hp = comp.get("homepage", "")
+                    if hp and hp != "NOASSERTION":
+                        pkg["homepage"] = hp
 
                 doc["packages"].append(pkg)
 
@@ -1171,12 +1232,14 @@ class AdgSpdxGenerator:
         self, bom_dir, repos_dir, repo_name,
         bomtrace_version="unknown",
         bomsh_version="unknown",
+        vendored_dirs=None,
     ):
         self.bom_dir = Path(bom_dir)
         self.repos_dir = Path(repos_dir)
         self.repo_name = repo_name
         self.bomtrace_version = bomtrace_version
         self.bomsh_version = bomsh_version
+        self.vendored_dirs = vendored_dirs
 
     def generate(
         self, output_path,
@@ -1280,6 +1343,7 @@ class AdgSpdxGenerator:
             bomtrace_version=self.bomtrace_version,
             bomsh_version=self.bomsh_version,
             binary_name=bin_name,
+            vendored_dirs=self.vendored_dirs,
         )
 
         doc = emitter.emit(
