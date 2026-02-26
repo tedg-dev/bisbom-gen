@@ -57,14 +57,16 @@ Accepts: repo name (`curl`), owner/repo (`curl/curl`), or full GitHub URL.
 
 ### Currently configured repos
 
-| Repo | Description | Build System |
-|------|-------------|--------------|
-| `curl` | HTTP transfer library and CLI (~170K LoC) | autoconf + make |
-| `ffmpeg` | Multimedia framework (~1.2M LoC, 20+ third-party libs) | custom configure + make |
+| Repo | Description | Build System | Build Time |
+|------|-------------|--------------|------------|
+| `curl` | HTTP transfer library and CLI (~170K LoC) | autoconf + make | ~5 min |
+| `redis` | In-memory data store with 8 vendored libs | plain make | ~3 min |
+| `ffmpeg` | Multimedia framework (~1.2M LoC, 20+ third-party libs) | custom configure + make | ~24 min |
+| `nmap` | Network scanner with 7 vendored libs + 14 dynamic | autoconf + make | ~3.3 min |
 
 ### Recommendations
 
-- **Start with curl** — it's smaller, builds faster, and is a good validation target
+- **Start with curl or nmap** — they build fast and produce rich SBOMs with both vendored and dynamic deps
 - **Test manually first** — enter the container with `docker-compose run --rm omnibor-env bash`, clone the repo, and verify the build works before running `analyze.py`
 - **Review before writing** — always run without `--write` first to verify the generated config
 
@@ -74,15 +76,16 @@ Accepts: repo name (`curl`), owner/repo (`curl/curl`), or full GitHub URL.
 
 Instruments a C/C++ build with `bomtrace3` to capture every compiler/linker invocation, then generates OmniBOR Artifact Dependency Graphs (ADG) and SPDX SBOMs.
 
-### What it does (7 steps)
+### What it does (8 steps)
 
 1. **Clone** — shallow clone of the target repo into `repos/<name>/`
 2. **Syft baseline** — generates a manifest-based SPDX SBOM (package manager metadata only)
-3. **Pre-build** — runs autoreconf, configure (NOT instrumented)
-4. **Instrumented build** — runs `bomtrace3 make` to intercept all compiler/linker calls
-5. **ADG generation** — `bomsh_create_bom.py` processes the raw logfile into OmniBOR ADG
-6. **SPDX generation** — `bomsh_sbom.py` creates SPDX SBOM from ADG data
-7. **Docs** — timestamped build log and runtime metrics written to `docs/<repo>/`
+3. **Dependency check** — validates that required apt packages are installed
+4. **Instrumented build** — runs `bomtrace3 make` to intercept all compiler/linker calls, then `bomsh_create_bom.py` processes the raw logfile into OmniBOR ADG
+5. **OmniBOR SPDX** — `bomsh_sbom.py` creates SPDX SBOM from ADG + Syft, with OmniBOR ExternalRef
+6. **Metadata + dynamic libs** — `collect_metadata.py` resolves system files to dpkg packages; `collect_dynamic_libs.py` identifies per-binary dynamic dependencies via ldd/readelf
+7. **Per-binary ADG SPDX** — `spdx_from_adg.py` generates one SPDX per output binary with vendored (STATIC_LINK), dynamic (DYNAMIC_LINK), and build tool breakdown + interactive HTML visualization
+8. **Validation + docs** — JSON Schema + semantic validation of all SPDX files, binary collection, timestamped build log and runtime metrics
 
 ### Commands
 
@@ -109,8 +112,12 @@ docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
 | Artifact | Path |
 |----------|------|
 | OmniBOR ADG | `output/omnibor/<repo>/` |
+| Component metadata | `output/omnibor/<repo>/metadata/component_metadata.json` |
+| Dynamic libs (per binary) | `output/omnibor/<repo>/metadata/<binary>/dynamic_libs.json` |
 | SPDX SBOM (OmniBOR) | `output/spdx/<repo>/<repo>_omnibor_<timestamp>.spdx.json` |
 | SPDX SBOM (Syft) | `output/spdx/<repo>/<repo>_syft_<timestamp>.spdx.json` |
+| ADG SPDX (per binary) | `output/spdx/<repo>/<binary>_adg.spdx.json` |
+| Visualization (per binary) | `output/spdx/<repo>/<binary>_adg.spdx.html` |
 | Build log | `docs/<repo>/<timestamp>_build.md` |
 | Runtime metrics | `docs/runtime/<timestamp>_<repo>_runtime.md` |
 

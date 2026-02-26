@@ -13,12 +13,16 @@ the structure of intermediate artifacts, and the final SPDX output.
 2. [Stage 1: Build Interception with bomtrace3](#2-stage-1-build-interception-with-bomtrace3)
 3. [Stage 2: ADG Generation with bomsh_create_bom.py](#3-stage-2-adg-generation-with-bomsh_create_bompy)
 4. [Stage 3: SPDX Generation with bomsh_sbom.py](#4-stage-3-spdx-generation-with-bomsh_sbompy)
-5. [Stage 4: SPDX Validation](#5-stage-4-spdx-validation)
-6. [Data Flow Diagram](#6-data-flow-diagram)
-7. [Anatomy of the Final SPDX Document](#7-anatomy-of-the-final-spdx-document)
-8. [What Each Tool Contributes](#8-what-each-tool-contributes)
-9. [Key Files and Paths](#9-key-files-and-paths)
-10. [Comparison: OmniBOR SPDX vs. Syft-Only SPDX](#10-comparison-omnibor-spdx-vs-syft-only-spdx)
+5. [Stage 4: Metadata Collection](#5-stage-4-metadata-collection)
+6. [Stage 5: Per-Binary ADG SPDX Generation](#6-stage-5-per-binary-adg-spdx-generation)
+7. [Stage 6: SPDX Validation](#7-stage-6-spdx-validation)
+8. [Stage 7: Visualization](#8-stage-7-visualization)
+9. [Data Flow Diagram](#9-data-flow-diagram)
+10. [Anatomy of the Final SPDX Document](#10-anatomy-of-the-final-spdx-document)
+11. [What Each Tool Contributes](#11-what-each-tool-contributes)
+12. [Key Files and Paths](#12-key-files-and-paths)
+13. [Comparison: OmniBOR SPDX vs. Syft-Only SPDX](#13-comparison-omnibor-spdx-vs-syft-only-spdx)
+14. [Configured Repositories](#14-configured-repositories)
 
 ---
 
@@ -34,7 +38,7 @@ Source Code
     │
     ▼
 ┌──────────────────────────────┐
-│  bomtrace3 make -j$(nproc)   │  ← Build interception via ptrace
+│  bomtrace3 make -j$(nproc)   │  ← Step 4: Build interception via ptrace
 │  (instrumented build)        │
 └──────────────┬───────────────┘
                │  raw logfile (every compiler/linker invocation)
@@ -44,17 +48,34 @@ Source Code
 │  -r <raw_logfile>            │
 │  -b <bom_dir>                │
 └──────────────┬───────────────┘
-               │  OmniBOR ADG documents + gitoid→bom_id mapping
+               │  OmniBOR ADG documents + treedb + gitoid mappings
                ▼
 ┌──────────────────────────────┐
-│  bomsh_sbom.py               │  ← Generates SPDX from ADG + Syft
+│  bomsh_sbom.py               │  ← Step 5a: SPDX from ADG + Syft
 │  -b <bom_dir>                │
 │  -o <output.spdx.json>       │
 └──────────────┬───────────────┘
-               │  SPDX 2.3 JSON document
+               │
                ▼
 ┌──────────────────────────────┐
-│  SpdxValidator               │  ← JSON Schema + semantic validation
+│  MetadataCollector            │  ← Step 5b: dpkg + ldd metadata
+│  collect_metadata.py (once)  │
+│  collect_dynamic_libs.py     │
+│  (per binary)                │
+└──────────────┬───────────────┘
+               │  component_metadata.json + dynamic_libs.json
+               ▼
+┌──────────────────────────────┐
+│  AdgSpdxStep                 │  ← Step 5c: Per-binary SPDX from ADG
+│  spdx_from_adg.py            │
+│  (vendored detection,        │
+│   version extraction,        │
+│   dynamic lib resolution)    │
+└──────────────┬───────────────┘
+               │  <binary>_adg.spdx.json + <binary>_adg.spdx.html
+               ▼
+┌──────────────────────────────┐
+│  SpdxValidator               │  ← Step 6: JSON Schema + semantic
 │  (jsonschema + spdx-tools)   │
 └──────────────────────────────┘
 ```
@@ -329,10 +350,114 @@ else in the SPDX comes from Syft's standard scanning.
 
 ---
 
-## 5. Stage 4: SPDX Validation
+## 5. Stage 4: Metadata Collection
 
-After generation, the SPDX document is validated by the `SpdxValidator` class in
-`analyze.py` using two independent checks:
+After the build, `MetadataCollector` (in `analyze.py`) runs two collection scripts
+to gather dpkg package metadata and dynamic library information needed for rich
+SPDX generation.
+
+### collect_metadata.py (once per repo)
+
+Reads the bomsh treedb and resolves every system file (libraries, headers, CRT
+objects) to its dpkg package:
+
+1. Iterates all treedb entries, filters system files (not under `repos/`)
+2. Resolves canonical paths (`os.path.realpath` to handle `/../`)
+3. Runs `dpkg -S <path>` for each file to find the owning package
+4. Runs `dpkg-query --showformat` to extract full metadata: name, version,
+   source package, architecture, maintainer, homepage, section
+5. Writes `component_metadata.json` to the metadata directory
+
+**Output:** `output/omnibor/<repo>/metadata/component_metadata.json`
+
+### collect_dynamic_libs.py (per binary)
+
+For each output binary, identifies dynamically linked libraries:
+
+1. Runs `ldd <binary>` to get the full dependency tree (direct + transitive)
+2. Runs `readelf -d <binary>` to identify NEEDED entries (direct deps only)
+3. For each library found by ldd:
+   - Marks as `direct: true/false` based on NEEDED set
+   - Resolves the `.so` path to its dpkg package via `dpkg -S`
+   - Extracts full dpkg metadata (same as collect_metadata.py)
+4. Detects **project-built shared objects** — NEEDED entries that ldd reports
+   as "not found" (e.g., `libavcodec.so.62` built by FFmpeg itself)
+5. Writes `dynamic_libs.json` to a per-binary metadata directory
+
+**Output:** `output/omnibor/<repo>/metadata/<binary>/dynamic_libs.json`
+
+### Idempotency
+
+Both scripts skip collection if their output files already exist. Delete the
+output files to force re-collection.
+
+---
+
+## 6. Stage 5: Per-Binary ADG SPDX Generation
+
+The `AdgSpdxStep` class orchestrates `spdx_from_adg.py` to generate one SPDX
+2.3 JSON document per output binary. This is the most sophisticated stage of
+the pipeline, producing SBOMs with rich component breakdown.
+
+### Architecture
+
+```
+AdgSpdxStep.generate()
+  └─► AdgSpdxGenerator (per binary)
+        ├─► AdgParser         — parse treedb, classify artifacts
+        ├─► ComponentResolver — load dpkg metadata + dynamic libs
+        ├─► SpdxEmitter       — detect vendored libs, emit SPDX
+        │     ├─► _detect_vendored_groups()
+        │     ├─► _split_sub_components()
+        │     └─► VendoredVersionDetector
+        └─► generate_html()   — D3.js visualization
+```
+
+### Vendored Directory Detection
+
+Source files are grouped into vendored libraries by matching path patterns.
+Two modes:
+
+- **Generic patterns** (`/deps/`, `/vendor/`, `/third_party/`, `/thirdparty/`,
+  `/external/`, `/contrib/`): library name = first path component after the
+  pattern. E.g., `/deps/lua/src/lapi.c` → library `lua`
+- **Per-repo specific patterns** (from `vendored_dirs` in `config.yaml`):
+  library name = the directory name from the pattern itself. E.g.,
+  `/liblua/src/lapi.c` with pattern `/liblua/` → library `liblua`
+
+### Vendored Version Detection
+
+`VendoredVersionDetector` scans vendored source directories for version
+information using multiple strategies:
+
+1. **VERSION files** — `VERSION`, `version.txt`, etc.
+2. **#define macros** — `#define LIB_VERSION "1.2.3"`, `#define MAJOR 1`
+3. **Header comments** — `/* libfoo v1.2.3 */`
+4. **.pc.in files** — `Version: @VERSION@` patterns
+
+### SPDX Relationship Types
+
+Each component becomes an SPDX package with a relationship to the root binary:
+
+| Relationship | Meaning | Source |
+|---|---|---|
+| `STATIC_LINK` | Vendored/compiled-in library | Vendored dir detection |
+| `DYNAMIC_LINK` | Runtime shared library | ldd + dpkg metadata |
+| `BUILD_TOOL_OF` | Compiler/toolchain | gcc version from build |
+| `CONTAINS` | Source file belongs to package | Treedb artifact classification |
+
+### direct_only Mode
+
+When a project produces both executables and shared libraries (e.g., curl +
+libcurl.so), the executable's SBOM uses `direct_only=True` to avoid duplicating
+transitive dependencies that belong to the shared library's SBOM.
+
+---
+
+## 7. Stage 6: SPDX Validation
+
+After generation, all SPDX documents (both bomsh_sbom.py output and ADG SPDX
+per-binary outputs) are validated by the `SpdxValidator` class using two checks:
 
 ### JSON Schema validation
 
@@ -358,7 +483,24 @@ phase is skipped with a warning rather than failing the pipeline.
 
 ---
 
-## 6. Data Flow Diagram
+## 8. Stage 7: Visualization
+
+Every ADG SPDX output automatically generates an interactive HTML dependency
+graph using `spdx_visualize.py`:
+
+- **D3.js force-directed layout** — packages are nodes, relationships are edges
+- **Color-coded by type**: purple (root), teal (STATIC_LINK), red (DYNAMIC_LINK),
+  yellow (BUILD_TOOL_OF)
+- **Node size** scales by source file count
+- **Interactive**: drag nodes, zoom/pan, hover for tooltips (version, purpose,
+  file count, comments)
+- **Standalone HTML** — no server needed, opens in any browser
+
+Output: `output/spdx/<repo>/<binary>_adg.spdx.html`
+
+---
+
+## 9. Data Flow Diagram
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
@@ -421,7 +563,7 @@ phase is skipped with a warning rather than failing the pipeline.
 
 ---
 
-## 7. Anatomy of the Final SPDX Document
+## 10. Anatomy of the Final SPDX Document
 
 The final SPDX 2.3 JSON document has this structure (simplified):
 
@@ -504,7 +646,7 @@ cryptographic build provenance stored in the OmniBOR ADG.
 
 ---
 
-## 8. What Each Tool Contributes
+## 11. What Each Tool Contributes
 
 | Tool | Role | Data Produced |
 |------|------|---------------|
@@ -512,6 +654,10 @@ cryptographic build provenance stored in the OmniBOR ADG.
 | **bomsh_create_bom.py** | ADG generation | OmniBOR document files (the ADG) + `bomsh_omnibor_doc_mapping` (gitoid→bom_id) |
 | **Syft** (called by bomsh_sbom.py) | Baseline SPDX | Standard SPDX 2.3 JSON with package metadata, checksums, relationships |
 | **bomsh_sbom.py** | SPDX enrichment | Injects OmniBOR `ExternalRef` (PERSISTENT-ID/gitoid) into Syft's SPDX |
+| **collect_metadata.py** | dpkg resolution | `component_metadata.json` — system file → dpkg package mapping |
+| **collect_dynamic_libs.py** | Dynamic lib analysis | `dynamic_libs.json` — per-binary ldd/readelf + dpkg metadata |
+| **spdx_from_adg.py** | ADG SPDX generation | Per-binary SPDX with vendored/dynamic/build-tool breakdown |
+| **spdx_visualize.py** | Visualization | Interactive HTML dependency graph (D3.js) |
 | **SpdxValidator** | Validation | Confirms SPDX structural and semantic correctness |
 
 ### What is NOT in the SPDX
@@ -524,7 +670,7 @@ cryptographic build provenance stored in the OmniBOR ADG.
 
 ---
 
-## 9. Key Files and Paths
+## 12. Key Files and Paths
 
 All paths are relative to `/workspace` inside the Docker container, which maps to
 `/root/omnibor-analysis` on the droplet.
@@ -541,7 +687,7 @@ All paths are relative to `/workspace` inside the Docker container, which maps t
 
 ---
 
-## 10. Comparison: OmniBOR SPDX vs. Syft-Only SPDX
+## 13. Comparison: OmniBOR SPDX vs. Syft-Only SPDX
 
 The pipeline generates **two** SPDX documents for comparison:
 
@@ -557,6 +703,17 @@ The pipeline generates **two** SPDX documents for comparison:
 
 The OmniBOR-enriched SPDX is a strict superset of the Syft-only SPDX. The only
 addition is the `PERSISTENT-ID` / `gitoid` ExternalRef that links to the ADG.
+
+---
+
+## 14. Configured Repositories
+
+| Repo | Binaries | Vendored Libs | Dynamic Libs | Build Time | Notes |
+|---|---|---|---|---|---|
+| **curl** | curl, libcurl.so | — (uses /deps/) | ~10 | ~5 min | Reference target; autoconf + make |
+| **redis** | redis-server | 8 (jemalloc, lua, hiredis, ...) | ~5 | ~3 min | Good vendored lib test case |
+| **ffmpeg** | ffmpeg, ffprobe, libavcodec.so, ... | — | 20+ | ~24 min | Large build; --enable-shared to avoid bomtrace3 ar overflow |
+| **nmap** | nmap, ncat, nping | 7 (liblua, libssh2, libdnet, ...) | 14 | ~3.3 min | Uses vendored_dirs config for top-level lib detection |
 
 ---
 
