@@ -10,10 +10,10 @@ Run this workflow when opening the omnibor-analysis workspace.
 
 **This step is non-negotiable. Do it before ANY other work.**
 
-Read every file in `.windsurf/rules/` to refresh all project rules:
+Read every file in `.windsurf/rules/` (including subdirectories) to refresh all project rules:
 
 ```bash
-for f in .windsurf/rules/*.md; do echo "=== $f ==="; cat "$f"; echo; done
+find .windsurf/rules/ -name "*.md" | sort | while read f; do echo "=== $f ==="; cat "$f"; echo; done
 ```
 
 After reading, confirm to the user which rules you've loaded and acknowledge
@@ -26,6 +26,7 @@ PR-first workflow, no direct commits to main).
 
 All local development uses `.venv/`. Verify it exists and has dependencies:
 
+// turbo
 ```bash
 .venv/bin/python3 --version && .venv/bin/pip check 2>&1 | tail -3
 ```
@@ -35,48 +36,72 @@ If missing, create it:
 python3 -m venv .venv && .venv/bin/pip install --upgrade pip && .venv/bin/pip install -r requirements.txt
 ```
 
-## 2. Verify system CLI tools
+## 2. Verify key project files
 
+// turbo
 ```bash
-which gh doctl rsync ssh 2>&1
+ls -la app/config.yaml app/analyze.py app/compare.py app/spdx_from_adg.py app/spdx_visualize.py docker/Dockerfile docker/docker-compose.yml
 ```
 
-If `doctl` is missing: `brew install doctl && doctl auth init`
+## 3. Run quick test check
 
-## 3. Verify SSH access to DigitalOcean build droplet
-
-All bomtrace3 instrumented builds run on a remote DigitalOcean droplet
-(native x86_64 Linux). Local Docker is NOT needed.
-
+// turbo
 ```bash
-ssh omnibor-build "uname -m && docker --version" 2>/dev/null || echo "Droplet is NOT reachable — it may be powered off"
+.venv/bin/python3 -m pytest tests/ -x -q 2>&1 | tail -5
 ```
 
-If the droplet is powered off, remind the user to start it from the
-DigitalOcean dashboard (cloud.digitalocean.com → Droplets → omnibor-build → Power On).
+## 4. Check infrastructure profile
 
-SSH config is in `~/.ssh/config` under host `omnibor-build` (IP: 137.184.178.186).
+Check if the user has set up their build host profile:
 
-## 4. Verify key project files
-
+// turbo
 ```bash
-ls -la app/config.yaml app/analyze.py app/compare.py docker/Dockerfile docker/docker-compose.yml
+if [ -f .windsurf/rules/infrastructure/active-profile.md ]; then
+  echo "=== Active Infrastructure Profile ==="
+  head -20 .windsurf/rules/infrastructure/active-profile.md
+else
+  echo "No infrastructure profile found."
+  echo "Set one up by copying a template:"
+  echo "  cp .windsurf/rules/infrastructure/templates/digitalocean.md .windsurf/rules/infrastructure/active-profile.md"
+  echo "  cp .windsurf/rules/infrastructure/templates/aws-ec2.md .windsurf/rules/infrastructure/active-profile.md"
+  echo "  cp .windsurf/rules/infrastructure/templates/local-linux.md .windsurf/rules/infrastructure/active-profile.md"
+  echo "Then edit active-profile.md with your actual values."
+fi
 ```
 
-## 5. Check which repos are cloned (on droplet)
+## 5. Check Docker availability
+
+Check if Docker is available (locally or remotely):
 
 ```bash
-ssh omnibor-build "ls -d /root/omnibor-analysis/repos/*/ 2>/dev/null || echo 'No repos cloned yet'"
+docker --version 2>/dev/null || echo "Docker not available locally — you may need a remote Linux x86_64 host"
 ```
 
-## 6. Check for existing output artifacts (on droplet)
+If Docker is available locally:
+```bash
+docker-compose -f docker/docker-compose.yml run --rm omnibor-env bomtrace3 --version 2>/dev/null || echo "Container image not built yet — run /docker-build workflow"
+```
+
+## 6. Check for existing output artifacts
 
 ```bash
-ssh omnibor-build "find /root/omnibor-analysis/output/ -name '*.spdx.json' -o -name '*.sha1' 2>/dev/null | head -20 || echo 'No output artifacts yet'"
+find output/ -name "*.spdx.json" -o -name "*.spdx.html" 2>/dev/null | head -20 || echo "No output artifacts yet"
 ```
 
-## 7. Check for existing docs/reports (local)
+## 7. Check for existing docs/reports
 
+// turbo
 ```bash
 find docs/ -name "*.md" -not -name ".gitkeep" 2>/dev/null | sort | tail -10 || echo "No reports yet"
 ```
+
+## 8. Report status to user
+
+Summarize:
+- Python venv status
+- Test suite status (count + coverage)
+- Infrastructure profile (provider, host, connection)
+- Docker availability
+- Available repos (from config.yaml)
+- Existing output artifacts
+- Available workflows: `/add-repo`, `/run-analysis`, `/run-comparison`, `/docker-build`

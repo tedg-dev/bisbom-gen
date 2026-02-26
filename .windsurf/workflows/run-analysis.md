@@ -4,85 +4,102 @@ description: Run OmniBOR build interception analysis on a target repository
 
 # Run Analysis
 
-Instrument a C/C++ build with bomtrace3 on the DigitalOcean droplet and
-download results to local Mac.
+Instrument a C/C++ build with bomtrace3 and generate SPDX SBOMs with
+dependency visualization.
 
 ## Prerequisites
 
-- DigitalOcean droplet must be running (`ssh omnibor-build` must work)
-- Docker image must be built on the droplet (run `/docker-build` workflow first)
-- Target repo must be defined in `app/config.yaml`
-- Latest code must be pushed and pulled on the droplet
+- Docker image must be built (run `/docker-build` workflow first)
+- Target repo must be defined in `app/config.yaml` (run `/add-repo` to add new ones)
+- Must be running on a Linux x86_64 host (local or remote)
+- Infrastructure profile must be set up (see `.windsurf/rules/infrastructure/active-profile.md`)
 
-## 1. Ensure droplet has latest code
+## 0. Read infrastructure profile
 
-```bash
-ssh omnibor-build "cd /root/omnibor-analysis && git pull origin main"
-```
-
-## 2. Run full analysis on droplet
-
-For curl:
+Before running analysis, read the active profile to get SSH alias, repo path, and
+sync commands for the user's build host:
 
 ```bash
-ssh omnibor-build "cd /root/omnibor-analysis && docker-compose -f docker/docker-compose.yml run --rm omnibor-env python3 /workspace/app/analyze.py --repo curl"
+cat .windsurf/rules/infrastructure/active-profile.md
 ```
 
-For FFmpeg:
+Use the **SSH alias** and **Repo path on host** from the profile in all commands below.
+If **Provider** is `Local`, skip SSH prefixes and run Docker commands directly.
+
+## 1. Run full analysis
+
+**Local Docker host (Provider: Local):**
 
 ```bash
-ssh omnibor-build "cd /root/omnibor-analysis && docker-compose -f docker/docker-compose.yml run --rm omnibor-env python3 /workspace/app/analyze.py --repo ffmpeg"
+docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
+  python3 /workspace/app/analyze.py --repo <REPO_NAME>
 ```
 
-## 3. Re-run without cloning (repo already exists)
+**Remote host (Provider: DigitalOcean, AWS, etc.):**
+
+Use the SSH alias and repo path from the active profile:
 
 ```bash
-ssh omnibor-build "cd /root/omnibor-analysis && docker-compose -f docker/docker-compose.yml run --rm omnibor-env python3 /workspace/app/analyze.py --repo curl --skip-clone"
+ssh <SSH_ALIAS> "cd <REPO_PATH> && git pull origin main && docker-compose -f docker/docker-compose.yml run --rm omnibor-env python3 /workspace/app/analyze.py --repo <REPO_NAME>"
 ```
 
-## 4. Generate only a Syft manifest SBOM (no build)
+## 2. Re-run without cloning (repo already exists)
 
 ```bash
-ssh omnibor-build "cd /root/omnibor-analysis && docker-compose -f docker/docker-compose.yml run --rm omnibor-env python3 /workspace/app/analyze.py --repo curl --syft-only"
+docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
+  python3 /workspace/app/analyze.py --repo <REPO_NAME> --skip-clone
 ```
 
-## 5. Download output to local Mac
-
-After analysis completes, sync the output and docs directories back:
+## 3. Generate only a Syft manifest SBOM (no build)
 
 ```bash
-rsync -avz omnibor-build:/root/omnibor-analysis/output/ output/
-rsync -avz omnibor-build:/root/omnibor-analysis/docs/ docs/
+docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
+  python3 /workspace/app/analyze.py --repo <REPO_NAME> --syft-only
 ```
 
-This downloads:
+## 4. List available repos
 
-- `output/binaries/<repo>/<timestamp>/` — compiled binaries (curl, libcurl.so, etc.)
-- `output/omnibor/<repo>/` — OmniBOR ADG documents
-- `output/spdx/<repo>/` — SPDX SBOMs (OmniBOR + Syft)
-- `docs/<repo>/` — build logs
-- `docs/runtime/` — runtime metrics
+```bash
+docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
+  python3 /workspace/app/analyze.py --list
+```
 
-## What happens during analysis
+## 5. Download output from remote host (if applicable)
+
+If running on a remote host, use the sync commands from your active profile.
+General pattern:
+
+```bash
+rsync -avz <SSH_ALIAS>:<REPO_PATH>/output/ output/
+rsync -avz <SSH_ALIAS>:<REPO_PATH>/docs/ docs/
+```
+
+See `.windsurf/rules/infrastructure/active-profile.md` for your exact commands.
+
+## What happens during analysis (8 steps)
 
 1. **Clone** — shallow clone of the target repo
 2. **Syft baseline** — manifest-based SPDX SBOM for comparison
-3. **Validate deps** — checks `apt_deps` are installed
+3. **Validate deps** — checks `apt_deps` are installed in the container
 4. **Instrumented build** — `bomtrace3 make` intercepts compiler/linker calls
 5a. **SPDX generation (bomsh)** — `bomsh_sbom.py` creates SPDX SBOM from ADG data
-5b. **SPDX generation (ADG)** — per-binary SPDX with vendored version detection via `spdx_from_adg.py`
+5b. **Metadata collection** — `collect_metadata.py` resolves system files to dpkg packages; `collect_dynamic_libs.py` identifies dynamic libs per binary
+5c. **ADG SPDX generation** — per-binary SPDX with vendored detection, version extraction, dynamic lib resolution + HTML visualization
 6. **SPDX validation** — JSON Schema + semantic validation of all generated SBOMs
 7. **Binary collection** — copies `output_binaries` to `output/binaries/<repo>/`
 8. **Docs** — timestamped build log and runtime metrics
 
-## Output locations (on droplet, mirrored locally after rsync)
+## Output locations
 
 | Artifact | Path |
 |----------|------|
-| Output binaries | `output/binaries/<repo>/<ts>/` |
 | OmniBOR ADG | `output/omnibor/<repo>/` |
+| Component metadata | `output/omnibor/<repo>/metadata/component_metadata.json` |
+| Dynamic libs (per binary) | `output/omnibor/<repo>/metadata/<binary>/dynamic_libs.json` |
 | SPDX SBOM (OmniBOR) | `output/spdx/<repo>/<repo>_omnibor_<ts>.spdx.json` |
-| SPDX SBOM (ADG) | `output/spdx/<repo>/<binary>_adg.spdx.json` |
+| SPDX SBOM (ADG, per binary) | `output/spdx/<repo>/<binary>_adg.spdx.json` |
+| Visualization (per binary) | `output/spdx/<repo>/<binary>_adg.spdx.html` |
 | SPDX SBOM (Syft) | `output/spdx/<repo>/<repo>_syft_<ts>.spdx.json` |
+| Output binaries | `output/binaries/<repo>/<ts>/` |
 | Build log | `docs/<repo>/<ts>_build.md` |
 | Runtime metrics | `docs/runtime/<ts>_<repo>_runtime.md` |
