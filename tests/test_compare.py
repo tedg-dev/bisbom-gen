@@ -500,7 +500,12 @@ class TestMainFullRun(unittest.TestCase):
                     "paths": {
                         "docs_dir": tmpdir,
                         "output_dir": tmpdir,
-                    }
+                    },
+                    "repos": {
+                        "curl": {
+                            "language": "c-cpp",
+                        },
+                    },
                 },
             ):
                 with patch("builtins.print"):
@@ -546,7 +551,12 @@ class TestMainAutoDiscover(unittest.TestCase):
                     "paths": {
                         "docs_dir": tmpdir,
                         "output_dir": tmpdir,
-                    }
+                    },
+                    "repos": {
+                        "curl": {
+                            "language": "c-cpp",
+                        },
+                    },
                 },
             ):
                 with patch("builtins.print"):

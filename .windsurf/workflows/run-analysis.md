@@ -86,23 +86,24 @@ Never report analysis as complete until both syncs succeed.
 5b. **Metadata collection** — `collect_metadata.py` resolves system files to dpkg packages; `collect_dynamic_libs.py` identifies dynamic libs per binary
 5c. **ADG SPDX generation** — per-binary SPDX with vendored detection, version extraction, dynamic lib resolution + HTML visualization
 6. **SPDX validation** — JSON Schema + semantic validation of all generated SBOMs
-7. **Binary collection** — copies `output_binaries` to `output/binaries/<repo>/`
+7. **Binary collection** — copies `output_binaries` to `output/binaries/<lang>/<repo>/`
 8. **Docs** — timestamped build log and runtime metrics
 
 ## Output locations
 
-All output uses a consistent `{category}/{repo}/{ts}/` folder structure.
+All output uses a consistent `{category}/{lang}/{repo}/{ts}/` folder structure.
+The `<lang>` comes from the repo's `language` field in config.yaml (e.g. `c-cpp`, `go`).
 The `<ts>` timestamp is generated once per run and shared across all output types.
 
 | Artifact | Path |
 |----------|------|
-| OmniBOR ADG | `output/omnibor/<repo>/<ts>/` |
-| Component metadata | `output/omnibor/<repo>/<ts>/metadata/component_metadata.json` |
-| Dynamic libs (per binary) | `output/omnibor/<repo>/<ts>/metadata/<binary>/dynamic_libs.json` |
-| SPDX SBOM (OmniBOR) | `output/spdx/<repo>/<ts>/<repo>_omnibor.spdx.json` |
-| SPDX SBOM (ADG, per binary) | `output/spdx/<repo>/<ts>/<binary>_adg.spdx.json` |
-| Visualization (per binary) | `output/spdx/<repo>/<ts>/<binary>_adg.spdx.html` |
-| SPDX SBOM (Syft) | `output/spdx/<repo>/<ts>/<repo>_syft.spdx.json` |
-| Output binaries | `output/binaries/<repo>/<ts>/` |
-| Build log | `docs/<repo>/<ts>/build.md` |
-| Runtime metrics | `docs/runtime/<repo>/<ts>/runtime.md` |
+| OmniBOR ADG | `output/omnibor/<lang>/<repo>/<ts>/` |
+| Component metadata | `output/omnibor/<lang>/<repo>/<ts>/metadata/component_metadata.json` |
+| Dynamic libs (per binary) | `output/omnibor/<lang>/<repo>/<ts>/metadata/<binary>/dynamic_libs.json` |
+| SPDX SBOM (OmniBOR) | `output/spdx/<lang>/<repo>/<ts>/<repo>_omnibor.spdx.json` |
+| SPDX SBOM (ADG, per binary) | `output/spdx/<lang>/<repo>/<ts>/<binary>_adg.spdx.json` |
+| Visualization (per binary) | `output/spdx/<lang>/<repo>/<ts>/<binary>_adg.spdx.html` |
+| SPDX SBOM (Syft) | `output/spdx/<lang>/<repo>/<ts>/<repo>_syft.spdx.json` |
+| Output binaries | `output/binaries/<lang>/<repo>/<ts>/` |
+| Build log | `docs/<lang>/<repo>/<ts>/build.md` |
+| Runtime metrics | `docs/runtime/<lang>/<repo>/<ts>/runtime.md` |

@@ -28,9 +28,32 @@ If the active profile shows **Provider: Local**, skip this reminder (no cost).
 - Stopping the VM preserves disk state; destroying it saves all costs
 - Always verify no analysis is in progress before stopping
 
-## Where to Find Shutdown Commands
+## AWS EC2 Quick Reference
 
-The user's specific shutdown commands are in:
+The current build host is AWS EC2. Requires a valid AWS session (`duo-sso`
+re-auth every 1 hour, profile `ted-admin`).
+
+```bash
+# Check status
+aws ec2 describe-instances --profile ted-admin \
+  --instance-ids <INSTANCE_ID> \
+  --query 'Reservations[].Instances[].{State:State.Name,IP:PublicIpAddress}' \
+  --output table --no-cli-pager
+
+# Power off
+aws ec2 stop-instances --profile ted-admin \
+  --instance-ids <INSTANCE_ID> --no-cli-pager
+
+# Power on
+aws ec2 start-instances --profile ted-admin \
+  --instance-ids <INSTANCE_ID> --no-cli-pager
+```
+
+Replace `<INSTANCE_ID>` with the value from your active infrastructure profile.
+
+## Where to Find Full Details
+
+The user's specific instance ID, IP, SSH alias, and shutdown commands are in:
 
 ```
 .windsurf/rules/infrastructure/active-profile.md → Power Management section
@@ -39,6 +62,6 @@ The user's specific shutdown commands are in:
 If that file doesn't exist, remind the user to set one up:
 
 ```
-cp .windsurf/rules/infrastructure/templates/<provider>.md \
+cp .windsurf/rules/infrastructure/templates/aws-ec2.md \
    .windsurf/rules/infrastructure/active-profile.md
 ```

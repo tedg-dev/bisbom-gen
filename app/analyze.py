@@ -22,7 +22,7 @@ Classes:
     - SpdxGenerator: generates SPDX SBOM from OmniBOR data
     - SpdxValidator: validates SPDX v2.3 (schema + semantic)
     - SyftGenerator: generates baseline manifest SBOM via Syft
-    - BinaryCollector: copies output binaries to output/binaries/<repo>/
+    - BinaryCollector: copies output binaries to output/binaries/<lang>/<repo>/
     - DocWriter: writes build logs and runtime metrics
     - AnalysisPipeline: facade orchestrating the full workflow
 """
@@ -55,6 +55,15 @@ def load_config(config_path=None):
 def timestamp():
     """Return current timestamp in configured format."""
     return datetime.now().strftime("%Y-%m-%d_%H%M")
+
+
+def lang_subdir(repo_cfg):
+    """Return the language subfolder name from repo config.
+
+    Used to organize output by language, e.g. c-cpp, go.
+    Falls back to 'unknown' if not specified.
+    """
+    return repo_cfg.get("language", "unknown")
 
 
 # ============================================================
@@ -207,9 +216,10 @@ class BomtraceBuilder:
         repo_dir = (
             Path(paths_cfg["repos_dir"]) / repo_name
         )
+        lang = lang_subdir(repo_cfg)
         bom_dir = (
             Path(paths_cfg["output_dir"])
-            / "omnibor" / repo_name / ts
+            / "omnibor" / lang / repo_name / ts
         )
         tracer = omnibor_cfg["tracer"]
         raw_logfile = omnibor_cfg["raw_logfile"]
@@ -581,13 +591,14 @@ class SpdxGenerator:
         rename the first to our standard naming.
         """
         ts = run_ts or timestamp()
+        lang = lang_subdir(repo_cfg)
         bom_dir = (
             Path(paths_cfg["output_dir"])
-            / "omnibor" / repo_name / ts
+            / "omnibor" / lang / repo_name / ts
         )
         spdx_dir = (
             Path(paths_cfg["output_dir"])
-            / "spdx" / repo_name / ts
+            / "spdx" / lang / repo_name / ts
         )
         spdx_dir.mkdir(parents=True, exist_ok=True)
 
@@ -897,16 +908,17 @@ class SyftGenerator:
     def __init__(self, runner=None):
         self.runner = runner or CommandRunner()
 
-    def generate(self, repo_name, paths_cfg,
-                 run_ts=None):
+    def generate(self, repo_name, repo_cfg,
+                 paths_cfg, run_ts=None):
         """Generate Syft SBOM. Returns output file path."""
         ts = run_ts or timestamp()
+        lang = lang_subdir(repo_cfg)
         repo_dir = (
             Path(paths_cfg["repos_dir"]) / repo_name
         )
         spdx_dir = (
             Path(paths_cfg["output_dir"])
-            / "spdx" / repo_name / ts
+            / "spdx" / lang / repo_name / ts
         )
         spdx_dir.mkdir(parents=True, exist_ok=True)
 
@@ -960,9 +972,10 @@ class MetadataCollector:
         was created successfully.
         """
         ts = run_ts or timestamp()
+        lang = lang_subdir(repo_cfg)
         bom_dir = (
             Path(paths_cfg["output_dir"])
-            / "omnibor" / repo_name / ts
+            / "omnibor" / lang / repo_name / ts
         )
         meta_dir = bom_dir / "metadata"
         repos_dir = paths_cfg["repos_dir"]
@@ -1080,14 +1093,15 @@ class AdgSpdxStep:
         from spdx_from_adg import AdgSpdxGenerator
 
         ts = run_ts or timestamp()
+        lang = lang_subdir(repo_cfg)
         bom_dir = (
             Path(paths_cfg["output_dir"])
-            / "omnibor" / repo_name / ts
+            / "omnibor" / lang / repo_name / ts
         )
         repos_dir = paths_cfg["repos_dir"]
         spdx_dir = (
             Path(paths_cfg["output_dir"])
-            / "spdx" / repo_name / ts
+            / "spdx" / lang / repo_name / ts
         )
         spdx_dir.mkdir(parents=True, exist_ok=True)
 
@@ -1161,7 +1175,7 @@ class AdgSpdxStep:
 
 class BinaryCollector:
     """Copies output binaries from the build tree into
-    output/binaries/<repo>/<timestamp>/ so each run is
+    output/binaries/<lang>/<repo>/<timestamp>/ so each run is
     preserved in a datetime-stamped folder.
 
     Uses the ``output_binaries`` list from config.yaml,
@@ -1191,9 +1205,10 @@ class BinaryCollector:
         repo_dir = (
             Path(paths_cfg["repos_dir"]) / repo_name
         )
+        lang = lang_subdir(repo_cfg)
         out_dir = (
             Path(paths_cfg["output_dir"])
-            / "binaries" / repo_name / ts
+            / "binaries" / lang / repo_name / ts
         )
         out_dir.mkdir(parents=True, exist_ok=True)
 
@@ -1240,11 +1255,12 @@ class DocWriter:
         paths_cfg, success, duration_sec,
         run_ts=None,
     ):
-        """Write build log to docs/<repo>/<ts>/."""
+        """Write build log to docs/<lang>/<repo>/<ts>/."""
         ts = run_ts or timestamp()
+        lang = lang_subdir(repo_cfg)
         docs_dir = (
             Path(paths_cfg["docs_dir"])
-            / repo_name / ts
+            / lang / repo_name / ts
         )
         docs_dir.mkdir(parents=True, exist_ok=True)
         doc_path = docs_dir / "build.md"
@@ -1292,15 +1308,16 @@ class DocWriter:
 
     @staticmethod
     def write_runtime_doc(
-        repo_name, paths_cfg,
+        repo_name, repo_cfg, paths_cfg,
         duration_sec, baseline_sec=None,
         run_ts=None,
     ):
         """Write runtime performance metrics."""
         ts = run_ts or timestamp()
+        lang = lang_subdir(repo_cfg)
         runtime_dir = (
             Path(paths_cfg["docs_dir"])
-            / "runtime" / repo_name / ts
+            / "runtime" / lang / repo_name / ts
         )
         runtime_dir.mkdir(
             parents=True, exist_ok=True
@@ -1477,11 +1494,11 @@ def main():
 
     # Single timestamp for the entire run — all
     # output folders use this consistently:
-    #   output/binaries/{repo}/{run_ts}/
-    #   output/spdx/{repo}/{run_ts}/
-    #   output/omnibor/{repo}/{run_ts}/
-    #   docs/{repo}/{run_ts}/
-    #   docs/runtime/{repo}/{run_ts}/
+    #   output/binaries/{lang}/{repo}/{run_ts}/
+    #   output/spdx/{lang}/{repo}/{run_ts}/
+    #   output/omnibor/{lang}/{repo}/{run_ts}/
+    #   docs/{lang}/{repo}/{run_ts}/
+    #   docs/runtime/{lang}/{repo}/{run_ts}/
     run_ts = timestamp()
 
     print(f"\n{'#'*60}")
@@ -1498,7 +1515,8 @@ def main():
 
     # Step 2: Syft baseline SBOM
     pipeline.syft_gen.generate(
-        args.repo, paths_cfg, run_ts=run_ts
+        args.repo, repo_cfg, paths_cfg,
+        run_ts=run_ts,
     )
 
     if args.syft_only:
@@ -1574,8 +1592,8 @@ def main():
         run_ts=run_ts,
     )
     pipeline.docs.write_runtime_doc(
-        args.repo, paths_cfg, duration,
-        run_ts=run_ts,
+        args.repo, repo_cfg, paths_cfg,
+        duration, run_ts=run_ts,
     )
 
     status = "COMPLETE" if success else "FAILED"

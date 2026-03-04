@@ -49,6 +49,11 @@ def timestamp():
     return datetime.now().strftime("%Y-%m-%d_%H%M")
 
 
+def lang_subdir(repo_cfg):
+    """Return the language subfolder name from repo config."""
+    return repo_cfg.get("language", "unknown")
+
+
 # ============================================================
 # SPDX file loading
 # ============================================================
@@ -389,6 +394,10 @@ def main():
 
     config = load_config()
     paths_cfg = config["paths"]
+    repo_cfg = config["repos"].get(
+        args.repo, {}
+    )
+    lang = lang_subdir(repo_cfg)
     pipeline = ComparisonPipeline()
 
     # Find SPDX files
@@ -396,7 +405,7 @@ def main():
         args.omnibor_file
         or pipeline.loader.find_latest(
             Path(paths_cfg["output_dir"])
-            / "spdx" / args.repo,
+            / "spdx" / lang / args.repo,
             f"{args.repo}_omnibor_*.spdx.json",
         )
     )
@@ -404,7 +413,7 @@ def main():
         args.binary_file
         or pipeline.loader.find_latest(
             Path(paths_cfg["output_dir"])
-            / "binary-scan" / args.repo,
+            / "binary-scan" / lang / args.repo,
             "*.spdx.json",
         )
     )
@@ -421,7 +430,7 @@ def main():
         print(
             "[ERROR] No binary scan SPDX file "
             "found. Place it in "
-            "output/binary-scan/<repo>/ "
+            f"output/binary-scan/{lang}/<repo>/ "
             "or specify --binary-file"
         )
         sys.exit(1)
@@ -449,7 +458,8 @@ def main():
 
     # Write to docs
     docs_dir = (
-        Path(paths_cfg["docs_dir"]) / args.repo
+        Path(paths_cfg["docs_dir"])
+        / lang / args.repo
     )
     docs_dir.mkdir(parents=True, exist_ok=True)
     ts = timestamp()
