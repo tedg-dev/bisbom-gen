@@ -84,7 +84,8 @@ RUN curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | 
 # ============================================================
 # Go 1.23+ is required by fzf and other Go targets.
 # We install the official tarball to /usr/local/go.
-ENV GO_VERSION=1.23.6
+# See .windsurf/rules/go-sdk-version.md for update policy.
+ENV GO_VERSION=1.26.0
 RUN wget -q "https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz" -O /tmp/go.tar.gz && \
     tar -C /usr/local -xzf /tmp/go.tar.gz && \
     rm /tmp/go.tar.gz
