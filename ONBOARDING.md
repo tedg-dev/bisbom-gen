@@ -73,7 +73,26 @@ docker-compose -f docker/docker-compose.yml build
 
 This takes 10-20 minutes on first build (compiles bomtrace3 from source).
 
-### Option B: Cloud VM (DigitalOcean, AWS EC2, etc.)
+### Option B: AWS EC2 (Recommended for Cisco Engineers)
+
+Follow the comprehensive setup guide:
+
+**[docs/aws-setup-guide.md](docs/aws-setup-guide.md)**
+
+This covers Cisco Duo SSO authentication, Terraform provisioning, and
+everything needed to go from zero to running builds. The guide handles:
+
+- Installing duo-sso, AWS CLI, and Terraform
+- Authenticating via Cisco Duo SSO (SAML → AWS STS)
+- Provisioning an EC2 instance with Terraform (IaC)
+- SSH configuration and infrastructure profile setup
+- Re-authentication (sessions expire every 1 hour)
+- Cost management and daily workflow
+
+> **Note:** Cisco Duo SSO sessions expire every **1 hour**. The guide
+> documents the re-authentication flow in detail.
+
+### Option B2: Other Cloud VM (DigitalOcean, etc.)
 
 1. Create an x86_64 Linux VM (Ubuntu 22.04 recommended, 2+ GB RAM)
 2. Install Docker: `curl -fsSL https://get.docker.com | sh`
@@ -195,7 +214,8 @@ omnibor-analysis/
 
 ## Further Reading
 
+- `docs/aws-setup-guide.md` — **Greenfield AWS EC2 setup (Cisco Duo SSO + Terraform)**
+- `docs/aws-ec2-migration-recommendation.md` — Instance sizing and cost comparison
 - `docs/summary/spdx-generation-deep-dive.md` — Full technical pipeline documentation
 - `docs/summary/workflow-guide.md` — Detailed workflow descriptions
 - `docs/summary/nmap-target-vendored-dirs.md` — Vendored directory detection explained
-- `docs/aws-ec2-migration-recommendation.md` — Cloud infrastructure options

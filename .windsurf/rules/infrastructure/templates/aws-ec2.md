@@ -39,11 +39,89 @@ Host omnibor-build
     IdentityFile ~/.ssh/<YOUR_KEY>.pem
 ```
 
-## CLI Tool
+## CLI Tools
 
-- **aws** — AWS CLI v2
-- Install: `brew install awscli` (macOS) or see https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html
-- Configure: `aws configure` (set region, access key, secret key)
+### AWS CLI v2
+
+- Install: `brew install awscli` (macOS)
+- Docs: https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html
+
+### duo-sso (Cisco SSO → AWS)
+
+Cisco users authenticate to AWS via **Duo SSO** (SAML), not IAM access keys.
+Sessions expire every **1 hour** — you must re-authenticate frequently.
+
+**Install:**
+
+```bash
+brew tap ats-operations/homebrew-tap https://wwwin-github.cisco.com/ATS-operations/homebrew-tap
+brew install ats-operations/tap/duo-sso
+```
+
+**Configure** (`~/.config/duo-sso/config.json`):
+
+```json
+{
+  "url": "<YOUR_DUO_SSO_URL>",
+  "partner_spid": "https://signin.aws.amazon.com/saml",
+  "aws_urn": "https://signin.aws.amazon.com/saml",
+  "session_duration_seconds": 3600,
+  "profiles": {
+    "<YOUR_PROFILE>": {
+      "aws_account_id": "<YOUR_ACCOUNT_ID>",
+      "aws_role_name": "<YOUR_ROLE>",
+      "session_duration_seconds": 3600
+    }
+  }
+}
+```
+
+**AWS config** (`~/.aws/config`) — region only, NO role_arn/source_profile:
+
+```ini
+[profile <YOUR_PROFILE>]
+region=<YOUR_REGION>
+```
+
+> **Warning:** Do NOT add `role_arn` or `source_profile` to `~/.aws/config`.
+> duo-sso already assumes the role and writes STS credentials directly.
+> Adding those fields causes a circular reference error.
+
+### Authentication Flow (Browserless Mode)
+
+duo-sso defaults to interactive Chrome mode. If you prefer browserless:
+
+1. Create a **SAML bookmarklet** in your browser (see duo-sso README)
+2. Go to `https://go2.cisco.com/aws` and complete Cisco SSO + Duo MFA
+3. Click the bookmarklet → downloads `saml.txt`
+4. Run:
+
+```bash
+duo-sso -saml $(cat ~/Downloads/saml.txt) -profile <YOUR_PROFILE> -set-aws-region <YOUR_REGION>
+```
+
+5. **Fix credentials profile name** (duo-sso writes `[default]`, not your profile name):
+
+```bash
+sed -i '' 's/^\[default\]/[<YOUR_PROFILE>]/' ~/.aws/credentials   # macOS
+sed -i 's/^\[default\]/[<YOUR_PROFILE>]/' ~/.aws/credentials      # Linux
+```
+
+6. Verify:
+
+```bash
+aws sts get-caller-identity --profile <YOUR_PROFILE> --no-cli-pager
+```
+
+> **Reminder:** Sessions last 1 hour. Re-run steps 2–6 when credentials expire.
+> You'll see `ExpiredToken` or `InvalidClientTokenId` errors when they do.
+
+### Terraform
+
+- Install: `brew install terraform` (macOS)
+- Terraform uses the same `ted-admin` profile from `~/.aws/credentials`
+- All Terraform files live in `terraform/` in the project root
+- Run `terraform init` once, then `terraform plan` and `terraform apply`
 
 ### Power Management
 
