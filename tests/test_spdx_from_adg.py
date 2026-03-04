@@ -1733,5 +1733,471 @@ class TestCli(unittest.TestCase):
                     main()
 
 
+class TestProjectBuiltLibs(unittest.TestCase):
+    """Tests for project-built shared library detection
+    and SPDX emission (lines 318-326, 951-968)."""
+
+    def _write_metadata(self, td, metadata):
+        path = Path(td) / "component_metadata.json"
+        path.write_text(json.dumps(metadata))
+        return str(path)
+
+    def _base_metadata(self):
+        return {
+            "distro": "Ubuntu 22.04.5 LTS",
+            "gcc_version": "gcc (Ubuntu 11.4.0) 11.4.0",
+            "curl_version": "8.19.0-DEV",
+            "pkg_metadata": {},
+            "file_to_pkg": {},
+            "unresolved_files": [],
+        }
+
+    def test_resolve_project_built_libs(self):
+        """project_built_libs in dynlibs produces
+        components with project_built=True."""
+        with tempfile.TemporaryDirectory() as td:
+            meta = self._base_metadata()
+            path = self._write_metadata(td, meta)
+            resolver = ComponentResolver(path)
+
+            dynlibs = {
+                "binary": "/repos/ffmpeg/ffmpeg",
+                "direct_needed": ["libavcodec.so"],
+                "dynamic_libs": {},
+                "libcurl_needed": [],
+                "project_built_libs": {
+                    "libavcodec.so": {
+                        "name": "libavcodec",
+                        "direct": True,
+                    },
+                    "libavutil.so": {
+                        "direct": False,
+                    },
+                },
+            }
+            dynlib_path = Path(td) / "dynamic_libs.json"
+            dynlib_path.write_text(json.dumps(dynlibs))
+            resolver.load_dynamic_libs(str(dynlib_path))
+            components = (
+                resolver.resolve_dynamic_components()
+            )
+            proj = [
+                c for c in components
+                if c.get("project_built")
+            ]
+            self.assertEqual(len(proj), 2)
+            names = [c["name"] for c in proj]
+            self.assertIn("libavcodec", names)
+            # Falls back to soname when no "name" key
+            self.assertIn("libavutil.so", names)
+            # Check direct flag
+            avcodec = [
+                c for c in proj
+                if c["name"] == "libavcodec"
+            ][0]
+            self.assertTrue(avcodec["direct"])
+            avutil = [
+                c for c in proj
+                if c["name"] == "libavutil.so"
+            ][0]
+            self.assertFalse(avutil["direct"])
+
+    def test_emit_project_built_component(self):
+        """project_built components become SPDX packages
+        with LIBRARY purpose and project version."""
+        emitter = SpdxEmitter(
+            repo_name="ffmpeg",
+            repo_version="6.1",
+            distro="Ubuntu 22.04",
+            gcc_version="gcc 11.4.0",
+            binary_name="ffmpeg",
+        )
+        components = [{
+            "name": "libavcodec",
+            "source": "libavcodec",
+            "sonames": ["libavcodec.so"],
+            "direct": True,
+            "project_built": True,
+        }]
+        doc = emitter.emit(
+            components=components,
+            project_files=[],
+            doc_mapping={},
+            logfile_hashes={},
+        )
+        # Root + libavcodec + gcc = 3
+        self.assertEqual(len(doc["packages"]), 3)
+        avcodec = [
+            p for p in doc["packages"]
+            if p["name"] == "libavcodec"
+        ][0]
+        self.assertEqual(
+            avcodec["primaryPackagePurpose"],
+            "LIBRARY",
+        )
+        self.assertIn(
+            "Project-built", avcodec["comment"]
+        )
+        self.assertIn(
+            "libavcodec.so", avcodec["comment"]
+        )
+        self.assertEqual(
+            avcodec["versionInfo"], "6.1"
+        )
+        self.assertEqual(
+            avcodec["downloadLocation"],
+            "NOASSERTION",
+        )
+
+    def test_emit_project_built_no_version(self):
+        """project_built without repo_version omits
+        versionInfo."""
+        emitter = SpdxEmitter(
+            repo_name="ffmpeg",
+            repo_version=None,
+            distro="Ubuntu 22.04",
+            gcc_version="gcc 11.4.0",
+        )
+        components = [{
+            "name": "libavcodec",
+            "source": "libavcodec",
+            "sonames": ["libavcodec.so"],
+            "direct": True,
+            "project_built": True,
+        }]
+        doc = emitter.emit(
+            components=components,
+            project_files=[],
+            doc_mapping={},
+            logfile_hashes={},
+        )
+        avcodec = [
+            p for p in doc["packages"]
+            if p["name"] == "libavcodec"
+        ][0]
+        self.assertNotIn("versionInfo", avcodec)
+
+
+class TestHeaderCommentBreak(unittest.TestCase):
+    """Test _parse_header_comment line limit (line 527)."""
+
+    def test_version_after_line_10_not_found(self):
+        """VERSION past the 10-line window is ignored."""
+        with tempfile.TemporaryDirectory() as td:
+            h = Path(td) / "big.h"
+            lines = ["/* no version */\n"] * 11
+            lines.append(
+                "/* VERSION 9.9.9 */\n"
+            )
+            h.write_text("".join(lines))
+            det = VendoredVersionDetector()
+            result = det._parse_header_comment(str(h))
+            self.assertIsNone(result)
+
+    def test_version_within_first_10_lines(self):
+        """VERSION within 10-line window IS found."""
+        with tempfile.TemporaryDirectory() as td:
+            h = Path(td) / "ok.h"
+            lines = ["/* padding */\n"] * 5
+            lines.append("/* VERSION 3.2.1 */\n")
+            h.write_text("".join(lines))
+            det = VendoredVersionDetector()
+            result = det._parse_header_comment(str(h))
+            self.assertEqual(result, "3.2.1")
+
+
+class TestSubComponentRemainingFiles(
+    unittest.TestCase
+):
+    """Tests for remaining-file assignment in
+    sub-component splitting (lines 718-719, 745-747)."""
+
+    def _emitter(self):
+        return SpdxEmitter(
+            repo_name="redis",
+            repo_version="7.2.0",
+            distro="Ubuntu 22.04",
+            gcc_version="gcc 11.4.0",
+            binary_name="redis-server",
+        )
+
+    def test_non_source_files_go_to_remaining(self):
+        """Non .c/.h files skip sub-component detection
+        and go to remaining (lines 718-719)."""
+        with tempfile.TemporaryDirectory() as td:
+            lua_dir = Path(td) / "deps" / "lua" / "src"
+            lua_dir.mkdir(parents=True)
+            (lua_dir / "lapi.c").write_text("")
+            (lua_dir / "lua_cjson.c").write_text(
+                '#define CJSON_VERSION "2.1.0"\n'
+            )
+            # .o file — not .c or .h
+            (lua_dir / "lapi.o").write_text("")
+            emitter = self._emitter()
+            files = [
+                {"sha1": "a1", "file_path":
+                    str(lua_dir / "lapi.c")},
+                {"sha1": "a2", "file_path":
+                    str(lua_dir / "lua_cjson.c")},
+                {"sha1": "a3", "file_path":
+                    str(lua_dir / "lapi.o")},
+            ]
+            vendored, own = (
+                emitter._detect_vendored_groups(files)
+            )
+            # .o goes to parent (lua) as remaining
+            self.assertIn("lua", vendored)
+            # lapi.c + lapi.o in lua group
+            lua_paths = [
+                f["file_path"]
+                for f in vendored["lua"]
+            ]
+            self.assertTrue(
+                any("lapi.o" in p for p in lua_paths)
+            )
+
+    def test_remaining_files_matched_to_subcomponent(
+        self,
+    ):
+        """Non-source files whose basename contains a
+        sub-component key are assigned to it
+        (lines 745-747)."""
+        with tempfile.TemporaryDirectory() as td:
+            lua_dir = Path(td) / "deps" / "lua" / "src"
+            lua_dir.mkdir(parents=True)
+            (lua_dir / "lapi.c").write_text("")
+            (lua_dir / "lua_cjson.c").write_text(
+                '#define CJSON_VERSION "2.1.0"\n'
+            )
+            # .o file whose name contains "cjson"
+            (lua_dir / "lua_cjson.o").write_text("")
+            emitter = self._emitter()
+            files = [
+                {"sha1": "a1", "file_path":
+                    str(lua_dir / "lapi.c")},
+                {"sha1": "a2", "file_path":
+                    str(lua_dir / "lua_cjson.c")},
+                {"sha1": "a3", "file_path":
+                    str(lua_dir / "lua_cjson.o")},
+            ]
+            vendored, own = (
+                emitter._detect_vendored_groups(files)
+            )
+            self.assertIn("lua-cjson", vendored)
+            # lua_cjson.c + lua_cjson.o
+            self.assertEqual(
+                len(vendored["lua-cjson"]), 2
+            )
+
+
+class TestGenericPrefixSkip(unittest.TestCase):
+    """Test that generic prefix names like VERSION,
+    LIB are skipped (line 799)."""
+
+    def _emitter(self):
+        return SpdxEmitter(
+            repo_name="redis",
+            repo_version="7.2.0",
+            distro="Ubuntu 22.04",
+            gcc_version="gcc 11.4.0",
+            binary_name="redis-server",
+        )
+
+    def test_generic_version_prefix_skipped(self):
+        """#define VERSION_VERSION is skipped as
+        a generic name."""
+        with tempfile.TemporaryDirectory() as td:
+            lua_dir = Path(td) / "deps" / "lua" / "src"
+            lua_dir.mkdir(parents=True)
+            (lua_dir / "lapi.c").write_text(
+                '#define VERSION "1.0.0"\n'
+            )
+            emitter = self._emitter()
+            files = [
+                {"sha1": "a1", "file_path":
+                    str(lua_dir / "lapi.c")},
+            ]
+            vendored, own = (
+                emitter._detect_vendored_groups(files)
+            )
+            # Should stay as "lua", no "version" sub
+            self.assertIn("lua", vendored)
+            self.assertNotIn("version", vendored)
+
+    def test_generic_lib_prefix_skipped(self):
+        """#define LIB_VERSION is skipped."""
+        with tempfile.TemporaryDirectory() as td:
+            lua_dir = Path(td) / "deps" / "lua" / "src"
+            lua_dir.mkdir(parents=True)
+            (lua_dir / "lapi.c").write_text(
+                '#define LIB_VERSION "2.0"\n'
+            )
+            emitter = self._emitter()
+            files = [
+                {"sha1": "a1", "file_path":
+                    str(lua_dir / "lapi.c")},
+            ]
+            vendored, own = (
+                emitter._detect_vendored_groups(files)
+            )
+            self.assertIn("lua", vendored)
+            self.assertNotIn("lib", vendored)
+
+
+class TestFilePathRelativization(unittest.TestCase):
+    """Test ValueError/IndexError in file path
+    relativization (lines 1190-1191)."""
+
+    def test_short_path_falls_back(self):
+        """A very short file_path triggers the
+        except branch and uses the raw path."""
+        emitter = SpdxEmitter(
+            repo_name="curl",
+            repo_version="8.19.0",
+            distro="Ubuntu 22.04",
+            gcc_version="gcc 11.4.0",
+        )
+        # Bare filename (1 part) → parents[-2] raises
+        # IndexError, so rel_path stays as-is
+        files = [
+            {"sha1": "abc123", "file_path": "x.c"},
+        ]
+        doc = emitter.emit(
+            components=[],
+            project_files=files,
+            doc_mapping={},
+            logfile_hashes={},
+        )
+        self.assertEqual(len(doc["files"]), 1)
+        # Should still work, using raw path
+        self.assertEqual(
+            doc["files"][0]["fileName"], "x.c"
+        )
+
+
+class TestGenerateMissingDynlibs(unittest.TestCase):
+    """Test generate() when dynamic_libs.json is
+    missing (lines 1312-1317)."""
+
+    def test_missing_dynlib_returns_none(self):
+        """generate() returns None if dynlib not found."""
+        with tempfile.TemporaryDirectory() as td:
+            bom = Path(td) / "bom"
+            meta = bom / "metadata" / "bomsh"
+            meta.mkdir(parents=True)
+
+            sha = "a" * 40
+            treedb = {
+                sha: {
+                    "file_path": "/repos/curl/src/x.c"
+                },
+            }
+            (meta / "bomsh_omnibor_treedb").write_text(
+                json.dumps(treedb)
+            )
+            (
+                meta / "bomsh_omnibor_doc_mapping"
+            ).write_text(json.dumps({}))
+
+            comp_meta = {
+                "distro": "Ubuntu 22.04",
+                "gcc_version": "gcc 11.4.0",
+                "curl_version": "8.19.0",
+                "pkg_metadata": {},
+                "file_to_pkg": {},
+                "unresolved_files": [],
+            }
+            (
+                bom / "metadata"
+                / "component_metadata.json"
+            ).write_text(json.dumps(comp_meta))
+            # NOTE: no dynamic_libs.json created
+
+            out = str(
+                Path(td) / "out" / "curl.spdx.json"
+            )
+            gen = AdgSpdxGenerator(
+                bom_dir=str(bom),
+                repos_dir="/repos",
+                repo_name="curl",
+            )
+            with patch("builtins.print"):
+                result = gen.generate(out)
+
+            self.assertIsNone(result)
+
+
+class TestVisualizationFailure(unittest.TestCase):
+    """Test HTML visualization failure handling
+    (lines 1384-1385)."""
+
+    def test_visualization_exception_caught(self):
+        """generate() succeeds even when visualization
+        raises an exception."""
+        with tempfile.TemporaryDirectory() as td:
+            bom = Path(td) / "bom"
+            meta = bom / "metadata" / "bomsh"
+            meta.mkdir(parents=True)
+
+            sha = "a" * 40
+            treedb = {
+                sha: {
+                    "file_path": "/repos/curl/src/x.c"
+                },
+            }
+            (meta / "bomsh_omnibor_treedb").write_text(
+                json.dumps(treedb)
+            )
+            (
+                meta / "bomsh_omnibor_doc_mapping"
+            ).write_text(json.dumps({}))
+            (
+                meta / "bomsh_hook_raw_logfile"
+            ).write_text("")
+
+            comp_meta = {
+                "distro": "Ubuntu 22.04",
+                "gcc_version": "gcc 11.4.0",
+                "curl_version": "8.19.0",
+                "pkg_metadata": {},
+                "file_to_pkg": {},
+                "unresolved_files": [],
+            }
+            (
+                bom / "metadata"
+                / "component_metadata.json"
+            ).write_text(json.dumps(comp_meta))
+
+            dynlibs = {
+                "binary": "/repos/curl/src/.libs/curl",
+                "direct_needed": [],
+                "dynamic_libs": {},
+                "libcurl_needed": [],
+            }
+            (
+                bom / "metadata"
+                / "dynamic_libs.json"
+            ).write_text(json.dumps(dynlibs))
+
+            out = str(
+                Path(td) / "out" / "curl.spdx.json"
+            )
+            gen = AdgSpdxGenerator(
+                bom_dir=str(bom),
+                repos_dir="/repos",
+                repo_name="curl",
+            )
+            # Make spdx_visualize.generate_html raise
+            with patch(
+                "spdx_visualize.generate_html",
+                side_effect=RuntimeError("viz failed"),
+            ), patch("builtins.print"):
+                result = gen.generate(out)
+
+            # Should still succeed
+            self.assertIsNotNone(result)
+            self.assertTrue(Path(out).exists())
+
+
 if __name__ == "__main__":
     unittest.main()
