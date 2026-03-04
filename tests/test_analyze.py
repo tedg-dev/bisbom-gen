@@ -1890,6 +1890,64 @@ class TestDocWriter(unittest.TestCase):
             content = Path(result).read_text()
             self.assertNotIn("overhead", content)
 
+    def test_write_build_doc_go(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            paths = {"docs_dir": tmpdir}
+            cfg = {
+                "url": "https://github.com/x/y.git",
+                "branch": "master",
+                "description": "Go CLI tool",
+                "build_steps": [
+                    "go build -o fzf .",
+                ],
+                "output_binaries": ["fzf"],
+                "language": "go",
+            }
+            with patch("builtins.print"):
+                result = DocWriter.write_build_doc(
+                    "fzf", cfg, paths,
+                    True, 10.0,
+                )
+            content = Path(result).read_text()
+            self.assertIn("PlainBuilder", content)
+            self.assertIn("Syft", content)
+            self.assertNotIn(
+                "**Tracer:** bomtrace3", content
+            )
+            self.assertIn("fzf", content)
+
+    def test_write_runtime_doc_go(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            paths = {"docs_dir": tmpdir}
+            repo_cfg = {"language": "go"}
+            with patch("builtins.print"):
+                result = DocWriter.write_runtime_doc(
+                    "fzf", repo_cfg, paths, 10.0,
+                )
+            content = Path(result).read_text()
+            self.assertIn("Build time", content)
+            self.assertIn("go build", content)
+            self.assertNotIn("Instrumented", content)
+
+    def test_write_build_doc_c_cpp_has_bomtrace(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            paths = {"docs_dir": tmpdir}
+            cfg = {
+                "url": "https://github.com/x/y.git",
+                "branch": "main",
+                "build_steps": ["make"],
+                "output_binaries": ["app"],
+                "language": "c-cpp",
+            }
+            with patch("builtins.print"):
+                result = DocWriter.write_build_doc(
+                    "myrepo", cfg, paths,
+                    True, 42.5,
+                )
+            content = Path(result).read_text()
+            self.assertIn("bomtrace3", content)
+            self.assertNotIn("PlainBuilder", content)
+
 
 # ============================================================
 # AnalysisPipeline
