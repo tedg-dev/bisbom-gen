@@ -4,10 +4,11 @@ description: Project context and architecture for omnibor-analysis
 
 # Project: OmniBOR Analysis
 
-This project instruments open-source builds (C/C++, Go) with OmniBOR/Bomsh (build interception)
-to generate SPDX 2.3 SBOMs with full dependency breakdown (vendored static libs, dynamic
-system libs, build tools), then optionally compares those against SBOMs from proprietary
-binary scanning tools (e.g., BDBA) to evaluate accuracy and completeness.
+This project instruments open-source builds with OmniBOR/Bomsh (build interception for C/C++)
+or Syft (manifest-based for Go) to generate SPDX 2.3 SBOMs with full dependency breakdown
+(vendored static libs, dynamic system libs, build tools), then optionally compares those
+against SBOMs from proprietary binary scanning tools (e.g., BDBA) to evaluate accuracy
+and completeness.
 
 ## Directory Structure
 
@@ -22,15 +23,17 @@ binary scanning tools (e.g., BDBA) to evaluate accuracy and completeness.
 
 ## Key Technologies
 
-- **Bomsh/Bomtrace3** — ptrace-based build interception from omnibor/bomsh (Linux x86_64 only)
+- **Bomsh/Bomtrace3** — ptrace-based build interception from omnibor/bomsh (Linux x86_64 only, C/C++)
 - **OmniBOR** — Artifact Dependency Graph (ADG) standard (omnibor.io)
 - **SPDX 2.3** — SBOM format (JSON output)
-- **Syft** — Manifest-based SBOM generation (baseline comparison)
+- **Syft** — Manifest-based SBOM generation (primary for Go, baseline for C/C++)
+- **Go SDK** — Go 1.23+ installed in the container for building Go targets
 - **D3.js** — Interactive HTML dependency graph visualization
 - **Docker** — Required because bomtrace3 uses Linux ptrace (not available on macOS/Windows)
 
-## Analysis Pipeline (8 steps in analyze.py)
+## Analysis Pipeline (analyze.py)
 
+### C/C++ repos (full OmniBOR instrumentation)
 1. Clone target repo
 2. Syft baseline SBOM (manifest-based)
 3. Validate apt dependencies
@@ -41,6 +44,16 @@ binary scanning tools (e.g., BDBA) to evaluate accuracy and completeness.
 6. SPDX validation (JSON Schema + semantic)
 7. Binary collection
 8. Documentation generation
+
+### Go repos (Syft-primary, plain build)
+1. Clone target repo
+2. Syft SBOM (primary — parses go.mod/go.sum)
+4. Plain build via PlainBuilder (no bomtrace3)
+6. SPDX validation
+7. Binary collection
+8. Documentation generation
+
+Steps 3, 5a-5c are skipped for Go because bomtrace3 does not intercept `go build`.
 
 ## Key Application Files
 
@@ -69,7 +82,13 @@ binary scanning tools (e.g., BDBA) to evaluate accuracy and completeness.
 
 ### Go (`language: go`)
 
-No Go repos configured yet. Use `/add-repo` to add one.
+| Repo | Binary | Direct deps | Indirect deps |
+|------|--------|-------------|---------------|
+| fzf | fzf | ~7 | ~4 |
+| lazygit | lazygit | ~15-20 | ~20-30 |
+| croc | croc | ~10-15 | ~15 |
+| dive | dive | ~15-20 | ~25 |
+| gdu | gdu | ~10-15 | ~15-20 |
 
 ## Important Constraints
 
@@ -78,4 +97,6 @@ No Go repos configured yet. Use `/add-repo` to add one.
 - repos/ and output/ are gitignored — only docs/, app/, tests/, docker/ are tracked
 - config.yaml is the single source of truth for repo URLs, build commands, language, and paths
 - Each repo has a `language` field (`c-cpp`, `go`) that determines its output subfolder
+- Go repos use `PlainBuilder` (no bomtrace3) and Syft as the primary SBOM generator
+- C/C++ repos use `BomtraceBuilder` (bomtrace3 instrumentation) and bomsh for OmniBOR SBOMs
 - Per-file test coverage must be 95%+, overall 97%+ (enforced in pre-commit.md)

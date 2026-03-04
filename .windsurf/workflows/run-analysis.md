@@ -4,8 +4,8 @@ description: Run OmniBOR build interception analysis on a target repository
 
 # Run Analysis
 
-Instrument a C/C++ build with bomtrace3 and generate SPDX SBOMs with
-dependency visualization.
+Instrument a C/C++ build with bomtrace3 or build a Go project with
+`go build`, then generate SPDX SBOMs with dependency visualization.
 
 ## Prerequisites
 
@@ -76,8 +76,9 @@ rsync -avz <SSH_ALIAS>:<REPO_PATH>/docs/ docs/
 
 Never report analysis as complete until both syncs succeed.
 
-## What happens during analysis (8 steps)
+## What happens during analysis
 
+### C/C++ repos (8 steps)
 1. **Clone** — shallow clone of the target repo
 2. **Syft baseline** — manifest-based SPDX SBOM for comparison
 3. **Validate deps** — checks `apt_deps` are installed in the container
@@ -87,6 +88,14 @@ Never report analysis as complete until both syncs succeed.
 5c. **ADG SPDX generation** — per-binary SPDX with vendored detection, version extraction, dynamic lib resolution + HTML visualization
 6. **SPDX validation** — JSON Schema + semantic validation of all generated SBOMs
 7. **Binary collection** — copies `output_binaries` to `output/binaries/<lang>/<repo>/`
+8. **Docs** — timestamped build log and runtime metrics
+
+### Go repos (5 steps — bomtrace3 skipped)
+1. **Clone** — shallow clone of the target repo
+2. **Syft SBOM** — primary SBOM (parses go.mod/go.sum for direct + indirect deps)
+4. **Plain build** — `go build` via PlainBuilder (no bomtrace3)
+6. **SPDX validation** — validates the Syft SPDX
+7. **Binary collection** — copies output binaries
 8. **Docs** — timestamped build log and runtime metrics
 
 ## Output locations

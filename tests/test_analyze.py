@@ -17,10 +17,11 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "app"))
 import analyze
 from analyze import (
     CommandRunner, DependencyValidator,
-    RepoCloner, BomtraceBuilder,
+    RepoCloner, PlainBuilder, BomtraceBuilder,
     SpdxGenerator, MetadataCollector, SpdxValidator,
     SyftGenerator, BinaryCollector, DocWriter,
     AnalysisPipeline, load_config, timestamp,
+    _run_go_pipeline,
 )
 
 
@@ -385,6 +386,117 @@ class TestBomtraceBuilder(unittest.TestCase):
         self.assertIn(
             "bomtrace3", instrumented_call[0][0]
         )
+
+
+# ============================================================
+# PlainBuilder
+# ============================================================
+
+class TestPlainBuilder(unittest.TestCase):
+    """Tests for PlainBuilder (Go / non-instrumented)."""
+
+    def test_success(self):
+        runner = MagicMock()
+        runner.run.return_value = 0
+        builder = PlainBuilder(runner)
+        repo_cfg = {
+            "build_steps": ["go build -o fzf ."],
+            "language": "go",
+        }
+        paths = {"repos_dir": "/repos"}
+
+        with patch("builtins.print"):
+            result = builder.build(
+                "fzf", repo_cfg, paths
+            )
+        self.assertTrue(result)
+        runner.run.assert_called_once()
+
+    def test_failure(self):
+        runner = MagicMock()
+        runner.run.return_value = 1
+        builder = PlainBuilder(runner)
+        repo_cfg = {
+            "build_steps": ["go build -o fzf ."],
+            "language": "go",
+        }
+        paths = {"repos_dir": "/repos"}
+
+        with patch("builtins.print"):
+            result = builder.build(
+                "fzf", repo_cfg, paths
+            )
+        self.assertFalse(result)
+
+    def test_clean_cmd(self):
+        runner = MagicMock()
+        runner.run.return_value = 0
+        builder = PlainBuilder(runner)
+        repo_cfg = {
+            "build_steps": ["go build -o fzf ."],
+            "clean_cmd": "rm -f fzf",
+            "language": "go",
+        }
+        paths = {"repos_dir": "/repos"}
+
+        with patch("builtins.print"):
+            builder.build("fzf", repo_cfg, paths)
+        # clean + build = 2 calls
+        self.assertEqual(runner.run.call_count, 2)
+
+    def test_multiple_steps(self):
+        runner = MagicMock()
+        runner.run.return_value = 0
+        builder = PlainBuilder(runner)
+        repo_cfg = {
+            "build_steps": [
+                "go mod download",
+                "go build -o fzf .",
+            ],
+            "language": "go",
+        }
+        paths = {"repos_dir": "/repos"}
+
+        with patch("builtins.print"):
+            result = builder.build(
+                "fzf", repo_cfg, paths
+            )
+        self.assertTrue(result)
+        self.assertEqual(runner.run.call_count, 2)
+
+    def test_first_step_fails(self):
+        runner = MagicMock()
+        runner.run.side_effect = [1]
+        builder = PlainBuilder(runner)
+        repo_cfg = {
+            "build_steps": [
+                "go mod download",
+                "go build -o fzf .",
+            ],
+            "language": "go",
+        }
+        paths = {"repos_dir": "/repos"}
+
+        with patch("builtins.print"):
+            result = builder.build(
+                "fzf", repo_cfg, paths
+            )
+        self.assertFalse(result)
+        # Should stop after first failure
+        self.assertEqual(runner.run.call_count, 1)
+
+    def test_no_build_steps(self):
+        runner = MagicMock()
+        builder = PlainBuilder(runner)
+        repo_cfg = {"language": "go"}
+        paths = {"repos_dir": "/repos"}
+
+        with patch("builtins.print"):
+            result = builder.build(
+                "fzf", repo_cfg, paths
+            )
+        self.assertTrue(result)
+        runner.run.assert_not_called()
 
 
 # ============================================================
@@ -1797,6 +1909,9 @@ class TestAnalysisPipeline(unittest.TestCase):
             p.builder, BomtraceBuilder
         )
         self.assertIsInstance(
+            p.plain_builder, PlainBuilder
+        )
+        self.assertIsInstance(
             p.spdx_gen, SpdxGenerator
         )
         self.assertIsInstance(
@@ -1850,6 +1965,7 @@ def _mock_pipeline():
     validator.validate.return_value = (True, [])
     cloner = MagicMock()
     builder = MagicMock()
+    plain_builder = MagicMock()
     spdx_gen = MagicMock()
     metadata_collector = MagicMock()
     adg_spdx = MagicMock()
@@ -1863,6 +1979,7 @@ def _mock_pipeline():
         validator=validator,
         cloner=cloner,
         builder=builder,
+        plain_builder=plain_builder,
         spdx_gen=spdx_gen,
         metadata_collector=metadata_collector,
         adg_spdx=adg_spdx,
@@ -2032,6 +2149,134 @@ class TestMainFullRun(unittest.TestCase):
         p.syft_gen.generate.assert_called_once()
         p.builder.build.assert_not_called()
         p.spdx_gen.generate.assert_not_called()
+
+
+# ============================================================
+# Go pipeline (main + _run_go_pipeline)
+# ============================================================
+
+class TestMainGoRepo(unittest.TestCase):
+    """Tests for main() with Go repos."""
+
+    @patch("analyze.time.time")
+    @patch("analyze.AnalysisPipeline")
+    @patch(
+        "sys.argv",
+        ["analyze.py", "--repo", "fzf"],
+    )
+    def test_go_uses_plain_builder(
+        self, mock_cls, mock_time
+    ):
+        p = _mock_pipeline()
+        mock_cls.return_value = p
+        p.plain_builder.build.return_value = True
+        mock_time.side_effect = [100.0, 110.0]
+
+        with patch("builtins.print"):
+            analyze.main()
+
+        # Go path: plain_builder used, NOT builder
+        p.plain_builder.build.assert_called_once()
+        p.builder.build.assert_not_called()
+        # No bomtrace steps
+        p.validator.validate.assert_not_called()
+        p.spdx_gen.generate.assert_not_called()
+        p.metadata_collector.collect.assert_not_called()
+        p.adg_spdx.generate.assert_not_called()
+        # Common steps still called
+        p.cloner.clone.assert_called_once()
+        p.syft_gen.generate.assert_called_once()
+        p.binary_collector.collect.assert_called_once()
+        p.docs.write_build_doc.assert_called_once()
+        p.docs.write_runtime_doc.assert_called_once()
+
+    @patch("analyze.time.time")
+    @patch("analyze.AnalysisPipeline")
+    @patch(
+        "sys.argv",
+        ["analyze.py", "--repo", "fzf"],
+    )
+    def test_go_build_failure(
+        self, mock_cls, mock_time
+    ):
+        p = _mock_pipeline()
+        mock_cls.return_value = p
+        p.plain_builder.build.return_value = False
+        mock_time.side_effect = [100.0, 110.0]
+
+        with patch("builtins.print"):
+            analyze.main()
+
+        p.binary_collector.collect.assert_not_called()
+        p.docs.write_build_doc.assert_called_once()
+
+    @patch("analyze.time.time")
+    @patch("analyze.AnalysisPipeline")
+    @patch(
+        "sys.argv",
+        [
+            "analyze.py", "--repo", "fzf",
+            "--syft-only",
+        ],
+    )
+    def test_go_syft_only(
+        self, mock_cls, mock_time
+    ):
+        p = _mock_pipeline()
+        mock_cls.return_value = p
+
+        with patch("builtins.print"):
+            analyze.main()
+
+        p.syft_gen.generate.assert_called_once()
+        p.plain_builder.build.assert_not_called()
+        p.builder.build.assert_not_called()
+
+
+class TestRunGoPipeline(unittest.TestCase):
+    """Unit tests for _run_go_pipeline."""
+
+    def test_validates_syft_spdx(self):
+        with tempfile.TemporaryDirectory() as td:
+            p = _mock_pipeline()
+            p.plain_builder.build.return_value = True
+            repo_cfg = {"language": "go"}
+            paths_cfg = {"output_dir": td}
+
+            # Create the Syft SPDX file
+            spdx_dir = (
+                Path(td) / "spdx" / "go"
+                / "fzf" / "2026-03-04_1200"
+            )
+            spdx_dir.mkdir(parents=True)
+            (
+                spdx_dir / "fzf_syft.spdx.json"
+            ).write_text("{}")
+
+            with patch("builtins.print"):
+                success, duration = _run_go_pipeline(
+                    p, "fzf", repo_cfg,
+                    paths_cfg, "2026-03-04_1200",
+                )
+
+            self.assertTrue(success)
+            p.spdx_validator.validate.assert_called_once()
+
+    def test_skips_validation_no_file(self):
+        with tempfile.TemporaryDirectory() as td:
+            p = _mock_pipeline()
+            p.plain_builder.build.return_value = True
+            repo_cfg = {"language": "go"}
+            paths_cfg = {"output_dir": td}
+
+            with patch("builtins.print"):
+                success, duration = _run_go_pipeline(
+                    p, "fzf", repo_cfg,
+                    paths_cfg, "2026-03-04_1200",
+                )
+
+            self.assertTrue(success)
+            p.spdx_validator.validate.assert_not_called()
 
 
 # ============================================================
