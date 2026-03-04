@@ -194,6 +194,65 @@ class RepoCloner:
 
 
 # ============================================================
+# Plain (uninstrumented) build
+# ============================================================
+
+class PlainBuilder:
+    """Runs build steps without bomtrace3 instrumentation.
+
+    Used for Go and other languages where bomtrace3 does not
+    intercept compiler calls.  The build steps come directly
+    from config.yaml (e.g. ``go build -o fzf .``).
+    """
+
+    def __init__(self, runner=None):
+        self.runner = runner or CommandRunner()
+
+    def build(
+        self, repo_name, repo_cfg,
+        paths_cfg, run_ts=None,
+    ):
+        """Run all build steps sequentially.
+
+        Returns True on success, False on failure.
+        """
+        repo_dir = (
+            Path(paths_cfg["repos_dir"]) / repo_name
+        )
+
+        # Optional clean step
+        clean_cmd = repo_cfg.get("clean_cmd")
+        if clean_cmd:
+            self.runner.run(
+                clean_cmd, cwd=str(repo_dir),
+                description=(
+                    f"Clean: {clean_cmd}"
+                ),
+            )
+
+        build_steps = repo_cfg.get("build_steps", [])
+        for step in build_steps:
+            rc = self.runner.run(
+                step, cwd=str(repo_dir),
+                description=(
+                    f"Build: {step[:60]}"
+                ),
+            )
+            if rc != 0:
+                print(
+                    f"[ERROR] Build step failed: "
+                    f"{step}"
+                )
+                return False
+
+        print(
+            f"[OK] Plain build completed for "
+            f"{repo_name}"
+        )
+        return True
+
+
+# ============================================================
 # Bomtrace3 instrumented build
 # ============================================================
 
@@ -1370,10 +1429,10 @@ class DocWriter:
 class AnalysisPipeline:
     """Orchestrates the full OmniBOR analysis workflow.
 
-    Composes CommandRunner, RepoCloner, BomtraceBuilder,
-    SpdxGenerator, MetadataCollector, AdgSpdxStep,
-    SpdxValidator, SyftGenerator, BinaryCollector,
-    and DocWriter.
+    Composes CommandRunner, RepoCloner, PlainBuilder,
+    BomtraceBuilder, SpdxGenerator, MetadataCollector,
+    AdgSpdxStep, SpdxValidator, SyftGenerator,
+    BinaryCollector, and DocWriter.
     """
 
     def __init__(
@@ -1382,6 +1441,7 @@ class AnalysisPipeline:
         validator=None,
         cloner=None,
         builder=None,
+        plain_builder=None,
         spdx_gen=None,
         metadata_collector=None,
         adg_spdx=None,
@@ -1400,6 +1460,10 @@ class AnalysisPipeline:
         )
         self.builder = builder or BomtraceBuilder(
             self.runner
+        )
+        self.plain_builder = (
+            plain_builder
+            or PlainBuilder(self.runner)
         )
         self.spdx_gen = spdx_gen or SpdxGenerator(
             self.runner
@@ -1507,13 +1571,16 @@ def main():
     print(f"  {desc}")
     print(f"{'#'*60}\n")
 
+    lang = lang_subdir(repo_cfg)
+
     # Step 1: Clone
     if not args.skip_clone:
         pipeline.cloner.clone(
             args.repo, repo_cfg, paths_cfg
         )
 
-    # Step 2: Syft baseline SBOM
+    # Step 2: Syft SBOM (manifest-based — works for
+    # all languages; primary SBOM for Go repos)
     pipeline.syft_gen.generate(
         args.repo, repo_cfg, paths_cfg,
         run_ts=run_ts,
@@ -1522,10 +1589,52 @@ def main():
     if args.syft_only:
         print(
             "\n[DONE] Syft-only mode — "
-            "skipping instrumented build."
+            "skipping build."
         )
         return
 
+    # -------------------------------------------------
+    # Language-specific pipeline branch
+    # -------------------------------------------------
+    if lang == "c-cpp":
+        success, duration = _run_c_cpp_pipeline(
+            pipeline, args.repo, repo_cfg,
+            paths_cfg, omnibor_cfg, run_ts,
+        )
+    else:
+        success, duration = _run_go_pipeline(
+            pipeline, args.repo, repo_cfg,
+            paths_cfg, run_ts,
+        )
+
+    # Step 8: Write docs (all languages)
+    pipeline.docs.write_build_doc(
+        args.repo, repo_cfg, paths_cfg,
+        success, duration,
+        run_ts=run_ts,
+    )
+    pipeline.docs.write_runtime_doc(
+        args.repo, repo_cfg, paths_cfg,
+        duration, run_ts=run_ts,
+    )
+
+    status = "COMPLETE" if success else "FAILED"
+    print(f"\n{'#'*60}")
+    print(f"  Analysis {status}: {args.repo}")
+    print(f"  Duration: {duration:.1f}s")
+    print(f"{'#'*60}\n")
+
+
+def _run_c_cpp_pipeline(
+    pipeline, repo_name, repo_cfg,
+    paths_cfg, omnibor_cfg, run_ts,
+):
+    """C/C++ pipeline: apt validation, bomtrace3 build,
+    OmniBOR SPDX, metadata, ADG SPDX, validation,
+    binary collection.
+
+    Returns (success, duration_sec).
+    """
     # Step 3: Validate apt dependencies
     deps_ok, missing = (
         pipeline.validator.validate(repo_cfg)
@@ -1542,17 +1651,17 @@ def main():
     # Step 4: Instrumented build
     start = time.time()
     success = pipeline.builder.build(
-        args.repo, repo_cfg,
+        repo_name, repo_cfg,
         paths_cfg, omnibor_cfg,
         run_ts=run_ts,
     )
     duration = time.time() - start
 
-    # Step 5a: Generate SPDX from OmniBOR (bomsh_sbom.py)
+    # Step 5a: Generate SPDX from OmniBOR
     spdx_file = None
     if success:
         spdx_file = pipeline.spdx_gen.generate(
-            args.repo, repo_cfg,
+            repo_name, repo_cfg,
             paths_cfg, omnibor_cfg,
             run_ts=run_ts,
         )
@@ -1560,7 +1669,7 @@ def main():
     # Step 5b: Collect component metadata + dynamic libs
     if success:
         pipeline.metadata_collector.collect(
-            args.repo, repo_cfg, paths_cfg,
+            repo_name, repo_cfg, paths_cfg,
             run_ts=run_ts,
         )
 
@@ -1568,7 +1677,7 @@ def main():
     adg_files = []
     if success:
         adg_files = pipeline.adg_spdx.generate(
-            args.repo, repo_cfg, paths_cfg,
+            repo_name, repo_cfg, paths_cfg,
             run_ts=run_ts,
         )
 
@@ -1581,26 +1690,55 @@ def main():
     # Step 7: Collect output binaries
     if success:
         pipeline.binary_collector.collect(
-            args.repo, repo_cfg, paths_cfg,
+            repo_name, repo_cfg, paths_cfg,
             run_ts=run_ts,
         )
 
-    # Step 8: Write docs
-    pipeline.docs.write_build_doc(
-        args.repo, repo_cfg, paths_cfg,
-        success, duration,
+    return success, duration
+
+
+def _run_go_pipeline(
+    pipeline, repo_name, repo_cfg,
+    paths_cfg, run_ts,
+):
+    """Go pipeline: plain build, binary collection,
+    Syft SPDX validation.
+
+    bomtrace3 does not intercept ``go build`` compiler
+    calls, so OmniBOR ADG steps are skipped.  Syft is
+    the primary SBOM generator for Go repos (it parses
+    go.mod/go.sum natively).
+
+    Returns (success, duration_sec).
+    """
+    # Step 4: Plain build (no bomtrace3)
+    start = time.time()
+    success = pipeline.plain_builder.build(
+        repo_name, repo_cfg, paths_cfg,
         run_ts=run_ts,
     )
-    pipeline.docs.write_runtime_doc(
-        args.repo, repo_cfg, paths_cfg,
-        duration, run_ts=run_ts,
-    )
+    duration = time.time() - start
 
-    status = "COMPLETE" if success else "FAILED"
-    print(f"\n{'#'*60}")
-    print(f"  Analysis {status}: {args.repo}")
-    print(f"  Duration: {duration:.1f}s")
-    print(f"{'#'*60}\n")
+    # Step 6: Validate Syft SPDX
+    lang = lang_subdir(repo_cfg)
+    syft_spdx = (
+        Path(paths_cfg["output_dir"])
+        / "spdx" / lang / repo_name / run_ts
+        / f"{repo_name}_syft.spdx.json"
+    )
+    if syft_spdx.exists():
+        pipeline.spdx_validator.validate(
+            str(syft_spdx)
+        )
+
+    # Step 7: Collect output binaries
+    if success:
+        pipeline.binary_collector.collect(
+            repo_name, repo_cfg, paths_cfg,
+            run_ts=run_ts,
+        )
+
+    return success, duration
 
 
 if __name__ == "__main__":

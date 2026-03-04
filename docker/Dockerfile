@@ -80,6 +80,18 @@ RUN pip3 install --no-cache-dir -r /tmp/requirements.txt && \
 RUN curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /usr/local/bin
 
 # ============================================================
+# Install Go SDK (for building Go target repositories)
+# ============================================================
+# Go 1.23+ is required by fzf and other Go targets.
+# We install the official tarball to /usr/local/go.
+ENV GO_VERSION=1.23.6
+RUN wget -q "https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz" -O /tmp/go.tar.gz && \
+    tar -C /usr/local -xzf /tmp/go.tar.gz && \
+    rm /tmp/go.tar.gz
+ENV PATH="/usr/local/go/bin:/root/go/bin:${PATH}"
+ENV GOPATH="/root/go"
+
+# ============================================================
 # Build bomtrace2 and bomtrace3 from omnibor/bomsh
 # ============================================================
 #

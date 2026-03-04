@@ -94,6 +94,56 @@ repos:
     output_binaries:
     - src/redis-server
     - src/redis-cli
+  fzf:
+    url: https://github.com/junegunn/fzf.git
+    branch: master
+    language: go
+    build_steps:
+    - go build -o fzf .
+    clean_cmd: rm -f fzf
+    description: Fuzzy finder CLI (~7 direct + 4 indirect Go deps)
+    output_binaries:
+    - fzf
+  lazygit:
+    url: https://github.com/jesseduffield/lazygit.git
+    branch: master
+    language: go
+    build_steps:
+    - go build -o lazygit .
+    clean_cmd: rm -f lazygit
+    description: Terminal UI for git (~15-20 direct + 20-30 indirect Go deps)
+    output_binaries:
+    - lazygit
+  croc:
+    url: https://github.com/schollz/croc.git
+    branch: main
+    language: go
+    build_steps:
+    - go build -o croc .
+    clean_cmd: rm -f croc
+    description: Secure file transfer tool (~10-15 direct + 15 indirect Go deps)
+    output_binaries:
+    - croc
+  dive:
+    url: https://github.com/wagoodman/dive.git
+    branch: main
+    language: go
+    build_steps:
+    - go build -o dive .
+    clean_cmd: rm -f dive
+    description: Docker image layer explorer (~15-20 direct + 25 indirect Go deps)
+    output_binaries:
+    - dive
+  gdu:
+    url: https://github.com/dundee/gdu.git
+    branch: master
+    language: go
+    build_steps:
+    - go build -o gdu ./cmd/gdu
+    clean_cmd: rm -f gdu
+    description: Fast disk usage analyzer with TUI (~10-15 direct + 15-20 indirect Go deps)
+    output_binaries:
+    - gdu
 paths:
   repos_dir: /workspace/repos
   output_dir: /workspace/output

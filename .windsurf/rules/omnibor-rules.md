@@ -14,7 +14,7 @@ description: Rules for OmniBOR/Bomsh build interception workflow
 - **Build Metadata Extraction** (Yocto SBOM, Maven plugins) is NOT true build interception;
   it is essentially manifest scanning enhanced with build-system context
 
-## Full Pipeline Sequence
+## Full Pipeline Sequence (C/C++)
 
 1. Clone target repo into `repos/<name>/`
 2. Syft baseline SBOM (manifest-based, for comparison)
@@ -32,6 +32,20 @@ description: Rules for OmniBOR/Bomsh build interception workflow
     - Automatic version detection for vendored libs
     - Interactive D3.js HTML dependency graph
 11. SPDX validation (JSON Schema + semantic)
+
+## Go Pipeline Sequence
+
+bomtrace3 intercepts C/C++ compiler calls (gcc, g++) via ptrace. It does **not**
+intercept `go build`, which is a single static binary. For Go repos:
+
+1. Clone target repo into `repos/<name>/`
+2. Syft SBOM (primary — parses go.mod/go.sum for direct + indirect deps)
+4. Plain build via `PlainBuilder` (runs `go build` without bomtrace3)
+6. Validate Syft SPDX
+7. Collect output binaries
+8. Write docs
+
+Steps 3, 5–5c are skipped. Syft is the primary SBOM generator for Go.
 
 ## Key Paths Inside Container
 
