@@ -1345,12 +1345,26 @@ class DocWriter:
         ):
             content += f"{i}. `{step}`\n"
 
+        lang = lang_subdir(repo_cfg)
+        if lang == "c-cpp":
+            content += (
+                "\n## Instrumentation\n\n"
+                "- **Tracer:** bomtrace3\n"
+                "- **Raw logfile:** "
+                "/tmp/bomsh_hook_raw_logfile"
+                ".sha1\n"
+            )
+        else:
+            content += (
+                "\n## Instrumentation\n\n"
+                "- **Builder:** PlainBuilder "
+                "(no bomtrace3)\n"
+                "- **SBOM source:** Syft "
+                "(go.mod/go.sum)\n"
+            )
+
         content += (
-            "\n## Instrumentation\n\n"
-            "- **Tracer:** bomtrace3\n"
-            "- **Raw logfile:** "
-            "/tmp/bomsh_hook_raw_logfile.sha1\n\n"
-            "## Output Binaries\n\n"
+            "\n## Output Binaries\n\n"
         )
         for binary in repo_cfg.get(
             "output_binaries", []
@@ -1396,19 +1410,34 @@ class DocWriter:
                 f"{pct:.1f}%"
             )
 
+        if lang == "c-cpp":
+            build_label = "Instrumented build time"
+            notes = (
+                "- Measured wall-clock time for the "
+                "instrumented `make` step only\n"
+                "- Baseline (uninstrumented) build "
+                "time should be recorded separately "
+                "for comparison\n"
+            )
+        else:
+            build_label = "Build time"
+            notes = (
+                "- Measured wall-clock time for "
+                "`go build` (plain, no "
+                "bomtrace3)\n"
+                "- Syft SBOM generated from "
+                "go.mod/go.sum manifest\n"
+            )
+
         content = (
             f"# Runtime Metrics — {repo_name}\n\n"
             f"**Date:** "
             f"{datetime.now().isoformat()}\n"
-            f"**Instrumented build time:** "
+            f"**{build_label}:** "
             f"{duration_sec:.1f} seconds\n"
             f"{overhead_pct}\n\n"
             "## Notes\n\n"
-            "- Measured wall-clock time for the "
-            "instrumented `make` step only\n"
-            "- Baseline (uninstrumented) build time "
-            "should be recorded separately "
-            "for comparison\n"
+            f"{notes}"
         )
 
         with open(
