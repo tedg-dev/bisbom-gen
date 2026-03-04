@@ -450,7 +450,8 @@ class TestSpdxGenerator(unittest.TestCase):
 
             # Simulate bomsh_sbom.py output
             spdx_dir = (
-                Path(td) / "output" / "spdx" / "curl"
+                Path(td) / "output" / "spdx"
+                / "curl" / "2026-02-12_1300"
             )
             spdx_dir.mkdir(parents=True)
             (
@@ -466,10 +467,12 @@ class TestSpdxGenerator(unittest.TestCase):
                 result = gen.generate(
                     "curl", repo_cfg,
                     paths, omnibor,
+                    run_ts="2026-02-12_1300",
                 )
             self.assertIsNotNone(result)
-            self.assertIn("curl_omnibor_", result)
-            self.assertIn(".spdx.json", result)
+            self.assertIn(
+                "curl_omnibor.spdx.json", result
+            )
             self.assertTrue(Path(result).exists())
 
     def test_generate_renames_all_spdx_json_files(self):
@@ -490,7 +493,8 @@ class TestSpdxGenerator(unittest.TestCase):
 
             # Simulate multiple bomsh_sbom.py outputs
             spdx_dir = (
-                Path(td) / "output" / "spdx" / "curl"
+                Path(td) / "output" / "spdx"
+                / "curl" / "2026-02-12_1300"
             )
             spdx_dir.mkdir(parents=True)
             (
@@ -514,6 +518,7 @@ class TestSpdxGenerator(unittest.TestCase):
                 result = gen.generate(
                     "curl", repo_cfg,
                     paths, omnibor,
+                    run_ts="2026-02-12_1300",
                 )
             self.assertIsNotNone(result)
 
@@ -823,6 +828,7 @@ class TestSpdxGeneratorMetadata(unittest.TestCase):
             spdx_dir = (
                 Path(td) / "output"
                 / "spdx" / "curl"
+                / "2026-02-12_1300"
             )
             spdx_dir.mkdir(parents=True)
             (
@@ -842,10 +848,12 @@ class TestSpdxGeneratorMetadata(unittest.TestCase):
                 result = gen.generate(
                     "curl", repo_cfg,
                     paths, omnibor,
+                    run_ts="2026-02-12_1300",
                 )
             bom_dir = str(
                 Path(td) / "output"
                 / "omnibor" / "curl"
+                / "2026-02-12_1300"
             )
             mock_patch.assert_called_once_with(
                 result, bom_dir
@@ -1486,9 +1494,13 @@ class TestSyftGenerator(unittest.TestCase):
             }
 
             with patch("builtins.print"):
-                result = gen.generate("curl", paths)
-            self.assertIn("curl_syft_", result)
-            self.assertIn(".spdx.json", result)
+                result = gen.generate(
+                    "curl", paths,
+                    run_ts="2026-02-12_1300",
+                )
+            self.assertIn(
+                "curl_syft.spdx.json", result
+            )
 
     def test_generate_warns_on_failure(self):
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -2243,6 +2255,7 @@ class TestAdgSpdxStep(unittest.TestCase):
             }
             result = AdgSpdxStep.generate(
                 "test", {}, paths,
+                run_ts="2026-02-12_1300",
             )
             self.assertEqual(result, [])
 
@@ -2253,11 +2266,13 @@ class TestAdgSpdxStep(unittest.TestCase):
             # Create dirs
             bom_dir = (
                 Path(td) / "omnibor" / "nmap"
+                / "2026-02-12_1300"
                 / "metadata" / "nmap"
             )
             bom_dir.mkdir(parents=True)
             spdx_dir = (
                 Path(td) / "spdx" / "nmap"
+                / "2026-02-12_1300"
             )
             spdx_dir.mkdir(parents=True)
 
@@ -2281,6 +2296,7 @@ class TestAdgSpdxStep(unittest.TestCase):
             ):
                 result = AdgSpdxStep.generate(
                     "nmap", repo_cfg, paths,
+                    run_ts="2026-02-12_1300",
                 )
 
             self.assertEqual(len(result), 1)
@@ -2303,6 +2319,7 @@ class TestAdgSpdxStep(unittest.TestCase):
             # Create per-binary metadata dir
             meta = (
                 Path(td) / "omnibor" / "curl"
+                / "2026-02-12_1300"
                 / "metadata" / "curl"
             )
             meta.mkdir(parents=True)
@@ -2327,6 +2344,7 @@ class TestAdgSpdxStep(unittest.TestCase):
             ):
                 result = AdgSpdxStep.generate(
                     "curl", repo_cfg, paths,
+                    run_ts="2026-02-12_1300",
                 )
 
             # curl binary should have direct_only=True
@@ -2362,6 +2380,7 @@ class TestMetadataCollector(unittest.TestCase):
                 result = mc.collect(
                     "nmap", {"output_binaries": []},
                     paths,
+                    run_ts="2026-02-12_1300",
                 )
             self.assertFalse(result)
 
@@ -2371,6 +2390,7 @@ class TestMetadataCollector(unittest.TestCase):
             # Set up directory structure
             bom_dir = (
                 Path(td) / "omnibor" / "nmap"
+                / "2026-02-12_1300"
             )
             meta_dir = bom_dir / "metadata"
             bomsh = meta_dir / "bomsh"
@@ -2423,6 +2443,7 @@ class TestMetadataCollector(unittest.TestCase):
                 mock_meta.side_effect = write_meta
                 result = mc.collect(
                     "nmap", repo_cfg, paths,
+                    run_ts="2026-02-12_1300",
                 )
 
             self.assertTrue(result)
@@ -2434,6 +2455,7 @@ class TestMetadataCollector(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             bom_dir = (
                 Path(td) / "omnibor" / "nmap"
+                / "2026-02-12_1300"
             )
             meta_dir = bom_dir / "metadata"
             bomsh = meta_dir / "bomsh"
@@ -2471,6 +2493,7 @@ class TestMetadataCollector(unittest.TestCase):
             ):
                 result = mc.collect(
                     "nmap", repo_cfg, paths,
+                    run_ts="2026-02-12_1300",
                 )
             self.assertTrue(result)
 
@@ -2479,6 +2502,7 @@ class TestMetadataCollector(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             bom_dir = (
                 Path(td) / "omnibor" / "nmap"
+                / "2026-02-12_1300"
             )
             meta_dir = bom_dir / "metadata"
             bomsh = meta_dir / "bomsh"
@@ -2504,6 +2528,7 @@ class TestMetadataCollector(unittest.TestCase):
             with patch("builtins.print"):
                 result = mc.collect(
                     "nmap", repo_cfg, paths,
+                    run_ts="2026-02-12_1300",
                 )
             self.assertTrue(result)
 
@@ -2512,6 +2537,7 @@ class TestMetadataCollector(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             bom_dir = (
                 Path(td) / "omnibor" / "nmap"
+                / "2026-02-12_1300"
             )
             meta_dir = bom_dir / "metadata"
             bomsh = meta_dir / "bomsh"
@@ -2535,6 +2561,7 @@ class TestMetadataCollector(unittest.TestCase):
             ), patch("builtins.print"):
                 result = mc.collect(
                     "nmap", {}, paths,
+                    run_ts="2026-02-12_1300",
                 )
             self.assertFalse(result)
 
