@@ -14,9 +14,11 @@ output/binary-scan/*/
 !output/**/.gitkeep
 
 # ============================================================
-# User-specific infrastructure profile (IPs, instance IDs, SSH config)
+# User-specific infrastructure profile
 # ============================================================
-.windsurf/rules/infrastructure/active-profile.md
+# active-profile.md is tracked (private repo) so the setup
+# is recoverable from a fresh clone. It contains no secrets —
+# only instance IDs, IPs, SSH alias, and power-management commands.
 
 # ============================================================
 # Credentials and secrets
