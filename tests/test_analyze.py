@@ -279,6 +279,7 @@ class TestBomtraceBuilder(unittest.TestCase):
                     "make -j4",
                 ],
                 "clean_cmd": "make clean",
+                "language": "c-cpp",
             },
             {"repos_dir": "/repos", "output_dir": "/out"},
             {
@@ -418,6 +419,7 @@ class TestSpdxGenerator(unittest.TestCase):
                 "output_binaries": [
                     "src/.libs/curl"
                 ],
+                "language": "c-cpp",
             }
             omnibor = {
                 "sbom_script": "/usr/bin/sbom",
@@ -443,6 +445,7 @@ class TestSpdxGenerator(unittest.TestCase):
                 "output_binaries": [
                     "src/.libs/curl"
                 ],
+                "language": "c-cpp",
             }
             omnibor = {
                 "sbom_script": "/usr/bin/sbom",
@@ -451,7 +454,7 @@ class TestSpdxGenerator(unittest.TestCase):
             # Simulate bomsh_sbom.py output
             spdx_dir = (
                 Path(td) / "output" / "spdx"
-                / "curl" / "2026-02-12_1300"
+                / "c-cpp" / "curl" / "2026-02-12_1300"
             )
             spdx_dir.mkdir(parents=True)
             (
@@ -486,6 +489,7 @@ class TestSpdxGenerator(unittest.TestCase):
                 "output_binaries": [
                     "src/.libs/curl"
                 ],
+                "language": "c-cpp",
             }
             omnibor = {
                 "sbom_script": "/usr/bin/sbom",
@@ -494,7 +498,7 @@ class TestSpdxGenerator(unittest.TestCase):
             # Simulate multiple bomsh_sbom.py outputs
             spdx_dir = (
                 Path(td) / "output" / "spdx"
-                / "curl" / "2026-02-12_1300"
+                / "c-cpp" / "curl" / "2026-02-12_1300"
             )
             spdx_dir.mkdir(parents=True)
             (
@@ -559,6 +563,7 @@ class TestSpdxGenerator(unittest.TestCase):
                 "output_binaries": [
                     "nonexistent/bin"
                 ],
+                "language": "c-cpp",
             }
             omnibor = {"sbom_script": "x"}
 
@@ -580,6 +585,7 @@ class TestSpdxGenerator(unittest.TestCase):
                 "output_binaries": [
                     "src/.libs/curl"
                 ],
+                "language": "c-cpp",
             }
             omnibor = {"sbom_script": "x"}
 
@@ -820,6 +826,7 @@ class TestSpdxGeneratorMetadata(unittest.TestCase):
                 "output_binaries": [
                     "src/.libs/curl"
                 ],
+                "language": "c-cpp",
             }
             omnibor = {
                 "sbom_script": "/usr/bin/sbom",
@@ -827,7 +834,7 @@ class TestSpdxGeneratorMetadata(unittest.TestCase):
             # Simulate bomsh output
             spdx_dir = (
                 Path(td) / "output"
-                / "spdx" / "curl"
+                / "spdx" / "c-cpp" / "curl"
                 / "2026-02-12_1300"
             )
             spdx_dir.mkdir(parents=True)
@@ -852,7 +859,7 @@ class TestSpdxGeneratorMetadata(unittest.TestCase):
                 )
             bom_dir = str(
                 Path(td) / "output"
-                / "omnibor" / "curl"
+                / "omnibor" / "c-cpp" / "curl"
                 / "2026-02-12_1300"
             )
             mock_patch.assert_called_once_with(
@@ -879,6 +886,7 @@ class TestSpdxGeneratorMetadata(unittest.TestCase):
                 "output_binaries": [
                     "src/.libs/curl"
                 ],
+                "language": "c-cpp",
             }
             omnibor = {"sbom_script": "x"}
             runner = MagicMock()
@@ -1488,6 +1496,7 @@ class TestSyftGenerator(unittest.TestCase):
             runner = MagicMock()
             runner.run.return_value = 0
             gen = SyftGenerator(runner)
+            repo_cfg = {"language": "c-cpp"}
             paths = {
                 "repos_dir": tmpdir,
                 "output_dir": tmpdir,
@@ -1495,7 +1504,7 @@ class TestSyftGenerator(unittest.TestCase):
 
             with patch("builtins.print"):
                 result = gen.generate(
-                    "curl", paths,
+                    "curl", repo_cfg, paths,
                     run_ts="2026-02-12_1300",
                 )
             self.assertIn(
@@ -1507,6 +1516,7 @@ class TestSyftGenerator(unittest.TestCase):
             runner = MagicMock()
             runner.run.return_value = 1
             gen = SyftGenerator(runner)
+            repo_cfg = {"language": "c-cpp"}
             paths = {
                 "repos_dir": tmpdir,
                 "output_dir": tmpdir,
@@ -1521,7 +1531,7 @@ class TestSyftGenerator(unittest.TestCase):
                     )
                 ),
             ):
-                gen.generate("curl", paths)
+                gen.generate("curl", repo_cfg, paths)
             output = "\n".join(printed)
             self.assertIn("WARN", output)
 
@@ -1554,6 +1564,7 @@ class TestBinaryCollector(unittest.TestCase):
                 "output_binaries": [
                     "src/.libs/curl"
                 ],
+                "language": "c-cpp",
             }
 
             with patch("builtins.print"):
@@ -1589,6 +1600,7 @@ class TestBinaryCollector(unittest.TestCase):
                 "output_binaries": [
                     "src/.libs/curl"
                 ],
+                "language": "c-cpp",
             }
 
             printed = []
@@ -1613,7 +1625,7 @@ class TestBinaryCollector(unittest.TestCase):
             "repos_dir": "/tmp",
             "output_dir": "/tmp",
         }
-        cfg = {}
+        cfg = {"language": "c-cpp"}
 
         printed = []
         with patch(
@@ -1661,6 +1673,7 @@ class TestBinaryCollector(unittest.TestCase):
                     "src/.libs/curl",
                     "lib/.libs/libcurl.so",
                 ],
+                "language": "c-cpp",
             }
 
             with patch("builtins.print"):
@@ -1671,7 +1684,7 @@ class TestBinaryCollector(unittest.TestCase):
             self.assertEqual(len(result), 2)
             out_dir = (
                 Path(tmpdir) / "output"
-                / "binaries" / "curl"
+                / "binaries" / "c-cpp" / "curl"
                 / "2026-02-12_1300"
             )
             self.assertTrue(
@@ -1698,6 +1711,7 @@ class TestDocWriter(unittest.TestCase):
                 "description": "test repo",
                 "build_steps": ["./configure", "make"],
                 "output_binaries": ["bin/app"],
+                "language": "c-cpp",
             }
             with patch("builtins.print"):
                 result = DocWriter.write_build_doc(
@@ -1717,6 +1731,7 @@ class TestDocWriter(unittest.TestCase):
             cfg = {
                 "url": "x",
                 "build_steps": ["make"],
+                "language": "c-cpp",
             }
             with patch("builtins.print"):
                 result = DocWriter.write_build_doc(
@@ -1729,9 +1744,10 @@ class TestDocWriter(unittest.TestCase):
     def test_write_runtime_doc(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             paths = {"docs_dir": tmpdir}
+            repo_cfg = {"language": "c-cpp"}
             with patch("builtins.print"):
                 result = DocWriter.write_runtime_doc(
-                    "myrepo", paths, 55.3,
+                    "myrepo", repo_cfg, paths, 55.3,
                 )
             self.assertTrue(Path(result).exists())
             content = Path(result).read_text()
@@ -1741,9 +1757,10 @@ class TestDocWriter(unittest.TestCase):
     def test_write_runtime_doc_with_baseline(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             paths = {"docs_dir": tmpdir}
+            repo_cfg = {"language": "c-cpp"}
             with patch("builtins.print"):
                 result = DocWriter.write_runtime_doc(
-                    "repo", paths, 60.0,
+                    "repo", repo_cfg, paths, 60.0,
                     baseline_sec=30.0,
                 )
             content = Path(result).read_text()
@@ -1752,9 +1769,10 @@ class TestDocWriter(unittest.TestCase):
     def test_write_runtime_doc_no_baseline(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             paths = {"docs_dir": tmpdir}
+            repo_cfg = {"language": "c-cpp"}
             with patch("builtins.print"):
                 result = DocWriter.write_runtime_doc(
-                    "repo", paths, 60.0,
+                    "repo", repo_cfg, paths, 60.0,
                     baseline_sec=None,
                 )
             content = Path(result).read_text()
@@ -2254,7 +2272,7 @@ class TestAdgSpdxStep(unittest.TestCase):
                 "repos_dir": str(Path(td) / "repos"),
             }
             result = AdgSpdxStep.generate(
-                "test", {}, paths,
+                "test", {"language": "c-cpp"}, paths,
                 run_ts="2026-02-12_1300",
             )
             self.assertEqual(result, [])
@@ -2265,14 +2283,14 @@ class TestAdgSpdxStep(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             # Create dirs
             bom_dir = (
-                Path(td) / "omnibor" / "nmap"
-                / "2026-02-12_1300"
+                Path(td) / "omnibor" / "c-cpp"
+                / "nmap" / "2026-02-12_1300"
                 / "metadata" / "nmap"
             )
             bom_dir.mkdir(parents=True)
             spdx_dir = (
-                Path(td) / "spdx" / "nmap"
-                / "2026-02-12_1300"
+                Path(td) / "spdx" / "c-cpp"
+                / "nmap" / "2026-02-12_1300"
             )
             spdx_dir.mkdir(parents=True)
 
@@ -2283,6 +2301,7 @@ class TestAdgSpdxStep(unittest.TestCase):
             repo_cfg = {
                 "output_binaries": ["nmap"],
                 "vendored_dirs": ["/liblua/"],
+                "language": "c-cpp",
             }
 
             mock_gen = MagicMock()
@@ -2318,8 +2337,8 @@ class TestAdgSpdxStep(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             # Create per-binary metadata dir
             meta = (
-                Path(td) / "omnibor" / "curl"
-                / "2026-02-12_1300"
+                Path(td) / "omnibor" / "c-cpp"
+                / "curl" / "2026-02-12_1300"
                 / "metadata" / "curl"
             )
             meta.mkdir(parents=True)
@@ -2333,6 +2352,7 @@ class TestAdgSpdxStep(unittest.TestCase):
                     "src/.libs/curl",
                     "lib/.libs/libcurl.so",
                 ],
+                "language": "c-cpp",
             }
 
             mock_gen = MagicMock()
@@ -2378,7 +2398,10 @@ class TestMetadataCollector(unittest.TestCase):
             }
             with patch("builtins.print"):
                 result = mc.collect(
-                    "nmap", {"output_binaries": []},
+                    "nmap", {
+                        "output_binaries": [],
+                        "language": "c-cpp",
+                    },
                     paths,
                     run_ts="2026-02-12_1300",
                 )
@@ -2389,8 +2412,8 @@ class TestMetadataCollector(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             # Set up directory structure
             bom_dir = (
-                Path(td) / "omnibor" / "nmap"
-                / "2026-02-12_1300"
+                Path(td) / "omnibor" / "c-cpp"
+                / "nmap" / "2026-02-12_1300"
             )
             meta_dir = bom_dir / "metadata"
             bomsh = meta_dir / "bomsh"
@@ -2418,6 +2441,7 @@ class TestMetadataCollector(unittest.TestCase):
             }
             repo_cfg = {
                 "output_binaries": ["nmap"],
+                "language": "c-cpp",
             }
 
             mc = MetadataCollector()
@@ -2454,8 +2478,8 @@ class TestMetadataCollector(unittest.TestCase):
         """Skips collection if dynamic_libs.json exists."""
         with tempfile.TemporaryDirectory() as td:
             bom_dir = (
-                Path(td) / "omnibor" / "nmap"
-                / "2026-02-12_1300"
+                Path(td) / "omnibor" / "c-cpp"
+                / "nmap" / "2026-02-12_1300"
             )
             meta_dir = bom_dir / "metadata"
             bomsh = meta_dir / "bomsh"
@@ -2485,6 +2509,7 @@ class TestMetadataCollector(unittest.TestCase):
             }
             repo_cfg = {
                 "output_binaries": ["nmap"],
+                "language": "c-cpp",
             }
 
             mc = MetadataCollector()
@@ -2501,8 +2526,8 @@ class TestMetadataCollector(unittest.TestCase):
         """Warns and continues if binary doesn't exist."""
         with tempfile.TemporaryDirectory() as td:
             bom_dir = (
-                Path(td) / "omnibor" / "nmap"
-                / "2026-02-12_1300"
+                Path(td) / "omnibor" / "c-cpp"
+                / "nmap" / "2026-02-12_1300"
             )
             meta_dir = bom_dir / "metadata"
             bomsh = meta_dir / "bomsh"
@@ -2522,6 +2547,7 @@ class TestMetadataCollector(unittest.TestCase):
             }
             repo_cfg = {
                 "output_binaries": ["nonexistent"],
+                "language": "c-cpp",
             }
 
             mc = MetadataCollector()
@@ -2536,8 +2562,8 @@ class TestMetadataCollector(unittest.TestCase):
         """Returns False if collect_metadata raises."""
         with tempfile.TemporaryDirectory() as td:
             bom_dir = (
-                Path(td) / "omnibor" / "nmap"
-                / "2026-02-12_1300"
+                Path(td) / "omnibor" / "c-cpp"
+                / "nmap" / "2026-02-12_1300"
             )
             meta_dir = bom_dir / "metadata"
             bomsh = meta_dir / "bomsh"
@@ -2560,7 +2586,8 @@ class TestMetadataCollector(unittest.TestCase):
                 side_effect=Exception("dpkg fail"),
             ), patch("builtins.print"):
                 result = mc.collect(
-                    "nmap", {}, paths,
+                    "nmap", {"language": "c-cpp"},
+                    paths,
                     run_ts="2026-02-12_1300",
                 )
             self.assertFalse(result)

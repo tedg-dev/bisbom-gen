@@ -48,7 +48,7 @@ description: Rules for OmniBOR/Bomsh build interception workflow
 
 - Only the final `make` step should be instrumented — configure/autoreconf are not builds
 - bomtrace3 does NOT need bomsh_hook2.py — it has the functionality built in as C code
-- ADG output defaults to `${PWD}/.omnibor` but we redirect to `output/omnibor/<repo>/` via `-b` flag
+- ADG output defaults to `${PWD}/.omnibor` but we redirect to `output/omnibor/<lang>/<repo>/` via `-b` flag
 - SPDX v2.3 is the supported version
 - `vendored_dirs` in config.yaml allows per-repo vendored directory patterns
 - `direct_only` mode prevents duplicate deps when a project has both executables and shared libs

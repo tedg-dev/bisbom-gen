@@ -4,7 +4,7 @@ description: Project context and architecture for omnibor-analysis
 
 # Project: OmniBOR Analysis
 
-This project instruments C/C++ open-source builds with OmniBOR/Bomsh (build interception)
+This project instruments open-source builds (C/C++, Go) with OmniBOR/Bomsh (build interception)
 to generate SPDX 2.3 SBOMs with full dependency breakdown (vendored static libs, dynamic
 system libs, build tools), then optionally compares those against SBOMs from proprietary
 binary scanning tools (e.g., BDBA) to evaluate accuracy and completeness.
@@ -15,9 +15,9 @@ binary scanning tools (e.g., BDBA) to evaluate accuracy and completeness.
 - **docker/** — Linux container environment (Ubuntu 22.04) with gcc, bomtrace3, syft
 - **tests/** — Unit tests (349+ tests, 98% coverage)
 - **scripts/** — Helper/utility scripts
-- **docs/** — Timestamped results and summary documentation
+- **docs/** — Timestamped results and summary documentation, organized by language (`c-cpp/`, `go/`)
 - **repos/** — Cloned target repositories (gitignored)
-- **output/** — Generated artifacts: ADG, SPDX JSON, HTML visualizations (gitignored)
+- **output/** — Generated artifacts organized by language: `output/{category}/{lang}/{repo}/{ts}/` (gitignored)
 - **.windsurf/** — Cascade AI rules and workflows
 
 ## Key Technologies
@@ -58,6 +58,8 @@ binary scanning tools (e.g., BDBA) to evaluate accuracy and completeness.
 
 ## Target Repositories
 
+### C/C++ (`language: c-cpp`)
+
 | Repo | Binaries | Vendored | Dynamic | Build Time |
 |------|----------|----------|---------|------------|
 | curl | curl, libcurl.so | — (/deps/) | ~10 | ~5 min |
@@ -65,10 +67,15 @@ binary scanning tools (e.g., BDBA) to evaluate accuracy and completeness.
 | ffmpeg | 6 bins/libs | — | 20+ | ~24 min |
 | nmap | nmap, ncat, nping | 7 libs | 14 | ~3.3 min |
 
+### Go (`language: go`)
+
+No Go repos configured yet. Use `/add-repo` to add one.
+
 ## Important Constraints
 
 - All builds run inside the Docker container on a Linux x86_64 host, never on macOS
 - The container requires `SYS_PTRACE` capability and `seccomp:unconfined` for ptrace
 - repos/ and output/ are gitignored — only docs/, app/, tests/, docker/ are tracked
-- config.yaml is the single source of truth for repo URLs, build commands, and paths
+- config.yaml is the single source of truth for repo URLs, build commands, language, and paths
+- Each repo has a `language` field (`c-cpp`, `go`) that determines its output subfolder
 - Per-file test coverage must be 95%+, overall 97%+ (enforced in pre-commit.md)

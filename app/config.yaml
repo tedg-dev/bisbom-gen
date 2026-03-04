@@ -2,6 +2,7 @@ repos:
   curl:
     url: https://github.com/curl/curl.git
     branch: master
+    language: c-cpp
     build_steps:
     - autoreconf -fi
     - ./configure --with-openssl --with-zlib --with-nghttp2 --with-libssh2 --with-brotli
@@ -25,6 +26,7 @@ repos:
   ffmpeg:
     url: https://github.com/FFmpeg/FFmpeg.git
     branch: master
+    language: c-cpp
     build_steps:
     - ./configure --enable-gpl --enable-nonfree --enable-shared --disable-static --enable-libx264 --enable-libx265 --enable-libvpx
       --enable-libopus --enable-libmp3lame --enable-libfdk-aac --enable-libfreetype --enable-libfontconfig --enable-libfribidi
@@ -56,6 +58,7 @@ repos:
   nmap:
     url: https://github.com/nmap/nmap.git
     branch: master
+    language: c-cpp
     build_steps:
     - ./configure --with-libpcre=/usr --with-libz=/usr --with-libssh2=/usr --with-openssl=/usr --with-libdnet=included --with-liblua=included --with-liblinear=included --without-zenmap --without-ndiff
     - make -j$(nproc)
@@ -83,6 +86,7 @@ repos:
   redis:
     url: https://github.com/redis/redis.git
     branch: unstable
+    language: c-cpp
     build_steps:
     - make -j$(nproc)
     clean_cmd: make clean
