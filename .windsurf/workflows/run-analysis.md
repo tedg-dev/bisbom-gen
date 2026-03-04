@@ -64,17 +64,17 @@ docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
   python3 /workspace/app/analyze.py --list
 ```
 
-## 5. Download output from remote host (if applicable)
+## 5. Sync results locally (REQUIRED for remote hosts)
 
-If running on a remote host, use the sync commands from your active profile.
-General pattern:
+**After every successful remote analysis, always sync results back.**
+See `.windsurf/rules/sync-results.md` for the full rule.
 
 ```bash
 rsync -avz <SSH_ALIAS>:<REPO_PATH>/output/ output/
 rsync -avz <SSH_ALIAS>:<REPO_PATH>/docs/ docs/
 ```
 
-See `.windsurf/rules/infrastructure/active-profile.md` for your exact commands.
+Never report analysis as complete until both syncs succeed.
 
 ## What happens during analysis (8 steps)
 
@@ -91,15 +91,18 @@ See `.windsurf/rules/infrastructure/active-profile.md` for your exact commands.
 
 ## Output locations
 
+All output uses a consistent `{category}/{repo}/{ts}/` folder structure.
+The `<ts>` timestamp is generated once per run and shared across all output types.
+
 | Artifact | Path |
 |----------|------|
-| OmniBOR ADG | `output/omnibor/<repo>/` |
-| Component metadata | `output/omnibor/<repo>/metadata/component_metadata.json` |
-| Dynamic libs (per binary) | `output/omnibor/<repo>/metadata/<binary>/dynamic_libs.json` |
-| SPDX SBOM (OmniBOR) | `output/spdx/<repo>/<repo>_omnibor_<ts>.spdx.json` |
-| SPDX SBOM (ADG, per binary) | `output/spdx/<repo>/<binary>_adg.spdx.json` |
-| Visualization (per binary) | `output/spdx/<repo>/<binary>_adg.spdx.html` |
-| SPDX SBOM (Syft) | `output/spdx/<repo>/<repo>_syft_<ts>.spdx.json` |
+| OmniBOR ADG | `output/omnibor/<repo>/<ts>/` |
+| Component metadata | `output/omnibor/<repo>/<ts>/metadata/component_metadata.json` |
+| Dynamic libs (per binary) | `output/omnibor/<repo>/<ts>/metadata/<binary>/dynamic_libs.json` |
+| SPDX SBOM (OmniBOR) | `output/spdx/<repo>/<ts>/<repo>_omnibor.spdx.json` |
+| SPDX SBOM (ADG, per binary) | `output/spdx/<repo>/<ts>/<binary>_adg.spdx.json` |
+| Visualization (per binary) | `output/spdx/<repo>/<ts>/<binary>_adg.spdx.html` |
+| SPDX SBOM (Syft) | `output/spdx/<repo>/<ts>/<repo>_syft.spdx.json` |
 | Output binaries | `output/binaries/<repo>/<ts>/` |
-| Build log | `docs/<repo>/<ts>_build.md` |
-| Runtime metrics | `docs/runtime/<ts>_<repo>_runtime.md` |
+| Build log | `docs/<repo>/<ts>/build.md` |
+| Runtime metrics | `docs/runtime/<repo>/<ts>/runtime.md` |

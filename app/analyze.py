@@ -197,17 +197,19 @@ class BomtraceBuilder:
     def build(
         self, repo_name, repo_cfg,
         paths_cfg, omnibor_cfg,
+        run_ts=None,
     ):
         """Run pre-build steps, instrumented build, and ADG generation.
 
         Returns True on success, False on failure.
         """
+        ts = run_ts or timestamp()
         repo_dir = (
             Path(paths_cfg["repos_dir"]) / repo_name
         )
         bom_dir = (
             Path(paths_cfg["output_dir"])
-            / "omnibor" / repo_name
+            / "omnibor" / repo_name / ts
         )
         tracer = omnibor_cfg["tracer"]
         raw_logfile = omnibor_cfg["raw_logfile"]
@@ -566,6 +568,7 @@ class SpdxGenerator:
     def generate(
         self, repo_name, repo_cfg,
         paths_cfg, omnibor_cfg,
+        run_ts=None,
     ):
         """Generate SPDX SBOM. Returns output file path.
 
@@ -577,13 +580,14 @@ class SpdxGenerator:
         It generates one SPDX per artifact, then we
         rename the first to our standard naming.
         """
+        ts = run_ts or timestamp()
         bom_dir = (
             Path(paths_cfg["output_dir"])
-            / "omnibor" / repo_name
+            / "omnibor" / repo_name / ts
         )
         spdx_dir = (
             Path(paths_cfg["output_dir"])
-            / "spdx" / repo_name
+            / "spdx" / repo_name / ts
         )
         spdx_dir.mkdir(parents=True, exist_ok=True)
 
@@ -629,10 +633,9 @@ class SpdxGenerator:
         # extension (e.g. omnibor.<bin>.syft.spdx-json,
         # <bin>.syft.spdx-json).  Rename ALL to use the
         # standard .spdx.json extension.
-        ts = timestamp()
         spdx_file = (
             spdx_dir
-            / f"{repo_name}_omnibor_{ts}.spdx.json"
+            / f"{repo_name}_omnibor.spdx.json"
         )
         generated = sorted(spdx_dir.glob(
             "*.spdx-json"
@@ -894,21 +897,22 @@ class SyftGenerator:
     def __init__(self, runner=None):
         self.runner = runner or CommandRunner()
 
-    def generate(self, repo_name, paths_cfg):
+    def generate(self, repo_name, paths_cfg,
+                 run_ts=None):
         """Generate Syft SBOM. Returns output file path."""
+        ts = run_ts or timestamp()
         repo_dir = (
             Path(paths_cfg["repos_dir"]) / repo_name
         )
         spdx_dir = (
             Path(paths_cfg["output_dir"])
-            / "spdx" / repo_name
+            / "spdx" / repo_name / ts
         )
         spdx_dir.mkdir(parents=True, exist_ok=True)
 
-        ts = timestamp()
         spdx_file = (
             spdx_dir
-            / f"{repo_name}_syft_{ts}.spdx.json"
+            / f"{repo_name}_syft.spdx.json"
         )
 
         rc = self.runner.run(
@@ -948,15 +952,17 @@ class MetadataCollector:
 
     def collect(
         self, repo_name, repo_cfg, paths_cfg,
+        run_ts=None,
     ):
         """Collect metadata and dynamic libs.
 
         Returns True if at least component_metadata.json
         was created successfully.
         """
+        ts = run_ts or timestamp()
         bom_dir = (
             Path(paths_cfg["output_dir"])
-            / "omnibor" / repo_name
+            / "omnibor" / repo_name / ts
         )
         meta_dir = bom_dir / "metadata"
         repos_dir = paths_cfg["repos_dir"]
@@ -1065,21 +1071,23 @@ class AdgSpdxStep:
     """
 
     @staticmethod
-    def generate(repo_name, repo_cfg, paths_cfg):
+    def generate(repo_name, repo_cfg, paths_cfg,
+                 run_ts=None):
         """Generate ADG SPDX for each output binary.
 
         Returns list of output file paths.
         """
         from spdx_from_adg import AdgSpdxGenerator
 
+        ts = run_ts or timestamp()
         bom_dir = (
             Path(paths_cfg["output_dir"])
-            / "omnibor" / repo_name
+            / "omnibor" / repo_name / ts
         )
         repos_dir = paths_cfg["repos_dir"]
         spdx_dir = (
             Path(paths_cfg["output_dir"])
-            / "spdx" / repo_name
+            / "spdx" / repo_name / ts
         )
         spdx_dir.mkdir(parents=True, exist_ok=True)
 
@@ -1162,7 +1170,8 @@ class BinaryCollector:
     """
 
     @staticmethod
-    def collect(repo_name, repo_cfg, paths_cfg):
+    def collect(repo_name, repo_cfg, paths_cfg,
+                run_ts=None):
         """Copy each listed binary to a timestamped dir.
 
         Returns a list of (src, dst) tuples for binaries
@@ -1170,6 +1179,7 @@ class BinaryCollector:
         """
         import shutil
 
+        ts = run_ts or timestamp()
         bins = repo_cfg.get("output_binaries", [])
         if not bins:
             print(
@@ -1181,7 +1191,6 @@ class BinaryCollector:
         repo_dir = (
             Path(paths_cfg["repos_dir"]) / repo_name
         )
-        ts = timestamp()
         out_dir = (
             Path(paths_cfg["output_dir"])
             / "binaries" / repo_name / ts
@@ -1229,14 +1238,16 @@ class DocWriter:
     def write_build_doc(
         repo_name, repo_cfg,
         paths_cfg, success, duration_sec,
+        run_ts=None,
     ):
-        """Write a timestamped build log to docs/<repo>/."""
+        """Write build log to docs/<repo>/<ts>/."""
+        ts = run_ts or timestamp()
         docs_dir = (
-            Path(paths_cfg["docs_dir"]) / repo_name
+            Path(paths_cfg["docs_dir"])
+            / repo_name / ts
         )
         docs_dir.mkdir(parents=True, exist_ok=True)
-        ts = timestamp()
-        doc_path = docs_dir / f"{ts}_build.md"
+        doc_path = docs_dir / "build.md"
 
         status = "SUCCESS" if success else "FAILED"
         content = (
@@ -1283,18 +1294,19 @@ class DocWriter:
     def write_runtime_doc(
         repo_name, paths_cfg,
         duration_sec, baseline_sec=None,
+        run_ts=None,
     ):
         """Write runtime performance metrics."""
+        ts = run_ts or timestamp()
         runtime_dir = (
-            Path(paths_cfg["docs_dir"]) / "runtime"
+            Path(paths_cfg["docs_dir"])
+            / "runtime" / repo_name / ts
         )
         runtime_dir.mkdir(
             parents=True, exist_ok=True
         )
-        ts = timestamp()
         doc_path = (
-            runtime_dir
-            / f"{ts}_{repo_name}_runtime.md"
+            runtime_dir / "runtime.md"
         )
 
         overhead_pct = ""
@@ -1463,6 +1475,15 @@ def main():
     paths_cfg = config["paths"]
     omnibor_cfg = config["omnibor"]
 
+    # Single timestamp for the entire run — all
+    # output folders use this consistently:
+    #   output/binaries/{repo}/{run_ts}/
+    #   output/spdx/{repo}/{run_ts}/
+    #   output/omnibor/{repo}/{run_ts}/
+    #   docs/{repo}/{run_ts}/
+    #   docs/runtime/{repo}/{run_ts}/
+    run_ts = timestamp()
+
     print(f"\n{'#'*60}")
     print(f"  OmniBOR Analysis: {args.repo}")
     desc = repo_cfg.get("description", "")
@@ -1477,7 +1498,7 @@ def main():
 
     # Step 2: Syft baseline SBOM
     pipeline.syft_gen.generate(
-        args.repo, paths_cfg
+        args.repo, paths_cfg, run_ts=run_ts
     )
 
     if args.syft_only:
@@ -1505,6 +1526,7 @@ def main():
     success = pipeline.builder.build(
         args.repo, repo_cfg,
         paths_cfg, omnibor_cfg,
+        run_ts=run_ts,
     )
     duration = time.time() - start
 
@@ -1514,19 +1536,22 @@ def main():
         spdx_file = pipeline.spdx_gen.generate(
             args.repo, repo_cfg,
             paths_cfg, omnibor_cfg,
+            run_ts=run_ts,
         )
 
     # Step 5b: Collect component metadata + dynamic libs
     if success:
         pipeline.metadata_collector.collect(
             args.repo, repo_cfg, paths_cfg,
+            run_ts=run_ts,
         )
 
     # Step 5c: Generate per-binary ADG SPDX
     adg_files = []
     if success:
         adg_files = pipeline.adg_spdx.generate(
-            args.repo, repo_cfg, paths_cfg
+            args.repo, repo_cfg, paths_cfg,
+            run_ts=run_ts,
         )
 
     # Step 6: Validate SPDX documents
@@ -1538,16 +1563,19 @@ def main():
     # Step 7: Collect output binaries
     if success:
         pipeline.binary_collector.collect(
-            args.repo, repo_cfg, paths_cfg
+            args.repo, repo_cfg, paths_cfg,
+            run_ts=run_ts,
         )
 
     # Step 8: Write docs
     pipeline.docs.write_build_doc(
         args.repo, repo_cfg, paths_cfg,
         success, duration,
+        run_ts=run_ts,
     )
     pipeline.docs.write_runtime_doc(
-        args.repo, paths_cfg, duration
+        args.repo, paths_cfg, duration,
+        run_ts=run_ts,
     )
 
     status = "COMPLETE" if success else "FAILED"
