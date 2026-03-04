@@ -9,6 +9,7 @@ repos/*/
 # ============================================================
 output/omnibor/*/
 output/spdx/*/
+output/binaries/*/
 output/binary-scan/*/
 !output/**/.gitkeep
 
@@ -70,6 +71,17 @@ htmlcov/
 ehthumbs.db
 Thumbs.db
 Desktop.ini
+
+# ============================================================
+# Terraform
+# ============================================================
+terraform/.terraform/
+terraform/.terraform.lock.hcl
+terraform/terraform.tfstate
+terraform/terraform.tfstate.backup
+terraform/terraform.tfvars
+terraform/*.tfplan
+terraform/tfplan
 
 # ============================================================
 # Logs and temp files

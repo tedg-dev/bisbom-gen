@@ -55,9 +55,19 @@ The Docker container requires **Linux x86_64** with ptrace support. Options:
 
 | Option | Pros | Cons |
 |--------|------|------|
+| **AWS EC2** (recommended for Cisco) | Terraform IaC, fast builds | Duo SSO re-auth every 1 hour |
 | **Local Linux x86_64** | Fastest, no network | Must have Docker installed |
-| **Cloud VM** (DO, EC2, etc.) | Easy setup, disposable | Costs money, network latency |
-| **GitHub Codespaces** | Zero setup | May not support SYS_PTRACE |
+| **DigitalOcean Droplet** | Simple, cheap | Slower than EC2 compute-optimized |
 | **WSL2 on Windows** | Free, local | Requires Windows + WSL2 + Docker |
 
-The project is designed to work with any of these — Docker handles the environment.
+### Cisco Engineers: AWS EC2 with Duo SSO
+
+For Cisco employees, the recommended path is AWS EC2 with Terraform:
+
+- Full setup guide: `docs/aws-setup-guide.md`
+- Terraform IaC: `terraform/` directory
+- Authentication: Cisco Duo SSO → SAML → AWS STS (1-hour sessions)
+- CLI tools needed: `aws`, `terraform`, `duo-sso`
+- Infrastructure profile template: `.windsurf/rules/infrastructure/templates/aws-ec2.md`
+
+The project is designed to work with any Linux x86_64 host — Docker handles the environment.

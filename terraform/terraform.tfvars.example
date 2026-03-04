@@ -1,0 +1,23 @@
+# =============================================================================
+# Terraform Variables — Copy to terraform.tfvars and edit
+# =============================================================================
+# terraform.tfvars is gitignored — safe for user-specific values
+#
+# Most defaults are fine. Override only what you need.
+# =============================================================================
+
+# AWS profile name (from duo-sso authentication)
+# aws_profile = "ted-admin"
+
+# AWS region
+# aws_region = "us-west-1"
+
+# EC2 instance type — must be x86_64, NOT Graviton/ARM
+# Options: t3.medium (budget), t3.large (comfortable), c6i.xlarge (recommended)
+# instance_type = "c6i.xlarge"
+
+# Root EBS volume size in GB
+# ebs_volume_size_gb = 50
+
+# Path to your SSH public key
+# ssh_public_key_path = "~/.ssh/id_ed25519.pub"
