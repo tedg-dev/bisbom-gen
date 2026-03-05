@@ -99,7 +99,7 @@ repos:
     branch: master
     language: go
     build_steps:
-    - go build -o fzf .
+    - go build -a -o fzf .
     clean_cmd: rm -f fzf
     description: Fuzzy finder CLI (~7 direct + 4 indirect Go deps)
     output_binaries:
@@ -109,7 +109,7 @@ repos:
     branch: master
     language: go
     build_steps:
-    - go build -o lazygit .
+    - go build -a -o lazygit .
     clean_cmd: rm -f lazygit
     description: Terminal UI for git (~15-20 direct + 20-30 indirect Go deps)
     output_binaries:
@@ -119,7 +119,7 @@ repos:
     branch: main
     language: go
     build_steps:
-    - go build -o croc .
+    - go build -a -o croc .
     clean_cmd: rm -f croc
     description: Secure file transfer tool (~10-15 direct + 15 indirect Go deps)
     output_binaries:
@@ -129,7 +129,7 @@ repos:
     branch: main
     language: go
     build_steps:
-    - go build -o dive .
+    - go build -a -o dive .
     clean_cmd: rm -f dive
     description: Docker image layer explorer (~15-20 direct + 25 indirect Go deps)
     output_binaries:
@@ -139,7 +139,7 @@ repos:
     branch: master
     language: go
     build_steps:
-    - go build -o gdu ./cmd/gdu
+    - go build -a -o gdu ./cmd/gdu
     clean_cmd: rm -f gdu
     description: Fast disk usage analyzer with TUI (~10-15 direct + 15-20 indirect Go deps)
     output_binaries:
@@ -151,6 +151,11 @@ paths:
   bomsh_dir: /opt/bomsh
 omnibor:
   tracer: bomtrace3
+  create_bom_script: bomsh_create_bom.py
+  sbom_script: bomsh_sbom.py
+  raw_logfile: /tmp/bomsh_hook_raw_logfile.sha1
+omnibor_go:
+  tracer: bomtrace2 -c /opt/bomsh/bin/bomtrace_go.conf
   create_bom_script: bomsh_create_bom.py
   sbom_script: bomsh_sbom.py
   raw_logfile: /tmp/bomsh_hook_raw_logfile.sha1

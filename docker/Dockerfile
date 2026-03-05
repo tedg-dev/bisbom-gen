@@ -162,6 +162,16 @@ ENV PATH="/opt/bomsh/bin:/opt/bomsh/scripts:${PATH}"
 # Copy bomsh_hook2.py to /tmp (required by bomtrace2)
 RUN cp /opt/bomsh/scripts/bomsh_hook2.py /tmp/
 
+# Patch bomsh_hook2.py: is_golang_prog() only matches /usr/lib/go-*/
+# but our Go install is /usr/local/go/  —  add "local/go" path match
+COPY docker/patches/bomsh_hook2_golang_path.patch /tmp/bomsh_golang.patch
+RUN cd /opt/bomsh && patch -p1 < /tmp/bomsh_golang.patch && \
+    cp /opt/bomsh/scripts/bomsh_hook2.py /tmp/bomsh_hook2.py && \
+    rm /tmp/bomsh_golang.patch
+
+# Go-specific bomtrace2 config (watches go compile/link tools + openat syscall)
+COPY docker/bomtrace_go.conf /opt/bomsh/bin/bomtrace_go.conf
+
 # ============================================================
 # Working directory — repos are mounted here
 # ============================================================

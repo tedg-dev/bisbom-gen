@@ -52,6 +52,7 @@ def extract_graph(doc):
     static_targets = set()
     dynamic_targets = set()
     build_sources = set()
+    depends_on_targets = set()
 
     for r in rels:
         rt = r["relationshipType"]
@@ -65,6 +66,10 @@ def extract_graph(doc):
             )
         elif rt == "BUILD_TOOL_OF":
             build_sources.add(r["spdxElementId"])
+        elif rt == "DEPENDS_ON":
+            depends_on_targets.add(
+                r["relatedSpdxElement"]
+            )
 
     nodes = []
     for spdx_id, info in pkg_map.items():
@@ -74,6 +79,8 @@ def extract_graph(doc):
             group = "dynamic"
         elif spdx_id in build_sources:
             group = "build"
+        elif spdx_id in depends_on_targets:
+            group = "dependency"
         elif info["purpose"] == "APPLICATION":
             group = "root"
         else:
@@ -99,7 +106,7 @@ def extract_graph(doc):
         tgt = r["relatedSpdxElement"]
         if rt in (
             "STATIC_LINK", "DYNAMIC_LINK",
-            "BUILD_TOOL_OF",
+            "BUILD_TOOL_OF", "DEPENDS_ON",
         ):
             if src in pkg_map and tgt in pkg_map:
                 edges.append({
@@ -226,6 +233,7 @@ def generate_html(doc, output_path):
   .link-STATIC_LINK {{ stroke: #4ecdc4; }}
   .link-DYNAMIC_LINK {{ stroke: #ff6b6b; }}
   .link-BUILD_TOOL_OF {{ stroke: #ffd93d; }}
+  .link-DEPENDS_ON {{ stroke: #56b6f7; }}
 </style>
 </head>
 <body>
@@ -253,6 +261,10 @@ def generate_html(doc, output_path):
     <div class="legend-dot" style="background:#ffd93d"></div>
     <span>Build tool</span>
   </div>
+  <div class="legend-item">
+    <div class="legend-dot" style="background:#56b6f7"></div>
+    <span>Dependency (Go module)</span>
+  </div>
 
   <h3 style="margin-top:14px">Relationships</h3>
   <div class="legend-item">
@@ -266,6 +278,10 @@ def generate_html(doc, output_path):
   <div class="legend-item">
     <div class="legend-line" style="background:#ffd93d; height:2px; border-top:1px dashed #ffd93d; background:none;"></div>
     <span>BUILD_TOOL_OF</span>
+  </div>
+  <div class="legend-item">
+    <div class="legend-line" style="background:#56b6f7"></div>
+    <span>DEPENDS_ON</span>
   </div>
 </div>
 
@@ -285,6 +301,7 @@ const colors = {{
   static: '#4ecdc4',
   dynamic: '#ff6b6b',
   build: '#ffd93d',
+  dependency: '#56b6f7',
   other: '#888',
 }};
 
@@ -292,6 +309,7 @@ const linkColors = {{
   'STATIC_LINK': '#4ecdc4',
   'DYNAMIC_LINK': '#ff6b6b',
   'BUILD_TOOL_OF': '#ffd93d',
+  'DEPENDS_ON': '#56b6f7',
 }};
 
 const width = window.innerWidth;

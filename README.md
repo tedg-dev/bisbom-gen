@@ -19,7 +19,7 @@
 
 ## Overview
 
-This project instruments C/C++ open-source builds with [OmniBOR/Bomsh](https://github.com/omnibor/bomsh) to generate SPDX SBOMs via **build interception**, then compares those SBOMs against SBOMs produced by proprietary binary scanning tools (e.g., BDBA) to evaluate:
+This project instruments C/C++ and Go open-source builds with [OmniBOR/Bomsh](https://github.com/omnibor/bomsh) to generate SPDX SBOMs via **build interception**, then compares those SBOMs against SBOMs produced by proprietary binary scanning tools (e.g., BDBA) to evaluate:
 
 - **Accuracy** — Are the detected components correct?
 - **Completeness** — Are all components found?
@@ -29,7 +29,7 @@ This project instruments C/C++ open-source builds with [OmniBOR/Bomsh](https://g
 
 ### What is Build Interception?
 
-Build interception hooks into the compiler and linker during a software build to observe exactly which source files are compiled into which output artifacts. [OmniBOR's Bomtrace3](https://github.com/omnibor/bomsh) uses `strace` to intercept these calls and produce an **Artifact Dependency Graph (ADG)** — a cryptographically verifiable record of what was built from what.
+Build interception hooks into the compiler and linker during a software build to observe exactly which source files are compiled into which output artifacts. [OmniBOR's Bomtrace](https://github.com/omnibor/bomsh) uses `strace` to intercept these calls and produce an **Artifact Dependency Graph (ADG)** — a cryptographically verifiable record of what was built from what. C/C++ builds use bomtrace3; Go builds use bomtrace2 with a Go-specific configuration (see [Go Language Support](docs/go-language-support.md)).
 
 ### Why Compare Against Binary Scanning?
 
@@ -39,9 +39,11 @@ Binary scanning tools analyze compiled binaries using signature databases to ide
 
 ```
 omnibor-analysis/
-├── docker/                 Docker environment (Linux + gcc + bomtrace3)
+├── docker/                 Docker environment (Linux + gcc + Go + bomtrace)
 │   ├── Dockerfile
 │   ├── docker-compose.yml
+│   ├── bomtrace_go.conf    Go-specific bomtrace2 configuration
+│   ├── patches/            Upstream bomsh patches
 │   └── README.md
 ├── repos/                  Cloned target repositories (not tracked in git)
 ├── output/                 Raw SBOM and ADG artifacts (not tracked in git)
@@ -49,8 +51,11 @@ omnibor-analysis/
 │   ├── spdx/               SPDX SBOMs (OmniBOR + Syft)
 │   └── binary-scan/        SBOMs from proprietary binary scanner
 ├── docs/                   Timestamped results and reports
-│   ├── <repo>/             Per-repo build logs, SBOM summaries, comparisons
+│   ├── c-cpp/<repo>/<ts>/  C/C++ per-repo build logs
+│   ├── go/<repo>/<ts>/     Go per-repo build logs
 │   ├── runtime/            Build time and performance metrics
+│   ├── go-language-support.md  Comprehensive Go support documentation
+│   ├── upstream-changes.md     Tracking upstream bomsh fixes
 │   └── summary/            Cross-repo findings and methodology
 ├── app/                    Orchestration scripts and configuration
 │   ├── analyze.py          Clone, build, instrument, generate SBOMs
@@ -93,9 +98,10 @@ docker-compose -f docker/docker-compose.yml build
 
 This builds an Ubuntu 22.04 container with:
 - gcc, clang, make, cmake, autoconf
+- Go SDK (latest)
 - bomtrace2 and bomtrace3 (compiled from [omnibor/bomsh](https://github.com/omnibor/bomsh))
 - [Syft](https://github.com/anchore/syft) for manifest-based SBOM generation
-- All build dependencies for target repositories (curl, FFmpeg)
+- All build dependencies for target repositories
 
 First build takes **10-20 minutes** (compiles bomtrace from patched strace source). Subsequent builds use Docker layer cache.
 
@@ -155,33 +161,57 @@ docker-compose -f docker/docker-compose.yml run --rm omnibor-env bash
 
 ## Target Repositories
 
-| Repo | Size | Dependencies | Build System | Purpose |
-|------|------|-------------|-------------|---------|
-| [curl](https://github.com/curl/curl) | ~170K LoC | OpenSSL, zlib, nghttp2, libssh2, brotli, zstd, c-ares, libidn2 | autoconf/make | Controlled medium-size comparison |
-| [FFmpeg](https://github.com/FFmpeg/FFmpeg) | ~1.2M LoC | libx264, libx265, libvpx, libopus, OpenSSL, zlib, 20+ more | autoconf/make | Large-scale dependency-rich comparison |
+### C/C++ (bomtrace3)
+
+| Repo | Dependencies | Build System | Purpose |
+|------|-------------|-------------|----------|
+| [curl](https://github.com/curl/curl) | OpenSSL, zlib, nghttp2, libssh2, brotli, zstd, c-ares, libidn2 | autoconf/make | Controlled medium-size comparison |
+| [redis](https://github.com/redis/redis) | 8 vendored static libs | make | Vendored library detection |
+| [FFmpeg](https://github.com/FFmpeg/FFmpeg) | libx264, libx265, libvpx, libopus, OpenSSL, zlib, 20+ more | autoconf/make | Large-scale dependency-rich comparison |
+| [nmap](https://github.com/nmap/nmap) | 7 vendored + 14 dynamic | autoconf/make | Mixed vendored + system deps |
+
+### Go (bomtrace2)
+
+| Repo | Direct deps | Indirect deps | Purpose |
+|------|-------------|---------------|----------|
+| [lazygit](https://github.com/jesseduffield/lazygit) | 33 | 29 | First Go target, rich dependency graph |
+
+For details on Go support, see [Go Language Support](docs/go-language-support.md).
 
 To add a new target repository, see [CONTRIBUTING.md](CONTRIBUTING.md#adding-a-new-target-repository).
 
 ## Output and Reports
 
+### SPDX Output Files (per binary)
+
+Each analysis run produces three SPDX files:
+
+| File | Purpose |
+|------|----------|
+| `<binary>_adg.spdx.json` | **Primary output.** Full dependency graph from build interception (DEPENDS_ON, STATIC_LINK, DYNAMIC_LINK, BUILD_TOOL_OF). |
+| `<binary>_omnibor.spdx.json` | OmniBOR artifact identity. Lists cryptographic hashes for provenance tracking. No dependency relationships (by design). |
+| `<binary>_syft.spdx.json` | Syft baseline. Manifest-based SBOM for comparison. |
+
+Each `.spdx.json` has a corresponding `.spdx.html` interactive D3.js visualization.
+
 ### Artifacts (not tracked in git)
 
 | Path | Contents |
 |------|----------|
-| `output/omnibor/<repo>/` | OmniBOR Artifact Dependency Graph (ADG) documents |
-| `output/spdx/<repo>/` | SPDX SBOM files (from OmniBOR and Syft) |
-| `output/binary-scan/<repo>/` | SPDX SBOM files from proprietary binary scanner |
+| `output/omnibor/{lang}/{repo}/{ts}/` | OmniBOR ADG documents from bomsh |
+| `output/spdx/{lang}/{repo}/{ts}/` | SPDX SBOM files + HTML visualizations |
+| `output/binaries/{lang}/{repo}/{ts}/` | Collected output binaries |
+| `output/binary-scan/{lang}/{repo}/` | SBOMs from proprietary binary scanner |
 
 ### Reports (tracked in git)
 
 | Path | Contents |
 |------|----------|
-| `docs/<repo>/<timestamp>_build.md` | Build log, environment snapshot |
-| `docs/<repo>/<timestamp>_comparison.md` | Side-by-side SBOM comparison |
-| `docs/runtime/<timestamp>_<repo>_runtime.md` | Build time and bomtrace3 overhead metrics |
+| `docs/{lang}/{repo}/{ts}/build.md` | Build log, environment snapshot |
+| `docs/runtime/{lang}/{repo}/{ts}/runtime.md` | Build time and performance metrics |
 | `docs/summary/` | Cross-repo findings and methodology |
 
-**Naming convention:** `YYYY-MM-DD_HHMM_<type>.md`
+**Path convention:** `{lang}` is `c-cpp` or `go`. `{ts}` is `YYYY-MM-DD_HHMM`.
 
 ## Contributing
 

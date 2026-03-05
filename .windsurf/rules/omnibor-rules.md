@@ -35,23 +35,31 @@ description: Rules for OmniBOR/Bomsh build interception workflow
 
 ## Go Pipeline Sequence
 
-bomtrace3 intercepts C/C++ compiler calls (gcc, g++) via ptrace. It does **not**
-intercept `go build`, which is a single static binary. For Go repos:
+Go repos use **bomtrace2** with a Go-specific `bomtrace_go.conf` that watches
+Go's internal compiler tools (`compile`, `link`) and traces the `openat` syscall.
+The `go build -a` flag bypasses Go's build cache so bomtrace2 captures all
+compilation steps.
 
 1. Clone target repo into `repos/<name>/`
-2. Syft SBOM (primary — parses go.mod/go.sum for direct + indirect deps)
-4. Plain build via `PlainBuilder` (runs `go build` without bomtrace3)
-6. Validate Syft SPDX
+2. Syft SBOM (manifest-based baseline from go.mod/go.sum)
+3. (no apt deps for Go)
+4. Instrumented build: `bomtrace2 -c bomtrace_go.conf go build -a -o <binary> .`
+5a. OmniBOR SPDX via bomsh_sbom.py
+5b. Metadata collection
+5c. Per-binary ADG SPDX + HTML visualization
+6. SPDX validation (JSON Schema + semantic)
 7. Collect output binaries
 8. Write docs
 
-Steps 3, 5–5c are skipped. Syft is the primary SBOM generator for Go.
+See: https://github.com/omnibor/bomsh#software-vulnerability-cve-search-for-golang-packages
 
 ## Key Paths Inside Container
 
 | Path | Purpose |
 |------|---------|
-| `/opt/bomsh/bin/bomtrace3` | Bomtrace3 binary |
+| `/opt/bomsh/bin/bomtrace3` | Bomtrace3 binary (C/C++) |
+| `/opt/bomsh/bin/bomtrace2` | Bomtrace2 binary (Go) |
+| `/opt/bomsh/bin/bomtrace_go.conf` | Go-specific bomtrace2 config (watches compile, link + openat) |
 | `/opt/bomsh/scripts/` | Bomsh Python scripts |
 | `/tmp/bomsh_hook_raw_logfile.sha1` | Raw build log (default location) |
 | `/tmp/bomsh_createbom_jsonfile` | Generated hash-tree database |

@@ -194,70 +194,16 @@ class RepoCloner:
 
 
 # ============================================================
-# Plain (uninstrumented) build
-# ============================================================
-
-class PlainBuilder:
-    """Runs build steps without bomtrace3 instrumentation.
-
-    Used for Go and other languages where bomtrace3 does not
-    intercept compiler calls.  The build steps come directly
-    from config.yaml (e.g. ``go build -o fzf .``).
-    """
-
-    def __init__(self, runner=None):
-        self.runner = runner or CommandRunner()
-
-    def build(
-        self, repo_name, repo_cfg,
-        paths_cfg, run_ts=None,
-    ):
-        """Run all build steps sequentially.
-
-        Returns True on success, False on failure.
-        """
-        repo_dir = (
-            Path(paths_cfg["repos_dir"]) / repo_name
-        )
-
-        # Optional clean step
-        clean_cmd = repo_cfg.get("clean_cmd")
-        if clean_cmd:
-            self.runner.run(
-                clean_cmd, cwd=str(repo_dir),
-                description=(
-                    f"Clean: {clean_cmd}"
-                ),
-            )
-
-        build_steps = repo_cfg.get("build_steps", [])
-        for step in build_steps:
-            rc = self.runner.run(
-                step, cwd=str(repo_dir),
-                description=(
-                    f"Build: {step[:60]}"
-                ),
-            )
-            if rc != 0:
-                print(
-                    f"[ERROR] Build step failed: "
-                    f"{step}"
-                )
-                return False
-
-        print(
-            f"[OK] Plain build completed for "
-            f"{repo_name}"
-        )
-        return True
-
-
-# ============================================================
-# Bomtrace3 instrumented build
+# Bomtrace instrumented build
 # ============================================================
 
 class BomtraceBuilder:
-    """Instruments the build with bomtrace3 and generates OmniBOR ADG."""
+    """Instruments the build with bomtrace and generates OmniBOR ADG.
+
+    Works for both C/C++ (bomtrace3) and Go (bomtrace2 with
+    Go-specific bomtrace.conf).  The tracer binary is specified
+    in the omnibor config section passed to build().
+    """
 
     def __init__(self, runner=None):
         self.runner = runner or CommandRunner()
@@ -886,10 +832,10 @@ class SpdxValidator:
     def _validate_semantic(self, spdx_path, result):
         """Validate with spdx-tools parse + validate."""
         try:
-            from spdx_tools.spdx.parser.\
-                parse_anything import parse_file
-            from spdx_tools.spdx.validation.\
-                document_validator import (
+            from spdx_tools.spdx.parser.parse_anything import (
+                parse_file,
+            )
+            from spdx_tools.spdx.validation.document_validator import (
                 validate_full_spdx_document,
             )
         except ImportError:
@@ -1357,10 +1303,13 @@ class DocWriter:
         else:
             content += (
                 "\n## Instrumentation\n\n"
-                "- **Builder:** PlainBuilder "
-                "(no bomtrace3)\n"
-                "- **SBOM source:** Syft "
-                "(go.mod/go.sum)\n"
+                "- **Tracer:** bomtrace2 "
+                "(Go-specific conf)\n"
+                "- **Raw logfile:** "
+                "/tmp/bomsh_hook_raw_logfile"
+                ".sha1\n"
+                "- **Watched tools:** "
+                "compile, link\n"
             )
 
         content += (
@@ -1420,13 +1369,15 @@ class DocWriter:
                 "for comparison\n"
             )
         else:
-            build_label = "Build time"
+            build_label = "Instrumented build time"
             notes = (
                 "- Measured wall-clock time for "
-                "`go build` (plain, no "
-                "bomtrace3)\n"
-                "- Syft SBOM generated from "
-                "go.mod/go.sum manifest\n"
+                "bomtrace2-instrumented "
+                "`go build -a`\n"
+                "- OmniBOR ADG + SPDX generated "
+                "from build interception\n"
+                "- Syft manifest SBOM also "
+                "generated from go.mod/go.sum\n"
             )
 
         content = (
@@ -1458,7 +1409,7 @@ class DocWriter:
 class AnalysisPipeline:
     """Orchestrates the full OmniBOR analysis workflow.
 
-    Composes CommandRunner, RepoCloner, PlainBuilder,
+    Composes CommandRunner, RepoCloner,
     BomtraceBuilder, SpdxGenerator, MetadataCollector,
     AdgSpdxStep, SpdxValidator, SyftGenerator,
     BinaryCollector, and DocWriter.
@@ -1470,7 +1421,6 @@ class AnalysisPipeline:
         validator=None,
         cloner=None,
         builder=None,
-        plain_builder=None,
         spdx_gen=None,
         metadata_collector=None,
         adg_spdx=None,
@@ -1489,10 +1439,6 @@ class AnalysisPipeline:
         )
         self.builder = builder or BomtraceBuilder(
             self.runner
-        )
-        self.plain_builder = (
-            plain_builder
-            or PlainBuilder(self.runner)
         )
         self.spdx_gen = spdx_gen or SpdxGenerator(
             self.runner
@@ -1631,9 +1577,10 @@ def main():
             paths_cfg, omnibor_cfg, run_ts,
         )
     else:
+        omnibor_go_cfg = config["omnibor_go"]
         success, duration = _run_go_pipeline(
             pipeline, args.repo, repo_cfg,
-            paths_cfg, run_ts,
+            paths_cfg, omnibor_go_cfg, run_ts,
         )
 
     # Step 8: Write docs (all languages)
@@ -1728,27 +1675,63 @@ def _run_c_cpp_pipeline(
 
 def _run_go_pipeline(
     pipeline, repo_name, repo_cfg,
-    paths_cfg, run_ts,
+    paths_cfg, omnibor_go_cfg, run_ts,
 ):
-    """Go pipeline: plain build, binary collection,
-    Syft SPDX validation.
+    """Go pipeline: bomtrace2 instrumented build,
+    OmniBOR ADG, SPDX generation, metadata, ADG SPDX,
+    validation, binary collection.
 
-    bomtrace3 does not intercept ``go build`` compiler
-    calls, so OmniBOR ADG steps are skipped.  Syft is
-    the primary SBOM generator for Go repos (it parses
-    go.mod/go.sum natively).
+    Uses bomtrace2 with a Go-specific bomtrace.conf
+    that watches the Go compiler tools (compile, link)
+    and traces the openat syscall.  ``go build -a`` is
+    required to bypass the Go build cache so bomtrace2
+    captures all compilation steps.
+
+    See: https://github.com/omnibor/bomsh
+    #software-vulnerability-cve-search-for-golang-packages
 
     Returns (success, duration_sec).
     """
-    # Step 4: Plain build (no bomtrace3)
+    # Step 4: Instrumented build (bomtrace2)
     start = time.time()
-    success = pipeline.plain_builder.build(
-        repo_name, repo_cfg, paths_cfg,
+    success = pipeline.builder.build(
+        repo_name, repo_cfg,
+        paths_cfg, omnibor_go_cfg,
         run_ts=run_ts,
     )
     duration = time.time() - start
 
-    # Step 6: Validate Syft SPDX
+    # Step 5a: Generate SPDX from OmniBOR
+    spdx_file = None
+    if success:
+        spdx_file = pipeline.spdx_gen.generate(
+            repo_name, repo_cfg,
+            paths_cfg, omnibor_go_cfg,
+            run_ts=run_ts,
+        )
+
+    # Step 5b: Collect component metadata
+    if success:
+        pipeline.metadata_collector.collect(
+            repo_name, repo_cfg, paths_cfg,
+            run_ts=run_ts,
+        )
+
+    # Step 5c: Generate per-binary ADG SPDX
+    adg_files = []
+    if success:
+        adg_files = pipeline.adg_spdx.generate(
+            repo_name, repo_cfg, paths_cfg,
+            run_ts=run_ts,
+        )
+
+    # Step 6: Validate SPDX documents
+    if spdx_file:
+        pipeline.spdx_validator.validate(spdx_file)
+    for adg_file in adg_files:
+        pipeline.spdx_validator.validate(adg_file)
+
+    # Also validate Syft SPDX
     lang = lang_subdir(repo_cfg)
     syft_spdx = (
         Path(paths_cfg["output_dir"])

@@ -45,15 +45,20 @@ and completeness.
 7. Binary collection
 8. Documentation generation
 
-### Go repos (Syft-primary, plain build)
+### Go repos (bomtrace2 instrumented build)
 1. Clone target repo
-2. Syft SBOM (primary — parses go.mod/go.sum)
-4. Plain build via PlainBuilder (no bomtrace3)
-6. SPDX validation
+2. Syft SBOM (manifest-based baseline from go.mod/go.sum)
+3. (no apt deps for Go)
+4. Instrumented build with bomtrace2 (`go build -a` + Go-specific bomtrace.conf)
+5a. OmniBOR SPDX via bomsh_sbom.py
+5b. Metadata collection
+5c. Per-binary ADG SPDX + HTML visualization
+6. SPDX validation (JSON Schema + semantic)
 7. Binary collection
 8. Documentation generation
 
-Steps 3, 5a-5c are skipped for Go because bomtrace3 does not intercept `go build`.
+bomtrace2 with a Go-specific config watches Go's internal compile/link tools
+and traces the openat syscall. The `-a` flag bypasses Go's build cache.
 
 ## Key Application Files
 
@@ -97,6 +102,6 @@ Steps 3, 5a-5c are skipped for Go because bomtrace3 does not intercept `go build
 - repos/ and output/ are gitignored — only docs/, app/, tests/, docker/ are tracked
 - config.yaml is the single source of truth for repo URLs, build commands, language, and paths
 - Each repo has a `language` field (`c-cpp`, `go`) that determines its output subfolder
-- Go repos use `PlainBuilder` (no bomtrace3) and Syft as the primary SBOM generator
+- Go repos use `BomtraceBuilder` with bomtrace2 (Go-specific conf) for instrumented builds
 - C/C++ repos use `BomtraceBuilder` (bomtrace3 instrumentation) and bomsh for OmniBOR SBOMs
 - Per-file test coverage must be 95%+, overall 97%+ (enforced in pre-commit.md)

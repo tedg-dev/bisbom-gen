@@ -2199,5 +2199,581 @@ class TestVisualizationFailure(unittest.TestCase):
             self.assertTrue(Path(out).exists())
 
 
+class TestGoModuleFromVendorPath(unittest.TestCase):
+    """Tests for SpdxEmitter._go_module_from_vendor_path."""
+
+    def test_github_three_segments(self):
+        result = SpdxEmitter._go_module_from_vendor_path(
+            "github.com/fatih/color/color.go"
+        )
+        self.assertEqual(
+            result, "github.com/fatih/color"
+        )
+
+    def test_github_major_version_suffix(self):
+        result = SpdxEmitter._go_module_from_vendor_path(
+            "github.com/gdamore/tcell/v2/screen.go"
+        )
+        self.assertEqual(
+            result,
+            "github.com/gdamore/tcell/v2",
+        )
+
+    def test_golang_org_three_segments(self):
+        result = SpdxEmitter._go_module_from_vendor_path(
+            "golang.org/x/crypto/ssh/keys.go"
+        )
+        self.assertEqual(
+            result, "golang.org/x/crypto"
+        )
+
+    def test_gopkg_in_dotted_two_segments(self):
+        result = SpdxEmitter._go_module_from_vendor_path(
+            "gopkg.in/yaml.v3/yaml.go"
+        )
+        self.assertEqual(
+            result, "gopkg.in/yaml.v3"
+        )
+
+    def test_gopkg_in_three_segments(self):
+        result = SpdxEmitter._go_module_from_vendor_path(
+            "gopkg.in/ozeidan/fuzzy-patricia.v3/p.go"
+        )
+        self.assertEqual(
+            result,
+            "gopkg.in/ozeidan/fuzzy-patricia.v3",
+        )
+
+    def test_other_domain_two_segments(self):
+        result = SpdxEmitter._go_module_from_vendor_path(
+            "dario.cat/mergo/merge.go"
+        )
+        self.assertEqual(
+            result, "dario.cat/mergo"
+        )
+
+    def test_no_dot_in_first_segment(self):
+        """Non-domain first segment returns None."""
+        result = SpdxEmitter._go_module_from_vendor_path(
+            "internal/util/helper.go"
+        )
+        self.assertIsNone(result)
+
+    def test_single_segment(self):
+        result = SpdxEmitter._go_module_from_vendor_path(
+            "README.md"
+        )
+        self.assertIsNone(result)
+
+    def test_github_only_two_parts(self):
+        """github.com/owner with no repo returns None."""
+        result = SpdxEmitter._go_module_from_vendor_path(
+            "github.com/owner"
+        )
+        self.assertIsNone(result)
+
+    def test_gitlab_three_segments(self):
+        result = SpdxEmitter._go_module_from_vendor_path(
+            "gitlab.com/org/repo/file.go"
+        )
+        self.assertEqual(
+            result, "gitlab.com/org/repo"
+        )
+
+    def test_bitbucket_three_segments(self):
+        result = SpdxEmitter._go_module_from_vendor_path(
+            "bitbucket.org/org/repo/file.go"
+        )
+        self.assertEqual(
+            result, "bitbucket.org/org/repo"
+        )
+
+    def test_gopkg_in_no_dot_two_parts(self):
+        """gopkg.in/owner with no repo returns None."""
+        result = SpdxEmitter._go_module_from_vendor_path(
+            "gopkg.in/owner"
+        )
+        self.assertIsNone(result)
+
+
+class TestDetectGoVersion(unittest.TestCase):
+    """Tests for SpdxEmitter._detect_go_version."""
+
+    def test_from_build_cmd(self):
+        stdlib = [{
+            "file_path": "/usr/local/go/src/fmt/print.go",
+            "build_cmd": (
+                "compile -goversion go1.22.3 -p fmt"
+            ),
+        }]
+        ver = SpdxEmitter._detect_go_version(stdlib)
+        self.assertEqual(ver, "1.22.3")
+
+    def test_from_version_file(self):
+        stdlib = [{
+            "file_path": (
+                "/usr/local/go/src/fmt/a.go"
+            ),
+        }]
+        with patch.object(
+            Path, "exists", return_value=True
+        ), patch.object(
+            Path, "read_text",
+            return_value="go1.26.0\ntime 2026\n",
+        ):
+            ver = SpdxEmitter._detect_go_version(
+                stdlib
+            )
+        self.assertEqual(ver, "1.26.0")
+
+    def test_fallback_unknown(self):
+        stdlib = [{
+            "file_path": (
+                "/usr/local/go/src/fmt/print.go"
+            ),
+        }]
+        # No build_cmd, no VERSION file on macOS
+        ver = SpdxEmitter._detect_go_version(stdlib)
+        self.assertEqual(ver, "unknown")
+
+    def test_empty_stdlib(self):
+        ver = SpdxEmitter._detect_go_version([])
+        self.assertEqual(ver, "unknown")
+
+
+class TestParseGoModulesTxt(unittest.TestCase):
+    """Tests for SpdxEmitter._parse_go_modules_txt."""
+
+    def test_parse_modules_txt(self):
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td) / "repos" / "lazygit"
+            vendor = repo / "vendor"
+            vendor.mkdir(parents=True)
+            (vendor / "modules.txt").write_text(
+                "# github.com/fatih/color v1.16.0\n"
+                "## explicit; go 1.17\n"
+                "github.com/fatih/color\n"
+                "# golang.org/x/sys v0.40.0\n"
+                "## explicit; go 1.18\n"
+                "golang.org/x/sys/unix\n"
+            )
+            src = str(repo / "main.go")
+            files = [{"file_path": src}]
+            versions = (
+                SpdxEmitter._parse_go_modules_txt(files)
+            )
+            self.assertEqual(
+                versions["github.com/fatih/color"],
+                "1.16.0",
+            )
+            self.assertEqual(
+                versions["golang.org/x/sys"],
+                "0.40.0",
+            )
+
+    def test_no_project_files(self):
+        versions = (
+            SpdxEmitter._parse_go_modules_txt([])
+        )
+        self.assertEqual(versions, {})
+
+    def test_no_modules_txt(self):
+        with tempfile.TemporaryDirectory() as td:
+            files = [{"file_path": str(
+                Path(td) / "main.go"
+            )}]
+            versions = (
+                SpdxEmitter._parse_go_modules_txt(
+                    files
+                )
+            )
+            self.assertEqual(versions, {})
+
+
+class TestParseGoMod(unittest.TestCase):
+    """Tests for SpdxEmitter._parse_go_mod."""
+
+    def test_parse_direct_and_indirect(self):
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td) / "repos" / "lazygit"
+            repo.mkdir(parents=True)
+            (repo / "go.mod").write_text(
+                "module github.com/example/app\n"
+                "\n"
+                "go 1.22\n"
+                "\n"
+                "require (\n"
+                "\tgithub.com/direct/one v1.0.0\n"
+                "\tgithub.com/direct/two v2.0.0\n"
+                ")\n"
+                "\n"
+                "require (\n"
+                "\tgithub.com/indirect/a "
+                "v0.1.0 // indirect\n"
+                "\tgithub.com/indirect/b "
+                "v0.2.0 // indirect\n"
+                ")\n"
+            )
+            files = [{"file_path": str(
+                repo / "main.go"
+            )}]
+            indirect = SpdxEmitter._parse_go_mod(
+                files
+            )
+            self.assertIn(
+                "github.com/indirect/a", indirect
+            )
+            self.assertIn(
+                "github.com/indirect/b", indirect
+            )
+            self.assertNotIn(
+                "github.com/direct/one", indirect
+            )
+            self.assertNotIn(
+                "github.com/direct/two", indirect
+            )
+
+    def test_no_project_files(self):
+        indirect = SpdxEmitter._parse_go_mod([])
+        self.assertEqual(indirect, set())
+
+    def test_no_go_mod_file(self):
+        with tempfile.TemporaryDirectory() as td:
+            files = [{"file_path": str(
+                Path(td) / "main.go"
+            )}]
+            indirect = SpdxEmitter._parse_go_mod(
+                files
+            )
+            self.assertEqual(indirect, set())
+
+
+class TestGoStdlibClassification(unittest.TestCase):
+    """Tests for go_stdlib classification in parse()."""
+
+    def test_go_stdlib_files_classified(self):
+        with tempfile.TemporaryDirectory() as td:
+            meta = (
+                Path(td) / "bom" / "metadata" / "bomsh"
+            )
+            meta.mkdir(parents=True)
+            treedb = {
+                "aaa": {
+                    "file_path": (
+                        "/usr/local/go/src/fmt/print.go"
+                    ),
+                },
+                "bbb": {
+                    "file_path": (
+                        "/usr/local/go/src/os/file.go"
+                    ),
+                    "build_cmd": "compile -p os",
+                },
+            }
+            (
+                meta / "bomsh_omnibor_treedb"
+            ).write_text(json.dumps(treedb))
+            parser = AdgParser(
+                Path(td) / "bom", "/repos"
+            )
+            result = parser.parse()
+            self.assertEqual(
+                len(result["go_stdlib"]), 2
+            )
+            # Verify build_cmd preserved
+            cmds = [
+                a.get("build_cmd")
+                for a in result["go_stdlib"]
+            ]
+            self.assertIn("compile -p os", cmds)
+
+
+class TestGoModuleEmission(unittest.TestCase):
+    """Tests for Go module SPDX emission."""
+
+    def _emitter(self, binary_name="lazygit"):
+        return SpdxEmitter(
+            repo_name="lazygit",
+            repo_version="0.44.0",
+            distro="Ubuntu 22.04",
+            gcc_version="gcc 11.4.0",
+            bomtrace_version="6.11",
+            bomsh_version="0.0.1",
+            binary_name=binary_name,
+        )
+
+    def test_go_stdlib_and_compiler_packages(self):
+        """go_stdlib adds Go compiler + stdlib pkgs."""
+        emitter = self._emitter()
+        go_stdlib = [
+            {"file_path": "/usr/local/go/src/a.go"},
+            {"file_path": "/usr/local/go/src/b.go"},
+        ]
+        doc = emitter.emit(
+            components=[],
+            project_files=[],
+            doc_mapping={},
+            logfile_hashes={},
+            go_stdlib=go_stdlib,
+        )
+        names = [p["name"] for p in doc["packages"]]
+        self.assertIn("go", names)
+        self.assertIn("go-stdlib", names)
+
+        # Go compiler is BUILD_TOOL_OF root
+        go_pkg = next(
+            p for p in doc["packages"]
+            if p["name"] == "go"
+        )
+        build_rels = [
+            r for r in doc["relationships"]
+            if r["spdxElementId"] == go_pkg["SPDXID"]
+            and r["relationshipType"] == "BUILD_TOOL_OF"
+        ]
+        self.assertEqual(len(build_rels), 1)
+
+        # Stdlib is DEPENDS_ON from root
+        stdlib_pkg = next(
+            p for p in doc["packages"]
+            if p["name"] == "go-stdlib"
+        )
+        dep_rels = [
+            r for r in doc["relationships"]
+            if r["relatedSpdxElement"]
+            == stdlib_pkg["SPDXID"]
+            and r["relationshipType"] == "DEPENDS_ON"
+        ]
+        self.assertEqual(len(dep_rels), 1)
+
+        # Stdlib has PURL
+        purls = [
+            ref["referenceLocator"]
+            for ref in stdlib_pkg["externalRefs"]
+            if ref["referenceType"] == "purl"
+        ]
+        self.assertEqual(len(purls), 1)
+        self.assertIn("pkg:golang/stdlib", purls[0])
+
+    def test_go_module_vendored_package(self):
+        """Go vendor/ files create Go module packages."""
+        emitter = self._emitter()
+        files = [
+            {
+                "sha1": "a" * 40,
+                "file_path": (
+                    "/repos/lazygit/vendor/"
+                    "github.com/fatih/color/color.go"
+                ),
+            },
+            {
+                "sha1": "b" * 40,
+                "file_path": (
+                    "/repos/lazygit/vendor/"
+                    "github.com/fatih/color/doc.go"
+                ),
+            },
+        ]
+        doc = emitter.emit(
+            components=[],
+            project_files=files,
+            doc_mapping={},
+            logfile_hashes={},
+        )
+        names = [p["name"] for p in doc["packages"]]
+        self.assertIn(
+            "github.com/fatih/color", names
+        )
+
+        pkg = next(
+            p for p in doc["packages"]
+            if p["name"] == "github.com/fatih/color"
+        )
+        # Go module -> downloadLocation is pkg.go.dev
+        self.assertIn(
+            "pkg.go.dev", pkg["downloadLocation"]
+        )
+        # Go module -> DEPENDS_ON (not STATIC_LINK)
+        dep_rels = [
+            r for r in doc["relationships"]
+            if r["relatedSpdxElement"]
+            == pkg["SPDXID"]
+            and r["relationshipType"] == "DEPENDS_ON"
+        ]
+        self.assertEqual(len(dep_rels), 1)
+
+    def test_go_module_purl_with_version(self):
+        """Go module with version gets PURL."""
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td) / "repos" / "lazygit"
+            vendor = repo / "vendor"
+            vendor.mkdir(parents=True)
+            (vendor / "modules.txt").write_text(
+                "# github.com/fatih/color v1.16.0\n"
+            )
+            emitter = self._emitter()
+            files = [{
+                "sha1": "a" * 40,
+                "file_path": str(
+                    repo / "vendor"
+                    / "github.com" / "fatih"
+                    / "color" / "color.go"
+                ),
+            }]
+            doc = emitter.emit(
+                components=[],
+                project_files=files,
+                doc_mapping={},
+                logfile_hashes={},
+            )
+            pkg = next(
+                p for p in doc["packages"]
+                if p["name"]
+                == "github.com/fatih/color"
+            )
+            self.assertEqual(
+                pkg["versionInfo"], "1.16.0"
+            )
+            purls = [
+                ref["referenceLocator"]
+                for ref in pkg["externalRefs"]
+                if ref["referenceType"] == "purl"
+            ]
+            self.assertEqual(len(purls), 1)
+            self.assertEqual(
+                purls[0],
+                "pkg:golang/github.com/fatih/"
+                "color@1.16.0",
+            )
+
+    def test_go_files_included_in_spdx_files(self):
+        """*.go files appear in doc['files']."""
+        emitter = self._emitter()
+        files = [{
+            "sha1": "a" * 40,
+            "file_path": (
+                "/repos/lazygit/pkg/gui/main.go"
+            ),
+        }]
+        doc = emitter.emit(
+            components=[],
+            project_files=files,
+            doc_mapping={},
+            logfile_hashes={},
+        )
+        fnames = [
+            f["fileName"] for f in doc["files"]
+        ]
+        self.assertTrue(
+            any("main.go" in n for n in fnames)
+        )
+
+    def test_no_go_stdlib_skips_go_packages(self):
+        """Without go_stdlib, no go/go-stdlib pkgs."""
+        emitter = self._emitter()
+        doc = emitter.emit(
+            components=[],
+            project_files=[],
+            doc_mapping={},
+            logfile_hashes={},
+        )
+        names = [p["name"] for p in doc["packages"]]
+        self.assertNotIn("go", names)
+        self.assertNotIn("go-stdlib", names)
+
+    def test_spdx_id_no_underscores(self):
+        """SPDX IDs must not contain underscores."""
+        emitter = self._emitter()
+        name = emitter._sanitize_spdx_id(
+            "ssh_config"
+        )
+        self.assertNotIn("_", name)
+        self.assertEqual(name, "ssh-config")
+
+    def test_go_module_vendored_detects_vn(self):
+        """vendor/ with /v5 suffix groups correctly."""
+        emitter = self._emitter()
+        files = [{
+            "sha1": "a" * 40,
+            "file_path": (
+                "/repos/lazygit/vendor/"
+                "github.com/go-git/go-billy/v5/"
+                "osfs/os.go"
+            ),
+        }]
+        doc = emitter.emit(
+            components=[],
+            project_files=files,
+            doc_mapping={},
+            logfile_hashes={},
+        )
+        names = [p["name"] for p in doc["packages"]]
+        self.assertIn(
+            "github.com/go-git/go-billy/v5",
+            names,
+        )
+
+    def test_go_module_direct_indirect_comment(self):
+        """Direct and indirect Go modules get labels."""
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td) / "repos" / "lazygit"
+            vendor = repo / "vendor"
+            vendor.mkdir(parents=True)
+            (repo / "go.mod").write_text(
+                "module github.com/example/app\n"
+                "go 1.22\n"
+                "require (\n"
+                "\tgithub.com/direct/pkg v1.0\n"
+                "\tgithub.com/trans/pkg "
+                "v2.0 // indirect\n"
+                ")\n"
+            )
+            (vendor / "modules.txt").write_text(
+                "# github.com/direct/pkg v1.0.0\n"
+                "# github.com/trans/pkg v2.0.0\n"
+            )
+            emitter = self._emitter()
+            files = [
+                {
+                    "sha1": "a" * 40,
+                    "file_path": str(
+                        repo / "vendor"
+                        / "github.com" / "direct"
+                        / "pkg" / "a.go"
+                    ),
+                },
+                {
+                    "sha1": "b" * 40,
+                    "file_path": str(
+                        repo / "vendor"
+                        / "github.com" / "trans"
+                        / "pkg" / "b.go"
+                    ),
+                },
+            ]
+            doc = emitter.emit(
+                components=[],
+                project_files=files,
+                doc_mapping={},
+                logfile_hashes={},
+            )
+            direct_pkg = next(
+                p for p in doc["packages"]
+                if p["name"]
+                == "github.com/direct/pkg"
+            )
+            indirect_pkg = next(
+                p for p in doc["packages"]
+                if p["name"]
+                == "github.com/trans/pkg"
+            )
+            self.assertIn(
+                "direct", direct_pkg["comment"]
+            )
+            self.assertIn(
+                "indirect",
+                indirect_pkg["comment"],
+            )
+
+
 if __name__ == "__main__":
     unittest.main()
