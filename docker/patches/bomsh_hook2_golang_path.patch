@@ -1,0 +1,15 @@
+--- a/scripts/bomsh_hook2.py
++++ b/scripts/bomsh_hook2.py
+@@ -388,11 +388,12 @@
+ def is_golang_prog(prog):
+     """
+     Whether a program (absolute path) is golang compiler/linker.
+     /usr/lib/go-1.13/pkg/tool/linux_amd64/compile, /usr/lib/go-1.13/pkg/tool/linux_amd64/link
+     /usr/lib/golang/pkg/tool/linux_amd64/compile, /usr/lib/golang/pkg/tool/linux_amd64/link
++    /usr/local/go/pkg/tool/linux_amd64/compile, /usr/local/go/pkg/tool/linux_amd64/link
+     """
+-    if "lib/go" not in prog or "pkg/tool" not in prog:
++    if ("lib/go" not in prog and "local/go" not in prog) or "pkg/tool" not in prog:
+         return False
+     return os.path.basename(prog) in ("compile", "link")
+ 

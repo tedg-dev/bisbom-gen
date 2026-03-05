@@ -90,11 +90,14 @@ Never report analysis as complete until both syncs succeed.
 7. **Binary collection** — copies `output_binaries` to `output/binaries/<lang>/<repo>/`
 8. **Docs** — timestamped build log and runtime metrics
 
-### Go repos (5 steps — bomtrace3 skipped)
+### Go repos (bomtrace2 instrumented build)
 1. **Clone** — shallow clone of the target repo
-2. **Syft SBOM** — primary SBOM (parses go.mod/go.sum for direct + indirect deps)
-4. **Plain build** — `go build` via PlainBuilder (no bomtrace3)
-6. **SPDX validation** — validates the Syft SPDX
+2. **Syft SBOM** — manifest-based baseline (go.mod/go.sum)
+4. **Instrumented build** — `bomtrace2 -c bomtrace_go.conf go build -a` (watches compile, link + openat)
+5a. **OmniBOR SPDX** — generated from ADG via bomsh_sbom.py
+5b. **Metadata collection** — component metadata
+5c. **ADG SPDX** — per-binary SPDX + HTML visualization
+6. **SPDX validation** — JSON Schema + semantic validation
 7. **Binary collection** — copies output binaries
 8. **Docs** — timestamped build log and runtime metrics
 

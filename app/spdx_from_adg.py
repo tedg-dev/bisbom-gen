@@ -84,7 +84,10 @@ class AdgParser:
             "project_source": [],
             "build_intermediate": [],
             "crt_object": [],
+            "go_stdlib": [],
         }
+
+        go_stdlib_prefix = "/usr/local/go/src/"
 
         for sha1, entry in treedb.items():
             fp = entry.get("file_path", "")
@@ -98,7 +101,9 @@ class AdgParser:
             if "build_cmd" in entry:
                 item["build_cmd"] = entry["build_cmd"]
 
-            if fp.startswith("/usr/lib"):
+            if fp.startswith(go_stdlib_prefix):
+                classified["go_stdlib"].append(item)
+            elif fp.startswith("/usr/lib"):
                 base = Path(fp).name
                 if base.startswith("crt") and (
                     base.endswith(".o")
@@ -131,7 +136,7 @@ class AdgParser:
                         "project_source"
                     ].append(item)
             else:
-                # Other system files
+                # Other system files (incl. /tmp/go-build)
                 classified["system_header"].append(
                     item
                 )
@@ -612,8 +617,11 @@ class SpdxEmitter:
         )
 
     def _sanitize_spdx_id(self, name):
-        """Sanitize a name for use in SPDX IDs."""
-        return re.sub(r"[^a-zA-Z0-9._-]", "-", name)
+        """Sanitize a name for use in SPDX IDs.
+
+        SPDX 2.3 IDs allow only [a-zA-Z0-9.-].
+        """
+        return re.sub(r"[^a-zA-Z0-9.-]", "-", name)
 
     # Directories that indicate vendored/embedded
     # third-party source code.
@@ -629,6 +637,162 @@ class SpdxEmitter:
         r'"[^"]*?(\d+\.\d+(?:\.\d+)?)'
     )
 
+    # Regex to extract Go version from build commands
+    _GO_VERSION_RE = re.compile(
+        r"-goversion\s+(go\d+\.\d+(?:\.\d+)?)"
+    )
+
+    @staticmethod
+    def _detect_go_version(go_stdlib):
+        """Detect Go version from stdlib or install.
+
+        Strategy:
+          1. Look for -goversion flag in build commands
+          2. Read /usr/local/go/VERSION file
+          3. Fall back to 'unknown'
+        """
+        for art in go_stdlib:
+            cmd = art.get("build_cmd", "")
+            m = SpdxEmitter._GO_VERSION_RE.search(cmd)
+            if m:
+                return m.group(1).lstrip("go")
+        # Fallback: read Go VERSION file
+        ver_file = Path("/usr/local/go/VERSION")
+        if ver_file.exists():
+            # File is multi-line: "go1.26.0\ntime ..."
+            first_line = (
+                ver_file.read_text().splitlines()[0]
+            )
+            return first_line.strip().lstrip("go")
+        return "unknown"
+
+    # Well-known Go module hosting prefixes that use
+    # three path segments: host/owner/repo
+    _GO_THREE_SEGMENT_HOSTS = (
+        "github.com", "gitlab.com", "bitbucket.org",
+        "golang.org",
+    )
+
+    # Regex matching Go major-version suffix /vN (N>=2)
+    _GO_MAJOR_VER_RE = re.compile(r"^v\d+$")
+
+    @staticmethod
+    def _go_module_from_vendor_path(rest):
+        """Extract Go module name from vendor-relative path.
+
+        Go modules under vendor/ have multi-segment names:
+          github.com/fatih/color/color.go      -> github.com/fatih/color
+          github.com/gdamore/tcell/v2/foo.go   -> github.com/gdamore/tcell/v2
+          golang.org/x/sys/unix/syscall.go     -> golang.org/x/sys
+          dario.cat/mergo/merge.go             -> dario.cat/mergo
+          gopkg.in/yaml.v3/yaml.go             -> gopkg.in/yaml.v3
+          gopkg.in/ozeidan/fuzzy-patricia.v3/
+            -> gopkg.in/ozeidan/fuzzy-patricia.v3
+
+        Rules:
+          - github.com, gitlab.com, bitbucket.org,
+            golang.org -> 3 segments (+ optional /vN)
+          - gopkg.in -> 2 or 3 segments depending on
+            whether second segment has a dot
+          - Everything else -> 2 segments
+          - Must contain a dot in first segment (domain)
+          - /vN suffix (N>=2) appended when present
+        """
+        parts = rest.split("/")
+        if len(parts) < 2:
+            return None
+        # First segment must look like a domain
+        if "." not in parts[0]:
+            return None
+
+        # gopkg.in special handling:
+        #   gopkg.in/yaml.v3     -> 2 segments
+        #   gopkg.in/ozeidan/... -> 3 segments
+        if parts[0] == "gopkg.in":
+            # If second segment contains a dot
+            # (e.g. yaml.v3), it's a 2-segment module
+            if "." in parts[1]:
+                return "/".join(parts[:2])
+            if len(parts) >= 3:
+                return "/".join(parts[:3])
+            return None
+
+        if parts[0] in SpdxEmitter._GO_THREE_SEGMENT_HOSTS:
+            if len(parts) < 3:
+                return None
+            base = "/".join(parts[:3])
+            # Append /vN major version suffix if present
+            if (
+                len(parts) >= 4
+                and SpdxEmitter._GO_MAJOR_VER_RE.match(
+                    parts[3]
+                )
+            ):
+                return base + "/" + parts[3]
+            return base
+        # Other domains: 2 segments
+        return "/".join(parts[:2])
+
+    @staticmethod
+    def _parse_go_mod(project_files):
+        """Parse go.mod for direct vs indirect deps.
+
+        Returns set of indirect module paths.
+        Modules NOT in the set are direct deps.
+        Lines with '// indirect' are indirect.
+        """
+        indirect = set()
+        if not project_files:
+            return indirect
+        sample = project_files[0]["file_path"]
+        p = Path(sample)
+        while p.parent != p:
+            go_mod = p / "go.mod"
+            if go_mod.exists():
+                for line in go_mod.read_text(
+                ).splitlines():
+                    line = line.strip()
+                    if "// indirect" in line:
+                        tokens = line.split()
+                        if tokens and (
+                            tokens[0] != "require"
+                            and tokens[0] != "//"
+                            and tokens[0] != "("
+                        ):
+                            indirect.add(tokens[0])
+                return indirect
+            p = p.parent
+        return indirect
+
+    @staticmethod
+    def _parse_go_modules_txt(project_files):
+        """Parse vendor/modules.txt for module versions.
+
+        Returns dict: module_path -> version string.
+        Lines like: # github.com/fatih/color v1.16.0
+        """
+        versions = {}
+        # Find a project file path to locate the repo root
+        if not project_files:
+            return versions
+        sample = project_files[0]["file_path"]
+        # Walk up to find vendor/modules.txt
+        p = Path(sample)
+        while p.parent != p:
+            modules_txt = p / "vendor" / "modules.txt"
+            if modules_txt.exists():
+                for line in modules_txt.read_text(
+                ).splitlines():
+                    if line.startswith("# "):
+                        tokens = line[2:].split()
+                        if len(tokens) >= 2:
+                            versions[tokens[0]] = (
+                                tokens[1].lstrip("v")
+                            )
+                return versions
+            p = p.parent
+        return versions
+
     def _detect_vendored_groups(self, project_files):
         """Group source files by vendored library.
 
@@ -636,6 +800,10 @@ class SpdxEmitter:
         VENDORED_DIRS patterns, then splits out
         embedded sub-components that declare their
         own version identifiers.
+
+        For Go vendor directories, extracts full
+        Go module names (e.g. github.com/fatih/color)
+        instead of just the first path component.
 
         Returns:
           vendored: dict[lib_name] -> list[artifact]
@@ -654,13 +822,21 @@ class SpdxEmitter:
                 idx = fp.find(vdir)
                 if idx < 0:
                     continue
-                # Extract library name.
-                # Generic patterns (/deps/, /vendor/):
-                #   lib = first component after the dir
-                # Specific lib dirs (/liblua/):
-                #   lib = the directory name itself
+                rest = fp[idx + len(vdir):]
+                # Try Go module extraction first
+                go_mod = self._go_module_from_vendor_path(
+                    rest
+                )
+                if go_mod:
+                    vendored.setdefault(
+                        go_mod, []
+                    ).append(art)
+                    matched = True
+                    break
+                # C/C++ fallback: generic patterns use
+                # first component; specific dirs use
+                # the directory name itself
                 if vdir in self.VENDORED_DIRS:
-                    rest = fp[idx + len(vdir):]
                     lib = rest.split("/")[0]
                 else:
                     lib = (
@@ -675,7 +851,7 @@ class SpdxEmitter:
             if not matched:
                 own.append(art)
 
-        # Split out sub-components
+        # Split out sub-components (C/C++ only)
         vendored, self._sub_versions = (
             self._split_sub_components(vendored)
         )
@@ -813,6 +989,7 @@ class SpdxEmitter:
         doc_mapping, logfile_hashes,
         direct_only=False,
         static_only=False,
+        go_stdlib=None,
     ):
         """Generate SPDX 2.3 JSON dict.
 
@@ -829,6 +1006,9 @@ class SpdxEmitter:
                 library packages. Only include the root
                 binary, vendored/static libs, and the
                 build tool.
+            go_stdlib: list of Go standard library
+                source artifacts (from AdgParser), or
+                None for non-Go projects.
 
         Returns:
             dict: complete SPDX 2.3 JSON document
@@ -1050,7 +1230,93 @@ class SpdxEmitter:
                     "relatedSpdxElement": pkg_id,
                 })
 
-        # --- GCC as build tool ---
+        # --- Build tool(s) ---
+        is_go = go_stdlib and len(go_stdlib) > 0
+
+        if is_go:
+            # Go compiler as build tool
+            go_id = self._next_spdx_id("go")
+            go_ver = self._detect_go_version(
+                go_stdlib
+            )
+            go_pkg = {
+                "SPDXID": go_id,
+                "name": "go",
+                "versionInfo": go_ver,
+                "supplier": (
+                    "Organization: "
+                    "The Go Authors"
+                ),
+                "downloadLocation":
+                    "https://go.dev/dl/",
+                "homepage": "https://go.dev/",
+                "filesAnalyzed": False,
+                "primaryPackagePurpose":
+                    "APPLICATION",
+                "externalRefs": [{
+                    "referenceCategory": "SECURITY",
+                    "referenceType": "cpe23Type",
+                    "referenceLocator": (
+                        f"cpe:2.3:a:golang:go:"
+                        f"{go_ver}:*:*:*:*:*:*:*"
+                    ),
+                }],
+            }
+            doc["packages"].append(go_pkg)
+            doc["relationships"].append({
+                "spdxElementId": go_id,
+                "relationshipType": "BUILD_TOOL_OF",
+                "relatedSpdxElement": root_id,
+            })
+
+            # Go stdlib as dependency
+            stdlib_id = self._next_spdx_id(
+                "go-stdlib"
+            )
+            stdlib_count = len([
+                a for a in go_stdlib
+                if a["file_path"].endswith(".go")
+            ])
+            stdlib_pkg = {
+                "SPDXID": stdlib_id,
+                "name": "go-stdlib",
+                "versionInfo": go_ver,
+                "supplier": (
+                    "Organization: "
+                    "The Go Authors"
+                ),
+                "downloadLocation":
+                    "https://go.dev/dl/",
+                "homepage":
+                    "https://pkg.go.dev/std",
+                "filesAnalyzed": False,
+                "primaryPackagePurpose":
+                    "LIBRARY",
+                "externalRefs": [{
+                    "referenceCategory":
+                        "PACKAGE-MANAGER",
+                    "referenceType": "purl",
+                    "referenceLocator": (
+                        f"pkg:golang/stdlib"
+                        f"@{go_ver}"
+                    ),
+                }],
+                "comment": (
+                    f"Go standard library. "
+                    f"{stdlib_count} .go files "
+                    f"compiled into "
+                    f"{self.binary_name}"
+                ),
+            }
+            doc["packages"].append(stdlib_pkg)
+            doc["relationships"].append({
+                "spdxElementId": root_id,
+                "relationshipType": "DEPENDS_ON",
+                "relatedSpdxElement": stdlib_id,
+            })
+
+        # GCC as build tool (always present for
+        # C/C++; also present for Go CGo builds)
         gcc_id = self._next_spdx_id("gcc")
         gcc_ver_clean = re.search(
             r"(\d+\.\d+\.\d+)", self.gcc_version
@@ -1095,6 +1361,14 @@ class SpdxEmitter:
             )
         )
         ver_detector = VendoredVersionDetector()
+        # Parse Go modules.txt for versions
+        go_mod_versions = self._parse_go_modules_txt(
+            project_files
+        )
+        # Parse go.mod for direct vs indirect
+        go_mod_indirect = self._parse_go_mod(
+            project_files
+        )
         # Map vendored lib name -> SPDX package ID
         vendored_pkg_ids = {}
         for lib_name in sorted(vendored.keys()):
@@ -1108,32 +1382,79 @@ class SpdxEmitter:
                 a["file_path"]
                 for a in vendored[lib_name]
             ]
+            is_go_module = (
+                "." in lib_name.split("/")[0]
+                and any(
+                    fp.endswith(".go")
+                    for fp in file_paths
+                )
+            )
+            src_exts = (
+                (".go",)
+                if is_go_module
+                else (
+                    ".c", ".h", ".s", ".inc",
+                    ".cc", ".cpp", ".cxx", ".hpp",
+                )
+            )
             src_count = len([
                 fp for fp in file_paths
                 if Path(fp).suffix.lower()
-                in (".c", ".h", ".s", ".inc",
-                    ".cc", ".cpp", ".cxx", ".hpp")
+                in src_exts
             ])
-            pkg = {
-                "SPDXID": pkg_id,
-                "name": lib_name,
-                "downloadLocation": "NOASSERTION",
-                "filesAnalyzed": True,
-                "primaryPackagePurpose": "LIBRARY",
-                "externalRefs": [],
-                "comment": (
-                    f"Vendored/statically linked. "
-                    f"{src_count} source files "
-                    f"compiled into {self.binary_name}"
-                ),
-            }
 
-            # Detect version from source files
-            ver = ver_detector.detect(
-                lib_name, file_paths
-            )
-            # Fallback: version found during
-            # sub-component splitting
+            if is_go_module:
+                dl = (
+                    f"https://pkg.go.dev/{lib_name}"
+                )
+                is_indirect = (
+                    lib_name in go_mod_indirect
+                )
+                dep_kind = (
+                    "indirect" if is_indirect
+                    else "direct"
+                )
+                pkg = {
+                    "SPDXID": pkg_id,
+                    "name": lib_name,
+                    "downloadLocation": dl,
+                    "filesAnalyzed": True,
+                    "primaryPackagePurpose":
+                        "LIBRARY",
+                    "externalRefs": [],
+                    "comment": (
+                        f"Go module ({dep_kind}). "
+                        f"{src_count} source files "
+                        f"compiled into "
+                        f"{self.binary_name}"
+                    ),
+                }
+            else:
+                pkg = {
+                    "SPDXID": pkg_id,
+                    "name": lib_name,
+                    "downloadLocation":
+                        "NOASSERTION",
+                    "filesAnalyzed": True,
+                    "primaryPackagePurpose":
+                        "LIBRARY",
+                    "externalRefs": [],
+                    "comment": (
+                        f"Vendored/statically linked. "
+                        f"{src_count} source files "
+                        f"compiled into "
+                        f"{self.binary_name}"
+                    ),
+                }
+
+            # Detect version: Go modules.txt first,
+            # then C/C++ header detection, then
+            # sub-component splitting fallback
+            ver = go_mod_versions.get(lib_name)
+            if not ver:
+                ver = ver_detector.detect(
+                    lib_name, file_paths
+                )
             if not ver:
                 sub_vers = getattr(
                     self, "_sub_versions", {}
@@ -1142,13 +1463,31 @@ class SpdxEmitter:
             if ver:
                 pkg["versionInfo"] = ver
 
+            # Add PURL for Go modules
+            if is_go_module and ver:
+                purl = (
+                    f"pkg:golang/{lib_name}"
+                    f"@{ver}"
+                )
+                pkg["externalRefs"].append({
+                    "referenceCategory":
+                        "PACKAGE-MANAGER",
+                    "referenceType": "purl",
+                    "referenceLocator": purl,
+                })
+
             doc["packages"].append(pkg)
 
-            # STATIC_LINK from root
+            # Go modules use DEPENDS_ON;
+            # C/C++ vendored libs use STATIC_LINK
+            rel_type = (
+                "DEPENDS_ON"
+                if is_go_module
+                else "STATIC_LINK"
+            )
             doc["relationships"].append({
                 "spdxElementId": root_id,
-                "relationshipType":
-                    "STATIC_LINK",
+                "relationshipType": rel_type,
                 "relatedSpdxElement": pkg_id,
             })
 
@@ -1163,11 +1502,12 @@ class SpdxEmitter:
         )
         for art, vendored_lib in all_source:
             fp = art["file_path"]
-            # Only include .c, .h, .S files
+            # Only include source files
             ext = Path(fp).suffix.lower()
             if ext not in (
                 ".c", ".h", ".s", ".inc",
                 ".cc", ".cpp", ".cxx", ".hpp",
+                ".go",
             ):
                 continue
 
@@ -1279,11 +1619,20 @@ class AdgSpdxGenerator:
             parser.load_raw_logfile_hashes()
         )
 
+        go_stdlib_count = len(
+            classified.get("go_stdlib", [])
+        )
+        extra = (
+            f", Go stdlib: {go_stdlib_count}"
+            if go_stdlib_count
+            else ""
+        )
         print(
             f"[{bin_name}] Source files: "
             f"{len(classified['project_source'])}, "
             f"Build intermediates: "
             f"{len(classified['build_intermediate'])}"
+            f"{extra}"
         )
 
         # Load component metadata
@@ -1355,6 +1704,7 @@ class AdgSpdxGenerator:
             logfile_hashes=logfile_hashes,
             direct_only=direct_only,
             static_only=static_only,
+            go_stdlib=classified.get("go_stdlib"),
         )
 
         # Write output
