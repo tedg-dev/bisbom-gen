@@ -387,6 +387,61 @@ class TestBomtraceBuilder(unittest.TestCase):
             "bomtrace3", instrumented_call[0][0]
         )
 
+    def test_env_var_prefix_before_tracer(self):
+        """Env vars like CGO_ENABLED=0 go before tracer."""
+        runner = MagicMock()
+        runner.run.return_value = 0
+        builder = BomtraceBuilder(runner)
+        repo_cfg = {
+            "build_steps": [
+                "go mod vendor",
+                "CGO_ENABLED=0 go build -mod=vendor"
+                " -o app ./cmd",
+            ],
+            "clean_cmd": "rm -f app",
+            "language": "go",
+        }
+        paths = {
+            "repos_dir": "/repos",
+            "output_dir": "/out",
+        }
+        omnibor = {
+            "tracer": "bomtrace2 -c /opt/bomsh/bin/"
+            "bomtrace_go.conf",
+            "raw_logfile": "/tmp/log",
+            "create_bom_script": "/usr/bin/bom",
+        }
+        with patch("builtins.print"):
+            builder.build(
+                "myapp", repo_cfg, paths, omnibor
+            )
+        # clean(0) + pre-build(1) + instrumented(2)
+        cmd = runner.run.call_args_list[2][0][0]
+        # CGO_ENABLED=0 must precede bomtrace2
+        self.assertTrue(
+            cmd.startswith("CGO_ENABLED=0 "),
+            f"Expected env prefix: {cmd}",
+        )
+        self.assertIn("bomtrace2", cmd)
+        self.assertIn("go build", cmd)
+
+    def test_no_env_var_prefix(self):
+        """Normal commands have no env prefix."""
+        runner = MagicMock()
+        runner.run.return_value = 0
+        builder = BomtraceBuilder(runner)
+        repo_cfg, paths, omnibor = self._cfg()
+
+        with patch("builtins.print"):
+            builder.build(
+                "curl", repo_cfg, paths, omnibor
+            )
+        cmd = runner.run.call_args_list[3][0][0]
+        self.assertTrue(
+            cmd.startswith("bomtrace3"),
+            f"Expected tracer first: {cmd}",
+        )
+
 
 # ============================================================
 # SpdxGenerator

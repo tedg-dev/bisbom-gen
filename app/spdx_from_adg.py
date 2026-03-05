@@ -765,6 +765,48 @@ class SpdxEmitter:
         return indirect
 
     @staticmethod
+    def _parse_go_mod_graph(project_files):
+        """Parse go_mod_graph.txt for dependency edges.
+
+        The file contains output of ``go mod graph``,
+        where each line is ``parent@ver child@ver``.
+        The main module has no ``@ver`` suffix.
+
+        Returns:
+          dict[module_path] -> set of child module paths
+          (stripped of @version suffixes).
+
+        This enables building the real dependency tree
+        where direct deps hang off root and indirect
+        deps hang off their actual parent module.
+        """
+        edges = {}
+        if not project_files:
+            return edges
+        sample = project_files[0]["file_path"]
+        p = Path(sample)
+        while p.parent != p:
+            graph_file = p / "go_mod_graph.txt"
+            if graph_file.exists():
+                for line in graph_file.read_text(
+                ).splitlines():
+                    line = line.strip()
+                    if not line:
+                        continue
+                    parts = line.split()
+                    if len(parts) != 2:
+                        continue
+                    # Strip @version from both sides
+                    parent = parts[0].split("@")[0]
+                    child = parts[1].split("@")[0]
+                    edges.setdefault(
+                        parent, set()
+                    ).add(child)
+                return edges
+            p = p.parent
+        return edges
+
+    @staticmethod
     def _parse_go_modules_txt(project_files):
         """Parse vendor/modules.txt for module versions.
 
@@ -1369,6 +1411,10 @@ class SpdxEmitter:
         go_mod_indirect = self._parse_go_mod(
             project_files
         )
+        # Parse go mod graph for real dep edges
+        go_dep_graph = self._parse_go_mod_graph(
+            project_files
+        )
         # Map vendored lib name -> SPDX package ID
         vendored_pkg_ids = {}
         for lib_name in sorted(vendored.keys()):
@@ -1478,18 +1524,102 @@ class SpdxEmitter:
 
             doc["packages"].append(pkg)
 
-            # Go modules use DEPENDS_ON;
-            # C/C++ vendored libs use STATIC_LINK
-            rel_type = (
-                "DEPENDS_ON"
-                if is_go_module
-                else "STATIC_LINK"
+            if not is_go_module:
+                # C/C++ vendored libs use STATIC_LINK
+                doc["relationships"].append({
+                    "spdxElementId": root_id,
+                    "relationshipType":
+                        "STATIC_LINK",
+                    "relatedSpdxElement": pkg_id,
+                })
+            # Go module relationships are emitted
+            # below after all packages are created,
+            # so we can resolve parent SPDX IDs.
+
+        # --- Go module dependency edges ---
+        # Use go mod graph to emit real edges:
+        #   root -> direct deps via DEPENDS_ON
+        #   parent -> child via DEPENDS_ON
+        # Falls back to flat root->all if no graph.
+        go_modules_in_spdx = {
+            lib: pid
+            for lib, pid in vendored_pkg_ids.items()
+            if "." in lib.split("/")[0]
+            and any(
+                a["file_path"].endswith(".go")
+                for a in vendored.get(lib, [])
             )
-            doc["relationships"].append({
-                "spdxElementId": root_id,
-                "relationshipType": rel_type,
-                "relatedSpdxElement": pkg_id,
-            })
+        }
+        if go_dep_graph and go_modules_in_spdx:
+            # Find the main module name (root of graph)
+            # It's the key not appearing as any child.
+            all_children = set()
+            for children in go_dep_graph.values():
+                all_children.update(children)
+            main_modules = (
+                set(go_dep_graph.keys())
+                - all_children
+            )
+            # Emit edges from graph
+            emitted = set()
+            for parent, children in (
+                go_dep_graph.items()
+            ):
+                # Map parent to its SPDX ID
+                if parent in main_modules:
+                    parent_spdx = root_id
+                elif parent in go_modules_in_spdx:
+                    parent_spdx = (
+                        go_modules_in_spdx[parent]
+                    )
+                else:
+                    continue
+                for child in children:
+                    if child not in go_modules_in_spdx:
+                        continue
+                    child_spdx = (
+                        go_modules_in_spdx[child]
+                    )
+                    edge = (parent_spdx, child_spdx)
+                    if edge not in emitted:
+                        doc["relationships"].append({
+                            "spdxElementId":
+                                parent_spdx,
+                            "relationshipType":
+                                "DEPENDS_ON",
+                            "relatedSpdxElement":
+                                child_spdx,
+                        })
+                        emitted.add(edge)
+            # Ensure every Go module has at least
+            # one incoming edge (fallback to root)
+            has_incoming = {
+                r["relatedSpdxElement"]
+                for r in doc["relationships"]
+                if r["relationshipType"]
+                == "DEPENDS_ON"
+            }
+            for lib, pid in (
+                go_modules_in_spdx.items()
+            ):
+                if pid not in has_incoming:
+                    doc["relationships"].append({
+                        "spdxElementId": root_id,
+                        "relationshipType":
+                            "DEPENDS_ON",
+                        "relatedSpdxElement": pid,
+                    })
+        else:
+            # Fallback: flat root -> all Go modules
+            for lib, pid in (
+                go_modules_in_spdx.items()
+            ):
+                doc["relationships"].append({
+                    "spdxElementId": root_id,
+                    "relationshipType":
+                        "DEPENDS_ON",
+                    "relatedSpdxElement": pid,
+                })
 
         # --- Project source files ---
         all_source = (
@@ -1657,20 +1787,22 @@ class AdgSpdxGenerator:
             else self.bom_dir / "metadata"
         )
         dynlib_path = dl_dir / "dynamic_libs.json"
-        if not dynlib_path.exists():
-            print(
-                f"[ERROR] {dynlib_path} not found. "
-                f"Run collect_dynamic_libs.py for "
-                f"{bin_name} first."
+        if dynlib_path.exists():
+            resolver.load_dynamic_libs(
+                str(dynlib_path)
             )
-            return None
-
-        resolver.load_dynamic_libs(
-            str(dynlib_path)
-        )
-        components = (
-            resolver.resolve_dynamic_components()
-        )
+            components = (
+                resolver.resolve_dynamic_components()
+            )
+        else:
+            # Statically-linked binaries (e.g.
+            # CGO_ENABLED=0 Go builds) have no
+            # dynamic libs — proceed with empty list.
+            print(
+                f"[INFO] {dynlib_path} not found "
+                f"— no dynamic libs for {bin_name}"
+            )
+            components = []
 
         direct = sum(
             1 for c in components if c["direct"]

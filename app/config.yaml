@@ -109,11 +109,23 @@ repos:
     branch: master
     language: go
     build_steps:
+    - go mod graph > go_mod_graph.txt
     - go build -a -o lazygit .
     clean_cmd: rm -f lazygit
     description: Terminal UI for git (~15-20 direct + 20-30 indirect Go deps)
     output_binaries:
     - lazygit
+  pocketbase:
+    url: https://github.com/pocketbase/pocketbase.git
+    branch: master
+    language: go
+    build_steps:
+    - go mod graph > go_mod_graph.txt && go mod vendor
+    - CGO_ENABLED=0 go build -a -mod=vendor -o pocketbase ./examples/base
+    clean_cmd: rm -rf vendor pocketbase
+    description: Open-source backend in 1 file (SQLite, Auth, S3) — 21 direct + 20 indirect Go deps
+    output_binaries:
+    - pocketbase
   croc:
     url: https://github.com/schollz/croc.git
     branch: main

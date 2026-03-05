@@ -264,7 +264,20 @@ class BomtraceBuilder:
 
         # Final build step with bomtrace3
         make_cmd = build_steps[-1]
-        instrumented = f"{tracer} {make_cmd}"
+        # Extract env var assignments (KEY=VAL) that
+        # precede the actual command.  They must go
+        # *before* the tracer so the shell sets them
+        # for the whole pipeline; bomtrace2 cannot
+        # exec "KEY=VAL" as a binary.
+        env_prefix = ""
+        cmd_part = make_cmd
+        tokens = make_cmd.split()
+        while tokens and "=" in tokens[0]:
+            env_prefix += tokens.pop(0) + " "
+            cmd_part = " ".join(tokens)
+        instrumented = (
+            f"{env_prefix}{tracer} {cmd_part}"
+        )
         rc = self.runner.run(
             instrumented, cwd=str(repo_dir),
             description=(

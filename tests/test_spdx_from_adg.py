@@ -2077,10 +2077,12 @@ class TestFilePathRelativization(unittest.TestCase):
 
 class TestGenerateMissingDynlibs(unittest.TestCase):
     """Test generate() when dynamic_libs.json is
-    missing (lines 1312-1317)."""
+    missing (statically linked binary)."""
 
-    def test_missing_dynlib_returns_none(self):
-        """generate() returns None if dynlib not found."""
+    def test_missing_dynlib_produces_spdx(self):
+        """generate() proceeds with empty components
+        when dynamic_libs.json is absent (e.g.
+        CGO_ENABLED=0 Go builds)."""
         with tempfile.TemporaryDirectory() as td:
             bom = Path(td) / "bom"
             meta = bom / "metadata" / "bomsh"
@@ -2124,7 +2126,14 @@ class TestGenerateMissingDynlibs(unittest.TestCase):
             with patch("builtins.print"):
                 result = gen.generate(out)
 
-            self.assertIsNone(result)
+            # Should produce SPDX with root pkg only
+            self.assertIsNotNone(result)
+            self.assertTrue(Path(out).exists())
+            doc = json.loads(Path(out).read_text())
+            self.assertIn("packages", doc)
+            self.assertGreaterEqual(
+                len(doc["packages"]), 1
+            )
 
 
 class TestVisualizationFailure(unittest.TestCase):
@@ -2446,6 +2455,211 @@ class TestParseGoMod(unittest.TestCase):
                 files
             )
             self.assertEqual(indirect, set())
+
+
+class TestParseGoModGraph(unittest.TestCase):
+    """Tests for SpdxEmitter._parse_go_mod_graph."""
+
+    def test_parse_graph_edges(self):
+        """Parse real go mod graph output."""
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td) / "repos" / "app"
+            repo.mkdir(parents=True)
+            (repo / "go_mod_graph.txt").write_text(
+                "github.com/example/app "
+                "github.com/foo/bar@v1.0.0\n"
+                "github.com/example/app "
+                "github.com/baz/qux@v2.0.0\n"
+                "github.com/foo/bar@v1.0.0 "
+                "github.com/deep/dep@v0.1.0\n"
+                "github.com/baz/qux@v2.0.0 "
+                "github.com/deep/dep@v0.1.0\n"
+            )
+            files = [{"file_path": str(
+                repo / "main.go"
+            )}]
+            graph = SpdxEmitter._parse_go_mod_graph(
+                files
+            )
+            # Root has 2 direct deps
+            self.assertEqual(
+                graph["github.com/example/app"],
+                {"github.com/foo/bar",
+                 "github.com/baz/qux"},
+            )
+            # foo/bar has 1 transitive dep
+            self.assertEqual(
+                graph["github.com/foo/bar"],
+                {"github.com/deep/dep"},
+            )
+            # baz/qux also depends on deep/dep
+            self.assertEqual(
+                graph["github.com/baz/qux"],
+                {"github.com/deep/dep"},
+            )
+
+    def test_no_graph_file(self):
+        with tempfile.TemporaryDirectory() as td:
+            files = [{"file_path": str(
+                Path(td) / "main.go"
+            )}]
+            graph = SpdxEmitter._parse_go_mod_graph(
+                files
+            )
+            self.assertEqual(graph, {})
+
+    def test_empty_files(self):
+        graph = SpdxEmitter._parse_go_mod_graph([])
+        self.assertEqual(graph, {})
+
+    def test_versions_stripped(self):
+        """@version suffixes are stripped from keys."""
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td) / "repos" / "app"
+            repo.mkdir(parents=True)
+            (repo / "go_mod_graph.txt").write_text(
+                "github.com/a/b@v1.0.0 "
+                "github.com/c/d@v2.0.0\n"
+            )
+            files = [{"file_path": str(
+                repo / "main.go"
+            )}]
+            graph = SpdxEmitter._parse_go_mod_graph(
+                files
+            )
+            self.assertIn(
+                "github.com/a/b", graph
+            )
+            self.assertIn(
+                "github.com/c/d",
+                graph["github.com/a/b"],
+            )
+
+
+class TestGoModGraphSpdxEdges(unittest.TestCase):
+    """Test that go mod graph produces proper
+    DEPENDS_ON edges in SPDX: root->direct,
+    direct->transitive."""
+
+    def test_graph_based_edges(self):
+        """Direct deps from root, transitive from
+        their parent — not flat."""
+        with tempfile.TemporaryDirectory() as td:
+            bom = Path(td) / "bom"
+            meta = bom / "metadata" / "bomsh"
+            meta.mkdir(parents=True)
+
+            repo = Path(td) / "repos" / "app"
+            vendor = repo / "vendor"
+            (vendor / "github.com" / "direct"
+             / "one").mkdir(parents=True)
+            (vendor / "github.com" / "trans"
+             / "dep").mkdir(parents=True)
+            (vendor / "github.com" / "direct"
+             / "one" / "a.go").write_text("pkg one")
+            (vendor / "github.com" / "trans"
+             / "dep" / "b.go").write_text("pkg dep")
+
+            # go.mod
+            (repo / "go.mod").write_text(
+                "module github.com/example/app\n"
+                "go 1.22\n"
+                "require (\n"
+                "\tgithub.com/direct/one v1.0.0\n"
+                ")\n"
+                "require (\n"
+                "\tgithub.com/trans/dep "
+                "v0.5.0 // indirect\n"
+                ")\n"
+            )
+
+            # go_mod_graph.txt
+            (repo / "go_mod_graph.txt").write_text(
+                "github.com/example/app "
+                "github.com/direct/one@v1.0.0\n"
+                "github.com/direct/one@v1.0.0 "
+                "github.com/trans/dep@v0.5.0\n"
+            )
+
+            # vendor/modules.txt
+            (vendor / "modules.txt").write_text(
+                "# github.com/direct/one v1.0.0\n"
+                "## explicit\n"
+                "# github.com/trans/dep v0.5.0\n"
+                "## explicit\n"
+            )
+
+            src_d = str(vendor / "github.com"
+                        / "direct" / "one" / "a.go")
+            src_t = str(vendor / "github.com"
+                        / "trans" / "dep" / "b.go")
+            treedb = {
+                "aaa": {"file_path": src_d},
+                "bbb": {"file_path": src_t},
+            }
+            (meta / "bomsh_omnibor_treedb").write_text(
+                json.dumps(treedb)
+            )
+            (meta / "bomsh_omnibor_doc_mapping"
+             ).write_text(json.dumps({}))
+
+            comp_meta = {
+                "distro": "Ubuntu 22.04",
+                "gcc_version": "gcc 11.4.0",
+                "curl_version": "unknown",
+                "pkg_metadata": {},
+                "file_to_pkg": {},
+                "unresolved_files": [],
+            }
+            (bom / "metadata"
+             / "component_metadata.json"
+             ).write_text(json.dumps(comp_meta))
+
+            out = str(Path(td) / "out" / "a.spdx.json")
+            gen = AdgSpdxGenerator(
+                bom_dir=str(bom),
+                repos_dir=str(Path(td) / "repos"),
+                repo_name="app",
+            )
+            with patch("builtins.print"):
+                gen.generate(out)
+
+            doc = json.loads(Path(out).read_text())
+            depends = [
+                r for r in doc["relationships"]
+                if r["relationshipType"] == "DEPENDS_ON"
+            ]
+            # Find SPDX IDs
+            pkgs = {
+                p["name"]: p["SPDXID"]
+                for p in doc["packages"]
+            }
+            root_id = pkgs["app"]
+            direct_id = pkgs["github.com/direct/one"]
+            trans_id = pkgs["github.com/trans/dep"]
+
+            # Root -> direct dep
+            self.assertIn(
+                {"spdxElementId": root_id,
+                 "relationshipType": "DEPENDS_ON",
+                 "relatedSpdxElement": direct_id},
+                doc["relationships"],
+            )
+            # Direct dep -> transitive dep
+            self.assertIn(
+                {"spdxElementId": direct_id,
+                 "relationshipType": "DEPENDS_ON",
+                 "relatedSpdxElement": trans_id},
+                doc["relationships"],
+            )
+            # Root should NOT directly depend on
+            # transitive dep
+            root_targets = [
+                r["relatedSpdxElement"]
+                for r in depends
+                if r["spdxElementId"] == root_id
+            ]
+            self.assertNotIn(trans_id, root_targets)
 
 
 class TestGoStdlibClassification(unittest.TestCase):
