@@ -144,6 +144,16 @@ repos:
     description: Fast disk usage analyzer with TUI (~10-15 direct + 15-20 indirect Go deps)
     output_binaries:
     - gdu
+  oxipng:
+    url: https://github.com/oxipng/oxipng.git
+    branch: master
+    language: rust
+    build_steps:
+    - cargo build --release
+    clean_cmd: cargo clean
+    description: Multithreaded lossless PNG optimizer (~12 direct Rust crate deps)
+    output_binaries:
+    - target/release/oxipng
 paths:
   repos_dir: /workspace/repos
   output_dir: /workspace/output
@@ -151,6 +161,11 @@ paths:
   bomsh_dir: /opt/bomsh
 omnibor:
   tracer: bomtrace3
+  create_bom_script: bomsh_create_bom.py
+  sbom_script: bomsh_sbom.py
+  raw_logfile: /tmp/bomsh_hook_raw_logfile.sha1
+omnibor_rust:
+  tracer: bomtrace2
   create_bom_script: bomsh_create_bom.py
   sbom_script: bomsh_sbom.py
   raw_logfile: /tmp/bomsh_hook_raw_logfile.sha1

@@ -1300,6 +1300,17 @@ class DocWriter:
                 "/tmp/bomsh_hook_raw_logfile"
                 ".sha1\n"
             )
+        elif lang == "rust":
+            content += (
+                "\n## Instrumentation\n\n"
+                "- **Tracer:** bomtrace2 "
+                "(default conf)\n"
+                "- **Raw logfile:** "
+                "/tmp/bomsh_hook_raw_logfile"
+                ".sha1\n"
+                "- **Watched tools:** "
+                "rustc\n"
+            )
         else:
             content += (
                 "\n## Instrumentation\n\n"
@@ -1367,6 +1378,15 @@ class DocWriter:
                 "- Baseline (uninstrumented) build "
                 "time should be recorded separately "
                 "for comparison\n"
+            )
+        elif lang == "rust":
+            build_label = "Instrumented build time"
+            notes = (
+                "- Measured wall-clock time for "
+                "bomtrace2-instrumented "
+                "`cargo build --release`\n"
+                "- OmniBOR ADG + SPDX generated "
+                "from build interception\n"
             )
         else:
             build_label = "Instrumented build time"
@@ -1576,6 +1596,12 @@ def main():
             pipeline, args.repo, repo_cfg,
             paths_cfg, omnibor_cfg, run_ts,
         )
+    elif lang == "rust":
+        omnibor_rust_cfg = config["omnibor_rust"]
+        success, duration = _run_rust_pipeline(
+            pipeline, args.repo, repo_cfg,
+            paths_cfg, omnibor_rust_cfg, run_ts,
+        )
     else:
         omnibor_go_cfg = config["omnibor_go"]
         success, duration = _run_go_pipeline(
@@ -1662,6 +1688,85 @@ def _run_c_cpp_pipeline(
         pipeline.spdx_validator.validate(spdx_file)
     for adg_file in adg_files:
         pipeline.spdx_validator.validate(adg_file)
+
+    # Step 7: Collect output binaries
+    if success:
+        pipeline.binary_collector.collect(
+            repo_name, repo_cfg, paths_cfg,
+            run_ts=run_ts,
+        )
+
+    return success, duration
+
+
+def _run_rust_pipeline(
+    pipeline, repo_name, repo_cfg,
+    paths_cfg, omnibor_rust_cfg, run_ts,
+):
+    """Rust pipeline: bomtrace2 instrumented build,
+    OmniBOR ADG, SPDX generation, metadata, ADG SPDX,
+    validation, binary collection.
+
+    Uses bomtrace2 with the default bomtrace.conf.
+    bomsh_hook2.py has a dedicated rustc command parser
+    (get_all_subfiles_in_rustc_cmdline) that extracts
+    input .rs files and output .rlib / binary files.
+
+    See: https://github.com/omnibor/bomsh
+    #software-vulnerability-cve-search-for-rust-packages
+
+    Returns (success, duration_sec).
+    """
+    # Step 4: Instrumented build (bomtrace2)
+    start = time.time()
+    success = pipeline.builder.build(
+        repo_name, repo_cfg,
+        paths_cfg, omnibor_rust_cfg,
+        run_ts=run_ts,
+    )
+    duration = time.time() - start
+
+    # Step 5a: Generate SPDX from OmniBOR
+    spdx_file = None
+    if success:
+        spdx_file = pipeline.spdx_gen.generate(
+            repo_name, repo_cfg,
+            paths_cfg, omnibor_rust_cfg,
+            run_ts=run_ts,
+        )
+
+    # Step 5b: Collect component metadata
+    if success:
+        pipeline.metadata_collector.collect(
+            repo_name, repo_cfg, paths_cfg,
+            run_ts=run_ts,
+        )
+
+    # Step 5c: Generate per-binary ADG SPDX
+    adg_files = []
+    if success:
+        adg_files = pipeline.adg_spdx.generate(
+            repo_name, repo_cfg, paths_cfg,
+            run_ts=run_ts,
+        )
+
+    # Step 6: Validate SPDX documents
+    if spdx_file:
+        pipeline.spdx_validator.validate(spdx_file)
+    for adg_file in adg_files:
+        pipeline.spdx_validator.validate(adg_file)
+
+    # Also validate Syft SPDX
+    lang = lang_subdir(repo_cfg)
+    syft_spdx = (
+        Path(paths_cfg["output_dir"])
+        / "spdx" / lang / repo_name / run_ts
+        / f"{repo_name}_syft.spdx.json"
+    )
+    if syft_spdx.exists():
+        pipeline.spdx_validator.validate(
+            str(syft_spdx)
+        )
 
     # Step 7: Collect output binaries
     if success:
