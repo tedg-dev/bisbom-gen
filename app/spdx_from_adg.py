@@ -594,6 +594,7 @@ class SpdxEmitter:
         bomsh_version="unknown",
         binary_name=None,
         vendored_dirs=None,
+        repos_dir=None,
     ):
         self.repo_name = repo_name
         self.repo_version = repo_version
@@ -604,6 +605,7 @@ class SpdxEmitter:
         self.binary_name = (
             binary_name or repo_name
         )
+        self.repos_dir = repos_dir
         self._spdx_id_counter = 0
         self._sub_versions = {}
         if vendored_dirs is not None:
@@ -761,7 +763,10 @@ class SpdxEmitter:
         return None, None
 
     @staticmethod
-    def _parse_cargo_lock(project_files):
+    def _parse_cargo_lock(
+        project_files, repos_dir=None,
+        repo_name=None,
+    ):
         """Parse Cargo.lock for crate versions.
 
         Returns dict: crate_name -> version string.
@@ -770,40 +775,56 @@ class SpdxEmitter:
           [[package]]
           name = "bitvec"
           version = "1.0.1"
+
+        Searches for Cargo.lock in two ways:
+        1. Directly in repos_dir/repo_name/
+        2. Walking up from each project file path
         """
         versions = {}
         if not project_files:
             return versions
+
+        # Build list of candidate Cargo.lock paths
+        candidates = []
+        if repos_dir and repo_name:
+            candidates.append(
+                Path(repos_dir) / repo_name
+                / "Cargo.lock"
+            )
         for pf in project_files:
             p = Path(pf["file_path"])
             while p.parent != p:
-                lock_file = p / "Cargo.lock"
-                if lock_file.exists():
-                    name = None
-                    for line in (
-                        lock_file.read_text()
-                        .splitlines()
-                    ):
-                        line = line.strip()
-                        if line.startswith(
-                            "name = "
-                        ):
-                            name = line.split(
-                                '"'
-                            )[1]
-                        elif (
-                            line.startswith(
-                                "version = "
-                            )
-                            and name
-                        ):
-                            ver = line.split(
-                                '"'
-                            )[1]
-                            versions[name] = ver
-                            name = None
-                    return versions
+                candidates.append(
+                    p / "Cargo.lock"
+                )
                 p = p.parent
+
+        for lock_file in candidates:
+            if lock_file.exists():
+                name = None
+                for line in (
+                    lock_file.read_text()
+                    .splitlines()
+                ):
+                    line = line.strip()
+                    if line.startswith(
+                        "name = "
+                    ):
+                        name = line.split(
+                            '"'
+                        )[1]
+                    elif (
+                        line.startswith(
+                            "version = "
+                        )
+                        and name
+                    ):
+                        ver = line.split(
+                            '"'
+                        )[1]
+                        versions[name] = ver
+                        name = None
+                return versions
         return versions
 
     @staticmethod
@@ -1453,7 +1474,9 @@ class SpdxEmitter:
         )
         # Parse Cargo.lock for Rust crate versions
         cargo_lock_versions = self._parse_cargo_lock(
-            project_files
+            project_files,
+            repos_dir=self.repos_dir,
+            repo_name=self.repo_name,
         )
         # Map vendored lib name -> SPDX package ID
         vendored_pkg_ids = {}
@@ -1819,6 +1842,7 @@ class AdgSpdxGenerator:
             bomsh_version=self.bomsh_version,
             binary_name=bin_name,
             vendored_dirs=self.vendored_dirs,
+            repos_dir=self.repos_dir,
         )
 
         doc = emitter.emit(
