@@ -95,13 +95,20 @@ and traces the openat syscall. The `-a` flag bypasses Go's build cache.
 | dive | dive | ~15-20 | ~25 |
 | gdu | gdu | ~10-15 | ~15-20 |
 
+### Rust (`language: rust`)
+
+| Repo | Binary | Crates (STATIC_LINK) | Dynamic |
+|------|--------|---------------------|---------|
+| oxipng | oxipng | 44 | 2 |
+
 ## Important Constraints
 
 - All builds run inside the Docker container on a Linux x86_64 host, never on macOS
 - The container requires `SYS_PTRACE` capability and `seccomp:unconfined` for ptrace
 - repos/ and output/ are gitignored — only docs/, app/, tests/, docker/ are tracked
 - config.yaml is the single source of truth for repo URLs, build commands, language, and paths
-- Each repo has a `language` field (`c-cpp`, `go`) that determines its output subfolder
+- Each repo has a `language` field (`c-cpp`, `go`, `rust`) that determines its output subfolder
 - Go repos use `BomtraceBuilder` with bomtrace2 (Go-specific conf) for instrumented builds
+- Rust repos use `BomtraceBuilder` with bomtrace2 (default conf) for instrumented builds
 - C/C++ repos use `BomtraceBuilder` (bomtrace3 instrumentation) and bomsh for OmniBOR SBOMs
 - Per-file test coverage must be 95%+, overall 97%+ (enforced in pre-commit.md)

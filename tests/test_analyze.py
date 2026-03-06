@@ -22,6 +22,7 @@ from analyze import (
     SyftGenerator, BinaryCollector, DocWriter,
     AnalysisPipeline, load_config, timestamp,
     _run_go_pipeline,
+    _run_rust_pipeline,
 )
 
 
@@ -1512,6 +1513,57 @@ class TestSyftGenerator(unittest.TestCase):
                 "curl_syft.spdx.json", result
             )
 
+    def test_generate_creates_html_visualization(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            runner = MagicMock()
+            spdx_dir = (
+                Path(tmpdir) / "spdx" / "c-cpp"
+                / "curl" / "2026-02-12_1300"
+            )
+            spdx_dir.mkdir(parents=True)
+            spdx_file = (
+                spdx_dir / "curl_syft.spdx.json"
+            )
+            minimal_spdx = {
+                "spdxVersion": "SPDX-2.3",
+                "SPDXID": "SPDXRef-DOCUMENT",
+                "name": "curl-syft",
+                "packages": [],
+                "relationships": [],
+            }
+
+            def fake_run(cmd, **kw):
+                import json
+                spdx_file.write_text(
+                    json.dumps(minimal_spdx)
+                )
+                return 0
+
+            runner.run.side_effect = fake_run
+            gen = SyftGenerator(runner)
+            repo_cfg = {"language": "c-cpp"}
+            paths = {
+                "repos_dir": tmpdir,
+                "output_dir": tmpdir,
+            }
+
+            with patch("builtins.print"):
+                with patch(
+                    "spdx_visualize.generate_html"
+                ) as mock_viz:
+                    result = gen.generate(
+                        "curl", repo_cfg, paths,
+                        run_ts="2026-02-12_1300",
+                    )
+                    mock_viz.assert_called_once()
+                    html_arg = (
+                        mock_viz.call_args[0][1]
+                    )
+                    self.assertIn(
+                        "curl_syft.spdx.html",
+                        html_arg,
+                    )
+
     def test_generate_warns_on_failure(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             runner = MagicMock()
@@ -1818,6 +1870,49 @@ class TestDocWriter(unittest.TestCase):
                 "Instrumented build time", content
             )
             self.assertIn("go build -a", content)
+            self.assertIn("bomtrace2", content)
+
+    def test_write_build_doc_rust(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            paths = {"docs_dir": tmpdir}
+            cfg = {
+                "url": "https://github.com/oxipng/oxipng.git",
+                "branch": "master",
+                "description": "PNG optimizer",
+                "build_steps": [
+                    "cargo build --release",
+                ],
+                "output_binaries": [
+                    "target/release/oxipng",
+                ],
+                "language": "rust",
+            }
+            with patch("builtins.print"):
+                result = DocWriter.write_build_doc(
+                    "oxipng", cfg, paths,
+                    True, 15.0,
+                )
+            content = Path(result).read_text()
+            self.assertIn("bomtrace2", content)
+            self.assertIn("rustc", content)
+            self.assertIn("default conf", content)
+            self.assertIn("oxipng", content)
+
+    def test_write_runtime_doc_rust(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            paths = {"docs_dir": tmpdir}
+            repo_cfg = {"language": "rust"}
+            with patch("builtins.print"):
+                result = DocWriter.write_runtime_doc(
+                    "oxipng", repo_cfg, paths, 15.0,
+                )
+            content = Path(result).read_text()
+            self.assertIn(
+                "Instrumented build time", content
+            )
+            self.assertIn(
+                "cargo build --release", content
+            )
             self.assertIn("bomtrace2", content)
 
     def test_write_build_doc_c_cpp_has_bomtrace(self):
@@ -2280,6 +2375,117 @@ class TestRunGoPipeline(unittest.TestCase):
                 )
 
             # validator called for Syft SPDX
+            v = p.spdx_validator.validate
+            calls = [
+                str(c) for c in v.call_args_list
+            ]
+            syft_calls = [
+                c for c in calls
+                if "syft" in c
+            ]
+            self.assertTrue(len(syft_calls) > 0)
+
+
+# ============================================================
+# Rust pipeline (_run_rust_pipeline)
+# ============================================================
+
+class TestRunRustPipeline(unittest.TestCase):
+    """Unit tests for _run_rust_pipeline."""
+
+    RUST_OMNIBOR_CFG = {
+        "tracer": "bomtrace2",
+        "create_bom_script": "bomsh_create_bom.py",
+        "sbom_script": "bomsh_sbom.py",
+        "raw_logfile": (
+            "/tmp/bomsh_hook_raw_logfile.sha1"
+        ),
+    }
+
+    def test_instrumented_build_called(self):
+        p = _mock_pipeline()
+        p.builder.build.return_value = True
+        repo_cfg = {"language": "rust"}
+        paths_cfg = {"output_dir": "/tmp/out"}
+
+        with patch("builtins.print"):
+            success, duration = _run_rust_pipeline(
+                p, "oxipng", repo_cfg,
+                paths_cfg, self.RUST_OMNIBOR_CFG,
+                "2026-03-05_1200",
+            )
+
+        self.assertTrue(success)
+        p.builder.build.assert_called_once_with(
+            "oxipng", repo_cfg,
+            paths_cfg, self.RUST_OMNIBOR_CFG,
+            run_ts="2026-03-05_1200",
+        )
+
+    def test_full_pipeline_on_success(self):
+        p = _mock_pipeline()
+        p.builder.build.return_value = True
+        repo_cfg = {"language": "rust"}
+        paths_cfg = {"output_dir": "/tmp/out"}
+
+        with patch("builtins.print"):
+            _run_rust_pipeline(
+                p, "oxipng", repo_cfg,
+                paths_cfg, self.RUST_OMNIBOR_CFG,
+                "2026-03-05_1200",
+            )
+
+        p.spdx_gen.generate.assert_called_once()
+        p.metadata_collector.collect\
+            .assert_called_once()
+        p.adg_spdx.generate.assert_called_once()
+        p.binary_collector.collect\
+            .assert_called_once()
+
+    def test_skips_steps_on_failure(self):
+        p = _mock_pipeline()
+        p.builder.build.return_value = False
+        repo_cfg = {"language": "rust"}
+        paths_cfg = {"output_dir": "/tmp/out"}
+
+        with patch("builtins.print"):
+            success, _ = _run_rust_pipeline(
+                p, "oxipng", repo_cfg,
+                paths_cfg, self.RUST_OMNIBOR_CFG,
+                "2026-03-05_1200",
+            )
+
+        self.assertFalse(success)
+        p.spdx_gen.generate.assert_not_called()
+        p.metadata_collector.collect\
+            .assert_not_called()
+        p.adg_spdx.generate.assert_not_called()
+        p.binary_collector.collect\
+            .assert_not_called()
+
+    def test_validates_syft_spdx(self):
+        with tempfile.TemporaryDirectory() as td:
+            p = _mock_pipeline()
+            p.builder.build.return_value = True
+            repo_cfg = {"language": "rust"}
+            paths_cfg = {"output_dir": td}
+
+            spdx_dir = (
+                Path(td) / "spdx" / "rust"
+                / "oxipng" / "2026-03-05_1200"
+            )
+            spdx_dir.mkdir(parents=True)
+            (
+                spdx_dir / "oxipng_syft.spdx.json"
+            ).write_text("{}")
+
+            with patch("builtins.print"):
+                _run_rust_pipeline(
+                    p, "oxipng", repo_cfg,
+                    paths_cfg, self.RUST_OMNIBOR_CFG,
+                    "2026-03-05_1200",
+                )
+
             v = p.spdx_validator.validate
             calls = [
                 str(c) for c in v.call_args_list

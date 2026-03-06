@@ -7,8 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Rust language support** — full OmniBOR analysis pipeline for Rust projects using bomtrace2:
+  - Rust toolchain (rustup + stable) installed in Docker image
+  - `_run_rust_pipeline()` in analyze.py with Rust-specific build doc notes
+  - Cargo registry path classification (`.cargo/registry/src/`) as project_source
+  - `_rust_crate_from_registry_path()` regex for crate name/version extraction
+  - `_parse_cargo_lock()` for deterministic crate version resolution
+  - Rust crate SPDX packages with STATIC_LINK relationships and `pkg:cargo` PURLs
+  - `.rs` source files included in SPDX file entries
+- **oxipng** as first Rust analysis target (94 packages, 85 files, 179 relationships, 44 crates)
+- Anti-hang rules in `command-execution.md` (no inline multiline Python, no interactive gh/git)
+
 ### Fixed
 
+- `_parse_cargo_lock` now checks `repos_dir/repo_name/` directly for Cargo.lock,
+  fixing version/PURL resolution when file paths are relative
 - Add `requirements.txt` and `requirements-dev.txt` as single source of truth for Python dependencies
 - Dockerfile now `COPY`s and installs from `requirements.txt` instead of ad-hoc `pip install` commands
 - Docker build context changed to project root so Dockerfile can access `requirements.txt`

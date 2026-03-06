@@ -15,6 +15,7 @@ Usage:
 import argparse
 import json
 import html
+from collections import Counter
 from pathlib import Path
 
 
@@ -132,6 +133,19 @@ def generate_html(doc, output_path):
         "links": edges,
     })
 
+    # Compute counts for legend
+    rel_counts = Counter(
+        e["type"] for e in edges
+    )
+    # Also count CONTAINS from original doc
+    contains_count = sum(
+        1 for r in doc.get("relationships", [])
+        if r["relationshipType"] == "CONTAINS"
+    )
+    grp_counts = Counter(
+        n["group"] for n in nodes
+    )
+
     html_content = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -234,6 +248,44 @@ def generate_html(doc, output_path):
   .link-DYNAMIC_LINK {{ stroke: #ff6b6b; }}
   .link-BUILD_TOOL_OF {{ stroke: #ffd93d; }}
   .link-DEPENDS_ON {{ stroke: #56b6f7; }}
+
+  /* Search box */
+  #search-box {{
+    position: fixed;
+    top: 60px; left: 20px;
+    z-index: 100;
+  }}
+  #search-box input {{
+    background: rgba(22, 24, 32, 0.95);
+    border: 1px solid #2a2d35;
+    border-radius: 6px;
+    padding: 8px 12px;
+    color: #e0e0e0;
+    font-size: 13px;
+    width: 220px;
+    outline: none;
+  }}
+  #search-box input:focus {{
+    border-color: #56b6f7;
+  }}
+  #search-box input::placeholder {{
+    color: #555;
+  }}
+  #search-hint {{
+    font-size: 11px;
+    color: #555;
+    margin-top: 4px;
+    padding-left: 4px;
+  }}
+
+  /* Group labels */
+  .group-label {{
+    font-size: 14px;
+    font-weight: 600;
+    fill: #333;
+    text-anchor: middle;
+    pointer-events: none;
+  }}
 </style>
 </head>
 <body>
@@ -244,50 +296,58 @@ def generate_html(doc, output_path):
 </div>
 
 <div id="legend">
-  <h3>Packages</h3>
+  <h3>Packages ({len(nodes)} total)</h3>
   <div class="legend-item">
     <div class="legend-dot" style="background:#7c5cfc"></div>
-    <span>Root binary</span>
+    <span>Root binary ({grp_counts.get('root', 0)})</span>
   </div>
   <div class="legend-item">
     <div class="legend-dot" style="background:#4ecdc4"></div>
-    <span>Static / vendored</span>
+    <span>Static / direct ({grp_counts.get('static', 0)})</span>
   </div>
   <div class="legend-item">
     <div class="legend-dot" style="background:#ff6b6b"></div>
-    <span>Dynamic (runtime)</span>
+    <span>Dynamic / runtime ({grp_counts.get('dynamic', 0)})</span>
   </div>
   <div class="legend-item">
     <div class="legend-dot" style="background:#ffd93d"></div>
-    <span>Build tool</span>
+    <span>Build tool ({grp_counts.get('build', 0)})</span>
   </div>
   <div class="legend-item">
     <div class="legend-dot" style="background:#56b6f7"></div>
-    <span>Dependency (Go module)</span>
+    <span>Transitive dep ({grp_counts.get('dependency', 0)})</span>
   </div>
 
   <h3 style="margin-top:14px">Relationships</h3>
   <div class="legend-item">
     <div class="legend-line" style="background:#4ecdc4"></div>
-    <span>STATIC_LINK</span>
+    <span>STATIC_LINK ({rel_counts.get('STATIC_LINK', 0)})</span>
   </div>
   <div class="legend-item">
     <div class="legend-line" style="background:#ff6b6b"></div>
-    <span>DYNAMIC_LINK</span>
+    <span>DYNAMIC_LINK ({rel_counts.get('DYNAMIC_LINK', 0)})</span>
   </div>
   <div class="legend-item">
     <div class="legend-line" style="background:#ffd93d; height:2px; border-top:1px dashed #ffd93d; background:none;"></div>
-    <span>BUILD_TOOL_OF</span>
+    <span>BUILD_TOOL_OF ({rel_counts.get('BUILD_TOOL_OF', 0)})</span>
   </div>
   <div class="legend-item">
     <div class="legend-line" style="background:#56b6f7"></div>
-    <span>DEPENDS_ON</span>
+    <span>DEPENDS_ON ({rel_counts.get('DEPENDS_ON', 0)})</span>
+  </div>
+  <div class="legend-item" style="margin-top:4px;color:#666;font-size:11px">
+    <span>+ {contains_count} CONTAINS (source files)</span>
   </div>
 </div>
 
 <div id="tooltip">
   <div class="tt-name"></div>
   <div class="tt-details"></div>
+</div>
+
+<div id="search-box">
+  <input type="text" id="search" placeholder="Search packages...">
+  <div id="search-hint">Click node to highlight connections</div>
 </div>
 
 <div id="graph"></div>
@@ -342,6 +402,16 @@ Object.entries(linkColors).forEach(([type, color]) => {{
     .attr('fill', color);
 }});
 
+// Horizontal layout: DEPENDS_ON left, STATIC/DYNAMIC right, root center
+const xPositions = {{
+  root: width / 2,
+  build: width / 2,
+  static: width * 0.75,
+  dynamic: width * 0.75,
+  dependency: width * 0.25,
+  other: width / 2,
+}};
+
 // Simulation
 const simulation = d3.forceSimulation(data.nodes)
   .force('link', d3.forceLink(data.links)
@@ -349,6 +419,7 @@ const simulation = d3.forceSimulation(data.nodes)
     .distance(d => d.type === 'BUILD_TOOL_OF' ? 180 : 140))
   .force('charge', d3.forceManyBody().strength(-600))
   .force('center', d3.forceCenter(width / 2, height / 2))
+  .force('x', d3.forceX(d => xPositions[d.group] || width / 2).strength(0.15))
   .force('collision', d3.forceCollide().radius(50));
 
 // Links
@@ -492,6 +563,97 @@ function dragended(event, d) {{
   if (!event.active) simulation.alphaTarget(0);
   d.fx = null; d.fy = null;
 }}
+
+// --- Click-to-highlight subgraph ---
+let selectedNode = null;
+
+function highlightConnections(d) {{
+  if (selectedNode === d) {{
+    // Deselect: restore all
+    selectedNode = null;
+    node.style('opacity', 1);
+    link.style('opacity', 0.6);
+    linkLabel.style('opacity', 0.7);
+    return;
+  }}
+  selectedNode = d;
+  const connected = new Set();
+  connected.add(d.id);
+  data.links.forEach(l => {{
+    const sid = typeof l.source === 'object' ? l.source.id : l.source;
+    const tid = typeof l.target === 'object' ? l.target.id : l.target;
+    if (sid === d.id) connected.add(tid);
+    if (tid === d.id) connected.add(sid);
+  }});
+
+  node.style('opacity', n => connected.has(n.id) ? 1 : 0.08);
+  link.style('opacity', l => {{
+    const sid = typeof l.source === 'object' ? l.source.id : l.source;
+    const tid = typeof l.target === 'object' ? l.target.id : l.target;
+    return (sid === d.id || tid === d.id) ? 0.8 : 0.03;
+  }});
+  linkLabel.style('opacity', l => {{
+    const sid = typeof l.source === 'object' ? l.source.id : l.source;
+    const tid = typeof l.target === 'object' ? l.target.id : l.target;
+    return (sid === d.id || tid === d.id) ? 0.9 : 0.03;
+  }});
+}}
+
+node.on('click', (event, d) => {{
+  event.stopPropagation();
+  highlightConnections(d);
+}});
+
+svg.on('click', () => {{
+  selectedNode = null;
+  node.style('opacity', 1);
+  link.style('opacity', 0.6);
+  linkLabel.style('opacity', 0.7);
+}});
+
+// --- Search/filter ---
+const searchInput = document.getElementById('search');
+const searchHint = document.getElementById('search-hint');
+
+searchInput.addEventListener('input', () => {{
+  const q = searchInput.value.toLowerCase().trim();
+  if (!q) {{
+    node.style('opacity', 1);
+    link.style('opacity', 0.6);
+    linkLabel.style('opacity', 0.7);
+    searchHint.textContent = 'Click node to highlight connections';
+    return;
+  }}
+  const matches = data.nodes.filter(n => n.name.toLowerCase().includes(q));
+  const matchIds = new Set(matches.map(n => n.id));
+  const count = matches.length;
+  searchHint.textContent = count + ' match' + (count !== 1 ? 'es' : '');
+
+  node.style('opacity', n => matchIds.has(n.id) ? 1 : 0.1);
+  link.style('opacity', 0.05);
+  linkLabel.style('opacity', 0.05);
+
+  // Zoom to first match
+  if (matches.length === 1) {{
+    const m = matches[0];
+    highlightConnections(m);
+    const t = d3.zoomIdentity.translate(width/2 - m.x, height/2 - m.y);
+    svg.transition().duration(500).call(d3.zoom().transform, t);
+  }}
+}});
+
+// --- Group labels (DIRECT / TRANSITIVE) ---
+const labels = g.append('g').attr('class', 'group-labels');
+labels.append('text')
+  .attr('class', 'group-label')
+  .attr('x', width * 0.75)
+  .attr('y', 80)
+  .text('DIRECT / RUNTIME \u2192');
+labels.append('text')
+  .attr('class', 'group-label')
+  .attr('x', width * 0.25)
+  .attr('y', 80)
+  .text('\u2190 TRANSITIVE');
 </script>
 </body>
 </html>"""

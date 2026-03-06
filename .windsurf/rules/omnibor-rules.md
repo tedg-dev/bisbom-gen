@@ -53,6 +53,29 @@ compilation steps.
 
 See: https://github.com/omnibor/bomsh#software-vulnerability-cve-search-for-golang-packages
 
+## Rust Pipeline Sequence
+
+Rust repos use **bomtrace2** with the default `bomtrace.conf` — no special config
+needed. `bomsh_hook2.py` has a dedicated `get_all_subfiles_in_rustc_cmdline()`
+function that parses `rustc` command lines. Rust statically links all crate
+dependencies, so all crates get STATIC_LINK relationships.
+
+1. Clone target repo into `repos/<name>/`
+2. Syft SBOM (manifest-based baseline from Cargo.toml/Cargo.lock)
+3. (no apt deps for Rust)
+4. Instrumented build: `bomtrace2 cargo build --release`
+5a. OmniBOR SPDX via bomsh_sbom.py
+5b. Metadata collection
+5c. Per-binary ADG SPDX + HTML visualization
+6. SPDX validation (JSON Schema + semantic)
+7. Binary collection
+8. Documentation generation
+
+Crate sources are fetched to `~/.cargo/registry/src/index.crates.io-*/crate-version/`
+and detected via regex. Versions come from `Cargo.lock`. PURLs use `pkg:cargo/crate@version`.
+
+See: https://github.com/omnibor/bomsh#software-vulnerability-cve-search-for-rust-packages
+
 ## Key Paths Inside Container
 
 | Path | Purpose |

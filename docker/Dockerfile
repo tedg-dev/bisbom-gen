@@ -93,6 +93,20 @@ ENV PATH="/usr/local/go/bin:/root/go/bin:${PATH}"
 ENV GOPATH="/root/go"
 
 # ============================================================
+# Install Rust toolchain (for building Rust target repos)
+# ============================================================
+# rustup installs to /root/.cargo and /root/.rustup.
+# We use the minimal profile (no docs/clippy/rustfmt) to
+# keep the image small.  The stable toolchain is sufficient
+# for all current Rust targets (e.g. oxipng ≥ 1.85.1).
+ENV RUSTUP_HOME="/root/.rustup"
+ENV CARGO_HOME="/root/.cargo"
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | \
+    sh -s -- -y --default-toolchain stable --profile minimal && \
+    . /root/.cargo/env && rustc --version && cargo --version
+ENV PATH="/root/.cargo/bin:${PATH}"
+
+# ============================================================
 # Build bomtrace2 and bomtrace3 from omnibor/bomsh
 # ============================================================
 #

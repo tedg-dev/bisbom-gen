@@ -135,6 +135,11 @@ class AdgParser:
                     classified[
                         "project_source"
                     ].append(item)
+            elif "/.cargo/registry/src/" in fp:
+                # Rust crate sources from Cargo registry
+                classified[
+                    "project_source"
+                ].append(item)
             else:
                 # Other system files (incl. /tmp/go-build)
                 classified["system_header"].append(
@@ -589,6 +594,7 @@ class SpdxEmitter:
         bomsh_version="unknown",
         binary_name=None,
         vendored_dirs=None,
+        repos_dir=None,
     ):
         self.repo_name = repo_name
         self.repo_version = repo_version
@@ -599,6 +605,7 @@ class SpdxEmitter:
         self.binary_name = (
             binary_name or repo_name
         )
+        self.repos_dir = repos_dir
         self._spdx_id_counter = 0
         self._sub_versions = {}
         if vendored_dirs is not None:
@@ -733,6 +740,159 @@ class SpdxEmitter:
         # Other domains: 2 segments
         return "/".join(parts[:2])
 
+    _CARGO_REGISTRY_RE = re.compile(
+        r"/.cargo/registry/src/[^/]+/"
+        r"([a-zA-Z0-9_-]+)-(\d+\.\d+\.\d+[^/]*)"
+        r"/"
+    )
+
+    @classmethod
+    def _rust_crate_from_registry_path(cls, fp):
+        """Extract (crate_name, version) from a Cargo
+        registry source path.
+
+        Paths look like:
+          /root/.cargo/registry/src/index.crates.io-*/
+            bitvec-1.0.1/src/lib.rs
+
+        Returns (crate_name, version) or (None, None).
+        """
+        m = cls._CARGO_REGISTRY_RE.search(fp)
+        if m:
+            return m.group(1), m.group(2)
+        return None, None
+
+    @staticmethod
+    def _parse_cargo_lock(
+        project_files, repos_dir=None,
+        repo_name=None,
+    ):
+        """Parse Cargo.lock for crate versions.
+
+        Returns dict: crate_name -> version string.
+
+        Cargo.lock format:
+          [[package]]
+          name = "bitvec"
+          version = "1.0.1"
+
+        Searches for Cargo.lock in two ways:
+        1. Directly in repos_dir/repo_name/
+        2. Walking up from each project file path
+        """
+        versions = {}
+        if not project_files:
+            return versions
+
+        # Build list of candidate Cargo.lock paths
+        candidates = []
+        if repos_dir and repo_name:
+            candidates.append(
+                Path(repos_dir) / repo_name
+                / "Cargo.lock"
+            )
+        for pf in project_files:
+            p = Path(pf["file_path"])
+            while p.parent != p:
+                candidates.append(
+                    p / "Cargo.lock"
+                )
+                p = p.parent
+
+        for lock_file in candidates:
+            if lock_file.exists():
+                name = None
+                for line in (
+                    lock_file.read_text()
+                    .splitlines()
+                ):
+                    line = line.strip()
+                    if line.startswith(
+                        "name = "
+                    ):
+                        name = line.split(
+                            '"'
+                        )[1]
+                    elif (
+                        line.startswith(
+                            "version = "
+                        )
+                        and name
+                    ):
+                        ver = line.split(
+                            '"'
+                        )[1]
+                        versions[name] = ver
+                        name = None
+                return versions
+        return versions
+
+    @staticmethod
+    def _parse_cargo_toml(
+        project_files, repos_dir=None,
+        repo_name=None,
+    ):
+        """Parse Cargo.toml for direct dependency names.
+
+        Returns set of crate names that are direct
+        dependencies (listed under [dependencies] or
+        [target.*.dependencies]).
+
+        Cargo.toml format (simplified):
+          [dependencies]
+          clap = "4.5"
+          rayon = { version = "1.10" }
+        """
+        direct = set()
+        if not project_files:
+            return direct
+
+        candidates = []
+        if repos_dir and repo_name:
+            candidates.append(
+                Path(repos_dir) / repo_name
+                / "Cargo.toml"
+            )
+        for pf in project_files:
+            p = Path(pf["file_path"])
+            while p.parent != p:
+                candidates.append(
+                    p / "Cargo.toml"
+                )
+                p = p.parent
+
+        for toml_file in candidates:
+            if toml_file.exists():
+                in_deps = False
+                for line in (
+                    toml_file.read_text()
+                    .splitlines()
+                ):
+                    stripped = line.strip()
+                    if stripped.startswith("["):
+                        in_deps = (
+                            "dependencies" in stripped
+                            and "dev" not in stripped
+                            and "build" not in stripped
+                        )
+                        continue
+                    if in_deps and "=" in stripped:
+                        name = stripped.split(
+                            "="
+                        )[0].strip()
+                        # Normalize: Cargo.toml uses
+                        # hyphens, Cargo.lock uses
+                        # either form
+                        direct.add(name)
+                        direct.add(
+                            name.replace("-", "_")
+                        )
+                        direct.add(
+                            name.replace("_", "-")
+                        )
+                return direct
+        return direct
+
     @staticmethod
     def _parse_go_mod(project_files):
         """Parse go.mod for direct vs indirect deps.
@@ -818,6 +978,15 @@ class SpdxEmitter:
         for art in project_files:
             fp = art["file_path"]
             matched = False
+            # Try Rust crate from Cargo registry first
+            crate_name, _ = (
+                self._rust_crate_from_registry_path(fp)
+            )
+            if crate_name:
+                vendored.setdefault(
+                    crate_name, []
+                ).append(art)
+                continue
             for vdir in self._vendored_dirs:
                 idx = fp.find(vdir)
                 if idx < 0:
@@ -1369,6 +1538,18 @@ class SpdxEmitter:
         go_mod_indirect = self._parse_go_mod(
             project_files
         )
+        # Parse Cargo.lock for Rust crate versions
+        cargo_lock_versions = self._parse_cargo_lock(
+            project_files,
+            repos_dir=self.repos_dir,
+            repo_name=self.repo_name,
+        )
+        # Parse Cargo.toml for direct Rust deps
+        cargo_toml_direct = self._parse_cargo_toml(
+            project_files,
+            repos_dir=self.repos_dir,
+            repo_name=self.repo_name,
+        )
         # Map vendored lib name -> SPDX package ID
         vendored_pkg_ids = {}
         for lib_name in sorted(vendored.keys()):
@@ -1389,9 +1570,15 @@ class SpdxEmitter:
                     for fp in file_paths
                 )
             )
+            is_rust_crate = any(
+                fp.endswith(".rs")
+                for fp in file_paths
+            )
             src_exts = (
                 (".go",)
                 if is_go_module
+                else (".rs",)
+                if is_rust_crate
                 else (
                     ".c", ".h", ".s", ".inc",
                     ".cc", ".cpp", ".cxx", ".hpp",
@@ -1429,6 +1616,27 @@ class SpdxEmitter:
                         f"{self.binary_name}"
                     ),
                 }
+            elif is_rust_crate:
+                dl = (
+                    f"https://crates.io/crates/"
+                    f"{lib_name}"
+                )
+                pkg = {
+                    "SPDXID": pkg_id,
+                    "name": lib_name,
+                    "downloadLocation": dl,
+                    "filesAnalyzed": True,
+                    "primaryPackagePurpose":
+                        "LIBRARY",
+                    "externalRefs": [],
+                    "comment": (
+                        f"Rust crate (statically "
+                        f"linked). "
+                        f"{src_count} source files "
+                        f"compiled into "
+                        f"{self.binary_name}"
+                    ),
+                }
             else:
                 pkg = {
                     "SPDXID": pkg_id,
@@ -1447,10 +1655,12 @@ class SpdxEmitter:
                     ),
                 }
 
-            # Detect version: Go modules.txt first,
-            # then C/C++ header detection, then
-            # sub-component splitting fallback
-            ver = go_mod_versions.get(lib_name)
+            # Detect version: Cargo.lock / Go
+            # modules.txt first, then C/C++ header
+            # detection, then sub-component fallback
+            ver = cargo_lock_versions.get(lib_name)
+            if not ver:
+                ver = go_mod_versions.get(lib_name)
             if not ver:
                 ver = ver_detector.detect(
                     lib_name, file_paths
@@ -1463,7 +1673,7 @@ class SpdxEmitter:
             if ver:
                 pkg["versionInfo"] = ver
 
-            # Add PURL for Go modules
+            # Add PURL for Go modules and Rust crates
             if is_go_module and ver:
                 purl = (
                     f"pkg:golang/{lib_name}"
@@ -1475,16 +1685,38 @@ class SpdxEmitter:
                     "referenceType": "purl",
                     "referenceLocator": purl,
                 })
+            elif is_rust_crate and ver:
+                purl = (
+                    f"pkg:cargo/{lib_name}"
+                    f"@{ver}"
+                )
+                pkg["externalRefs"].append({
+                    "referenceCategory":
+                        "PACKAGE-MANAGER",
+                    "referenceType": "purl",
+                    "referenceLocator": purl,
+                })
 
             doc["packages"].append(pkg)
 
-            # Go modules use DEPENDS_ON;
-            # C/C++ vendored libs use STATIC_LINK
-            rel_type = (
-                "DEPENDS_ON"
-                if is_go_module
-                else "STATIC_LINK"
-            )
+            # Determine relationship type:
+            # - Go modules: DEPENDS_ON (all)
+            # - Rust crates: STATIC_LINK (direct),
+            #   DEPENDS_ON (transitive)
+            # - C/C++ vendored: STATIC_LINK
+            if is_go_module:
+                rel_type = "DEPENDS_ON"
+            elif is_rust_crate:
+                if (
+                    cargo_toml_direct
+                    and lib_name
+                    not in cargo_toml_direct
+                ):
+                    rel_type = "DEPENDS_ON"
+                else:
+                    rel_type = "STATIC_LINK"
+            else:
+                rel_type = "STATIC_LINK"
             doc["relationships"].append({
                 "spdxElementId": root_id,
                 "relationshipType": rel_type,
@@ -1507,7 +1739,7 @@ class SpdxEmitter:
             if ext not in (
                 ".c", ".h", ".s", ".inc",
                 ".cc", ".cpp", ".cxx", ".hpp",
-                ".go",
+                ".go", ".rs",
             ):
                 continue
 
@@ -1693,6 +1925,7 @@ class AdgSpdxGenerator:
             bomsh_version=self.bomsh_version,
             binary_name=bin_name,
             vendored_dirs=self.vendored_dirs,
+            repos_dir=self.repos_dir,
         )
 
         doc = emitter.emit(

@@ -91,3 +91,8 @@ terraform/tfplan
 *.log
 *.tmp
 *.bak
+
+# ============================================================
+# Session notes (local-only, not committed)
+# ============================================================
+session-notes.md
