@@ -2876,6 +2876,209 @@ class TestParseCargoLock(unittest.TestCase):
             self.assertEqual(versions, {})
 
 
+class TestParseCargoToml(unittest.TestCase):
+    """Tests for _parse_cargo_toml."""
+
+    def test_parse_direct_deps(self):
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td) / "repos" / "oxipng"
+            repo.mkdir(parents=True)
+            toml = repo / "Cargo.toml"
+            toml.write_text(
+                '[package]\n'
+                'name = "oxipng"\n'
+                'version = "10.1.0"\n'
+                '\n'
+                '[dependencies]\n'
+                'clap = "4.5"\n'
+                'rayon = { version = "1.10" }\n'
+                'libdeflater = "1.25"\n'
+                '\n'
+                '[dev-dependencies]\n'
+                'criterion = "0.5"\n'
+            )
+            files = [
+                {"file_path": str(
+                    repo / "src" / "main.rs"
+                )},
+            ]
+            direct = (
+                SpdxEmitter._parse_cargo_toml(files)
+            )
+            self.assertIn("clap", direct)
+            self.assertIn("rayon", direct)
+            self.assertIn("libdeflater", direct)
+            # dev-dep should NOT be included
+            self.assertNotIn("criterion", direct)
+
+    def test_hyphen_underscore_normalization(self):
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td) / "repos" / "test"
+            repo.mkdir(parents=True)
+            toml = repo / "Cargo.toml"
+            toml.write_text(
+                '[dependencies]\n'
+                'libdeflate-sys = "1.25"\n'
+            )
+            files = [
+                {"file_path": str(
+                    repo / "src" / "main.rs"
+                )},
+            ]
+            direct = (
+                SpdxEmitter._parse_cargo_toml(files)
+            )
+            self.assertIn(
+                "libdeflate-sys", direct
+            )
+            self.assertIn(
+                "libdeflate_sys", direct
+            )
+
+    def test_empty_project_files(self):
+        direct = (
+            SpdxEmitter._parse_cargo_toml([])
+        )
+        self.assertEqual(direct, set())
+
+    def test_no_cargo_toml(self):
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td) / "repos" / "test"
+            repo.mkdir(parents=True)
+            files = [
+                {"file_path": str(
+                    repo / "src" / "main.rs"
+                )},
+            ]
+            direct = (
+                SpdxEmitter._parse_cargo_toml(files)
+            )
+            self.assertEqual(direct, set())
+
+    def test_repos_dir_param(self):
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td) / "repos" / "oxipng"
+            repo.mkdir(parents=True)
+            toml = repo / "Cargo.toml"
+            toml.write_text(
+                '[dependencies]\n'
+                'clap = "4.5"\n'
+            )
+            # Use registry paths (can't walk to
+            # Cargo.toml) but pass repos_dir
+            files = [
+                {"file_path": (
+                    "/root/.cargo/registry/src/"
+                    "index.crates.io-abc/"
+                    "clap-4.5.0/src/lib.rs"
+                )},
+            ]
+            direct = (
+                SpdxEmitter._parse_cargo_toml(
+                    files,
+                    repos_dir=str(
+                        Path(td) / "repos"
+                    ),
+                    repo_name="oxipng",
+                )
+            )
+            self.assertIn("clap", direct)
+
+
+class TestRustDirectVsTransitive(
+    unittest.TestCase
+):
+    """Tests for direct vs transitive Rust crate
+    relationship types."""
+
+    def test_direct_gets_static_link(self):
+        """Direct Rust dep gets STATIC_LINK."""
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td) / "repos" / "oxipng"
+            repo.mkdir(parents=True)
+            (repo / "Cargo.toml").write_text(
+                '[dependencies]\n'
+                'clap = "4.5"\n'
+            )
+            (repo / "Cargo.lock").write_text(
+                '[[package]]\n'
+                'name = "clap"\n'
+                'version = "4.5.0"\n'
+                '\n'
+                '[[package]]\n'
+                'name = "clap_builder"\n'
+                'version = "4.5.0"\n'
+            )
+            emitter = SpdxEmitter(
+                repo_name="oxipng",
+                repo_version="10.1.0",
+                distro="Ubuntu 22.04",
+                gcc_version="gcc 11.4.0",
+                repos_dir=str(
+                    Path(td) / "repos"
+                ),
+            )
+            files = [
+                {
+                    "sha1": "a" * 40,
+                    "file_path": (
+                        "/root/.cargo/registry/"
+                        "src/index.crates.io-abc/"
+                        "clap-4.5.0/src/lib.rs"
+                    ),
+                },
+                {
+                    "sha1": "b" * 40,
+                    "file_path": (
+                        "/root/.cargo/registry/"
+                        "src/index.crates.io-abc/"
+                        "clap_builder-4.5.0/"
+                        "src/lib.rs"
+                    ),
+                },
+                {
+                    "sha1": "c" * 40,
+                    "file_path": str(
+                        repo / "src" / "main.rs"
+                    ),
+                },
+            ]
+            doc = emitter.emit(
+                components=[],
+                project_files=files,
+                doc_mapping={},
+                logfile_hashes={},
+            )
+            # clap is direct -> STATIC_LINK
+            clap_pkg = next(
+                p for p in doc["packages"]
+                if p["name"] == "clap"
+            )
+            clap_rels = [
+                r for r in doc["relationships"]
+                if r["relatedSpdxElement"]
+                == clap_pkg["SPDXID"]
+            ]
+            self.assertEqual(
+                clap_rels[0]["relationshipType"],
+                "STATIC_LINK",
+            )
+            # clap_builder is transitive -> DEPENDS_ON
+            cb_pkg = next(
+                p for p in doc["packages"]
+                if p["name"] == "clap_builder"
+            )
+            cb_rels = [
+                r for r in doc["relationships"]
+                if r["relatedSpdxElement"]
+                == cb_pkg["SPDXID"]
+            ]
+            self.assertEqual(
+                cb_rels[0]["relationshipType"],
+                "DEPENDS_ON",
+            )
+
+
 class TestRustCargoRegistryClassification(
     unittest.TestCase
 ):

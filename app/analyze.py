@@ -945,6 +945,27 @@ class SyftGenerator:
                 "[WARN] Syft SBOM generation "
                 "may have failed"
             )
+
+        # Generate HTML visualization
+        if spdx_file.exists():
+            try:
+                import json as _viz_json
+                from spdx_visualize import (
+                    generate_html,
+                )
+                doc = _viz_json.loads(
+                    spdx_file.read_text()
+                )
+                html_path = str(
+                    spdx_file.with_suffix(".html")
+                )
+                generate_html(doc, html_path)
+            except Exception as e:
+                print(
+                    "[WARN] Syft visualization "
+                    f"failed: {e}"
+                )
+
         return str(spdx_file)
 
 

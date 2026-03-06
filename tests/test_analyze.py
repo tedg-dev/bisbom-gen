@@ -1513,6 +1513,57 @@ class TestSyftGenerator(unittest.TestCase):
                 "curl_syft.spdx.json", result
             )
 
+    def test_generate_creates_html_visualization(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            runner = MagicMock()
+            spdx_dir = (
+                Path(tmpdir) / "spdx" / "c-cpp"
+                / "curl" / "2026-02-12_1300"
+            )
+            spdx_dir.mkdir(parents=True)
+            spdx_file = (
+                spdx_dir / "curl_syft.spdx.json"
+            )
+            minimal_spdx = {
+                "spdxVersion": "SPDX-2.3",
+                "SPDXID": "SPDXRef-DOCUMENT",
+                "name": "curl-syft",
+                "packages": [],
+                "relationships": [],
+            }
+
+            def fake_run(cmd, **kw):
+                import json
+                spdx_file.write_text(
+                    json.dumps(minimal_spdx)
+                )
+                return 0
+
+            runner.run.side_effect = fake_run
+            gen = SyftGenerator(runner)
+            repo_cfg = {"language": "c-cpp"}
+            paths = {
+                "repos_dir": tmpdir,
+                "output_dir": tmpdir,
+            }
+
+            with patch("builtins.print"):
+                with patch(
+                    "spdx_visualize.generate_html"
+                ) as mock_viz:
+                    result = gen.generate(
+                        "curl", repo_cfg, paths,
+                        run_ts="2026-02-12_1300",
+                    )
+                    mock_viz.assert_called_once()
+                    html_arg = (
+                        mock_viz.call_args[0][1]
+                    )
+                    self.assertIn(
+                        "curl_syft.spdx.html",
+                        html_arg,
+                    )
+
     def test_generate_warns_on_failure(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             runner = MagicMock()

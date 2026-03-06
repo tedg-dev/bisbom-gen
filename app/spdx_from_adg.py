@@ -828,6 +828,72 @@ class SpdxEmitter:
         return versions
 
     @staticmethod
+    def _parse_cargo_toml(
+        project_files, repos_dir=None,
+        repo_name=None,
+    ):
+        """Parse Cargo.toml for direct dependency names.
+
+        Returns set of crate names that are direct
+        dependencies (listed under [dependencies] or
+        [target.*.dependencies]).
+
+        Cargo.toml format (simplified):
+          [dependencies]
+          clap = "4.5"
+          rayon = { version = "1.10" }
+        """
+        direct = set()
+        if not project_files:
+            return direct
+
+        candidates = []
+        if repos_dir and repo_name:
+            candidates.append(
+                Path(repos_dir) / repo_name
+                / "Cargo.toml"
+            )
+        for pf in project_files:
+            p = Path(pf["file_path"])
+            while p.parent != p:
+                candidates.append(
+                    p / "Cargo.toml"
+                )
+                p = p.parent
+
+        for toml_file in candidates:
+            if toml_file.exists():
+                in_deps = False
+                for line in (
+                    toml_file.read_text()
+                    .splitlines()
+                ):
+                    stripped = line.strip()
+                    if stripped.startswith("["):
+                        in_deps = (
+                            "dependencies" in stripped
+                            and "dev" not in stripped
+                            and "build" not in stripped
+                        )
+                        continue
+                    if in_deps and "=" in stripped:
+                        name = stripped.split(
+                            "="
+                        )[0].strip()
+                        # Normalize: Cargo.toml uses
+                        # hyphens, Cargo.lock uses
+                        # either form
+                        direct.add(name)
+                        direct.add(
+                            name.replace("-", "_")
+                        )
+                        direct.add(
+                            name.replace("_", "-")
+                        )
+                return direct
+        return direct
+
+    @staticmethod
     def _parse_go_mod(project_files):
         """Parse go.mod for direct vs indirect deps.
 
@@ -1478,6 +1544,12 @@ class SpdxEmitter:
             repos_dir=self.repos_dir,
             repo_name=self.repo_name,
         )
+        # Parse Cargo.toml for direct Rust deps
+        cargo_toml_direct = self._parse_cargo_toml(
+            project_files,
+            repos_dir=self.repos_dir,
+            repo_name=self.repo_name,
+        )
         # Map vendored lib name -> SPDX package ID
         vendored_pkg_ids = {}
         for lib_name in sorted(vendored.keys()):
@@ -1627,13 +1699,24 @@ class SpdxEmitter:
 
             doc["packages"].append(pkg)
 
-            # Go modules use DEPENDS_ON;
-            # C/C++ vendored libs use STATIC_LINK
-            rel_type = (
-                "DEPENDS_ON"
-                if is_go_module
-                else "STATIC_LINK"
-            )
+            # Determine relationship type:
+            # - Go modules: DEPENDS_ON (all)
+            # - Rust crates: STATIC_LINK (direct),
+            #   DEPENDS_ON (transitive)
+            # - C/C++ vendored: STATIC_LINK
+            if is_go_module:
+                rel_type = "DEPENDS_ON"
+            elif is_rust_crate:
+                if (
+                    cargo_toml_direct
+                    and lib_name
+                    not in cargo_toml_direct
+                ):
+                    rel_type = "DEPENDS_ON"
+                else:
+                    rel_type = "STATIC_LINK"
+            else:
+                rel_type = "STATIC_LINK"
             doc["relationships"].append({
                 "spdxElementId": root_id,
                 "relationshipType": rel_type,
