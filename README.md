@@ -1,6 +1,6 @@
 # OmniBOR Analysis
 
-> SBOM accuracy and consistency comparison using [OmniBOR](https://omnibor.io/) build interception vs. proprietary binary scanning.
+> SPDX SBOM generation via [OmniBOR](https://omnibor.io/) build interception for C/C++ and Rust projects.
 
 [![License](https://img.shields.io/badge/license-TBD-lightgrey.svg)](#license)
 
@@ -19,21 +19,19 @@
 
 ## Overview
 
-This project instruments C/C++ and Rust open-source builds with [OmniBOR/Bomsh](https://github.com/omnibor/bomsh) to generate SPDX SBOMs via **build interception**, then compares those SBOMs against SBOMs produced by proprietary binary scanning tools (e.g., BDBA) to evaluate:
+This project instruments C/C++ and Rust open-source builds with [OmniBOR/Bomsh](https://github.com/omnibor/bomsh) to generate **SPDX 2.3 SBOMs** via build interception. For each compiled binary, it produces a full dependency graph capturing:
 
-- **Accuracy** — Are the detected components correct?
-- **Completeness** — Are all components found?
-- **Consistency** — Do both methods agree on versions and identifiers?
+- **Static dependencies** (STATIC_LINK) — vendored libraries compiled into the binary
+- **Dynamic dependencies** (DYNAMIC_LINK) — system shared libraries resolved via ldd/readelf
+- **Transitive dependencies** (DEPENDS_ON) — indirect dependencies from lock files
+- **Build tools** (BUILD_TOOL_OF) — compiler/linker version tracking
+- **Interactive HTML visualizations** — D3.js force-directed dependency graphs
 
 ## Background
 
 ### What is Build Interception?
 
 Build interception hooks into the compiler and linker during a software build to observe exactly which source files are compiled into which output artifacts. [OmniBOR's Bomtrace](https://github.com/omnibor/bomsh) uses `strace` to intercept these calls and produce an **Artifact Dependency Graph (ADG)** — a cryptographically verifiable record of what was built from what. C/C++ builds use bomtrace3; Rust builds use bomtrace2 with default configuration. Go support is experimental (see [Go Language Support](docs/go-language-support.md)).
-
-### Why Compare Against Binary Scanning?
-
-Binary scanning tools analyze compiled binaries using signature databases to identify known open-source components. By comparing build interception SBOMs against binary scan SBOMs, we can understand the strengths and blind spots of each approach and determine the most effective strategy for comprehensive SBOM generation.
 
 ## Project Structure
 
@@ -50,7 +48,6 @@ omnibor-analysis/
 │   ├── omnibor/{lang}/{repo}/{ts}/  ADG documents from bomsh
 │   ├── spdx/{lang}/{repo}/{ts}/     SPDX SBOMs + HTML visualizations
 │   ├── binaries/{lang}/{repo}/{ts}/ Collected output binaries
-│   └── binary-scan/{lang}/{repo}/   SBOMs from proprietary binary scanner
 ├── docs/                   Timestamped results and reports
 │   ├── {lang}/{repo}/{ts}/     Per-repo build logs
 │   ├── runtime/{lang}/{repo}/{ts}/  Build time and performance metrics
@@ -63,7 +60,6 @@ omnibor-analysis/
 │   ├── spdx_visualize.py   D3.js interactive HTML dependency graph generator
 │   ├── collect_metadata.py Resolve system files to dpkg packages
 │   ├── collect_dynamic_libs.py  Per-binary ldd/readelf dynamic lib analysis
-│   ├── compare.py          Diff OmniBOR SPDX vs binary-scan SPDX
 │   ├── add_repo.py         Auto-discover and add repos from GitHub
 │   ├── data_loader.py      Shared data loading utilities
 │   ├── config.yaml         Repo definitions, build commands, paths
@@ -72,8 +68,6 @@ omnibor-analysis/
 ├── tests/                  Unit tests (427 tests, 99% coverage)
 ├── .windsurf/              Cascade AI rules and workflows
 ├── .github/                GitHub templates and CI configuration
-├── CONTRIBUTING.md         Contribution guidelines
-├── ONBOARDING.md           New contributor onboarding guide
 ├── LICENSE                 License file
 └── README.md               This file
 ```
@@ -85,7 +79,6 @@ omnibor-analysis/
 | **Docker Desktop** | Latest | Required — bomtrace3 runs on Linux only (uses strace) |
 | **Python** | 3.11+ | For orchestration scripts |
 | **Git** | 2.x+ | For cloning target repositories |
-| **Binary scanner** | — | Optional — BDBA or equivalent for comparison SBOMs |
 
 > **Note:** All C/C++ compilation and OmniBOR instrumentation happens inside the Docker container. You do **not** need gcc, clang, or any build tools installed on your host machine.
 
@@ -146,22 +139,6 @@ docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
   python3 /workspace/app/analyze.py --repo curl --syft-only
 ```
 
-### Compare SBOMs
-
-After running analysis and placing a binary scanner SPDX file in `output/binary-scan/<repo>/`:
-
-```bash
-# Auto-detect latest files
-docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
-  python3 /workspace/app/compare.py --repo curl
-
-# Or specify files explicitly
-docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
-  python3 /workspace/app/compare.py --repo curl \
-    --omnibor-file /workspace/output/spdx/curl/curl_omnibor_2026-02-10_1430.spdx.json \
-    --binary-file /workspace/output/binary-scan/curl/bdba_export.spdx.json
-```
-
 ### Interactive container access
 
 ```bash
@@ -174,9 +151,9 @@ docker-compose -f docker/docker-compose.yml run --rm omnibor-env bash
 
 | Repo | Dependencies | Build System | Purpose |
 |------|-------------|-------------|----------|
-| [curl](https://github.com/curl/curl) | OpenSSL, zlib, nghttp2, libssh2, brotli, zstd, c-ares, libidn2 | autoconf/make | Controlled medium-size comparison |
+| [curl](https://github.com/curl/curl) | OpenSSL, zlib, nghttp2, libssh2, brotli, zstd, c-ares, libidn2 | autoconf/make | Medium-size, many dynamic deps |
 | [redis](https://github.com/redis/redis) | 8 vendored static libs | make | Vendored library detection |
-| [FFmpeg](https://github.com/FFmpeg/FFmpeg) | libx264, libx265, libvpx, libopus, OpenSSL, zlib, 20+ more | autoconf/make | Large-scale dependency-rich comparison |
+| [FFmpeg](https://github.com/FFmpeg/FFmpeg) | libx264, libx265, libvpx, libopus, OpenSSL, zlib, 20+ more | autoconf/make | Large-scale, 20+ third-party libs |
 | [nmap](https://github.com/nmap/nmap) | 7 vendored + 14 dynamic | autoconf/make | Mixed vendored + system deps |
 
 ### Rust (bomtrace2)
@@ -199,7 +176,7 @@ Go build interception is functional but does not yet provide efficient build-tim
 
 For details on Go support, see [Go Language Support](docs/go-language-support.md).
 
-To add a new target repository, see [CONTRIBUTING.md](CONTRIBUTING.md#adding-a-new-target-repository).
+To add a new target repository, see [CONTRIBUTING.md](docs/CONTRIBUTING.md#adding-a-new-target-repository).
 
 ## Output and Reports
 
@@ -211,7 +188,7 @@ Each analysis run produces three SPDX files:
 |------|----------|
 | `<binary>_adg.spdx.json` | **Primary output.** Full dependency graph from build interception (DEPENDS_ON, STATIC_LINK, DYNAMIC_LINK, BUILD_TOOL_OF). |
 | `<binary>_omnibor.spdx.json` | OmniBOR artifact identity. Lists cryptographic hashes for provenance tracking. No dependency relationships (by design). |
-| `<binary>_syft.spdx.json` | Syft baseline. Manifest-based SBOM for comparison. |
+| `<binary>_syft.spdx.json` | Syft manifest-based SBOM (package manager metadata). |
 
 Each `.spdx.json` has a corresponding `.spdx.html` interactive D3.js visualization.
 
@@ -222,7 +199,6 @@ Each `.spdx.json` has a corresponding `.spdx.html` interactive D3.js visualizati
 | `output/omnibor/{lang}/{repo}/{ts}/` | OmniBOR ADG documents from bomsh |
 | `output/spdx/{lang}/{repo}/{ts}/` | SPDX SBOM files + HTML visualizations |
 | `output/binaries/{lang}/{repo}/{ts}/` | Collected output binaries |
-| `output/binary-scan/{lang}/{repo}/` | SBOMs from proprietary binary scanner |
 
 ### Reports (tracked in git)
 
@@ -236,7 +212,7 @@ Each `.spdx.json` has a corresponding `.spdx.html` interactive D3.js visualizati
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on:
+See [CONTRIBUTING.md](docs/CONTRIBUTING.md) for guidelines on:
 - Branch naming and PR workflow
 - Adding new target repositories
 - Code style and testing

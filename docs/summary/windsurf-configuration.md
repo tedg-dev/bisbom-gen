@@ -2,6 +2,10 @@
 
 This document describes all `.windsurf/` rules and workflows configured for this workspace.
 
+> **AI Model:** This project was developed and tested using **Claude Opus 4.6** in Windsurf Cascade.
+> It is strongly recommended for onboarding and development. Other models may not follow
+> the `.windsurf/` rules correctly.
+
 ## Rules (auto-loaded every Cascade session)
 
 Rules in `.windsurf/rules/` are automatically injected into every Cascade conversation when this folder is opened in Windsurf.
@@ -18,7 +22,7 @@ Rules in `.windsurf/rules/` are automatically injected into every Cascade conver
 
 | File | Purpose |
 |------|---------|
-| `credentials.md` | No hardcoded secrets; use env vars for BDBA keys and GitHub tokens |
+| `credentials.md` | No hardcoded secrets; use env vars for API keys and GitHub tokens |
 | `secrets-in-chat.md` | Never display tokens, API keys, or passwords in Cascade chat output |
 | `command-execution.md` | No `cd` commands (use Cwd), sequential git ops, always use `python3` |
 | `code-quality.md` | Run tests before PRs, fix pre-existing lint/test failures, meta-rule for recording new rules |
@@ -39,7 +43,7 @@ Startup checklist — run when opening the workspace:
 
 1. Verify Docker is running
 2. Check if the omnibor-analysis Docker image exists
-3. Verify key project files (config.yaml, analyze.py, compare.py, Dockerfile)
+3. Verify key project files (config.yaml, analyze.py, spdx_from_adg.py, Dockerfile)
 4. Check which repos are cloned
 5. Check for existing output artifacts
 6. Check for existing docs/reports
@@ -69,36 +73,25 @@ Run OmniBOR build interception analysis on a target repository:
 4. Syft-only mode (no build instrumentation)
 
 Output locations:
-- ADG: `output/omnibor/<repo>/`
-- SPDX (OmniBOR): `output/spdx/<repo>/<repo>_omnibor_<timestamp>.spdx.json`
-- SPDX (Syft): `output/spdx/<repo>/<repo>_syft_<timestamp>.spdx.json`
-- Build log: `docs/<repo>/<timestamp>_build.md`
-- Runtime metrics: `docs/runtime/<timestamp>_<repo>_runtime.md`
+- ADG: `output/omnibor/{lang}/{repo}/{ts}/`
+- SPDX: `output/spdx/{lang}/{repo}/{ts}/<binary>_adg.spdx.json`
+- HTML: `output/spdx/{lang}/{repo}/{ts}/<binary>_adg.spdx.html`
+- Build log: `docs/{lang}/{repo}/{ts}/build.md`
+- Runtime metrics: `docs/runtime/{lang}/{repo}/{ts}/runtime.md`
 
-### `/run-comparison`
-
-**File:** `run-comparison.md`
-
-Compare OmniBOR SPDX SBOM against proprietary binary scan SPDX SBOM:
-
-1. Place binary scan SPDX file in `output/binary-scan/<repo>/`
-2. Run comparison (auto-detects latest files or specify explicitly)
-3. Review the generated comparison report in `docs/<repo>/<timestamp>_comparison.md`
-
-Report includes: summary table, common packages, OmniBOR-only, binary-scan-only, version mismatches, analysis notes.
+`{lang}` is `c-cpp`, `rust`, or `go`. `{ts}` is `YYYY-MM-DD_HHMM`.
 
 ### `/add-repo`
 
 **File:** `add-repo.md`
 
-Add a new target C/C++ repository:
+Add a new target repository (C/C++, Rust, or Go):
 
-1. Add repo entry to `app/config.yaml` (URL, branch, build steps, output binaries)
-2. Add build dependencies to `docker/Dockerfile`
-3. Rebuild Docker image
-4. Create output directories
-5. Run analysis
+1. Add repo entry to `app/config.yaml` (URL, branch, language, build steps, output binaries)
+2. Add build dependencies to `docker/Dockerfile` (C/C++ only — Rust and Go deps are fetched at build time)
+3. Rebuild Docker image if Dockerfile changed
+4. Run analysis (output directories are created automatically)
 
 ---
 
-*Last updated: 2026-02-10*
+*Last updated: 2026-03-09*

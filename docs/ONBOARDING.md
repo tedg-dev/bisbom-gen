@@ -41,7 +41,10 @@ Open this directory in Windsurf IDE.
 ## Step 2: Configure Cascade
 
 1. Open Windsurf Settings → Cascade → Model
-2. Select **Claude Opus 4** (or latest available) for best results
+2. Select **Claude Opus 4.6** — this is strongly recommended. All project
+   rules, workflows, and automation in this repository were developed and
+   tested using Claude Opus 4.6. Other models may not follow the `.windsurf/`
+   rules correctly or produce consistent results.
 3. The `.windsurf/` directory contains all rules and workflows that Cascade
    reads automatically — no manual configuration needed
 
@@ -170,7 +173,6 @@ with color-coded nodes (purple=root, teal=vendored, red=dynamic, yellow=build to
 | `/first-time-setup` | Complete first-time setup (one-time) |
 | `/add-repo` | Add a new GitHub repo for analysis |
 | `/run-analysis` | Run build interception + SBOM generation |
-| `/run-comparison` | Compare OmniBOR SBOM vs binary scanner SBOM |
 | `/docker-build` | Build or rebuild the Docker container |
 | `/merge-pr` | Merge a feature branch (after approval) |
 

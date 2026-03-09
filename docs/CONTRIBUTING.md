@@ -32,7 +32,7 @@ This project follows a **PR-first workflow**. All changes go through pull reques
 ```
 feat/add-openssl-target
 fix/bomtrace-path-resolution
-docs/update-comparison-methodology
+docs/update-spdx-methodology
 chore/update-dockerfile-dependencies
 ```
 
@@ -54,7 +54,7 @@ feat(app): add OpenSSL as target repository
 fix(docker): resolve bomtrace3 SYS_PTRACE permission issue
 docs(readme): add FFmpeg analysis results
 chore(docker): update Ubuntu base image to 22.04.4
-test(compare): add unit tests for SPDX package extraction
+test(spdx): add unit tests for SPDX package extraction
 ```
 
 ## Pull Requests
