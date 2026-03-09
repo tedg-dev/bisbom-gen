@@ -191,7 +191,7 @@ omnibor-analysis/
 │   ├── data_loader.py      # Shared data loading utilities
 │   └── config.yaml         # Repository and tool configuration
 ├── docker/                 # Container environment
-│   ├── Dockerfile          # Ubuntu 22.04 + gcc + Rust + Go + bomtrace + syft
+│   ├── Dockerfile          # Ubuntu 22.04 + gcc + Rust + Go + bomtrace
 │   └── docker-compose.yml  # Container orchestration
 ├── terraform/              # AWS EC2 infrastructure as code
 ├── tests/                  # Unit tests (427+ tests, 99% coverage)

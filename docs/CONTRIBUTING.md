@@ -115,7 +115,7 @@ docker-compose -f docker/docker-compose.yml run --rm omnibor-env bomtrace3 --ver
 
 # Run analysis
 docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
-  python3 /workspace/app/analyze.py --repo curl --syft-only
+  python3 /workspace/app/analyze.py --repo curl
 ```
 
 ## Adding a New Target Repository

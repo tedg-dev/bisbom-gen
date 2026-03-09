@@ -21,7 +21,7 @@ the structure of intermediate artifacts, and the final SPDX output.
 10. [Anatomy of the Final SPDX Document](#10-anatomy-of-the-final-spdx-document)
 11. [What Each Tool Contributes](#11-what-each-tool-contributes)
 12. [Key Files and Paths](#12-key-files-and-paths)
-13. [Comparison: OmniBOR SPDX vs. Syft-Only SPDX](#13-comparison-omnibor-spdx-vs-syft-only-spdx)
+13. [What Makes OmniBOR SBOMs Different](#13-what-makes-omnibor-sboms-different-from-manifest-only-sboms)
 14. [Configured Repositories](#14-configured-repositories)
 
 ---
@@ -51,7 +51,7 @@ Source Code
                │  OmniBOR ADG documents + treedb + gitoid mappings
                ▼
 ┌──────────────────────────────┐
-│  bomsh_sbom.py               │  ← Step 5a: SPDX from ADG + Syft
+│  bomsh_sbom.py               │  ← Step 5a: SPDX from ADG
 │  -b <bom_dir>                │
 │  -o <output.spdx.json>       │
 └──────────────┬───────────────┘
@@ -260,8 +260,13 @@ This mapping is what connects a specific binary file to its complete build prove
 `bomsh_sbom.py` is the tool that actually produces the SPDX 2.3 document. It does
 **not** create the SPDX from scratch — instead, it uses a **two-phase approach**:
 
-1. **Phase A**: Call **Syft** to generate a baseline SPDX document for each artifact
-2. **Phase B**: Inject OmniBOR `ExternalRef` entries into the Syft-generated SPDX
+1. **Phase A**: Internally call Syft to generate a baseline SPDX scaffold for each artifact
+2. **Phase B**: Inject OmniBOR `ExternalRef` entries into the generated SPDX
+
+> **Note:** Syft is an internal implementation detail of `bomsh_sbom.py`. It is not
+> a user-facing tool in the OmniBOR pipeline. Users interact with `bomsh_sbom.py` and
+> `spdx_from_adg.py`, which produce the final SPDX SBOMs. The primary output for
+> enterprise use is `<binary>_adg.spdx.json` from `spdx_from_adg.py`.
 
 ### Invocation
 
@@ -275,13 +280,13 @@ Where:
   `bomsh_omnibor_doc_mapping` file (output of Stage 2)
 - `-o <output.spdx.json>`: Path for the final SPDX output file
 
-### Phase A: Syft baseline SPDX generation
+### Phase A: Baseline SPDX scaffolding (via Syft internally)
 
 `bomsh_sbom.py` internally calls [Syft](https://github.com/anchore/syft) (an
-open-source SBOM generator by Anchore) to create the initial SPDX document.
+open-source SBOM generator by Anchore) to create the initial SPDX scaffold.
 
 Syft scans the artifact file and produces a standards-compliant SPDX 2.3 JSON
-document containing:
+scaffold containing:
 
 - **Document creation info**: `spdxVersion`, `dataLicense` (CC0-1.0), `SPDXID`,
   `name`, `documentNamespace`, `creationInfo` (tool name, timestamp)
@@ -294,13 +299,12 @@ document containing:
 - **Relationships**: `DESCRIBES`, `CONTAINS`, `DEPENDS_ON` relationships between
   the document, packages, and files
 
-At this point, the SPDX document is a standard manifest-based SBOM — similar to
-what you would get from running Syft directly. It does **not** yet contain any
-build provenance or OmniBOR information.
+At this point, the SPDX document is a baseline scaffold. It does **not** yet
+contain any build provenance or OmniBOR information.
 
 ### Phase B: OmniBOR ExternalRef injection
 
-After Syft produces the baseline SPDX, `bomsh_sbom.py` enriches it:
+After the baseline scaffold is produced, `bomsh_sbom.py` enriches it:
 
 1. **Reads the OmniBOR doc mapping**: Loads `bomsh_omnibor_doc_mapping` from the
    bom directory to get the `{ file_gitoid → bom_id }` mapping.
@@ -346,7 +350,7 @@ The `referenceLocator` format breaks down as:
 - `<bom_id>` — the 40-character hex SHA1 hash of the OmniBOR document
 
 This is the **only** OmniBOR-specific addition to the SPDX document. Everything
-else in the SPDX comes from Syft's standard scanning.
+else in the SPDX comes from the baseline scaffold.
 
 ---
 
@@ -539,8 +543,8 @@ Output: `output/spdx/<repo>/<binary>_adg.spdx.html`
 │                                                                     │
 │  bomsh_sbom.py                                                      │
 │       │                                                             │
-│       ├──► [internal] Syft scans artifact                           │
-│       │    → baseline SPDX 2.3 JSON (packages, files, checksums)   │
+│       ├──► [internal] baseline SPDX scaffold                        │
+│       │    → SPDX 2.3 JSON (packages, files, checksums)            │
 │       │                                                             │
 │       ├──► Reads bomsh_omnibor_doc_mapping                          │
 │       │    → looks up file_gitoid → bom_id                          │
@@ -621,7 +625,7 @@ The final SPDX 2.3 JSON document has this structure (simplified):
 }
 ```
 
-### What Syft provides (standard SPDX)
+### What the baseline scaffold provides (standard SPDX)
 
 - `spdxVersion`, `dataLicense`, `SPDXID`, `name`, `documentNamespace`
 - `creationInfo` (tool identity, timestamp, license list version)
@@ -652,8 +656,7 @@ cryptographic build provenance stored in the OmniBOR ADG.
 |------|------|---------------|
 | **bomtrace3** | Build interception | Raw logfile: every compiler/linker call with input/output file hashes |
 | **bomsh_create_bom.py** | ADG generation | OmniBOR document files (the ADG) + `bomsh_omnibor_doc_mapping` (gitoid→bom_id) |
-| **Syft** (called by bomsh_sbom.py) | Baseline SPDX | Standard SPDX 2.3 JSON with package metadata, checksums, relationships |
-| **bomsh_sbom.py** | SPDX enrichment | Injects OmniBOR `ExternalRef` (PERSISTENT-ID/gitoid) into Syft's SPDX |
+| **bomsh_sbom.py** | SPDX generation | Produces SPDX 2.3 JSON (internally uses Syft for baseline scaffolding) and injects OmniBOR `ExternalRef` (PERSISTENT-ID/gitoid) |
 | **collect_metadata.py** | dpkg resolution | `component_metadata.json` — system file → dpkg package mapping |
 | **collect_dynamic_libs.py** | Dynamic lib analysis | `dynamic_libs.json` — per-binary ldd/readelf + dpkg metadata |
 | **spdx_from_adg.py** | ADG SPDX generation | Per-binary SPDX with vendored/dynamic/build-tool breakdown |
@@ -666,7 +669,7 @@ cryptographic build provenance stored in the OmniBOR ADG.
 - Individual source file hashes are **not** listed in the SPDX — they are in the ADG
 - Build commands are **not** in the SPDX — they are in the raw logfile
 - The SPDX does **not** contain vulnerability data or license analysis beyond what
-  Syft detects
+  the baseline scaffold detects
 
 ---
 
@@ -682,27 +685,24 @@ All paths are relative to `/workspace` inside the Docker container, which maps t
 | ADG documents | `output/omnibor/<repo>/.omnibor/objects/` | OmniBOR ADG files |
 | Doc mapping | `output/omnibor/<repo>/.omnibor/metadata/bomsh/bomsh_omnibor_doc_mapping` | gitoid→bom_id JSON |
 | SPDX output | `output/spdx/<repo>/<repo>_omnibor_<ts>.spdx.json` | Final SPDX document |
-| Syft baseline | `output/spdx/<repo>/<repo>_syft_<ts>.spdx.json` | Syft-only SPDX (for comparison) |
 | Output binaries | `output/binaries/<repo>/<ts>/` | Collected build artifacts |
 
 ---
 
-## 13. Comparison: OmniBOR SPDX vs. Syft-Only SPDX
+## 13. What Makes OmniBOR SBOMs Different from Manifest-Only SBOMs
 
-The pipeline generates **two** SPDX documents for comparison:
+Manifest-only SBOM generators scan package metadata (lockfiles, package managers)
+but do not observe the actual build. OmniBOR build interception captures what
+actually happened during compilation:
 
-| Aspect | Syft-Only SPDX | OmniBOR-Enriched SPDX |
-|--------|----------------|----------------------|
-| Generator | Syft directly | Syft + bomsh_sbom.py |
+| Aspect | Manifest-Only SBOM | OmniBOR Build-Time SBOM |
+|--------|-------------------|------------------------|
 | Build provenance | None | Full cryptographic chain via OmniBOR ExternalRef |
-| Package metadata | Yes (name, version, checksums) | Yes (same as Syft) |
-| File-level detail | Yes (Syft file scanning) | Yes (same as Syft) |
+| Vendored source detection | No | Yes — bomtrace3 sees every `.c` → `.o` → binary |
+| Dynamic library resolution | No | Yes — ldd/readelf after build interception |
 | OmniBOR ExternalRef | No | Yes — `gitoid:blob:sha1:<bom_id>` |
 | Can trace to source files | No | Yes — via bom_id → ADG → input gitoids |
 | Reproducibility proof | No | Yes — ADG provides cryptographic evidence |
-
-The OmniBOR-enriched SPDX is a strict superset of the Syft-only SPDX. The only
-addition is the `PERSISTENT-ID` / `gitoid` ExternalRef that links to the ADG.
 
 ---
 
@@ -723,5 +723,5 @@ addition is the `PERSISTENT-ID` / `gitoid` ExternalRef that links to the ADG.
 - [omnibor/bomsh GitHub Repository](https://github.com/omnibor/bomsh)
 - [SPDX 2.3 Specification](https://spdx.github.io/spdx-spec/v2.3/)
 - [SPDX 2.3 JSON Schema](https://github.com/spdx/spdx-spec/blob/development/v2.3.1/schemas/spdx-schema.json)
-- [Syft (Anchore)](https://github.com/anchore/syft)
+- [Syft (Anchore)](https://github.com/anchore/syft) — used internally by bomsh_sbom.py
 - [spdx-tools Python Library](https://github.com/spdx/tools-python)

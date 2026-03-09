@@ -10,7 +10,7 @@ Linux container for OmniBOR build interception.
 - Go SDK 1.26.0
 - bomtrace2 and bomtrace3 (compiled from omnibor/bomsh + strace v6.11)
 - Python 3 + bomsh scripts
-- Syft (manifest SBOM generation)
+- Syft (used internally by bomsh_sbom.py for baseline SPDX scaffolding)
 - Build dependencies for target repos (OpenSSL-dev, zlib-dev, FFmpeg libs, etc.)
 
 ## Usage

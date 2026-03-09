@@ -56,8 +56,7 @@ Build or rebuild the Docker container:
 
 1. `docker-compose -f docker/docker-compose.yml build`
 2. Verify bomtrace3 is available inside the container
-3. Verify syft is available
-4. Enter the container interactively
+3. Enter the container interactively
 
 First build takes 10-20 minutes (compiles bomtrace2/bomtrace3 from patched strace source).
 
@@ -68,9 +67,8 @@ First build takes 10-20 minutes (compiles bomtrace2/bomtrace3 from patched strac
 Run OmniBOR build interception analysis on a target repository:
 
 1. List available repos from config.yaml
-2. Run full analysis: clone, syft baseline, bomtrace3 instrumented build, ADG, SPDX, docs
+2. Run full analysis: clone, bomtrace3 instrumented build, ADG, SPDX, docs
 3. Re-run without cloning (repo already exists)
-4. Syft-only mode (no build instrumentation)
 
 Output locations:
 - ADG: `output/omnibor/{lang}/{repo}/{ts}/`
