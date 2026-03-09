@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Rust crate SPDX packages with STATIC_LINK relationships and `pkg:cargo` PURLs
   - `.rs` source files included in SPDX file entries
 - **oxipng** as first Rust analysis target (94 packages, 85 files, 179 relationships, 44 crates)
+- **dura** as second Rust analysis target (Git background auto-commit, ~42 direct + 35 transitive deps)
 - Anti-hang rules in `command-execution.md` (no inline multiline Python, no interactive gh/git)
 
 ### Fixed
