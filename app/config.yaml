@@ -154,6 +154,16 @@ repos:
     description: Multithreaded lossless PNG optimizer (~12 direct Rust crate deps)
     output_binaries:
     - target/release/oxipng
+  dura:
+    url: https://github.com/tkellogg/dura.git
+    branch: master
+    language: rust
+    build_steps:
+    - cargo build --release
+    clean_cmd: cargo clean
+    description: Git background auto-commit tool (~42 direct + 35 transitive Rust crate deps, complex Git-binding layer)
+    output_binaries:
+    - target/release/dura
 paths:
   repos_dir: /workspace/repos
   output_dir: /workspace/output
