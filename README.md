@@ -19,7 +19,7 @@
 
 ## Overview
 
-This project instruments C/C++ and Go open-source builds with [OmniBOR/Bomsh](https://github.com/omnibor/bomsh) to generate SPDX SBOMs via **build interception**, then compares those SBOMs against SBOMs produced by proprietary binary scanning tools (e.g., BDBA) to evaluate:
+This project instruments C/C++ and Rust open-source builds with [OmniBOR/Bomsh](https://github.com/omnibor/bomsh) to generate SPDX SBOMs via **build interception**, then compares those SBOMs against SBOMs produced by proprietary binary scanning tools (e.g., BDBA) to evaluate:
 
 - **Accuracy** — Are the detected components correct?
 - **Completeness** — Are all components found?
@@ -29,7 +29,7 @@ This project instruments C/C++ and Go open-source builds with [OmniBOR/Bomsh](ht
 
 ### What is Build Interception?
 
-Build interception hooks into the compiler and linker during a software build to observe exactly which source files are compiled into which output artifacts. [OmniBOR's Bomtrace](https://github.com/omnibor/bomsh) uses `strace` to intercept these calls and produce an **Artifact Dependency Graph (ADG)** — a cryptographically verifiable record of what was built from what. C/C++ builds use bomtrace3; Go builds use bomtrace2 with a Go-specific configuration (see [Go Language Support](docs/go-language-support.md)).
+Build interception hooks into the compiler and linker during a software build to observe exactly which source files are compiled into which output artifacts. [OmniBOR's Bomtrace](https://github.com/omnibor/bomsh) uses `strace` to intercept these calls and produce an **Artifact Dependency Graph (ADG)** — a cryptographically verifiable record of what was built from what. C/C++ builds use bomtrace3; Rust builds use bomtrace2 with default configuration. Go support is experimental (see [Go Language Support](docs/go-language-support.md)).
 
 ### Why Compare Against Binary Scanning?
 
@@ -39,7 +39,7 @@ Binary scanning tools analyze compiled binaries using signature databases to ide
 
 ```
 omnibor-analysis/
-├── docker/                 Docker environment (Linux + gcc + Go + bomtrace)
+├── docker/                 Docker environment (Linux + gcc + Rust + Go + bomtrace)
 │   ├── Dockerfile
 │   ├── docker-compose.yml
 │   ├── bomtrace_go.conf    Go-specific bomtrace2 configuration
@@ -47,25 +47,33 @@ omnibor-analysis/
 │   └── README.md
 ├── repos/                  Cloned target repositories (not tracked in git)
 ├── output/                 Raw SBOM and ADG artifacts (not tracked in git)
-│   ├── omnibor/            ADG documents from bomsh
-│   ├── spdx/               SPDX SBOMs (OmniBOR + Syft)
-│   └── binary-scan/        SBOMs from proprietary binary scanner
+│   ├── omnibor/{lang}/{repo}/{ts}/  ADG documents from bomsh
+│   ├── spdx/{lang}/{repo}/{ts}/     SPDX SBOMs + HTML visualizations
+│   ├── binaries/{lang}/{repo}/{ts}/ Collected output binaries
+│   └── binary-scan/{lang}/{repo}/   SBOMs from proprietary binary scanner
 ├── docs/                   Timestamped results and reports
-│   ├── c-cpp/<repo>/<ts>/  C/C++ per-repo build logs
-│   ├── go/<repo>/<ts>/     Go per-repo build logs
-│   ├── runtime/            Build time and performance metrics
-│   ├── go-language-support.md  Comprehensive Go support documentation
+│   ├── {lang}/{repo}/{ts}/     Per-repo build logs
+│   ├── runtime/{lang}/{repo}/{ts}/  Build time and performance metrics
+│   ├── go-language-support.md  Go support documentation (experimental)
 │   ├── upstream-changes.md     Tracking upstream bomsh fixes
 │   └── summary/            Cross-repo findings and methodology
 ├── app/                    Orchestration scripts and configuration
 │   ├── analyze.py          Clone, build, instrument, generate SBOMs
+│   ├── spdx_from_adg.py    Per-binary SPDX from ADG with vendored detection
+│   ├── spdx_visualize.py   D3.js interactive HTML dependency graph generator
+│   ├── collect_metadata.py Resolve system files to dpkg packages
+│   ├── collect_dynamic_libs.py  Per-binary ldd/readelf dynamic lib analysis
 │   ├── compare.py          Diff OmniBOR SPDX vs binary-scan SPDX
+│   ├── add_repo.py         Auto-discover and add repos from GitHub
+│   ├── data_loader.py      Shared data loading utilities
 │   ├── config.yaml         Repo definitions, build commands, paths
 │   └── templates/          Report templates
+├── terraform/              AWS EC2 infrastructure as code
+├── tests/                  Unit tests (427 tests, 99% coverage)
+├── .windsurf/              Cascade AI rules and workflows
 ├── .github/                GitHub templates and CI configuration
-│   ├── PULL_REQUEST_TEMPLATE.md
-│   └── ISSUE_TEMPLATE/
 ├── CONTRIBUTING.md         Contribution guidelines
+├── ONBOARDING.md           New contributor onboarding guide
 ├── LICENSE                 License file
 └── README.md               This file
 ```
@@ -86,7 +94,7 @@ omnibor-analysis/
 ### 1. Clone this repository
 
 ```bash
-git clone https://github.com/tedg-cisco/omnibor-analysis.git
+git clone https://github.com/tedg-dev/omnibor-analysis.git
 cd omnibor-analysis
 ```
 
@@ -98,7 +106,8 @@ docker-compose -f docker/docker-compose.yml build
 
 This builds an Ubuntu 22.04 container with:
 - gcc, clang, make, cmake, autoconf
-- Go SDK (latest)
+- Rust toolchain (rustup + stable)
+- Go SDK 1.26.0
 - bomtrace2 and bomtrace3 (compiled from [omnibor/bomsh](https://github.com/omnibor/bomsh))
 - [Syft](https://github.com/anchore/syft) for manifest-based SBOM generation
 - All build dependencies for target repositories
@@ -170,11 +179,23 @@ docker-compose -f docker/docker-compose.yml run --rm omnibor-env bash
 | [FFmpeg](https://github.com/FFmpeg/FFmpeg) | libx264, libx265, libvpx, libopus, OpenSSL, zlib, 20+ more | autoconf/make | Large-scale dependency-rich comparison |
 | [nmap](https://github.com/nmap/nmap) | 7 vendored + 14 dynamic | autoconf/make | Mixed vendored + system deps |
 
-### Go (bomtrace2)
+### Rust (bomtrace2)
+
+| Repo | Direct crates (STATIC_LINK) | Transitive crates (DEPENDS_ON) | Dynamic libs | Purpose |
+|------|-----------------------------|-------------------------------|--------------|----------|
+| [oxipng](https://github.com/oxipng/oxipng) | 11 | 33 | 2 | First Rust target, PNG optimizer |
+| [dura](https://github.com/tkellogg/dura) | 108 | 77 | 4 | Complex git2-rs binding layer depth |
+
+Rust crates are classified as direct (from `Cargo.toml` → STATIC_LINK) or transitive (from `Cargo.lock` only → DEPENDS_ON). Each crate gets a `pkg:cargo` PURL with the version from `Cargo.lock`.
+
+### Go (bomtrace2) — Experimental
+
+Go build interception is functional but does not yet provide efficient build-time dependency details. Go support is TBD for production use.
 
 | Repo | Direct deps | Indirect deps | Purpose |
 |------|-------------|---------------|----------|
-| [lazygit](https://github.com/jesseduffield/lazygit) | 33 | 29 | First Go target, rich dependency graph |
+| [lazygit](https://github.com/jesseduffield/lazygit) | 33 | 29 | Rich Go dependency graph |
+| [pocketbase](https://github.com/pocketbase/pocketbase) | ~20 | ~15 | Go backend framework |
 
 For details on Go support, see [Go Language Support](docs/go-language-support.md).
 
@@ -211,7 +232,7 @@ Each `.spdx.json` has a corresponding `.spdx.html` interactive D3.js visualizati
 | `docs/runtime/{lang}/{repo}/{ts}/runtime.md` | Build time and performance metrics |
 | `docs/summary/` | Cross-repo findings and methodology |
 
-**Path convention:** `{lang}` is `c-cpp` or `go`. `{ts}` is `YYYY-MM-DD_HHMM`.
+**Path convention:** `{lang}` is `c-cpp`, `rust`, or `go`. `{ts}` is `YYYY-MM-DD_HHMM`.
 
 ## Contributing
 

@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **oxipng** as first Rust analysis target (94 packages, 85 files, 179 relationships, 44 crates)
 - **dura** as second Rust analysis target (Git background auto-commit, ~42 direct + 35 transitive deps)
 - Anti-hang rules in `command-execution.md` (no inline multiline Python, no interactive gh/git)
+- Updated README.md, ONBOARDING.md, CONTRIBUTING.md, docker/README.md for Rust support, Go TBD status, per-language output paths, and current test counts
 
 ### Fixed
 

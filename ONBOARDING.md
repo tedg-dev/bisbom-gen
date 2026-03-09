@@ -6,7 +6,7 @@ handling the heavy lifting.
 
 ## What This Project Does
 
-This project **instruments C/C++ builds** using [OmniBOR/Bomsh](https://github.com/omnibor/bomsh)
+This project **instruments C/C++ and Rust builds** using [OmniBOR/Bomsh](https://github.com/omnibor/bomsh)
 to capture every compiler and linker invocation, then generates **SPDX 2.3 SBOMs**
 with full dependency breakdown:
 
@@ -57,7 +57,7 @@ This will:
 - Read all project rules and workflows
 - Create the Python virtual environment
 - Install dependencies from `requirements.txt`
-- Run the test suite (349+ tests, 98% coverage)
+- Run the test suite (427+ tests, 99% coverage)
 - Check Docker availability
 - Report the environment status
 
@@ -122,7 +122,11 @@ Or use the workflow directly:
 /run-analysis
 ```
 
-Pre-configured repos: **curl**, **redis**, **ffmpeg**, **nmap**
+Pre-configured C/C++ repos: **curl**, **redis**, **ffmpeg**, **nmap**
+
+Pre-configured Rust repos: **oxipng**, **dura**
+
+Go repos (experimental, TBD): **lazygit**, **pocketbase**
 
 ### Add a new repo from GitHub
 
@@ -148,10 +152,12 @@ After analysis completes, you'll find:
 
 | Output | Location | Description |
 |---|---|---|
-| SPDX SBOM (per binary) | `output/spdx/<repo>/<binary>_adg.spdx.json` | Full dependency breakdown |
-| HTML visualization | `output/spdx/<repo>/<binary>_adg.spdx.html` | Interactive D3.js graph |
-| OmniBOR ADG | `output/omnibor/<repo>/` | Cryptographic build provenance |
-| Component metadata | `output/omnibor/<repo>/metadata/` | dpkg package resolution |
+| SPDX SBOM (per binary) | `output/spdx/{lang}/{repo}/{ts}/<binary>_adg.spdx.json` | Full dependency breakdown |
+| HTML visualization | `output/spdx/{lang}/{repo}/{ts}/<binary>_adg.spdx.html` | Interactive D3.js graph |
+| OmniBOR ADG | `output/omnibor/{lang}/{repo}/{ts}/` | Cryptographic build provenance |
+| Component metadata | `output/omnibor/{lang}/{repo}/{ts}/metadata/` | dpkg package resolution |
+
+`{lang}` is `c-cpp`, `rust`, or `go`. `{ts}` is `YYYY-MM-DD_HHMM`.
 
 Open the `.spdx.html` files in a browser to see interactive dependency graphs
 with color-coded nodes (purple=root, teal=vendored, red=dynamic, yellow=build tool).
@@ -180,11 +186,13 @@ omnibor-analysis/
 │   ├── collect_dynamic_libs.py # ldd/readelf analysis
 │   ├── compare.py          # SBOM comparison tool
 │   ├── add_repo.py         # Auto-discover repos from GitHub
+│   ├── data_loader.py      # Shared data loading utilities
 │   └── config.yaml         # Repository and tool configuration
 ├── docker/                 # Container environment
-│   ├── Dockerfile          # Ubuntu 22.04 + bomtrace3 + syft
+│   ├── Dockerfile          # Ubuntu 22.04 + gcc + Rust + Go + bomtrace + syft
 │   └── docker-compose.yml  # Container orchestration
-├── tests/                  # Unit tests (349+ tests, 98% coverage)
+├── terraform/              # AWS EC2 infrastructure as code
+├── tests/                  # Unit tests (427+ tests, 99% coverage)
 ├── docs/                   # Documentation and analysis reports
 │   └── summary/            # Architecture and deep-dive docs
 ├── .windsurf/              # Cascade AI configuration

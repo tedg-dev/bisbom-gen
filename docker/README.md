@@ -6,6 +6,8 @@ Linux container for OmniBOR build interception.
 
 - Ubuntu 22.04 base (linux/amd64 — required, see below)
 - gcc, clang, make, cmake, autoconf, libtool
+- Rust toolchain (rustup + stable, minimal profile)
+- Go SDK 1.26.0
 - bomtrace2 and bomtrace3 (compiled from omnibor/bomsh + strace v6.11)
 - Python 3 + bomsh scripts
 - Syft (manifest SBOM generation)

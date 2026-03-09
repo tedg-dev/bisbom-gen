@@ -129,6 +129,7 @@ repos:
   newrepo:
     url: https://github.com/org/newrepo.git
     branch: main
+    language: c-cpp          # c-cpp, rust, or go
     build_steps:
       - autoreconf -fi
       - ./configure --with-xxx
@@ -140,7 +141,24 @@ repos:
       - path/to/libfoo.so
 ```
 
-> **Important:** The last entry in `build_steps` must be the `make` command — this is the step that gets wrapped with `bomtrace3`.
+For Rust repos, use `language: rust` and `cargo build --release`:
+
+```yaml
+  mycrateproject:
+    url: https://github.com/org/mycrateproject.git
+    branch: main
+    language: rust
+    build_steps:
+      - cargo build --release
+    clean_cmd: cargo clean
+    description: "Short description"
+    output_binaries:
+      - target/release/mycrateproject
+```
+
+> **Important:** For C/C++ repos, the last entry in `build_steps` must be the `make` command — this is the step that gets wrapped with `bomtrace3`. For Rust repos, it must be `cargo build`.
+>
+> **Note:** Go support (`language: go`) is experimental and does not yet provide efficient build-time dependency details. Go repos are TBD for production use.
 
 ### 2. Add build dependencies to `docker/Dockerfile`
 
@@ -159,11 +177,7 @@ docker-compose -f docker/docker-compose.yml build
 
 ### 4. Create output and docs directories
 
-```bash
-mkdir -p output/omnibor/newrepo output/spdx/newrepo output/binary-scan/newrepo docs/newrepo
-touch output/omnibor/newrepo/.gitkeep output/spdx/newrepo/.gitkeep \
-      output/binary-scan/newrepo/.gitkeep docs/newrepo/.gitkeep
-```
+Directories are created automatically by `analyze.py` using the `{lang}/{repo}/{ts}/` convention. No manual setup needed.
 
 ### 5. Test the build manually first
 
@@ -184,7 +198,8 @@ docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
 
 ## Documentation
 
-- All analysis results go in `docs/<repo>/` with timestamp naming: `YYYY-MM-DD_HHMM_<type>.md`
+- All analysis results go in `docs/{lang}/{repo}/{ts}/` (e.g., `docs/rust/oxipng/2026-03-06_2235/build.md`)
 - Cross-repo summaries go in `docs/summary/`
-- Runtime/performance metrics go in `docs/runtime/`
+- Runtime/performance metrics go in `docs/runtime/{lang}/{repo}/{ts}/`
+- `{lang}` is `c-cpp`, `rust`, or `go`. `{ts}` is `YYYY-MM-DD_HHMM`.
 - Update `README.md` when adding new target repos or changing workflows
