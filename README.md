@@ -102,7 +102,7 @@ This builds an Ubuntu 22.04 container with:
 - Rust toolchain (rustup + stable)
 - Go SDK 1.26.0
 - bomtrace2 and bomtrace3 (compiled from [omnibor/bomsh](https://github.com/omnibor/bomsh))
-- [Syft](https://github.com/anchore/syft) for manifest-based SBOM generation
+- [Syft](https://github.com/anchore/syft) (used internally by bomsh_sbom.py for baseline SPDX scaffolding)
 - All build dependencies for target repositories
 
 First build takes **10-20 minutes** (compiles bomtrace from patched strace source). Subsequent builds use Docker layer cache.
@@ -113,8 +113,6 @@ First build takes **10-20 minutes** (compiles bomtrace from patched strace sourc
 # Check bomtrace3
 docker-compose -f docker/docker-compose.yml run --rm omnibor-env bomtrace3 --version
 
-# Check syft
-docker-compose -f docker/docker-compose.yml run --rm omnibor-env syft version
 ```
 
 ## Usage
@@ -134,9 +132,6 @@ docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
 docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
   python3 /workspace/app/analyze.py --repo curl --skip-clone
 
-# Syft-only mode (manifest SBOM, no build instrumentation)
-docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
-  python3 /workspace/app/analyze.py --repo curl --syft-only
 ```
 
 ### Interactive container access
@@ -182,13 +177,12 @@ To add a new target repository, see [CONTRIBUTING.md](docs/CONTRIBUTING.md#addin
 
 ### SPDX Output Files (per binary)
 
-Each analysis run produces three SPDX files:
+Each analysis run produces SPDX files per output binary:
 
 | File | Purpose |
 |------|----------|
-| `<binary>_adg.spdx.json` | **Primary output.** Full dependency graph from build interception (DEPENDS_ON, STATIC_LINK, DYNAMIC_LINK, BUILD_TOOL_OF). |
+| `<binary>_adg.spdx.json` | **Primary output.** Full dependency graph from build interception (`DEPENDS_ON`, `STATIC_LINK`, `DYNAMIC_LINK`, `BUILD_TOOL_OF`). |
 | `<binary>_omnibor.spdx.json` | OmniBOR artifact identity. Lists cryptographic hashes for provenance tracking. No dependency relationships (by design). |
-| `<binary>_syft.spdx.json` | Syft manifest-based SBOM (package manager metadata). |
 
 Each `.spdx.json` has a corresponding `.spdx.html` interactive D3.js visualization.
 

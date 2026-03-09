@@ -76,16 +76,15 @@ Accepts: repo name (`curl`), owner/repo (`curl/curl`), or full GitHub URL.
 
 Instruments a C/C++ build with `bomtrace3` to capture every compiler/linker invocation, then generates OmniBOR Artifact Dependency Graphs (ADG) and SPDX SBOMs.
 
-### What it does (8 steps)
+### What it does (7 steps)
 
 1. **Clone** — shallow clone of the target repo into `repos/<name>/`
-2. **Syft baseline** — generates a manifest-based SPDX SBOM (package manager metadata only)
-3. **Dependency check** — validates that required apt packages are installed
-4. **Instrumented build** — runs `bomtrace3 make` to intercept all compiler/linker calls, then `bomsh_create_bom.py` processes the raw logfile into OmniBOR ADG
-5. **OmniBOR SPDX** — `bomsh_sbom.py` creates SPDX SBOM from ADG + Syft, with OmniBOR ExternalRef
-6. **Metadata + dynamic libs** — `collect_metadata.py` resolves system files to dpkg packages; `collect_dynamic_libs.py` identifies per-binary dynamic dependencies via ldd/readelf
-7. **Per-binary ADG SPDX** — `spdx_from_adg.py` generates one SPDX per output binary with vendored (STATIC_LINK), dynamic (DYNAMIC_LINK), and build tool breakdown + interactive HTML visualization
-8. **Validation + docs** — JSON Schema + semantic validation of all SPDX files, binary collection, timestamped build log and runtime metrics
+2. **Dependency check** — validates that required apt packages are installed
+3. **Instrumented build** — runs `bomtrace3 make` to intercept all compiler/linker calls, then `bomsh_create_bom.py` processes the raw logfile into OmniBOR ADG
+4. **OmniBOR SPDX** — `bomsh_sbom.py` creates SPDX SBOM from ADG with OmniBOR ExternalRef
+5. **Metadata + dynamic libs** — `collect_metadata.py` resolves system files to dpkg packages; `collect_dynamic_libs.py` identifies per-binary dynamic dependencies via ldd/readelf
+6. **Per-binary ADG SPDX** — `spdx_from_adg.py` generates one SPDX per output binary with vendored (`STATIC_LINK`), dynamic (`DYNAMIC_LINK`), and build tool breakdown + interactive HTML visualization
+7. **Validation + docs** — JSON Schema + semantic validation of all SPDX files, binary collection, timestamped build log and runtime metrics
 
 ### Commands
 
@@ -97,10 +96,6 @@ docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
 # Skip clone (repo already in repos/)
 docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
   python3 /workspace/app/analyze.py --repo curl --skip-clone
-
-# Syft-only (no build, just manifest SBOM)
-docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
-  python3 /workspace/app/analyze.py --repo curl --syft-only
 
 # List available repos
 docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
@@ -115,7 +110,6 @@ docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
 | Component metadata | `output/omnibor/<repo>/metadata/component_metadata.json` |
 | Dynamic libs (per binary) | `output/omnibor/<repo>/metadata/<binary>/dynamic_libs.json` |
 | SPDX SBOM (OmniBOR) | `output/spdx/<repo>/<repo>_omnibor_<timestamp>.spdx.json` |
-| SPDX SBOM (Syft) | `output/spdx/<repo>/<repo>_syft_<timestamp>.spdx.json` |
 | ADG SPDX (per binary) | `output/spdx/<repo>/<binary>_adg.spdx.json` |
 | Visualization (per binary) | `output/spdx/<repo>/<binary>_adg.spdx.html` |
 | Build log | `docs/<repo>/<timestamp>_build.md` |
@@ -125,7 +119,7 @@ docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
 
 - **Use `--skip-clone` for re-runs** — avoids re-downloading the repo each time
 - **Check build logs** — if the SBOM looks incomplete, review `docs/<repo>/<timestamp>_build.md` for build warnings or missing deps
-- **Expect two SBOMs per run** — one from Syft (manifest-based) and one from OmniBOR (build-based). These intentionally differ; the comparison workflow analyzes the gap
+- **Review SPDX output** — the primary output is `<binary>_adg.spdx.json` with full build-time dependency data
 - **Build times** — curl ~5 min, FFmpeg ~20+ min (under QEMU on Apple Silicon, roughly double)
 
 ---
@@ -181,7 +175,7 @@ docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
 ### Recommendations
 
 - **Binary scanner export format** — must be SPDX 2.3 JSON. If your scanner exports CycloneDX or CSV, convert to SPDX first
-- **Run comparison after every analysis** — even without a binary scan, comparing OmniBOR vs Syft SBOMs is valuable
+- **Run comparison after every analysis** — comparing OmniBOR build-time SBOMs against binary scan SBOMs is valuable for validating completeness
 - **Version mismatches are normal** — binary scanners detect runtime versions while OmniBOR sees source versions
 
 ---

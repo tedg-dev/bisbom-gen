@@ -13,13 +13,12 @@ generates SPDX 2.3 SBOMs with full dependency breakdown.
 
 ## SPDX Output Files
 
-Each analysis run produces **three** SPDX files per binary:
+Each analysis run produces SPDX files per binary:
 
 | File | Purpose |
 |------|---------|
-| `<binary>_adg.spdx.json` | **Primary output.** Built from bomtrace2's build interception data. Contains all dependency relationships (DEPENDS_ON, BUILD_TOOL_OF, DYNAMIC_LINK), source file listings, Go module packages with versions and PURLs. |
+| `<binary>_adg.spdx.json` | **Primary output.** Built from bomtrace2's build interception data. Contains all dependency relationships (`DEPENDS_ON`, `BUILD_TOOL_OF`, `DYNAMIC_LINK`), source file listings, Go module packages with versions and PURLs. |
 | `<binary>_omnibor.spdx.json` | OmniBOR artifact identity document. Lists cryptographic identifiers (gitoid hashes) for the binary and its build inputs. **Intentionally has no dependency relationships** — its purpose is provenance tracking, not dependency analysis. |
-| `<binary>_syft.spdx.json` | Syft baseline SBOM. Generated from `go.mod`/`go.sum` manifest files as a comparison baseline. |
 
 Each `.spdx.json` file has a corresponding `.spdx.html`
 interactive D3.js visualization.
