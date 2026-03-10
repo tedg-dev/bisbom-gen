@@ -42,6 +42,15 @@ the project root:
 - After re-auth, fix the credentials profile name:
   `sed -i '' 's/^\[default\]/[ted-admin]/' ~/.aws/credentials`
 
+## EC2 instance power management
+
+- **DO NOT** stop the EC2 instance between tasks during the user's workday
+- Only stop the instance when:
+  - The user explicitly says they are done for the day, or
+  - The user has been unresponsive for 30+ minutes after Cascade asked a question
+- Starting/stopping EC2 takes ~30 seconds each way — avoid unnecessary stop/start cycles
+- When in doubt, **leave it running**
+
 ## Use the /ec2-start workflow
 
 For starting EC2, syncing code, and rebuilding Docker, always use `/ec2-start`.

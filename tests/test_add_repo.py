@@ -1159,7 +1159,7 @@ def _mock_discovery():
 class TestMainDryRun(unittest.TestCase):
     """Tests for main() in dry-run mode."""
 
-    @patch("add_repo.RepoDiscovery")
+    @patch("app.repo_discovery.cli.RepoDiscovery")
     @patch("sys.argv", ["add_repo.py", "curl"])
     def test_dry_run_success(self, mock_cls):
         d = _mock_discovery()
@@ -1198,16 +1198,16 @@ class TestMainDryRun(unittest.TestCase):
 
         with patch("builtins.print"):
             with patch(
-                "add_repo.Path.exists",
+                "app.repo_discovery.cli.Path.exists",
                 return_value=True,
             ):
                 with patch(
-                    "add_repo.Path.read_text",
+                    "app.repo_discovery.cli.Path.read_text",
                     return_value="libssl-dev",
                 ):
                     add_repo.main()
 
-    @patch("add_repo.RepoDiscovery")
+    @patch("app.repo_discovery.cli.RepoDiscovery")
     @patch(
         "sys.argv",
         ["add_repo.py", "nonexistent"],
@@ -1223,7 +1223,7 @@ class TestMainDryRun(unittest.TestCase):
                 add_repo.main()
             self.assertEqual(cm.exception.code, 1)
 
-    @patch("add_repo.RepoDiscovery")
+    @patch("app.repo_discovery.cli.RepoDiscovery")
     @patch("sys.argv", ["add_repo.py", "curl"])
     def test_empty_tree_exits(self, mock_cls):
         d = _mock_discovery()
@@ -1247,7 +1247,7 @@ class TestMainDryRun(unittest.TestCase):
 class TestMainWrite(unittest.TestCase):
     """Tests for main() in --write mode."""
 
-    @patch("add_repo.RepoDiscovery")
+    @patch("app.repo_discovery.cli.RepoDiscovery")
     @patch(
         "sys.argv",
         ["add_repo.py", "curl", "--write"],
@@ -1293,7 +1293,7 @@ class TestMainWrite(unittest.TestCase):
 class TestMainWithAptPackages(unittest.TestCase):
     """Test main() Dockerfile package checking."""
 
-    @patch("add_repo.RepoDiscovery")
+    @patch("app.repo_discovery.cli.RepoDiscovery")
     @patch("sys.argv", ["add_repo.py", "curl"])
     def test_new_packages_reported(self, mock_cls):
         d = _mock_discovery()
@@ -1336,11 +1336,11 @@ class TestMainWithAptPackages(unittest.TestCase):
             ),
         ):
             with patch(
-                "add_repo.Path.exists",
+                "app.repo_discovery.cli.Path.exists",
                 return_value=True,
             ):
                 with patch(
-                    "add_repo.Path.read_text",
+                    "app.repo_discovery.cli.Path.read_text",
                     return_value="libssl-dev",
                 ):
                     add_repo.main()
@@ -1348,7 +1348,7 @@ class TestMainWithAptPackages(unittest.TestCase):
         output = "\n".join(printed)
         self.assertIn("libnew-dev", output)
 
-    @patch("add_repo.RepoDiscovery")
+    @patch("app.repo_discovery.cli.RepoDiscovery")
     @patch("sys.argv", ["add_repo.py", "curl"])
     def test_all_packages_installed(self, mock_cls):
         d = _mock_discovery()
@@ -1390,11 +1390,11 @@ class TestMainWithAptPackages(unittest.TestCase):
             ),
         ):
             with patch(
-                "add_repo.Path.exists",
+                "app.repo_discovery.cli.Path.exists",
                 return_value=True,
             ):
                 with patch(
-                    "add_repo.Path.read_text",
+                    "app.repo_discovery.cli.Path.read_text",
                     return_value="libssl-dev",
                 ):
                     add_repo.main()
@@ -1402,7 +1402,7 @@ class TestMainWithAptPackages(unittest.TestCase):
         output = "\n".join(printed)
         self.assertIn("All required packages", output)
 
-    @patch("add_repo.RepoDiscovery")
+    @patch("app.repo_discovery.cli.RepoDiscovery")
     @patch("sys.argv", ["add_repo.py", "curl"])
     def test_no_dockerfile(self, mock_cls):
         d = _mock_discovery()
@@ -1436,7 +1436,7 @@ class TestMainWithAptPackages(unittest.TestCase):
 
         with patch("builtins.print"):
             with patch(
-                "add_repo.Path.exists",
+                "app.repo_discovery.cli.Path.exists",
                 return_value=False,
             ):
                 add_repo.main()
@@ -1447,7 +1447,7 @@ class TestMainDescriptionTruncation(
 ):
     """Test description truncation in main()."""
 
-    @patch("add_repo.RepoDiscovery")
+    @patch("app.repo_discovery.cli.RepoDiscovery")
     @patch("sys.argv", ["add_repo.py", "curl"])
     def test_long_description(self, mock_cls):
         d = _mock_discovery()
@@ -1493,7 +1493,7 @@ class TestMainDescriptionTruncation(
         output = "\n".join(printed)
         self.assertIn("...", output)
 
-    @patch("add_repo.RepoDiscovery")
+    @patch("app.repo_discovery.cli.RepoDiscovery")
     @patch("sys.argv", ["add_repo.py", "curl"])
     def test_no_description(self, mock_cls):
         d = _mock_discovery()
@@ -1530,7 +1530,7 @@ class TestMainDescriptionTruncation(
 class TestMainNoFlags(unittest.TestCase):
     """Test main() with no configure flags."""
 
-    @patch("add_repo.RepoDiscovery")
+    @patch("app.repo_discovery.cli.RepoDiscovery")
     @patch("sys.argv", ["add_repo.py", "curl"])
     def test_no_flags_message(self, mock_cls):
         d = _mock_discovery()
