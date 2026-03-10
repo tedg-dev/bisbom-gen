@@ -55,14 +55,46 @@ omnibor-analysis/
 │   ├── upstream-changes.md     Tracking upstream bomsh fixes
 │   └── summary/            Cross-repo findings and methodology
 ├── app/                    Orchestration scripts and configuration
-│   ├── analyze.py          Clone, build, instrument, generate SBOMs
-│   ├── spdx_from_adg.py    Per-binary SPDX from ADG with vendored detection
+│   ├── analyze.py          Main entry point (thin shim → app.pipeline)
+│   ├── spdx_from_adg.py    SPDX entry point (thin shim → app.spdx)
+│   ├── add_repo.py         Repo discovery entry point (thin shim → app.repo_discovery)
 │   ├── spdx_visualize.py   D3.js interactive HTML dependency graph generator
 │   ├── collect_metadata.py Resolve system files to dpkg packages
 │   ├── collect_dynamic_libs.py  Per-binary ldd/readelf dynamic lib analysis
-│   ├── add_repo.py         Auto-discover and add repos from GitHub
+│   ├── compare.py          Compare OmniBOR SBOM vs binary scanner SBOM
 │   ├── data_loader.py      Shared data loading utilities
+│   ├── config.py           Shared config loading, timestamp, lang_subdir
+│   ├── runner.py           CommandRunner utility
 │   ├── config.yaml         Repo definitions, build commands, paths
+│   ├── pipeline/           Analysis pipeline package (from analyze.py)
+│   │   ├── facade.py       AnalysisPipeline orchestrator
+│   │   ├── runners.py      main(), per-language pipeline runners
+│   │   ├── cloner.py       RepoCloner
+│   │   ├── builder.py      BomtraceBuilder
+│   │   ├── spdx_generator.py  SpdxGenerator (bomsh_sbom)
+│   │   ├── spdx_validator.py  SpdxValidator (JSON Schema + semantic)
+│   │   ├── metadata_collector.py  MetadataCollector
+│   │   ├── binary_collector.py    BinaryCollector
+│   │   ├── doc_writer.py   DocWriter
+│   │   ├── adg_spdx.py     AdgSpdxStep
+│   │   ├── syft.py         SyftGenerator
+│   │   └── validator.py    DependencyValidator
+│   ├── spdx/               SPDX generation package (from spdx_from_adg.py)
+│   │   ├── generator.py    AdgSpdxGenerator orchestrator
+│   │   ├── parser.py       AdgParser
+│   │   ├── resolver.py     ComponentResolver
+│   │   ├── version_detector.py  VendoredVersionDetector
+│   │   ├── emitter.py      SpdxEmitter
+│   │   └── cli.py          CLI entry point
+│   ├── repo_discovery/     Repo discovery package (from add_repo.py)
+│   │   ├── facade.py       RepoDiscovery orchestrator
+│   │   ├── github_client.py GitHubClient
+│   │   ├── build_system_detector.py  BuildSystemDetector
+│   │   ├── dependency_analyzer.py    DependencyAnalyzer
+│   │   ├── binary_detector.py        BinaryDetector
+│   │   ├── build_step_generator.py   BuildStepGenerator
+│   │   ├── config_generator.py       ConfigGenerator
+│   │   └── cli.py          CLI entry point
 │   └── templates/          Report templates
 ├── terraform/              AWS EC2 infrastructure as code
 ├── tests/                  Unit tests (427 tests, 99% coverage)

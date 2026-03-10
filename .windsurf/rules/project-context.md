@@ -12,11 +12,15 @@ and completeness.
 
 ## Directory Structure
 
-- **app/** — Orchestration scripts, SPDX generation, config.yaml
+- **app/** — Orchestration scripts, modular packages, config.yaml
+  - **app/pipeline/** — Analysis pipeline (12 modules, extracted from analyze.py)
+  - **app/spdx/** — SPDX generation (6 modules, extracted from spdx_from_adg.py)
+  - **app/repo_discovery/** — Repo discovery (8 modules, extracted from add_repo.py)
+  - **app/config.py** — Shared config loading, timestamp, lang_subdir
+  - **app/runner.py** — CommandRunner utility
 - **docker/** — Linux container environment (Ubuntu 22.04) with gcc, bomtrace3, syft
-- **tests/** — Unit tests (349+ tests, 98% coverage)
-- **scripts/** — Helper/utility scripts
-- **docs/** — Timestamped results and summary documentation, organized by language (`c-cpp/`, `go/`)
+- **tests/** — Unit tests (427+ tests, 99% coverage)
+- **docs/** — Timestamped results and summary documentation, organized by language (`c-cpp/`, `go/`, `rust/`)
 - **repos/** — Cloned target repositories (gitignored)
 - **output/** — Generated artifacts organized by language: `output/{category}/{lang}/{repo}/{ts}/` (gitignored)
 - **.windsurf/** — Cascade AI rules and workflows
@@ -64,14 +68,21 @@ and traces the openat syscall. The `-a` flag bypasses Go's build cache.
 
 | File | Purpose |
 |------|---------|
-| `app/analyze.py` | Main pipeline orchestrator (AnalysisPipeline facade) |
-| `app/spdx_from_adg.py` | Per-binary SPDX from ADG: vendored detection, version extraction |
+| `app/analyze.py` | Main entry point — thin shim re-exporting from `app.pipeline` |
+| `app/spdx_from_adg.py` | SPDX entry point — thin shim re-exporting from `app.spdx` |
+| `app/add_repo.py` | Repo discovery entry point — thin shim re-exporting from `app.repo_discovery` |
+| `app/pipeline/facade.py` | AnalysisPipeline orchestrator |
+| `app/pipeline/runners.py` | main(), _run_c_cpp_pipeline, _run_rust_pipeline, _run_go_pipeline |
+| `app/spdx/generator.py` | AdgSpdxGenerator: per-binary SPDX from ADG |
+| `app/spdx/emitter.py` | SpdxEmitter: SPDX 2.3 JSON document assembly |
+| `app/repo_discovery/facade.py` | RepoDiscovery: GitHub search + config generation |
 | `app/spdx_visualize.py` | D3.js HTML dependency graph generator |
 | `app/collect_metadata.py` | Resolve system files to dpkg packages |
 | `app/collect_dynamic_libs.py` | Per-binary ldd/readelf dynamic lib analysis |
 | `app/compare.py` | Compare OmniBOR SBOM vs binary scanner SBOM |
-| `app/add_repo.py` | Auto-discover and add new target repos from GitHub |
 | `app/data_loader.py` | Shared data loading utilities |
+| `app/config.py` | Shared config loading, timestamp, lang_subdir |
+| `app/runner.py` | CommandRunner utility |
 | `app/config.yaml` | Single source of truth: repos, build steps, tool paths |
 
 ## Target Repositories
