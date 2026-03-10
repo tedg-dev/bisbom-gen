@@ -181,15 +181,20 @@ with color-coded nodes (purple=root, teal=vendored, red=dynamic, yellow=build to
 ```
 omnibor-analysis/
 ├── app/                    # Core application code
-│   ├── analyze.py          # Main pipeline orchestrator
-│   ├── spdx_from_adg.py    # Per-binary SPDX generation
+│   ├── analyze.py          # Main entry point (thin shim → app.pipeline)
+│   ├── spdx_from_adg.py    # SPDX entry point (thin shim → app.spdx)
+│   ├── add_repo.py         # Repo discovery entry point (thin shim → app.repo_discovery)
 │   ├── spdx_visualize.py   # D3.js HTML visualization
 │   ├── collect_metadata.py # dpkg package resolution
 │   ├── collect_dynamic_libs.py # ldd/readelf analysis
 │   ├── compare.py          # SBOM comparison tool
-│   ├── add_repo.py         # Auto-discover repos from GitHub
 │   ├── data_loader.py      # Shared data loading utilities
-│   └── config.yaml         # Repository and tool configuration
+│   ├── config.py           # Shared config loading, timestamp, lang_subdir
+│   ├── runner.py           # CommandRunner utility
+│   ├── config.yaml         # Repository and tool configuration
+│   ├── pipeline/           # Analysis pipeline (12 modules from analyze.py)
+│   ├── spdx/               # SPDX generation (6 modules from spdx_from_adg.py)
+│   └── repo_discovery/     # Repo discovery (8 modules from add_repo.py)
 ├── docker/                 # Container environment
 │   ├── Dockerfile          # Ubuntu 22.04 + gcc + Rust + Go + bomtrace
 │   └── docker-compose.yml  # Container orchestration
