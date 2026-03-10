@@ -180,34 +180,22 @@ with color-coded nodes (purple=root, teal=vendored, red=dynamic, yellow=build to
 
 ```
 omnibor-analysis/
-├── app/                    # Core application code
-│   ├── analyze.py          # Main entry point (thin shim → app.pipeline)
-│   ├── spdx_from_adg.py    # SPDX entry point (thin shim → app.spdx)
-│   ├── add_repo.py         # Repo discovery entry point (thin shim → app.repo_discovery)
-│   ├── spdx_visualize.py   # D3.js HTML visualization
-│   ├── collect_metadata.py # dpkg package resolution
-│   ├── collect_dynamic_libs.py # ldd/readelf analysis
-│   ├── compare.py          # SBOM comparison tool
-│   ├── data_loader.py      # Shared data loading utilities
-│   ├── config.py           # Shared config loading, timestamp, lang_subdir
-│   ├── runner.py           # CommandRunner utility
-│   ├── config.yaml         # Repository and tool configuration
-│   ├── pipeline/           # Analysis pipeline (12 modules from analyze.py)
-│   ├── spdx/               # SPDX generation (6 modules from spdx_from_adg.py)
-│   └── repo_discovery/     # Repo discovery (8 modules from add_repo.py)
-├── docker/                 # Container environment
-│   ├── Dockerfile          # Ubuntu 22.04 + gcc + Rust + Go + bomtrace
-│   └── docker-compose.yml  # Container orchestration
+├── app/                    # Orchestration scripts and modular packages
+│   ├── pipeline/           # Analysis pipeline (clone, build, instrument, generate SBOMs)
+│   ├── spdx/               # Per-binary SPDX 2.3 generation from ADG data
+│   ├── repo_discovery/     # Auto-discover and configure repos from GitHub
+│   └── templates/          # Report templates
+├── docker/                 # Container environment (Ubuntu 22.04 + gcc + Rust + Go + bomtrace)
 ├── terraform/              # AWS EC2 infrastructure as code
 ├── tests/                  # Unit tests (427+ tests, 99% coverage)
 ├── docs/                   # Documentation and analysis reports
 │   └── summary/            # Architecture and deep-dive docs
-├── .windsurf/              # Cascade AI configuration
-│   ├── rules/              # Project rules (always loaded)
-│   └── workflows/          # Slash commands (/add-repo, etc.)
+├── .windsurf/              # Cascade AI configuration (rules + workflows)
 ├── repos/                  # Cloned target repos (gitignored)
 └── output/                 # Generated artifacts (gitignored)
 ```
+
+> See [`app/README.md`](../app/README.md) for detailed module documentation.
 
 ## Development Workflow
 
