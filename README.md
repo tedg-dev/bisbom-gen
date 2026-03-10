@@ -37,72 +37,23 @@ Build interception hooks into the compiler and linker during a software build to
 
 ```
 omnibor-analysis/
-├── docker/                 Docker environment (Linux + gcc + Rust + Go + bomtrace)
-│   ├── Dockerfile
-│   ├── docker-compose.yml
-│   ├── bomtrace_go.conf    Go-specific bomtrace2 configuration
-│   ├── patches/            Upstream bomsh patches
-│   └── README.md
-├── repos/                  Cloned target repositories (not tracked in git)
-├── output/                 Raw SBOM and ADG artifacts (not tracked in git)
-│   ├── omnibor/{lang}/{repo}/{ts}/  ADG documents from bomsh
-│   ├── spdx/{lang}/{repo}/{ts}/     SPDX SBOMs + HTML visualizations
-│   ├── binaries/{lang}/{repo}/{ts}/ Collected output binaries
-├── docs/                   Timestamped results and reports
-│   ├── {lang}/{repo}/{ts}/     Per-repo build logs
-│   ├── runtime/{lang}/{repo}/{ts}/  Build time and performance metrics
-│   ├── go-language-support.md  Go support documentation (experimental)
-│   ├── upstream-changes.md     Tracking upstream bomsh fixes
-│   └── summary/            Cross-repo findings and methodology
-├── app/                    Orchestration scripts and configuration
-│   ├── analyze.py          Main entry point (thin shim → app.pipeline)
-│   ├── spdx_from_adg.py    SPDX entry point (thin shim → app.spdx)
-│   ├── add_repo.py         Repo discovery entry point (thin shim → app.repo_discovery)
-│   ├── spdx_visualize.py   D3.js interactive HTML dependency graph generator
-│   ├── collect_metadata.py Resolve system files to dpkg packages
-│   ├── collect_dynamic_libs.py  Per-binary ldd/readelf dynamic lib analysis
-│   ├── compare.py          Compare OmniBOR SBOM vs binary scanner SBOM
-│   ├── data_loader.py      Shared data loading utilities
-│   ├── config.py           Shared config loading, timestamp, lang_subdir
-│   ├── runner.py           CommandRunner utility
-│   ├── config.yaml         Repo definitions, build commands, paths
-│   ├── pipeline/           Analysis pipeline package (from analyze.py)
-│   │   ├── facade.py       AnalysisPipeline orchestrator
-│   │   ├── runners.py      main(), per-language pipeline runners
-│   │   ├── cloner.py       RepoCloner
-│   │   ├── builder.py      BomtraceBuilder
-│   │   ├── spdx_generator.py  SpdxGenerator (bomsh_sbom)
-│   │   ├── spdx_validator.py  SpdxValidator (JSON Schema + semantic)
-│   │   ├── metadata_collector.py  MetadataCollector
-│   │   ├── binary_collector.py    BinaryCollector
-│   │   ├── doc_writer.py   DocWriter
-│   │   ├── adg_spdx.py     AdgSpdxStep
-│   │   ├── syft.py         SyftGenerator
-│   │   └── validator.py    DependencyValidator
-│   ├── spdx/               SPDX generation package (from spdx_from_adg.py)
-│   │   ├── generator.py    AdgSpdxGenerator orchestrator
-│   │   ├── parser.py       AdgParser
-│   │   ├── resolver.py     ComponentResolver
-│   │   ├── version_detector.py  VendoredVersionDetector
-│   │   ├── emitter.py      SpdxEmitter
-│   │   └── cli.py          CLI entry point
-│   ├── repo_discovery/     Repo discovery package (from add_repo.py)
-│   │   ├── facade.py       RepoDiscovery orchestrator
-│   │   ├── github_client.py GitHubClient
-│   │   ├── build_system_detector.py  BuildSystemDetector
-│   │   ├── dependency_analyzer.py    DependencyAnalyzer
-│   │   ├── binary_detector.py        BinaryDetector
-│   │   ├── build_step_generator.py   BuildStepGenerator
-│   │   ├── config_generator.py       ConfigGenerator
-│   │   └── cli.py          CLI entry point
-│   └── templates/          Report templates
-├── terraform/              AWS EC2 infrastructure as code
-├── tests/                  Unit tests (427 tests, 99% coverage)
-├── .windsurf/              Cascade AI rules and workflows
-├── .github/                GitHub templates and CI configuration
-├── LICENSE                 License file
-└── README.md               This file
+├── app/                    Orchestration scripts and modular packages
+│   ├── pipeline/           Analysis pipeline (clone, build, instrument, generate SBOMs)
+│   ├── spdx/              Per-binary SPDX 2.3 generation from ADG data
+│   ├── repo_discovery/    Auto-discover and configure repos from GitHub
+│   └── templates/         Report templates
+├── docker/                Docker environment (Linux + gcc + Rust + Go + bomtrace)
+├── docs/                  Timestamped results, reports, and methodology
+│   └── summary/           Cross-repo findings and architecture docs
+├── terraform/             AWS EC2 infrastructure as code
+├── tests/                 Unit tests (427 tests, 99% coverage)
+├── repos/                 Cloned target repositories (gitignored)
+├── output/                Generated artifacts: SBOMs, ADGs, binaries (gitignored)
+├── .windsurf/             Cascade AI rules and workflows
+└── .github/               GitHub templates and CI configuration
 ```
+
+> See [`app/README.md`](app/README.md) for detailed module documentation.
 
 ## Prerequisites
 
