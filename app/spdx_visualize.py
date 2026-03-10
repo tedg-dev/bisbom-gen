@@ -402,14 +402,33 @@ Object.entries(linkColors).forEach(([type, color]) => {{
     .attr('fill', color);
 }});
 
-// Horizontal layout: DEPENDS_ON left, STATIC/DYNAMIC right, root center
+// Horizontal layout: transitive left, dynamic/build center-top, static right
 const xPositions = {{
   root: width / 2,
-  build: width / 2,
-  static: width * 0.75,
-  dynamic: width * 0.75,
-  dependency: width * 0.25,
+  static: width * 0.78,
+  dependency: width * 0.22,
+  dynamic: width * 0.5,
+  build: width * 0.5,
   other: width / 2,
+}};
+
+// Vertical bias: dynamic/build top, everything else center-to-below
+const yPositions = {{
+  root: height * 0.48,
+  static: height * 0.58,
+  dependency: height * 0.58,
+  dynamic: height * 0.18,
+  build: height * 0.18,
+  other: height * 0.55,
+}};
+
+const yStrengths = {{
+  root: 0.08,
+  static: 0.12,
+  dependency: 0.12,
+  dynamic: 0.5,
+  build: 0.5,
+  other: 0.12,
 }};
 
 // Simulation
@@ -420,6 +439,7 @@ const simulation = d3.forceSimulation(data.nodes)
   .force('charge', d3.forceManyBody().strength(-600))
   .force('center', d3.forceCenter(width / 2, height / 2))
   .force('x', d3.forceX(d => xPositions[d.group] || width / 2).strength(0.15))
+  .force('y', d3.forceY(d => yPositions[d.group] || height / 2).strength(d => yStrengths[d.group] || 0.12))
   .force('collision', d3.forceCollide().radius(50));
 
 // Links
@@ -642,16 +662,21 @@ searchInput.addEventListener('input', () => {{
   }}
 }});
 
-// --- Group labels (DIRECT / TRANSITIVE) ---
+// --- Group labels ---
 const labels = g.append('g').attr('class', 'group-labels');
 labels.append('text')
   .attr('class', 'group-label')
-  .attr('x', width * 0.75)
+  .attr('x', width * 0.78)
   .attr('y', 80)
-  .text('DIRECT / RUNTIME \u2192');
+  .text('STATIC / DIRECT \u2192');
 labels.append('text')
   .attr('class', 'group-label')
-  .attr('x', width * 0.25)
+  .attr('x', width * 0.5)
+  .attr('y', 80)
+  .text('DYNAMIC / BUILD');
+labels.append('text')
+  .attr('class', 'group-label')
+  .attr('x', width * 0.22)
   .attr('y', 80)
   .text('\u2190 TRANSITIVE');
 </script>

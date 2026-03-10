@@ -1,0 +1,79 @@
+"""
+Binary collection for OmniBOR Analysis.
+
+Copies output binaries from the build tree into timestamped
+output directories for preservation.
+"""
+
+from pathlib import Path
+
+from app.config import lang_subdir, timestamp
+
+
+class BinaryCollector:
+    """Copies output binaries from the build tree into
+    output/binaries/<lang>/<repo>/<timestamp>/ so each run is
+    preserved in a datetime-stamped folder.
+
+    Uses the ``output_binaries`` list from config.yaml,
+    which contains paths relative to the repo root
+    (e.g. ``src/.libs/curl``).
+    """
+
+    @staticmethod
+    def collect(repo_name, repo_cfg, paths_cfg,
+                run_ts=None):
+        """Copy each listed binary to a timestamped dir.
+
+        Returns a list of (src, dst) tuples for binaries
+        that were successfully copied.
+        """
+        import shutil
+
+        ts = run_ts or timestamp()
+        bins = repo_cfg.get("output_binaries", [])
+        if not bins:
+            print(
+                "[WARN] No output_binaries defined "
+                f"for {repo_name}"
+            )
+            return []
+
+        repo_dir = (
+            Path(paths_cfg["repos_dir"]) / repo_name
+        )
+        lang = lang_subdir(repo_cfg)
+        out_dir = (
+            Path(paths_cfg["output_dir"])
+            / "binaries" / lang / repo_name / ts
+        )
+        out_dir.mkdir(parents=True, exist_ok=True)
+
+        collected = []
+        for rel_path in bins:
+            src = repo_dir / rel_path
+            dst = out_dir / Path(rel_path).name
+            if not src.exists():
+                print(
+                    f"[WARN] Binary not found: {src}"
+                )
+                continue
+            shutil.copy2(str(src), str(dst))
+            size = dst.stat().st_size
+            print(
+                f"[OK] Collected {dst.name} "
+                f"({size:,} bytes)"
+            )
+            collected.append((str(src), str(dst)))
+
+        if collected:
+            print(
+                f"[OK] {len(collected)} binary(ies) "
+                f"saved to {out_dir}"
+            )
+        else:
+            print(
+                f"[WARN] No binaries found for "
+                f"{repo_name}"
+            )
+        return collected

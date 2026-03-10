@@ -775,7 +775,7 @@ class TestSpdxGeneratorMetadata(unittest.TestCase):
                 SpdxGenerator, "_bomtrace_version",
                 return_value="6.11",
             ), patch(
-                "analyze.timestamp",
+                "app.pipeline.spdx_generator.timestamp",
                 return_value="2026-02-12_1300",
             ), patch("builtins.print"):
                 ok = SpdxGenerator.patch_spdx_metadata(
@@ -1596,7 +1596,7 @@ class TestSyftGenerator(unittest.TestCase):
 class TestBinaryCollector(unittest.TestCase):
     """Tests for BinaryCollector."""
 
-    @patch("analyze.timestamp", return_value="2026-02-12_1300")
+    @patch("app.pipeline.binary_collector.timestamp", return_value="2026-02-12_1300")
     def test_collect_copies_binaries(self, _ts):
         with tempfile.TemporaryDirectory() as tmpdir:
             # Create fake repo with a binary
@@ -1637,7 +1637,7 @@ class TestBinaryCollector(unittest.TestCase):
                 b"\x7fELF fake binary",
             )
 
-    @patch("analyze.timestamp", return_value="2026-02-12_1300")
+    @patch("app.pipeline.binary_collector.timestamp", return_value="2026-02-12_1300")
     def test_collect_missing_binary_warns(self, _ts):
         with tempfile.TemporaryDirectory() as tmpdir:
             repo_dir = Path(tmpdir) / "repos" / "curl"
@@ -1697,7 +1697,7 @@ class TestBinaryCollector(unittest.TestCase):
         output = "\n".join(printed)
         self.assertIn("No output_binaries", output)
 
-    @patch("analyze.timestamp", return_value="2026-02-12_1300")
+    @patch("app.pipeline.binary_collector.timestamp", return_value="2026-02-12_1300")
     def test_collect_multiple_binaries(self, _ts):
         with tempfile.TemporaryDirectory() as tmpdir:
             repo_dir = Path(tmpdir) / "repos" / "curl"
@@ -2032,7 +2032,7 @@ def _mock_pipeline():
 class TestMainList(unittest.TestCase):
     """Tests for main() --list mode."""
 
-    @patch("analyze.AnalysisPipeline")
+    @patch("app.pipeline.runners.AnalysisPipeline")
     @patch("sys.argv", ["analyze.py", "--list"])
     def test_list_mode(self, mock_cls):
         p = MagicMock()
@@ -2045,7 +2045,7 @@ class TestMainList(unittest.TestCase):
 class TestMainNoRepo(unittest.TestCase):
     """Tests for main() without --repo."""
 
-    @patch("analyze.AnalysisPipeline")
+    @patch("app.pipeline.runners.AnalysisPipeline")
     @patch("sys.argv", ["analyze.py"])
     def test_exits_without_repo(self, mock_cls):
         mock_cls.return_value = _mock_pipeline()
@@ -2060,7 +2060,7 @@ class TestMainNoRepo(unittest.TestCase):
 class TestMainUnknownRepo(unittest.TestCase):
     """Tests for main() with unknown repo."""
 
-    @patch("analyze.AnalysisPipeline")
+    @patch("app.pipeline.runners.AnalysisPipeline")
     @patch(
         "sys.argv",
         ["analyze.py", "--repo", "nonexistent"],
@@ -2078,8 +2078,8 @@ class TestMainUnknownRepo(unittest.TestCase):
 class TestMainFullRun(unittest.TestCase):
     """Tests for main() full analysis run."""
 
-    @patch("analyze.time.time")
-    @patch("analyze.AnalysisPipeline")
+    @patch("app.pipeline.runners.time.time")
+    @patch("app.pipeline.runners.AnalysisPipeline")
     @patch(
         "sys.argv",
         ["analyze.py", "--repo", "curl"],
@@ -2105,7 +2105,7 @@ class TestMainFullRun(unittest.TestCase):
         p.docs.write_build_doc.assert_called_once()
         p.docs.write_runtime_doc.assert_called_once()
 
-    @patch("analyze.AnalysisPipeline")
+    @patch("app.pipeline.runners.AnalysisPipeline")
     @patch(
         "sys.argv",
         ["analyze.py", "--repo", "curl"],
@@ -2128,8 +2128,8 @@ class TestMainFullRun(unittest.TestCase):
 
         p.builder.build.assert_not_called()
 
-    @patch("analyze.time.time")
-    @patch("analyze.AnalysisPipeline")
+    @patch("app.pipeline.runners.time.time")
+    @patch("app.pipeline.runners.AnalysisPipeline")
     @patch(
         "sys.argv",
         ["analyze.py", "--repo", "curl"],
@@ -2150,8 +2150,8 @@ class TestMainFullRun(unittest.TestCase):
         p.binary_collector.collect.assert_not_called()
         p.docs.write_build_doc.assert_called_once()
 
-    @patch("analyze.time.time")
-    @patch("analyze.AnalysisPipeline")
+    @patch("app.pipeline.runners.time.time")
+    @patch("app.pipeline.runners.AnalysisPipeline")
     @patch(
         "sys.argv",
         [
@@ -2170,7 +2170,7 @@ class TestMainFullRun(unittest.TestCase):
 
         p.cloner.clone.assert_not_called()
 
-    @patch("analyze.AnalysisPipeline")
+    @patch("app.pipeline.runners.AnalysisPipeline")
     @patch(
         "sys.argv",
         [
@@ -2197,8 +2197,8 @@ class TestMainFullRun(unittest.TestCase):
 class TestMainGoRepo(unittest.TestCase):
     """Tests for main() with Go repos."""
 
-    @patch("analyze.time.time")
-    @patch("analyze.AnalysisPipeline")
+    @patch("app.pipeline.runners.time.time")
+    @patch("app.pipeline.runners.AnalysisPipeline")
     @patch(
         "sys.argv",
         ["analyze.py", "--repo", "fzf"],
@@ -2230,8 +2230,8 @@ class TestMainGoRepo(unittest.TestCase):
         p.docs.write_runtime_doc\
             .assert_called_once()
 
-    @patch("analyze.time.time")
-    @patch("analyze.AnalysisPipeline")
+    @patch("app.pipeline.runners.time.time")
+    @patch("app.pipeline.runners.AnalysisPipeline")
     @patch(
         "sys.argv",
         ["analyze.py", "--repo", "fzf"],
@@ -2251,8 +2251,8 @@ class TestMainGoRepo(unittest.TestCase):
             .assert_not_called()
         p.docs.write_build_doc.assert_called_once()
 
-    @patch("analyze.time.time")
-    @patch("analyze.AnalysisPipeline")
+    @patch("app.pipeline.runners.time.time")
+    @patch("app.pipeline.runners.AnalysisPipeline")
     @patch(
         "sys.argv",
         [
@@ -3063,8 +3063,8 @@ class TestMetadataCollector(unittest.TestCase):
 class TestMainAdgValidation(unittest.TestCase):
     """Cover line 1400: adg_files validation loop."""
 
-    @patch("analyze.time.time")
-    @patch("analyze.AnalysisPipeline")
+    @patch("app.pipeline.runners.time.time")
+    @patch("app.pipeline.runners.AnalysisPipeline")
     @patch(
         "sys.argv",
         ["analyze.py", "--repo", "curl"],
