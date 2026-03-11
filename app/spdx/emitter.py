@@ -752,6 +752,11 @@ class SpdxEmitter:
                             f"sonames: "
                             f"{', '.join(sonames)}"
                         ),
+                        "packageSourceInfo": (
+                            f"Built from project "
+                            f"source as part of "
+                            f"{self.repo_name} build."
+                        ),
                     }
                     if self.repo_version:
                         pkg["versionInfo"] = (
@@ -829,6 +834,18 @@ class SpdxEmitter:
                     if hp and hp != "NOASSERTION":
                         pkg["homepage"] = hp
 
+                    # Package source info for dpkg libs
+                    dpkg_desc = (
+                        ", ".join(dpkg_pkgs)
+                        if dpkg_pkgs
+                        else comp["name"]
+                    )
+                    pkg["packageSourceInfo"] = (
+                        f"Installed via dpkg package "
+                        f"{dpkg_desc} on "
+                        f"{self.distro}."
+                    )
+
                 doc["packages"].append(pkg)
 
                 # DYNAMIC_LINK from root
@@ -870,6 +887,10 @@ class SpdxEmitter:
                         f"{go_ver}:*:*:*:*:*:*:*"
                     ),
                 }],
+                "packageSourceInfo": (
+                    "System-installed Go toolchain "
+                    "at /usr/local/go/."
+                ),
             }
             doc["packages"].append(go_pkg)
             doc["relationships"].append({
@@ -916,6 +937,11 @@ class SpdxEmitter:
                     f"compiled into "
                     f"{self.binary_name}"
                 ),
+                "packageSourceInfo": (
+                    f"Bundled with Go toolchain "
+                    f"{go_ver}. Source at "
+                    f"/usr/local/go/src/."
+                ),
             }
             doc["packages"].append(stdlib_pkg)
             doc["relationships"].append({
@@ -955,6 +981,10 @@ class SpdxEmitter:
                     f":*:*:*:*:*:*:*"
                 ),
             }],
+            "packageSourceInfo": (
+                f"System-installed build toolchain "
+                f"on {self.distro}."
+            ),
         }
         doc["packages"].append(gcc_pkg)
         doc["relationships"].append({
@@ -1041,6 +1071,14 @@ class SpdxEmitter:
                     "indirect" if is_indirect
                     else "direct"
                 )
+                src_info = (
+                    "Indirect dependency "
+                    "vendored via go mod vendor."
+                    if is_indirect
+                    else
+                    "Vendored via go mod vendor. "
+                    f"Source at vendor/{lib_name}/."
+                )
                 pkg = {
                     "SPDXID": pkg_id,
                     "name": lib_name,
@@ -1055,11 +1093,30 @@ class SpdxEmitter:
                         f"compiled into "
                         f"{self.binary_name}"
                     ),
+                    "packageSourceInfo": src_info,
                 }
             elif is_rust_crate:
                 dl = (
                     f"https://crates.io/crates/"
                     f"{lib_name}"
+                )
+                is_direct_crate = (
+                    not cargo_toml_direct
+                    or lib_name in cargo_toml_direct
+                )
+                crate_kind = (
+                    "direct" if is_direct_crate
+                    else "transitive"
+                )
+                src_info = (
+                    "Downloaded from crates.io "
+                    "registry. Source at "
+                    "~/.cargo/registry/src/."
+                    if is_direct_crate
+                    else
+                    "Transitive dependency via "
+                    "Cargo. Downloaded from "
+                    "crates.io registry."
                 )
                 pkg = {
                     "SPDXID": pkg_id,
@@ -1070,14 +1127,27 @@ class SpdxEmitter:
                         "LIBRARY",
                     "externalRefs": [],
                     "comment": (
-                        f"Rust crate (statically "
-                        f"linked). "
+                        f"Rust crate ({crate_kind}, "
+                        f"statically linked). "
                         f"{src_count} source files "
                         f"compiled into "
                         f"{self.binary_name}"
                     ),
+                    "packageSourceInfo": src_info,
                 }
             else:
+                # Determine vendored dir pattern
+                vdir_label = "deps"
+                sample_fp = file_paths[0] if (
+                    file_paths
+                ) else ""
+                for vd in self._vendored_dirs:
+                    if vd in sample_fp:
+                        vdir_label = (
+                            vd.strip("/")
+                            .split("/")[-1]
+                        )
+                        break
                 pkg = {
                     "SPDXID": pkg_id,
                     "name": lib_name,
@@ -1088,10 +1158,16 @@ class SpdxEmitter:
                         "LIBRARY",
                     "externalRefs": [],
                     "comment": (
-                        f"Vendored/statically linked. "
-                        f"{src_count} source files "
-                        f"compiled into "
-                        f"{self.binary_name}"
+                        f"Vendored source compiled "
+                        f"into {self.binary_name}. "
+                        f"{src_count} source files."
+                    ),
+                    "packageSourceInfo": (
+                        f"Vendored from "
+                        f"{self.repo_name}/"
+                        f"{vdir_label}/{lib_name}/. "
+                        f"Source compiled into "
+                        f"static archive and linked."
                     ),
                 }
 
