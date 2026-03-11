@@ -416,7 +416,9 @@ class SpdxEmitter:
         vendored = {}
         own = []
         for art in project_files:
-            fp = art["file_path"]
+            # Normalize path to resolve ../ components
+            # (e.g. /libnetutil/../nbase/x.h -> /nbase/x.h)
+            fp = str(Path(art["file_path"]).resolve())
             matched = False
             # Try Rust crate from Cargo registry first
             crate_name, _ = (
