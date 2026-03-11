@@ -164,6 +164,26 @@ repos:
     description: Git background auto-commit tool (~42 direct + 35 transitive Rust crate deps, complex Git-binding layer)
     output_binaries:
     - target/release/dura
+  jsoup:
+    url: https://github.com/jhy/jsoup.git
+    branch: master
+    language: java
+    build_steps:
+    - mvn package -DskipTests -q
+    clean_cmd: mvn clean -q
+    description: Java HTML parser library (zero runtime deps - all test scope)
+    output_binaries:
+    - target/jsoup-*.jar
+  checkstyle:
+    url: https://github.com/checkstyle/checkstyle.git
+    branch: master
+    language: java
+    build_steps:
+    - mvn package -DskipTests -q
+    clean_cmd: mvn clean -q
+    description: Static analysis tool (14 direct, 12 transitive - antlr, guava, picocli, commons-beanutils)
+    output_binaries:
+    - target/checkstyle-*.jar
 paths:
   repos_dir: /workspace/repos
   output_dir: /workspace/output
@@ -184,6 +204,12 @@ omnibor_go:
   create_bom_script: bomsh_create_bom.py
   sbom_script: bomsh_sbom.py
   raw_logfile: /tmp/bomsh_hook_raw_logfile.sha1
+omnibor_java:
+  # Java uses strace + bomsh_create_bom_java.py (post-build analysis)
+  # instead of bomtrace (build-time interception)
+  strace_opts: -f -s99999 --seccomp-bpf -e trace=openat -qqq
+  create_bom_script: bomsh_create_bom_java.py
+  strace_logfile: /tmp/strace_java_logfile
 docs:
   timestamp_format: '%Y-%m-%d_%H%M'
   types:

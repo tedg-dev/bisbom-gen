@@ -109,3 +109,90 @@ class BomtraceBuilder:
             f"written to {bom_dir}"
         )
         return True
+
+    def build_java(
+        self, repo_name, repo_cfg,
+        paths_cfg, omnibor_java_cfg,
+        run_ts=None,
+    ):
+        """Run Java build with strace, then bomsh_create_bom_java.py.
+
+        Java uses a different approach than C/C++/Rust/Go:
+        1. Build with strace to capture file I/O (openat syscalls)
+        2. Run bomsh_create_bom_java.py with strace log to create treedb
+
+        Returns True on success, False on failure.
+        """
+        ts = run_ts or timestamp()
+        repo_dir = (
+            Path(paths_cfg["repos_dir"]) / repo_name
+        )
+        lang = lang_subdir(repo_cfg)
+        bom_dir = (
+            Path(paths_cfg["output_dir"])
+            / "omnibor" / lang / repo_name / ts
+        )
+        bom_dir.mkdir(parents=True, exist_ok=True)
+        meta_dir = bom_dir / "metadata" / "bomsh"
+        meta_dir.mkdir(parents=True, exist_ok=True)
+
+        strace_opts = omnibor_java_cfg["strace_opts"]
+        strace_log = omnibor_java_cfg["strace_logfile"]
+        create_bom = omnibor_java_cfg["create_bom_script"]
+
+        # Clean stale build artifacts
+        clean_cmd = repo_cfg.get("clean_cmd")
+        if clean_cmd:
+            self.runner.run(
+                clean_cmd, cwd=str(repo_dir),
+                description=f"Clean: {clean_cmd}",
+            )
+
+        # Pre-build steps (if any before final build)
+        build_steps = repo_cfg["build_steps"]
+        for step in build_steps[:-1]:
+            rc = self.runner.run(
+                step, cwd=str(repo_dir),
+                description=f"Pre-build: {step[:60]}",
+            )
+            if rc != 0:
+                print(f"[ERROR] Pre-build step failed: {step}")
+                return False
+
+        # Final build step with strace
+        build_cmd = build_steps[-1]
+        instrumented = (
+            f"strace {strace_opts} -o {strace_log} {build_cmd}"
+        )
+        rc = self.runner.run(
+            instrumented, cwd=str(repo_dir),
+            description=(
+                f"Instrumented build: strace {build_cmd[:40]}"
+            ),
+        )
+        if rc != 0:
+            print("[ERROR] Instrumented build failed")
+            return False
+
+        # Generate OmniBOR treedb by scanning entire workspace
+        # The script automatically finds all .java, .class, and .jar files
+        # and builds the complete dependency graph
+        # See: bomsh docs/Quickstart.md - "For Java" section
+        treedb_file = meta_dir / "bomsh_omnibor_treedb"
+        rc = self.runner.run(
+            f"{create_bom} -r {repo_dir} "
+            f"-j {treedb_file}",
+            cwd=str(repo_dir),
+            description=(
+                "Generating OmniBOR treedb for Java workspace"
+            ),
+        )
+        if rc != 0:
+            print("[ERROR] bomsh_create_bom_java.py failed")
+            return False
+
+        print(
+            "[OK] OmniBOR treedb written to "
+            f"{treedb_file}"
+        )
+        return True

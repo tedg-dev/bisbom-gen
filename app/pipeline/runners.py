@@ -123,6 +123,12 @@ def main():
             pipeline, args.repo, repo_cfg,
             paths_cfg, omnibor_rust_cfg, run_ts,
         )
+    elif lang == "java":
+        omnibor_java_cfg = config["omnibor_java"]
+        success, duration = _run_java_pipeline(
+            pipeline, args.repo, repo_cfg,
+            paths_cfg, omnibor_java_cfg, run_ts,
+        )
     else:
         omnibor_go_cfg = config["omnibor_go"]
         success, duration = _run_go_pipeline(
@@ -297,6 +303,124 @@ def _run_rust_pipeline(
         )
 
     return success, duration
+
+
+def _run_java_pipeline(
+    pipeline, repo_name, repo_cfg,
+    paths_cfg, omnibor_java_cfg, run_ts,
+):
+    """Java pipeline: strace-instrumented Maven build,
+    bomsh_create_bom_java.py for OmniBOR ADG, SPDX generation,
+    metadata, ADG SPDX, validation, JAR collection.
+
+    Java uses a different approach than C/C++/Rust/Go:
+    1. Build with strace to capture file I/O
+    2. Run bomsh_create_bom_java.py with strace log
+       to create the OmniBOR treedb
+
+    See: https://github.com/omnibor/bomsh
+    #software-vulnerability-cve-search-for-java-packages
+
+    Returns (success, duration_sec).
+    """
+    # Step 4: Instrumented build (strace + Maven)
+    start = time.time()
+    success = pipeline.builder.build_java(
+        repo_name, repo_cfg,
+        paths_cfg, omnibor_java_cfg,
+        run_ts=run_ts,
+    )
+    duration = time.time() - start
+
+    # Step 5a: Generate SPDX from OmniBOR
+    # (Java uses bomsh_create_bom_java.py output)
+    spdx_file = None
+    if success:
+        spdx_file = pipeline.spdx_gen.generate_java(
+            repo_name, repo_cfg,
+            paths_cfg, omnibor_java_cfg,
+            run_ts=run_ts,
+        )
+
+    # Step 5b: Collect component metadata
+    if success:
+        pipeline.metadata_collector.collect(
+            repo_name, repo_cfg, paths_cfg,
+            run_ts=run_ts,
+        )
+
+    # Step 5c: Generate per-binary ADG SPDX (Java-specific)
+    adg_files = []
+    if success:
+        adg_files = _generate_java_adg_spdx(
+            repo_name, repo_cfg, paths_cfg, run_ts,
+        )
+
+    # Step 6: Validate SPDX documents
+    if spdx_file:
+        pipeline.spdx_validator.validate(spdx_file)
+    for adg_file in adg_files:
+        pipeline.spdx_validator.validate(adg_file)
+
+    # Also validate Syft SPDX
+    lang = lang_subdir(repo_cfg)
+    syft_spdx = (
+        Path(paths_cfg["output_dir"])
+        / "spdx" / lang / repo_name / run_ts
+        / f"{repo_name}_syft.spdx.json"
+    )
+    if syft_spdx.exists():
+        pipeline.spdx_validator.validate(
+            str(syft_spdx)
+        )
+
+    # Step 7: Collect output JARs
+    if success:
+        pipeline.binary_collector.collect(
+            repo_name, repo_cfg, paths_cfg,
+            run_ts=run_ts,
+        )
+
+    return success, duration
+
+
+def _generate_java_adg_spdx(
+    repo_name, repo_cfg, paths_cfg, run_ts,
+):
+    """Generate Java ADG SPDX using JavaSpdxGenerator.
+
+    Java doesn't have dynamic library dependencies like
+    native binaries. Instead, we use the treedb for source
+    file relationships and pom.xml for Maven dependencies.
+    """
+    from app.spdx.java_generator import JavaSpdxGenerator
+
+    lang = lang_subdir(repo_cfg)
+    bom_dir = (
+        Path(paths_cfg["output_dir"])
+        / "omnibor" / lang / repo_name / run_ts
+    )
+    repos_dir = paths_cfg["repos_dir"]
+    spdx_dir = (
+        Path(paths_cfg["output_dir"])
+        / "spdx" / lang / repo_name / run_ts
+    )
+    spdx_dir.mkdir(parents=True, exist_ok=True)
+
+    gen = JavaSpdxGenerator(
+        bom_dir=str(bom_dir),
+        repos_dir=repos_dir,
+        repo_name=repo_name,
+    )
+
+    # Generate single SPDX for the main JAR
+    out_path = spdx_dir / f"{repo_name}_adg.spdx.json"
+    result = gen.generate(
+        output_path=str(out_path),
+        binary_name=f"{repo_name}.jar",
+    )
+
+    return [result] if result else []
 
 
 def _run_go_pipeline(

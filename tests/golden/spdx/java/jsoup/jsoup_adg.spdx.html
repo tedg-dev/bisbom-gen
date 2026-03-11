@@ -1,169 +1,18 @@
-#!/usr/bin/env python3
-"""Generate an interactive HTML dependency graph from an SPDX JSON file.
-
-Reads an SPDX 2.3 JSON document and produces a standalone HTML file
-with a D3.js force-directed graph, color-coded by relationship type:
-  - STATIC_LINK (vendored/compiled-in)
-  - DYNAMIC_LINK (runtime shared libraries)
-  - BUILD_TOOL_OF (compiler/toolchain)
-  - CONTAINS (source files, shown as counts)
-
-Usage:
-    python3 spdx_visualize.py input.spdx.json [-o output.html]
-"""
-
-import argparse
-import json
-import html
-from collections import Counter
-from pathlib import Path
-
-
-def extract_graph(doc):
-    """Extract nodes and edges from SPDX document.
-
-    Returns:
-        nodes: list of {id, name, version, purpose, group, fileCount}
-        edges: list of {source, target, type}
-        file_counts: dict of SPDXID -> count of CONTAINS relationships
-    """
-    pkg_map = {}
-    for p in doc.get("packages", []):
-        pkg_map[p["SPDXID"]] = {
-            "id": p["SPDXID"],
-            "name": p.get("name", "unknown"),
-            "version": p.get("versionInfo", ""),
-            "purpose": p.get(
-                "primaryPackagePurpose", ""
-            ),
-            "comment": p.get("comment", ""),
-        }
-
-    # Count CONTAINS relationships per package
-    file_counts = {}
-    for r in doc.get("relationships", []):
-        if r["relationshipType"] == "CONTAINS":
-            src = r["spdxElementId"]
-            file_counts[src] = (
-                file_counts.get(src, 0) + 1
-            )
-
-    # Classify packages into groups
-    # Relationship directions vary by type:
-    #   STATIC_LINK:  dep → root   (source = dep)
-    #   DYNAMIC_LINK: root → lib   (target = lib)
-    #   BUILD_TOOL_OF: tool → root (source = tool)
-    #   DEPENDS_ON:   child → parent (source = child)
-    rels = doc.get("relationships", [])
-    static_nodes = set()
-    dynamic_nodes = set()
-    build_nodes = set()
-    depends_on_nodes = set()
-
-    for r in rels:
-        rt = r["relationshipType"]
-        src = r["spdxElementId"]
-        tgt = r["relatedSpdxElement"]
-        if rt == "STATIC_LINK":
-            static_nodes.add(src)
-            static_nodes.add(tgt)
-        elif rt == "DYNAMIC_LINK":
-            dynamic_nodes.add(src)
-            dynamic_nodes.add(tgt)
-        elif rt == "BUILD_TOOL_OF":
-            build_nodes.add(src)
-        elif rt == "DEPENDS_ON":
-            depends_on_nodes.add(src)
-
-    nodes = []
-    for spdx_id, info in pkg_map.items():
-        if info["purpose"] == "APPLICATION":
-            group = "root"
-        elif spdx_id in static_nodes:
-            group = "static"
-        elif spdx_id in dynamic_nodes:
-            group = "dynamic"
-        elif spdx_id in build_nodes:
-            group = "build"
-        elif spdx_id in depends_on_nodes:
-            group = "dependency"
-        else:
-            group = "other"
-
-        nodes.append({
-            "id": spdx_id,
-            "name": info["name"],
-            "version": info["version"],
-            "purpose": info["purpose"],
-            "group": group,
-            "comment": info["comment"],
-            "fileCount": file_counts.get(
-                spdx_id, 0
-            ),
-        })
-
-    # Edges: only package-to-package (skip CONTAINS, DESCRIBES)
-    edges = []
-    for r in rels:
-        rt = r["relationshipType"]
-        src = r["spdxElementId"]
-        tgt = r["relatedSpdxElement"]
-        if rt in (
-            "STATIC_LINK", "DYNAMIC_LINK",
-            "BUILD_TOOL_OF", "DEPENDS_ON",
-        ):
-            if src in pkg_map and tgt in pkg_map:
-                edges.append({
-                    "source": src,
-                    "target": tgt,
-                    "type": rt,
-                })
-
-    return nodes, edges
-
-
-def generate_html(doc, output_path):
-    """Generate standalone HTML visualization."""
-    nodes, edges = extract_graph(doc)
-
-    doc_name = doc.get("name", "SPDX Document")
-    created = doc.get(
-        "creationInfo", {}
-    ).get("created", "")
-
-    graph_data = json.dumps({
-        "nodes": nodes,
-        "links": edges,
-    })
-
-    # Compute counts for legend
-    rel_counts = Counter(
-        e["type"] for e in edges
-    )
-    # Also count CONTAINS from original doc
-    contains_count = sum(
-        1 for r in doc.get("relationships", [])
-        if r["relationshipType"] == "CONTAINS"
-    )
-    grp_counts = Counter(
-        n["group"] for n in nodes
-    )
-
-    html_content = f"""<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SPDX Dependency Graph — {html.escape(doc_name)}</title>
+<title>SPDX Dependency Graph — jsoup-jsoup.jar</title>
 <style>
-  * {{ margin: 0; padding: 0; box-sizing: border-box; }}
-  body {{
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     background: #0f1117;
     color: #e0e0e0;
     overflow: hidden;
-  }}
-  #header {{
+  }
+  #header {
     position: fixed; top: 0; left: 0; right: 0;
     background: rgba(15, 17, 23, 0.95);
     backdrop-filter: blur(8px);
@@ -173,18 +22,18 @@ def generate_html(doc, output_path):
     display: flex;
     align-items: center;
     gap: 24px;
-  }}
-  #header h1 {{
+  }
+  #header h1 {
     font-size: 16px;
     font-weight: 600;
     color: #fff;
     white-space: nowrap;
-  }}
-  #header .meta {{
+  }
+  #header .meta {
     font-size: 12px;
     color: #888;
-  }}
-  #legend {{
+  }
+  #legend {
     position: fixed; top: 60px; right: 20px;
     background: rgba(22, 24, 32, 0.95);
     backdrop-filter: blur(8px);
@@ -194,29 +43,29 @@ def generate_html(doc, output_path):
     z-index: 100;
     font-size: 13px;
     min-width: 200px;
-  }}
-  #legend h3 {{
+  }
+  #legend h3 {
     font-size: 13px;
     font-weight: 600;
     margin-bottom: 10px;
     color: #fff;
-  }}
-  .legend-item {{
+  }
+  .legend-item {
     display: flex;
     align-items: center;
     gap: 8px;
     margin-bottom: 6px;
-  }}
-  .legend-dot {{
+  }
+  .legend-dot {
     width: 12px; height: 12px;
     border-radius: 50%;
     flex-shrink: 0;
-  }}
-  .legend-line {{
+  }
+  .legend-line {
     width: 24px; height: 2px;
     flex-shrink: 0;
-  }}
-  #tooltip {{
+  }
+  #tooltip {
     position: fixed;
     background: rgba(22, 24, 32, 0.97);
     border: 1px solid #3a3d45;
@@ -229,36 +78,36 @@ def generate_html(doc, output_path):
     z-index: 200;
     max-width: 350px;
     box-shadow: 0 4px 20px rgba(0,0,0,0.4);
-  }}
-  #tooltip .tt-name {{
+  }
+  #tooltip .tt-name {
     font-weight: 600;
     font-size: 14px;
     color: #fff;
     margin-bottom: 4px;
-  }}
-  #tooltip .tt-row {{
+  }
+  #tooltip .tt-row {
     color: #aaa;
     margin-top: 2px;
-  }}
-  #tooltip .tt-row span {{
+  }
+  #tooltip .tt-row span {
     color: #ddd;
-  }}
-  #graph {{ width: 100vw; height: 100vh; }}
-  svg {{ display: block; }}
+  }
+  #graph { width: 100vw; height: 100vh; }
+  svg { display: block; }
 
   /* Edge styles */
-  .link-STATIC_LINK {{ stroke: #4ecdc4; }}
-  .link-DYNAMIC_LINK {{ stroke: #ff6b6b; }}
-  .link-BUILD_TOOL_OF {{ stroke: #ffd93d; }}
-  .link-DEPENDS_ON {{ stroke: #56b6f7; }}
+  .link-STATIC_LINK { stroke: #4ecdc4; }
+  .link-DYNAMIC_LINK { stroke: #ff6b6b; }
+  .link-BUILD_TOOL_OF { stroke: #ffd93d; }
+  .link-DEPENDS_ON { stroke: #56b6f7; }
 
   /* Search box */
-  #search-box {{
+  #search-box {
     position: fixed;
     top: 60px; left: 20px;
     z-index: 100;
-  }}
-  #search-box input {{
+  }
+  #search-box input {
     background: rgba(22, 24, 32, 0.95);
     border: 1px solid #2a2d35;
     border-radius: 6px;
@@ -267,79 +116,79 @@ def generate_html(doc, output_path):
     font-size: 13px;
     width: 220px;
     outline: none;
-  }}
-  #search-box input:focus {{
+  }
+  #search-box input:focus {
     border-color: #56b6f7;
-  }}
-  #search-box input::placeholder {{
+  }
+  #search-box input::placeholder {
     color: #555;
-  }}
-  #search-hint {{
+  }
+  #search-hint {
     font-size: 11px;
     color: #555;
     margin-top: 4px;
     padding-left: 4px;
-  }}
+  }
 
   /* Group labels */
-  .group-label {{
+  .group-label {
     font-size: 14px;
     font-weight: 600;
     fill: #333;
     text-anchor: middle;
     pointer-events: none;
-  }}
+  }
 </style>
 </head>
 <body>
 
 <div id="header">
   <h1>SPDX Dependency Graph</h1>
-  <span class="meta">{html.escape(doc_name)} &mdash; {html.escape(created)}</span>
+  <span class="meta">jsoup-jsoup.jar &mdash; 2026-03-11T22:58:42Z</span>
 </div>
 
 <div id="legend">
-  <h3>Packages ({len(nodes)} total)</h3>
+  <h3>Packages (3 total)</h3>
   <div class="legend-item">
     <div class="legend-dot" style="background:#7c5cfc"></div>
-    <span>Root binary ({grp_counts.get('root', 0)})</span>
+    <span>Root binary (1)</span>
   </div>
   <div class="legend-item">
     <div class="legend-dot" style="background:#4ecdc4"></div>
-    <span>Static / direct ({grp_counts.get('static', 0)})</span>
+    <span>Static / direct (1)</span>
   </div>
   <div class="legend-item">
     <div class="legend-dot" style="background:#ff6b6b"></div>
-    <span>Dynamic / runtime ({grp_counts.get('dynamic', 0)})</span>
+    <span>Dynamic / runtime (0)</span>
   </div>
   <div class="legend-item">
     <div class="legend-dot" style="background:#ffd93d"></div>
-    <span>Build tool ({grp_counts.get('build', 0)})</span>
+    <span>Build tool (1)</span>
   </div>
   <div class="legend-item">
     <div class="legend-dot" style="background:#56b6f7"></div>
-    <span>Transitive dep ({grp_counts.get('dependency', 0)})</span>
+    <span>Transitive dep (0)</span>
   </div>
 
   <h3 style="margin-top:14px">Relationships</h3>
   <div class="legend-item">
     <div class="legend-line" style="background:#4ecdc4"></div>
-    <span>STATIC_LINK ({rel_counts.get('STATIC_LINK', 0)})</span>
+    <span>STATIC_LINK (1)</span>
   </div>
   <div class="legend-item">
     <div class="legend-line" style="background:#ff6b6b"></div>
-    <span>DYNAMIC_LINK ({rel_counts.get('DYNAMIC_LINK', 0)})</span>
+    <span>DYNAMIC_LINK (0)</span>
   </div>
   <div class="legend-item">
     <div class="legend-line" style="background:#ffd93d; height:2px; border-top:1px dashed #ffd93d; background:none;"></div>
-    <span>BUILD_TOOL_OF ({rel_counts.get('BUILD_TOOL_OF', 0)})</span>
+    <span>BUILD_TOOL_OF (1)</span>
   </div>
   <div class="legend-item">
     <div class="legend-line" style="background:#56b6f7"></div>
-    <span>DEPENDS_ON ({rel_counts.get('DEPENDS_ON', 0)})</span>
+    <span>DEPENDS_ON (0)</span>
   </div>
   <div class="legend-item" style="margin-top:4px;color:#666;font-size:11px">
-    <span>+ {contains_count} CONTAINS (source files)</span>
+    <span>+ 0 CONTAINS (source files)</span>
   </div>
 </div>
 
@@ -357,23 +206,23 @@ def generate_html(doc, output_path):
 
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <script>
-const data = {graph_data};
+const data = {"nodes": [{"id": "SPDXRef-Package-jsoup.jar", "name": "jsoup", "version": "1.22.2-SNAPSHOT", "purpose": "APPLICATION", "group": "root", "comment": "", "fileCount": 0}, {"id": "SPDXRef-Dep-0", "name": "jspecify", "version": "1.0.0", "purpose": "", "group": "build", "comment": "Maven scope: provided. Direct dependency", "fileCount": 0}, {"id": "SPDXRef-Dep-1", "name": "re2j", "version": "1.8", "purpose": "", "group": "static", "comment": "Maven scope: compile. Direct dependency. Optional", "fileCount": 0}], "links": [{"source": "SPDXRef-Dep-0", "target": "SPDXRef-Package-jsoup.jar", "type": "BUILD_TOOL_OF"}, {"source": "SPDXRef-Dep-1", "target": "SPDXRef-Package-jsoup.jar", "type": "STATIC_LINK"}]};
 
-const colors = {{
+const colors = {
   root: '#7c5cfc',
   static: '#4ecdc4',
   dynamic: '#ff6b6b',
   build: '#ffd93d',
   dependency: '#56b6f7',
   other: '#888',
-}};
+};
 
-const linkColors = {{
+const linkColors = {
   'STATIC_LINK': '#4ecdc4',
   'DYNAMIC_LINK': '#ff6b6b',
   'BUILD_TOOL_OF': '#ffd93d',
   'DEPENDS_ON': '#56b6f7',
-}};
+};
 
 const width = window.innerWidth;
 const height = window.innerHeight;
@@ -391,7 +240,7 @@ svg.call(d3.zoom()
 
 // Arrow markers
 const defs = svg.append('defs');
-Object.entries(linkColors).forEach(([type, color]) => {{
+Object.entries(linkColors).forEach(([type, color]) => {
   defs.append('marker')
     .attr('id', 'arrow-' + type)
     .attr('viewBox', '0 -5 10 10')
@@ -403,36 +252,36 @@ Object.entries(linkColors).forEach(([type, color]) => {{
     .append('path')
     .attr('d', 'M0,-4L10,0L0,4')
     .attr('fill', color);
-}});
+});
 
 // Horizontal layout: transitive left, dynamic/build center-top, static right
-const xPositions = {{
+const xPositions = {
   root: width / 2,
   static: width * 0.78,
   dependency: width * 0.22,
   dynamic: width * 0.5,
   build: width * 0.5,
   other: width / 2,
-}};
+};
 
 // Vertical bias: dynamic/build top, everything else center-to-below
-const yPositions = {{
+const yPositions = {
   root: height * 0.48,
   static: height * 0.58,
   dependency: height * 0.58,
   dynamic: height * 0.18,
   build: height * 0.18,
   other: height * 0.55,
-}};
+};
 
-const yStrengths = {{
+const yStrengths = {
   root: 0.08,
   static: 0.12,
   dependency: 0.12,
   dynamic: 0.5,
   build: 0.5,
   other: 0.12,
-}};
+};
 
 // Simulation
 const simulation = d3.forceSimulation(data.nodes)
@@ -479,12 +328,12 @@ const node = g.append('g')
 
 // Node circles — size by file count
 node.append('circle')
-  .attr('r', d => {{
+  .attr('r', d => {
     if (d.group === 'root') return 24;
     if (d.fileCount > 50) return 18;
     if (d.fileCount > 10) return 14;
     return 12;
-  }})
+  })
   .attr('fill', d => colors[d.group] || colors.other)
   .attr('stroke', '#fff')
   .attr('stroke-width', d => d.group === 'root' ? 2.5 : 1.5)
@@ -501,11 +350,11 @@ node.filter(d => d.group === 'root')
 
 // Labels
 node.append('text')
-  .attr('dy', d => {{
+  .attr('dy', d => {
     if (d.group === 'root') return 38;
     if (d.fileCount > 50) return 30;
     return 26;
-  }})
+  })
   .attr('text-anchor', 'middle')
   .attr('font-size', d => d.group === 'root' ? 13 : 11)
   .attr('font-weight', d => d.group === 'root' ? 700 : 500)
@@ -515,11 +364,11 @@ node.append('text')
 // Version labels
 node.filter(d => d.version)
   .append('text')
-  .attr('dy', d => {{
+  .attr('dy', d => {
     if (d.group === 'root') return 52;
     if (d.fileCount > 50) return 43;
     return 39;
-  }})
+  })
   .attr('text-anchor', 'middle')
   .attr('font-size', 10)
   .attr('fill', '#888')
@@ -538,7 +387,7 @@ node.filter(d => d.fileCount > 0)
 // Tooltip
 const tooltip = d3.select('#tooltip');
 
-node.on('mouseover', (event, d) => {{
+node.on('mouseover', (event, d) => {
   const rows = [];
   if (d.version) rows.push('<div class="tt-row">Version: <span>' + d.version + '</span></div>');
   rows.push('<div class="tt-row">Purpose: <span>' + d.purpose + '</span></div>');
@@ -551,17 +400,17 @@ node.on('mouseover', (event, d) => {{
   tooltip.style('opacity', 1)
     .style('left', (event.clientX + 16) + 'px')
     .style('top', (event.clientY - 10) + 'px');
-}})
-.on('mousemove', (event) => {{
+})
+.on('mousemove', (event) => {
   tooltip.style('left', (event.clientX + 16) + 'px')
     .style('top', (event.clientY - 10) + 'px');
-}})
-.on('mouseout', () => {{
+})
+.on('mouseout', () => {
   tooltip.style('opacity', 0);
-}});
+});
 
 // Tick
-simulation.on('tick', () => {{
+simulation.on('tick', () => {
   link
     .attr('x1', d => d.source.x)
     .attr('y1', d => d.source.y)
@@ -573,80 +422,80 @@ simulation.on('tick', () => {{
     .attr('y', d => (d.source.y + d.target.y) / 2 - 6);
 
   node.attr('transform', d => 'translate(' + d.x + ',' + d.y + ')');
-}});
+});
 
-function dragstarted(event, d) {{
+function dragstarted(event, d) {
   if (!event.active) simulation.alphaTarget(0.3).restart();
   d.fx = d.x; d.fy = d.y;
-}}
-function dragged(event, d) {{
+}
+function dragged(event, d) {
   d.fx = event.x; d.fy = event.y;
-}}
-function dragended(event, d) {{
+}
+function dragended(event, d) {
   if (!event.active) simulation.alphaTarget(0);
   d.fx = null; d.fy = null;
-}}
+}
 
 // --- Click-to-highlight subgraph ---
 let selectedNode = null;
 
-function highlightConnections(d) {{
-  if (selectedNode === d) {{
+function highlightConnections(d) {
+  if (selectedNode === d) {
     // Deselect: restore all
     selectedNode = null;
     node.style('opacity', 1);
     link.style('opacity', 0.6);
     linkLabel.style('opacity', 0.7);
     return;
-  }}
+  }
   selectedNode = d;
   const connected = new Set();
   connected.add(d.id);
-  data.links.forEach(l => {{
+  data.links.forEach(l => {
     const sid = typeof l.source === 'object' ? l.source.id : l.source;
     const tid = typeof l.target === 'object' ? l.target.id : l.target;
     if (sid === d.id) connected.add(tid);
     if (tid === d.id) connected.add(sid);
-  }});
+  });
 
   node.style('opacity', n => connected.has(n.id) ? 1 : 0.08);
-  link.style('opacity', l => {{
+  link.style('opacity', l => {
     const sid = typeof l.source === 'object' ? l.source.id : l.source;
     const tid = typeof l.target === 'object' ? l.target.id : l.target;
     return (sid === d.id || tid === d.id) ? 0.8 : 0.03;
-  }});
-  linkLabel.style('opacity', l => {{
+  });
+  linkLabel.style('opacity', l => {
     const sid = typeof l.source === 'object' ? l.source.id : l.source;
     const tid = typeof l.target === 'object' ? l.target.id : l.target;
     return (sid === d.id || tid === d.id) ? 0.9 : 0.03;
-  }});
-}}
+  });
+}
 
-node.on('click', (event, d) => {{
+node.on('click', (event, d) => {
   event.stopPropagation();
   highlightConnections(d);
-}});
+});
 
-svg.on('click', () => {{
+svg.on('click', () => {
   selectedNode = null;
   node.style('opacity', 1);
   link.style('opacity', 0.6);
   linkLabel.style('opacity', 0.7);
-}});
+});
 
 // --- Search/filter ---
 const searchInput = document.getElementById('search');
 const searchHint = document.getElementById('search-hint');
 
-searchInput.addEventListener('input', () => {{
+searchInput.addEventListener('input', () => {
   const q = searchInput.value.toLowerCase().trim();
-  if (!q) {{
+  if (!q) {
     node.style('opacity', 1);
     link.style('opacity', 0.6);
     linkLabel.style('opacity', 0.7);
     searchHint.textContent = 'Click node to highlight connections';
     return;
-  }}
+  }
   const matches = data.nodes.filter(n => n.name.toLowerCase().includes(q));
   const matchIds = new Set(matches.map(n => n.id));
   const count = matches.length;
@@ -657,13 +506,13 @@ searchInput.addEventListener('input', () => {{
   linkLabel.style('opacity', 0.05);
 
   // Zoom to first match
-  if (matches.length === 1) {{
+  if (matches.length === 1) {
     const m = matches[0];
     highlightConnections(m);
     const t = d3.zoomIdentity.translate(width/2 - m.x, height/2 - m.y);
     svg.transition().duration(500).call(d3.zoom().transform, t);
-  }}
-}});
+  }
+});
 
 // --- Group labels ---
 const labels = g.append('g').attr('class', 'group-labels');
@@ -671,7 +520,7 @@ labels.append('text')
   .attr('class', 'group-label')
   .attr('x', width * 0.78)
   .attr('y', 80)
-  .text('STATIC / DIRECT \u2192');
+  .text('STATIC / DIRECT →');
 labels.append('text')
   .attr('class', 'group-label')
   .attr('x', width * 0.5)
@@ -681,54 +530,7 @@ labels.append('text')
   .attr('class', 'group-label')
   .attr('x', width * 0.22)
   .attr('y', 80)
-  .text('\u2190 TRANSITIVE');
+  .text('← TRANSITIVE');
 </script>
 </body>
-</html>"""
-
-    out = Path(output_path)
-    out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(html_content)
-    print(f"[OK] Visualization: {out}")
-    print(
-        f"     {len(nodes)} packages, "
-        f"{len(edges)} relationships"
-    )
-    return str(out)
-
-
-def main():
-    ap = argparse.ArgumentParser(
-        description=(
-            "Generate interactive HTML dependency "
-            "graph from SPDX JSON"
-        ),
-    )
-    ap.add_argument(
-        "input",
-        help="Path to SPDX 2.3 JSON file",
-    )
-    ap.add_argument(
-        "-o", "--output",
-        default=None,
-        help=(
-            "Output HTML file path "
-            "(default: <input>.html)"
-        ),
-    )
-    args = ap.parse_args()
-
-    doc = json.loads(Path(args.input).read_text())
-
-    output = args.output
-    if not output:
-        inp = Path(args.input)
-        output = str(
-            inp.parent / (inp.stem + ".html")
-        )
-
-    generate_html(doc, output)
-
-
-if __name__ == "__main__":
-    main()
+</html>
