@@ -4,8 +4,13 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=UTC
 
 # ============================================================
-# Base build tools and libraries
+# Base build tools and libraries (C/C++)
 # ============================================================
+# Compilers:
+#   - gcc/g++ (apt) — default, used by most C/C++ projects
+#   - clang/clang++ (apt) — alternative, repos can specify in build_steps
+# Build systems: make, cmake, ninja, autotools
+# Repos can override compiler via CC=/usr/bin/clang in build_steps
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     gcc \
@@ -82,9 +87,12 @@ RUN curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | 
 # ============================================================
 # Install Go SDK (for building Go target repositories)
 # ============================================================
+# Go versions:
+#   - 1.26.0 (official tarball) at /usr/local/go/bin/go — default
 # Go 1.23+ is required by fzf and other Go targets.
 # We install the official tarball to /usr/local/go.
 # See .windsurf/rules/go-sdk-version.md for update policy.
+# Repos needing older Go can specify GO_VERSION in build_steps.
 ENV GO_VERSION=1.26.0
 RUN wget -q "https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz" -O /tmp/go.tar.gz && \
     tar -C /usr/local -xzf /tmp/go.tar.gz && \
@@ -93,12 +101,44 @@ ENV PATH="/usr/local/go/bin:/root/go/bin:${PATH}"
 ENV GOPATH="/root/go"
 
 # ============================================================
+# Install Java JDK and Maven (for building Java target repos)
+# ============================================================
+# Java versions:
+#   - OpenJDK 17 (apt) at /usr/lib/jvm/java-17-openjdk-amd64 — for most projects
+#   - OpenJDK 21 (apt) at /usr/lib/jvm/java-21-openjdk-amd64 — for projects requiring JDK 21+ (e.g. checkstyle)
+# Maven versions:
+#   - 3.6.3 (apt) at /usr/share/maven/bin/mvn — for older projects
+#   - 3.9.13 (Apache) at /opt/apache-maven-3.9.13/bin/mvn — for newer projects
+# Default JAVA_HOME is JDK 21; repos can override via JAVA_HOME in build_steps
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    openjdk-17-jdk \
+    openjdk-21-jdk \
+    maven \
+    && rm -rf /var/lib/apt/lists/*
+# Default to JDK 21 for newer projects like checkstyle
+ENV JAVA_HOME="/usr/lib/jvm/java-21-openjdk-amd64"
+ENV MAVEN_VERSION=3.9.13
+RUN wget -q "https://dlcdn.apache.org/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz" -O /tmp/maven.tar.gz && \
+    tar -C /opt -xzf /tmp/maven.tar.gz && \
+    rm /tmp/maven.tar.gz
+# Symlink mvn3.9 for explicit version selection; default mvn uses 3.9.13
+RUN ln -sf /opt/apache-maven-${MAVEN_VERSION}/bin/mvn /usr/local/bin/mvn && \
+    ln -s /opt/apache-maven-${MAVEN_VERSION}/bin/mvn /usr/local/bin/mvn3.9 && \
+    ln -s /usr/share/maven/bin/mvn /usr/local/bin/mvn3.6
+ENV PATH="${JAVA_HOME}/bin:${PATH}"
+
+# ============================================================
 # Install Rust toolchain (for building Rust target repos)
 # ============================================================
+# Rust versions:
+#   - stable (rustup) — default, updated via rustup update
+#   - specific versions can be installed via: rustup install 1.75.0
 # rustup installs to /root/.cargo and /root/.rustup.
 # We use the minimal profile (no docs/clippy/rustfmt) to
 # keep the image small.  The stable toolchain is sufficient
 # for all current Rust targets (e.g. oxipng ≥ 1.85.1).
+# Repos needing specific Rust version can add to build_steps:
+#   rustup install 1.75.0 && rustup default 1.75.0
 ENV RUSTUP_HOME="/root/.rustup"
 ENV CARGO_HOME="/root/.cargo"
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | \

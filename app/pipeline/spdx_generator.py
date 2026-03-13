@@ -425,3 +425,30 @@ class SpdxGenerator:
             )
 
         return str(spdx_file)
+
+    def generate_java(
+        self, repo_name, repo_cfg,
+        paths_cfg, omnibor_java_cfg,
+        run_ts=None,
+    ):
+        """Generate SPDX SBOM for Java from bomsh_create_bom_java.py output.
+
+        Java uses bomsh_create_bom_java.py which creates a treedb JSON
+        file mapping .java -> .class -> .jar relationships. We need to
+        convert this to SPDX format.
+
+        For now, this is a placeholder that returns None — the ADG SPDX
+        generator will handle Java artifacts using the treedb directly.
+
+        Returns output file path or None.
+        """
+        # Java SPDX generation is handled by adg_spdx.generate()
+        # which reads the bomsh_omnibor_treedb created by
+        # bomsh_create_bom_java.py
+        #
+        # The treedb format is similar to C/C++/Rust but with
+        # .java/.class file paths instead of .c/.o files.
+        #
+        # For now, return None — the primary SPDX comes from
+        # adg_spdx.generate() which handles all languages.
+        return None

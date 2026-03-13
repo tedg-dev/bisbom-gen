@@ -2768,9 +2768,10 @@ class TestAdgSpdxStep(unittest.TestCase):
             }
 
             mock_gen = MagicMock()
-            mock_gen.generate.return_value = (
-                str(spdx_dir / "nmap_adg.spdx.json")
-            )
+            mock_gen.generate.side_effect = [
+                str(spdx_dir / "nmap_analyzed.spdx.json"),
+                str(spdx_dir / "nmap_build.spdx.json"),
+            ]
 
             with patch(
                 "spdx_from_adg.AdgSpdxGenerator",
@@ -2781,15 +2782,20 @@ class TestAdgSpdxStep(unittest.TestCase):
                     run_ts="2026-02-12_1300",
                 )
 
-            self.assertEqual(len(result), 1)
-            mock_gen.generate.assert_called_once()
-            call_kwargs = (
-                mock_gen.generate.call_args
+            # 2 files per binary: analyzed + build
+            self.assertEqual(len(result), 2)
+            self.assertEqual(
+                mock_gen.generate.call_count, 2
+            )
+            calls = mock_gen.generate.call_args_list
+            self.assertTrue(
+                calls[0].kwargs.get("static_only")
+            )
+            self.assertFalse(
+                calls[1].kwargs.get("static_only")
             )
             self.assertEqual(
-                call_kwargs.kwargs.get(
-                    "binary_name"
-                ),
+                calls[0].kwargs.get("binary_name"),
                 "nmap",
             )
 
@@ -2831,14 +2837,18 @@ class TestAdgSpdxStep(unittest.TestCase):
                 )
 
             # curl binary should have direct_only=True
+            # Each binary gets 2 calls (analyzed + build)
             calls = mock_gen.generate.call_args_list
-            curl_call = [
+            curl_calls = [
                 c for c in calls
                 if c.kwargs.get("binary_name") == "curl"
             ]
-            self.assertEqual(len(curl_call), 1)
+            self.assertEqual(len(curl_calls), 2)
             self.assertTrue(
-                curl_call[0].kwargs["direct_only"]
+                curl_calls[0].kwargs["direct_only"]
+            )
+            self.assertTrue(
+                curl_calls[1].kwargs["direct_only"]
             )
             # result is empty because generate returned None
             self.assertEqual(result, [])

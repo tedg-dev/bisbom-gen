@@ -80,7 +80,7 @@ Source Code
 └──────────────────────────────┘
 ```
 
-Each stage is orchestrated by `app/analyze.py` (entry point) via the `AnalysisPipeline` facade in `app/pipeline/facade.py`.
+Each stage is orchestrated by `app/analyze.py` via the `AnalysisPipeline` facade.
 
 ---
 

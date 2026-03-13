@@ -1,0 +1,290 @@
+"""Tests for Java pipeline functions in runners.py."""
+import sys
+import tempfile
+import unittest
+from pathlib import Path
+from unittest.mock import MagicMock, patch
+
+sys.path.insert(
+    0, str(Path(__file__).parent.parent / "app")
+)
+
+from app.pipeline.runners import (
+    _run_java_pipeline,
+    _generate_java_adg_spdx,
+)
+
+
+class TestRunJavaPipeline(unittest.TestCase):
+    """Tests for _run_java_pipeline."""
+
+    def _make_pipeline(self):
+        p = MagicMock()
+        p.builder.build_java.return_value = True
+        p.spdx_gen.generate_java.return_value = (
+            "/tmp/spdx.json"
+        )
+        p.metadata_collector.collect.return_value = None
+        p.spdx_validator.validate.return_value = None
+        p.binary_collector.collect.return_value = None
+        return p
+
+    def _make_cfg(self, td):
+        paths_cfg = {
+            "output_dir": str(Path(td) / "output"),
+            "repos_dir": str(Path(td) / "repos"),
+        }
+        repo_cfg = {
+            "language": "java",
+            "url": "https://github.com/test/test.git",
+        }
+        omnibor_java_cfg = {
+            "strace_opts": "-f",
+            "create_bom_script": "bomsh_bom_java.py",
+            "strace_logfile": "/tmp/strace.log",
+        }
+        return paths_cfg, repo_cfg, omnibor_java_cfg
+
+    @patch(
+        "app.pipeline.runners._generate_java_adg_spdx"
+    )
+    def test_success_flow(self, mock_adg):
+        mock_adg.return_value = ["/tmp/adg.spdx.json"]
+        with tempfile.TemporaryDirectory() as td:
+            paths, repo_cfg, java_cfg = self._make_cfg(td)
+            # Create syft spdx path so validation
+            # branch is exercised
+            spdx_dir = (
+                Path(td) / "output" / "spdx" / "java"
+                / "myapp" / "ts1"
+            )
+            spdx_dir.mkdir(parents=True)
+            (spdx_dir / "myapp_syft.spdx.json").write_text(
+                "{}"
+            )
+            pipeline = self._make_pipeline()
+
+            success, dur = _run_java_pipeline(
+                pipeline, "myapp", repo_cfg,
+                paths, java_cfg, "ts1",
+            )
+
+            self.assertTrue(success)
+            pipeline.builder.build_java.assert_called_once()
+            pipeline.spdx_gen.generate_java.assert_called_once()
+            pipeline.metadata_collector.collect.assert_called_once()
+            mock_adg.assert_called_once()
+            pipeline.binary_collector.collect.assert_called_once()
+            # spdx_validator called for spdx + adg + syft
+            self.assertEqual(
+                pipeline.spdx_validator.validate.call_count,
+                3,
+            )
+
+    @patch(
+        "app.pipeline.runners._generate_java_adg_spdx"
+    )
+    def test_build_failure_skips_steps(self, mock_adg):
+        mock_adg.return_value = []
+        with tempfile.TemporaryDirectory() as td:
+            paths, repo_cfg, java_cfg = self._make_cfg(td)
+            pipeline = self._make_pipeline()
+            pipeline.builder.build_java.return_value = False
+
+            success, dur = _run_java_pipeline(
+                pipeline, "myapp", repo_cfg,
+                paths, java_cfg, "ts1",
+            )
+
+            self.assertFalse(success)
+            pipeline.spdx_gen.generate_java.assert_not_called()
+            pipeline.metadata_collector.collect.assert_not_called()
+            pipeline.binary_collector.collect.assert_not_called()
+
+    @patch(
+        "app.pipeline.runners._generate_java_adg_spdx"
+    )
+    def test_no_spdx_file_skips_validation(
+        self, mock_adg
+    ):
+        mock_adg.return_value = []
+        with tempfile.TemporaryDirectory() as td:
+            paths, repo_cfg, java_cfg = self._make_cfg(td)
+            pipeline = self._make_pipeline()
+            pipeline.spdx_gen.generate_java.return_value = (
+                None
+            )
+
+            success, dur = _run_java_pipeline(
+                pipeline, "myapp", repo_cfg,
+                paths, java_cfg, "ts1",
+            )
+
+            self.assertTrue(success)
+            # No spdx file + no adg files + no syft
+            pipeline.spdx_validator.validate.assert_not_called()
+
+
+class TestGenerateJavaAdgSpdx(unittest.TestCase):
+    """Tests for _generate_java_adg_spdx."""
+
+    @patch(
+        "app.spdx.java_generator.JavaSpdxGenerator"
+    )
+    def test_generates_both_sboms(self, mock_gen_cls):
+        mock_gen = MagicMock()
+        mock_gen.generate.side_effect = [
+            "/tmp/out/myapp_analyzed.spdx.json",
+            "/tmp/out/myapp_build.spdx.json",
+        ]
+        mock_gen_cls.return_value = mock_gen
+
+        with tempfile.TemporaryDirectory() as td:
+            paths_cfg = {
+                "output_dir": str(Path(td) / "output"),
+                "repos_dir": str(Path(td) / "repos"),
+            }
+            repo_cfg = {"language": "java"}
+
+            result = _generate_java_adg_spdx(
+                "myapp", repo_cfg, paths_cfg, "ts1",
+            )
+
+            self.assertEqual(len(result), 2)
+            mock_gen_cls.assert_called_once()
+            # Called twice: analyzed + build
+            self.assertEqual(
+                mock_gen.generate.call_count, 2
+            )
+            calls = mock_gen.generate.call_args_list
+            self.assertEqual(
+                calls[0].kwargs["sbom_type"],
+                "analyzed",
+            )
+            self.assertEqual(
+                calls[1].kwargs["sbom_type"],
+                "build",
+            )
+
+    @patch(
+        "app.spdx.java_generator.JavaSpdxGenerator"
+    )
+    def test_returns_empty_on_failure(
+        self, mock_gen_cls
+    ):
+        mock_gen = MagicMock()
+        mock_gen.generate.return_value = None
+        mock_gen_cls.return_value = mock_gen
+
+        with tempfile.TemporaryDirectory() as td:
+            paths_cfg = {
+                "output_dir": str(Path(td) / "output"),
+                "repos_dir": str(Path(td) / "repos"),
+            }
+            repo_cfg = {"language": "java"}
+
+            result = _generate_java_adg_spdx(
+                "myapp", repo_cfg, paths_cfg, "ts1",
+            )
+
+            # Both calls return None → empty list
+            self.assertEqual(result, [])
+
+
+class TestMainJavaDispatch(unittest.TestCase):
+    """Test that main() dispatches to Java pipeline."""
+
+    @patch("app.pipeline.runners._run_java_pipeline")
+    @patch("app.pipeline.runners.AnalysisPipeline")
+    @patch("app.pipeline.runners.load_config")
+    @patch("app.pipeline.runners.timestamp")
+    def test_java_dispatch(
+        self, mock_ts, mock_cfg, mock_pipe, mock_java,
+    ):
+        mock_ts.return_value = "ts1"
+        mock_cfg.return_value = {
+            "repos": {
+                "checkstyle": {
+                    "language": "java",
+                    "url": "https://github.com/test.git",
+                },
+            },
+            "paths": {
+                "output_dir": "/tmp/out",
+                "repos_dir": "/tmp/repos",
+                "docs_dir": "/tmp/docs",
+            },
+            "omnibor": {
+                "tracer": "bomtrace3",
+                "create_bom_script": "bom.py",
+                "sbom_script": "sbom.py",
+                "raw_logfile": "/tmp/log",
+            },
+            "omnibor_java": {
+                "strace_opts": "-f",
+                "create_bom_script": "bom.py",
+                "strace_logfile": "/tmp/log",
+            },
+        }
+        mock_pipe_inst = MagicMock()
+        mock_pipe.return_value = mock_pipe_inst
+        mock_java.return_value = (True, 10.0)
+
+        from app.pipeline.runners import main
+        with patch(
+            "sys.argv",
+            ["analyze", "--repo", "checkstyle"],
+        ):
+            main()
+
+        mock_java.assert_called_once()
+
+    @patch("app.pipeline.runners._run_rust_pipeline")
+    @patch("app.pipeline.runners.AnalysisPipeline")
+    @patch("app.pipeline.runners.load_config")
+    @patch("app.pipeline.runners.timestamp")
+    def test_rust_dispatch(
+        self, mock_ts, mock_cfg, mock_pipe, mock_rust,
+    ):
+        mock_ts.return_value = "ts1"
+        mock_cfg.return_value = {
+            "repos": {
+                "oxipng": {
+                    "language": "rust",
+                    "url": "https://github.com/test.git",
+                },
+            },
+            "paths": {
+                "output_dir": "/tmp/out",
+                "repos_dir": "/tmp/repos",
+                "docs_dir": "/tmp/docs",
+            },
+            "omnibor": {
+                "tracer": "bomtrace3",
+                "create_bom_script": "bom.py",
+                "sbom_script": "sbom.py",
+                "raw_logfile": "/tmp/log",
+            },
+            "omnibor_rust": {
+                "tracer": "bomtrace2",
+                "create_bom_script": "bom.py",
+                "sbom_script": "sbom.py",
+                "raw_logfile": "/tmp/log",
+            },
+        }
+        mock_pipe_inst = MagicMock()
+        mock_pipe.return_value = mock_pipe_inst
+        mock_rust.return_value = (True, 10.0)
+
+        from app.pipeline.runners import main
+        with patch(
+            "sys.argv",
+            ["analyze", "--repo", "oxipng"],
+        ):
+            main()
+
+        mock_rust.assert_called_once()
+
+
+if __name__ == "__main__":
+    unittest.main()

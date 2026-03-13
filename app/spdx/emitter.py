@@ -614,9 +614,9 @@ class SpdxEmitter:
                 Use for two-tier SBOMs where transitive
                 deps belong to a downstream SBOM.
             static_only: if True, omit dynamically linked
-                library packages. Only include the root
-                binary, vendored/static libs, and the
-                build tool.
+                library packages and build tools. Only
+                include the root binary and
+                vendored/static libs (CISA Analyzed).
             go_stdlib: list of Go standard library
                 source artifacts (from AdgParser), or
                 None for non-Go projects.
@@ -1302,5 +1302,38 @@ class SpdxEmitter:
                 "relationshipType": "CONTAINS",
                 "relatedSpdxElement": file_id,
             })
+
+        # --- Analyzed SBOM post-processing ---
+        # When static_only (CISA Analyzed), strip
+        # all BUILD_TOOL_OF relationships and their
+        # orphaned packages. Build tools weren't
+        # compiled into the binary.
+        if static_only:
+            build_tool_ids = {
+                r["spdxElementId"]
+                for r in doc["relationships"]
+                if r["relationshipType"]
+                == "BUILD_TOOL_OF"
+            }
+            doc["relationships"] = [
+                r for r in doc["relationships"]
+                if r["relationshipType"]
+                != "BUILD_TOOL_OF"
+            ]
+            # IDs still referenced by other rels
+            still_used = set()
+            for r in doc["relationships"]:
+                still_used.add(r["spdxElementId"])
+                still_used.add(
+                    r["relatedSpdxElement"]
+                )
+            orphans = (
+                build_tool_ids - still_used
+            )
+            if orphans:
+                doc["packages"] = [
+                    p for p in doc["packages"]
+                    if p["SPDXID"] not in orphans
+                ]
 
         return doc
