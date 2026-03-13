@@ -33,12 +33,18 @@ class JavaSpdxGenerator:
         self.repo_name = repo_name
         self.repo_dir = self.repos_dir / repo_name
 
-    def generate(self, output_path, binary_name=None):
+    def generate(
+        self, output_path, binary_name=None,
+        sbom_type="build",
+    ):
         """Generate SPDX for a Java JAR.
 
         Args:
             output_path: where to write the SPDX JSON
             binary_name: JAR filename (for SPDX naming)
+            sbom_type: 'analyzed' (only what's in the
+                JAR — source files, no deps) or 'build'
+                (full dependency graph).
 
         Returns output path on success, None on failure.
         """
@@ -76,7 +82,8 @@ class JavaSpdxGenerator:
 
         # Build SPDX document
         doc = self._build_spdx(
-            bin_name, source_files, maven_deps
+            bin_name, source_files, maven_deps,
+            sbom_type=sbom_type,
         )
 
         # Write output
@@ -300,8 +307,17 @@ class JavaSpdxGenerator:
                 return properties[alt_name]
         return value
 
-    def _build_spdx(self, bin_name, source_files, maven_deps):
-        """Build SPDX 2.3 document."""
+    def _build_spdx(
+        self, bin_name, source_files, maven_deps,
+        sbom_type="build",
+    ):
+        """Build SPDX 2.3 document.
+
+        sbom_type controls what goes in:
+          'analyzed' — only source files compiled into
+              the JAR (thin JAR has zero bundled deps)
+          'build' — full Maven dependency graph
+        """
         now = datetime.now(timezone.utc).strftime(
             "%Y-%m-%dT%H:%M:%SZ"
         )
@@ -388,6 +404,11 @@ class JavaSpdxGenerator:
                 "relationshipType": "CONTAINED_BY",
             })
 
+        # For analyzed SBOMs, skip Maven deps entirely —
+        # thin JARs don't bundle dependency code
+        if sbom_type == "analyzed":
+            return doc
+
         # Add Maven dependencies as packages
         # Build artifact ID to SPDX ID mapping for relationships
         artifact_to_spdx = {}
@@ -450,26 +471,25 @@ class JavaSpdxGenerator:
 
             # Determine relationship type and target
             # Note: test scope deps are filtered out before this point
-            # SPDX relationship types by dep type:
-            #   Direct compile/runtime  → STATIC_LINK to root
-            #   Transitive compile/runtime → DEPENDS_ON to parent
-            #   Provided (any level)    → BUILD_TOOL_OF to root/parent
+            # SPDX relationship types (CISA Build SBOM):
+            #   compile/runtime → DEPENDS_ON (classpath dep,
+            #       NOT bundled in thin JAR)
+            #   provided → BUILD_TOOL_OF (compile-time only)
+            # Direct deps point to root; transitive deps
+            # point to their parent in the dep tree.
             if dep.get("direct"):
                 target = root_pkg_id
-                if dep["scope"] == "provided":
-                    rel_type = "BUILD_TOOL_OF"
-                else:
-                    rel_type = "STATIC_LINK"
             else:
                 parent = dep.get("parent")
                 if parent and parent in artifact_to_spdx:
                     target = artifact_to_spdx[parent]
                 else:
                     target = root_pkg_id
-                if dep["scope"] == "provided":
-                    rel_type = "BUILD_TOOL_OF"
-                else:
-                    rel_type = "DEPENDS_ON"
+
+            if dep["scope"] == "provided":
+                rel_type = "BUILD_TOOL_OF"
+            else:
+                rel_type = "DEPENDS_ON"
 
             doc["relationships"].append({
                 "spdxElementId": dep_id,

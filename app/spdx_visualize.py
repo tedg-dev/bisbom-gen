@@ -55,40 +55,104 @@ def extract_graph(doc):
     #   BUILD_TOOL_OF: tool → root (source = tool)
     #   DEPENDS_ON:   child → parent (source = child)
     rels = doc.get("relationships", [])
-    static_nodes = set()
     dynamic_nodes = set()
     build_nodes = set()
-    depends_on_nodes = set()
+    static_nodes = set()
+    depends_nodes = set()
 
+    # Find root package (target of DESCRIBES)
+    root_ids = set()
+    for r in rels:
+        if r["relationshipType"] == "DESCRIBES":
+            root_ids.add(r["relatedSpdxElement"])
+    # Fallback: APPLICATION-purpose packages
+    if not root_ids:
+        for p in doc.get("packages", []):
+            if p.get("primaryPackagePurpose") == (
+                "APPLICATION"
+            ):
+                root_ids.add(p["SPDXID"])
+
+    # Build adjacency for BFS depth computation
+    # parent -> [children] for dependency edges
+    children_of = {}  # target -> [sources]
     for r in rels:
         rt = r["relationshipType"]
         src = r["spdxElementId"]
         tgt = r["relatedSpdxElement"]
-        if rt == "STATIC_LINK":
-            static_nodes.add(src)
-            static_nodes.add(tgt)
-        elif rt == "DYNAMIC_LINK":
+        if rt == "DYNAMIC_LINK":
             dynamic_nodes.add(src)
             dynamic_nodes.add(tgt)
         elif rt == "BUILD_TOOL_OF":
             build_nodes.add(src)
         elif rt == "DEPENDS_ON":
-            depends_on_nodes.add(src)
+            depends_nodes.add(src)
+            # child DEPENDS_ON parent
+            children_of.setdefault(
+                tgt, []
+            ).append(src)
+        elif rt == "STATIC_LINK":
+            static_nodes.add(src)
+            static_nodes.add(tgt)
+            # Direction varies: either
+            # dep→root or root→dep.
+            # Add both so BFS finds them.
+            children_of.setdefault(
+                tgt, []
+            ).append(src)
+            children_of.setdefault(
+                src, []
+            ).append(tgt)
+
+    # BFS from root to compute depth
+    node_depth = {}  # spdx_id -> depth
+    queue = list(root_ids)
+    for rid in root_ids:
+        node_depth[rid] = 0
+    while queue:
+        current = queue.pop(0)
+        cur_depth = node_depth[current]
+        for child in children_of.get(
+            current, []
+        ):
+            if child not in node_depth:
+                node_depth[child] = (
+                    cur_depth + 1
+                )
+                queue.append(child)
 
     nodes = []
     for spdx_id, info in pkg_map.items():
-        if info["purpose"] == "APPLICATION":
+        depth = node_depth.get(spdx_id)
+        if spdx_id in root_ids:
             group = "root"
-        elif spdx_id in static_nodes:
-            group = "static"
+            node_type = "root"
         elif spdx_id in dynamic_nodes:
             group = "dynamic"
+            node_type = "dynamic"
         elif spdx_id in build_nodes:
             group = "build"
-        elif spdx_id in depends_on_nodes:
-            group = "dependency"
+            node_type = "build"
+        elif spdx_id in static_nodes:
+            # Color by depth but type is static
+            node_type = "static"
+            if depth is not None and depth >= 1:
+                group = f"depth-{min(depth, 5)}"
+            else:
+                group = "depth-1"
+        elif spdx_id in depends_nodes:
+            # Type: direct or transitive
+            if depth == 1:
+                node_type = "direct_dep"
+            else:
+                node_type = "transitive_dep"
+            if depth is not None and depth >= 1:
+                group = f"depth-{min(depth, 5)}"
+            else:
+                group = "other"
         else:
             group = "other"
+            node_type = "other"
 
         nodes.append({
             "id": spdx_id,
@@ -96,6 +160,7 @@ def extract_graph(doc):
             "version": info["version"],
             "purpose": info["purpose"],
             "group": group,
+            "node_type": node_type,
             "comment": info["comment"],
             "fileCount": file_counts.get(
                 spdx_id, 0
@@ -147,6 +212,9 @@ def generate_html(doc, output_path):
     )
     grp_counts = Counter(
         n["group"] for n in nodes
+    )
+    type_counts = Counter(
+        n["node_type"] for n in nodes
     )
 
     html_content = f"""<!DOCTYPE html>
@@ -306,19 +374,44 @@ def generate_html(doc, output_path):
   </div>
   <div class="legend-item">
     <div class="legend-dot" style="background:#4ecdc4"></div>
-    <span>Static / direct ({grp_counts.get('static', 0)})</span>
+    <span>Static ({type_counts.get('static', 0)})</span>
   </div>
   <div class="legend-item">
     <div class="legend-dot" style="background:#ff6b6b"></div>
-    <span>Dynamic / runtime ({grp_counts.get('dynamic', 0)})</span>
+    <span>Dynamic / runtime ({type_counts.get('dynamic', 0)})</span>
   </div>
   <div class="legend-item">
     <div class="legend-dot" style="background:#ffd93d"></div>
-    <span>Build tool ({grp_counts.get('build', 0)})</span>
+    <span>Build tool ({type_counts.get('build', 0)})</span>
+  </div>
+  <div class="legend-item">
+    <div class="legend-dot" style="background:#4ecdc4"></div>
+    <span>Direct dep ({type_counts.get('direct_dep', 0)})</span>
   </div>
   <div class="legend-item">
     <div class="legend-dot" style="background:#56b6f7"></div>
-    <span>Transitive dep ({grp_counts.get('dependency', 0)})</span>
+    <span>Transitive dep ({type_counts.get('transitive_dep', 0)})</span>
+  </div>
+  <h3 style="margin-top:10px;font-size:11px;color:#888">Depth breakdown</h3>
+  <div class="legend-item" style="font-size:11px;color:#999">
+    <div class="legend-dot" style="background:#4ecdc4;width:8px;height:8px"></div>
+    <span>Depth 1: {grp_counts.get('depth-1', 0)}</span>
+  </div>
+  <div class="legend-item" style="font-size:11px;color:#999">
+    <div class="legend-dot" style="background:#56b6f7;width:8px;height:8px"></div>
+    <span>Depth 2: {grp_counts.get('depth-2', 0)}</span>
+  </div>
+  <div class="legend-item" style="font-size:11px;color:#999">
+    <div class="legend-dot" style="background:#a78bfa;width:8px;height:8px"></div>
+    <span>Depth 3: {grp_counts.get('depth-3', 0)}</span>
+  </div>
+  <div class="legend-item" style="font-size:11px;color:#999">
+    <div class="legend-dot" style="background:#f472b6;width:8px;height:8px"></div>
+    <span>Depth 4: {grp_counts.get('depth-4', 0)}</span>
+  </div>
+  <div class="legend-item" style="font-size:11px;color:#999">
+    <div class="legend-dot" style="background:#fb923c;width:8px;height:8px"></div>
+    <span>Depth 5+: {grp_counts.get('depth-5', 0)}</span>
   </div>
 
   <h3 style="margin-top:14px">Relationships</h3>
@@ -361,10 +454,13 @@ const data = {graph_data};
 
 const colors = {{
   root: '#7c5cfc',
-  static: '#4ecdc4',
+  'depth-1': '#4ecdc4',
+  'depth-2': '#56b6f7',
+  'depth-3': '#a78bfa',
+  'depth-4': '#f472b6',
+  'depth-5': '#fb923c',
   dynamic: '#ff6b6b',
   build: '#ffd93d',
-  dependency: '#56b6f7',
   other: '#888',
 }};
 
@@ -408,8 +504,11 @@ Object.entries(linkColors).forEach(([type, color]) => {{
 // Horizontal layout: transitive left, dynamic/build center-top, static right
 const xPositions = {{
   root: width / 2,
-  static: width * 0.78,
-  dependency: width * 0.22,
+  'depth-1': width * 0.72,
+  'depth-2': width * 0.38,
+  'depth-3': width * 0.22,
+  'depth-4': width * 0.15,
+  'depth-5': width * 0.10,
   dynamic: width * 0.5,
   build: width * 0.5,
   other: width / 2,
@@ -418,8 +517,11 @@ const xPositions = {{
 // Vertical bias: dynamic/build top, everything else center-to-below
 const yPositions = {{
   root: height * 0.48,
-  static: height * 0.58,
-  dependency: height * 0.58,
+  'depth-1': height * 0.50,
+  'depth-2': height * 0.52,
+  'depth-3': height * 0.54,
+  'depth-4': height * 0.56,
+  'depth-5': height * 0.58,
   dynamic: height * 0.18,
   build: height * 0.18,
   other: height * 0.55,
@@ -427,8 +529,11 @@ const yPositions = {{
 
 const yStrengths = {{
   root: 0.08,
-  static: 0.12,
-  dependency: 0.12,
+  'depth-1': 0.10,
+  'depth-2': 0.10,
+  'depth-3': 0.10,
+  'depth-4': 0.10,
+  'depth-5': 0.10,
   dynamic: 0.5,
   build: 0.5,
   other: 0.12,
@@ -669,9 +774,9 @@ searchInput.addEventListener('input', () => {{
 const labels = g.append('g').attr('class', 'group-labels');
 labels.append('text')
   .attr('class', 'group-label')
-  .attr('x', width * 0.78)
+  .attr('x', width * 0.72)
   .attr('y', 80)
-  .text('STATIC / DIRECT \u2192');
+  .text('DIRECT \u2192');
 labels.append('text')
   .attr('class', 'group-label')
   .attr('x', width * 0.5)

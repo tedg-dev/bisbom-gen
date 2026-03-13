@@ -131,11 +131,12 @@ class TestGenerateJavaAdgSpdx(unittest.TestCase):
     @patch(
         "app.spdx.java_generator.JavaSpdxGenerator"
     )
-    def test_generates_spdx(self, mock_gen_cls):
+    def test_generates_both_sboms(self, mock_gen_cls):
         mock_gen = MagicMock()
-        mock_gen.generate.return_value = (
-            "/tmp/out/myapp_adg.spdx.json"
-        )
+        mock_gen.generate.side_effect = [
+            "/tmp/out/myapp_analyzed.spdx.json",
+            "/tmp/out/myapp_build.spdx.json",
+        ]
         mock_gen_cls.return_value = mock_gen
 
         with tempfile.TemporaryDirectory() as td:
@@ -149,9 +150,21 @@ class TestGenerateJavaAdgSpdx(unittest.TestCase):
                 "myapp", repo_cfg, paths_cfg, "ts1",
             )
 
-            self.assertEqual(len(result), 1)
+            self.assertEqual(len(result), 2)
             mock_gen_cls.assert_called_once()
-            mock_gen.generate.assert_called_once()
+            # Called twice: analyzed + build
+            self.assertEqual(
+                mock_gen.generate.call_count, 2
+            )
+            calls = mock_gen.generate.call_args_list
+            self.assertEqual(
+                calls[0].kwargs["sbom_type"],
+                "analyzed",
+            )
+            self.assertEqual(
+                calls[1].kwargs["sbom_type"],
+                "build",
+            )
 
     @patch(
         "app.spdx.java_generator.JavaSpdxGenerator"
@@ -174,6 +187,7 @@ class TestGenerateJavaAdgSpdx(unittest.TestCase):
                 "myapp", repo_cfg, paths_cfg, "ts1",
             )
 
+            # Both calls return None → empty list
             self.assertEqual(result, [])
 
 

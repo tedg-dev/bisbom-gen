@@ -184,6 +184,16 @@ repos:
     description: Static analysis tool (14 direct, 12 transitive - antlr, guava, picocli, commons-beanutils)
     output_binaries:
     - target/checkstyle-*.jar
+  crawler4j:
+    url: https://github.com/yasserg/crawler4j.git
+    branch: master
+    language: java
+    build_steps:
+    - mvn package -DskipTests -q
+    clean_cmd: mvn clean -q
+    description: Open source web crawler (42 direct, 35 transitive - Apache HttpComponents, Tika, SLF4J, deep hierarchy)
+    output_binaries:
+    - crawler4j/target/crawler4j-*.jar
 paths:
   repos_dir: /workspace/repos
   output_dir: /workspace/output

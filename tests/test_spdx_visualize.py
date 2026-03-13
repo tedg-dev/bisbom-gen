@@ -80,7 +80,7 @@ class TestExtractGraph(unittest.TestCase):
         self.assertEqual(len(edges), 0)
 
     def test_static_link_group(self):
-        """STATIC_LINK targets get group='static'."""
+        """STATIC_LINK targets get depth-based group."""
         doc = _make_doc(
             packages=[
                 _root_pkg(),
@@ -98,7 +98,7 @@ class TestExtractGraph(unittest.TestCase):
             n for n in nodes
             if n["id"] == "SPDXRef-Lib"
         ][0]
-        self.assertEqual(lib_node["group"], "static")
+        self.assertEqual(lib_node["group"], "depth-1")
         self.assertEqual(len(edges), 1)
         self.assertEqual(
             edges[0]["type"], "STATIC_LINK",
@@ -242,7 +242,7 @@ class TestExtractGraph(unittest.TestCase):
         nodes, edges = extract_graph(doc)
         groups = {n["name"]: n["group"] for n in nodes}
         self.assertEqual(groups["myapp"], "root")
-        self.assertEqual(groups["liblua"], "static")
+        self.assertEqual(groups["liblua"], "depth-1")
         self.assertEqual(groups["libssl3"], "dynamic")
         self.assertEqual(groups["gcc"], "build")
         self.assertEqual(len(edges), 3)

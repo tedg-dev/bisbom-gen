@@ -596,7 +596,7 @@ class TestBuildSpdx(unittest.TestCase):
             doc["files"][0]["checksums"], []
         )
 
-    def test_direct_compile_dep_static_link(self):
+    def test_direct_compile_dep_depends_on(self):
         deps = [{
             "groupId": "com.google",
             "artifactId": "guava",
@@ -611,7 +611,7 @@ class TestBuildSpdx(unittest.TestCase):
         )
         rels = [
             r for r in doc["relationships"]
-            if r["relationshipType"] == "STATIC_LINK"
+            if r["relationshipType"] == "DEPENDS_ON"
         ]
         self.assertEqual(len(rels), 1)
         self.assertIn(
@@ -647,9 +647,12 @@ class TestBuildSpdx(unittest.TestCase):
             r for r in doc["relationships"]
             if r["relationshipType"] == "DEPENDS_ON"
         ]
-        self.assertEqual(len(depends), 1)
+        # Both direct and transitive use DEPENDS_ON
+        self.assertEqual(len(depends), 2)
+        # Transitive child points to parent
+        child_rel = depends[1]
         self.assertEqual(
-            depends[0]["relatedSpdxElement"],
+            child_rel["relatedSpdxElement"],
             "SPDXRef-Dep-0",
         )
 
@@ -791,7 +794,7 @@ class TestBuildSpdx(unittest.TestCase):
             "Required by: parent-lib", pkg["comment"]
         )
 
-    def test_runtime_scope_direct_static_link(self):
+    def test_runtime_scope_direct_depends_on(self):
         deps = [{
             "groupId": "a",
             "artifactId": "rtlib",
@@ -806,9 +809,58 @@ class TestBuildSpdx(unittest.TestCase):
         )
         rels = [
             r for r in doc["relationships"]
-            if r["relationshipType"] == "STATIC_LINK"
+            if r["relationshipType"] == "DEPENDS_ON"
         ]
         self.assertEqual(len(rels), 1)
+
+    def test_analyzed_sbom_no_deps(self):
+        sources = [
+            {
+                "file_path": "/tmp/repos/myapp/A.java",
+                "sha1": "abc",
+            },
+        ]
+        deps = [{
+            "groupId": "a",
+            "artifactId": "liba",
+            "version": "1.0",
+            "scope": "compile",
+            "direct": True,
+            "optional": False,
+            "parent": None,
+        }]
+        doc = self.gen._build_spdx(
+            "myapp.jar", sources, deps,
+            sbom_type="analyzed",
+        )
+        # Analyzed: root + source files only, no deps
+        self.assertEqual(len(doc["packages"]), 1)
+        self.assertEqual(len(doc["files"]), 1)
+        dep_rels = [
+            r for r in doc["relationships"]
+            if r["relationshipType"] == "DEPENDS_ON"
+        ]
+        self.assertEqual(len(dep_rels), 0)
+
+    def test_no_static_link_in_build_sbom(self):
+        deps = [{
+            "groupId": "a",
+            "artifactId": "liba",
+            "version": "1.0",
+            "scope": "compile",
+            "direct": True,
+            "optional": False,
+            "parent": None,
+        }]
+        doc = self.gen._build_spdx(
+            "myapp.jar", [], deps,
+            sbom_type="build",
+        )
+        static = [
+            r for r in doc["relationships"]
+            if r["relationshipType"] == "STATIC_LINK"
+        ]
+        self.assertEqual(len(static), 0)
 
     def test_transitive_no_parent_key(self):
         deps = [{

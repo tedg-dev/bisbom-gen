@@ -642,10 +642,13 @@ class TestSpdxEmitter(unittest.TestCase):
             logfile_hashes={},
             static_only=True,
         )
-        # Root + gcc only = 2 (libc6 excluded)
-        self.assertEqual(len(doc["packages"]), 2)
+        # Root only = 1 (libc6 + gcc excluded)
+        # static_only excludes dynamic libs AND
+        # build tools (CISA Analyzed SBOM).
+        self.assertEqual(len(doc["packages"]), 1)
         names = [p["name"] for p in doc["packages"]]
         self.assertNotIn("libc6", names)
+        self.assertNotIn("gcc", names)
         # No DYNAMIC_LINK relationships
         dyn_rels = [
             r for r in doc["relationships"]
@@ -653,6 +656,13 @@ class TestSpdxEmitter(unittest.TestCase):
             == "DYNAMIC_LINK"
         ]
         self.assertEqual(len(dyn_rels), 0)
+        # No BUILD_TOOL_OF relationships
+        build_rels = [
+            r for r in doc["relationships"]
+            if r["relationshipType"]
+            == "BUILD_TOOL_OF"
+        ]
+        self.assertEqual(len(build_rels), 0)
 
     def test_emit_with_omnibor_ref(self):
         sha = "a" * 40
@@ -1257,7 +1267,7 @@ class TestVendoredVersionDetector(unittest.TestCase):
             self.assertEqual(ver, "1.2.0")
 
     def test_header_define_version_major_minor(self):
-        """Detect X.Y when no PATCH define."""
+        """Detect X.Y.Z with RELEASE as PATCH alias."""
         with tempfile.TemporaryDirectory() as td:
             h = Path(td) / "lib.h"
             h.write_text(
@@ -1266,9 +1276,9 @@ class TestVendoredVersionDetector(unittest.TestCase):
                 "#define XXH_VERSION_RELEASE  3\n"
             )
             det = VendoredVersionDetector()
-            # RELEASE != PATCH, so only MAJOR.MINOR
+            # RELEASE is treated as PATCH alias
             ver = det.detect("xxhash", [str(h)])
-            self.assertEqual(ver, "0.8")
+            self.assertEqual(ver, "0.8.3")
 
     def test_header_comment_version(self):
         """Detect version from header comment."""
@@ -1318,8 +1328,12 @@ class TestVendoredVersionDetector(unittest.TestCase):
     def test_header_unreadable(self):
         """Gracefully handle unreadable header."""
         det = VendoredVersionDetector()
-        result = det._parse_header_defines(
-            "/nonexistent/lib.h", "lib"
+        result = det._parse_define_version_str(
+            "/nonexistent/lib.h", ["LIB"]
+        )
+        self.assertIsNone(result)
+        result = det._parse_define_parts(
+            "/nonexistent/lib.h", ["LIB"]
         )
         self.assertIsNone(result)
 
@@ -1336,6 +1350,175 @@ class TestVendoredVersionDetector(unittest.TestCase):
         det = VendoredVersionDetector()
         result = det._parse_pc_in(
             Path("/nonexistent/lib.pc.in")
+        )
+        self.assertIsNone(result)
+
+    def test_configure_ac(self):
+        """Detect version from AC_INIT in configure.ac."""
+        with tempfile.TemporaryDirectory() as td:
+            ac = Path(td) / "configure.ac"
+            ac.write_text(
+                "AC_INIT([libdnet],[1.18.0])\n"
+                "AC_CONFIG_SRCDIR([src/addr.c])\n"
+            )
+            h = Path(td) / "src" / "addr.h"
+            h.parent.mkdir()
+            h.write_text("/* no version */\n")
+            det = VendoredVersionDetector()
+            ver = det.detect(
+                "libdnet-stripped",
+                [str(h)],
+            )
+            self.assertEqual(ver, "1.18.0")
+
+    def test_cmakelists_project_version(self):
+        """Detect version from CMakeLists.txt."""
+        with tempfile.TemporaryDirectory() as td:
+            cm = Path(td) / "CMakeLists.txt"
+            cm.write_text(
+                "cmake_minimum_required(VERSION 3.1)\n"
+                "project(libssh2 C VERSION 1.11.1)\n"
+            )
+            h = Path(td) / "lib.h"
+            h.write_text("/* no version */\n")
+            det = VendoredVersionDetector()
+            ver = det.detect("libssh2", [str(h)])
+            self.assertEqual(ver, "1.11.1")
+
+    def test_meson_build_version(self):
+        """Detect version from meson.build."""
+        with tempfile.TemporaryDirectory() as td:
+            mb = Path(td) / "meson.build"
+            mb.write_text(
+                "project('mylib', 'c',\n"
+                "  version: '2.4.1',\n"
+                ")\n"
+            )
+            h = Path(td) / "mylib.h"
+            h.write_text("/* no version */\n")
+            det = VendoredVersionDetector()
+            ver = det.detect("mylib", [str(h)])
+            self.assertEqual(ver, "2.4.1")
+
+    def test_makefile_version(self):
+        """Detect version from Makefile variable."""
+        with tempfile.TemporaryDirectory() as td:
+            mf = Path(td) / "Makefile"
+            mf.write_text(
+                "CC = gcc\n"
+                "VERSION = 3.7.2\n"
+                "CFLAGS = -O2\n"
+            )
+            h = Path(td) / "lib.h"
+            h.write_text("/* no version */\n")
+            det = VendoredVersionDetector()
+            ver = det.detect("mylib", [str(h)])
+            self.assertEqual(ver, "3.7.2")
+
+    def test_quoted_major_minor_release(self):
+        """Detect version from quoted string parts
+        like Lua uses."""
+        with tempfile.TemporaryDirectory() as td:
+            h = Path(td) / "lua.h"
+            h.write_text(
+                '#define LUA_VERSION_MAJOR\t"5"\n'
+                '#define LUA_VERSION_MINOR\t"4"\n'
+                '#define LUA_VERSION_RELEASE\t"8"\n'
+            )
+            det = VendoredVersionDetector()
+            # "liblua" -> prefix tries LUA too
+            ver = det.detect("liblua", [str(h)])
+            self.assertEqual(ver, "5.4.8")
+
+    def test_lib_prefix_stripping(self):
+        """lib prefix is stripped for prefix
+        matching."""
+        det = VendoredVersionDetector()
+        pfx = det._name_prefixes("liblua")
+        self.assertIn("LUA", pfx)
+        self.assertIn("LIBLUA", pfx)
+
+    def test_suffix_stripping(self):
+        """Trailing qualifiers are stripped for
+        prefix matching."""
+        det = VendoredVersionDetector()
+        pfx = det._name_prefixes("libdnet-stripped")
+        self.assertIn("DNET", pfx)
+        self.assertIn("LIBDNET", pfx)
+
+    def test_version_txt_file(self):
+        """Detect version from VERSION.txt."""
+        with tempfile.TemporaryDirectory() as td:
+            vf = Path(td) / "VERSION.txt"
+            vf.write_text("1.10.5\n")
+            h = Path(td) / "pcap.h"
+            h.write_text("/* no version */\n")
+            det = VendoredVersionDetector()
+            ver = det.detect("libpcap", [str(h)])
+            self.assertEqual(ver, "1.10.5")
+
+    def test_release_text_file(self):
+        """Detect version from RELEASE file."""
+        with tempfile.TemporaryDirectory() as td:
+            rf = Path(td) / "RELEASE"
+            rf.write_text("8.0\n")
+            h = Path(td) / "codec.h"
+            h.write_text("/* no version */\n")
+            det = VendoredVersionDetector()
+            ver = det.detect("ffmpeg", [str(h)])
+            self.assertEqual(ver, "8.0")
+
+    def test_define_any_version_fallback(self):
+        """Broad fallback finds any #define with
+        VERSION containing semver."""
+        with tempfile.TemporaryDirectory() as td:
+            h = Path(td) / "version.h"
+            h.write_text(
+                '#define REDIS_VERSION "7.2.4"\n'
+            )
+            det = VendoredVersionDetector()
+            ver = det.detect("redis", [str(h)])
+            self.assertEqual(ver, "7.2.4")
+
+    def test_configure_ac_unreadable(self):
+        """Gracefully handle unreadable configure.ac.
+        """
+        det = VendoredVersionDetector()
+        result = det._parse_configure_ac(
+            Path("/nonexistent/configure.ac")
+        )
+        self.assertIsNone(result)
+
+    def test_cmakelists_unreadable(self):
+        """Gracefully handle unreadable CMakeLists."""
+        det = VendoredVersionDetector()
+        result = det._parse_cmakelists(
+            Path("/nonexistent/CMakeLists.txt")
+        )
+        self.assertIsNone(result)
+
+    def test_meson_build_unreadable(self):
+        """Gracefully handle unreadable meson.build."""
+        det = VendoredVersionDetector()
+        result = det._parse_meson_build(
+            Path("/nonexistent/meson.build")
+        )
+        self.assertIsNone(result)
+
+    def test_makefile_unreadable(self):
+        """Gracefully handle unreadable Makefile."""
+        det = VendoredVersionDetector()
+        result = det._parse_makefile(
+            Path("/nonexistent/Makefile")
+        )
+        self.assertIsNone(result)
+
+    def test_define_any_version_unreadable(self):
+        """Gracefully handle unreadable header for
+        broad fallback."""
+        det = VendoredVersionDetector()
+        result = det._parse_define_any_version(
+            "/nonexistent/lib.h"
         )
         self.assertIsNone(result)
 
@@ -1913,11 +2096,11 @@ class TestProjectBuiltLibs(unittest.TestCase):
 class TestHeaderCommentBreak(unittest.TestCase):
     """Test _parse_header_comment line limit (line 527)."""
 
-    def test_version_after_line_10_not_found(self):
-        """VERSION past the 10-line window is ignored."""
+    def test_version_after_line_20_not_found(self):
+        """VERSION past the 20-line window is ignored."""
         with tempfile.TemporaryDirectory() as td:
             h = Path(td) / "big.h"
-            lines = ["/* no version */\n"] * 11
+            lines = ["/* no version */\n"] * 21
             lines.append(
                 "/* VERSION 9.9.9 */\n"
             )
@@ -1926,8 +2109,8 @@ class TestHeaderCommentBreak(unittest.TestCase):
             result = det._parse_header_comment(str(h))
             self.assertIsNone(result)
 
-    def test_version_within_first_10_lines(self):
-        """VERSION within 10-line window IS found."""
+    def test_version_within_first_20_lines(self):
+        """VERSION within 20-line window IS found."""
         with tempfile.TemporaryDirectory() as td:
             h = Path(td) / "ok.h"
             lines = ["/* padding */\n"] * 5

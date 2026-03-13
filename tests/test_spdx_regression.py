@@ -132,9 +132,20 @@ def get_golden_files():
             if not repo_dir.is_dir():
                 continue
             repo = repo_dir.name
-            for spdx_file in repo_dir.glob("*_adg.spdx.json"):
-                binary = spdx_file.stem.replace("_adg.spdx", "")
-                golden_files.append((lang, repo, binary, spdx_file))
+            for pattern in (
+                "*_analyzed.spdx.json",
+                "*_build.spdx.json",
+                "*_adg.spdx.json",
+            ):
+                for spdx_file in repo_dir.glob(pattern):
+                    suffix = spdx_file.name.split("_", 1)[-1]
+                    binary = spdx_file.name[
+                        :-(len(suffix) + 1)
+                    ]
+                    golden_files.append(
+                        (lang, repo, binary,
+                         spdx_file.name, spdx_file)
+                    )
     return golden_files
 
 
@@ -142,14 +153,14 @@ GOLDEN_FILES = get_golden_files()
 
 
 @pytest.mark.parametrize(
-    "lang,repo,binary,golden_path",
+    "lang,repo,binary,fname,golden_path",
     GOLDEN_FILES,
     ids=[
-        f"{lang}/{repo}/{binary}"
-        for lang, repo, binary, _ in GOLDEN_FILES
+        f"{lang}/{repo}/{fname}"
+        for lang, repo, binary, fname, _ in GOLDEN_FILES
     ],
 )
-def test_golden_file_exists(lang, repo, binary, golden_path):
+def test_golden_file_exists(lang, repo, binary, fname, golden_path):
     """Verify golden file exists and is valid JSON."""
     assert golden_path.exists(), f"Golden file missing: {golden_path}"
     doc = _load_spdx(golden_path)
@@ -165,15 +176,15 @@ class TestGoldenFileIntegrity:
     """Tests to verify golden files are internally consistent."""
 
     @pytest.mark.parametrize(
-        "lang,repo,binary,golden_path",
+        "lang,repo,binary,fname,golden_path",
         GOLDEN_FILES,
         ids=[
-            f"{lang}/{repo}/{binary}"
-            for lang, repo, binary, _ in GOLDEN_FILES
+            f"{lang}/{repo}/{fname}"
+            for lang, repo, binary, fname, _ in GOLDEN_FILES
         ],
     )
     def test_no_bogus_package_names(
-        self, lang, repo, binary, golden_path
+        self, lang, repo, binary, fname, golden_path
     ):
         """Verify no package names contain path artifacts like '../'."""
         doc = _load_spdx(golden_path)
@@ -185,15 +196,15 @@ class TestGoldenFileIntegrity:
             assert name != "..", f"Bogus package name '..': {golden_path}"
 
     @pytest.mark.parametrize(
-        "lang,repo,binary,golden_path",
+        "lang,repo,binary,fname,golden_path",
         GOLDEN_FILES,
         ids=[
-            f"{lang}/{repo}/{binary}"
-            for lang, repo, binary, _ in GOLDEN_FILES
+            f"{lang}/{repo}/{fname}"
+            for lang, repo, binary, fname, _ in GOLDEN_FILES
         ],
     )
     def test_root_package_has_version(
-        self, lang, repo, binary, golden_path
+        self, lang, repo, binary, fname, golden_path
     ):
         """Verify root package (first package) has version info."""
         doc = _load_spdx(golden_path)
@@ -216,8 +227,16 @@ def compare_against_golden(
 
     Returns list of differences (empty if match).
     """
-    golden_path = GOLDEN_DIR / lang / repo / f"{binary}_adg.spdx.json"
-    if not golden_path.exists():
+    # Try new naming first, fall back to legacy _adg
+    for suffix in ("_analyzed", "_build", "_adg"):
+        candidate = (
+            GOLDEN_DIR / lang / repo
+            / f"{binary}{suffix}.spdx.json"
+        )
+        if candidate.exists():
+            golden_path = candidate
+            break
+    else:
         return [f"No golden file for {lang}/{repo}/{binary}"]
 
     golden_doc = _load_spdx(golden_path)
@@ -237,7 +256,18 @@ def update_golden(actual_spdx_path: Path, lang: str, repo: str, binary: str):
     Call this when the actual output is confirmed correct and should
     become the new baseline.
     """
-    golden_path = GOLDEN_DIR / lang / repo / f"{binary}_adg.spdx.json"
+    # Determine suffix from actual filename
+    actual_name = Path(actual_spdx_path).name
+    if "_analyzed.spdx" in actual_name:
+        suffix = "_analyzed"
+    elif "_build.spdx" in actual_name:
+        suffix = "_build"
+    else:
+        suffix = "_adg"
+    golden_path = (
+        GOLDEN_DIR / lang / repo
+        / f"{binary}{suffix}.spdx.json"
+    )
     golden_path.parent.mkdir(parents=True, exist_ok=True)
 
     import shutil

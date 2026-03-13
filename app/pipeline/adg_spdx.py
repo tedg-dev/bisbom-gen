@@ -58,13 +58,27 @@ class AdgSpdxStep:
             ),
         )
 
-        results = []
+        # Expand glob patterns to actual file paths
+        repo_dir = Path(repos_dir) / repo_name
+        expanded_bins = []
         for rel_path in bins:
+            if '*' in rel_path or '?' in rel_path:
+                matches = list(repo_dir.glob(rel_path))
+                expanded_bins.extend(
+                    str(m.relative_to(repo_dir))
+                    for m in matches
+                )
+            else:
+                expanded_bins.append(rel_path)
+
+        results = []
+        for rel_path in expanded_bins:
             bin_name = Path(rel_path).name
-            out_path = (
-                spdx_dir
-                / f"{bin_name}_adg.spdx.json"
-            )
+            # Clean up name for SPDX filename
+            spdx_name = bin_name.replace(
+                ".jar", ""
+            ).replace("-SNAPSHOT", "")
+
             # Use direct-only for binaries that
             # link against a shared lib also in
             # the output list (e.g. curl links
@@ -73,7 +87,7 @@ class AdgSpdxStep:
             has_shared_lib = any(
                 b != rel_path
                 and (".so" in b or ".so." in b)
-                for b in bins
+                for b in expanded_bins
             )
             is_app = (
                 ".so" not in rel_path
@@ -93,11 +107,34 @@ class AdgSpdxStep:
                 else None
             )
 
+            # Generate ANALYZED SBOM (CISA Analyzed):
+            # only what's compiled into the binary
+            analyzed_path = (
+                spdx_dir
+                / f"{spdx_name}_analyzed.spdx.json"
+            )
             result = gen.generate(
-                output_path=str(out_path),
+                output_path=str(analyzed_path),
                 binary_name=bin_name,
                 dynlib_dir=dl_dir,
                 direct_only=direct_only,
+                static_only=True,
+            )
+            if result:
+                results.append(result)
+
+            # Generate BUILD SBOM (CISA Build):
+            # full dependency graph
+            build_path = (
+                spdx_dir
+                / f"{spdx_name}_build.spdx.json"
+            )
+            result = gen.generate(
+                output_path=str(build_path),
+                binary_name=bin_name,
+                dynlib_dir=dl_dir,
+                direct_only=direct_only,
+                static_only=False,
             )
             if result:
                 results.append(result)

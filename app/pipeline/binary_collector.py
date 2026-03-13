@@ -51,20 +51,38 @@ class BinaryCollector:
 
         collected = []
         for rel_path in bins:
-            src = repo_dir / rel_path
-            dst = out_dir / Path(rel_path).name
-            if not src.exists():
+            # Handle glob patterns (e.g., target/jsoup-*.jar)
+            if '*' in rel_path or '?' in rel_path:
+                matches = list(repo_dir.glob(rel_path))
+                if not matches:
+                    print(
+                        f"[WARN] No files match: {rel_path}"
+                    )
+                    continue
+                for src in matches:
+                    dst = out_dir / src.name
+                    shutil.copy2(str(src), str(dst))
+                    size = dst.stat().st_size
+                    print(
+                        f"[OK] Collected {dst.name} "
+                        f"({size:,} bytes)"
+                    )
+                    collected.append((str(src), str(dst)))
+            else:
+                src = repo_dir / rel_path
+                dst = out_dir / Path(rel_path).name
+                if not src.exists():
+                    print(
+                        f"[WARN] Binary not found: {src}"
+                    )
+                    continue
+                shutil.copy2(str(src), str(dst))
+                size = dst.stat().st_size
                 print(
-                    f"[WARN] Binary not found: {src}"
+                    f"[OK] Collected {dst.name} "
+                    f"({size:,} bytes)"
                 )
-                continue
-            shutil.copy2(str(src), str(dst))
-            size = dst.stat().st_size
-            print(
-                f"[OK] Collected {dst.name} "
-                f"({size:,} bytes)"
-            )
-            collected.append((str(src), str(dst)))
+                collected.append((str(src), str(dst)))
 
         if collected:
             print(

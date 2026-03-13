@@ -17,6 +17,8 @@ Commands that wait for stdin or interactive input will **freeze the session**. A
 - **Inline multiline Python** — NEVER use `python3 -c "..."` with multiline code. Instead, write a short temp script to a file and run it, or use a single-line command
 - **Any command that prompts for input** — always pass flags to skip prompts (e.g., `--yes`, `--force`, `--non-interactive`)
 - **`git commit`** without `-m` — always pass `-m "message"` to avoid opening an editor
+- **`git commit` with multi-line messages** — NEVER use heredoc (`<<'EOF'`), multi-line `-m`, or `-F-` with stdin. These ALL hang. For multi-line commit messages: write the message to a temp file first, then use `git commit -F /tmp/commit_msg.txt`, then delete the temp file
+- **Any heredoc or stdin piping** — NEVER use `<<EOF`, `<<'EOF'`, or pipe (`|`) into commands that read stdin. Always use temp files instead
 - **Pagers** — commands are run with `PAGER=cat` but still avoid `git log` without `-n`
 
 If a command might hang, **do not run it**. Find a non-interactive alternative.

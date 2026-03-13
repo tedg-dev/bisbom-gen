@@ -180,22 +180,29 @@ with color-coded nodes (purple=root, teal=vendored, red=dynamic, yellow=build to
 
 ```
 omnibor-analysis/
-├── app/                    # Orchestration scripts and modular packages
-│   ├── pipeline/           # Analysis pipeline (clone, build, instrument, generate SBOMs)
-│   ├── spdx/               # Per-binary SPDX 2.3 generation from ADG data
-│   ├── repo_discovery/     # Auto-discover and configure repos from GitHub
-│   └── templates/          # Report templates
-├── docker/                 # Container environment (Ubuntu 22.04 + gcc + Rust + Go + bomtrace)
+├── app/                    # Core application code
+│   ├── analyze.py          # Main pipeline orchestrator
+│   ├── spdx_from_adg.py    # Per-binary SPDX generation
+│   ├── spdx_visualize.py   # D3.js HTML visualization
+│   ├── collect_metadata.py # dpkg package resolution
+│   ├── collect_dynamic_libs.py # ldd/readelf analysis
+│   ├── compare.py          # SBOM comparison tool
+│   ├── add_repo.py         # Auto-discover repos from GitHub
+│   ├── data_loader.py      # Shared data loading utilities
+│   └── config.yaml         # Repository and tool configuration
+├── docker/                 # Container environment
+│   ├── Dockerfile          # Ubuntu 22.04 + gcc + Rust + Go + bomtrace
+│   └── docker-compose.yml  # Container orchestration
 ├── terraform/              # AWS EC2 infrastructure as code
 ├── tests/                  # Unit tests (427+ tests, 99% coverage)
 ├── docs/                   # Documentation and analysis reports
 │   └── summary/            # Architecture and deep-dive docs
-├── .windsurf/              # Cascade AI configuration (rules + workflows)
+├── .windsurf/              # Cascade AI configuration
+│   ├── rules/              # Project rules (always loaded)
+│   └── workflows/          # Slash commands (/add-repo, etc.)
 ├── repos/                  # Cloned target repos (gitignored)
 └── output/                 # Generated artifacts (gitignored)
 ```
-
-> See [`app/README.md`](../app/README.md) for detailed module documentation.
 
 ## Development Workflow
 

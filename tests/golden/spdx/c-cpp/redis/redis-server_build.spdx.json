@@ -1,0 +1,4337 @@
+{
+  "spdxVersion": "SPDX-2.3",
+  "dataLicense": "CC0-1.0",
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "name": "redis-server",
+  "documentNamespace": "https://omnibor.io/omnibor-analysis/redis-server-b321f773-eed3-4de5-a6c6-67e19bb47cf2",
+  "creationInfo": {
+    "created": "2026-03-12T21:56:44Z",
+    "creators": [
+      "Tool: bomtrace3-unknown",
+      "Tool: bomsh-unknown",
+      "Tool: omnibor-analysis (github.com/tedg-dev/omnibor-analysis)"
+    ],
+    "licenseListVersion": "3.19"
+  },
+  "packages": [
+    {
+      "SPDXID": "SPDXRef-Package-root",
+      "name": "redis-server",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": true,
+      "primaryPackagePurpose": "APPLICATION",
+      "builtDate": "2026-03-12T21:56:44Z",
+      "externalRefs": [
+        {
+          "referenceCategory": "PERSISTENT-ID",
+          "referenceType": "gitoid",
+          "referenceLocator": "gitoid:blob:sha1:594707ec30da7195a9caa1b31c7d31784bc9aab7"
+        }
+      ],
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "e4dde02e729e6fde011f34531cf2635b4d92d889"
+        }
+      ],
+      "comment": "Built on Ubuntu 22.04.5 LTS with gcc (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0",
+      "versionInfo": "8.19.0-DEV"
+    },
+    {
+      "SPDXID": "SPDXRef-libgcc-s1-1",
+      "name": "libgcc-s1",
+      "downloadLocation": "http://gcc.gnu.org/",
+      "filesAnalyzed": false,
+      "primaryPackagePurpose": "LIBRARY",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:deb/ubuntu/libgcc-s1@12.3.0-1ubuntu1~22.04.3?arch=amd64&distro=ubuntu-22.04"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceType": "cpe23Type",
+          "referenceLocator": "cpe:2.3:a:gcc_12:gcc_12:12.3.0:*:*:*:*:*:*:*"
+        }
+      ],
+      "comment": "Dynamically linked (direct). sonames: libgcc_s.so.1, libstdc++.so.6. dpkg: libgcc-s1, libstdc++6 (amd64)",
+      "versionInfo": "12.3.0-1ubuntu1~22.04.3",
+      "supplier": "Organization: Ubuntu Core developers <ubuntu-devel-discuss@lists.ubuntu.com>",
+      "homepage": "http://gcc.gnu.org/",
+      "packageSourceInfo": "Installed via dpkg package libgcc-s1, libstdc++6 on Ubuntu 22.04.5 LTS."
+    },
+    {
+      "SPDXID": "SPDXRef-libc6-2",
+      "name": "libc6",
+      "downloadLocation": "https://www.gnu.org/software/libc/libc.html",
+      "filesAnalyzed": false,
+      "primaryPackagePurpose": "LIBRARY",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:deb/ubuntu/libc6@2.35-0ubuntu3.13?arch=amd64&distro=ubuntu-22.04"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceType": "cpe23Type",
+          "referenceLocator": "cpe:2.3:a:glibc:glibc:2.35:*:*:*:*:*:*:*"
+        }
+      ],
+      "comment": "Dynamically linked (direct). sonames: ld-linux, libc.so.6, libm.so.6. dpkg: libc6 (amd64)",
+      "versionInfo": "2.35-0ubuntu3.13",
+      "supplier": "Organization: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>",
+      "homepage": "https://www.gnu.org/software/libc/libc.html",
+      "packageSourceInfo": "Installed via dpkg package libc6 on Ubuntu 22.04.5 LTS."
+    },
+    {
+      "SPDXID": "SPDXRef-gcc-3",
+      "name": "gcc",
+      "versionInfo": "11.4.0",
+      "supplier": "Organization: Free Software Foundation",
+      "downloadLocation": "https://gcc.gnu.org/",
+      "homepage": "https://gcc.gnu.org/",
+      "filesAnalyzed": false,
+      "primaryPackagePurpose": "APPLICATION",
+      "externalRefs": [
+        {
+          "referenceCategory": "SECURITY",
+          "referenceType": "cpe23Type",
+          "referenceLocator": "cpe:2.3:a:gnu:gcc:11.4.0:*:*:*:*:*:*:*"
+        }
+      ],
+      "packageSourceInfo": "System-installed build toolchain on Ubuntu 22.04.5 LTS."
+    },
+    {
+      "SPDXID": "SPDXRef-fast-float-4",
+      "name": "fast_float",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": true,
+      "primaryPackagePurpose": "LIBRARY",
+      "externalRefs": [],
+      "comment": "Vendored source compiled into redis-server. 1 source files.",
+      "packageSourceInfo": "Vendored from redis/deps/fast_float/. Source compiled into static archive and linked."
+    },
+    {
+      "SPDXID": "SPDXRef-fpconv-5",
+      "name": "fpconv",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": true,
+      "primaryPackagePurpose": "LIBRARY",
+      "externalRefs": [],
+      "comment": "Vendored source compiled into redis-server. 1 source files.",
+      "packageSourceInfo": "Vendored from redis/deps/fpconv/. Source compiled into static archive and linked.",
+      "versionInfo": "1.0"
+    },
+    {
+      "SPDXID": "SPDXRef-hdr-histogram-6",
+      "name": "hdr_histogram",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": true,
+      "primaryPackagePurpose": "LIBRARY",
+      "externalRefs": [],
+      "comment": "Vendored source compiled into redis-server. 1 source files.",
+      "packageSourceInfo": "Vendored from redis/deps/hdr_histogram/. Source compiled into static archive and linked."
+    },
+    {
+      "SPDXID": "SPDXRef-hiredis-7",
+      "name": "hiredis",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": true,
+      "primaryPackagePurpose": "LIBRARY",
+      "externalRefs": [],
+      "comment": "Vendored source compiled into redis-server. 6 source files.",
+      "packageSourceInfo": "Vendored from redis/deps/hiredis/. Source compiled into static archive and linked.",
+      "versionInfo": "1.2.0"
+    },
+    {
+      "SPDXID": "SPDXRef-jemalloc-8",
+      "name": "jemalloc",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": true,
+      "primaryPackagePurpose": "LIBRARY",
+      "externalRefs": [],
+      "comment": "Vendored source compiled into redis-server. 1 source files.",
+      "packageSourceInfo": "Vendored from redis/deps/jemalloc/. Source compiled into static archive and linked.",
+      "versionInfo": "5.3.0"
+    },
+    {
+      "SPDXID": "SPDXRef-linenoise-9",
+      "name": "linenoise",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": true,
+      "primaryPackagePurpose": "LIBRARY",
+      "externalRefs": [],
+      "comment": "Vendored source compiled into redis-server. 1 source files.",
+      "packageSourceInfo": "Vendored from redis/deps/linenoise/. Source compiled into static archive and linked.",
+      "versionInfo": "1.0"
+    },
+    {
+      "SPDXID": "SPDXRef-lua-10",
+      "name": "lua",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": true,
+      "primaryPackagePurpose": "LIBRARY",
+      "externalRefs": [],
+      "comment": "Vendored source compiled into redis-server. 10 source files.",
+      "packageSourceInfo": "Vendored from redis/deps/lua/. Source compiled into static archive and linked.",
+      "versionInfo": "5.1.5"
+    },
+    {
+      "SPDXID": "SPDXRef-xxhash-11",
+      "name": "xxhash",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": true,
+      "primaryPackagePurpose": "LIBRARY",
+      "externalRefs": [],
+      "comment": "Vendored source compiled into redis-server. 1 source files.",
+      "packageSourceInfo": "Vendored from redis/deps/xxhash/. Source compiled into static archive and linked.",
+      "versionInfo": "0.8.3"
+    }
+  ],
+  "files": [
+    {
+      "SPDXID": "SPDXRef-File-eval.c-12",
+      "fileName": "repos/redis/src/eval.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "0189561351452d82fba7798e23e5e4cc82f4c576"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-stream.h-13",
+      "fileName": "repos/redis/src/stream.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "028e37435345ab20c549cf5d9f57fd4784cc11a6"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-internalsecret.c-14",
+      "fileName": "repos/redis/tests/modules/internalsecret.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "043089c6f95e2563dec6e67557d740bbdffa1124"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-moduleconfigs.c-15",
+      "fileName": "repos/redis/tests/modules/moduleconfigs.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "04974f7527ef81c8f5f3f427e999f6bf0392898e"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-datatype.c-16",
+      "fileName": "repos/redis/tests/modules/datatype.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "05cf2337c00f8b4c396b6636a20e176fca45c7a8"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-listpack.h-17",
+      "fileName": "repos/redis/src/listpack.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "06723d2870145524f76f544533edaaffbc4ef3b9"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-sds.c-18",
+      "fileName": "repos/redis/src/sds.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "06f16cf80fa9e7268e302bf9de92eaee76d26d18"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-subcommands.c-19",
+      "fileName": "repos/redis/tests/modules/subcommands.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "09610326ae6c48597184d409eb143e4fa9453c68"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-tracking.c-20",
+      "fileName": "repos/redis/src/tracking.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "09acd33f8291d8f1c32acf73790ce83fe63817b9"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-moduleauthtwo.c-21",
+      "fileName": "repos/redis/tests/modules/moduleauthtwo.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "0a4f56b65b21fcc9b0d49800e25fbf139114fbd1"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-eventnotifier.c-22",
+      "fileName": "repos/redis/src/eventnotifier.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "0a6c145c13e0f11bb1dc44b50dc1a729997b0c52"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-keyspecs.c-23",
+      "fileName": "repos/redis/tests/modules/keyspecs.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "0a70de81414cc152e140cb48ee005e98bb0e74ca"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-rax.c-24",
+      "fileName": "repos/redis/src/rax.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "0b134d7af330c426a0b697e75756b8784bf8ce08"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-cli-common.c-25",
+      "fileName": "repos/redis/src/cli_common.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "0c269de9aa676d615d6e418b5ddf4ee7d2d27253"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-tls.c-26",
+      "fileName": "repos/redis/src/tls.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "0cae5b96ccbff7ca9f038e44db1aee6e8be95de0"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-timeout.c-27",
+      "fileName": "repos/redis/src/timeout.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "10801982111cbe1338d4f3a9fcae72f35d0e1470"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-redis-check-rdb.c-28",
+      "fileName": "repos/redis/src/redis-check-rdb.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "11781dd61b72e8e772f5216781a931bcfafcb134"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-release.c-29",
+      "fileName": "repos/redis/src/release.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "11f7f5188aeda4d3ef073ce2b8f47d2246f1bf3d"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-syscheck.c-30",
+      "fileName": "repos/redis/src/syscheck.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "1251c1d72f471217293dd637d896d42840346e49"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-endianconv.c-31",
+      "fileName": "repos/redis/src/endianconv.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "12ee03cbd7c57c153c86857545d79e540b18d389"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-sparkline.c-32",
+      "fileName": "repos/redis/src/sparkline.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "13370163716dee3f66e841ad0b8bad925bbc5074"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-cluster-slot-stats.c-33",
+      "fileName": "repos/redis/src/cluster_slot_stats.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "13e5760929d26cf674a839d2c40f0a8833ab913a"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-keyspace-events.c-34",
+      "fileName": "repos/redis/tests/modules/keyspace_events.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "146261f6e0d4b86daeeca14030e0435c4dbceb2b"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-scan.c-35",
+      "fileName": "repos/redis/tests/modules/scan.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "1723d3097a3fc84d34267a08df0e0aca0a5275b0"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-lazyfree.c-36",
+      "fileName": "repos/redis/src/lazyfree.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "1960be1233f8a9e187000938f16591bfbcdd931d"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-geohash.h-37",
+      "fileName": "repos/redis/src/geohash.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "19fa5a1d0fdf74a911e9e179286b6a4d8d5b3c6d"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-kvstore.h-38",
+      "fileName": "repos/redis/src/kvstore.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "1bf627922ff54939cae963dce8915bdcf050ae53"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-anet.h-39",
+      "fileName": "repos/redis/src/anet.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "1d3aec9cdf51edee5c47607a4223d1bae9654ad5"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-solarisfixes.h-40",
+      "fileName": "repos/redis/src/solarisfixes.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "1e757490fe9f3abfc8f9f7087c4be4db6fdfa254"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-object.h-41",
+      "fileName": "repos/redis/src/object.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "1e761175d03ec8ab9b3e995396aa03b7017c4fe8"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-redismodule.h-42",
+      "fileName": "repos/redis/src/redismodule.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "1e9d9814ea3683fe4ace1ef057caa918eb6f365a"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-commands.h-43",
+      "fileName": "repos/redis/src/commands.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "1eefab4812b8ba3f065c2955ad68d9f7984f2caa"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-crccombine.c-44",
+      "fileName": "repos/redis/src/crccombine.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "20add37eeb6ce81ef508b6ffe0802699f7f7a84a"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-zmalloc.c-45",
+      "fileName": "repos/redis/src/zmalloc.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "21d5749e40bf3bf808a3fe3a2b8869ece9829f85"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-socket.c-46",
+      "fileName": "repos/redis/src/socket.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "226b414f85ed1ffee72b20a0b056729e1dab1fee"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-dict.h-47",
+      "fileName": "repos/redis/src/dict.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "25e4cf1bd2349e9696a4d415087c278f7ed713c3"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-geohash-helper.h-48",
+      "fileName": "repos/redis/src/geohash_helper.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "262bd8e8da3f9985dcc320a1608606beeffc26a7"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-foo.c-49",
+      "fileName": "repos/redis/src/foo.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "2643cf37b3f62703653fb0ffd4c9641058979129"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-lolwut5.c-50",
+      "fileName": "repos/redis/src/lolwut5.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "29f0a2f8d144e3de631804ca67dfb20137e9f715"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-call-reply.c-51",
+      "fileName": "repos/redis/src/call_reply.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "2a4f7100d8fc77ce8e95d63bfca5a935cd6ce964"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-slowlog.h-52",
+      "fileName": "repos/redis/src/slowlog.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "2e284201c0922be34e47ce3f58cf007200b2d1dc"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-server.c-53",
+      "fileName": "repos/redis/src/server.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "3143213b4b6364634a93a15cf8fb3a3448c6e5f0"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-fwtree.h-54",
+      "fileName": "repos/redis/src/fwtree.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "31e0ea22541b35081409bb90f53ad2b9e50e7207"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-getchannels.c-55",
+      "fileName": "repos/redis/tests/modules/getchannels.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "330531d1a2a91a5f5bb1dd05549aae4533a6c98a"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-commandfilter.c-56",
+      "fileName": "repos/redis/tests/modules/commandfilter.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "333b263369074bb1c815a12cfb1d1f181943b4ce"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-rand.h-57",
+      "fileName": "repos/redis/src/rand.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "37b03f41f18b91ac4dd141d645096a3437717d68"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-ebuckets.h-58",
+      "fileName": "repos/redis/src/ebuckets.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "383caf011db463fc6a8110e31f7c94cada8b2ed9"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-connection.c-59",
+      "fileName": "repos/redis/src/connection.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "38c7564fa5b0bcd7cd25092f151e2f6d269ee4f5"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-sha256.c-60",
+      "fileName": "repos/redis/src/sha256.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "3b53c45c41458245e5ef18e72d68c02656b7ef0a"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-sds.h-61",
+      "fileName": "repos/redis/src/sds.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "3c02d7d39d874284233faf6a9eda0fbc85935e9c"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-atomicvar.h-62",
+      "fileName": "repos/redis/src/atomicvar.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "3c332ee6926368cf622d7676a11f4861af459315"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-siphash.c-63",
+      "fileName": "repos/redis/src/siphash.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "3c7069667593091a1fcfc416132c712921cab203"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-connection.h-64",
+      "fileName": "repos/redis/src/connection.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "3d3691edb4e04984f55888527999f37f669e9b17"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-zmalloc.h-65",
+      "fileName": "repos/redis/src/zmalloc.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "3dda50327e9aa9f5256d43975e9d37ab57b11c10"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-list.c-66",
+      "fileName": "repos/redis/tests/modules/list.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "401b2d802154dfb7d979c6319ca9dc4db604a82b"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-keymeta.h-67",
+      "fileName": "repos/redis/src/keymeta.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "43b4242313c1e98e84ab2933547dc4b0deaf6f40"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-lzf.h-68",
+      "fileName": "repos/redis/src/lzf.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "45ddfa8da05be7a7565e2bbe53f2a099f7a262e3"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-hash.c-69",
+      "fileName": "repos/redis/tests/modules/hash.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "462c21e1dd3009435c3a2bc46ac830f169527fa1"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-entry.h-70",
+      "fileName": "repos/redis/src/entry.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "47aeae3b8a4fb482b5f1b13b71ee048ac3edc168"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-rand.c-71",
+      "fileName": "repos/redis/src/rand.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "48ed355be4b44c3bd3c1e069f3c33cf04319e908"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-call-reply.h-72",
+      "fileName": "repos/redis/src/call_reply.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "4ae7f3cf1fc9e2c424f747f8cd88aae948ef4766"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-t-string.c-73",
+      "fileName": "repos/redis/src/t_string.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "4ba22cae7076a06476549959de2d8cb7589aadcd"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-estore.h-74",
+      "fileName": "repos/redis/src/estore.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "4bc8fd7e1fbfe030bf4c3217e6f5ecc7af0a2c3b"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-script-lua.h-75",
+      "fileName": "repos/redis/src/script_lua.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "4c2c3e9c281018d51ecdcfcb4efd075f012aac9a"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-quicklist.c-76",
+      "fileName": "repos/redis/src/quicklist.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "4c9fc6848a9fee0639d71612ba7016cb7e7df4da"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-bio.c-77",
+      "fileName": "repos/redis/src/bio.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "4d36e3eb1a34c26416421e330157d6e2a816f809"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-sha1.c-78",
+      "fileName": "repos/redis/src/sha1.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "4d8c14094d0ab217b14794029b81c27481c86b8b"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-redisassert.h-79",
+      "fileName": "repos/redis/src/redisassert.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "4de8d5c580047f6b38d665eddf5303ccb2ce76db"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-expr.c-80",
+      "fileName": "repos/redis/src/../modules/vector-sets/expr.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "4f3a1ccf2fb5e0261180b66b104391909a9be1ad"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-script.h-81",
+      "fileName": "repos/redis/src/script.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "4f43c09d52217886d00ff96c3c7f4ca4c08de573"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-vset.c-82",
+      "fileName": "repos/redis/src/../modules/vector-sets/vset.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "500f8e99e15bcff8988a31c8aecc3809630fbbeb"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-zipmap.c-83",
+      "fileName": "repos/redis/src/zipmap.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "51c64ca81274424d81c921651912ee69ea6018a3"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-crc64.c-84",
+      "fileName": "repos/redis/src/crc64.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "525506470703b86d0831dac9e08f7e4a0fdd44a8"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-keymeta.c-85",
+      "fileName": "repos/redis/src/keymeta.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "530ea04930016bcec0f7fe43d4525952e23ba005"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-lzfP.h-86",
+      "fileName": "repos/redis/src/lzfP.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "567f5a201918ab32ddc085b2f8e3f7c4fb7adf64"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-rio.c-87",
+      "fileName": "repos/redis/src/rio.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "57750ffef88899e68bf83fbb45261e549540b590"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-functions.c-88",
+      "fileName": "repos/redis/src/functions.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "58ae81501de41d5c6243284efc349b373046a3e8"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-hooks.c-89",
+      "fileName": "repos/redis/tests/modules/hooks.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "59c84927645432c9568400305b6db98646f214da"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-sdsalloc.h-90",
+      "fileName": "repos/redis/src/sdsalloc.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "5a53d4de836ddc212b086333b8a76a3c1e1c3e10"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-pqsort.h-91",
+      "fileName": "repos/redis/src/pqsort.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "5a87e55b085be30f51deefe48a6849322095e0da"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-commands.c-92",
+      "fileName": "repos/redis/src/commands.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "5dcfe1973899eb88d5bdd8c51e154151eb81f464"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-redis-cli.c-93",
+      "fileName": "repos/redis/src/redis-cli.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "5dd843a9cfcf60c6e3ad3c7fe9483b57f45bac50"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-bio.h-94",
+      "fileName": "repos/redis/src/bio.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "615cf45b8ca2d79e496a5dd890fe7b7fdcbd2952"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-pqsort.c-95",
+      "fileName": "repos/redis/src/pqsort.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "62527170573de87c2cc1c60ca8b3fd3c75199696"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-estore.c-96",
+      "fileName": "repos/redis/src/estore.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "6335bd5c02333d22bfc4a6eb224e02c852f15228"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-intset.c-97",
+      "fileName": "repos/redis/src/intset.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "6493eb07f6e65bf1e143c528ed70a39c410f162b"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-stream.c-98",
+      "fileName": "repos/redis/tests/modules/stream.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "65762a399030ecd28e28d41102e637569f0675e6"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-script.c-99",
+      "fileName": "repos/redis/src/script.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "66b316abf0cc344eabfa690b4fc22f1479bc5e0c"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-rdbloadsave.c-100",
+      "fileName": "repos/redis/tests/modules/rdbloadsave.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "687269a5ac2fd478bd1ce471038f162402e9a390"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-propagate.c-101",
+      "fileName": "repos/redis/tests/modules/propagate.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "689d6881e139438ac4dc9e03479c2098ba85cc67"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-intset.h-102",
+      "fileName": "repos/redis/src/intset.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "696877e46553769ca930f7093db1dc81002d5db0"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-ebuckets.c-103",
+      "fileName": "repos/redis/src/ebuckets.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "69983d8ead033279b473ddd8312765dd4cb201d8"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-cmdintrospection.c-104",
+      "fileName": "repos/redis/tests/modules/cmdintrospection.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "69d67315d16f46db69a6d75dc0011309536317f9"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-ae-epoll.c-105",
+      "fileName": "repos/redis/src/ae_epoll.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "6b916618bb7eec1be1eb7f39abcfda0988d57e6e"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-rdb.c-106",
+      "fileName": "repos/redis/src/rdb.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "6e45064817fe85c63721056808d788b28f737b87"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-syscheck.h-107",
+      "fileName": "repos/redis/src/syscheck.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "6f324d151e8f8720cb624132e289b45dc970c2e9"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-t-set.c-108",
+      "fileName": "repos/redis/src/t_set.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "709b6ffecbd7cc4641ad863acda27cc32a5f21da"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-pubsub.c-109",
+      "fileName": "repos/redis/src/pubsub.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "7199be1e06c97af986aaa291059de9b9917cf925"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-ae.c-110",
+      "fileName": "repos/redis/src/ae.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "733c88d52d3105e31c0460490b19d3e22f0df70b"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-asciilogo.h-111",
+      "fileName": "repos/redis/src/asciilogo.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "73a99777835544022b224021c609597418de7c32"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-sparkline.h-112",
+      "fileName": "repos/redis/src/sparkline.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "7769fdb852f362b2246ca3d3df907f8c265c2c12"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-setcpuaffinity.c-113",
+      "fileName": "repos/redis/src/setcpuaffinity.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "77b162103ec2714f5a937a030872e3b820969159"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-function-lua.c-114",
+      "fileName": "repos/redis/src/function_lua.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "785f825f354a869022731f58ce317117ba366b68"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-fastjson.c-115",
+      "fileName": "repos/redis/src/../modules/vector-sets/fastjson.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "78926e256f8b2cca384d367fc6f819211b879633"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-geo.h-116",
+      "fileName": "repos/redis/src/geo.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "79d0a6a4aa27040754aa42821113c803951b5086"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-vset-config.c-117",
+      "fileName": "repos/redis/src/../modules/vector-sets/vset_config.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "79dc8a367559dc3007058f25ae4927424f059727"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-script-lua.c-118",
+      "fileName": "repos/redis/src/script_lua.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "7a9472fefb67f2c57397306086842416176ab9b4"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-blockonbackground.c-119",
+      "fileName": "repos/redis/tests/modules/blockonbackground.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "7aeb011e4567bf533aa7e072f2472986f4ee43aa"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-test-lazyfree.c-120",
+      "fileName": "repos/redis/tests/modules/test_lazyfree.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "7ba213ff86e9a876da2d134b92880f3f91e317b6"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-configaccess.c-121",
+      "fileName": "repos/redis/tests/modules/configaccess.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "7bc8a48e7a17b3c1cda163a62b238ac18eac67ef"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-iothread.c-122",
+      "fileName": "repos/redis/src/iothread.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "7ff7ca3c0c6c4d9929a9761dffdd3b41bc9376fb"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-t-hash.c-123",
+      "fileName": "repos/redis/src/t_hash.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "830ecc52cecc96c65a6ab48fbb97c96cb6e18dd6"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-atomicslotmigration.c-124",
+      "fileName": "repos/redis/tests/modules/atomicslotmigration.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "83393cd9c3cad2c71ebd8dda6c2925efad4e9d07"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-hnsw.c-125",
+      "fileName": "repos/redis/src/../modules/vector-sets/hnsw.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "8420ff3143e5b10d48cf27398256da34ae8dd192"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-lolwut.c-126",
+      "fileName": "repos/redis/src/lolwut.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "8467c7803bb1dc3a79192a09179a0c0d59744b0b"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-notify.c-127",
+      "fileName": "repos/redis/src/notify.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "84cd85551a697ba036f9c211214c4939c2ed91af"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-basics.c-128",
+      "fileName": "repos/redis/tests/modules/basics.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "85c6196d8dd2e9f45b1b9d4e9f66bd273b339781"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-t-stream.c-129",
+      "fileName": "repos/redis/src/t_stream.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "889f603ad472fe542d75d61e1e0a1065e313f96f"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-hnsw.h-130",
+      "fileName": "repos/redis/src/../modules/vector-sets/hnsw.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "8935521a63ff31441bda8e4ca704306212946ca1"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-version.h-131",
+      "fileName": "repos/redis/src/version.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "89aef53fcb55a6c56d7709b2b3d4ffab4e26971c"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-defragtest.c-132",
+      "fileName": "repos/redis/tests/modules/defragtest.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "8b9e182c7d3e03e7c1a19e1af31a5579f3b329ae"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-resp-parser.c-133",
+      "fileName": "repos/redis/src/resp_parser.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "8c0f17d394b1cd624a6755231af78cb3912bcb34"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-redis-benchmark.c-134",
+      "fileName": "repos/redis/src/redis-benchmark.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "8c9e062980fb78fd55c84e8da5604f350fab4780"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-connhelpers.h-135",
+      "fileName": "repos/redis/src/connhelpers.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "8d6f4b90c0715a7d6a49a6f71797beb32a745ed0"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-crccombine.h-136",
+      "fileName": "repos/redis/src/crccombine.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "8da7c5fe6ace5ee22f35c611af37788f99da567f"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-vset-config.h-137",
+      "fileName": "repos/redis/src/../modules/vector-sets/vset_config.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "8da94fa065b6ea9cd25e5258d5a6c12573b44084"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-memory-prefetch.c-138",
+      "fileName": "repos/redis/src/memory_prefetch.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "8ecdc12b4f028fe9d99b5f642ec01cfbed0d8d2f"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-lolwut.h-139",
+      "fileName": "repos/redis/src/lolwut.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "914db0d7e50bb907a878e0fbd01b88066d2609db"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-entry.c-140",
+      "fileName": "repos/redis/src/entry.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "9176c98f27a7f45627be2810c804df45effecf8a"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-latency.h-141",
+      "fileName": "repos/redis/src/latency.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "945004a484c853b2e9f92314e712c6d518593506"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-blockonkeys.c-142",
+      "fileName": "repos/redis/tests/modules/blockonkeys.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "94bb361231d01106f8b7bc7e534bc424d28b16d8"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-childinfo.c-143",
+      "fileName": "repos/redis/src/childinfo.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "95cbbbb1c0606646cfaf46bf9c1378d3b1092799"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-postnotifications.c-144",
+      "fileName": "repos/redis/tests/modules/postnotifications.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "96fb859184cc160a7d54a634980928db211912e1"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-mstr.c-145",
+      "fileName": "repos/redis/src/mstr.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "97f7145cbad3474a2d2d2a2ee7b547f5f31470d9"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-ae.h-146",
+      "fileName": "repos/redis/src/ae.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "996d48b0f838e771a3751bde522c7bbea773006e"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-quicklist.h-147",
+      "fileName": "repos/redis/src/quicklist.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "998ba1c55ccee0bb3f30149eb68b88a52625f699"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-object.c-148",
+      "fileName": "repos/redis/src/object.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "9a9e6c25733f9c5f169a402f2fe06ac8e5587a7f"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-cluster-slot-stats.h-149",
+      "fileName": "repos/redis/src/cluster_slot_stats.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "9b75cdefe86b3a47cdcd13efa377614fed6ed73f"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-threads-mngr.h-150",
+      "fileName": "repos/redis/src/threads_mngr.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "9c585c0bd1a0e3079e7db0898d4a66ac4a208c86"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-rio.h-151",
+      "fileName": "repos/redis/src/rio.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "9cd24cdab62f6c3f9306eb85da28d8593c17c9b8"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-lzf-c.c-152",
+      "fileName": "repos/redis/src/lzf_c.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "9f858a2d3281c34c8b69e069159e14e128a1474b"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-rdb.h-153",
+      "fileName": "repos/redis/src/rdb.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "a020ff62cefad778e64209fb01b9f0105b1ce878"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-mt19937-64.c-154",
+      "fileName": "repos/redis/src/mt19937-64.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "a0c897ff6ddb0770df1949a46fd89d468f00c9b4"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-sha256.h-155",
+      "fileName": "repos/redis/src/sha256.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "a0d90a714f0df241c39358f326900c297ea0ad5f"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-mallocsize.c-156",
+      "fileName": "repos/redis/tests/modules/mallocsize.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "a1d31c136a1ef390cf09a84b9d7f28ed0f939700"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-kvstore.c-157",
+      "fileName": "repos/redis/src/kvstore.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "a25f928ceb10c553778e7bcad14f09a13cf79e7e"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-zipmap.h-158",
+      "fileName": "repos/redis/src/zipmap.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "a3e7aea34fc27632c6b588234d180850094bd117"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-cli-common.h-159",
+      "fileName": "repos/redis/src/cli_common.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "a5b8e44a28cc1528dd27290e73355144f9459454"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-sha1.h-160",
+      "fileName": "repos/redis/src/sha1.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "a6cb6e885787bae370b4e03cc4fa6b20dee27274"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-logreqres.c-161",
+      "fileName": "repos/redis/src/logreqres.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "a769eb1be44085c049a24250d1a84c4f372ff740"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-chk.h-162",
+      "fileName": "repos/redis/src/chk.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "a974fd64db970c5928142ee72a3a2cab69b5d34f"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-infotest.c-163",
+      "fileName": "repos/redis/tests/modules/infotest.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "a9f2b0ab9a4c766345b2173665efc7fad7558fef"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-zset.c-164",
+      "fileName": "repos/redis/tests/modules/zset.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "adb318d1764a901e4cbc892e2756cebffb021a00"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-testhelp.h-165",
+      "fileName": "repos/redis/src/testhelp.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "aeae372dd6c16e66813bc4779535231c411e67a8"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-monotonic.c-166",
+      "fileName": "repos/redis/src/monotonic.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "b198fe3c873dc647ba67be902ffeb6217dfce771"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-monotonic.h-167",
+      "fileName": "repos/redis/src/monotonic.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "b465f90b10937f11a1e625c5e65de35519017af8"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-aof.c-168",
+      "fileName": "repos/redis/src/aof.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "b489608d40bd078eb741b404e23926dc040db108"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-db.c-169",
+      "fileName": "repos/redis/src/db.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "b50b7c5d5d5cc2bcd4cd6570d4a76c57d9cb5d68"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-cluster.h-170",
+      "fileName": "repos/redis/src/cluster.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "b594a7dbd15e6a0f544ffaf4366b5f2eee6c35b4"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-defrag.c-171",
+      "fileName": "repos/redis/src/defrag.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "b80d1ef28e7282ddd4aa08e045ed0702198ed9e9"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-blocked.c-172",
+      "fileName": "repos/redis/src/blocked.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "b973adeaf755e3347cb3d4724ee34119435fc615"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-mt19937-64.h-173",
+      "fileName": "repos/redis/src/mt19937-64.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "b98348fd4ffa24859c144b5973961592cde6f699"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-geohash-helper.c-174",
+      "fileName": "repos/redis/src/geohash_helper.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "ba3732689214507ef25cec84690848d8e3eca70b"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-util.c-175",
+      "fileName": "repos/redis/src/util.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "ba3d9d072d6e43fe1a87fd2afceb7fd333cf8bd6"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-adlist.h-176",
+      "fileName": "repos/redis/src/adlist.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "bb0eed1ea5f50e20b886ce20bfce177c04350cd1"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-datatype2.c-177",
+      "fileName": "repos/redis/tests/modules/datatype2.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "bc0dc3dfebcba760a70af44f425298b2ee4aa423"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-cluster-legacy.h-178",
+      "fileName": "repos/redis/src/cluster_legacy.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "bdacc3d5b89d1073ffb605e4a634e8bf81607a41"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-hotkeys.c-179",
+      "fileName": "repos/redis/src/hotkeys.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "bdcc831e4c6f330ff52324a9a81fd782fe72241f"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-t-list.c-180",
+      "fileName": "repos/redis/src/t_list.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "bfba02faab08f1f472dcbd7025da00def8265761"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-t-zset.c-181",
+      "fileName": "repos/redis/src/t_zset.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "bfc104f5285acc07c645626e35b196fefecea716"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-hyperloglog.c-182",
+      "fileName": "repos/redis/src/hyperloglog.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "c01b297b67b59c122c7b70e49589e6e90f127478"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-eventloop.c-183",
+      "fileName": "repos/redis/tests/modules/eventloop.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "c0cfdf04fe2f0cf745f672f9572907e7e03e94a7"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-moduleconfigstwo.c-184",
+      "fileName": "repos/redis/tests/modules/moduleconfigstwo.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "c0e8f913696f8d6308bcc5e5006112eed9fe1fdd"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-release.h-185",
+      "fileName": "repos/redis/src/release.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "c10d0596e6f02f4b2df90da17afb833be3a3e6f0"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-cluster-asm.h-186",
+      "fileName": "repos/redis/src/cluster_asm.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "c1e7ccab19c15d0e9c343a11c775ebfaaedebd06"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-crcspeed.h-187",
+      "fileName": "repos/redis/src/crcspeed.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "c29f236bc0fc01425c02fd3534f4a47b669c47f7"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-testrdb.c-188",
+      "fileName": "repos/redis/tests/modules/testrdb.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "c31aebb107e59ff41994a202c1aa138477e8f1ba"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-crash.c-189",
+      "fileName": "repos/redis/tests/modules/crash.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "c5063d0375a36837d7953a026c4c2cbf6e652961"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-reply.c-190",
+      "fileName": "repos/redis/tests/modules/reply.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "c5baa66357af96fae2483e34fa9dcc993c25631f"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-sort.c-191",
+      "fileName": "repos/redis/src/sort.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "c6b32624e956b148ae0685189bf94dd13e0e926d"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-crcspeed.c-192",
+      "fileName": "repos/redis/src/crcspeed.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "c7073cba2f82b9b184703d533a55f6690541cfe0"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-cluster-legacy.c-193",
+      "fileName": "repos/redis/src/cluster_legacy.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "c93aea2ad6b07fef217b20b2b6fb93d2aaa12233"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-debugmacro.h-194",
+      "fileName": "repos/redis/src/debugmacro.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "c977381fc4affa790561a1207ae7e6400f11c003"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-timer.c-195",
+      "fileName": "repos/redis/tests/modules/timer.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "c9bd636c8f4faa77e499e17e54ce7e0d2cebf675"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-listpack.c-196",
+      "fileName": "repos/redis/src/listpack.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "ca51c217a76f579516398808f1a38a42ff733fee"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-test-keymeta.c-197",
+      "fileName": "repos/redis/tests/modules/test_keymeta.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "ca5d6227349fa850da705979a6ca77c6c68aa2dd"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-endianconv.h-198",
+      "fileName": "repos/redis/src/endianconv.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "ca63cd907d10d6450925f32247121defd307a86b"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-util.h-199",
+      "fileName": "repos/redis/src/util.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "cbc63ea6c5e3704e1684a6c4806dadd7a83a72bb"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-auth.c-200",
+      "fileName": "repos/redis/tests/modules/auth.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "cc2378e11623857ca19941ca7eecb8c0cb55547d"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-usercall.c-201",
+      "fileName": "repos/redis/tests/modules/usercall.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "cc2881774011c44320f0d58b764d116d50dc429b"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-setproctitle.c-202",
+      "fileName": "repos/redis/src/setproctitle.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "cc31845ef0656a01ac50e9a0dd30e94431e58266"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-multi.c-203",
+      "fileName": "repos/redis/src/multi.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "cd8783d20e70ee3e574b101d614b5bf894deeaa5"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-geo.c-204",
+      "fileName": "repos/redis/src/geo.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "ce890f7f0e0dbd9547ec1b70cfb22e74eaa8149a"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-getkeys.c-205",
+      "fileName": "repos/redis/tests/modules/getkeys.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "cee3b3e13805473766e5518cecec73510c91708e"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-fmacros.h-206",
+      "fileName": "repos/redis/src/fmacros.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "d05230dcae1ab88d4db8e85449920babec708424"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-dict.c-207",
+      "fileName": "repos/redis/src/dict.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "d0885ff88a5a98f10642f835769431736166249b"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-bitops.c-208",
+      "fileName": "repos/redis/src/bitops.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "d0c7d9e2eabcf05ffa88f3d51cf39034cfdb980f"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-module.c-209",
+      "fileName": "repos/redis/src/module.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "d33eeffff20017f8863cbdd655731b193c7157da"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-mixer.h-210",
+      "fileName": "repos/redis/src/../modules/vector-sets/mixer.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "d75e193f3dcc7d5cc02d0550b6f5ddad04f30d3a"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-fork.c-211",
+      "fileName": "repos/redis/tests/modules/fork.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "d7a0d154f13a85d67dec0b3e27bbc1934260985e"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-adlist.c-212",
+      "fileName": "repos/redis/src/adlist.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "d7ca5fbcc899f931bf32b6337e012133d6419f69"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-aclcheck.c-213",
+      "fileName": "repos/redis/tests/modules/aclcheck.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "d7e4e3bfe9040e8d0e0869ee552ebe677385f5bd"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-config.h-214",
+      "fileName": "repos/redis/src/config.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "d96b4afad4304638062d8239ac8df3d313b51676"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-crc16.c-215",
+      "fileName": "repos/redis/src/crc16.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "d9e4f3f499706c4d12096b035504f19aa7674cff"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-ziplist.c-216",
+      "fileName": "repos/redis/src/ziplist.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "db582b3f776f5dbcc4f0b1ea53189980ce0f11be"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-rax.h-217",
+      "fileName": "repos/redis/src/rax.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "db8c4632f7cfa70cc6a0c0de43d2defca98cf452"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-misc.c-218",
+      "fileName": "repos/redis/tests/modules/misc.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "dbf0fecee7dd19cdb0263bc7dd5b7fd3895b94d6"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-blockedclient.c-219",
+      "fileName": "repos/redis/tests/modules/blockedclient.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "dc226eeaa6b25ba9eca8f03cbac8ad29d7431aff"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-threads-mngr.c-220",
+      "fileName": "repos/redis/src/threads_mngr.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "dec83e381a16d75e1577d607d56851a7d7978f79"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-config.c-221",
+      "fileName": "repos/redis/src/config.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "e02cd64e5b9fe6716a369115992b487a4674ea3c"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-server.h-222",
+      "fileName": "repos/redis/src/server.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "e0e8c68bed76b2e78047232cc6a5d2238b9c3f9f"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-crc64.h-223",
+      "fileName": "repos/redis/src/crc64.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "e0fccd98bbd657ec23af68489b8ed9510dc59a71"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-memtest.c-224",
+      "fileName": "repos/redis/src/memtest.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "e21cc9cf84d27e0aafd31dc0a16670a52153bfb5"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-unix.c-225",
+      "fileName": "repos/redis/src/unix.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "e26f0d27ad129112f909f87ede6cc60439905e0b"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-evict.c-226",
+      "fileName": "repos/redis/src/evict.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "e287edec6e3e02576a1bb1b80fd59a005ea126f6"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-memory-prefetch.h-227",
+      "fileName": "repos/redis/src/memory_prefetch.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "e2977f10fe373a30dddd185095517edc1912350e"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-eventnotifier.h-228",
+      "fileName": "repos/redis/src/eventnotifier.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "e2ae907380042a788836e6c650405ba8ce0907e9"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-debug.c-229",
+      "fileName": "repos/redis/src/debug.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "e2aec912e4c6b535eabc5cb35c8a1617b6798a05"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-replication.c-230",
+      "fileName": "repos/redis/src/replication.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "e400eb67dddd5ab854665422cbcbcc783e729060"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-redisassert.c-231",
+      "fileName": "repos/redis/src/redisassert.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "e4918f2894aabe8711720df257b7513b59e5b4f4"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-cli-commands.c-232",
+      "fileName": "repos/redis/src/cli_commands.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "e56d48cfaebe55f846bb210afe96fb8ef7c017a7"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-anet.c-233",
+      "fileName": "repos/redis/src/anet.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "e60e086004e1031beb7670833a4dd3cb63e6c1c2"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-acl.c-234",
+      "fileName": "repos/redis/src/acl.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "e7c61aacffd2e99466c62a5ec73c6cec4105953f"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-lolwut6.c-235",
+      "fileName": "repos/redis/src/lolwut6.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "e88be3b10b81ccf3bcadede81fe1d0abdca8e621"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-functions.h-236",
+      "fileName": "repos/redis/src/functions.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "e8a3042aabaa8bf927645058e0b62cdb09b3eb3a"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-localtime.c-237",
+      "fileName": "repos/redis/src/localtime.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "e95eb69116c837dd1226b573a1fdf9977837f0e0"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-geohash.c-238",
+      "fileName": "repos/redis/src/geohash.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "e9f0c654dd6528043edc5d15297829bcd7795109"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-cluster.c-239",
+      "fileName": "repos/redis/src/cluster.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "ea0c67636cd166f12ac7ec05ef63e3e09c8deee1"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-resp-parser.h-240",
+      "fileName": "repos/redis/src/resp_parser.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "eaf1e323ecf508749f3ab3b5184428fb78db1ab1"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-slowlog.c-241",
+      "fileName": "repos/redis/src/slowlog.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "eaf88cc33fcf5e7ab27ce276822008079b4928e2"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-cli-commands.h-242",
+      "fileName": "repos/redis/src/cli_commands.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "eb5a476e38e8d9607e92953ccd22c88c1d6c0042"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-rax-malloc.h-243",
+      "fileName": "repos/redis/src/rax_malloc.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "ec015e704e612798c54b9fb81ae0259186125aca"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-ziplist.h-244",
+      "fileName": "repos/redis/src/ziplist.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "ef38e73aa95db4d2c182843fc339c965f5da3b92"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-lolwut8.c-245",
+      "fileName": "repos/redis/src/lolwut8.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "f01f09e00ef30695b2787cbc731b0a2b2d4932db"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-chk.c-246",
+      "fileName": "repos/redis/src/chk.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "f15cfb112aa01393c936a5ddefb10589d43bee27"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-crc16-slottable.h-247",
+      "fileName": "repos/redis/src/crc16_slottable.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "f25e2412e891a073c8f447b28d1f16822f65d2a2"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-fwtree.c-248",
+      "fileName": "repos/redis/src/fwtree.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "f284eeb5a52115b2a6088d06eea97401de1b1f89"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-fmtargs.h-249",
+      "fileName": "repos/redis/src/fmtargs.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "f32f6ea8badded0bf9771e99c37edf10370f5732"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-sentinel.c-250",
+      "fileName": "repos/redis/src/sentinel.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "f6a1f75bd3e977031a395c24c04ceaba7b7cc2ce"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-mstr.h-251",
+      "fileName": "repos/redis/src/mstr.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "f711e98dfc6597e374fb9b3ab4ed291de263aa3b"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-strl.c-252",
+      "fileName": "repos/redis/src/strl.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "f73cf796c22f547f46c422237f045832d3c6e306"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-expire.c-253",
+      "fileName": "repos/redis/src/expire.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "f784c9f88c480c7bad76f025ddf0a39aaf5915d4"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-redis-check-aof.c-254",
+      "fileName": "repos/redis/src/redis-check-aof.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "f7cdbbc69aec9b3c402d5d7fa8d4e7a40a2b9a3d"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-syncio.c-255",
+      "fileName": "repos/redis/src/syncio.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "fc1f553b861e17655a469d3aeec1fb2e702437a4"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-cluster-asm.c-256",
+      "fileName": "repos/redis/src/cluster_asm.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "fc683e3da01f1685ad8100e446c47555189b81dd"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-latency.c-257",
+      "fileName": "repos/redis/src/latency.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "fcbe12dde259a5aa5e1d4c716a75f174f5d7202f"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-networking.c-258",
+      "fileName": "repos/redis/src/networking.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "fe0f62411152bd764b02e46baf358ca7dfa5c47b"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-listpack-malloc.h-259",
+      "fileName": "repos/redis/src/listpack_malloc.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "fe3e333547136fa546fe305dcf4213228704be9a"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-publish.c-260",
+      "fileName": "repos/redis/tests/modules/publish.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "ff276d8c8ac92affa8dcc3f71b1d6befc8d0472b"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-lzf-d.c-261",
+      "fileName": "repos/redis/src/lzf_d.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "ff32be892a3842ec624b2fa60971d03a92af7cd0"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-hdr-histogram.h-262",
+      "fileName": "repos/redis/src/../deps/hdr_histogram/hdr_histogram.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "01b1e086cae8365d5ebee885ac3b47a70d43bfb0"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-lobject.h-263",
+      "fileName": "repos/redis/src/../deps/lua/src/lobject.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "10e46b178022f6a4046a8b973ba10c3d9df5e3fa"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-lua.h-264",
+      "fileName": "repos/redis/src/../deps/lua/src/lua.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "280ef23821ab3480e95a2d918d35c290061fd174"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-lauxlib.h-265",
+      "fileName": "repos/redis/src/../deps/lua/src/lauxlib.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "34258235dbebff581b08a09d3acff87204cd5406"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-lstate.h-266",
+      "fileName": "repos/redis/src/../deps/lua/src/lstate.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "3bc575b6bc8cdef8286ea4d8d539a4ee4fe5a180"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-lualib.h-267",
+      "fileName": "repos/redis/src/../deps/lua/src/lualib.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "469417f6703eb65a4559188f4febabac1a2ce01c"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-lzio.h-268",
+      "fileName": "repos/redis/src/../deps/lua/src/lzio.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "51d695d8c1d5a26ba2146d5b1866c00c52771499"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-ltm.h-269",
+      "fileName": "repos/redis/src/../deps/lua/src/ltm.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "64343b781b6498930c30abc8f56ce2f7c5ede1ac"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-lmem.h-270",
+      "fileName": "repos/redis/src/../deps/lua/src/lmem.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "7c2dcb32207a0438684eb0566ce769f47d895cf4"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-llimits.h-271",
+      "fileName": "repos/redis/src/../deps/lua/src/llimits.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "ca8dcb72244bae473d27e605395b17a7d95c9c1c"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-luaconf.h-272",
+      "fileName": "repos/redis/src/../deps/lua/src/luaconf.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "e2cb26163a2320cd5e27c89ba1e32cedbad41049"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-xxhash.h-273",
+      "fileName": "repos/redis/src/../deps/xxhash/xxhash.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "1b975455fa9fefa76594ce7cff9c509b66505c5f"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-fast-float-strtod.h-274",
+      "fileName": "repos/redis/src/../deps/fast_float/fast_float_strtod.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "1755076a1d8525cb895df2824bbe44aabca26d0a"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-read.h-275",
+      "fileName": "repos/redis/src/../deps/hiredis/read.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "2d74d77a5b41d067537587f3a34565fed4bb1da3"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-async.h-276",
+      "fileName": "repos/redis/src/../deps/hiredis/async.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "4f94660b123ed530169027b1dbe82b99deedd30d"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-hiredis.h-277",
+      "fileName": "repos/redis/src/../deps/hiredis/hiredis.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "635988b7e1c41f7d5c07b5010b6f334672eac570"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-alloc.h-278",
+      "fileName": "repos/redis/src/../deps/hiredis/alloc.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "771f9fee53fe1fe2230a28fa36349cfc14940868"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-sds.h-279",
+      "fileName": "repos/redis/src/../deps/hiredis/sds.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "80784bc838aed591073fe489dc3c5a4e68df5eb3"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-sdscompat.h-280",
+      "fileName": "repos/redis/src/../deps/hiredis/sdscompat.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "e5a2574f31e51d74ed43ad935b12f4ccf12096a8"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-fpconv-dtoa.h-281",
+      "fileName": "repos/redis/src/../deps/fpconv/fpconv_dtoa.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "328ed83f0383ca446798496cd8ff79a76c97308d"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-jemalloc.h-282",
+      "fileName": "repos/redis/src/../deps/jemalloc/include/jemalloc/jemalloc.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "f7711650135be74ae95d2a6f39a1df2d9b84c527"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-linenoise.h-283",
+      "fileName": "repos/redis/src/../deps/linenoise/linenoise.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "beac6df467a04748fc6625659856dda7b5ac2d82"
+        }
+      ]
+    }
+  ],
+  "relationships": [
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-Package-root"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-libgcc-s1-1"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-libc6-2"
+    },
+    {
+      "spdxElementId": "SPDXRef-gcc-3",
+      "relationshipType": "BUILD_TOOL_OF",
+      "relatedSpdxElement": "SPDXRef-Package-root"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "STATIC_LINK",
+      "relatedSpdxElement": "SPDXRef-fast-float-4"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "STATIC_LINK",
+      "relatedSpdxElement": "SPDXRef-fpconv-5"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "STATIC_LINK",
+      "relatedSpdxElement": "SPDXRef-hdr-histogram-6"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "STATIC_LINK",
+      "relatedSpdxElement": "SPDXRef-hiredis-7"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "STATIC_LINK",
+      "relatedSpdxElement": "SPDXRef-jemalloc-8"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "STATIC_LINK",
+      "relatedSpdxElement": "SPDXRef-linenoise-9"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "STATIC_LINK",
+      "relatedSpdxElement": "SPDXRef-lua-10"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "STATIC_LINK",
+      "relatedSpdxElement": "SPDXRef-xxhash-11"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-eval.c-12"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-stream.h-13"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-internalsecret.c-14"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-moduleconfigs.c-15"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-datatype.c-16"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-listpack.h-17"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-sds.c-18"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-subcommands.c-19"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-tracking.c-20"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-moduleauthtwo.c-21"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-eventnotifier.c-22"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-keyspecs.c-23"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-rax.c-24"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-cli-common.c-25"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-tls.c-26"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-timeout.c-27"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-redis-check-rdb.c-28"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-release.c-29"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-syscheck.c-30"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-endianconv.c-31"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-sparkline.c-32"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-cluster-slot-stats.c-33"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-keyspace-events.c-34"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-scan.c-35"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-lazyfree.c-36"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-geohash.h-37"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-kvstore.h-38"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-anet.h-39"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-solarisfixes.h-40"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-object.h-41"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-redismodule.h-42"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-commands.h-43"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-crccombine.c-44"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-zmalloc.c-45"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-socket.c-46"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-dict.h-47"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-geohash-helper.h-48"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-foo.c-49"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-lolwut5.c-50"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-call-reply.c-51"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-slowlog.h-52"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-server.c-53"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-fwtree.h-54"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-getchannels.c-55"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-commandfilter.c-56"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-rand.h-57"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-ebuckets.h-58"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-connection.c-59"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-sha256.c-60"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-sds.h-61"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-atomicvar.h-62"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-siphash.c-63"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-connection.h-64"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-zmalloc.h-65"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-list.c-66"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-keymeta.h-67"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-lzf.h-68"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-hash.c-69"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-entry.h-70"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-rand.c-71"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-call-reply.h-72"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-t-string.c-73"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-estore.h-74"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-script-lua.h-75"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-quicklist.c-76"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-bio.c-77"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-sha1.c-78"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-redisassert.h-79"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-expr.c-80"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-script.h-81"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-vset.c-82"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-zipmap.c-83"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-crc64.c-84"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-keymeta.c-85"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-lzfP.h-86"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-rio.c-87"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-functions.c-88"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-hooks.c-89"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-sdsalloc.h-90"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-pqsort.h-91"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-commands.c-92"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-redis-cli.c-93"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-bio.h-94"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-pqsort.c-95"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-estore.c-96"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-intset.c-97"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-stream.c-98"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-script.c-99"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-rdbloadsave.c-100"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-propagate.c-101"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-intset.h-102"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-ebuckets.c-103"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-cmdintrospection.c-104"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-ae-epoll.c-105"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-rdb.c-106"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-syscheck.h-107"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-t-set.c-108"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-pubsub.c-109"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-ae.c-110"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-asciilogo.h-111"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-sparkline.h-112"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-setcpuaffinity.c-113"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-function-lua.c-114"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-fastjson.c-115"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-geo.h-116"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-vset-config.c-117"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-script-lua.c-118"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-blockonbackground.c-119"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-test-lazyfree.c-120"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-configaccess.c-121"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-iothread.c-122"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-t-hash.c-123"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-atomicslotmigration.c-124"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-hnsw.c-125"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-lolwut.c-126"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-notify.c-127"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-basics.c-128"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-t-stream.c-129"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-hnsw.h-130"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-version.h-131"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-defragtest.c-132"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-resp-parser.c-133"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-redis-benchmark.c-134"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-connhelpers.h-135"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-crccombine.h-136"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-vset-config.h-137"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-memory-prefetch.c-138"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-lolwut.h-139"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-entry.c-140"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-latency.h-141"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-blockonkeys.c-142"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-childinfo.c-143"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-postnotifications.c-144"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-mstr.c-145"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-ae.h-146"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-quicklist.h-147"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-object.c-148"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-cluster-slot-stats.h-149"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-threads-mngr.h-150"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-rio.h-151"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-lzf-c.c-152"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-rdb.h-153"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-mt19937-64.c-154"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-sha256.h-155"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-mallocsize.c-156"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-kvstore.c-157"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-zipmap.h-158"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-cli-common.h-159"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-sha1.h-160"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-logreqres.c-161"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-chk.h-162"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-infotest.c-163"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-zset.c-164"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-testhelp.h-165"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-monotonic.c-166"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-monotonic.h-167"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-aof.c-168"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-db.c-169"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-cluster.h-170"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-defrag.c-171"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-blocked.c-172"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-mt19937-64.h-173"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-geohash-helper.c-174"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-util.c-175"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-adlist.h-176"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-datatype2.c-177"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-cluster-legacy.h-178"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-hotkeys.c-179"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-t-list.c-180"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-t-zset.c-181"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-hyperloglog.c-182"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-eventloop.c-183"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-moduleconfigstwo.c-184"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-release.h-185"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-cluster-asm.h-186"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-crcspeed.h-187"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-testrdb.c-188"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-crash.c-189"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-reply.c-190"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-sort.c-191"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-crcspeed.c-192"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-cluster-legacy.c-193"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-debugmacro.h-194"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-timer.c-195"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-listpack.c-196"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-test-keymeta.c-197"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-endianconv.h-198"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-util.h-199"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-auth.c-200"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-usercall.c-201"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-setproctitle.c-202"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-multi.c-203"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-geo.c-204"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-getkeys.c-205"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-fmacros.h-206"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-dict.c-207"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-bitops.c-208"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-module.c-209"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-mixer.h-210"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-fork.c-211"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-adlist.c-212"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-aclcheck.c-213"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-config.h-214"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-crc16.c-215"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-ziplist.c-216"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-rax.h-217"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-misc.c-218"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-blockedclient.c-219"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-threads-mngr.c-220"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-config.c-221"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-server.h-222"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-crc64.h-223"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-memtest.c-224"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-unix.c-225"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-evict.c-226"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-memory-prefetch.h-227"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-eventnotifier.h-228"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-debug.c-229"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-replication.c-230"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-redisassert.c-231"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-cli-commands.c-232"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-anet.c-233"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-acl.c-234"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-lolwut6.c-235"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-functions.h-236"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-localtime.c-237"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-geohash.c-238"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-cluster.c-239"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-resp-parser.h-240"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-slowlog.c-241"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-cli-commands.h-242"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-rax-malloc.h-243"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-ziplist.h-244"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-lolwut8.c-245"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-chk.c-246"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-crc16-slottable.h-247"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-fwtree.c-248"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-fmtargs.h-249"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-sentinel.c-250"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-mstr.h-251"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-strl.c-252"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-expire.c-253"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-redis-check-aof.c-254"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-syncio.c-255"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-cluster-asm.c-256"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-latency.c-257"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-networking.c-258"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-listpack-malloc.h-259"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-publish.c-260"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-lzf-d.c-261"
+    },
+    {
+      "spdxElementId": "SPDXRef-hdr-histogram-6",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-hdr-histogram.h-262"
+    },
+    {
+      "spdxElementId": "SPDXRef-lua-10",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-lobject.h-263"
+    },
+    {
+      "spdxElementId": "SPDXRef-lua-10",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-lua.h-264"
+    },
+    {
+      "spdxElementId": "SPDXRef-lua-10",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-lauxlib.h-265"
+    },
+    {
+      "spdxElementId": "SPDXRef-lua-10",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-lstate.h-266"
+    },
+    {
+      "spdxElementId": "SPDXRef-lua-10",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-lualib.h-267"
+    },
+    {
+      "spdxElementId": "SPDXRef-lua-10",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-lzio.h-268"
+    },
+    {
+      "spdxElementId": "SPDXRef-lua-10",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-ltm.h-269"
+    },
+    {
+      "spdxElementId": "SPDXRef-lua-10",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-lmem.h-270"
+    },
+    {
+      "spdxElementId": "SPDXRef-lua-10",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-llimits.h-271"
+    },
+    {
+      "spdxElementId": "SPDXRef-lua-10",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-luaconf.h-272"
+    },
+    {
+      "spdxElementId": "SPDXRef-xxhash-11",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-xxhash.h-273"
+    },
+    {
+      "spdxElementId": "SPDXRef-fast-float-4",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-fast-float-strtod.h-274"
+    },
+    {
+      "spdxElementId": "SPDXRef-hiredis-7",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-read.h-275"
+    },
+    {
+      "spdxElementId": "SPDXRef-hiredis-7",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-async.h-276"
+    },
+    {
+      "spdxElementId": "SPDXRef-hiredis-7",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-hiredis.h-277"
+    },
+    {
+      "spdxElementId": "SPDXRef-hiredis-7",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-alloc.h-278"
+    },
+    {
+      "spdxElementId": "SPDXRef-hiredis-7",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-sds.h-279"
+    },
+    {
+      "spdxElementId": "SPDXRef-hiredis-7",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-sdscompat.h-280"
+    },
+    {
+      "spdxElementId": "SPDXRef-fpconv-5",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-fpconv-dtoa.h-281"
+    },
+    {
+      "spdxElementId": "SPDXRef-jemalloc-8",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-jemalloc.h-282"
+    },
+    {
+      "spdxElementId": "SPDXRef-linenoise-9",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-linenoise.h-283"
+    }
+  ]
+}

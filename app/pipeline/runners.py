@@ -387,7 +387,11 @@ def _run_java_pipeline(
 def _generate_java_adg_spdx(
     repo_name, repo_cfg, paths_cfg, run_ts,
 ):
-    """Generate Java ADG SPDX using JavaSpdxGenerator.
+    """Generate Java SPDX using JavaSpdxGenerator.
+
+    Produces two SBOMs per JAR (CISA taxonomy):
+      - _analyzed: only source files in the JAR
+      - _build: full Maven dependency graph
 
     Java doesn't have dynamic library dependencies like
     native binaries. Instead, we use the treedb for source
@@ -413,14 +417,34 @@ def _generate_java_adg_spdx(
         repo_name=repo_name,
     )
 
-    # Generate single SPDX for the main JAR
-    out_path = spdx_dir / f"{repo_name}_adg.spdx.json"
-    result = gen.generate(
-        output_path=str(out_path),
-        binary_name=f"{repo_name}.jar",
-    )
+    results = []
+    bin_name = f"{repo_name}.jar"
 
-    return [result] if result else []
+    # Analyzed SBOM: only what's in the JAR
+    analyzed_path = (
+        spdx_dir / f"{repo_name}_analyzed.spdx.json"
+    )
+    result = gen.generate(
+        output_path=str(analyzed_path),
+        binary_name=bin_name,
+        sbom_type="analyzed",
+    )
+    if result:
+        results.append(result)
+
+    # Build SBOM: full dependency graph
+    build_path = (
+        spdx_dir / f"{repo_name}_build.spdx.json"
+    )
+    result = gen.generate(
+        output_path=str(build_path),
+        binary_name=bin_name,
+        sbom_type="build",
+    )
+    if result:
+        results.append(result)
+
+    return results
 
 
 def _run_go_pipeline(
