@@ -75,10 +75,12 @@ class TestRunJavaPipeline(unittest.TestCase):
             pipeline.metadata_collector.collect.assert_called_once()
             mock_adg.assert_called_once()
             pipeline.binary_collector.collect.assert_called_once()
-            # spdx_validator called for spdx + adg + syft
+            # spdx_validator called for spdx + adg
+            # (Syft validation is now in main via
+            # _validate_syft_spdx)
             self.assertEqual(
                 pipeline.spdx_validator.validate.call_count,
-                3,
+                2,
             )
 
     @patch(

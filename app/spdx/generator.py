@@ -136,7 +136,7 @@ class AdgSpdxGenerator:
         # Emit SPDX
         emitter = SpdxEmitter(
             repo_name=self.repo_name,
-            repo_version=resolver.curl_version,
+            repo_version=resolver.repo_version,
             distro=resolver.distro,
             gcc_version=resolver.gcc_version,
             bomtrace_version=self.bomtrace_version,

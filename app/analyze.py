@@ -63,6 +63,7 @@ from app.pipeline.runners import (                             # noqa: F401
     _run_c_cpp_pipeline,
     _run_rust_pipeline,
     _run_go_pipeline,
+    _validate_syft_spdx,
 )
 
 

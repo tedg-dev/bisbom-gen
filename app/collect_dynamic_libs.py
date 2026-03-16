@@ -11,7 +11,6 @@ import json
 import os
 import re
 import subprocess
-import sys
 
 
 def main(binary_path, out_dir):
@@ -155,36 +154,11 @@ def main(binary_path, out_dir):
             f"{len(project_built_libs)}"
         )
 
-    # Also analyze libcurl.so NEEDED
-    libcurl_needed = []
-    libcurl_path = os.path.join(
-        os.path.dirname(os.path.dirname(binary_path)),
-        "lib", ".libs", "libcurl.so",
-    )
-    if os.path.exists(libcurl_path):
-        try:
-            re_out = subprocess.check_output(
-                ["readelf", "-d", libcurl_path],
-                text=True,
-            )
-            for line in re_out.splitlines():
-                m = re.search(
-                    r"NEEDED.*\[(.+)\]", line
-                )
-                if m:
-                    libcurl_needed.append(m.group(1))
-            print(
-                f"\nlibcurl.so NEEDED: {libcurl_needed}"
-            )
-        except Exception as e:
-            print(f"Could not analyze libcurl.so: {e}")
-
     output = {
         "binary": binary_path,
         "direct_needed": sorted(needed),
         "dynamic_libs": results,
         "project_built_libs": project_built_libs,
-        "libcurl_needed": sorted(libcurl_needed),
     }
 
     os.makedirs(out_dir, exist_ok=True)
@@ -195,10 +169,20 @@ def main(binary_path, out_dir):
 
 
 if __name__ == "__main__":
-    binary = sys.argv[1] if len(sys.argv) > 1 else (
-        "/workspace/repos/curl/src/.libs/curl"
+    import argparse
+    ap = argparse.ArgumentParser(
+        description=(
+            "Collect dynamic library dependencies"
+            " from a binary"
+        ),
     )
-    out = sys.argv[2] if len(sys.argv) > 2 else (
-        "/workspace/output/omnibor/curl/metadata"
+    ap.add_argument(
+        "binary",
+        help="Path to the binary to analyze",
     )
-    main(binary, out)
+    ap.add_argument(
+        "out_dir",
+        help="Output directory for dynamic_libs.json",
+    )
+    args = ap.parse_args()
+    main(args.binary, args.out_dir)

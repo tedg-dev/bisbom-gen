@@ -10,10 +10,42 @@ Outputs component_metadata.json alongside the treedb.
 import json
 import os
 import subprocess
-import sys
+from pathlib import Path
 
 
-def main(treedb_path, repos_dir, out_dir):
+def _detect_repo_version(repo_name, repos_dir):
+    """Detect the repo's own version from its source tree."""
+    try:
+        from spdx.version_detector import (
+            VendoredVersionDetector,
+        )
+    except ImportError:
+        return None
+    repo_dir = Path(repos_dir) / repo_name
+    if not repo_dir.exists():
+        return None
+    # Root-level files only — avoids vendored lib versions
+    files = [
+        str(f) for f in repo_dir.iterdir()
+        if f.is_file()
+    ]
+    # Also include include/ headers (version #defines)
+    include_dir = repo_dir / "include"
+    if include_dir.exists():
+        for f in include_dir.rglob("*.h"):
+            files.append(str(f))
+    # Include src/ headers too
+    src_dir = repo_dir / "src"
+    if src_dir.exists():
+        for f in src_dir.rglob("*.h"):
+            files.append(str(f))
+    if not files:
+        return None
+    detector = VendoredVersionDetector()
+    return detector.detect(repo_name, files)
+
+
+def main(treedb_path, repos_dir, out_dir, repo_name=None):
     treedb = json.load(open(treedb_path))
 
     # Collect all system file paths (not under repos)
@@ -88,19 +120,12 @@ def main(treedb_path, repos_dir, out_dir):
         if pkg:
             treedb_path_to_pkg[fp] = pkg
 
-    # Curl version from curlver.h
-    curl_version = "unknown"
-    curlver = os.path.join(
-        repos_dir, "curl", "include", "curl", "curlver.h"
-    )
-    try:
-        with open(curlver) as f:
-            for line in f:
-                if "LIBCURL_VERSION " in line and '"' in line:
-                    curl_version = line.split('"')[1]
-                    break
-    except Exception:
-        pass
+    # Repo version detection (generic — works for any repo)
+    repo_version = None
+    if repo_name:
+        repo_version = _detect_repo_version(
+            repo_name, repos_dir
+        )
 
     # Distro info
     distro = "unknown"
@@ -128,7 +153,7 @@ def main(treedb_path, repos_dir, out_dir):
     result = {
         "distro": distro,
         "gcc_version": gcc_version,
-        "curl_version": curl_version,
+        "repo_version": repo_version,
         "pkg_metadata": pkg_metadata,
         "file_to_pkg": treedb_path_to_pkg,
         "unresolved_files": failed,
@@ -142,19 +167,25 @@ def main(treedb_path, repos_dir, out_dir):
     print(f"\nWrote: {out_path}")
     print(f"Distro: {distro}")
     print(f"GCC: {gcc_version}")
-    print(f"Curl: {curl_version}")
+    if repo_version:
+        print(f"Repo version: {repo_version}")
     print(f"Packages with metadata: {len(pkg_metadata)}")
 
 
 if __name__ == "__main__":
-    treedb = sys.argv[1] if len(sys.argv) > 1 else (
-        "/workspace/output/omnibor/curl/metadata"
-        "/bomsh/bomsh_omnibor_treedb"
+    import argparse
+    ap = argparse.ArgumentParser(
+        description="Collect dpkg metadata for treedb system files",
     )
-    repos = sys.argv[2] if len(sys.argv) > 2 else (
-        "/workspace/repos"
+    ap.add_argument("treedb", help="Path to bomsh_omnibor_treedb")
+    ap.add_argument("repos_dir", help="Path to repos directory")
+    ap.add_argument(
+        "out_dir",
+        help="Output directory for metadata JSON",
     )
-    out = sys.argv[3] if len(sys.argv) > 3 else (
-        "/workspace/output/omnibor/curl/metadata"
+    ap.add_argument(
+        "--repo-name", default=None,
+        help="Repo name for version detection",
     )
-    main(treedb, repos, out)
+    args = ap.parse_args()
+    main(args.treedb, args.repos_dir, args.out_dir, repo_name=args.repo_name)

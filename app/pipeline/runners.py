@@ -70,7 +70,19 @@ def main():
 
     repo_cfg = config["repos"][args.repo]
     paths_cfg = config["paths"]
-    omnibor_cfg = config["omnibor"]
+
+    # Language-aware omnibor config lookup
+    lang_omnibor_keys = {
+        "c-cpp": "omnibor",
+        "rust": "omnibor_rust",
+        "java": "omnibor_java",
+        "go": "omnibor_go",
+    }
+    lang = lang_subdir(repo_cfg)
+    omnibor_key = lang_omnibor_keys.get(
+        lang, "omnibor_go"
+    )
+    omnibor_cfg = config[omnibor_key]
 
     # Single timestamp for the entire run — all
     # output folders use this consistently:
@@ -86,8 +98,6 @@ def main():
     desc = repo_cfg.get("description", "")
     print(f"  {desc}")
     print(f"{'#'*60}\n")
-
-    lang = lang_subdir(repo_cfg)
 
     # Step 1: Clone
     if not args.skip_clone:
@@ -118,33 +128,40 @@ def main():
             paths_cfg, omnibor_cfg, run_ts,
         )
     elif lang == "rust":
-        omnibor_rust_cfg = config["omnibor_rust"]
         success, duration = _run_rust_pipeline(
             pipeline, args.repo, repo_cfg,
-            paths_cfg, omnibor_rust_cfg, run_ts,
+            paths_cfg, omnibor_cfg, run_ts,
         )
     elif lang == "java":
-        omnibor_java_cfg = config["omnibor_java"]
         success, duration = _run_java_pipeline(
             pipeline, args.repo, repo_cfg,
-            paths_cfg, omnibor_java_cfg, run_ts,
+            paths_cfg, omnibor_cfg, run_ts,
         )
     else:
-        omnibor_go_cfg = config["omnibor_go"]
         success, duration = _run_go_pipeline(
             pipeline, args.repo, repo_cfg,
-            paths_cfg, omnibor_go_cfg, run_ts,
+            paths_cfg, omnibor_cfg, run_ts,
         )
 
+    # Step 7b: Validate Syft SPDX (all languages)
+    _validate_syft_spdx(
+        pipeline, args.repo, repo_cfg,
+        paths_cfg, run_ts,
+    )
+
     # Step 8: Write docs (all languages)
+    tracer = omnibor_cfg.get("tracer")
+    raw_logfile = omnibor_cfg.get("raw_logfile")
     pipeline.docs.write_build_doc(
         args.repo, repo_cfg, paths_cfg,
         success, duration,
-        run_ts=run_ts,
+        run_ts=run_ts, tracer=tracer,
+        raw_logfile=raw_logfile,
     )
     pipeline.docs.write_runtime_doc(
         args.repo, repo_cfg, paths_cfg,
         duration, run_ts=run_ts,
+        tracer=tracer,
     )
 
     status = "COMPLETE" if success else "FAILED"
@@ -152,6 +169,23 @@ def main():
     print(f"  Analysis {status}: {args.repo}")
     print(f"  Duration: {duration:.1f}s")
     print(f"{'#'*60}\n")
+
+
+def _validate_syft_spdx(
+    pipeline, repo_name, repo_cfg,
+    paths_cfg, run_ts,
+):
+    """Validate Syft SPDX if it exists (all languages)."""
+    lang = lang_subdir(repo_cfg)
+    syft_spdx = (
+        Path(paths_cfg["output_dir"])
+        / "spdx" / lang / repo_name / run_ts
+        / f"{repo_name}_syft.spdx.json"
+    )
+    if syft_spdx.exists():
+        pipeline.spdx_validator.validate(
+            str(syft_spdx)
+        )
 
 
 def _run_c_cpp_pipeline(
@@ -283,18 +317,6 @@ def _run_rust_pipeline(
     for adg_file in adg_files:
         pipeline.spdx_validator.validate(adg_file)
 
-    # Also validate Syft SPDX
-    lang = lang_subdir(repo_cfg)
-    syft_spdx = (
-        Path(paths_cfg["output_dir"])
-        / "spdx" / lang / repo_name / run_ts
-        / f"{repo_name}_syft.spdx.json"
-    )
-    if syft_spdx.exists():
-        pipeline.spdx_validator.validate(
-            str(syft_spdx)
-        )
-
     # Step 7: Collect output binaries
     if success:
         pipeline.binary_collector.collect(
@@ -361,18 +383,6 @@ def _run_java_pipeline(
         pipeline.spdx_validator.validate(spdx_file)
     for adg_file in adg_files:
         pipeline.spdx_validator.validate(adg_file)
-
-    # Also validate Syft SPDX
-    lang = lang_subdir(repo_cfg)
-    syft_spdx = (
-        Path(paths_cfg["output_dir"])
-        / "spdx" / lang / repo_name / run_ts
-        / f"{repo_name}_syft.spdx.json"
-    )
-    if syft_spdx.exists():
-        pipeline.spdx_validator.validate(
-            str(syft_spdx)
-        )
 
     # Step 7: Collect output JARs
     if success:
@@ -504,18 +514,6 @@ def _run_go_pipeline(
         pipeline.spdx_validator.validate(spdx_file)
     for adg_file in adg_files:
         pipeline.spdx_validator.validate(adg_file)
-
-    # Also validate Syft SPDX
-    lang = lang_subdir(repo_cfg)
-    syft_spdx = (
-        Path(paths_cfg["output_dir"])
-        / "spdx" / lang / repo_name / run_ts
-        / f"{repo_name}_syft.spdx.json"
-    )
-    if syft_spdx.exists():
-        pipeline.spdx_validator.validate(
-            str(syft_spdx)
-        )
 
     # Step 7: Collect output binaries
     if success:

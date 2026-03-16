@@ -18,7 +18,8 @@ class DocWriter:
     def write_build_doc(
         repo_name, repo_cfg,
         paths_cfg, success, duration_sec,
-        run_ts=None,
+        run_ts=None, tracer=None,
+        raw_logfile=None,
     ):
         """Write build log to docs/<lang>/<repo>/<ts>/."""
         ts = run_ts or timestamp()
@@ -51,37 +52,16 @@ class DocWriter:
         ):
             content += f"{i}. `{step}`\n"
 
-        lang = lang_subdir(repo_cfg)
-        if lang == "c-cpp":
-            content += (
-                "\n## Instrumentation\n\n"
-                "- **Tracer:** bomtrace3\n"
-                "- **Raw logfile:** "
-                "/tmp/bomsh_hook_raw_logfile"
-                ".sha1\n"
-            )
-        elif lang == "rust":
-            content += (
-                "\n## Instrumentation\n\n"
-                "- **Tracer:** bomtrace2 "
-                "(default conf)\n"
-                "- **Raw logfile:** "
-                "/tmp/bomsh_hook_raw_logfile"
-                ".sha1\n"
-                "- **Watched tools:** "
-                "rustc\n"
-            )
-        else:
-            content += (
-                "\n## Instrumentation\n\n"
-                "- **Tracer:** bomtrace2 "
-                "(Go-specific conf)\n"
-                "- **Raw logfile:** "
-                "/tmp/bomsh_hook_raw_logfile"
-                ".sha1\n"
-                "- **Watched tools:** "
-                "compile, link\n"
-            )
+        tracer_name = tracer or "unknown"
+        logfile = (
+            raw_logfile
+            or "/tmp/bomsh_hook_raw_logfile.sha1"
+        )
+        content += (
+            "\n## Instrumentation\n\n"
+            f"- **Tracer:** {tracer_name}\n"
+            f"- **Raw logfile:** {logfile}\n"
+        )
 
         content += (
             "\n## Output Binaries\n\n"
@@ -103,7 +83,7 @@ class DocWriter:
     def write_runtime_doc(
         repo_name, repo_cfg, paths_cfg,
         duration_sec, baseline_sec=None,
-        run_ts=None,
+        run_ts=None, tracer=None,
     ):
         """Write runtime performance metrics."""
         ts = run_ts or timestamp()
@@ -130,35 +110,18 @@ class DocWriter:
                 f"{pct:.1f}%"
             )
 
-        if lang == "c-cpp":
-            build_label = "Instrumented build time"
-            notes = (
-                "- Measured wall-clock time for the "
-                "instrumented `make` step only\n"
-                "- Baseline (uninstrumented) build "
-                "time should be recorded separately "
-                "for comparison\n"
-            )
-        elif lang == "rust":
-            build_label = "Instrumented build time"
-            notes = (
-                "- Measured wall-clock time for "
-                "bomtrace2-instrumented "
-                "`cargo build --release`\n"
-                "- OmniBOR ADG + SPDX generated "
-                "from build interception\n"
-            )
-        else:
-            build_label = "Instrumented build time"
-            notes = (
-                "- Measured wall-clock time for "
-                "bomtrace2-instrumented "
-                "`go build -a`\n"
-                "- OmniBOR ADG + SPDX generated "
-                "from build interception\n"
-                "- Syft manifest SBOM also "
-                "generated from go.mod/go.sum\n"
-            )
+        build_cmd = repo_cfg.get(
+            "build_steps", ["unknown"]
+        )[-1]
+        tracer_name = tracer or "unknown"
+        build_label = "Instrumented build time"
+        notes = (
+            f"- Measured wall-clock time for "
+            f"{tracer_name}-instrumented "
+            f"`{build_cmd}`\n"
+            "- OmniBOR ADG + SPDX generated "
+            "from build interception\n"
+        )
 
         content = (
             f"# Runtime Metrics — {repo_name}\n\n"

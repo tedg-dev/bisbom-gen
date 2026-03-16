@@ -23,6 +23,7 @@ from analyze import (
     AnalysisPipeline, load_config, timestamp,
     _run_go_pipeline,
     _run_rust_pipeline,
+    _validate_syft_spdx,
 )
 
 
@@ -1848,10 +1849,10 @@ class TestDocWriter(unittest.TestCase):
                 result = DocWriter.write_build_doc(
                     "fzf", cfg, paths,
                     True, 10.0,
+                    tracer="bomtrace2",
                 )
             content = Path(result).read_text()
             self.assertIn("bomtrace2", content)
-            self.assertIn("compile, link", content)
             self.assertNotIn(
                 "**Tracer:** bomtrace3", content
             )
@@ -1860,10 +1861,14 @@ class TestDocWriter(unittest.TestCase):
     def test_write_runtime_doc_go(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             paths = {"docs_dir": tmpdir}
-            repo_cfg = {"language": "go"}
+            repo_cfg = {
+                "language": "go",
+                "build_steps": ["go build -a -o fzf ."],
+            }
             with patch("builtins.print"):
                 result = DocWriter.write_runtime_doc(
                     "fzf", repo_cfg, paths, 10.0,
+                    tracer="bomtrace2",
                 )
             content = Path(result).read_text()
             self.assertIn(
@@ -1891,20 +1896,25 @@ class TestDocWriter(unittest.TestCase):
                 result = DocWriter.write_build_doc(
                     "oxipng", cfg, paths,
                     True, 15.0,
+                    tracer="bomtrace2",
                 )
             content = Path(result).read_text()
             self.assertIn("bomtrace2", content)
-            self.assertIn("rustc", content)
-            self.assertIn("default conf", content)
             self.assertIn("oxipng", content)
 
     def test_write_runtime_doc_rust(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             paths = {"docs_dir": tmpdir}
-            repo_cfg = {"language": "rust"}
+            repo_cfg = {
+                "language": "rust",
+                "build_steps": [
+                    "cargo build --release",
+                ],
+            }
             with patch("builtins.print"):
                 result = DocWriter.write_runtime_doc(
                     "oxipng", repo_cfg, paths, 15.0,
+                    tracer="bomtrace2",
                 )
             content = Path(result).read_text()
             self.assertIn(
@@ -1929,6 +1939,7 @@ class TestDocWriter(unittest.TestCase):
                 result = DocWriter.write_build_doc(
                     "myrepo", cfg, paths,
                     True, 42.5,
+                    tracer="bomtrace3",
                 )
             content = Path(result).read_text()
             self.assertIn("bomtrace3", content)
@@ -2352,9 +2363,9 @@ class TestRunGoPipeline(unittest.TestCase):
             .assert_not_called()
 
     def test_validates_syft_spdx(self):
+        """Syft validation is now in _validate_syft_spdx."""
         with tempfile.TemporaryDirectory() as td:
             p = _mock_pipeline()
-            p.builder.build.return_value = True
             repo_cfg = {"language": "go"}
             paths_cfg = {"output_dir": td}
 
@@ -2367,14 +2378,11 @@ class TestRunGoPipeline(unittest.TestCase):
                 spdx_dir / "fzf_syft.spdx.json"
             ).write_text("{}")
 
-            with patch("builtins.print"):
-                _run_go_pipeline(
-                    p, "fzf", repo_cfg,
-                    paths_cfg, self.GO_OMNIBOR_CFG,
-                    "2026-03-04_1200",
-                )
+            _validate_syft_spdx(
+                p, "fzf", repo_cfg,
+                paths_cfg, "2026-03-04_1200",
+            )
 
-            # validator called for Syft SPDX
             v = p.spdx_validator.validate
             calls = [
                 str(c) for c in v.call_args_list
@@ -2464,9 +2472,9 @@ class TestRunRustPipeline(unittest.TestCase):
             .assert_not_called()
 
     def test_validates_syft_spdx(self):
+        """Syft validation is now in _validate_syft_spdx."""
         with tempfile.TemporaryDirectory() as td:
             p = _mock_pipeline()
-            p.builder.build.return_value = True
             repo_cfg = {"language": "rust"}
             paths_cfg = {"output_dir": td}
 
@@ -2479,12 +2487,10 @@ class TestRunRustPipeline(unittest.TestCase):
                 spdx_dir / "oxipng_syft.spdx.json"
             ).write_text("{}")
 
-            with patch("builtins.print"):
-                _run_rust_pipeline(
-                    p, "oxipng", repo_cfg,
-                    paths_cfg, self.RUST_OMNIBOR_CFG,
-                    "2026-03-05_1200",
-                )
+            _validate_syft_spdx(
+                p, "oxipng", repo_cfg,
+                paths_cfg, "2026-03-05_1200",
+            )
 
             v = p.spdx_validator.validate
             calls = [
@@ -2928,7 +2934,10 @@ class TestMetadataCollector(unittest.TestCase):
                 "builtins.print",
             ):
                 # Simulate collect_metadata writing file
-                def write_meta(treedb_p, repos, out):
+                def write_meta(
+                    treedb_p, repos, out,
+                    repo_name=None,
+                ):
                     Path(out).mkdir(
                         parents=True, exist_ok=True,
                     )
