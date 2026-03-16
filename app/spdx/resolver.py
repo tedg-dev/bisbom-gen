@@ -45,10 +45,9 @@ class ComponentResolver:
         )
 
     @property
-    def curl_version(self):
-        return self.metadata.get(
-            "curl_version", "unknown"
-        )
+    def repo_version(self):
+        """Return repo's own version, or None."""
+        return self.metadata.get("repo_version")
 
     def load_dynamic_libs(self, path):
         """Load dynamic_libs.json."""

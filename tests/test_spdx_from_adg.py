@@ -217,7 +217,7 @@ class TestComponentResolver(unittest.TestCase):
         return {
             "distro": "Ubuntu 22.04.5 LTS",
             "gcc_version": "gcc (Ubuntu 11.4.0) 11.4.0",
-            "curl_version": "8.19.0-DEV",
+            "repo_version": "8.19.0-DEV",
             "pkg_metadata": {},
             "file_to_pkg": {},
             "unresolved_files": [],
@@ -1641,7 +1641,7 @@ class TestComponentResolverEdgeCases(
             meta = {
                 "distro": "Debian GNU/Linux 12",
                 "gcc_version": "gcc 12",
-                "curl_version": "8.0",
+                "repo_version": "8.0",
                 "pkg_metadata": {},
                 "file_to_pkg": {},
                 "unresolved_files": [],
@@ -1682,7 +1682,7 @@ class TestAdgSpdxGenerator(unittest.TestCase):
         comp_meta = {
             "distro": "Ubuntu 22.04",
             "gcc_version": "gcc 11.4.0",
-            "curl_version": "8.19.0",
+            "repo_version": "8.19.0",
             "pkg_metadata": {},
             "file_to_pkg": {},
             "unresolved_files": [],
@@ -1866,7 +1866,7 @@ class TestCli(unittest.TestCase):
             comp_meta = {
                 "distro": "Ubuntu 22.04",
                 "gcc_version": "gcc 11.4.0",
-                "curl_version": "8.19.0",
+                "repo_version": "8.19.0",
                 "pkg_metadata": {},
                 "file_to_pkg": {},
                 "unresolved_files": [],
@@ -1949,7 +1949,7 @@ class TestProjectBuiltLibs(unittest.TestCase):
         return {
             "distro": "Ubuntu 22.04.5 LTS",
             "gcc_version": "gcc (Ubuntu 11.4.0) 11.4.0",
-            "curl_version": "8.19.0-DEV",
+            "repo_version": "8.19.0-DEV",
             "pkg_metadata": {},
             "file_to_pkg": {},
             "unresolved_files": [],
@@ -2317,7 +2317,7 @@ class TestGenerateMissingDynlibs(unittest.TestCase):
             comp_meta = {
                 "distro": "Ubuntu 22.04",
                 "gcc_version": "gcc 11.4.0",
-                "curl_version": "8.19.0",
+                "repo_version": "8.19.0",
                 "pkg_metadata": {},
                 "file_to_pkg": {},
                 "unresolved_files": [],
@@ -2373,7 +2373,7 @@ class TestVisualizationFailure(unittest.TestCase):
             comp_meta = {
                 "distro": "Ubuntu 22.04",
                 "gcc_version": "gcc 11.4.0",
-                "curl_version": "8.19.0",
+                "repo_version": "8.19.0",
                 "pkg_metadata": {},
                 "file_to_pkg": {},
                 "unresolved_files": [],
