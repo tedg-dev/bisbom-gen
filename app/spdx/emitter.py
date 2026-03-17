@@ -7,7 +7,7 @@ import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 
-from app.spdx.version_detector import VendoredVersionDetector
+from app.version_detection import VendoredVersionDetector
 
 
 class SpdxEmitter:
@@ -1221,7 +1221,12 @@ class SpdxEmitter:
             # - Go modules: DEPENDS_ON (all)
             # - Rust crates: STATIC_LINK (direct),
             #   DEPENDS_ON (transitive)
-            # - C/C++ vendored: STATIC_LINK
+            # - C/C++ vendored: STATIC_LINK +
+            #   CONTAINS (source tree containment)
+            is_vendored = (
+                not is_go_module
+                and not is_rust_crate
+            )
             if is_go_module:
                 rel_type = "DEPENDS_ON"
             elif is_rust_crate:
@@ -1240,6 +1245,18 @@ class SpdxEmitter:
                 "relationshipType": rel_type,
                 "relatedSpdxElement": pkg_id,
             })
+
+            # Vendored source: also emit CONTAINS
+            # to indicate source tree containment.
+            # This is distinct from STATIC_LINK
+            # (binary linkage) — both are needed
+            # for vulnerability tracking.
+            if is_vendored:
+                doc["relationships"].append({
+                    "spdxElementId": root_id,
+                    "relationshipType": "CONTAINS",
+                    "relatedSpdxElement": pkg_id,
+                })
 
         # --- Project source files ---
         all_source = (

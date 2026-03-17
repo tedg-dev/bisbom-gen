@@ -25,7 +25,7 @@ from pathlib import Path                 # noqa: F401
 # --- Re-exports from app.spdx ---
 from app.spdx.parser import AdgParser                        # noqa: F401
 from app.spdx.resolver import ComponentResolver               # noqa: F401
-from app.spdx.version_detector import VendoredVersionDetector  # noqa: F401
+from app.version_detection import VendoredVersionDetector       # noqa: F401
 from app.spdx.emitter import SpdxEmitter                      # noqa: F401
 from app.spdx.generator import AdgSpdxGenerator               # noqa: F401
 from app.spdx.cli import main                                 # noqa: F401

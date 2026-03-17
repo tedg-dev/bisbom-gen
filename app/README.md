@@ -57,7 +57,7 @@ version extraction, and relationship classification.
 | `generator.py` | `AdgSpdxGenerator` | Top-level orchestrator |
 | `parser.py` | `AdgParser` | Parse bomsh ADG tree database |
 | `resolver.py` | `ComponentResolver` | Group source files into components |
-| `version_detector.py` | `VendoredVersionDetector` | Extract versions from configure.ac, CMakeLists, Cargo.lock, etc. |
+| `version_detector.py` | `VendoredVersionDetector` | Backward-compat shim → `app.version_detection` |
 | `emitter.py` | `SpdxEmitter` | Assemble SPDX 2.3 JSON document |
 | `cli.py` | `main()` | CLI entry point |
 
@@ -75,6 +75,18 @@ Searches GitHub, detects build systems, and generates `config.yaml` entries.
 | `build_step_generator.py` | `BuildStepGenerator` | Generate build_steps for config.yaml |
 | `config_generator.py` | `ConfigGenerator` | Write config.yaml entries |
 | `cli.py` | `main()` | CLI entry point |
+
+### `version_detection/` — Version Detection
+
+Detects versions of vendored libraries and project root packages from source
+code. Supports 12 ordered strategies across C/C++, JavaScript, Python, and
+key-value ecosystems.
+
+| Module | Class/Function | Purpose |
+|--------|---------------|----------|
+| `detector.py` | `VendoredVersionDetector` | Orchestrates 12 strategies in priority order |
+| `strategies.py` | `parse_*()` functions | Individual strategy implementations (testable) |
+| `patterns.py` | `VER_RE`, `PATCH_SUFFIXES`, `name_prefixes()` | Regex patterns, suffix aliases, prefix generation |
 
 ## Shared Utilities
 

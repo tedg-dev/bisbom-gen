@@ -37,6 +37,9 @@ def extract_graph(doc):
                 "primaryPackagePurpose", ""
             ),
             "comment": p.get("comment", ""),
+            "vendored": "vendored" in p.get(
+                "comment", ""
+            ).lower(),
         }
 
     # Count CONTAINS relationships per package
@@ -162,6 +165,7 @@ def extract_graph(doc):
             "group": group,
             "node_type": node_type,
             "comment": info["comment"],
+            "vendored": info.get("vendored", False),
             "fileCount": file_counts.get(
                 spdx_id, 0
             ),
@@ -215,6 +219,9 @@ def generate_html(doc, output_path):
     )
     type_counts = Counter(
         n["node_type"] for n in nodes
+    )
+    vendored_count = sum(
+        1 for n in nodes if n.get("vendored")
     )
 
     html_content = f"""<!DOCTYPE html>
@@ -375,6 +382,10 @@ def generate_html(doc, output_path):
   <div class="legend-item">
     <div class="legend-dot" style="background:#4ecdc4"></div>
     <span>Static ({type_counts.get('static', 0)})</span>
+  </div>
+  <div class="legend-item">
+    <div class="legend-dot" style="background:#4ecdc4;border:2px dashed #ff8c00"></div>
+    <span>Vendored ({vendored_count})</span>
   </div>
   <div class="legend-item">
     <div class="legend-dot" style="background:#ff6b6b"></div>
@@ -595,6 +606,20 @@ node.append('circle')
   .attr('stroke-width', d => d.group === 'root' ? 2.5 : 1.5)
   .attr('stroke-opacity', 0.3);
 
+// Vendored indicator: orange dashed ring
+node.filter(d => d.vendored)
+  .append('circle')
+  .attr('r', d => {{
+    if (d.fileCount > 50) return 22;
+    if (d.fileCount > 10) return 18;
+    return 16;
+  }})
+  .attr('fill', 'none')
+  .attr('stroke', '#ff8c00')
+  .attr('stroke-width', 2)
+  .attr('stroke-dasharray', '4,3')
+  .attr('stroke-opacity', 0.85);
+
 // Glow for root
 node.filter(d => d.group === 'root')
   .append('circle')
@@ -649,6 +674,7 @@ node.on('mouseover', (event, d) => {{
   rows.push('<div class="tt-row">Purpose: <span>' + d.purpose + '</span></div>');
   rows.push('<div class="tt-row">Group: <span>' + d.group + '</span></div>');
   if (d.fileCount) rows.push('<div class="tt-row">Source files: <span>' + d.fileCount + '</span></div>');
+  if (d.vendored) rows.push('<div class="tt-row" style="color:#ff8c00;font-weight:600">⚠ Vendored dependency</div>');
   if (d.comment) rows.push('<div class="tt-row" style="margin-top:6px;font-size:11px;color:#777">' + d.comment + '</div>');
 
   tooltip.select('.tt-name').text(d.name);

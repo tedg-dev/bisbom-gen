@@ -66,7 +66,7 @@ If port 22 also fails, wait 30s and retry (sshd may still be starting).
 
 ## 4. Sync code to EC2
 
-Sync app/, docker/, tests/, and requirements.txt. **Do NOT use --delete on
+Sync all project directories and root-level files. **Do NOT use --delete on
 directories that contain Docker-generated files (like __pycache__).**
 
 ```bash
@@ -76,8 +76,14 @@ rsync -avz --exclude='__pycache__' --exclude='.pytest_cache' \
   docker/ omnibor-build:/home/ubuntu/omnibor-analysis/docker/
 rsync -avz --exclude='__pycache__' --exclude='.pytest_cache' \
   tests/ omnibor-build:/home/ubuntu/omnibor-analysis/tests/
-rsync -avz requirements.txt \
-  omnibor-build:/home/ubuntu/omnibor-analysis/requirements.txt
+rsync -avz --exclude='__pycache__' --exclude='.pytest_cache' \
+  docs/ omnibor-build:/home/ubuntu/omnibor-analysis/docs/
+rsync -avz --exclude='__pycache__' --exclude='.pytest_cache' \
+  scripts/ omnibor-build:/home/ubuntu/omnibor-analysis/scripts/
+rsync -avz --exclude='__pycache__' --exclude='.pytest_cache' \
+  .windsurf/ omnibor-build:/home/ubuntu/omnibor-analysis/.windsurf/
+rsync -avz requirements.txt requirements-dev.txt .coveragerc VERSION \
+  omnibor-build:/home/ubuntu/omnibor-analysis/
 ```
 
 ## 5. Rebuild Docker image
