@@ -1002,6 +1002,56 @@ class TestSpdxEmitterVendored(unittest.TestCase):
         ]
         self.assertEqual(len(root_contains), 2)
 
+    def test_rust_build_output_not_vendored(self):
+        """Rust target/release/deps/ must not match
+        vendored /deps/ pattern."""
+        emitter = self._emitter()
+        files = [
+            # Rust build intermediate in target/
+            {"sha1": "r1", "file_path":
+                "/repos/dura/target/release/deps/"
+                "libadler-0ae352ee44010592.rlib"},
+            # Project own source
+            {"sha1": "r2", "file_path":
+                "/repos/dura/src/main.rs"},
+        ]
+        vendored, own = (
+            emitter._detect_vendored_groups(files)
+        )
+        # .rlib should NOT be in vendored dict
+        self.assertEqual(len(vendored), 0)
+        # Both files should be in own
+        self.assertEqual(len(own), 2)
+
+    def test_is_vendored_requires_vendored_dir_match(
+        self,
+    ):
+        """CONTAINS only emitted when files actually
+        reside under a vendored directory pattern."""
+        emitter = self._emitter()
+        # File NOT in any vendored dir
+        files = [
+            {"sha1": "x1", "file_path":
+                "/repos/redis/src/server.c"},
+            {"sha1": "x2", "file_path":
+                "/repos/redis/src/networking.c"},
+        ]
+        doc = emitter.emit(
+            components=[], project_files=files,
+            doc_mapping={}, logfile_hashes={},
+        )
+        contains_rels = [
+            r for r in doc["relationships"]
+            if r["relationshipType"] == "CONTAINS"
+            and r["relatedSpdxElement"].startswith(
+                "SPDXRef-Package-"
+            )
+            and r["relatedSpdxElement"]
+            != "SPDXRef-Package-root"
+        ]
+        # No package-level CONTAINS (only file CONTAINS)
+        self.assertEqual(len(contains_rels), 0)
+
     def test_no_vendored_files_no_extra_packages(self):
         """No vendored dirs means no extra packages."""
         emitter = self._emitter()
