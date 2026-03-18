@@ -94,6 +94,57 @@ repos:
     output_binaries:
     - src/redis-server
     - src/redis-cli
+  openosc:
+    url: https://github.com/cisco/OpenOSC.git
+    branch: master
+    language: c-cpp
+    build_steps:
+    - autoreconf -vfi
+    - ./configure --disable-safec
+    - make -j$(nproc)
+    clean_cmd: make clean
+    description: Cisco Open Object Size Checking library — buffer overflow detection for C/C++ (v1.0.8, Apache 2.0)
+    output_binaries:
+    - src/.libs/libopenosc.so
+    apt_deps:
+    - autoconf
+    - automake
+    - libtool
+  node:
+    url: https://github.com/nodejs/node.git
+    branch: v22.x
+    language: c-cpp
+    build_steps:
+    - ./configure
+    - make -j$(nproc) CXXFLAGS='-Wno-error=unused-result'
+    clean_cmd: make clean
+    description: Node.js JavaScript runtime — V8, libuv, OpenSSL, zlib, nghttp2, llhttp all vendored in deps/ (~4M LoC)
+    output_binaries:
+    - out/Release/node
+    apt_deps:
+    - python3
+    - python3-pip
+    vendored_dirs:
+    - /deps/openssl/
+    - /deps/v8/
+    - /deps/uv/
+    - /deps/zlib/
+    - /deps/nghttp2/
+    - /deps/llhttp/
+    - /deps/icu-small/
+    - /deps/cares/
+    - /deps/brotli/
+    - /deps/ada/
+    - /deps/simdjson/
+    - /deps/simdutf/
+    - /deps/ngtcp2/
+    - /deps/base64/
+    - /deps/nbytes/
+    - /deps/ncrypto/
+    - /deps/uvwasi/
+    - /deps/acorn/
+    - /deps/cjs-module-lexer/
+    - /deps/undici/
   fzf:
     url: https://github.com/junegunn/fzf.git
     branch: master

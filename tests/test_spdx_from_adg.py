@@ -17,6 +17,23 @@ from spdx_from_adg import (
     SpdxEmitter,
     VendoredVersionDetector,
 )
+from app.version_detection.strategies import (
+    parse_version_file,
+    parse_kv_version_file,
+    parse_package_json,
+    parse_configure_ac,
+    parse_cmakelists,
+    parse_meson_build,
+    parse_pc_in,
+    parse_define_version_str,
+    parse_define_parts,
+    parse_define_any_version,
+    parse_header_comment,
+    parse_makefile,
+)
+from app.version_detection.patterns import (
+    name_prefixes,
+)
 
 
 class TestAdgParser(unittest.TestCase):
@@ -975,14 +992,15 @@ class TestSpdxEmitterVendored(unittest.TestCase):
         ]
         self.assertEqual(len(lua_contains), 1)
 
-        # server.c should be owned by root
+        # Root CONTAINS: server.c (source file) +
+        # lua package (vendored containment)
         root_contains = [
             r for r in doc["relationships"]
             if r["spdxElementId"]
             == "SPDXRef-Package-root"
             and r["relationshipType"] == "CONTAINS"
         ]
-        self.assertEqual(len(root_contains), 1)
+        self.assertEqual(len(root_contains), 2)
 
     def test_no_vendored_files_no_extra_packages(self):
         """No vendored dirs means no extra packages."""
@@ -1319,36 +1337,32 @@ class TestVendoredVersionDetector(unittest.TestCase):
 
     def test_version_file_unreadable(self):
         """Gracefully handle unreadable VERSION."""
-        det = VendoredVersionDetector()
-        result = det._parse_version_file(
+        result = parse_version_file(
             Path("/nonexistent/VERSION")
         )
         self.assertIsNone(result)
 
     def test_header_unreadable(self):
         """Gracefully handle unreadable header."""
-        det = VendoredVersionDetector()
-        result = det._parse_define_version_str(
+        result = parse_define_version_str(
             "/nonexistent/lib.h", ["LIB"]
         )
         self.assertIsNone(result)
-        result = det._parse_define_parts(
+        result = parse_define_parts(
             "/nonexistent/lib.h", ["LIB"]
         )
         self.assertIsNone(result)
 
     def test_header_comment_unreadable(self):
         """Gracefully handle unreadable header."""
-        det = VendoredVersionDetector()
-        result = det._parse_header_comment(
+        result = parse_header_comment(
             "/nonexistent/lib.h"
         )
         self.assertIsNone(result)
 
     def test_pc_in_unreadable(self):
         """Gracefully handle unreadable .pc.in."""
-        det = VendoredVersionDetector()
-        result = det._parse_pc_in(
+        result = parse_pc_in(
             Path("/nonexistent/lib.pc.in")
         )
         self.assertIsNone(result)
@@ -1433,16 +1447,14 @@ class TestVendoredVersionDetector(unittest.TestCase):
     def test_lib_prefix_stripping(self):
         """lib prefix is stripped for prefix
         matching."""
-        det = VendoredVersionDetector()
-        pfx = det._name_prefixes("liblua")
+        pfx = name_prefixes("liblua")
         self.assertIn("LUA", pfx)
         self.assertIn("LIBLUA", pfx)
 
     def test_suffix_stripping(self):
         """Trailing qualifiers are stripped for
         prefix matching."""
-        det = VendoredVersionDetector()
-        pfx = det._name_prefixes("libdnet-stripped")
+        pfx = name_prefixes("libdnet-stripped")
         self.assertIn("DNET", pfx)
         self.assertIn("LIBDNET", pfx)
 
@@ -1483,32 +1495,28 @@ class TestVendoredVersionDetector(unittest.TestCase):
     def test_configure_ac_unreadable(self):
         """Gracefully handle unreadable configure.ac.
         """
-        det = VendoredVersionDetector()
-        result = det._parse_configure_ac(
+        result = parse_configure_ac(
             Path("/nonexistent/configure.ac")
         )
         self.assertIsNone(result)
 
     def test_cmakelists_unreadable(self):
         """Gracefully handle unreadable CMakeLists."""
-        det = VendoredVersionDetector()
-        result = det._parse_cmakelists(
+        result = parse_cmakelists(
             Path("/nonexistent/CMakeLists.txt")
         )
         self.assertIsNone(result)
 
     def test_meson_build_unreadable(self):
         """Gracefully handle unreadable meson.build."""
-        det = VendoredVersionDetector()
-        result = det._parse_meson_build(
+        result = parse_meson_build(
             Path("/nonexistent/meson.build")
         )
         self.assertIsNone(result)
 
     def test_makefile_unreadable(self):
         """Gracefully handle unreadable Makefile."""
-        det = VendoredVersionDetector()
-        result = det._parse_makefile(
+        result = parse_makefile(
             Path("/nonexistent/Makefile")
         )
         self.assertIsNone(result)
@@ -1516,8 +1524,7 @@ class TestVendoredVersionDetector(unittest.TestCase):
     def test_define_any_version_unreadable(self):
         """Gracefully handle unreadable header for
         broad fallback."""
-        det = VendoredVersionDetector()
-        result = det._parse_define_any_version(
+        result = parse_define_any_version(
             "/nonexistent/lib.h"
         )
         self.assertIsNone(result)
@@ -2105,8 +2112,7 @@ class TestHeaderCommentBreak(unittest.TestCase):
                 "/* VERSION 9.9.9 */\n"
             )
             h.write_text("".join(lines))
-            det = VendoredVersionDetector()
-            result = det._parse_header_comment(str(h))
+            result = parse_header_comment(str(h))
             self.assertIsNone(result)
 
     def test_version_within_first_20_lines(self):
@@ -2116,8 +2122,7 @@ class TestHeaderCommentBreak(unittest.TestCase):
             lines = ["/* padding */\n"] * 5
             lines.append("/* VERSION 3.2.1 */\n")
             h.write_text("".join(lines))
-            det = VendoredVersionDetector()
-            result = det._parse_header_comment(str(h))
+            result = parse_header_comment(str(h))
             self.assertEqual(result, "3.2.1")
 
 

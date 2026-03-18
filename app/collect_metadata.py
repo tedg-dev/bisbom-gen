@@ -16,7 +16,7 @@ from pathlib import Path
 def _detect_repo_version(repo_name, repos_dir):
     """Detect the repo's own version from its source tree."""
     try:
-        from spdx.version_detector import (
+        from app.version_detection import (
             VendoredVersionDetector,
         )
     except ImportError:
