@@ -90,10 +90,11 @@ def extract_graph(doc):
             build_nodes.add(src)
         elif rt == "DEPENDS_ON":
             depends_nodes.add(src)
-            # child DEPENDS_ON parent
+            depends_nodes.add(tgt)
+            # src DEPENDS_ON tgt: src -> tgt
             children_of.setdefault(
-                tgt, []
-            ).append(src)
+                src, []
+            ).append(tgt)
         elif rt == "STATIC_LINK":
             static_nodes.add(src)
             static_nodes.add(tgt)
@@ -124,6 +125,12 @@ def extract_graph(doc):
                 )
                 queue.append(child)
 
+    # When STATIC_LINK co-exists with DEPENDS_ON
+    # (Rust, C/C++), DEPENDS_ON marks transitive
+    # deps.  When only DEPENDS_ON exists (Go),
+    # use BFS depth to distinguish direct/transitive.
+    has_static = bool(static_nodes - root_ids)
+
     nodes = []
     for spdx_id, info in pkg_map.items():
         depth = node_depth.get(spdx_id)
@@ -139,20 +146,27 @@ def extract_graph(doc):
         elif spdx_id in static_nodes:
             # Color by depth but type is static
             node_type = "static"
-            if depth is not None and depth >= 1:
+            if info.get("vendored"):
+                group = "vendored"
+            elif depth is not None and depth >= 1:
                 group = f"depth-{min(depth, 5)}"
             else:
                 group = "depth-1"
         elif spdx_id in depends_nodes:
-            # Type: direct or transitive
-            if depth == 1:
-                node_type = "direct_dep"
-            else:
+            # Classify direct vs transitive
+            if has_static:
+                # Rust/C++: DEPENDS_ON = transitive
                 node_type = "transitive_dep"
+            elif depth is not None and depth > 1:
+                # Go: depth > 1 = transitive
+                node_type = "transitive_dep"
+            else:
+                # Go: depth 1 = direct
+                node_type = "direct_dep"
             if depth is not None and depth >= 1:
                 group = f"depth-{min(depth, 5)}"
             else:
-                group = "other"
+                group = "depth-1"
         else:
             group = "other"
             node_type = "other"
@@ -164,6 +178,7 @@ def extract_graph(doc):
             "purpose": info["purpose"],
             "group": group,
             "node_type": node_type,
+            "depth": depth if depth is not None else 0,
             "comment": info["comment"],
             "vendored": info.get("vendored", False),
             "fileCount": file_counts.get(
@@ -520,6 +535,7 @@ const xPositions = {{
   'depth-3': width * 0.22,
   'depth-4': width * 0.15,
   'depth-5': width * 0.10,
+  vendored: width * 0.85,
   dynamic: width * 0.5,
   build: width * 0.5,
   other: width / 2,
@@ -533,6 +549,7 @@ const yPositions = {{
   'depth-3': height * 0.54,
   'depth-4': height * 0.56,
   'depth-5': height * 0.58,
+  vendored: height * 0.72,
   dynamic: height * 0.18,
   build: height * 0.18,
   other: height * 0.55,
@@ -550,16 +567,192 @@ const yStrengths = {{
   other: 0.12,
 }};
 
-// Simulation
+// --- Build spanning tree for fan-out force ---
+// For each dep node, figure out its tree parent so
+// 2nd-level deps can be pushed away from root.
+const nodeById = {{}};
+data.nodes.forEach(d => {{ nodeById[d.id] = d; }});
+const rootNode = data.nodes.find(
+  d => d.group === 'root'
+);
+const rootId = rootNode ? rootNode.id : null;
+
+// depsOf[X] = nodes that X depends on
+// deppedBy[Y] = nodes that depend on Y
+const depsOf = {{}};
+const deppedBy = {{}};
+data.links.forEach(l => {{
+  const sid = l.source.id || l.source;
+  const tid = l.target.id || l.target;
+  if (l.type === 'DEPENDS_ON') {{
+    if (!depsOf[sid]) depsOf[sid] = [];
+    depsOf[sid].push(tid);
+    if (!deppedBy[tid]) deppedBy[tid] = [];
+    deppedBy[tid].push(sid);
+  }} else if (l.type === 'STATIC_LINK') {{
+    if (tid === rootId) {{
+      if (!depsOf[tid]) depsOf[tid] = [];
+      depsOf[tid].push(sid);
+      if (!deppedBy[sid]) deppedBy[sid] = [];
+      deppedBy[sid].push(tid);
+    }} else if (sid === rootId) {{
+      if (!depsOf[sid]) depsOf[sid] = [];
+      depsOf[sid].push(tid);
+      if (!deppedBy[tid]) deppedBy[tid] = [];
+      deppedBy[tid].push(sid);
+    }}
+  }}
+}});
+
+// Build tree: prefer non-root parents so that
+// shared deps become children of their non-root
+// parent (depth 2+) instead of root (depth 1).
+const treeParent = {{}};  // child -> parent id
+const treeDepthMap = {{}};
+const treeVisited = new Set();
+if (rootId) {{
+  treeVisited.add(rootId);
+  treeDepthMap[rootId] = 0;
+  // Phase 1: seed with root-exclusive deps
+  const queue = [];
+  (depsOf[rootId] || []).forEach(c => {{
+    const nonRoot = (deppedBy[c] || []).filter(
+      p => p !== rootId
+    );
+    if (nonRoot.length === 0) {{
+      treeVisited.add(c);
+      treeParent[c] = rootId;
+      treeDepthMap[c] = 1;
+      queue.push(c);
+    }}
+  }});
+  // Phase 2: BFS from seeds
+  while (queue.length) {{
+    const n = queue.shift();
+    (depsOf[n] || []).forEach(c => {{
+      if (!treeVisited.has(c)) {{
+        treeVisited.add(c);
+        treeParent[c] = n;
+        treeDepthMap[c] = treeDepthMap[n] + 1;
+        queue.push(c);
+      }}
+    }});
+  }}
+  // Phase 3: remaining go under root
+  (depsOf[rootId] || []).forEach(c => {{
+    if (!treeVisited.has(c)) {{
+      treeVisited.add(c);
+      treeParent[c] = rootId;
+      treeDepthMap[c] = 1;
+      const q2 = [c];
+      while (q2.length) {{
+        const n2 = q2.shift();
+        (depsOf[n2] || []).forEach(c2 => {{
+          if (!treeVisited.has(c2)) {{
+            treeVisited.add(c2);
+            treeParent[c2] = n2;
+            treeDepthMap[c2] = treeDepthMap[n2] + 1;
+            q2.push(c2);
+          }}
+        }});
+      }}
+    }}
+  }});
+}}
+
+// Collect depth-2+ nodes for fan-out
+const deepNodes = data.nodes.filter(
+  d => (treeDepthMap[d.id] || 0) >= 2
+);
+// Cache each deep node's depth-1 ancestor
+const depthOneAnc = {{}};
+deepNodes.forEach(d => {{
+  let anc = d.id;
+  while (treeDepthMap[anc] > 1 && treeParent[anc])
+    anc = treeParent[anc];
+  depthOneAnc[d.id] = anc;
+}});
+
+console.log('Fan-out: ' + deepNodes.length
+  + ' depth-2+ nodes out of ' + data.nodes.length);
+deepNodes.forEach(d => {{
+  const pName = nodeById[treeParent[d.id]]
+    ? nodeById[treeParent[d.id]].name : '?';
+  const aName = nodeById[depthOneAnc[d.id]]
+    ? nodeById[depthOneAnc[d.id]].name : '?';
+  console.log('  depth=' + treeDepthMap[d.id]
+    + ' ' + d.name + ' -> parent:' + pName
+    + ' anchor:' + aName);
+}});
+
+// Build set of depth-2+ ids for force callbacks
+const deepIdSet = new Set(
+  deepNodes.map(d => d.id));
+
+// Force simulation (original layout + fan-out)
 const simulation = d3.forceSimulation(data.nodes)
   .force('link', d3.forceLink(data.links)
     .id(d => d.id)
-    .distance(d => d.type === 'BUILD_TOOL_OF' ? 180 : 140))
-  .force('charge', d3.forceManyBody().strength(-600))
-  .force('center', d3.forceCenter(width / 2, height / 2))
-  .force('x', d3.forceX(d => xPositions[d.group] || width / 2).strength(0.15))
-  .force('y', d3.forceY(d => yPositions[d.group] || height / 2).strength(d => yStrengths[d.group] || 0.12))
+    .distance(d => {{
+      if (d.type === 'BUILD_TOOL_OF') return 180;
+      return 140;
+    }}))
+  .force('charge', d3.forceManyBody()
+    .strength(-600))
+  // No forceCenter — forceX/forceY handle
+  // centering.  forceCenter shifts centroid of
+  // ALL nodes, counteracting rightward fanout.
+  .force('x', d3.forceX(
+    d => xPositions[d.group] || width / 2)
+    .strength(d => {{
+      // No X pull for depth-2+ nodes (fanout
+      // controls their position instead)
+      if (deepIdSet.has(d.id)) return 0;
+      return 0.15;
+    }}))
+  .force('y', d3.forceY(
+    d => yPositions[d.group] || height / 2)
+    .strength(d => {{
+      if (d.group === 'dynamic'
+          || d.group === 'build') return 0.5;
+      if (deepIdSet.has(d.id)) return 0;
+      if (d.group === 'root') return 0.08;
+      return 0.10;
+    }}))
   .force('collision', d3.forceCollide().radius(50));
+
+// --- Fan-out force (alpha-dependent, strong) ---
+// Pushes depth-2+ nodes beyond their parent in the
+// direction from root through their depth-1 ancestor.
+// Scales with alpha so the sim properly settles.
+if (deepNodes.length > 0 && rootNode) {{
+  const fanout = function(alpha) {{
+    const rx = rootNode.x, ry = rootNode.y;
+    deepNodes.forEach(d => {{
+      const anc = nodeById[depthOneAnc[d.id]];
+      if (!anc) return;
+      // Direction: root -> depth-1 ancestor
+      const dx = anc.x - rx;
+      const dy = anc.y - ry;
+      const dist = Math.sqrt(dx*dx + dy*dy);
+      if (dist < 1) return;
+      const nx = dx / dist, ny = dy / dist;
+      // Target: beyond parent in that direction
+      const par = nodeById[treeParent[d.id]];
+      if (!par) return;
+      // Always push one level (160px) beyond
+      // direct parent — NOT accumulated.
+      const tx = par.x + nx * 160;
+      const ty = par.y + ny * 160;
+      // Strong alpha-dependent force
+      const s = alpha * 0.8;
+      d.vx += (tx - d.x) * s;
+      d.vy += (ty - d.y) * s;
+    }});
+  }};
+  fanout.initialize = function() {{}};
+  simulation.force('fanout', fanout);
+}}
 
 // Links
 const link = g.append('g')
@@ -673,6 +866,8 @@ node.on('mouseover', (event, d) => {{
   if (d.version) rows.push('<div class="tt-row">Version: <span>' + d.version + '</span></div>');
   rows.push('<div class="tt-row">Purpose: <span>' + d.purpose + '</span></div>');
   rows.push('<div class="tt-row">Group: <span>' + d.group + '</span></div>');
+  const td = treeDepthMap[d.id];
+  if (td !== undefined) rows.push('<div class="tt-row">Tree depth: <span>' + td + '</span></div>');
   if (d.fileCount) rows.push('<div class="tt-row">Source files: <span>' + d.fileCount + '</span></div>');
   if (d.vendored) rows.push('<div class="tt-row" style="color:#ff8c00;font-weight:600">⚠ Vendored dependency</div>');
   if (d.comment) rows.push('<div class="tt-row" style="margin-top:6px;font-size:11px;color:#777">' + d.comment + '</div>');
@@ -707,14 +902,14 @@ simulation.on('tick', () => {{
 }});
 
 function dragstarted(event, d) {{
-  if (!event.active) simulation.alphaTarget(0.3).restart();
+  simulation.alphaTarget(0.01).restart();
   d.fx = d.x; d.fy = d.y;
 }}
 function dragged(event, d) {{
   d.fx = event.x; d.fy = event.y;
 }}
 function dragended(event, d) {{
-  if (!event.active) simulation.alphaTarget(0);
+  simulation.alphaTarget(0);
   d.fx = null; d.fy = null;
 }}
 
@@ -813,6 +1008,11 @@ labels.append('text')
   .attr('x', width * 0.22)
   .attr('y', 80)
   .text('\u2190 TRANSITIVE');
+labels.append('text')
+  .attr('class', 'group-label')
+  .attr('x', width * 0.85)
+  .attr('y', height * 0.72 - 20)
+  .text('VENDORED \u2193');
 </script>
 </body>
 </html>"""
