@@ -420,6 +420,15 @@ class SpdxEmitter:
             # (e.g. /libnetutil/../nbase/x.h -> /nbase/x.h)
             fp = str(Path(art["file_path"]).resolve())
             matched = False
+            # Skip Rust build output directories —
+            # target/release/deps/ and target/debug/deps/
+            # contain .rlib intermediates that falsely
+            # match the /deps/ vendored pattern.
+            if "/target/release/" in fp or (
+                "/target/debug/" in fp
+            ):
+                own.append(art)
+                continue
             # Try Rust crate from Cargo registry first
             crate_name, _ = (
                 self._rust_crate_from_registry_path(fp)
@@ -1223,9 +1232,18 @@ class SpdxEmitter:
             #   DEPENDS_ON (transitive)
             # - C/C++ vendored: STATIC_LINK +
             #   CONTAINS (source tree containment)
+            # A package is vendored only if its
+            # source files actually reside under a
+            # vendored directory pattern (not just
+            # because it's non-Go / non-Rust).
             is_vendored = (
                 not is_go_module
                 and not is_rust_crate
+                and any(
+                    vd in fp_
+                    for fp_ in file_paths
+                    for vd in self._vendored_dirs
+                )
             )
             if is_go_module:
                 rel_type = "DEPENDS_ON"
