@@ -599,9 +599,42 @@ const svg = d3.select('#graph')
 
 // Zoom
 const g = svg.append('g');
-svg.call(d3.zoom()
-  .scaleExtent([0.2, 5])
-  .on('zoom', (e) => g.attr('transform', e.transform)));
+const zoom = d3.zoom()
+  .scaleExtent([0.1, 5])
+  .on('zoom', (e) => g.attr('transform', e.transform));
+svg.call(zoom);
+
+// Zoom-to-fit: compute bounding box of all nodes
+// and apply transform to fit within viewport
+function zoomToFit(duration) {{
+  const pad = 60;
+  let x0 = Infinity, y0 = Infinity;
+  let x1 = -Infinity, y1 = -Infinity;
+  data.nodes.forEach(d => {{
+    if (d.x < x0) x0 = d.x;
+    if (d.y < y0) y0 = d.y;
+    if (d.x > x1) x1 = d.x;
+    if (d.y > y1) y1 = d.y;
+  }});
+  const bw = x1 - x0 || 1;
+  const bh = y1 - y0 || 1;
+  const cx = (x0 + x1) / 2;
+  const cy = (y0 + y1) / 2;
+  const scale = Math.min(
+    (width - pad * 2) / bw,
+    (height - pad * 2) / bh,
+    1.5);
+  const t = d3.zoomIdentity
+    .translate(width / 2, height / 2)
+    .scale(scale)
+    .translate(-cx, -cy);
+  if (duration) {{
+    svg.transition().duration(duration)
+      .call(zoom.transform, t);
+  }} else {{
+    svg.call(zoom.transform, t);
+  }}
+}}
 
 // Arrow markers
 const defs = svg.append('defs');
@@ -1020,6 +1053,10 @@ simulation.on('tick', () => {{
   node.attr('transform', d => 'translate(' + d.x + ',' + d.y + ')');
 }});
 
+simulation.on('end', () => {{
+  zoomToFit(600);
+}});
+
 function dragstarted(event, d) {{
   simulation.alphaTarget(0.01).restart();
   d.fx = d.x; d.fy = d.y;
@@ -1106,8 +1143,13 @@ searchInput.addEventListener('input', () => {{
     const m = matches[0];
     selectedNode = null;
     highlightConnections(m);
-    const t = d3.zoomIdentity.translate(width/2 - m.x, height/2 - m.y);
-    svg.transition().duration(500).call(d3.zoom().transform, t);
+    const scale = 1.2;
+    const t = d3.zoomIdentity
+      .translate(width/2, height/2)
+      .scale(scale)
+      .translate(-m.x, -m.y);
+    svg.transition().duration(500)
+      .call(zoom.transform, t);
   }}
 }});
 
