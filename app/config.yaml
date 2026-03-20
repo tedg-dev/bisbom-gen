@@ -38,8 +38,11 @@ repos:
     - ffmpeg
     - ffprobe
     - libavcodec/libavcodec.so
+    - libavdevice/libavdevice.so
+    - libavfilter/libavfilter.so
     - libavformat/libavformat.so
     - libavutil/libavutil.so
+    - libswresample/libswresample.so
     - libswscale/libswscale.so
     apt_deps:
     - libssl-dev
