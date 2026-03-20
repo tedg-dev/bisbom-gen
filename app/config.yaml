@@ -88,7 +88,7 @@ repos:
     - /nsock/
   redis:
     url: https://github.com/redis/redis.git
-    branch: unstable
+    branch: "8.0.6"
     language: c-cpp
     build_steps:
     - make -j$(nproc)
