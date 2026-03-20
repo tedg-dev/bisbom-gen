@@ -31,7 +31,7 @@ This project instruments C/C++, Rust, Go, and Java open-source builds with [Omni
 
 ### What is Build Interception?
 
-Build interception hooks into the compiler and linker during a software build to observe exactly which source files are compiled into which output artifacts. [OmniBOR's Bomtrace](https://github.com/omnibor/bomsh) uses `strace` to intercept these calls and produce an **Artifact Dependency Graph (ADG)** — a cryptographically verifiable record of what was built from what. C/C++ builds use bomtrace3; Rust and Go builds use bomtrace2. Java uses strace-based post-build analysis. See [Go Language Support](docs/go-language-support.md) and [Analyzed vs Build SBOMs](docs/analyzed-vs-build-sboms.md) for details.
+Build interception hooks into the compiler and linker during a software build to observe exactly which source files are compiled into which output artifacts. [OmniBOR's Bomtrace](https://github.com/omnibor/bomsh) uses `strace` to intercept these calls and produce an **Artifact Dependency Graph (ADG)** — a cryptographically verifiable record of what was built from what. C/C++ builds use bomtrace3; Rust and Go builds use bomtrace2. Java uses strace-based post-build analysis. See [Go Language Support](docs/go-language-support.md), [Analyzed vs Build SBOMs](docs/analyzed-vs-build-sboms.md), and [Stable Tag Pinning](docs/stable-tag-pinning.md) for details.
 
 ## Project Structure
 
