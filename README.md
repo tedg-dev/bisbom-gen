@@ -1,6 +1,6 @@
 # OmniBOR Analysis
 
-> SPDX SBOM generation via [OmniBOR](https://omnibor.io/) build interception for C/C++ and Rust projects.
+> SPDX SBOM generation via [OmniBOR](https://omnibor.io/) build interception for C/C++, Rust, Go, and Java projects.
 
 [![License](https://img.shields.io/badge/license-TBD-lightgrey.svg)](#license)
 
@@ -19,7 +19,7 @@
 
 ## Overview
 
-This project instruments C/C++ and Rust open-source builds with [OmniBOR/Bomsh](https://github.com/omnibor/bomsh) to generate **SPDX 2.3 SBOMs** via build interception. For each compiled binary, it produces a full dependency graph capturing:
+This project instruments C/C++, Rust, Go, and Java open-source builds with [OmniBOR/Bomsh](https://github.com/omnibor/bomsh) to generate **SPDX 2.3 SBOMs** via build interception. For each compiled binary, it produces a full dependency graph capturing:
 
 - **Static dependencies** (STATIC_LINK) — vendored libraries compiled into the binary
 - **Dynamic dependencies** (DYNAMIC_LINK) — system shared libraries resolved via ldd/readelf
@@ -31,7 +31,7 @@ This project instruments C/C++ and Rust open-source builds with [OmniBOR/Bomsh](
 
 ### What is Build Interception?
 
-Build interception hooks into the compiler and linker during a software build to observe exactly which source files are compiled into which output artifacts. [OmniBOR's Bomtrace](https://github.com/omnibor/bomsh) uses `strace` to intercept these calls and produce an **Artifact Dependency Graph (ADG)** — a cryptographically verifiable record of what was built from what. C/C++ builds use bomtrace3; Rust builds use bomtrace2 with default configuration. Go support is experimental (see [Go Language Support](docs/go-language-support.md)).
+Build interception hooks into the compiler and linker during a software build to observe exactly which source files are compiled into which output artifacts. [OmniBOR's Bomtrace](https://github.com/omnibor/bomsh) uses `strace` to intercept these calls and produce an **Artifact Dependency Graph (ADG)** — a cryptographically verifiable record of what was built from what. C/C++ builds use bomtrace3; Rust and Go builds use bomtrace2. Java uses strace-based post-build analysis. See [Go Language Support](docs/go-language-support.md) and [Analyzed vs Build SBOMs](docs/analyzed-vs-build-sboms.md) for details.
 
 ## Project Structure
 
@@ -40,13 +40,15 @@ omnibor-analysis/
 ├── app/                    Orchestration scripts and modular packages
 │   ├── pipeline/           Analysis pipeline (clone, build, instrument, generate SBOMs)
 │   ├── spdx/              Per-binary SPDX 2.3 generation from ADG data
+│   ├── viz/               D3.js visualization package (extract, styles, JS templates)
+│   ├── version_detection/ Package version detection (12 ordered strategies)
 │   ├── repo_discovery/    Auto-discover and configure repos from GitHub
 │   └── templates/         Report templates
-├── docker/                Docker environment (Linux + gcc + Rust + Go + bomtrace)
+├── docker/                Docker environment (Linux + gcc + Rust + Go + Maven + bomtrace)
 ├── docs/                  Timestamped results, reports, and methodology
 │   └── summary/           Cross-repo findings and architecture docs
 ├── terraform/             AWS EC2 infrastructure as code
-├── tests/                 Unit tests (427 tests, 99% coverage)
+├── tests/                 Unit tests (670 tests)
 ├── repos/                 Cloned target repositories (gitignored)
 ├── output/                Generated artifacts: SBOMs, ADGs, binaries (gitignored)
 ├── .windsurf/             Cascade AI rules and workflows
@@ -133,26 +135,39 @@ docker-compose -f docker/docker-compose.yml run --rm omnibor-env bash
 | [redis](https://github.com/redis/redis) | 8 vendored static libs | make | Vendored library detection |
 | [FFmpeg](https://github.com/FFmpeg/FFmpeg) | libx264, libx265, libvpx, libopus, OpenSSL, zlib, 20+ more | autoconf/make | Large-scale, 20+ third-party libs |
 | [nmap](https://github.com/nmap/nmap) | 7 vendored + 14 dynamic | autoconf/make | Mixed vendored + system deps |
+| [Node.js](https://github.com/nodejs/node) | V8, libuv, OpenSSL, zlib, nghttp2, 20 vendored | ./configure + make | Massive vendored tree (~4M LoC) |
+| [OpenOSC](https://github.com/cisco/OpenOSC) | Minimal (libc only) | autoconf/make | Small C library, minimal deps |
 
 ### Rust (bomtrace2)
 
-| Repo | Direct crates (STATIC_LINK) | Transitive crates (DEPENDS_ON) | Dynamic libs | Purpose |
-|------|-----------------------------|-------------------------------|--------------|----------|
-| [oxipng](https://github.com/oxipng/oxipng) | 11 | 33 | 2 | First Rust target, PNG optimizer |
-| [dura](https://github.com/tkellogg/dura) | 108 | 77 | 4 | Complex git2-rs binding layer depth |
+| Repo | Crates (STATIC_LINK) | Dynamic libs | Purpose |
+|------|---------------------|--------------|----------|
+| [oxipng](https://github.com/oxipng/oxipng) | 44 | 2 | First Rust target, PNG optimizer |
+| [dura](https://github.com/tkellogg/dura) | 92 | 4 | Complex git2-rs binding layer depth |
 
-Rust crates are classified as direct (from `Cargo.toml` → STATIC_LINK) or transitive (from `Cargo.lock` only → DEPENDS_ON). Each crate gets a `pkg:cargo` PURL with the version from `Cargo.lock`.
+All Rust crates use STATIC_LINK (compiled into the binary). Each crate gets a `pkg:cargo` PURL with the version from `Cargo.lock`.
 
-### Go (bomtrace2) — Experimental
-
-Go build interception is functional but does not yet provide efficient build-time dependency details. Go support is TBD for production use.
+### Go (bomtrace2)
 
 | Repo | Direct deps | Indirect deps | Purpose |
 |------|-------------|---------------|----------|
+| [fzf](https://github.com/junegunn/fzf) | 7 | 4 | Small Go project, fuzzy finder |
 | [lazygit](https://github.com/jesseduffield/lazygit) | 33 | 29 | Rich Go dependency graph |
-| [pocketbase](https://github.com/pocketbase/pocketbase) | ~20 | ~15 | Go backend framework |
+| [croc](https://github.com/schollz/croc) | ~10-15 | ~15 | Secure file transfer |
+| [dive](https://github.com/wagoodman/dive) | ~15-20 | ~25 | Docker image explorer |
+| [gdu](https://github.com/dundee/gdu) | ~10-15 | ~15-20 | Disk usage analyzer |
 
-For details on Go support, see [Go Language Support](docs/go-language-support.md).
+Go modules are classified as direct or indirect from `go.mod`. Each gets a `pkg:golang` PURL. For details, see [Go Language Support](docs/go-language-support.md).
+
+### Java (strace + post-build analysis)
+
+| Repo | Direct deps | Transitive deps | Purpose |
+|------|-------------|-----------------|----------|
+| [checkstyle](https://github.com/checkstyle/checkstyle) | 10 | 21 | Static analysis, deep Maven tree |
+| [jsoup](https://github.com/jhy/jsoup) | 0 | 0 | HTML parser, zero runtime deps |
+| [crawler4j](https://github.com/yasserg/crawler4j) | ~42 | ~35 | Web crawler, deep hierarchy |
+
+Java uses strace-based post-build analysis instead of bomtrace. Maven dependencies are classified as direct (depth 1) or transitive (depth 2+) via BFS.
 
 To add a new target repository, see [CONTRIBUTING.md](docs/CONTRIBUTING.md#adding-a-new-target-repository).
 
@@ -162,12 +177,13 @@ To add a new target repository, see [CONTRIBUTING.md](docs/CONTRIBUTING.md#addin
 
 Each analysis run produces SPDX files per output binary:
 
-| File | Purpose |
-|------|----------|
-| `<binary>_adg.spdx.json` | **Primary output.** Full dependency graph from build interception (`DEPENDS_ON`, `STATIC_LINK`, `DYNAMIC_LINK`, `BUILD_TOOL_OF`). |
-| `<binary>_omnibor.spdx.json` | OmniBOR artifact identity. Lists cryptographic hashes for provenance tracking. No dependency relationships (by design). |
+| File | CISA Type | Purpose |
+|------|-----------|----------|
+| `<binary>_analyzed.spdx.json` | Analyzed | Components compiled into the binary (STATIC_LINK only). For vulnerability scanning and license compliance. |
+| `<binary>_build.spdx.json` | Build | Full dependency graph: static + dynamic + build tools + transitive deps. For build reproducibility and supply chain audit. |
+| `<binary>_omnibor.spdx.json` | — | OmniBOR artifact identity. Cryptographic hashes for provenance tracking. No dependency relationships (by design). |
 
-Each `.spdx.json` has a corresponding `.spdx.html` interactive D3.js visualization.
+Each `.spdx.json` has a corresponding `.spdx.html` interactive D3.js visualization. See [Analyzed vs Build SBOMs](docs/analyzed-vs-build-sboms.md) for the rationale behind the two-file approach.
 
 ### Artifacts (not tracked in git)
 
@@ -185,7 +201,7 @@ Each `.spdx.json` has a corresponding `.spdx.html` interactive D3.js visualizati
 | `docs/runtime/{lang}/{repo}/{ts}/runtime.md` | Build time and performance metrics |
 | `docs/summary/` | Cross-repo findings and methodology |
 
-**Path convention:** `{lang}` is `c-cpp`, `rust`, or `go`. `{ts}` is `YYYY-MM-DD_HHMM`.
+**Path convention:** `{lang}` is `c-cpp`, `rust`, `go`, or `java`. `{ts}` is `YYYY-MM-DD_HHMM`.
 
 ## Contributing
 

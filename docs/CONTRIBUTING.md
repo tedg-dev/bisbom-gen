@@ -129,7 +129,7 @@ repos:
   newrepo:
     url: https://github.com/org/newrepo.git
     branch: main
-    language: c-cpp          # c-cpp, rust, or go
+    language: c-cpp          # c-cpp, rust, go, or java
     build_steps:
       - autoreconf -fi
       - ./configure --with-xxx
@@ -158,7 +158,7 @@ For Rust repos, use `language: rust` and `cargo build --release`:
 
 > **Important:** For C/C++ repos, the last entry in `build_steps` must be the `make` command — this is the step that gets wrapped with `bomtrace3`. For Rust repos, it must be `cargo build`.
 >
-> **Note:** Go support (`language: go`) is experimental and does not yet provide efficient build-time dependency details. Go repos are TBD for production use.
+> **Note:** For Java repos, use `language: java` and `mvn package -DskipTests -q` as the build step. Java uses strace-based post-build analysis instead of bomtrace.
 
 ### 2. Add build dependencies to `docker/Dockerfile`
 
@@ -201,5 +201,5 @@ docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
 - All analysis results go in `docs/{lang}/{repo}/{ts}/` (e.g., `docs/rust/oxipng/2026-03-06_2235/build.md`)
 - Cross-repo summaries go in `docs/summary/`
 - Runtime/performance metrics go in `docs/runtime/{lang}/{repo}/{ts}/`
-- `{lang}` is `c-cpp`, `rust`, or `go`. `{ts}` is `YYYY-MM-DD_HHMM`.
+- `{lang}` is `c-cpp`, `rust`, `go`, or `java`. `{ts}` is `YYYY-MM-DD_HHMM`.
 - Update `README.md` when adding new target repos or changing workflows
