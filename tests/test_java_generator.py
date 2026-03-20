@@ -401,6 +401,26 @@ class TestGetVersion(unittest.TestCase):
             )
             self.assertEqual(gen._get_version(), "unknown")
 
+    def test_version_strips_snapshot(self):
+        with tempfile.TemporaryDirectory() as td:
+            repos = Path(td) / "repos"
+            repo = repos / "myapp"
+            repo.mkdir(parents=True)
+            pom = repo / "pom.xml"
+            pom.write_text(
+                '<project>\n'
+                '  <version>10.13.4-SNAPSHOT</version>\n'
+                '</project>\n'
+            )
+            gen = JavaSpdxGenerator(
+                bom_dir="/tmp/bom",
+                repos_dir=str(repos),
+                repo_name="myapp",
+            )
+            self.assertEqual(
+                gen._get_version(), "10.13.4"
+            )
+
 
 class TestGetMavenDeps(unittest.TestCase):
     """Tests for _get_maven_deps."""
@@ -614,9 +634,14 @@ class TestBuildSpdx(unittest.TestCase):
             if r["relationshipType"] == "DEPENDS_ON"
         ]
         self.assertEqual(len(rels), 1)
-        self.assertIn(
+        # root DEPENDS_ON dep (correct SPDX direction)
+        self.assertEqual(
+            rels[0]["spdxElementId"],
             "SPDXRef-Package-myapp.jar",
+        )
+        self.assertEqual(
             rels[0]["relatedSpdxElement"],
+            "SPDXRef-Dep-0",
         )
 
     def test_transitive_compile_dep_depends_on(self):
@@ -649,11 +674,23 @@ class TestBuildSpdx(unittest.TestCase):
         ]
         # Both direct and transitive use DEPENDS_ON
         self.assertEqual(len(depends), 2)
-        # Transitive child points to parent
-        child_rel = depends[1]
+        # Direct: root DEPENDS_ON parent-lib
         self.assertEqual(
-            child_rel["relatedSpdxElement"],
+            depends[0]["spdxElementId"],
+            "SPDXRef-Package-myapp.jar",
+        )
+        self.assertEqual(
+            depends[0]["relatedSpdxElement"],
             "SPDXRef-Dep-0",
+        )
+        # Transitive: parent DEPENDS_ON child
+        self.assertEqual(
+            depends[1]["spdxElementId"],
+            "SPDXRef-Dep-0",
+        )
+        self.assertEqual(
+            depends[1]["relatedSpdxElement"],
+            "SPDXRef-Dep-1",
         )
 
     def test_provided_dep_build_tool_of(self):
@@ -725,9 +762,14 @@ class TestBuildSpdx(unittest.TestCase):
             if r["relationshipType"] == "DEPENDS_ON"
         ]
         self.assertEqual(len(depends), 1)
-        self.assertIn(
+        # Orphan falls to root: root DEPENDS_ON orphan
+        self.assertEqual(
+            depends[0]["spdxElementId"],
             "SPDXRef-Package-myapp.jar",
+        )
+        self.assertEqual(
             depends[0]["relatedSpdxElement"],
+            "SPDXRef-Dep-0",
         )
 
     def test_optional_dep_comment(self):

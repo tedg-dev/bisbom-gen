@@ -42,21 +42,28 @@ def extract_graph(doc):
             ).lower(),
         }
 
-    # Count CONTAINS relationships per package
+    # Count CONTAINS / CONTAINED_BY relationships
+    # per package (Java uses CONTAINED_BY)
     file_counts = {}
     for r in doc.get("relationships", []):
-        if r["relationshipType"] == "CONTAINS":
+        rt = r["relationshipType"]
+        if rt == "CONTAINS":
             src = r["spdxElementId"]
             file_counts[src] = (
                 file_counts.get(src, 0) + 1
             )
+        elif rt == "CONTAINED_BY":
+            tgt = r["relatedSpdxElement"]
+            file_counts[tgt] = (
+                file_counts.get(tgt, 0) + 1
+            )
 
     # Classify packages into groups
     # Relationship directions vary by type:
-    #   STATIC_LINK:  dep → root   (source = dep)
-    #   DYNAMIC_LINK: root → lib   (target = lib)
+    #   STATIC_LINK:  root → dep (root links dep)
+    #   DYNAMIC_LINK: root → lib (target = lib)
     #   BUILD_TOOL_OF: tool → root (source = tool)
-    #   DEPENDS_ON:   child → parent (source = child)
+    #   DEPENDS_ON:   parent → child (parent needs child)
     rels = doc.get("relationships", [])
     dynamic_nodes = set()
     build_nodes = set()
@@ -88,6 +95,10 @@ def extract_graph(doc):
             dynamic_nodes.add(tgt)
         elif rt == "BUILD_TOOL_OF":
             build_nodes.add(src)
+            # Reverse for BFS: target -> tool
+            children_of.setdefault(
+                tgt, []
+            ).append(src)
         elif rt == "DEPENDS_ON":
             depends_nodes.add(src)
             depends_nodes.add(tgt)
@@ -125,10 +136,21 @@ def extract_graph(doc):
                 )
                 queue.append(child)
 
-    # When STATIC_LINK co-exists with DEPENDS_ON
-    # (Rust, C/C++), DEPENDS_ON marks transitive
-    # deps.  When only DEPENDS_ON exists (Go),
-    # use BFS depth to distinguish direct/transitive.
+    # Detect Go modules by parsing comment field
+    go_node_kind = {}  # spdx_id -> 'stdlib'|'direct'|'indirect'
+    for spdx_id, info in pkg_map.items():
+        cmt = info.get("comment", "").lower()
+        if "go standard library" in cmt:
+            go_node_kind[spdx_id] = "stdlib"
+        elif "go module (direct)" in cmt:
+            go_node_kind[spdx_id] = "direct"
+        elif "go module (indirect)" in cmt:
+            go_node_kind[spdx_id] = "indirect"
+
+    # When only DEPENDS_ON exists (Go, Java), use
+    # BFS depth to distinguish direct vs transitive.
+    # Rust uses STATIC_LINK for all crates.
+    # C/C++ uses STATIC_LINK for vendored/compiled.
     has_static = bool(static_nodes - root_ids)
 
     nodes = []
@@ -141,8 +163,12 @@ def extract_graph(doc):
             group = "dynamic"
             node_type = "dynamic"
         elif spdx_id in build_nodes:
-            group = "build"
-            node_type = "build"
+            if depth is not None and depth >= 2:
+                group = "build_deep"
+                node_type = "build_deep"
+            else:
+                group = "build"
+                node_type = "build"
         elif spdx_id in static_nodes:
             # Color by depth but type is static
             node_type = "static"
@@ -153,19 +179,34 @@ def extract_graph(doc):
             else:
                 group = "depth-1"
         elif spdx_id in depends_nodes:
-            # Classify direct vs transitive
-            if has_static:
-                # Rust/C++: DEPENDS_ON = transitive
+            # Go module type grouping
+            gk = go_node_kind.get(spdx_id)
+            if gk == "stdlib":
+                node_type = "go_stdlib"
+                group = "go_stdlib"
+            elif gk == "direct":
+                node_type = "go_direct"
+                group = "go_direct"
+            elif gk == "indirect":
+                node_type = "go_indirect"
+                group = "go_indirect"
+            elif has_static:
+                # C/C++: DEPENDS_ON = transitive
                 node_type = "transitive_dep"
+                if depth is not None and depth >= 1:
+                    group = f"depth-{min(depth, 5)}"
+                else:
+                    group = "depth-1"
             elif depth is not None and depth > 1:
-                # Go: depth > 1 = transitive
+                # Java/other: depth > 1 = transitive
                 node_type = "transitive_dep"
+                if depth is not None and depth >= 1:
+                    group = f"depth-{min(depth, 5)}"
+                else:
+                    group = "depth-1"
             else:
-                # Go: depth 1 = direct
+                # Java/other: depth 1 = direct
                 node_type = "direct_dep"
-            if depth is not None and depth >= 1:
-                group = f"depth-{min(depth, 5)}"
-            else:
                 group = "depth-1"
         else:
             group = "other"
@@ -224,10 +265,12 @@ def generate_html(doc, output_path):
     rel_counts = Counter(
         e["type"] for e in edges
     )
-    # Also count CONTAINS from original doc
+    # Also count CONTAINS/CONTAINED_BY from original doc
     contains_count = sum(
         1 for r in doc.get("relationships", [])
-        if r["relationshipType"] == "CONTAINS"
+        if r["relationshipType"] in (
+            "CONTAINS", "CONTAINED_BY"
+        )
     )
     grp_counts = Counter(
         n["group"] for n in nodes
@@ -238,6 +281,50 @@ def generate_html(doc, output_path):
     vendored_count = sum(
         1 for n in nodes if n.get("vendored")
     )
+
+    # Build conditional legend sections
+    build_deep_legend = ""
+    if type_counts.get("build_deep", 0):
+        build_deep_legend = (
+            '  <div class="legend-item">\n'
+            '    <div class="legend-dot" '
+            'style="background:#e6a819"></div>\n'
+            "    <span>Build tool chain "
+            f"({type_counts['build_deep']})"
+            "</span>\n"
+            "  </div>\n"
+        )
+    go_legend = ""
+    if type_counts.get("go_stdlib", 0):
+        go_legend += (
+            '  <div class="legend-item">\n'
+            '    <div class="legend-dot" '
+            'style="background:#38bdf8"></div>\n'
+            "    <span>Go stdlib "
+            f"({type_counts['go_stdlib']})"
+            "</span>\n"
+            "  </div>\n"
+        )
+    if type_counts.get("go_direct", 0):
+        go_legend += (
+            '  <div class="legend-item">\n'
+            '    <div class="legend-dot" '
+            'style="background:#34d399"></div>\n'
+            "    <span>Go direct "
+            f"({type_counts['go_direct']})"
+            "</span>\n"
+            "  </div>\n"
+        )
+    if type_counts.get("go_indirect", 0):
+        go_legend += (
+            '  <div class="legend-item">\n'
+            '    <div class="legend-dot" '
+            'style="background:#fb7185"></div>\n'
+            "    <span>Go indirect "
+            f"({type_counts['go_indirect']})"
+            "</span>\n"
+            "  </div>\n"
+        )
 
     html_content = f"""<!DOCTYPE html>
 <html lang="en">
@@ -410,7 +497,7 @@ def generate_html(doc, output_path):
     <div class="legend-dot" style="background:#ffd93d"></div>
     <span>Build tool ({type_counts.get('build', 0)})</span>
   </div>
-  <div class="legend-item">
+{build_deep_legend}  <div class="legend-item">
     <div class="legend-dot" style="background:#4ecdc4"></div>
     <span>Direct dep ({type_counts.get('direct_dep', 0)})</span>
   </div>
@@ -418,6 +505,7 @@ def generate_html(doc, output_path):
     <div class="legend-dot" style="background:#56b6f7"></div>
     <span>Transitive dep ({type_counts.get('transitive_dep', 0)})</span>
   </div>
+{go_legend}
   <h3 style="margin-top:10px;font-size:11px;color:#888">Depth breakdown</h3>
   <div class="legend-item" style="font-size:11px;color:#999">
     <div class="legend-dot" style="background:#4ecdc4;width:8px;height:8px"></div>
@@ -485,8 +573,12 @@ const colors = {{
   'depth-3': '#a78bfa',
   'depth-4': '#f472b6',
   'depth-5': '#fb923c',
+  go_stdlib: '#38bdf8',
+  go_direct: '#34d399',
+  go_indirect: '#fb7185',
   dynamic: '#ff6b6b',
   build: '#ffd93d',
+  build_deep: '#e6a819',
   other: '#888',
 }};
 
@@ -536,8 +628,12 @@ const xPositions = {{
   'depth-4': width * 0.15,
   'depth-5': width * 0.10,
   vendored: width * 0.85,
+  go_stdlib: width * 0.20,
+  go_direct: width * 0.72,
+  go_indirect: width * 0.38,
   dynamic: width * 0.5,
   build: width * 0.5,
+  build_deep: width * 0.5,
   other: width / 2,
 }};
 
@@ -550,8 +646,12 @@ const yPositions = {{
   'depth-4': height * 0.56,
   'depth-5': height * 0.58,
   vendored: height * 0.72,
+  go_stdlib: height * 0.75,
+  go_direct: height * 0.50,
+  go_indirect: height * 0.52,
   dynamic: height * 0.18,
   build: height * 0.18,
+  build_deep: height * 0.25,
   other: height * 0.55,
 }};
 
@@ -562,8 +662,12 @@ const yStrengths = {{
   'depth-3': 0.10,
   'depth-4': 0.10,
   'depth-5': 0.10,
+  go_stdlib: 0.3,
+  go_direct: 0.10,
+  go_indirect: 0.10,
   dynamic: 0.5,
   build: 0.5,
+  build_deep: 0.4,
   other: 0.12,
 }};
 
@@ -865,7 +969,22 @@ node.on('mouseover', (event, d) => {{
   const rows = [];
   if (d.version) rows.push('<div class="tt-row">Version: <span>' + d.version + '</span></div>');
   rows.push('<div class="tt-row">Purpose: <span>' + d.purpose + '</span></div>');
-  rows.push('<div class="tt-row">Group: <span>' + d.group + '</span></div>');
+  const typeLabels = {{
+    'root': 'Root binary',
+    'static': 'Statically linked (compiled in)',
+    'dynamic': 'Dynamically linked (runtime)',
+    'build': 'Build tool',
+    'build_deep': 'Build tool (transitive)',
+    'direct_dep': 'Direct dependency',
+    'transitive_dep': 'Transitive dependency',
+    'go_stdlib': 'Go standard library (compiled in)',
+    'go_direct': 'Direct Go module (compiled in)',
+    'go_indirect': 'Indirect Go module (compiled in)',
+    'vendored': 'Vendored (compiled in)',
+    'other': 'Other',
+  }};
+  const typeLabel = typeLabels[d.node_type] || d.node_type;
+  rows.push('<div class="tt-row">Type: <span>' + typeLabel + '</span></div>');
   const td = treeDepthMap[d.id];
   if (td !== undefined) rows.push('<div class="tt-row">Tree depth: <span>' + td + '</span></div>');
   if (d.fileCount) rows.push('<div class="tt-row">Source files: <span>' + d.fileCount + '</span></div>');
@@ -985,34 +1104,80 @@ searchInput.addEventListener('input', () => {{
   // Zoom to first match
   if (matches.length === 1) {{
     const m = matches[0];
+    selectedNode = null;
     highlightConnections(m);
     const t = d3.zoomIdentity.translate(width/2 - m.x, height/2 - m.y);
     svg.transition().duration(500).call(d3.zoom().transform, t);
   }}
 }});
 
-// --- Group labels ---
+// --- Group labels (conditional on node types) ---
 const labels = g.append('g').attr('class', 'group-labels');
-labels.append('text')
-  .attr('class', 'group-label')
-  .attr('x', width * 0.72)
-  .attr('y', 80)
-  .text('DIRECT \u2192');
-labels.append('text')
-  .attr('class', 'group-label')
-  .attr('x', width * 0.5)
-  .attr('y', 80)
-  .text('DYNAMIC / BUILD');
-labels.append('text')
-  .attr('class', 'group-label')
-  .attr('x', width * 0.22)
-  .attr('y', 80)
-  .text('\u2190 TRANSITIVE');
-labels.append('text')
-  .attr('class', 'group-label')
-  .attr('x', width * 0.85)
-  .attr('y', height * 0.72 - 20)
-  .text('VENDORED \u2193');
+const hasStatic = data.nodes.some(
+  d => d.node_type === 'static'
+    || d.node_type === 'direct_dep');
+const hasTransitive = data.nodes.some(
+  d => d.node_type === 'transitive_dep'
+    || (d.depth >= 2 && d.node_type === 'static'));
+const hasDynBuild = data.nodes.some(
+  d => d.node_type === 'dynamic'
+    || d.node_type === 'build');
+const hasVendored = data.nodes.some(
+  d => d.vendored);
+
+if (hasStatic) {{
+  labels.append('text')
+    .attr('class', 'group-label')
+    .attr('x', width * 0.72)
+    .attr('y', 80)
+    .text('DIRECT \u2192');
+}}
+if (hasDynBuild) {{
+  labels.append('text')
+    .attr('class', 'group-label')
+    .attr('x', width * 0.5)
+    .attr('y', 80)
+    .text('DYNAMIC / BUILD');
+}}
+if (hasTransitive) {{
+  labels.append('text')
+    .attr('class', 'group-label')
+    .attr('x', width * 0.22)
+    .attr('y', 80)
+    .text('\u2190 TRANSITIVE');
+}}
+if (hasVendored) {{
+  labels.append('text')
+    .attr('class', 'group-label')
+    .attr('x', width * 0.85)
+    .attr('y', height * 0.72 - 20)
+    .text('VENDORED \u2193');
+}}
+// Go module group labels (per-type)
+if (data.nodes.some(d => d.node_type === 'go_direct')) {{
+  labels.append('text')
+    .attr('class', 'group-label')
+    .attr('x', width * 0.72)
+    .attr('y', height * 0.50 - 30)
+    .style('fill', '#34d399')
+    .text('GO DIRECT');
+}}
+if (data.nodes.some(d => d.node_type === 'go_indirect')) {{
+  labels.append('text')
+    .attr('class', 'group-label')
+    .attr('x', width * 0.38)
+    .attr('y', height * 0.52 - 30)
+    .style('fill', '#fb7185')
+    .text('GO INDIRECT');
+}}
+if (data.nodes.some(d => d.node_type === 'go_stdlib')) {{
+  labels.append('text')
+    .attr('class', 'group-label')
+    .attr('x', width * 0.20)
+    .attr('y', height * 0.75 - 20)
+    .style('fill', '#38bdf8')
+    .text('GO STDLIB');
+}}
 </script>
 </body>
 </html>"""

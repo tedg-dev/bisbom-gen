@@ -94,6 +94,15 @@ repos:
     output_binaries:
     - src/redis-server
     - src/redis-cli
+    vendored_dirs:
+    - /deps/fast_float/
+    - /deps/fpconv/
+    - /deps/hdr_histogram/
+    - /deps/hiredis/
+    - /deps/jemalloc/
+    - /deps/linenoise/
+    - /deps/lua/
+    - /deps/xxhash/
   openosc:
     url: https://github.com/cisco/OpenOSC.git
     branch: master
@@ -112,7 +121,7 @@ repos:
     - libtool
   node:
     url: https://github.com/nodejs/node.git
-    branch: v22.x
+    branch: v22.19.0
     language: c-cpp
     build_steps:
     - ./configure

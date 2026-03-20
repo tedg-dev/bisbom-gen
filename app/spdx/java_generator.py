@@ -469,14 +469,10 @@ class JavaSpdxGenerator:
         for i, dep in enumerate(maven_deps):
             dep_id = f"SPDXRef-Dep-{i}"
 
-            # Determine relationship type and target
-            # Note: test scope deps are filtered out before this point
-            # SPDX relationship types (CISA Build SBOM):
-            #   compile/runtime → DEPENDS_ON (classpath dep,
-            #       NOT bundled in thin JAR)
-            #   provided → BUILD_TOOL_OF (compile-time only)
-            # Direct deps point to root; transitive deps
-            # point to their parent in the dep tree.
+            # Determine relationship target:
+            # Direct deps → root package
+            # Transitive deps → their parent in the
+            #   Maven dependency tree
             if dep.get("direct"):
                 target = root_pkg_id
             else:
@@ -486,16 +482,25 @@ class JavaSpdxGenerator:
                 else:
                     target = root_pkg_id
 
+            # SPDX relationship direction:
+            #   DEPENDS_ON: A depends on B →
+            #     "A DEPENDS_ON B" (parent→child)
+            #   BUILD_TOOL_OF: tool builds target →
+            #     "tool BUILD_TOOL_OF target"
             if dep["scope"] == "provided":
-                rel_type = "BUILD_TOOL_OF"
+                # Provided = compile-time only tool
+                doc["relationships"].append({
+                    "spdxElementId": dep_id,
+                    "relatedSpdxElement": target,
+                    "relationshipType": "BUILD_TOOL_OF",
+                })
             else:
-                rel_type = "DEPENDS_ON"
-
-            doc["relationships"].append({
-                "spdxElementId": dep_id,
-                "relatedSpdxElement": target,
-                "relationshipType": rel_type,
-            })
+                # Runtime dep: parent DEPENDS_ON child
+                doc["relationships"].append({
+                    "spdxElementId": target,
+                    "relatedSpdxElement": dep_id,
+                    "relationshipType": "DEPENDS_ON",
+                })
 
         return doc
 
@@ -520,7 +525,13 @@ class JavaSpdxGenerator:
                 version = root.find("version")
 
             if version is not None:
-                return version.text
+                ver = version.text or "unknown"
+                # Strip -SNAPSHOT suffix — we're
+                # analyzing a specific commit, not a
+                # development snapshot.
+                if ver.endswith("-SNAPSHOT"):
+                    ver = ver[: -len("-SNAPSHOT")]
+                return ver
         except ET.ParseError:
             pass
 

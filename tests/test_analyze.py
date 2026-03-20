@@ -2955,6 +2955,12 @@ class TestMetadataCollector(unittest.TestCase):
             self.assertTrue(result)
             mock_meta.assert_called_once()
             mock_dyn.assert_called_once()
+            # Verify project_bins is passed
+            dyn_call = mock_dyn.call_args
+            self.assertEqual(
+                dyn_call.kwargs.get("project_bins"),
+                ["nmap"],
+            )
 
     def test_skips_existing_dynlibs(self):
         """Skips collection if dynamic_libs.json exists."""

@@ -13,7 +13,7 @@ import re
 import subprocess
 
 
-def main(binary_path, out_dir):
+def main(binary_path, out_dir, project_bins=None):
     # Get ldd output
     ldd_out = subprocess.check_output(
         ["ldd", binary_path], text=True
@@ -124,11 +124,68 @@ def main(binary_path, out_dir):
         ver = meta.get("Version", "?")
         print(f"  {soname:40s} {tag:12s} {source} ({ver})")
 
-    # Record project-built .so files that ldd
-    # could not resolve (e.g. libavcodec.so.62
-    # built by FFmpeg). These are NEEDED entries
-    # that show as "not found" in ldd output.
+    # Identify project-built .so files.
+    # Two sources:
+    # 1. NEEDED entries "not found" by ldd
+    #    (e.g. libavcodec.so.62 from FFmpeg)
+    # 2. NEEDED entries that match an output
+    #    binary from the same repo, even when a
+    #    system dpkg package also provides the
+    #    soname (e.g. libcurl.so.4 when system
+    #    libcurl4 is installed)
+    #
+    # Build set of project .so base names from
+    # output_binaries (e.g. "libcurl.so").
+    proj_so_bases = set()
+    if project_bins:
+        for pb in project_bins:
+            base = os.path.basename(pb)
+            if ".so" in base:
+                # Strip version suffix for matching:
+                # libcurl.so -> libcurl.so
+                # libavcodec.so.62 -> libavcodec.so
+                prefix = base.split(".so")[0] + ".so"
+                proj_so_bases.add(prefix)
+    if proj_so_bases:
+        print(
+            f"Project .so prefixes: "
+            f"{sorted(proj_so_bases)}"
+        )
+
+    # Move ldd-resolved libs that match project
+    # .so prefixes from results -> project_built
     project_built_libs = {}
+    proj_matched = set()
+    for soname in sorted(results.keys()):
+        so_prefix = (
+            soname.split(".so")[0] + ".so"
+        )
+        if so_prefix in proj_so_bases:
+            is_direct = soname in needed
+            name = re.sub(
+                r"\.so(\.\d+)*$", "", soname
+            )
+            project_built_libs[soname] = {
+                "name": name,
+                "direct": is_direct,
+                "project_built": True,
+            }
+            proj_matched.add(soname)
+            tag = (
+                "DIRECT" if is_direct
+                else "transitive"
+            )
+            print(
+                f"  {soname:40s} {tag:12s} "
+                f"{name} (project-built, "
+                f"overriding dpkg)"
+            )
+
+    # Remove project-built libs from dpkg results
+    for soname in proj_matched:
+        del results[soname]
+
+    # Also record "not found" libs as project-built
     for soname in sorted(not_found):
         is_direct = soname in needed
         # Derive a readable name from soname:
@@ -184,5 +241,15 @@ if __name__ == "__main__":
         "out_dir",
         help="Output directory for dynamic_libs.json",
     )
+    ap.add_argument(
+        "--project-bins", nargs="*", default=None,
+        help=(
+            "Output binaries of the same project "
+            "(used to identify project-built .so)"
+        ),
+    )
     args = ap.parse_args()
-    main(args.binary, args.out_dir)
+    main(
+        args.binary, args.out_dir,
+        project_bins=args.project_bins,
+    )
