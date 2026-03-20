@@ -125,6 +125,7 @@ class MetadataCollector:
                 )
                 collect_dynlibs(
                     str(bin_path), str(bin_meta),
+                    project_bins=bins,
                 )
             except Exception as e:
                 print(

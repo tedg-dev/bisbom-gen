@@ -3364,7 +3364,9 @@ class TestRustDirectVsTransitive(
                 clap_rels[0]["relationshipType"],
                 "STATIC_LINK",
             )
-            # clap_builder is transitive -> DEPENDS_ON
+            # clap_builder is transitive but still
+            # STATIC_LINK (all Rust crates are
+            # statically compiled into the binary)
             cb_pkg = next(
                 p for p in doc["packages"]
                 if p["name"] == "clap_builder"
@@ -3376,7 +3378,7 @@ class TestRustDirectVsTransitive(
             ]
             self.assertEqual(
                 cb_rels[0]["relationshipType"],
-                "DEPENDS_ON",
+                "STATIC_LINK",
             )
 
 

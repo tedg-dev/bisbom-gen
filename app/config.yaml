@@ -38,8 +38,11 @@ repos:
     - ffmpeg
     - ffprobe
     - libavcodec/libavcodec.so
+    - libavdevice/libavdevice.so
+    - libavfilter/libavfilter.so
     - libavformat/libavformat.so
     - libavutil/libavutil.so
+    - libswresample/libswresample.so
     - libswscale/libswscale.so
     apt_deps:
     - libssl-dev
@@ -85,7 +88,7 @@ repos:
     - /nsock/
   redis:
     url: https://github.com/redis/redis.git
-    branch: unstable
+    branch: "8.0.6"
     language: c-cpp
     build_steps:
     - make -j$(nproc)
@@ -94,6 +97,15 @@ repos:
     output_binaries:
     - src/redis-server
     - src/redis-cli
+    vendored_dirs:
+    - /deps/fast_float/
+    - /deps/fpconv/
+    - /deps/hdr_histogram/
+    - /deps/hiredis/
+    - /deps/jemalloc/
+    - /deps/linenoise/
+    - /deps/lua/
+    - /deps/xxhash/
   openosc:
     url: https://github.com/cisco/OpenOSC.git
     branch: master
@@ -112,7 +124,7 @@ repos:
     - libtool
   node:
     url: https://github.com/nodejs/node.git
-    branch: v22.x
+    branch: v22.19.0
     language: c-cpp
     build_steps:
     - ./configure

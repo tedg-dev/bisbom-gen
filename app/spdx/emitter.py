@@ -1228,8 +1228,9 @@ class SpdxEmitter:
 
             # Determine relationship type:
             # - Go modules: DEPENDS_ON (all)
-            # - Rust crates: STATIC_LINK (direct),
-            #   DEPENDS_ON (transitive)
+            # - Rust crates: STATIC_LINK (all —
+            #   every crate is statically compiled
+            #   into the binary)
             # - C/C++ vendored: STATIC_LINK +
             #   CONTAINS (source tree containment)
             # A package is vendored only if its
@@ -1248,14 +1249,7 @@ class SpdxEmitter:
             if is_go_module:
                 rel_type = "DEPENDS_ON"
             elif is_rust_crate:
-                if (
-                    cargo_toml_direct
-                    and lib_name
-                    not in cargo_toml_direct
-                ):
-                    rel_type = "DEPENDS_ON"
-                else:
-                    rel_type = "STATIC_LINK"
+                rel_type = "STATIC_LINK"
             else:
                 rel_type = "STATIC_LINK"
             doc["relationships"].append({
