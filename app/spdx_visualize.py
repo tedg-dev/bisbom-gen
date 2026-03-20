@@ -1054,7 +1054,7 @@ simulation.on('tick', () => {{
 }});
 
 simulation.on('end', () => {{
-  zoomToFit(600);
+  zoomToFit(0);
 }});
 
 function dragstarted(event, d) {{
