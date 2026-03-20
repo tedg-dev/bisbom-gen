@@ -134,7 +134,7 @@ Each Go module package includes:
 
 ## Visualization
 
-### Source: `app/spdx_visualize.py`
+### Source: `app/viz/` package (refactored from `app/spdx_visualize.py`)
 
 The D3.js visualization supports five relationship types:
 
@@ -146,7 +146,8 @@ The D3.js visualization supports five relationship types:
 | DEPENDS_ON | Blue (#56b6f7) | Solid |
 
 Node groups: root (purple), static (teal), dynamic (red),
-build tool (yellow), dependency (blue), other (gray).
+build tool (yellow), dependency (blue), Go stdlib (sky blue),
+Go direct (emerald), Go indirect (rose), other (gray).
 
 ## SPDX ID Sanitization
 
