@@ -828,6 +828,7 @@ const deepIdSet = new Set(
 
 // Force simulation (original layout + fan-out)
 const simulation = d3.forceSimulation(data.nodes)
+  .alphaDecay(0.05)
   .force('link', d3.forceLink(data.links)
     .id(d => d.id)
     .distance(d => {{
