@@ -1153,31 +1153,6 @@ if (hasVendored) {{
     .attr('y', height * 0.72 - 20)
     .text('VENDORED \u2193');
 }}
-// Go module group labels (per-type)
-if (data.nodes.some(d => d.node_type === 'go_direct')) {{
-  labels.append('text')
-    .attr('class', 'group-label')
-    .attr('x', width * 0.72)
-    .attr('y', height * 0.50 - 30)
-    .style('fill', '#34d399')
-    .text('GO DIRECT');
-}}
-if (data.nodes.some(d => d.node_type === 'go_indirect')) {{
-  labels.append('text')
-    .attr('class', 'group-label')
-    .attr('x', width * 0.38)
-    .attr('y', height * 0.52 - 30)
-    .style('fill', '#fb7185')
-    .text('GO INDIRECT');
-}}
-if (data.nodes.some(d => d.node_type === 'go_stdlib')) {{
-  labels.append('text')
-    .attr('class', 'group-label')
-    .attr('x', width * 0.20)
-    .attr('y', height * 0.75 - 20)
-    .style('fill', '#38bdf8')
-    .text('GO STDLIB');
-}}
 </script>
 </body>
 </html>"""
