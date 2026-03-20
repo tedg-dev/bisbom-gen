@@ -458,7 +458,7 @@ def generate_html(doc, output_path):
     padding-left: 4px;
   }}
 
-  /* Group labels */
+  /* Group labels (unused, kept for potential future use) */
   .group-label {{
     font-size: 14px;
     font-weight: 600;
@@ -1154,48 +1154,6 @@ searchInput.addEventListener('input', () => {{
   }}
 }});
 
-// --- Group labels (conditional on node types) ---
-const labels = g.append('g').attr('class', 'group-labels');
-const hasStatic = data.nodes.some(
-  d => d.node_type === 'static'
-    || d.node_type === 'direct_dep');
-const hasTransitive = data.nodes.some(
-  d => d.node_type === 'transitive_dep'
-    || (d.depth >= 2 && d.node_type === 'static'));
-const hasDynBuild = data.nodes.some(
-  d => d.node_type === 'dynamic'
-    || d.node_type === 'build');
-const hasVendored = data.nodes.some(
-  d => d.vendored);
-
-if (hasStatic) {{
-  labels.append('text')
-    .attr('class', 'group-label')
-    .attr('x', width * 0.72)
-    .attr('y', 80)
-    .text('DIRECT \u2192');
-}}
-if (hasDynBuild) {{
-  labels.append('text')
-    .attr('class', 'group-label')
-    .attr('x', width * 0.5)
-    .attr('y', 80)
-    .text('DYNAMIC / BUILD');
-}}
-if (hasTransitive) {{
-  labels.append('text')
-    .attr('class', 'group-label')
-    .attr('x', width * 0.22)
-    .attr('y', 80)
-    .text('\u2190 TRANSITIVE');
-}}
-if (hasVendored) {{
-  labels.append('text')
-    .attr('class', 'group-label')
-    .attr('x', width * 0.85)
-    .attr('y', height * 0.72 - 20)
-    .text('VENDORED \u2193');
-}}
 </script>
 </body>
 </html>"""
