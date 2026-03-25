@@ -170,8 +170,12 @@ simulation.on('tick', () => {
   node.attr('transform', d => 'translate(' + d.x + ',' + d.y + ')');
 });
 
+let initialFitDone = false;
 simulation.on('end', () => {
-  zoomToFit(0);
+  if (!initialFitDone) {
+    initialFitDone = true;
+    zoomToFit(0);
+  }
 });
 
 function dragstarted(event, d) {
