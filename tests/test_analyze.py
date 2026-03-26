@@ -1945,6 +1945,166 @@ class TestDocWriter(unittest.TestCase):
             self.assertIn("bomtrace3", content)
             self.assertNotIn("bomtrace2", content)
 
+    def test_write_build_doc_has_release_section(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            paths = {"docs_dir": tmpdir}
+            cfg = {
+                "url": "https://github.com/x/y.git",
+                "branch": "main",
+                "build_steps": [
+                    "./configure", "make",
+                ],
+                "output_binaries": ["bin/app"],
+                "language": "c-cpp",
+            }
+            with patch("builtins.print"):
+                result = DocWriter.write_build_doc(
+                    "myrepo", cfg, paths,
+                    True, 10.0,
+                )
+            content = Path(result).read_text()
+            self.assertIn(
+                "Release Build Verification", content
+            )
+            self.assertIn("RELEASE", content)
+
+
+class TestClassifyReleaseBuild(unittest.TestCase):
+    """Tests for DocWriter.classify_release_build."""
+
+    def test_c_cpp_release(self):
+        cfg = {
+            "language": "c-cpp",
+            "build_steps": [
+                "./configure --with-openssl",
+                "make -j$(nproc)",
+            ],
+        }
+        rb = DocWriter.classify_release_build(cfg)
+        self.assertTrue(rb["is_release"])
+        self.assertEqual(rb["label"], "RELEASE")
+        self.assertEqual(rb["warnings"], [])
+        self.assertIn("configure", rb["reason"])
+
+    def test_c_cpp_make_only(self):
+        cfg = {
+            "language": "c-cpp",
+            "build_steps": ["make -j$(nproc)"],
+        }
+        rb = DocWriter.classify_release_build(cfg)
+        self.assertTrue(rb["is_release"])
+        self.assertIn("default optimization", rb["reason"])
+
+    def test_c_cpp_debug_flag(self):
+        cfg = {
+            "language": "c-cpp",
+            "build_steps": [
+                "./configure --enable-debug",
+                "make",
+            ],
+        }
+        rb = DocWriter.classify_release_build(cfg)
+        self.assertFalse(rb["is_release"])
+        self.assertEqual(rb["label"], "WARNING")
+        self.assertEqual(len(rb["warnings"]), 1)
+        self.assertIn("--enable-debug", rb["warnings"][0])
+
+    def test_c_cpp_asan(self):
+        cfg = {
+            "language": "c-cpp",
+            "build_steps": ["make ASAN=1"],
+        }
+        rb = DocWriter.classify_release_build(cfg)
+        self.assertFalse(rb["is_release"])
+        self.assertIn("ASAN=1", rb["warnings"][0])
+
+    def test_rust_release(self):
+        cfg = {
+            "language": "rust",
+            "build_steps": ["cargo build --release"],
+        }
+        rb = DocWriter.classify_release_build(cfg)
+        self.assertTrue(rb["is_release"])
+        self.assertEqual(rb["label"], "RELEASE")
+
+    def test_rust_debug(self):
+        cfg = {
+            "language": "rust",
+            "build_steps": ["cargo build"],
+        }
+        rb = DocWriter.classify_release_build(cfg)
+        self.assertFalse(rb["is_release"])
+        self.assertIn("--release", rb["warnings"][0])
+
+    def test_go_release(self):
+        cfg = {
+            "language": "go",
+            "build_steps": [
+                'go build -a -trimpath '
+                '-ldflags="-s -w" -o app .',
+            ],
+        }
+        rb = DocWriter.classify_release_build(cfg)
+        self.assertTrue(rb["is_release"])
+        self.assertEqual(rb["label"], "RELEASE")
+
+    def test_go_missing_trimpath(self):
+        cfg = {
+            "language": "go",
+            "build_steps": ["go build -a -o app ."],
+        }
+        rb = DocWriter.classify_release_build(cfg)
+        self.assertFalse(rb["is_release"])
+        self.assertEqual(len(rb["warnings"]), 2)
+
+    def test_go_partial_flags(self):
+        cfg = {
+            "language": "go",
+            "build_steps": [
+                "go build -a -trimpath -o app .",
+            ],
+        }
+        rb = DocWriter.classify_release_build(cfg)
+        self.assertFalse(rb["is_release"])
+        self.assertEqual(len(rb["warnings"]), 1)
+        self.assertIn("ldflags", rb["warnings"][0])
+
+    def test_java_release(self):
+        cfg = {
+            "language": "java",
+            "build_steps": [
+                "mvn package -DskipTests -q",
+            ],
+        }
+        rb = DocWriter.classify_release_build(cfg)
+        self.assertTrue(rb["is_release"])
+
+    def test_java_missing_skip_tests(self):
+        cfg = {
+            "language": "java",
+            "build_steps": ["mvn package -q"],
+        }
+        rb = DocWriter.classify_release_build(cfg)
+        self.assertFalse(rb["is_release"])
+        self.assertIn(
+            "-DskipTests", rb["warnings"][0]
+        )
+
+    def test_unknown_language(self):
+        cfg = {
+            "language": "python",
+            "build_steps": ["pip install ."],
+        }
+        rb = DocWriter.classify_release_build(cfg)
+        self.assertTrue(rb["is_release"])
+        self.assertIn("unknown", rb["reason"])
+
+    def test_default_language(self):
+        cfg = {"build_steps": ["make"]}
+        rb = DocWriter.classify_release_build(cfg)
+        self.assertTrue(rb["is_release"])
+        self.assertIn("optimization", rb["reason"])
+
 
 # ============================================================
 # AnalysisPipeline
