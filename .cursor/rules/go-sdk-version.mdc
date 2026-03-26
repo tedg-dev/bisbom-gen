@@ -1,0 +1,71 @@
+---
+description: Go SDK version management for the Docker build environment
+alwaysApply: true
+---
+
+# Go SDK Version Rule
+
+## Current Version
+
+| Field | Value |
+|-------|-------|
+| **Go version in Dockerfile** | `1.26.0` |
+| **Minimum required by targets** | `1.23` (fzf) |
+| **Last verified** | 2026-03-04 |
+| **Source** | https://go.dev/doc/devel/release |
+
+## Version Policy
+
+Go only supports the **two most recent major releases** with security patches.
+As of March 2026, the supported releases are **1.25.x** and **1.26.x**.
+Older releases (1.24 and below) no longer receive security fixes.
+
+We pin the **latest stable major release** in the Dockerfile (`GO_VERSION` env var)
+to get the best security coverage and toolchain improvements.
+
+## When to Update
+
+Check for a new Go version when:
+
+1. **Starting a new analysis session** — before rebuilding the Docker image
+2. **Adding a new Go target repo** — check its `go.mod` for the minimum version
+3. **A Go security advisory is published** — https://go.dev/security
+
+## How to Check
+
+Visit https://go.dev/dl/ or run:
+
+```bash
+curl -s 'https://go.dev/dl/?mode=json' | python3 -c "
+import json, sys
+releases = json.load(sys.stdin)
+for r in releases[:2]:
+    print(f\"{r['version']}  (stable={r['stable']})\")"
+```
+
+## How to Update
+
+1. Update `GO_VERSION` in `docker/Dockerfile`:
+   ```
+   ENV GO_VERSION=<new_version>
+   ```
+
+2. Rebuild the Docker image on EC2:
+   ```bash
+   rsync -avz docker/Dockerfile omnibor-build:/home/ubuntu/omnibor-analysis/docker/Dockerfile
+   ssh omnibor-build "cd /home/ubuntu/omnibor-analysis && docker-compose -f docker/docker-compose.yml build omnibor-env"
+   ```
+
+3. Verify by running a quick Go analysis:
+   ```bash
+   ssh omnibor-build "cd /home/ubuntu/omnibor-analysis && docker-compose -f docker/docker-compose.yml run --rm omnibor-env go version"
+   ```
+
+4. Commit the Dockerfile change and merge to main.
+
+## Compatibility Notes
+
+- All Go target repos in `config.yaml` require Go **1.23+** or higher
+- Go is backward-compatible: a newer SDK builds projects requiring older versions
+- The Go SDK is installed to `/usr/local/go` inside the container
+- `GOPATH` is set to `/root/go` for module caching
