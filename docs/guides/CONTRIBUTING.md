@@ -198,7 +198,7 @@ docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
 
 ## Documentation
 
-- All analysis results go in `docs/{lang}/{repo}/{ts}/` (e.g., `docs/rust/oxipng/2026-03-06_2235/build.md`)
+- All analysis results go in `docs/build-logs/{lang}/{repo}/{ts}/` (e.g., `docs/build-logs/rust/oxipng/2026-03-06_2235/build.md`)
 - Cross-repo summaries go in `docs/summary/`
 - Runtime/performance metrics go in `docs/runtime/{lang}/{repo}/{ts}/`
 - `{lang}` is `c-cpp`, `rust`, `go`, or `java`. `{ts}` is `YYYY-MM-DD_HHMM`.
