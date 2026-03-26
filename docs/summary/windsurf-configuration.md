@@ -74,7 +74,7 @@ Output locations:
 - ADG: `output/omnibor/{lang}/{repo}/{ts}/`
 - SPDX: `output/spdx/{lang}/{repo}/{ts}/<binary>_adg.spdx.json`
 - HTML: `output/spdx/{lang}/{repo}/{ts}/<binary>_adg.spdx.html`
-- Build log: `docs/build-logs/{lang}/{repo}/{ts}/build.md`
+- Build log: `docs/{lang}/{repo}/{ts}/build.md`
 - Runtime metrics: `docs/runtime/{lang}/{repo}/{ts}/runtime.md`
 
 `{lang}` is `c-cpp`, `rust`, or `go`. `{ts}` is `YYYY-MM-DD_HHMM`.

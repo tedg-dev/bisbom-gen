@@ -35,7 +35,8 @@ class JavaSpdxGenerator:
 
     def generate(
         self, output_path, binary_name=None,
-        sbom_type="build",
+        sbom_type="build", jar_files=None,
+        pom_dir=None,
     ):
         """Generate SPDX for a Java JAR.
 
@@ -45,20 +46,36 @@ class JavaSpdxGenerator:
             sbom_type: 'analyzed' (only what's in the
                 JAR — source files, no deps) or 'build'
                 (full dependency graph).
+            jar_files: optional list of dicts with sha1
+                and file_path — per-JAR source files
+                from AdgParser.get_jar_source_files().
+                If None, falls back to all
+                project_source from treedb.
+            pom_dir: optional directory containing the
+                module's pom.xml for per-module Maven
+                dependency resolution.
 
         Returns output path on success, None on failure.
         """
         bin_name = binary_name or f"{self.repo_name}.jar"
 
-        # Parse ADG for source files
-        parser = AdgParser(self.bom_dir, self.repos_dir)
-        try:
-            classified = parser.parse()
-        except FileNotFoundError as e:
-            print(f"[ERROR] {e}")
-            return None
+        # Use per-JAR filtered files if provided,
+        # otherwise fall back to all project_source
+        if jar_files is not None:
+            all_files = jar_files
+        else:
+            parser = AdgParser(
+                self.bom_dir, self.repos_dir
+            )
+            try:
+                classified = parser.parse()
+            except FileNotFoundError as e:
+                print(f"[ERROR] {e}")
+                return None
+            all_files = classified.get(
+                "project_source", []
+            )
 
-        all_files = classified.get("project_source", [])
         source_files = [
             f for f in all_files
             if not self._is_test_file(
@@ -81,18 +98,26 @@ class JavaSpdxGenerator:
         # Get Maven dependencies via dependency:tree
         # Filter to only runtime dependencies (compile, runtime, provided)
         # Exclude test scope - those aren't in the final JAR
-        all_deps = self._get_maven_deps()
+        all_deps = self._get_maven_deps(
+            pom_dir=pom_dir
+        )
         maven_deps = [
             d for d in all_deps
-            if d["scope"] in ("compile", "runtime", "provided")
+            if d["scope"] in (
+                "compile", "runtime", "provided"
+            )
         ]
         test_deps = len(all_deps) - len(maven_deps)
-        direct = sum(1 for d in maven_deps if d["direct"])
+        direct = sum(
+            1 for d in maven_deps if d["direct"]
+        )
         trans = len(maven_deps) - direct
         print(
             f"[{bin_name}] Maven dependencies: "
-            f"{len(maven_deps)} runtime ({direct} direct, "
-            f"{trans} transitive), {test_deps} test excluded"
+            f"{len(maven_deps)} runtime "
+            f"({direct} direct, "
+            f"{trans} transitive), "
+            f"{test_deps} test excluded"
         )
 
         # Build SPDX document
@@ -126,20 +151,28 @@ class JavaSpdxGenerator:
 
         return str(out)
 
-    def _get_maven_deps(self):
+    def _get_maven_deps(self, pom_dir=None):
         """Get Maven dependencies via mvn dependency:tree.
+
+        Args:
+            pom_dir: directory containing pom.xml.
+                If None, uses repo root.
 
         Returns list of dicts with groupId, artifactId,
         version, scope, direct, optional, parent_artifact.
         """
-        pom_path = self.repo_dir / "pom.xml"
+        mvn_dir = Path(pom_dir) if pom_dir else self.repo_dir
+        pom_path = mvn_dir / "pom.xml"
         if not pom_path.exists():
             return []
 
         try:
             result = subprocess.run(
-                ["mvn", "dependency:tree", "-DoutputType=text"],
-                cwd=str(self.repo_dir),
+                [
+                    "mvn", "dependency:tree",
+                    "-DoutputType=text",
+                ],
+                cwd=str(mvn_dir),
                 capture_output=True,
                 text=True,
                 timeout=120,

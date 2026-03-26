@@ -109,6 +109,84 @@ class AdgParser:
 
         return classified
 
+    def get_jar_source_files(self):
+        """Return per-JAR source file mapping.
+
+        Traces treedb: JAR → hash_tree → class files
+        → hash_tree → source .java files.
+
+        Returns dict:
+          { "rel/path/to.jar": [
+              {"sha1": "...", "file_path": "..."},
+              ...
+            ]
+          }
+        Only includes project JARs (under repos_dir),
+        excluding test JARs.
+        """
+        treedb_path = (
+            self.meta_dir / "bomsh_omnibor_treedb"
+        )
+        treedb = json.loads(treedb_path.read_text())
+        repos_prefix = str(self.repos_dir)
+
+        result = {}
+        for sha1, entry in treedb.items():
+            fp = entry.get("file_path", "")
+            if not (
+                fp.endswith(".jar")
+                and fp.startswith(repos_prefix)
+                and "hash_tree" in entry
+                and "/test-classes/" not in fp
+                and "/test/" not in fp
+                and not fp.endswith("-tests.jar")
+            ):
+                continue
+
+            # Relative path from repos_dir
+            rel = fp[len(repos_prefix):].lstrip("/")
+            sources = []
+            seen = set()
+
+            for class_sha in entry["hash_tree"]:
+                if class_sha not in treedb:
+                    continue
+                cls = treedb[class_sha]
+                cls_path = cls.get("file_path", "")
+
+                # Trace class → source via hash_tree
+                for src_sha in cls.get(
+                    "hash_tree", []
+                ):
+                    if (
+                        src_sha in treedb
+                        and src_sha not in seen
+                    ):
+                        src = treedb[src_sha]
+                        seen.add(src_sha)
+                        sources.append({
+                            "sha1": src_sha,
+                            "file_path": src.get(
+                                "file_path", ""
+                            ),
+                        })
+
+                # Also include the class file itself
+                if (
+                    cls_path
+                    and class_sha not in seen
+                ):
+                    seen.add(class_sha)
+                    sources.append({
+                        "sha1": class_sha,
+                        "file_path": cls_path,
+                    })
+
+            if sources:
+                result[rel] = sources
+
+        return result
+
     def load_doc_mapping(self):
         """Return dict: sha1 -> omnibor_doc_id."""
         path = (

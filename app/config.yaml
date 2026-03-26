@@ -256,6 +256,8 @@ repos:
     clean_cmd: mvn clean -q
     description: OWASP dependency-check CLI (6 modules - utils, core, cli, ant, maven, archetype)
     output_binaries:
+    - utils/target/dependency-check-utils-*.jar
+    - core/target/dependency-check-core-*.jar
     - cli/target/dependency-check-*.jar
 paths:
   repos_dir: /workspace/repos
