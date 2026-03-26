@@ -112,13 +112,13 @@ docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
 | SPDX SBOM (OmniBOR) | `output/spdx/<repo>/<repo>_omnibor_<timestamp>.spdx.json` |
 | ADG SPDX (per binary) | `output/spdx/<repo>/<binary>_adg.spdx.json` |
 | Visualization (per binary) | `output/spdx/<repo>/<binary>_adg.spdx.html` |
-| Build log | `docs/<repo>/<timestamp>_build.md` |
-| Runtime metrics | `docs/runtime/<timestamp>_<repo>_runtime.md` |
+| Build log | `docs/build-logs/{lang}/<repo>/{ts}/build.md` |
+| Runtime metrics | `docs/runtime/{lang}/<repo>/{ts}/runtime.md` |
 
 ### Recommendations
 
 - **Use `--skip-clone` for re-runs** — avoids re-downloading the repo each time
-- **Check build logs** — if the SBOM looks incomplete, review `docs/<repo>/<timestamp>_build.md` for build warnings or missing deps
+- **Check build logs** — if the SBOM looks incomplete, review `docs/build-logs/{lang}/<repo>/{ts}/build.md` for build warnings or missing deps
 - **Review SPDX output** — the primary output is `<binary>_adg.spdx.json` with full build-time dependency data
 - **Build times** — curl ~5 min, FFmpeg ~20+ min (under QEMU on Apple Silicon, roughly double)
 
@@ -154,7 +154,7 @@ docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
     --binary-file /workspace/output/binary-scan/curl/bdba_export.spdx.json
 ```
 
-### Report contents (`docs/<repo>/<timestamp>_comparison.md`)
+### Report contents (`docs/build-logs/{lang}/<repo>/{ts}_comparison.md`)
 
 - **Summary table** — package counts, overlap percentage, version agreement
 - **Common packages** — detected by both methods, with version match/mismatch
@@ -200,5 +200,5 @@ docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
 # 5. Review results
 ls output/spdx/curl/          # SPDX SBOMs
 ls output/omnibor/curl/        # OmniBOR ADG
-ls docs/curl/                  # Build logs and comparison reports
+ls docs/build-logs/c-cpp/curl/  # Build logs and comparison reports
 ```

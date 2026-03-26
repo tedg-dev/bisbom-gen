@@ -31,7 +31,7 @@ This project instruments C/C++, Rust, Go, and Java open-source builds with [Omni
 
 ### What is Build Interception?
 
-Build interception hooks into the compiler and linker during a software build to observe exactly which source files are compiled into which output artifacts. [OmniBOR's Bomtrace](https://github.com/omnibor/bomsh) uses `strace` to intercept these calls and produce an **Artifact Dependency Graph (ADG)** — a cryptographically verifiable record of what was built from what. C/C++ builds use bomtrace3; Rust and Go builds use bomtrace2. Java uses strace-based post-build analysis. See [Go Language Support](docs/go-language-support.md), [Analyzed vs Build SBOMs](docs/analyzed-vs-build-sboms.md), and [Stable Tag Pinning](docs/stable-tag-pinning.md) for details.
+Build interception hooks into the compiler and linker during a software build to observe exactly which source files are compiled into which output artifacts. [OmniBOR's Bomtrace](https://github.com/omnibor/bomsh) uses `strace` to intercept these calls and produce an **Artifact Dependency Graph (ADG)** — a cryptographically verifiable record of what was built from what. C/C++ builds use bomtrace3; Rust and Go builds use bomtrace2. Java uses strace-based post-build analysis. See [Go Language Support](docs/features/go-language-support.md), [Analyzed vs Build SBOMs](docs/architecture/analyzed-vs-build-sboms.md), and [Stable Tag Pinning](docs/features/stable-tag-pinning.md) for details.
 
 ## Project Structure
 
@@ -45,8 +45,15 @@ omnibor-analysis/
 │   ├── repo_discovery/    Auto-discover and configure repos from GitHub
 │   └── templates/         Report templates
 ├── docker/                Docker environment (Linux + gcc + Rust + Go + Maven + bomtrace)
-├── docs/                  Timestamped results, reports, and methodology
-│   └── summary/           Cross-repo findings and architecture docs
+├── docs/                  Documentation and reports
+│   ├── architecture/      System design, overview, drawio diagram
+│   ├── build-logs/        Timestamped build logs ({lang}/{repo}/{ts}/)
+│   ├── features/          Feature documentation
+│   ├── guides/            Contributing, onboarding, setup guides
+│   ├── infrastructure/    Cloud migration recommendations
+│   ├── issues/            Upstream issue tracking
+│   ├── runtime/           Build performance metrics ({lang}/{repo}/{ts}/)
+│   └── summary/           Cross-repo findings and methodology
 ├── terraform/             AWS EC2 infrastructure as code
 ├── tests/                 Unit tests (670 tests)
 ├── repos/                 Cloned target repositories (gitignored)
@@ -157,7 +164,7 @@ All Rust crates use STATIC_LINK (compiled into the binary). Each crate gets a `p
 | [dive](https://github.com/wagoodman/dive) | ~15-20 | ~25 | Docker image explorer |
 | [gdu](https://github.com/dundee/gdu) | ~10-15 | ~15-20 | Disk usage analyzer |
 
-Go modules are classified as direct or indirect from `go.mod`. Each gets a `pkg:golang` PURL. For details, see [Go Language Support](docs/go-language-support.md).
+Go modules are classified as direct or indirect from `go.mod`. Each gets a `pkg:golang` PURL. For details, see [Go Language Support](docs/features/go-language-support.md).
 
 ### Java (strace + post-build analysis)
 
@@ -169,7 +176,7 @@ Go modules are classified as direct or indirect from `go.mod`. Each gets a `pkg:
 
 Java uses strace-based post-build analysis instead of bomtrace. Maven dependencies are classified as direct (depth 1) or transitive (depth 2+) via BFS.
 
-To add a new target repository, see [CONTRIBUTING.md](docs/CONTRIBUTING.md#adding-a-new-target-repository).
+To add a new target repository, see [CONTRIBUTING.md](docs/guides/CONTRIBUTING.md#adding-a-new-target-repository).
 
 ## Output and Reports
 
@@ -183,7 +190,7 @@ Each analysis run produces SPDX files per output binary:
 | `<binary>_build.spdx.json` | Build | Full dependency graph: static + dynamic + build tools + transitive deps. For build reproducibility and supply chain audit. |
 | `<binary>_omnibor.spdx.json` | — | OmniBOR artifact identity. Cryptographic hashes for provenance tracking. No dependency relationships (by design). |
 
-Each `.spdx.json` has a corresponding `.spdx.html` interactive D3.js visualization. See [Analyzed vs Build SBOMs](docs/analyzed-vs-build-sboms.md) for the rationale behind the two-file approach.
+Each `.spdx.json` has a corresponding `.spdx.html` interactive D3.js visualization. See [Analyzed vs Build SBOMs](docs/architecture/analyzed-vs-build-sboms.md) for the rationale behind the two-file approach.
 
 ### Artifacts (not tracked in git)
 
@@ -197,7 +204,7 @@ Each `.spdx.json` has a corresponding `.spdx.html` interactive D3.js visualizati
 
 | Path | Contents |
 |------|----------|
-| `docs/{lang}/{repo}/{ts}/build.md` | Build log, environment snapshot |
+| `docs/build-logs/{lang}/{repo}/{ts}/build.md` | Build log, environment snapshot |
 | `docs/runtime/{lang}/{repo}/{ts}/runtime.md` | Build time and performance metrics |
 | `docs/summary/` | Cross-repo findings and methodology |
 
@@ -205,7 +212,7 @@ Each `.spdx.json` has a corresponding `.spdx.html` interactive D3.js visualizati
 
 ## Contributing
 
-See [CONTRIBUTING.md](docs/CONTRIBUTING.md) for guidelines on:
+See [CONTRIBUTING.md](docs/guides/CONTRIBUTING.md) for guidelines on:
 - Branch naming and PR workflow
 - Adding new target repositories
 - Code style and testing

@@ -57,8 +57,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `jsonschema==4.23.0` and `spdx-tools==0.8.2` added to `requirements.txt`
 - DigitalOcean droplet (`omnibor-build`) for native x86_64 bomtrace3 builds — replaces local Docker
 - Droplet shutdown reminder rule (`.windsurf/rules/droplet-shutdown.md`)
-- bomtrace3 QEMU/Rosetta debug findings documented (`docs/bomtrace3-qemu-debug.md`)
-- GitHub Issue draft for omnibor/bomsh QEMU bugs (`docs/github-issue-bomsh-qemu.md`)
+- bomtrace3 QEMU/Rosetta debug findings documented (`docs/issues/bomtrace3-qemu-debug.md`)
+- GitHub Issue draft for omnibor/bomsh QEMU bugs (`docs/issues/github-issue-bomsh-qemu.md`)
 
 ### Fixed
 

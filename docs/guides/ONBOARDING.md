@@ -80,7 +80,7 @@ This takes 10-20 minutes on first build (compiles bomtrace3 from source).
 
 Follow the comprehensive setup guide:
 
-**[docs/aws-setup-guide.md](docs/aws-setup-guide.md)**
+**[docs/guides/aws-setup-guide.md](docs/guides/aws-setup-guide.md)**
 
 This covers Cisco Duo SSO authentication, Terraform provisioning, and
 everything needed to go from zero to running builds. The guide handles:
@@ -224,8 +224,8 @@ omnibor-analysis/
 
 ## Further Reading
 
-- `docs/aws-setup-guide.md` — **Greenfield AWS EC2 setup (Cisco Duo SSO + Terraform)**
-- `docs/aws-ec2-migration-recommendation.md` — Instance sizing and cost comparison
+- `docs/guides/aws-setup-guide.md` — **Greenfield AWS EC2 setup (Cisco Duo SSO + Terraform)**
+- `docs/infrastructure/aws-ec2-migration-recommendation.md` — Instance sizing and cost comparison
 - `docs/summary/spdx-generation-deep-dive.md` — Full technical pipeline documentation
 - `docs/summary/workflow-guide.md` — Detailed workflow descriptions
 - `docs/summary/nmap-target-vendored-dirs.md` — Vendored directory detection explained
