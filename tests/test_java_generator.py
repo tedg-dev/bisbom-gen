@@ -1091,5 +1091,69 @@ class TestGenerate(unittest.TestCase):
             self.assertEqual(len(doc["packages"]), 2)
 
 
+class TestIsTestFile(unittest.TestCase):
+    """Tests for JavaSpdxGenerator._is_test_file."""
+
+    def test_target_test_classes(self):
+        self.assertTrue(
+            JavaSpdxGenerator._is_test_file(
+                "target/test-classes/com/example/"
+                "MyTest.class"
+            )
+        )
+
+    def test_src_test_java(self):
+        self.assertTrue(
+            JavaSpdxGenerator._is_test_file(
+                "src/test/java/com/example/"
+                "MyTest.java"
+            )
+        )
+
+    def test_src_it_java(self):
+        self.assertTrue(
+            JavaSpdxGenerator._is_test_file(
+                "src/it/java/org/check/"
+                "XpathTest.java"
+            )
+        )
+
+    def test_absolute_test_classes(self):
+        self.assertTrue(
+            JavaSpdxGenerator._is_test_file(
+                "/workspace/repos/checkstyle/"
+                "target/test-classes/Foo.class"
+            )
+        )
+
+    def test_production_source(self):
+        self.assertFalse(
+            JavaSpdxGenerator._is_test_file(
+                "src/main/java/com/example/"
+                "App.java"
+            )
+        )
+
+    def test_production_class(self):
+        self.assertFalse(
+            JavaSpdxGenerator._is_test_file(
+                "target/classes/com/example/"
+                "App.class"
+            )
+        )
+
+    def test_empty_path(self):
+        self.assertFalse(
+            JavaSpdxGenerator._is_test_file("")
+        )
+
+    def test_pom_xml(self):
+        self.assertFalse(
+            JavaSpdxGenerator._is_test_file(
+                "pom.xml"
+            )
+        )
+
+
 if __name__ == "__main__":
     unittest.main()

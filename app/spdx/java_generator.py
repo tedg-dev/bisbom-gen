@@ -58,9 +58,24 @@ class JavaSpdxGenerator:
             print(f"[ERROR] {e}")
             return None
 
-        source_files = classified.get("project_source", [])
+        all_files = classified.get("project_source", [])
+        source_files = [
+            f for f in all_files
+            if not self._is_test_file(
+                f.get("file_path", "")
+            )
+        ]
+        test_files_excluded = (
+            len(all_files) - len(source_files)
+        )
+        test_msg = (
+            f", {test_files_excluded} test excluded"
+            if test_files_excluded else ""
+        )
         print(
-            f"[{bin_name}] Source files: {len(source_files)}"
+            f"[{bin_name}] Source files: "
+            f"{len(source_files)} production"
+            f"{test_msg}"
         )
 
         # Get Maven dependencies via dependency:tree
@@ -503,6 +518,27 @@ class JavaSpdxGenerator:
                 })
 
         return doc
+
+    @staticmethod
+    def _is_test_file(file_path):
+        """Return True if file_path is a test artifact.
+
+        Excludes:
+          - target/test-classes/ (compiled test .class)
+          - src/test/ (unit test sources)
+          - src/it/ (integration test sources)
+          - *Test.java / *Tests.java in non-main dirs
+        """
+        test_dir_markers = (
+            "target/test-classes/",
+            "src/test/",
+            "src/it/",
+            "/test-classes/",
+        )
+        for marker in test_dir_markers:
+            if marker in file_path:
+                return True
+        return False
 
     def _get_version(self):
         """Try to get version from pom.xml."""
