@@ -19,8 +19,16 @@ and completeness.
   - **app/config.py** — Shared config loading, timestamp, lang_subdir
   - **app/runner.py** — CommandRunner utility
 - **docker/** — Linux container environment (Ubuntu 22.04) with gcc, bomtrace3, syft
-- **tests/** — Unit tests (427+ tests, 99% coverage)
-- **docs/** — Timestamped results and summary documentation, organized by language (`c-cpp/`, `go/`, `rust/`)
+- **tests/** — Unit tests (670+ tests, 97%+ coverage)
+- **docs/** — Documentation and reports
+  - **docs/architecture/** — System design, overview, drawio diagram
+  - **docs/build-logs/** — Timestamped build logs (`{lang}/{repo}/{ts}/`)
+  - **docs/features/** — Feature documentation
+  - **docs/guides/** — Contributing, onboarding, setup guides
+  - **docs/infrastructure/** — Cloud migration recommendations
+  - **docs/issues/** — Upstream issue tracking
+  - **docs/runtime/** — Build performance metrics (`{lang}/{repo}/{ts}/`)
+  - **docs/summary/** — Cross-repo findings and methodology
 - **repos/** — Cloned target repositories (gitignored)
 - **output/** — Generated artifacts organized by language: `output/{category}/{lang}/{repo}/{ts}/` (gitignored)
 - **.windsurf/** — Cascade AI rules and workflows
