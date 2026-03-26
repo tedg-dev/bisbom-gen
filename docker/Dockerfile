@@ -223,6 +223,15 @@ RUN cd /opt/bomsh && patch -p1 < /tmp/bomsh_golang.patch && \
     cp /opt/bomsh/scripts/bomsh_hook2.py /tmp/bomsh_hook2.py && \
     rm /tmp/bomsh_golang.patch
 
+# Patch bomsh_create_bom_java.py: process_jar_file() crashes with
+# UnboundLocalError when a JAR has .class files without SourceFile
+# attributes (e.g. DependencyCheck's core module).  Initialize
+# source_file='' before the loop so process_class_file gets a valid
+# default.  Upstream bomsh bug.
+COPY docker/patches/bomsh_java_sourcefile.patch /tmp/bomsh_java.patch
+RUN cd /opt/bomsh && patch -p1 < /tmp/bomsh_java.patch && \
+    rm /tmp/bomsh_java.patch
+
 # Go-specific bomtrace2 config (watches go compile/link tools + openat syscall)
 COPY docker/bomtrace_go.conf /opt/bomsh/bin/bomtrace_go.conf
 
