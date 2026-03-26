@@ -5,6 +5,9 @@ other, and traces the execution flow from entry points to leaf modules.
 Use this as a guide to understand how the OmniBOR analysis pipeline
 works end to end.
 
+> **Visual overview:** Open [`omnibor-analysis-workflow.drawio`](omnibor-analysis-workflow.drawio)
+> in [draw.io](https://app.diagrams.net/) for a high-level pipeline diagram.
+
 ---
 
 ## Table of Contents

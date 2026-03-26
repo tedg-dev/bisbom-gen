@@ -141,10 +141,10 @@ graph TD
 
 ---
 
-## Vendored Version Detection: 10 Strategies
+## Vendored Version Detection: 12 Strategies
 
 C/C++ vendored libraries declare versions in ad-hoc ways. omnibor-analysis
-implements 10 detection strategies, ordered most-reliable first:
+implements 12 detection strategies, ordered most-reliable first:
 
 ```mermaid
 flowchart LR
@@ -189,8 +189,8 @@ dependency graph**:
 - Click-to-highlight, search, zoom/pan — no server needed
 
 <!-- TODO: Add screenshot of nmap_build.spdx.html visualization here -->
-<!-- Export from: output/spdx/c-cpp/nmap/2026-03-12_2143/nmap_build.spdx.html -->
-<!-- Save as: docs/images/nmap-build-visualization.png -->
+<!-- Export from: output/spdx/c-cpp/nmap/ latest timestamp /nmap_build.spdx.html -->
+<!-- Save as: docs/architecture/images/nmap-build-visualization.png -->
 
 ---
 
@@ -199,7 +199,7 @@ dependency graph**:
 | Capability | Manifest Scanner (Syft/Trivy) | Binary Scanner (BDBA) | **omnibor-analysis** |
 |------------|-------------------------------|----------------------|----------------------|
 | Detects vendored C/C++ libs | No | Partial (signature match) | **Yes — from actual build** |
-| Versions for vendored libs | No | Sometimes | **Yes — 10 strategies** |
+| Versions for vendored libs | No | Sometimes | **Yes — 12 strategies** |
 | Cryptographic build provenance | No | No | **Yes — OmniBOR gitoid chain** |
 | Source file → binary tracing | No | No | **Yes — every .c → .o → binary** |
 | SPDX 2.3 compliant | Yes | Proprietary + export | **Yes — validated** |
@@ -210,9 +210,8 @@ dependency graph**:
 
 ## Architecture Summary
 
-<!-- TODO: Export omnibor-analysis-workflow.drawio as PNG and embed here -->
-<!-- Source: docs/omnibor-analysis-workflow.drawio -->
-<!-- Save as: docs/images/omnibor-analysis-workflow.png -->
+> **Workflow diagram:** Open [`omnibor-analysis-workflow.drawio`](omnibor-analysis-workflow.drawio)
+> in [draw.io](https://app.diagrams.net/) for the full visual pipeline diagram.
 
 ```
 Source code → bomtrace3 (ptrace) → raw logfile → OmniBOR ADG → SPDX 2.3 JSON
@@ -226,10 +225,10 @@ Source code → bomtrace3 (ptrace) → raw logfile → OmniBOR ADG → SPDX 2.3 
 - **bomtrace3** — modified strace that intercepts gcc/ld via ptrace
 - **bomsh_create_bom.py** — builds the OmniBOR Artifact Dependency Graph
 - **app/spdx/emitter.py** — generates per-binary SPDX with vendored detection
-- **app/spdx/version_detector.py** — 10-strategy vendored version detection
+- **app/version_detection/** — 12-strategy vendored version detection
 - **app/spdx_visualize.py** — D3.js interactive dependency graphs
 
-**Quality gates:** 608 tests, 97% code coverage, golden file regression baselines
+**Quality gates:** 670 tests, 97% code coverage, golden file regression baselines
 for all 18 C/C++ binary artifacts across 4 projects.
 
 ---
