@@ -162,7 +162,7 @@ repos:
     branch: v0.70.0
     language: go
     build_steps:
-    - go build -a -o fzf .
+    - 'go build -a -trimpath -ldflags="-s -w" -o fzf .'
     clean_cmd: rm -f fzf
     description: Fuzzy finder CLI (~7 direct + 4 indirect Go deps)
     output_binaries:
@@ -172,7 +172,7 @@ repos:
     branch: v0.60.0
     language: go
     build_steps:
-    - go build -a -o lazygit .
+    - 'go build -a -trimpath -ldflags="-s -w" -o lazygit .'
     clean_cmd: rm -f lazygit
     description: Terminal UI for git (~15-20 direct + 20-30 indirect Go deps)
     output_binaries:
@@ -182,7 +182,7 @@ repos:
     branch: v10.4.2
     language: go
     build_steps:
-    - go build -a -o croc .
+    - 'go build -a -trimpath -ldflags="-s -w" -o croc .'
     clean_cmd: rm -f croc
     description: Secure file transfer tool (~10-15 direct + 15 indirect Go deps)
     output_binaries:
@@ -192,7 +192,7 @@ repos:
     branch: v0.13.1
     language: go
     build_steps:
-    - go build -a -o dive .
+    - 'go build -a -trimpath -ldflags="-s -w" -o dive .'
     clean_cmd: rm -f dive
     description: Docker image layer explorer (~15-20 direct + 25 indirect Go deps)
     output_binaries:
@@ -202,7 +202,7 @@ repos:
     branch: v5.34.1
     language: go
     build_steps:
-    - go build -a -o gdu ./cmd/gdu
+    - 'go build -a -trimpath -ldflags="-s -w" -o gdu ./cmd/gdu'
     clean_cmd: rm -f gdu
     description: Fast disk usage analyzer with TUI (~10-15 direct + 15-20 indirect Go deps)
     output_binaries:

@@ -99,6 +99,21 @@ def main():
     print(f"  {desc}")
     print(f"{'#'*60}\n")
 
+    # Release build verification (console)
+    from app.pipeline.doc_writer import DocWriter
+    rb = DocWriter.classify_release_build(repo_cfg)
+    status_msg = (
+        "release build confirmed"
+        if rb["is_release"]
+        else "release build issue"
+    )
+    print(
+        f"[{rb['label']}] {args.repo}: "
+        f"{status_msg} ({rb['reason']})"
+    )
+    for w in rb["warnings"]:
+        print(f"[WARNING] {args.repo}: {w}")
+
     # Step 1: Clone
     if not args.skip_clone:
         pipeline.cloner.clone(
