@@ -247,16 +247,16 @@ repos:
     description: Static analysis tool (14 direct, 12 transitive - antlr, guava, picocli, commons-beanutils)
     output_binaries:
     - target/checkstyle-*.jar
-  crawler4j:
-    url: https://github.com/yasserg/crawler4j.git
-    branch: crawler4j-4.4.0
+  dependency-check:
+    url: https://github.com/jeremylong/DependencyCheck.git
+    branch: v9.2.0
     language: java
     build_steps:
-    - mvn package -DskipTests -q
+    - mvn package -DskipTests -q -pl cli -am
     clean_cmd: mvn clean -q
-    description: Open source web crawler (42 direct, 35 transitive - Apache HttpComponents, Tika, SLF4J, deep hierarchy)
+    description: OWASP dependency-check CLI (6 modules - utils, core, cli, ant, maven, archetype)
     output_binaries:
-    - crawler4j/target/crawler4j-*.jar
+    - cli/target/dependency-check-*.jar
 paths:
   repos_dir: /workspace/repos
   output_dir: /workspace/output

@@ -20,6 +20,26 @@ class BinaryCollector:
     (e.g. ``src/.libs/curl``).
     """
 
+    # Maven classifier suffixes to skip when
+    # collecting production JARs
+    _JAR_SKIP_SUFFIXES = (
+        "-tests.jar",
+        "-test-sources.jar",
+        "-sources.jar",
+        "-javadoc.jar",
+        "-examples.jar",
+    )
+
+    @staticmethod
+    def _is_auxiliary_jar(filename):
+        """Return True if JAR is a test/sources/javadoc
+        auxiliary artifact, not the production JAR."""
+        name = filename.lower()
+        return any(
+            name.endswith(s)
+            for s in BinaryCollector._JAR_SKIP_SUFFIXES
+        )
+
     @staticmethod
     def collect(repo_name, repo_cfg, paths_cfg,
                 run_ts=None):
@@ -53,7 +73,21 @@ class BinaryCollector:
         for rel_path in bins:
             # Handle glob patterns (e.g., target/jsoup-*.jar)
             if '*' in rel_path or '?' in rel_path:
-                matches = list(repo_dir.glob(rel_path))
+                matches = [
+                    m for m in repo_dir.glob(rel_path)
+                    if not BinaryCollector._is_auxiliary_jar(
+                        m.name
+                    )
+                ]
+                skipped = len(
+                    list(repo_dir.glob(rel_path))
+                ) - len(matches)
+                if skipped:
+                    print(
+                        f"[INFO] Skipped {skipped} "
+                        f"auxiliary JAR(s) "
+                        f"(tests/sources/javadoc)"
+                    )
                 if not matches:
                     print(
                         f"[WARN] No files match: {rel_path}"
