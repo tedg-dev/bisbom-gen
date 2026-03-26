@@ -89,7 +89,7 @@ def main():
     #   output/binaries/{lang}/{repo}/{run_ts}/
     #   output/spdx/{lang}/{repo}/{run_ts}/
     #   output/omnibor/{lang}/{repo}/{run_ts}/
-    #   docs/{lang}/{repo}/{run_ts}/
+    #   docs/build-logs/{lang}/{repo}/{run_ts}/
     #   docs/runtime/{lang}/{repo}/{run_ts}/
     run_ts = timestamp()
 

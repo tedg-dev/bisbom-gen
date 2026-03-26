@@ -67,7 +67,7 @@ docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
 ## 5. Sync results locally (REQUIRED for remote hosts)
 
 **After every successful remote analysis, always sync results back.**
-See `.windsurf/rules/sync-results.md` for the full rule.
+See `.windsurf/rules/workflow/sync-results.md` for the full rule.
 
 ```bash
 rsync -avz <SSH_ALIAS>:<REPO_PATH>/output/ output/
@@ -117,5 +117,5 @@ The `<ts>` timestamp is generated once per run and shared across all output type
 | Visualization (per binary) | `output/spdx/<lang>/<repo>/<ts>/<binary>_adg.spdx.html` |
 | SPDX SBOM (Syft) | `output/spdx/<lang>/<repo>/<ts>/<repo>_syft.spdx.json` |
 | Output binaries | `output/binaries/<lang>/<repo>/<ts>/` |
-| Build log | `docs/<lang>/<repo>/<ts>/build.md` |
+| Build log | `docs/build-logs/<lang>/<repo>/<ts>/build.md` |
 | Runtime metrics | `docs/runtime/<lang>/<repo>/<ts>/runtime.md` |

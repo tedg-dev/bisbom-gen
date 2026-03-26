@@ -1,0 +1,114 @@
+---
+description: Run on every startup to verify the omnibor-analysis environment is ready
+alwaysApply: false
+---
+
+# Setup Environment
+
+> **Note:** This file was converted from a Windsurf workflow
+> (`.windsurf/workflows/setup-environment.md`). In Cursor, attach it via
+> `@rules` in Composer/Chat when you need to run this workflow.
+> Windsurf `// turbo` (auto-run) annotations are marked below but
+> Cursor requires manual approval for all terminal commands.
+
+Run this workflow when opening the omnibor-analysis workspace.
+
+## 0. MANDATORY: Review all project rules
+
+**This step is non-negotiable. Do it before ANY other work.**
+
+Read every file in `.cursor/rules/` (including subdirectories) to refresh all project rules:
+
+```bash
+find .cursor/rules/ -name "*.md" | sort | while read f; do echo "=== $f ==="; cat "$f"; echo; done
+```
+
+After reading, confirm to the user which rules you've loaded and acknowledge
+the key constraints (pre-commit gates, single-step git, CHANGELOG updates,
+PR-first workflow, no direct commits to main).
+
+**Do not proceed to any task until this step is complete.**
+
+## 1. Verify Python virtual environment
+
+All local development uses `.venv/`. Verify it exists and has dependencies:
+
+<!-- Windsurf '// turbo' was here — Cursor requires manual approval -->
+```bash
+.venv/bin/python3 --version && .venv/bin/pip check 2>&1 | tail -3
+```
+
+If missing, create it:
+```bash
+python3 -m venv .venv && .venv/bin/pip install --upgrade pip && .venv/bin/pip install -r requirements.txt
+```
+
+## 2. Verify key project files
+
+<!-- Windsurf '// turbo' was here — Cursor requires manual approval -->
+```bash
+ls -la app/config.yaml app/analyze.py app/compare.py app/spdx_from_adg.py app/spdx_visualize.py docker/Dockerfile docker/docker-compose.yml
+```
+
+## 3. Run quick test check
+
+<!-- Windsurf '// turbo' was here — Cursor requires manual approval -->
+```bash
+.venv/bin/python3 -m pytest tests/ -x -q 2>&1 | tail -5
+```
+
+## 4. Check infrastructure profile
+
+Check if the user has set up their build host profile:
+
+<!-- Windsurf '// turbo' was here — Cursor requires manual approval -->
+```bash
+if [ -f .cursor/rules/infrastructure/active-profile.md ]; then
+  echo "=== Active Infrastructure Profile ==="
+  head -20 .cursor/rules/infrastructure/active-profile.md
+else
+  echo "No infrastructure profile found."
+  echo "Set one up by copying a template:"
+  echo "  cp .cursor/rules/infrastructure/templates/digitalocean.md .cursor/rules/infrastructure/active-profile.md"
+  echo "  cp .cursor/rules/infrastructure/templates/aws-ec2.md .cursor/rules/infrastructure/active-profile.md"
+  echo "  cp .cursor/rules/infrastructure/templates/local-linux.md .cursor/rules/infrastructure/active-profile.md"
+  echo "Then edit active-profile.md with your actual values."
+fi
+```
+
+## 5. Check Docker availability
+
+Check if Docker is available (locally or remotely):
+
+```bash
+docker --version 2>/dev/null || echo "Docker not available locally — you may need a remote Linux x86_64 host"
+```
+
+If Docker is available locally:
+```bash
+docker-compose -f docker/docker-compose.yml run --rm omnibor-env bomtrace3 --version 2>/dev/null || echo "Container image not built yet — run /docker-build workflow"
+```
+
+## 6. Check for existing output artifacts
+
+```bash
+find output/ -name "*.spdx.json" -o -name "*.spdx.html" 2>/dev/null | head -20 || echo "No output artifacts yet"
+```
+
+## 7. Check for existing docs/reports
+
+<!-- Windsurf '// turbo' was here — Cursor requires manual approval -->
+```bash
+find docs/ -name "*.md" -not -name ".gitkeep" 2>/dev/null | sort | tail -10 || echo "No reports yet"
+```
+
+## 8. Report status to user
+
+Summarize:
+- Python venv status
+- Test suite status (count + coverage)
+- Infrastructure profile (provider, host, connection)
+- Docker availability
+- Available repos (from config.yaml)
+- Existing output artifacts
+- Available workflows: `@rules workflow--add-repo`, `@rules workflow--run-analysis`, `@rules workflow--run-comparison`, `@rules workflow--docker-build`

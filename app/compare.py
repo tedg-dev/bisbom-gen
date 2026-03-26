@@ -459,7 +459,7 @@ def main():
     # Write to docs
     docs_dir = (
         Path(paths_cfg["docs_dir"])
-        / lang / args.repo
+        / "build-logs" / lang / args.repo
     )
     docs_dir.mkdir(parents=True, exist_ok=True)
     ts = timestamp()

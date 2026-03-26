@@ -64,7 +64,7 @@ The Docker container requires **Linux x86_64** with ptrace support. Options:
 
 For Cisco employees, the recommended path is AWS EC2 with Terraform:
 
-- Full setup guide: `docs/aws-setup-guide.md`
+- Full setup guide: `docs/guides/aws-setup-guide.md`
 - Terraform IaC: `terraform/` directory
 - Authentication: Cisco Duo SSO → SAML → AWS STS (1-hour sessions)
 - CLI tools needed: `aws`, `terraform`, `duo-sso`
