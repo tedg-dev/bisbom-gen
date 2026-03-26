@@ -248,10 +248,17 @@ class TestRepoCloner(unittest.TestCase):
             }
 
             cloner.clone("newrepo", cfg, paths)
-            runner.run.assert_called_once()
-            call_args = runner.run.call_args
-            self.assertIn("git clone", call_args[0][0])
-            self.assertIn("main", call_args[0][0])
+            # Two calls: clone + tag checkout attempt
+            self.assertEqual(runner.run.call_count, 2)
+            clone_args = runner.run.call_args_list[0]
+            self.assertIn(
+                "git clone", clone_args[0][0]
+            )
+            self.assertIn("main", clone_args[0][0])
+            tag_args = runner.run.call_args_list[1]
+            self.assertIn(
+                "tags/main", tag_args[0][0]
+            )
 
     def test_default_branch_master(self):
         with tempfile.TemporaryDirectory() as tmpdir:

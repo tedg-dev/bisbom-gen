@@ -38,4 +38,16 @@ class RepoCloner:
                 f"Cloning {repo_name} ({branch})"
             ),
         )
+        # Prefer tag over branch when both share a
+        # name (avoids Maven SNAPSHOT builds)
+        self.runner.run(
+            f"git -C {repo_dir} fetch origin "
+            f"tag {branch} --no-tags 2>/dev/null "
+            f"&& git -C {repo_dir} checkout "
+            f"tags/{branch} 2>/dev/null || true",
+            description=(
+                f"Checkout tag {branch} "
+                f"(if exists)"
+            ),
+        )
         return str(repo_dir)
