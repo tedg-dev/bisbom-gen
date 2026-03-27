@@ -22,10 +22,10 @@
    - Click-to-highlight, search, tooltips
 
 4. **Architecture Walkthrough**
-   - See attached: `omnibor-analysis-workflow.png`
+   - [View diagram](https://github.com/tedg-dev/omnibor-analysis/blob/main/docs/architecture/omnibor-analysis-workflow.png)
 
 ## Resources
 
-- [Technical Overview](omnibor-analysis-technical-overview.md) — full documentation
-- [Architecture Diagram](omnibor-analysis-workflow.png) — attached
+- [Technical Overview](https://github.com/tedg-dev/omnibor-analysis/blob/main/docs/architecture/omnibor-analysis-technical-overview.md)
+- [Architecture Diagram](https://github.com/tedg-dev/omnibor-analysis/blob/main/docs/architecture/omnibor-analysis-workflow.png)
 - Sample visualization HTML (optional)

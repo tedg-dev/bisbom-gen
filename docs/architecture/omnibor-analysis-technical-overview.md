@@ -87,7 +87,7 @@ Each HTML visualization is a **force-directed D3.js graph** showing the binary's
 
 ## 5. Architecture Diagram
 
-See: [`omnibor-analysis-workflow.png`](omnibor-analysis-workflow.png)
+See: [omnibor-analysis-workflow.png](https://github.com/tedg-dev/omnibor-analysis/blob/main/docs/architecture/omnibor-analysis-workflow.png)
 
 Pipeline visualization showing:
 - AWS EC2 + Docker container environment
