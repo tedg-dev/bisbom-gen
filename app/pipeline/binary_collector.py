@@ -30,14 +30,27 @@ class BinaryCollector:
         "-examples.jar",
     )
 
+    # Maven prefixes that indicate non-production JARs
+    _JAR_SKIP_PREFIXES = (
+        "original-",  # Maven shade pre-shade copy
+    )
+
     @staticmethod
     def _is_auxiliary_jar(filename):
         """Return True if JAR is a test/sources/javadoc
         auxiliary artifact, not the production JAR."""
         name = filename.lower()
-        return any(
-            name.endswith(s)
-            for s in BinaryCollector._JAR_SKIP_SUFFIXES
+        return (
+            any(
+                name.endswith(s)
+                for s in
+                BinaryCollector._JAR_SKIP_SUFFIXES
+            )
+            or any(
+                name.startswith(p)
+                for p in
+                BinaryCollector._JAR_SKIP_PREFIXES
+            )
         )
 
     @staticmethod

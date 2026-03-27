@@ -236,7 +236,7 @@ repos:
     clean_cmd: mvn clean -q
     description: Java HTML parser library (zero runtime deps - all test scope)
     output_binaries:
-    - target/jsoup-*.jar
+    - '**/target/*.jar'
   checkstyle:
     url: https://github.com/checkstyle/checkstyle.git
     branch: checkstyle-13.3.0
@@ -246,7 +246,7 @@ repos:
     clean_cmd: mvn clean -q
     description: Static analysis tool (14 direct, 12 transitive - antlr, guava, picocli, commons-beanutils)
     output_binaries:
-    - target/checkstyle-*.jar
+    - '**/target/*.jar'
   dependency-check:
     url: https://github.com/jeremylong/DependencyCheck.git
     branch: v9.2.0
@@ -256,9 +256,7 @@ repos:
     clean_cmd: mvn clean -q
     description: OWASP dependency-check CLI (6 modules - utils, core, cli, ant, maven, archetype)
     output_binaries:
-    - utils/target/dependency-check-utils-*.jar
-    - core/target/dependency-check-core-*.jar
-    - cli/target/dependency-check-*.jar
+    - '**/target/*.jar'
 paths:
   repos_dir: /workspace/repos
   output_dir: /workspace/output
