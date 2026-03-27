@@ -26,6 +26,6 @@
 
 ## Resources
 
-- [Technical Overview](https://github.com/tedg-dev/omnibor-analysis/blob/main/docs/architecture/omnibor-analysis-technical-overview.md) — full documentation
+- [Technical Overview](omnibor-analysis-technical-overview.md) — full documentation (same folder)
 - Architecture diagram PNG (attached)
 - Sample visualization HTML (optional)
