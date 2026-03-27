@@ -125,6 +125,16 @@ RUN wget -q "https://dlcdn.apache.org/maven/maven-3/${MAVEN_VERSION}/binaries/ap
 RUN ln -sf /opt/apache-maven-${MAVEN_VERSION}/bin/mvn /usr/local/bin/mvn && \
     ln -s /opt/apache-maven-${MAVEN_VERSION}/bin/mvn /usr/local/bin/mvn3.9 && \
     ln -s /usr/share/maven/bin/mvn /usr/local/bin/mvn3.6
+# Unblock HTTP Maven repositories (Maven 3.8.1+ blocks HTTP by default).
+# Some repos (e.g. Oracle BerkeleyDB) only serve from HTTP mirrors.
+# This applies to both apt Maven (3.6) and downloaded Maven (3.9).
+RUN for settings in \
+        /opt/apache-maven-${MAVEN_VERSION}/conf/settings.xml \
+        /usr/share/maven/conf/settings.xml; do \
+      if [ -f "$settings" ]; then \
+        sed -i 's|<blocked>true</blocked>|<blocked>false</blocked>|g' "$settings"; \
+      fi; \
+    done
 ENV PATH="${JAVA_HOME}/bin:${PATH}"
 
 # ============================================================

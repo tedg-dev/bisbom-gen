@@ -397,11 +397,15 @@ class JavaSpdxGenerator:
             "relationships": [],
         }
 
+        # Extract artifact name from JAR filename
+        # e.g., dependency-check-utils-9.2.0.jar → dependency-check-utils
+        artifact_name = self._extract_artifact_name(bin_name)
+
         # Add root package for the JAR
         root_pkg_id = f"SPDXRef-Package-{clean_name}"
         doc["packages"].append({
             "SPDXID": root_pkg_id,
-            "name": self.repo_name,
+            "name": artifact_name,
             "versionInfo": self._get_version(),
             "downloadLocation": "NOASSERTION",
             "filesAnalyzed": True,
@@ -412,7 +416,7 @@ class JavaSpdxGenerator:
                 "referenceType": "purl",
                 "referenceLocator": (
                     f"pkg:maven/{self.repo_name}/"
-                    f"{self.repo_name}"
+                    f"{artifact_name}"
                 ),
             }],
         })
@@ -551,6 +555,30 @@ class JavaSpdxGenerator:
                 })
 
         return doc
+
+    @staticmethod
+    def _extract_artifact_name(jar_filename):
+        """Extract Maven artifact name from JAR filename.
+
+        Strips version suffix and .jar extension.
+        Examples:
+          dependency-check-utils-9.2.0.jar → dependency-check-utils
+          jsoup-1.17.2.jar → jsoup
+          my-lib-1.0-SNAPSHOT.jar → my-lib
+        """
+        name = jar_filename
+        # Strip .jar extension
+        if name.endswith(".jar"):
+            name = name[:-4]
+
+        # Strip version suffix: -X.Y.Z or -X.Y.Z-SNAPSHOT
+        # Pattern: dash followed by digit, then version chars
+        version_pattern = re.compile(
+            r"-\d+(\.\d+)*(-SNAPSHOT)?$"
+        )
+        name = version_pattern.sub("", name)
+
+        return name
 
     @staticmethod
     def _is_test_file(file_path):
