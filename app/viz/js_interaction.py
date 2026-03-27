@@ -67,6 +67,19 @@ node.filter(d => d.vendored)
   .attr('stroke-dasharray', '4,3')
   .attr('stroke-opacity', 0.85);
 
+// Sibling module indicator: purple double ring
+node.filter(d => d.sibling)
+  .append('circle')
+  .attr('r', d => {
+    if (d.fileCount > 50) return 22;
+    if (d.fileCount > 10) return 18;
+    return 16;
+  })
+  .attr('fill', 'none')
+  .attr('stroke', '#7c3aed')
+  .attr('stroke-width', 3)
+  .attr('stroke-opacity', 0.9);
+
 // Glow for root
 node.filter(d => d.group === 'root')
   .append('circle')

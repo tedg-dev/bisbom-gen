@@ -464,6 +464,8 @@ class JavaSpdxGenerator:
         # Add Maven dependencies as packages
         # Build artifact ID to SPDX ID mapping for relationships
         artifact_to_spdx = {}
+        project_group_id = self._get_project_group_id()
+
         for i, dep in enumerate(maven_deps):
             dep_id = f"SPDXRef-Dep-{i}"
             artifact_to_spdx[dep["artifactId"]] = dep_id
@@ -473,17 +475,31 @@ class JavaSpdxGenerator:
                 f"{dep['artifactId']}@{dep['version']}"
             )
 
+            # Detect sibling modules (same groupId = same project)
+            is_sibling = (
+                project_group_id is not None
+                and dep["groupId"] == project_group_id
+            )
+
             # Build comment with dependency metadata
-            comment_parts = [
-                f"Maven scope: {dep['scope']}",
-            ]
+            comment_parts = []
+            if is_sibling:
+                # Mark as sibling module with reference to its SPDX
+                sibling_spdx = (
+                    f"{dep['artifactId']}-{dep['version']}"
+                    "_build.spdx.json"
+                )
+                comment_parts.append(
+                    f"Sibling module. See: {sibling_spdx}"
+                )
+            comment_parts.append(f"Maven scope: {dep['scope']}")
             if dep.get("direct"):
                 comment_parts.append("Direct dependency")
             else:
                 comment_parts.append("Transitive dependency")
             if dep.get("optional"):
                 comment_parts.append("Optional")
-            if dep.get("parent"):
+            if dep.get("parent") and not is_sibling:
                 comment_parts.append(
                     f"Required by: {dep['parent']}"
                 )
@@ -633,3 +649,33 @@ class JavaSpdxGenerator:
             pass
 
         return "unknown"
+
+    def _get_project_group_id(self):
+        """Get the project's groupId from root pom.xml.
+
+        Used to detect sibling modules (same groupId = same project).
+        """
+        pom_path = self.repo_dir / "pom.xml"
+        if not pom_path.exists():
+            return None
+
+        try:
+            tree = ET.parse(pom_path)
+            root = tree.getroot()
+
+            ns = {}
+            if root.tag.startswith("{"):
+                ns_uri = root.tag.split("}")[0] + "}"
+                ns = {"m": ns_uri[1:-1]}
+
+            if ns:
+                group_id = root.find("m:groupId", ns)
+            else:
+                group_id = root.find("groupId")
+
+            if group_id is not None:
+                return group_id.text
+        except ET.ParseError:
+            pass
+
+        return None

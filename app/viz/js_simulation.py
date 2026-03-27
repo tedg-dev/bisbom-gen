@@ -21,6 +21,7 @@ const colors = {
   dynamic: '#ff6b6b',
   build: '#ffd93d',
   build_deep: '#e6a819',
+  sibling: '#c084fc',
   other: '#888',
 };
 
@@ -103,6 +104,7 @@ const xPositions = {
   'depth-4': width * 0.15,
   'depth-5': width * 0.10,
   vendored: width * 0.85,
+  sibling: width * 0.28,
   go_stdlib: width * 0.20,
   go_direct: width * 0.72,
   go_indirect: width * 0.38,
@@ -121,6 +123,7 @@ const yPositions = {
   'depth-4': height * 0.56,
   'depth-5': height * 0.58,
   vendored: height * 0.72,
+  sibling: height * 0.48,
   go_stdlib: height * 0.75,
   go_direct: height * 0.50,
   go_indirect: height * 0.52,

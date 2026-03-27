@@ -16,6 +16,7 @@ def extract_graph(doc):
     """
     pkg_map = {}
     for p in doc.get("packages", []):
+        comment = p.get("comment", "")
         pkg_map[p["SPDXID"]] = {
             "id": p["SPDXID"],
             "name": p.get("name", "unknown"),
@@ -23,10 +24,9 @@ def extract_graph(doc):
             "purpose": p.get(
                 "primaryPackagePurpose", ""
             ),
-            "comment": p.get("comment", ""),
-            "vendored": "vendored" in p.get(
-                "comment", ""
-            ).lower(),
+            "comment": comment,
+            "vendored": "vendored" in comment.lower(),
+            "sibling": "sibling module" in comment.lower(),
         }
 
     # Count CONTAINS / CONTAINED_BY relationships
@@ -199,6 +199,12 @@ def extract_graph(doc):
             group = "other"
             node_type = "other"
 
+        # Override group for sibling modules
+        is_sibling = info.get("sibling", False)
+        if is_sibling:
+            group = "sibling"
+            node_type = "sibling"
+
         nodes.append({
             "id": spdx_id,
             "name": info["name"],
@@ -209,6 +215,7 @@ def extract_graph(doc):
             "depth": depth if depth is not None else 0,
             "comment": info["comment"],
             "vendored": info.get("vendored", False),
+            "sibling": is_sibling,
             "fileCount": file_counts.get(
                 spdx_id, 0
             ),
