@@ -22,10 +22,10 @@
    - Click-to-highlight, search, tooltips
 
 4. **Architecture Walkthrough**
-   - See attached: `omnibor-analysis-workflow.drawio`
+   - See attached: `omnibor-analysis-workflow.png`
 
 ## Resources
 
-- [Technical Overview](omnibor-analysis-technical-overview.md) — full documentation (same folder)
-- Architecture diagram PNG (attached)
+- [Technical Overview](omnibor-analysis-technical-overview.md) — full documentation
+- [Architecture Diagram](omnibor-analysis-workflow.png) — attached
 - Sample visualization HTML (optional)

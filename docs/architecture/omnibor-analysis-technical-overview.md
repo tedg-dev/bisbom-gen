@@ -87,9 +87,9 @@ Each HTML visualization is a **force-directed D3.js graph** showing the binary's
 
 ## 5. Architecture Diagram
 
-See: [`docs/architecture/omnibor-analysis-workflow.drawio`](architecture/omnibor-analysis-workflow.drawio)
+See: [`omnibor-analysis-workflow.png`](omnibor-analysis-workflow.png)
 
-Open in [draw.io](https://app.diagrams.net/) for the full pipeline visualization showing:
+Pipeline visualization showing:
 - AWS EC2 + Docker container environment
 - bomtrace3/bomtrace2 build interception flow
 - ADG generation → SPDX generation → HTML visualization
