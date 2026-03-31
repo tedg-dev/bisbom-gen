@@ -7,6 +7,7 @@
 ## Table of Contents
 
 - [Overview](#overview)
+- [Documentation](#documentation)
 - [Background](#background)
 - [Project Structure](#project-structure)
 - [Prerequisites](#prerequisites)
@@ -26,6 +27,19 @@ This project instruments C/C++, Rust, Go, and Java open-source builds with [Omni
 - **Transitive dependencies** (DEPENDS_ON) — indirect dependencies from lock files
 - **Build tools** (BUILD_TOOL_OF) — compiler/linker version tracking
 - **Interactive HTML visualizations** — D3.js force-directed dependency graphs
+
+## Documentation
+
+For detailed documentation, see the [`docs/`](docs/) directory:
+
+| Directory | Contents |
+|-----------|----------|
+| **[`docs/architecture/`](docs/architecture/)** | **Start here.** System diagrams, build interception flow for each language, technical overview |
+| [`docs/features/`](docs/features/) | Feature documentation (Go support, stable tag pinning, etc.) |
+| [`docs/guides/`](docs/guides/) | Contributing guide, setup instructions, onboarding |
+| [`docs/build-logs/`](docs/build-logs/) | Timestamped build logs per repo |
+| [`docs/runtime/`](docs/runtime/) | Build performance metrics |
+| [`docs/summary/`](docs/summary/) | Cross-repo findings and methodology |
 
 ## Background
 
