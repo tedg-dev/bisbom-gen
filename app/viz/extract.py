@@ -222,6 +222,40 @@ def extract_graph(doc):
         })
 
     # Edges: only package-to-package (skip CONTAINS, DESCRIBES)
+    # Also skip edges FROM sibling nodes - their deps are in
+    # their own SPDX file, not shown here.
+    sibling_ids = {
+        spdx_id for spdx_id, info in pkg_map.items()
+        if info.get("sibling", False)
+    }
+
+    # Find all nodes reachable ONLY through sibling nodes
+    # These should be hidden from the visualization
+    sibling_transitive = set()
+    for r in rels:
+        rt = r["relationshipType"]
+        if rt in ("DEPENDS_ON", "STATIC_LINK"):
+            src = r["spdxElementId"]
+            tgt = r["relatedSpdxElement"]
+            if src in sibling_ids and tgt in pkg_map:
+                sibling_transitive.add(tgt)
+
+    # BFS to find all transitive deps of siblings
+    queue = list(sibling_transitive)
+    while queue:
+        current = queue.pop(0)
+        for r in rels:
+            if r["spdxElementId"] == current:
+                rt = r["relationshipType"]
+                if rt in ("DEPENDS_ON", "STATIC_LINK"):
+                    tgt = r["relatedSpdxElement"]
+                    if tgt in pkg_map and tgt not in sibling_transitive:
+                        sibling_transitive.add(tgt)
+                        queue.append(tgt)
+
+    # Filter nodes to exclude sibling transitive deps
+    nodes = [n for n in nodes if n["id"] not in sibling_transitive]
+
     edges = []
     for r in rels:
         rt = r["relationshipType"]
@@ -232,6 +266,12 @@ def extract_graph(doc):
             "BUILD_TOOL_OF", "DEPENDS_ON",
         ):
             if src in pkg_map and tgt in pkg_map:
+                # Skip edges FROM sibling nodes
+                if src in sibling_ids:
+                    continue
+                # Skip edges TO sibling transitive deps
+                if tgt in sibling_transitive:
+                    continue
                 edges.append({
                     "source": src,
                     "target": tgt,
