@@ -115,6 +115,7 @@ All repositories in `config.yaml` as of March 2026:
 | node | c-cpp | `v22.19.0` | GitHub Release |
 | fzf | go | `v0.70.0` | GitHub Release |
 | lazygit | go | `v0.60.0` | GitHub Release |
+| pocketbase | go | `v0.25.9` | GitHub Release |
 | croc | go | `v10.4.2` | GitHub Release |
 | dive | go | `v0.13.1` | GitHub Release |
 | gdu | go | `v5.34.1` | GitHub Release |
@@ -123,6 +124,7 @@ All repositories in `config.yaml` as of March 2026:
 | jsoup | java | `jsoup-1.22.1` | GitHub Release |
 | checkstyle | java | `checkstyle-13.3.0` | GitHub Release |
 | crawler4j | java | `crawler4j-4.4.0` | GitHub Release |
+| dependency-check | java | `v9.2.0` | GitHub Release |
 
 ## 5. How Tags Were Selected
 

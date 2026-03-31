@@ -174,6 +174,7 @@ All Rust crates use STATIC_LINK (compiled into the binary). Each crate gets a `p
 |------|-------------|---------------|----------|
 | [fzf](https://github.com/junegunn/fzf) | 7 | 4 | Small Go project, fuzzy finder |
 | [lazygit](https://github.com/jesseduffield/lazygit) | 33 | 29 | Rich Go dependency graph |
+| [pocketbase](https://github.com/pocketbase/pocketbase) | ~50 | ~100 | Backend with SQLite, REST API, auth |
 | [croc](https://github.com/schollz/croc) | ~10-15 | ~15 | Secure file transfer |
 | [dive](https://github.com/wagoodman/dive) | ~15-20 | ~25 | Docker image explorer |
 | [gdu](https://github.com/dundee/gdu) | ~10-15 | ~15-20 | Disk usage analyzer |
@@ -186,7 +187,8 @@ Go modules are classified as direct or indirect from `go.mod`. Each gets a `pkg:
 |------|-------------|-----------------|----------|
 | [checkstyle](https://github.com/checkstyle/checkstyle) | 10 | 21 | Static analysis, deep Maven tree |
 | [jsoup](https://github.com/jhy/jsoup) | 0 | 0 | HTML parser, zero runtime deps |
-| [crawler4j](https://github.com/yasserg/crawler4j) | ~42 | ~35 | Web crawler, deep hierarchy |
+| [crawler4j](https://github.com/yasserg/crawler4j) | 6 | 16 | Web crawler, Apache HttpComponents |
+| [dependency-check](https://github.com/jeremylong/DependencyCheck) | ~20 | ~80 | OWASP vulnerability scanner, multi-module |
 
 Java uses strace-based post-build analysis instead of bomtrace. Maven dependencies are classified as direct (depth 1) or transitive (depth 2+) via BFS.
 
