@@ -41,6 +41,7 @@ The omnibor-analysis post-processing (SPDX generation, visualization) adds **<5 
 |------------|-------------------|---------|--------|---------------|
 | **fzf** | 47.5s | 11 | bomtrace2 | `go build -a` |
 | **lazygit** | 115.8s (1.9 min) | 63 | bomtrace2 | `go build -a` |
+| **pocketbase** | 140.6s (2.3 min) | ~150 | bomtrace2 | `go build -a` |
 
 ### Java Projects (strace + post-build analysis)
 
