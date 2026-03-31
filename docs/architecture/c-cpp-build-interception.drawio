@@ -1,0 +1,383 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/29.6.6 Chrome/144.0.7559.236 Electron/40.8.4 Safari/537.36" version="29.6.6">
+  <diagram name="C/C++ Build and OmniBOR Interception" id="build-interception">
+    <mxGraphModel dx="1035" dy="1097" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1900" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="main-title" parent="1" style="text;html=1;fontSize=20;fontStyle=1;align=center" value="OmniBOR Analysis: C/C++ Build Interception and SPDX Generation" vertex="1">
+          <mxGeometry height="40" width="750" x="120" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-box" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#999999;dashed=1" value="" vertex="1">
+          <mxGeometry height="50" width="730" x="40" y="1209" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-title" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;fontSize=11;fontStyle=1" value="Legend:" vertex="1">
+          <mxGeometry height="30" width="50" x="50" y="1219" as="geometry" />
+        </mxCell>
+        <mxCell id="leg1" parent="1" style="rounded=1;fillColor=#dae8fc;strokeColor=#6c8ebf" value="" vertex="1">
+          <mxGeometry height="18" width="18" x="110" y="1224" as="geometry" />
+        </mxCell>
+        <mxCell id="leg1t" parent="1" style="text;fontSize=10;align=left" value="Build Tools" vertex="1">
+          <mxGeometry height="20" width="65" x="132" y="1222" as="geometry" />
+        </mxCell>
+        <mxCell id="leg2" parent="1" style="rounded=1;fillColor=#f5f5f5;strokeColor=#666666" value="" vertex="1">
+          <mxGeometry height="18" width="18" x="200" y="1224" as="geometry" />
+        </mxCell>
+        <mxCell id="leg2t" parent="1" style="text;fontSize=10;align=left" value="Intermediate" vertex="1">
+          <mxGeometry height="20" width="70" x="222" y="1222" as="geometry" />
+        </mxCell>
+        <mxCell id="leg3" parent="1" style="rounded=1;fillColor=#b3e5fc;strokeColor=#0288d1" value="" vertex="1">
+          <mxGeometry height="18" width="18" x="295" y="1224" as="geometry" />
+        </mxCell>
+        <mxCell id="leg3t" parent="1" style="text;fontSize=10;align=left" value="Pre-existing" vertex="1">
+          <mxGeometry height="20" width="65" x="317" y="1222" as="geometry" />
+        </mxCell>
+        <mxCell id="leg4" parent="1" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656" value="" vertex="1">
+          <mxGeometry height="18" width="18" x="385" y="1224" as="geometry" />
+        </mxCell>
+        <mxCell id="leg4t" parent="1" style="text;fontSize=10;align=left" value="OmniBOR/bomsh" vertex="1">
+          <mxGeometry height="20" width="90" x="407" y="1222" as="geometry" />
+        </mxCell>
+        <mxCell id="leg5" parent="1" style="rounded=1;fillColor=#e6d0de;strokeColor=#996185" value="" vertex="1">
+          <mxGeometry height="18" width="18" x="500" y="1224" as="geometry" />
+        </mxCell>
+        <mxCell id="leg5t" parent="1" style="text;fontSize=10;align=left" value="omnibor-analysis" vertex="1">
+          <mxGeometry height="20" width="90" x="522" y="1222" as="geometry" />
+        </mxCell>
+        <mxCell id="leg6" parent="1" style="rounded=1;fillColor=#d5e8d4;strokeColor=#82b366" value="" vertex="1">
+          <mxGeometry height="18" width="18" x="615" y="1224" as="geometry" />
+        </mxCell>
+        <mxCell id="leg6t" parent="1" style="text;fontSize=10;align=left" value="Output" vertex="1">
+          <mxGeometry height="20" width="45" x="637" y="1222" as="geometry" />
+        </mxCell>
+        <mxCell id="leg7" parent="1" style="rounded=1;fillColor=#e0e0e0;strokeColor=#9e9e9e" value="" vertex="1">
+          <mxGeometry height="18" width="18" x="685" y="1224" as="geometry" />
+        </mxCell>
+        <mxCell id="leg7t" parent="1" style="text;fontSize=10;align=left" value="Data Flow" vertex="1">
+          <mxGeometry height="20" width="60" x="707" y="1222" as="geometry" />
+        </mxCell>
+        <mxCell id="s1-title" parent="1" style="text;html=1;fontSize=16;fontStyle=1" value="Section 1: Example of Standard C/C++ Build Process" vertex="1">
+          <mxGeometry height="25" width="400" x="40" y="68" as="geometry" />
+        </mxCell>
+        <mxCell id="make1" parent="1" style="rounded=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=9" value="make / cmake&#xa;ninja / meson&#xa;(orchestrator)" vertex="1">
+          <mxGeometry height="55" width="90" x="40" y="103" as="geometry" />
+        </mxCell>
+        <mxCell id="src1" parent="1" style="rounded=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;fontStyle=1" value="Source&#xa;(.c .h)" vertex="1">
+          <mxGeometry height="45" width="70" x="40" y="178" as="geometry" />
+        </mxCell>
+        <mxCell id="gcc1" parent="1" style="rounded=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;fontStyle=1" value="gcc/clang" vertex="1">
+          <mxGeometry height="45" width="80" x="145" y="178" as="geometry" />
+        </mxCell>
+        <mxCell id="obj1" parent="1" style="rounded=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;fontStyle=2" value=".o files" vertex="1">
+          <mxGeometry height="45" width="70" x="248" y="178" as="geometry" />
+        </mxCell>
+        <mxCell id="ar1" parent="1" style="rounded=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;fontStyle=1" value="ar" vertex="1">
+          <mxGeometry height="45" width="50" x="341" y="178" as="geometry" />
+        </mxCell>
+        <mxCell id="alib1" parent="1" style="rounded=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;fontStyle=2" value=".a libs" vertex="1">
+          <mxGeometry height="45" width="60" x="411" y="178" as="geometry" />
+        </mxCell>
+        <mxCell id="ld1" parent="1" style="rounded=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;fontStyle=1" value="ld (linker)" vertex="1">
+          <mxGeometry height="45" width="80" x="491" y="178" as="geometry" />
+        </mxCell>
+        <mxCell id="syslib1" parent="1" style="rounded=1;fillColor=#b3e5fc;strokeColor=#0288d1;fontSize=9;fontStyle=2" value="System .so&#xa;(/usr/lib/)" vertex="1">
+          <mxGeometry height="40" width="80" x="491" y="238" as="geometry" />
+        </mxCell>
+        <mxCell id="bin1c" parent="1" style="rounded=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11" value="" vertex="1">
+          <mxGeometry height="40" width="70" x="599" y="190" as="geometry" />
+        </mxCell>
+        <mxCell id="bin1b" parent="1" style="rounded=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11" value="" vertex="1">
+          <mxGeometry height="40" width="70" x="595" y="186" as="geometry" />
+        </mxCell>
+        <mxCell id="bin1" parent="1" style="rounded=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;fontStyle=1" value="Binaries" vertex="1">
+          <mxGeometry height="40" width="70" x="591" y="182" as="geometry" />
+        </mxCell>
+        <mxCell id="a1" edge="1" parent="1" source="src1" target="gcc1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a2" edge="1" parent="1" source="gcc1" target="obj1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a4" edge="1" parent="1" source="ld1" target="bin1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a5" edge="1" parent="1" target="ar1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="321" y="200.5" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="a6" edge="1" parent="1" source="ar1" target="alib1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a7" edge="1" parent="1" source="alib1" target="ld1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a8" edge="1" parent="1" source="syslib1" target="ld1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a9" edge="1" parent="1" source="make1" style="dashed=1;strokeColor=#666666" target="gcc1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="130" y="150" />
+              <mxPoint x="180" y="160" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="a10" edge="1" parent="1" style="dashed=1;strokeColor=#666666;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="ld1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="130" y="120" />
+              <mxPoint x="530" y="150" />
+            </Array>
+            <mxPoint x="130" y="120" as="sourcePoint" />
+            <mxPoint x="570" y="178" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="a11" edge="1" parent="1" source="make1" style="dashed=1;strokeColor=#666666;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="ar1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="360" y="150" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="s1-note" parent="1" style="shape=note;size=14;fillColor=#e0e0e0;strokeColor=#9e9e9e;fontSize=9;align=left;spacingLeft=5;verticalAlign=top;whiteSpace=wrap" value="SECTION 1 DATA FLOW:&#xa;1. Orchestrator reads build config, invokes tools via fork()+execve()&#xa;2. gcc compiles each .c → .o (one execve() per file)&#xa;3. ar bundles .o into .a static archives&#xa;4. ld links .o + .a + system .so → final binaries&#xa;&#xa;Key: Each tool invocation = one execve() syscall&#xa;System .so = shared libraries from /usr/lib/ (e.g. libc, libcurl)" vertex="1">
+          <mxGeometry height="109.5" width="280" x="707" y="130.5" as="geometry" />
+        </mxCell>
+        <mxCell id="div1" parent="1" style="line;strokeWidth=3;strokeColor=#111111;dashed=1;labelPosition=center;verticalLabelPosition=middle;align=center;verticalAlign=middle;spacingLeft=0;spacingRight=0;spacingTop=0;spacingBottom=0;" value="" vertex="1">
+          <mxGeometry height="10" width="980" x="40" y="318" as="geometry" />
+        </mxCell>
+        <mxCell id="s2-title" parent="1" style="text;html=1;fontSize=16;fontStyle=1" value="Section 2: OmniBOR (bomtrace3) Build Interception" vertex="1">
+          <mxGeometry height="25" width="450" x="40" y="338" as="geometry" />
+        </mxCell>
+        <mxCell id="bt3" parent="1" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;fontStyle=1" value="bomtrace3&#xa;(parent process)&#xa;ptrace(PTRACE_TRACEME)" vertex="1">
+          <mxGeometry height="60" width="160" x="40" y="378" as="geometry" />
+        </mxCell>
+        <mxCell id="make2" parent="1" style="rounded=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10" value="make&#xa;(child)" vertex="1">
+          <mxGeometry height="40" width="70" x="258" y="388" as="geometry" />
+        </mxCell>
+        <mxCell id="execve-zone" parent="1" style="rounded=0;fillColor=none;strokeColor=#d6b656;strokeWidth=3;dashed=1" value="" vertex="1">
+          <mxGeometry height="102" width="570" x="340" y="368" as="geometry" />
+        </mxCell>
+        <mxCell id="execve-label" parent="1" style="text;fillColor=#fff2cc;strokeColor=none;fontSize=10;fontStyle=1;align=center" value="bomtrace3 intercepts each execve() syscall via ptrace()" vertex="1">
+          <mxGeometry height="18" width="568" x="341" y="368" as="geometry" />
+        </mxCell>
+        <mxCell id="src2" parent="1" style="rounded=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=9" value=".c .h" vertex="1">
+          <mxGeometry height="35" width="50" x="360" y="408" as="geometry" />
+        </mxCell>
+        <mxCell id="gcc2" parent="1" style="rounded=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=9;align=center" value="execve(gcc)&#xa;↓&#xa;gcc/clang" vertex="1">
+          <mxGeometry height="55" width="80" x="434" y="398" as="geometry" />
+        </mxCell>
+        <mxCell id="obj2" parent="1" style="rounded=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=9;fontStyle=2" value=".o" vertex="1">
+          <mxGeometry height="30" width="40" x="538" y="410" as="geometry" />
+        </mxCell>
+        <mxCell id="ar2" parent="1" style="rounded=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=9;align=center" value="execve(ar)&#xa;↓&#xa;ar" vertex="1">
+          <mxGeometry height="55" width="60" x="602" y="398" as="geometry" />
+        </mxCell>
+        <mxCell id="alib2" parent="1" style="rounded=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=9;fontStyle=2" value=".a" vertex="1">
+          <mxGeometry height="30" width="35" x="686" y="411" as="geometry" />
+        </mxCell>
+        <mxCell id="ld2" parent="1" style="rounded=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=9;align=center" value="execve(ld)&#xa;↓&#xa;ld" vertex="1">
+          <mxGeometry height="55" width="60" x="744" y="398" as="geometry" />
+        </mxCell>
+        <mxCell id="bin2c" parent="1" style="rounded=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10" value="" vertex="1">
+          <mxGeometry height="35" width="55" x="837" y="416" as="geometry" />
+        </mxCell>
+        <mxCell id="bin2b" parent="1" style="rounded=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10" value="" vertex="1">
+          <mxGeometry height="35" width="55" x="833" y="412" as="geometry" />
+        </mxCell>
+        <mxCell id="bin2" parent="1" style="rounded=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;fontStyle=1" value="Binaries" vertex="1">
+          <mxGeometry height="35" width="55" x="829" y="408" as="geometry" />
+        </mxCell>
+        <mxCell id="b1" edge="1" parent="1" source="src2" style="exitX=1;exitY=0.5;exitDx=0;exitDy=0;" target="gcc2">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="414" y="425.5" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="b2" edge="1" parent="1" source="gcc2" style="exitX=1;exitY=0.5;exitDx=0;exitDy=0;" target="obj2">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="518" y="426.75" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="b2b" edge="1" parent="1" source="obj2" target="ar2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="b2c" edge="1" parent="1" source="ar2" style="exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="alib2">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="662" y="425.5" as="sourcePoint" />
+            <mxPoint x="686" y="426.367469879518" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="b3" edge="1" parent="1" source="alib2" style="exitX=1;exitY=0.5;exitDx=0;exitDy=0;" target="ld2">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="729" y="427.29999999999995" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="b4" edge="1" parent="1" source="ld2" style="exitX=1;exitY=0.5;exitDx=0;exitDy=0;" target="bin2">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="810" y="425.5" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="b5" edge="1" parent="1" source="bt3" style="strokeColor=#d6b656;strokeWidth=2" target="make2" value="spawns">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="b6" edge="1" parent="1" source="make2" style="dashed=1;strokeColor=#666666;entryX=0;entryY=0.804;entryDx=0;entryDy=0;entryPerimeter=0;exitX=0.443;exitY=1.022;exitDx=0;exitDy=0;exitPerimeter=0;" target="execve-zone" value="fork+exec">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="290" y="450" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="meta-gcc" edge="1" parent="1" source="gcc2" style="endArrow=classic;strokeColor=#8A8A8A;strokeWidth=2;dashed=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;dashPattern=1 2;" target="rawlog" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="470" y="488" />
+              <mxPoint x="150" y="520" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="meta-ar" edge="1" parent="1" source="ar2" style="endArrow=classic;strokeColor=#8A8A8A;strokeWidth=2;dashed=1;exitX=0.5;exitY=1;entryX=0.7;entryY=0;dashPattern=1 2;" target="rawlog" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="620" y="498" />
+              <mxPoint x="194" y="530" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="meta-ld" edge="1" parent="1" source="ld2" style="endArrow=classic;strokeColor=#8A8A8A;strokeWidth=2;dashed=1;exitX=0.5;exitY=1;entryX=0.9;entryY=0;dashPattern=1 2;" target="rawlog" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="745" y="508" />
+              <mxPoint x="238" y="550" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="meta-label" parent="1" style="text;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=8;align=left;spacingLeft=3;verticalAlign=top;rounded=1" value="bomtrace3 captures per execve():&#xa;• tool name (gcc/ar/ld)&#xa;• input files + SHA-256 hashes&#xa;• output files + SHA-256 hashes" vertex="1">
+          <mxGeometry height="55" width="128" x="56" y="446" as="geometry" />
+        </mxCell>
+        <mxCell id="rawlog" parent="1" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=8;align=left;spacingLeft=5;verticalAlign=top" value="bomsh_hook_raw_logfile (text)&#xa;&#xa;One record per execve():&#xa;pid | tool | input_files[] | output_files[]&#xa;     | input_hashes[] | output_hashes[]&#xa;&#xa;Example (gcc): main.c,util.h → main.o&#xa;Example (ar): a.o,b.o,c.o → libfoo.a&#xa;Example (ld): main.o,libfoo.a → binary" vertex="1">
+          <mxGeometry height="120" width="220" x="40" y="618" as="geometry" />
+        </mxCell>
+        <mxCell id="bomsh-py" parent="1" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=9;align=left;spacingLeft=5;verticalAlign=top" value="bomsh_create_bom.py&#xa;(Python script)&#xa;&#xa;Parses raw logfile,&#xa;builds dependency graph" vertex="1">
+          <mxGeometry height="90" width="150" x="311" y="633" as="geometry" />
+        </mxCell>
+        <mxCell id="treedb" parent="1" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=8;align=left;spacingLeft=5;verticalAlign=top" value="bomsh_omnibor_treedb&#xa;(JSON file)&#xa;&#xa;{ &quot;gitoid:sha256:abc123...&quot;:&#xa;    &quot;/build/src/main.c&quot;,&#xa;  &quot;gitoid:sha256:def456...&quot;:&#xa;    &quot;/build/obj/main.o&quot;, ... }" vertex="1">
+          <mxGeometry height="110" width="150" x="515" y="538" as="geometry" />
+        </mxCell>
+        <mxCell id="adg" parent="1" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=8;align=left;spacingLeft=5;verticalAlign=top" value="ADG (.omnibor/ directory)&#xa;&#xa;One file per output artifact:&#xa;gitoid:sha256:&lt;binary_hash&gt;&#xa;├─ blob &lt;input1_hash&gt;&#xa;├─ blob &lt;input2_hash&gt;&#xa;└─ blob &lt;inputN_hash&gt;&#xa;&#xa;Maps: output → all inputs" vertex="1">
+          <mxGeometry height="110" width="150" x="515" y="668" as="geometry" />
+        </mxCell>
+        <mxCell id="c2" edge="1" parent="1" source="rawlog" target="bomsh-py">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="c3" edge="1" parent="1" source="bomsh-py" target="treedb">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="c4" edge="1" parent="1" source="bomsh-py" target="adg">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="s2-note" parent="1" style="shape=note;size=14;fillColor=#e0e0e0;strokeColor=#9e9e9e;fontSize=9;align=left;spacingLeft=5;verticalAlign=top;whiteSpace=wrap" value="SECTION 2 DATA FLOW :&#xa;1. bomtrace3 spawns orchestrator as child, attaches via ptrace()&#xa;2. Kernel pauses child at every execve() syscall&#xa;3. bomtrace3 inspects: which tool? what inputs? what outputs?&#xa;4. Computes SHA-256 hash (gitoid) of each file&#xa;5. Writes record to raw logfile, resumes child&#xa;6. After build: bomsh_create_bom.py parses logfile:&#xa;   • bomsh_omnibor_treedb: JSON mapping gitoid → path&#xa;   • ADG: per-artifact file listing input gitoids&#xa;&#xa;gitoid format: &quot;gitoid:sha256:&lt;64-hex-chars&gt;&quot;&#xa;ADG = Artifact Dependency Graph (OmniBOR standard)" vertex="1">
+          <mxGeometry height="160" width="280" x="715" y="548" as="geometry" />
+        </mxCell>
+        <mxCell id="div2" parent="1" style="line;strokeWidth=3;strokeColor=#1D1D1D;dashed=1" value="" vertex="1">
+          <mxGeometry height="10" width="980" x="40" y="798" as="geometry" />
+        </mxCell>
+        <mxCell id="s3-title" parent="1" style="text;html=1;fontSize=16;fontStyle=1" value="Section 3: omnibor-analysis — SPDX Generation from ADG" vertex="1">
+          <mxGeometry height="25" width="500" x="40" y="818" as="geometry" />
+        </mxCell>
+        <mxCell id="adg-in" parent="1" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;fontStyle=1" value="ADG&#xa;(.omnibor/)" vertex="1">
+          <mxGeometry height="45" width="80" x="40" y="868" as="geometry" />
+        </mxCell>
+        <mxCell id="tree-in" parent="1" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=9" value="bomsh_omnibor&#xa;_treedb" vertex="1">
+          <mxGeometry height="45" width="80" x="40" y="928" as="geometry" />
+        </mxCell>
+        <mxCell id="bin-in-c" parent="1" style="rounded=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10" value="" vertex="1">
+          <mxGeometry height="35" width="72" x="48" y="1033" as="geometry" />
+        </mxCell>
+        <mxCell id="bin-in-b" parent="1" style="rounded=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10" value="" vertex="1">
+          <mxGeometry height="35" width="72" x="44" y="1029" as="geometry" />
+        </mxCell>
+        <mxCell id="bin-in" parent="1" style="rounded=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10" value="Binaries" vertex="1">
+          <mxGeometry height="35" width="72" x="40" y="1025" as="geometry" />
+        </mxCell>
+        <mxCell id="parser" parent="1" style="rounded=1;fillColor=#e6d0de;strokeColor=#996185;fontSize=9;align=left;spacingLeft=5;verticalAlign=top" value="AdgParser&#xa;(app/spdx/parser.py)&#xa;&#xa;Reads ADG, resolves&#xa;gitoids → paths" vertex="1">
+          <mxGeometry height="75" width="130" x="160" y="858" as="geometry" />
+        </mxCell>
+        <mxCell id="parser-out" parent="1" style="rounded=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=8;fontStyle=2" value="static_inputs[]&#xa;(paths to .o/.a)" vertex="1">
+          <mxGeometry height="35" width="90" x="317" y="863" as="geometry" />
+        </mxCell>
+        <mxCell id="vendored" parent="1" style="rounded=1;fillColor=#e6d0de;strokeColor=#996185;fontSize=9;align=left;spacingLeft=5;verticalAlign=top" value="VendoredVersionDetector&#xa;(12 strategies)&#xa;&#xa;Scans source for&#xa;version strings" vertex="1">
+          <mxGeometry height="80" width="130" x="160" y="948" as="geometry" />
+        </mxCell>
+        <mxCell id="vendored-out" parent="1" style="rounded=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=8;fontStyle=2" value="pkg_versions{}&#xa;(name → ver)" vertex="1">
+          <mxGeometry height="35" width="90" x="317" y="958" as="geometry" />
+        </mxCell>
+        <mxCell id="dynlibs-out" parent="1" style="rounded=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=8;fontStyle=2" value="dyn_libs[]&#xa;[{pkg: libc6,&#xa;  ver: 2.35,&#xa;  so: libc.so.6}, ...]" vertex="1">
+          <mxGeometry height="55" width="90" x="317" y="1060" as="geometry" />
+        </mxCell>
+        <mxCell id="dyn-e3" edge="1" parent="1" source="yn901Q_CqHxwS0rFUU9Y-2" style="exitX=1;exitY=0.5;exitDx=0;exitDy=0;" target="dynlibs-out">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="290" y="1175.5" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="emitter" parent="1" style="rounded=1;fillColor=#e6d0de;strokeColor=#996185;fontSize=9;fontStyle=1;align=left;spacingLeft=5;verticalAlign=top" value="SpdxEmitter&#xa;(app/spdx/emitter.py)&#xa;&#xa;Assembles SPDX 2.3 JSON&#xa;packages + relationships" vertex="1">
+          <mxGeometry height="90" width="140" x="440" y="918" as="geometry" />
+        </mxCell>
+        <mxCell id="spdx-out" parent="1" style="rounded=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;fontStyle=1" value="SPDX 2.3 JSON&#xa;(*_build.spdx.json)" vertex="1">
+          <mxGeometry height="45" width="130" x="620" y="878" as="geometry" />
+        </mxCell>
+        <mxCell id="viz" parent="1" style="rounded=1;fillColor=#e6d0de;strokeColor=#996185;fontSize=9" value="spdx_visualize.py&#xa;(D3.js generator)" vertex="1">
+          <mxGeometry height="45" width="130" x="620" y="943" as="geometry" />
+        </mxCell>
+        <mxCell id="html-out" parent="1" style="rounded=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;fontStyle=1" value="Interactive HTML&#xa;(*.spdx.html)" vertex="1">
+          <mxGeometry height="45" width="130" x="620" y="1008" as="geometry" />
+        </mxCell>
+        <mxCell id="d1" edge="1" parent="1" source="adg-in" target="parser">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="d2" edge="1" parent="1" source="tree-in" target="parser">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="d3" edge="1" parent="1" source="tree-in" target="vendored">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="d4" edge="1" parent="1" source="bin-in" style="entryX=0.003;entryY=0.085;entryDx=0;entryDy=0;entryPerimeter=0;" target="yn901Q_CqHxwS0rFUU9Y-2">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="160" y="1055.5" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="d5" edge="1" parent="1" source="parser" target="parser-out">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="d5b" edge="1" parent="1" source="parser-out" style="exitX=1;exitY=1;exitDx=0;exitDy=0;" target="emitter">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="d6" edge="1" parent="1" source="vendored" target="vendored-out">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="d6b" edge="1" parent="1" source="vendored-out" target="emitter">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="d7b" edge="1" parent="1" source="dynlibs-out" style="entryX=0.039;entryY=1.002;entryDx=0;entryDy=0;entryPerimeter=0;" target="emitter">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="d8" edge="1" parent="1" source="emitter" target="spdx-out">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="d9" edge="1" parent="1" source="spdx-out" target="viz">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="d10" edge="1" parent="1" source="viz" target="html-out">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel-note" parent="1" style="shape=note;size=14;fillColor=#e0e0e0;strokeColor=#9e9e9e;fontSize=9;align=left;spacingLeft=5;verticalAlign=top;whiteSpace=wrap" value="SPDX Relationship Types:&#xa;• STATIC_LINK — .a/.o code embedded at build time&#xa;• DYNAMIC_LINK — .so loaded at runtime&#xa;• BUILD_TOOL_OF — gcc, ld used during build&#xa;• CONTAINS — source files in the binary" vertex="1">
+          <mxGeometry height="100" width="240" x="790" y="858" as="geometry" />
+        </mxCell>
+        <mxCell id="s3-note" parent="1" style="shape=note;size=14;fillColor=#e0e0e0;strokeColor=#9e9e9e;fontSize=9;align=left;spacingLeft=5;verticalAlign=top;whiteSpace=wrap;fontStyle=0" value="SECTION 3 DATA FLOW:&#xa;1. AdgParser reads ADG, uses bomsh_omnibor_treedb&#xa;   to resolve gitoid hashes → file paths&#xa;   Output: static_inputs[] (list of .o/.a paths)&#xa;&#xa;2. VendoredVersionDetector scans source directories&#xa;   for version strings (configure.ac, headers)&#xa;   Output: pkg_versions{} (name → version map)&#xa;&#xa;3. collect_dynamic_libs.py runs ldd on each binary,&#xa;   then dpkg -S to find apt packages&#xa;   Output: dyn_libs[] (pkg name, version, .so path)&#xa;&#xa;4. SpdxEmitter combines all 3 data structures into&#xa;   SPDX 2.3 JSON with packages + relationships&#xa;&#xa;5. spdx_visualize.py reads SPDX JSON, extracts&#xa;   graph data (nodes=packages, edges=relationships),&#xa;   classifies nodes by type (root/static/dynamic/build),&#xa;   computes BFS depth for layout, generates interactive&#xa;   D3.js force-directed graph with zoom/pan, tooltips,&#xa;   click-to-highlight, and collapsible dependency trees" vertex="1">
+          <mxGeometry height="270" width="240" x="790" y="978" as="geometry" />
+        </mxCell>
+        <mxCell id="yn901Q_CqHxwS0rFUU9Y-2" parent="1" style="rounded=1;fillColor=#e6d0de;strokeColor=#996185;fontSize=9;align=left;spacingLeft=5;verticalAlign=top" value="     collect_dynamic_libs.py&#xa;&#xa;Runs: ldd &lt;binary&gt;&#xa;Parses output to get .so paths:&#xa;→ /lib/x86_64.../libc.so.6&#xa;→ /usr/lib/.../libcurl.so.4&#xa;&#xa;Runs: dpkg -S &lt;path&gt;&#xa;Maps each .so → apt package&#xa;+ version:&#xa;→ libc6: /lib/.../libc.so.6&#xa;dpkg -s libc6 → ver 2.35" vertex="1">
+          <mxGeometry height="150" width="133" x="157" y="1045" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
