@@ -131,9 +131,14 @@ class TestGenerateJavaAdgSpdx(unittest.TestCase):
     """Tests for _generate_java_adg_spdx."""
 
     @patch(
+        "app.spdx.parser.AdgParser"
+    )
+    @patch(
         "app.spdx.java_generator.JavaSpdxGenerator"
     )
-    def test_generates_both_sboms(self, mock_gen_cls):
+    def test_generates_both_sboms(
+        self, mock_gen_cls, mock_parser_cls,
+    ):
         mock_gen = MagicMock()
         mock_gen.generate.side_effect = [
             "/tmp/out/myapp_analyzed.spdx.json",
@@ -141,12 +146,32 @@ class TestGenerateJavaAdgSpdx(unittest.TestCase):
         ]
         mock_gen_cls.return_value = mock_gen
 
+        mock_parser = MagicMock()
+        mock_parser.get_jar_source_files.return_value = {
+            "myapp/target/myapp-1.0.jar": [
+                {"sha1": "aaa", "file_path": "a.java"},
+            ],
+        }
+        mock_parser_cls.return_value = mock_parser
+
         with tempfile.TemporaryDirectory() as td:
             paths_cfg = {
                 "output_dir": str(Path(td) / "output"),
                 "repos_dir": str(Path(td) / "repos"),
             }
-            repo_cfg = {"language": "java"}
+            repo_cfg = {
+                "language": "java",
+                "output_binaries": [
+                    "target/myapp-1.0.jar",
+                ],
+            }
+            # Create the JAR file on disk
+            jar = (
+                Path(td) / "repos" / "myapp"
+                / "target" / "myapp-1.0.jar"
+            )
+            jar.parent.mkdir(parents=True)
+            jar.write_bytes(b"PK")
 
             result = _generate_java_adg_spdx(
                 "myapp", repo_cfg, paths_cfg, "ts1",
@@ -169,21 +194,41 @@ class TestGenerateJavaAdgSpdx(unittest.TestCase):
             )
 
     @patch(
+        "app.spdx.parser.AdgParser"
+    )
+    @patch(
         "app.spdx.java_generator.JavaSpdxGenerator"
     )
     def test_returns_empty_on_failure(
-        self, mock_gen_cls
+        self, mock_gen_cls, mock_parser_cls,
     ):
         mock_gen = MagicMock()
         mock_gen.generate.return_value = None
         mock_gen_cls.return_value = mock_gen
+
+        mock_parser = MagicMock()
+        mock_parser.get_jar_source_files.return_value = {
+            "myapp/target/myapp-1.0.jar": [],
+        }
+        mock_parser_cls.return_value = mock_parser
 
         with tempfile.TemporaryDirectory() as td:
             paths_cfg = {
                 "output_dir": str(Path(td) / "output"),
                 "repos_dir": str(Path(td) / "repos"),
             }
-            repo_cfg = {"language": "java"}
+            repo_cfg = {
+                "language": "java",
+                "output_binaries": [
+                    "target/myapp-1.0.jar",
+                ],
+            }
+            jar = (
+                Path(td) / "repos" / "myapp"
+                / "target" / "myapp-1.0.jar"
+            )
+            jar.parent.mkdir(parents=True)
+            jar.write_bytes(b"PK")
 
             result = _generate_java_adg_spdx(
                 "myapp", repo_cfg, paths_cfg, "ts1",
@@ -191,6 +236,106 @@ class TestGenerateJavaAdgSpdx(unittest.TestCase):
 
             # Both calls return None → empty list
             self.assertEqual(result, [])
+
+    @patch(
+        "app.spdx.parser.AdgParser"
+    )
+    @patch(
+        "app.spdx.java_generator.JavaSpdxGenerator"
+    )
+    def test_multi_binary_produces_per_jar_spdx(
+        self, mock_gen_cls, mock_parser_cls,
+    ):
+        """Multi-module project: 3 JARs → 6 SPDX."""
+        mock_gen = MagicMock()
+        # 6 calls: analyzed+build for each of 3 JARs
+        mock_gen.generate.side_effect = [
+            f"/tmp/out/{n}"
+            for n in [
+                "utils_analyzed.spdx.json",
+                "utils_build.spdx.json",
+                "core_analyzed.spdx.json",
+                "core_build.spdx.json",
+                "cli_analyzed.spdx.json",
+                "cli_build.spdx.json",
+            ]
+        ]
+        mock_gen_cls.return_value = mock_gen
+
+        mock_parser = MagicMock()
+        mock_parser.get_jar_source_files.return_value = {
+            "myapp/utils/target/utils-1.0.jar": [
+                {"sha1": "a", "file_path": "u.java"},
+            ],
+            "myapp/core/target/core-1.0.jar": [
+                {"sha1": "b", "file_path": "c.java"},
+            ],
+            "myapp/cli/target/cli-1.0.jar": [
+                {"sha1": "c", "file_path": "m.java"},
+            ],
+        }
+        mock_parser_cls.return_value = mock_parser
+
+        with tempfile.TemporaryDirectory() as td:
+            paths_cfg = {
+                "output_dir": str(Path(td) / "output"),
+                "repos_dir": str(Path(td) / "repos"),
+            }
+            repo_cfg = {
+                "language": "java",
+                "output_binaries": [
+                    "utils/target/utils-1.0.jar",
+                    "core/target/core-1.0.jar",
+                    "cli/target/cli-1.0.jar",
+                ],
+            }
+            # Create JAR files on disk
+            for sub in [
+                "utils/target", "core/target",
+                "cli/target",
+            ]:
+                jar = (
+                    Path(td) / "repos" / "myapp"
+                    / sub
+                    / f"{sub.split('/')[0]}-1.0.jar"
+                )
+                jar.parent.mkdir(parents=True)
+                jar.write_bytes(b"PK")
+
+            result = _generate_java_adg_spdx(
+                "myapp", repo_cfg, paths_cfg, "ts1",
+            )
+
+            # 3 JARs × 2 SBOMs = 6 files
+            self.assertEqual(len(result), 6)
+            self.assertEqual(
+                mock_gen.generate.call_count, 6
+            )
+            # Verify each JAR gets its own jar_files
+            calls = mock_gen.generate.call_args_list
+            # First pair: utils
+            self.assertIn(
+                "utils-1.0.jar",
+                calls[0].kwargs["binary_name"],
+            )
+            self.assertEqual(
+                calls[0].kwargs["sbom_type"],
+                "analyzed",
+            )
+            self.assertEqual(
+                calls[1].kwargs["sbom_type"],
+                "build",
+            )
+            # Second pair: core
+            self.assertIn(
+                "core-1.0.jar",
+                calls[2].kwargs["binary_name"],
+            )
+            # Third pair: cli
+            self.assertIn(
+                "cli-1.0.jar",
+                calls[4].kwargs["binary_name"],
+            )
 
 
 class TestMainJavaDispatch(unittest.TestCase):

@@ -1,0 +1,10 @@
+--- a/scripts/bomsh_create_bom_java.py
++++ b/scripts/bomsh_create_bom_java.py
+@@ -773,6 +773,7 @@ def process_jar_file(jarfile, rootdir):
+     #print(classfiles)
+     record = {"outfile": (get_git_file_hash(jarfile), jarfile), "infiles": []}
+     for i in range(len(classfiles)):
++         source_file = ''
+          classfile = classfiles[i]
+          if source_files:
+              source_file = source_files[i]

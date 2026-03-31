@@ -50,6 +50,10 @@ def get_legend_html(
     <span>Vendored ({vendored_count})</span>
   </div>
   <div class="legend-item">
+    <div class="legend-dot" style="background:#c084fc;box-shadow:0 0 0 2px #fff, 0 0 0 4px #7c3aed"></div>
+    <span>Sibling module ({type_counts.get('sibling', 0)})</span>
+  </div>
+  <div class="legend-item">
     <div class="legend-dot" style="background:#ff6b6b"></div>
     <span>Dynamic / runtime ({type_counts.get('dynamic', 0)})</span>
   </div>

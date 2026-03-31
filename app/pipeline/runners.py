@@ -412,17 +412,19 @@ def _run_java_pipeline(
 def _generate_java_adg_spdx(
     repo_name, repo_cfg, paths_cfg, run_ts,
 ):
-    """Generate Java SPDX using JavaSpdxGenerator.
+    """Generate per-binary Java SPDX.
 
     Produces two SBOMs per JAR (CISA taxonomy):
       - _analyzed: only source files in the JAR
       - _build: full Maven dependency graph
 
-    Java doesn't have dynamic library dependencies like
-    native binaries. Instead, we use the treedb for source
-    file relationships and pom.xml for Maven dependencies.
+    For multi-module Maven projects, each output JAR
+    gets its own SPDX pair with only the files that
+    were compiled into that specific JAR (traced via
+    bomsh treedb hash_tree).
     """
     from app.spdx.java_generator import JavaSpdxGenerator
+    from app.spdx.parser import AdgParser
 
     lang = lang_subdir(repo_cfg)
     bom_dir = (
@@ -430,11 +432,49 @@ def _generate_java_adg_spdx(
         / "omnibor" / lang / repo_name / run_ts
     )
     repos_dir = paths_cfg["repos_dir"]
+    repo_dir = Path(repos_dir) / repo_name
     spdx_dir = (
         Path(paths_cfg["output_dir"])
         / "spdx" / lang / repo_name / run_ts
     )
     spdx_dir.mkdir(parents=True, exist_ok=True)
+
+    # Get per-JAR source file mapping from treedb
+    parser = AdgParser(str(bom_dir), repos_dir)
+    try:
+        jar_map = parser.get_jar_source_files()
+    except FileNotFoundError as e:
+        print(f"[ERROR] {e}")
+        return []
+
+    # Resolve output_binaries globs to actual JARs
+    bins = repo_cfg.get("output_binaries", [])
+    jar_paths = []
+    for pattern in bins:
+        if "*" in pattern or "?" in pattern:
+            jar_paths.extend(repo_dir.glob(pattern))
+        else:
+            p = repo_dir / pattern
+            if p.exists():
+                jar_paths.append(p)
+
+    # Filter to production JARs only
+    from app.pipeline.binary_collector import (
+        BinaryCollector,
+    )
+    jar_paths = [
+        p for p in jar_paths
+        if not BinaryCollector._is_auxiliary_jar(
+            p.name
+        )
+    ]
+
+    if not jar_paths:
+        print(
+            f"[WARN] No output JARs found for "
+            f"{repo_name}"
+        )
+        return []
 
     gen = JavaSpdxGenerator(
         bom_dir=str(bom_dir),
@@ -443,31 +483,62 @@ def _generate_java_adg_spdx(
     )
 
     results = []
-    bin_name = f"{repo_name}.jar"
+    for jar_path in jar_paths:
+        jar_name = jar_path.stem  # e.g. jsoup-1.22.1
+        bin_name = jar_path.name  # e.g. jsoup-1.22.1.jar
 
-    # Analyzed SBOM: only what's in the JAR
-    analyzed_path = (
-        spdx_dir / f"{repo_name}_analyzed.spdx.json"
-    )
-    result = gen.generate(
-        output_path=str(analyzed_path),
-        binary_name=bin_name,
-        sbom_type="analyzed",
-    )
-    if result:
-        results.append(result)
+        # Find matching treedb entry by JAR path
+        rel_jar = str(
+            jar_path.relative_to(repo_dir)
+        )
+        jar_files = jar_map.get(
+            f"{repo_name}/{rel_jar}"
+        )
+        if jar_files is None:
+            print(
+                f"[WARN] No treedb entry for "
+                f"{rel_jar}, using all project files"
+            )
 
-    # Build SBOM: full dependency graph
-    build_path = (
-        spdx_dir / f"{repo_name}_build.spdx.json"
-    )
-    result = gen.generate(
-        output_path=str(build_path),
-        binary_name=bin_name,
-        sbom_type="build",
-    )
-    if result:
-        results.append(result)
+        # Determine module pom_dir for per-module
+        # Maven deps (e.g. cli/pom.xml, core/pom.xml)
+        pom_dir = None
+        jar_dir = jar_path.parent
+        # Walk up from target/ to find module pom.xml
+        for parent in [jar_dir, jar_dir.parent]:
+            if (parent / "pom.xml").exists():
+                pom_dir = str(parent)
+                break
+
+        # Analyzed: only source files in this JAR
+        analyzed_path = (
+            spdx_dir
+            / f"{jar_name}_analyzed.spdx.json"
+        )
+        result = gen.generate(
+            output_path=str(analyzed_path),
+            binary_name=bin_name,
+            sbom_type="analyzed",
+            jar_files=jar_files,
+            pom_dir=pom_dir,
+        )
+        if result:
+            results.append(result)
+
+        # Build: full dependency graph for this module
+        build_path = (
+            spdx_dir
+            / f"{jar_name}_build.spdx.json"
+        )
+        result = gen.generate(
+            output_path=str(build_path),
+            binary_name=bin_name,
+            sbom_type="build",
+            jar_files=jar_files,
+            pom_dir=pom_dir,
+        )
+        if result:
+            results.append(result)
 
     return results
 

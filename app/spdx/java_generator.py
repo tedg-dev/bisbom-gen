@@ -35,7 +35,8 @@ class JavaSpdxGenerator:
 
     def generate(
         self, output_path, binary_name=None,
-        sbom_type="build",
+        sbom_type="build", jar_files=None,
+        pom_dir=None,
     ):
         """Generate SPDX for a Java JAR.
 
@@ -45,20 +46,36 @@ class JavaSpdxGenerator:
             sbom_type: 'analyzed' (only what's in the
                 JAR — source files, no deps) or 'build'
                 (full dependency graph).
+            jar_files: optional list of dicts with sha1
+                and file_path — per-JAR source files
+                from AdgParser.get_jar_source_files().
+                If None, falls back to all
+                project_source from treedb.
+            pom_dir: optional directory containing the
+                module's pom.xml for per-module Maven
+                dependency resolution.
 
         Returns output path on success, None on failure.
         """
         bin_name = binary_name or f"{self.repo_name}.jar"
 
-        # Parse ADG for source files
-        parser = AdgParser(self.bom_dir, self.repos_dir)
-        try:
-            classified = parser.parse()
-        except FileNotFoundError as e:
-            print(f"[ERROR] {e}")
-            return None
+        # Use per-JAR filtered files if provided,
+        # otherwise fall back to all project_source
+        if jar_files is not None:
+            all_files = jar_files
+        else:
+            parser = AdgParser(
+                self.bom_dir, self.repos_dir
+            )
+            try:
+                classified = parser.parse()
+            except FileNotFoundError as e:
+                print(f"[ERROR] {e}")
+                return None
+            all_files = classified.get(
+                "project_source", []
+            )
 
-        all_files = classified.get("project_source", [])
         source_files = [
             f for f in all_files
             if not self._is_test_file(
@@ -81,18 +98,26 @@ class JavaSpdxGenerator:
         # Get Maven dependencies via dependency:tree
         # Filter to only runtime dependencies (compile, runtime, provided)
         # Exclude test scope - those aren't in the final JAR
-        all_deps = self._get_maven_deps()
+        all_deps = self._get_maven_deps(
+            pom_dir=pom_dir
+        )
         maven_deps = [
             d for d in all_deps
-            if d["scope"] in ("compile", "runtime", "provided")
+            if d["scope"] in (
+                "compile", "runtime", "provided"
+            )
         ]
         test_deps = len(all_deps) - len(maven_deps)
-        direct = sum(1 for d in maven_deps if d["direct"])
+        direct = sum(
+            1 for d in maven_deps if d["direct"]
+        )
         trans = len(maven_deps) - direct
         print(
             f"[{bin_name}] Maven dependencies: "
-            f"{len(maven_deps)} runtime ({direct} direct, "
-            f"{trans} transitive), {test_deps} test excluded"
+            f"{len(maven_deps)} runtime "
+            f"({direct} direct, "
+            f"{trans} transitive), "
+            f"{test_deps} test excluded"
         )
 
         # Build SPDX document
@@ -126,20 +151,28 @@ class JavaSpdxGenerator:
 
         return str(out)
 
-    def _get_maven_deps(self):
+    def _get_maven_deps(self, pom_dir=None):
         """Get Maven dependencies via mvn dependency:tree.
+
+        Args:
+            pom_dir: directory containing pom.xml.
+                If None, uses repo root.
 
         Returns list of dicts with groupId, artifactId,
         version, scope, direct, optional, parent_artifact.
         """
-        pom_path = self.repo_dir / "pom.xml"
+        mvn_dir = Path(pom_dir) if pom_dir else self.repo_dir
+        pom_path = mvn_dir / "pom.xml"
         if not pom_path.exists():
             return []
 
         try:
             result = subprocess.run(
-                ["mvn", "dependency:tree", "-DoutputType=text"],
-                cwd=str(self.repo_dir),
+                [
+                    "mvn", "dependency:tree",
+                    "-DoutputType=text",
+                ],
+                cwd=str(mvn_dir),
                 capture_output=True,
                 text=True,
                 timeout=120,
@@ -364,11 +397,15 @@ class JavaSpdxGenerator:
             "relationships": [],
         }
 
+        # Extract artifact name from JAR filename
+        # e.g., dependency-check-utils-9.2.0.jar → dependency-check-utils
+        artifact_name = self._extract_artifact_name(bin_name)
+
         # Add root package for the JAR
         root_pkg_id = f"SPDXRef-Package-{clean_name}"
         doc["packages"].append({
             "SPDXID": root_pkg_id,
-            "name": self.repo_name,
+            "name": artifact_name,
             "versionInfo": self._get_version(),
             "downloadLocation": "NOASSERTION",
             "filesAnalyzed": True,
@@ -379,7 +416,7 @@ class JavaSpdxGenerator:
                 "referenceType": "purl",
                 "referenceLocator": (
                     f"pkg:maven/{self.repo_name}/"
-                    f"{self.repo_name}"
+                    f"{artifact_name}"
                 ),
             }],
         })
@@ -427,6 +464,8 @@ class JavaSpdxGenerator:
         # Add Maven dependencies as packages
         # Build artifact ID to SPDX ID mapping for relationships
         artifact_to_spdx = {}
+        project_group_id = self._get_project_group_id()
+
         for i, dep in enumerate(maven_deps):
             dep_id = f"SPDXRef-Dep-{i}"
             artifact_to_spdx[dep["artifactId"]] = dep_id
@@ -436,17 +475,31 @@ class JavaSpdxGenerator:
                 f"{dep['artifactId']}@{dep['version']}"
             )
 
+            # Detect sibling modules (same groupId = same project)
+            is_sibling = (
+                project_group_id is not None
+                and dep["groupId"] == project_group_id
+            )
+
             # Build comment with dependency metadata
-            comment_parts = [
-                f"Maven scope: {dep['scope']}",
-            ]
+            comment_parts = []
+            if is_sibling:
+                # Mark as sibling module with reference to its SPDX
+                sibling_spdx = (
+                    f"{dep['artifactId']}-{dep['version']}"
+                    "_build.spdx.json"
+                )
+                comment_parts.append(
+                    f"Sibling module. See: {sibling_spdx}"
+                )
+            comment_parts.append(f"Maven scope: {dep['scope']}")
             if dep.get("direct"):
                 comment_parts.append("Direct dependency")
             else:
                 comment_parts.append("Transitive dependency")
             if dep.get("optional"):
                 comment_parts.append("Optional")
-            if dep.get("parent"):
+            if dep.get("parent") and not is_sibling:
                 comment_parts.append(
                     f"Required by: {dep['parent']}"
                 )
@@ -520,6 +573,30 @@ class JavaSpdxGenerator:
         return doc
 
     @staticmethod
+    def _extract_artifact_name(jar_filename):
+        """Extract Maven artifact name from JAR filename.
+
+        Strips version suffix and .jar extension.
+        Examples:
+          dependency-check-utils-9.2.0.jar → dependency-check-utils
+          jsoup-1.17.2.jar → jsoup
+          my-lib-1.0-SNAPSHOT.jar → my-lib
+        """
+        name = jar_filename
+        # Strip .jar extension
+        if name.endswith(".jar"):
+            name = name[:-4]
+
+        # Strip version suffix: -X.Y.Z or -X.Y.Z-SNAPSHOT
+        # Pattern: dash followed by digit, then version chars
+        version_pattern = re.compile(
+            r"-\d+(\.\d+)*(-SNAPSHOT)?$"
+        )
+        name = version_pattern.sub("", name)
+
+        return name
+
+    @staticmethod
     def _is_test_file(file_path):
         """Return True if file_path is a test artifact.
 
@@ -572,3 +649,33 @@ class JavaSpdxGenerator:
             pass
 
         return "unknown"
+
+    def _get_project_group_id(self):
+        """Get the project's groupId from root pom.xml.
+
+        Used to detect sibling modules (same groupId = same project).
+        """
+        pom_path = self.repo_dir / "pom.xml"
+        if not pom_path.exists():
+            return None
+
+        try:
+            tree = ET.parse(pom_path)
+            root = tree.getroot()
+
+            ns = {}
+            if root.tag.startswith("{"):
+                ns_uri = root.tag.split("}")[0] + "}"
+                ns = {"m": ns_uri[1:-1]}
+
+            if ns:
+                group_id = root.find("m:groupId", ns)
+            else:
+                group_id = root.find("groupId")
+
+            if group_id is not None:
+                return group_id.text
+        except ET.ParseError:
+            pass
+
+        return None

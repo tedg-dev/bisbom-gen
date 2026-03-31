@@ -125,6 +125,16 @@ RUN wget -q "https://dlcdn.apache.org/maven/maven-3/${MAVEN_VERSION}/binaries/ap
 RUN ln -sf /opt/apache-maven-${MAVEN_VERSION}/bin/mvn /usr/local/bin/mvn && \
     ln -s /opt/apache-maven-${MAVEN_VERSION}/bin/mvn /usr/local/bin/mvn3.9 && \
     ln -s /usr/share/maven/bin/mvn /usr/local/bin/mvn3.6
+# Unblock HTTP Maven repositories (Maven 3.8.1+ blocks HTTP by default).
+# Some repos (e.g. Oracle BerkeleyDB) only serve from HTTP mirrors.
+# This applies to both apt Maven (3.6) and downloaded Maven (3.9).
+RUN for settings in \
+        /opt/apache-maven-${MAVEN_VERSION}/conf/settings.xml \
+        /usr/share/maven/conf/settings.xml; do \
+      if [ -f "$settings" ]; then \
+        sed -i 's|<blocked>true</blocked>|<blocked>false</blocked>|g' "$settings"; \
+      fi; \
+    done
 ENV PATH="${JAVA_HOME}/bin:${PATH}"
 
 # ============================================================
@@ -222,6 +232,15 @@ COPY docker/patches/bomsh_hook2_golang_path.patch /tmp/bomsh_golang.patch
 RUN cd /opt/bomsh && patch -p1 < /tmp/bomsh_golang.patch && \
     cp /opt/bomsh/scripts/bomsh_hook2.py /tmp/bomsh_hook2.py && \
     rm /tmp/bomsh_golang.patch
+
+# Patch bomsh_create_bom_java.py: process_jar_file() crashes with
+# UnboundLocalError when a JAR has .class files without SourceFile
+# attributes (e.g. DependencyCheck's core module).  Initialize
+# source_file='' before the loop so process_class_file gets a valid
+# default.  Upstream bomsh bug.
+COPY docker/patches/bomsh_java_sourcefile.patch /tmp/bomsh_java.patch
+RUN cd /opt/bomsh && patch -p1 < /tmp/bomsh_java.patch && \
+    rm /tmp/bomsh_java.patch
 
 # Go-specific bomtrace2 config (watches go compile/link tools + openat syscall)
 COPY docker/bomtrace_go.conf /opt/bomsh/bin/bomtrace_go.conf
