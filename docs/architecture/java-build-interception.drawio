@@ -1,0 +1,343 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/29.6.6 Chrome/144.0.7559.236 Electron/40.8.4 Safari/537.36" version="29.6.6">
+  <diagram name="Java Build and OmniBOR Interception" id="java-build-interception">
+    <mxGraphModel dx="968" dy="1009" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1900" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="main-title" parent="1" style="text;html=1;fontSize=20;fontStyle=1;align=center" value="OmniBOR Analysis: Java Build Interception and SPDX Generation" vertex="1">
+          <mxGeometry height="40" width="750" x="120" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-box" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#999999;dashed=1" value="" vertex="1">
+          <mxGeometry height="50" width="720" x="40" y="1150" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-title" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;fontSize=11;fontStyle=1" value="Legend:" vertex="1">
+          <mxGeometry height="30" width="50" x="50" y="1160" as="geometry" />
+        </mxCell>
+        <mxCell id="leg1" parent="1" style="rounded=1;fillColor=#dae8fc;strokeColor=#6c8ebf" value="" vertex="1">
+          <mxGeometry height="18" width="18" x="110" y="1165" as="geometry" />
+        </mxCell>
+        <mxCell id="leg1t" parent="1" style="text;fontSize=10;align=left" value="Build Tools" vertex="1">
+          <mxGeometry height="20" width="65" x="132" y="1163" as="geometry" />
+        </mxCell>
+        <mxCell id="leg2" parent="1" style="rounded=1;fillColor=#f5f5f5;strokeColor=#666666" value="" vertex="1">
+          <mxGeometry height="18" width="18" x="194" y="1165" as="geometry" />
+        </mxCell>
+        <mxCell id="leg2t" parent="1" style="text;fontSize=10;align=left" value="Intermediate" vertex="1">
+          <mxGeometry height="20" width="70" x="216" y="1163" as="geometry" />
+        </mxCell>
+        <mxCell id="leg3" parent="1" style="rounded=1;fillColor=#b3e5fc;strokeColor=#0288d1" value="" vertex="1">
+          <mxGeometry height="18" width="18" x="289" y="1165" as="geometry" />
+        </mxCell>
+        <mxCell id="leg3t" parent="1" style="text;fontSize=10;align=left" value="Pre-existing" vertex="1">
+          <mxGeometry height="20" width="65" x="311" y="1163" as="geometry" />
+        </mxCell>
+        <mxCell id="leg4" parent="1" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656" value="" vertex="1">
+          <mxGeometry height="18" width="18" x="379" y="1165" as="geometry" />
+        </mxCell>
+        <mxCell id="leg4t" parent="1" style="text;fontSize=10;align=left" value="OmniBOR/bomsh" vertex="1">
+          <mxGeometry height="20" width="90" x="401" y="1163" as="geometry" />
+        </mxCell>
+        <mxCell id="leg5" parent="1" style="rounded=1;fillColor=#e6d0de;strokeColor=#996185" value="" vertex="1">
+          <mxGeometry height="18" width="18" x="494" y="1165" as="geometry" />
+        </mxCell>
+        <mxCell id="leg5t" parent="1" style="text;fontSize=10;align=left" value="omnibor-analysis" vertex="1">
+          <mxGeometry height="20" width="90" x="516" y="1163" as="geometry" />
+        </mxCell>
+        <mxCell id="leg6" parent="1" style="rounded=1;fillColor=#d5e8d4;strokeColor=#82b366" value="" vertex="1">
+          <mxGeometry height="18" width="18" x="609" y="1165" as="geometry" />
+        </mxCell>
+        <mxCell id="leg6t" parent="1" style="text;fontSize=10;align=left" value="Output" vertex="1">
+          <mxGeometry height="20" width="45" x="631" y="1163" as="geometry" />
+        </mxCell>
+        <mxCell id="leg7" parent="1" style="rounded=1;fillColor=#e0e0e0;strokeColor=#9e9e9e" value="" vertex="1">
+          <mxGeometry height="18" width="18" x="679" y="1165" as="geometry" />
+        </mxCell>
+        <mxCell id="leg7t" parent="1" style="text;fontSize=10;align=left" value="Data Flow" vertex="1">
+          <mxGeometry height="20" width="60" x="701" y="1163" as="geometry" />
+        </mxCell>
+        <mxCell id="s1-title" parent="1" style="text;html=1;fontSize=16;fontStyle=1" value="Section 1: Example of Standard Java Build Process" vertex="1">
+          <mxGeometry height="25" width="400" x="40" y="68" as="geometry" />
+        </mxCell>
+        <mxCell id="make1" parent="1" style="rounded=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=9" value="Maven / Gradle&#xa;Ant / SBT / Bazel&#xa;(orchestrator)" vertex="1">
+          <mxGeometry height="55" width="100" x="40" y="103" as="geometry" />
+        </mxCell>
+        <mxCell id="src1" parent="1" style="rounded=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;fontStyle=1" value="Source&#xa;(.java)" vertex="1">
+          <mxGeometry height="45" width="70" x="40" y="178" as="geometry" />
+        </mxCell>
+        <mxCell id="javac1" parent="1" style="rounded=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;fontStyle=1" value="javac" vertex="1">
+          <mxGeometry height="45" width="80" x="145" y="178" as="geometry" />
+        </mxCell>
+        <mxCell id="class1" parent="1" style="rounded=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;fontStyle=2" value=".class files" vertex="1">
+          <mxGeometry height="45" width="80" x="258" y="178" as="geometry" />
+        </mxCell>
+        <mxCell id="jar1" parent="1" style="rounded=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;fontStyle=1" value="jar" vertex="1">
+          <mxGeometry height="45" width="50" x="371" y="178" as="geometry" />
+        </mxCell>
+        <mxCell id="resources1" parent="1" style="rounded=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=9;fontStyle=2" value="resources&#xa;(.xml .properties)" vertex="1">
+          <mxGeometry height="45" width="90" x="258" y="238" as="geometry" />
+        </mxCell>
+        <mxCell id="deps1" parent="1" style="rounded=1;fillColor=#b3e5fc;strokeColor=#0288d1;fontSize=9;fontStyle=2" value="Maven Central&#xa;Dependencies&#xa;(.jar files)" vertex="1">
+          <mxGeometry height="47" width="90" x="421" y="238" as="geometry" />
+        </mxCell>
+        <mxCell id="bin1c" parent="1" style="rounded=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11" value="" vertex="1">
+          <mxGeometry height="40" width="80" x="532" y="190" as="geometry" />
+        </mxCell>
+        <mxCell id="bin1b" parent="1" style="rounded=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11" value="" vertex="1">
+          <mxGeometry height="40" width="80" x="528" y="186" as="geometry" />
+        </mxCell>
+        <mxCell id="bin1" parent="1" style="rounded=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;fontStyle=1" value="JAR / WAR" vertex="1">
+          <mxGeometry height="40" width="80" x="524" y="182" as="geometry" />
+        </mxCell>
+        <mxCell id="a1" edge="1" parent="1" source="src1" target="javac1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a2" edge="1" parent="1" source="javac1" target="class1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a3" edge="1" parent="1" source="class1" target="jar1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a4" edge="1" parent="1" source="jar1" target="bin1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a5" edge="1" parent="1" source="resources1" target="jar1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a6" edge="1" parent="1" source="deps1" style="dashed=1;strokeColor=#0288d1" target="bin1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a9" edge="1" parent="1" source="make1" style="dashed=1;strokeColor=#666666;exitX=0.99;exitY=0.811;exitDx=0;exitDy=0;exitPerimeter=0;" target="javac1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="170" y="150" />
+              <mxPoint x="180" y="160" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="a10" edge="1" parent="1" source="make1" style="dashed=1;strokeColor=#666666;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitX=1.002;exitY=0.389;exitDx=0;exitDy=0;exitPerimeter=0;" target="jar1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="396" y="150" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="s1-note" parent="1" style="shape=note;size=14;fillColor=#e0e0e0;strokeColor=#9e9e9e;fontSize=9;align=left;spacingLeft=5;verticalAlign=top;whiteSpace=wrap" value="SECTION 1 DATA FLOW:&#xa;1. Orchestrator reads pom.xml / build.gradle, resolves dependencies&#xa;2. javac compiles each .java → .class (bytecode)&#xa;3. jar packages .class files + resources into .jar archive&#xa;4. Dependencies fetched from Maven Central (not embedded)&#xa;&#xa;Key: Java has no linker step — JARs are just ZIP archives&#xa;Dependencies resolved at runtime via classpath, not embedded&#xa;&#xa;Top Java Build Orchestrators:&#xa;• Maven — XML-based (pom.xml), most common&#xa;• Gradle — Groovy/Kotlin DSL, Android default&#xa;• Ant — XML-based, legacy&#xa;• SBT — Scala projects&#xa;• Bazel — Google&#39;s polyglot build system" vertex="1">
+          <mxGeometry height="195" width="280" x="687" y="95" as="geometry" />
+        </mxCell>
+        <mxCell id="div1" parent="1" style="line;strokeWidth=3;strokeColor=#111111;dashed=1" value="" vertex="1">
+          <mxGeometry height="10" width="980" x="40" y="318" as="geometry" />
+        </mxCell>
+        <mxCell id="s2-title" parent="1" style="text;html=1;fontSize=16;fontStyle=1" value="Section 2: OmniBOR (strace) Build Interception for Java" vertex="1">
+          <mxGeometry height="25" width="500" x="40" y="338" as="geometry" />
+        </mxCell>
+        <mxCell id="strace-parent" parent="1" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;fontStyle=1" value="strace&#xa;(parent process)&#xa;traces openat() syscalls" vertex="1">
+          <mxGeometry height="60" width="160" x="40" y="378" as="geometry" />
+        </mxCell>
+        <mxCell id="make2" parent="1" style="rounded=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10" value="mvn / gradle&#xa;(child)" vertex="1">
+          <mxGeometry height="40" width="80" x="258" y="388" as="geometry" />
+        </mxCell>
+        <mxCell id="strace-zone" parent="1" style="rounded=0;fillColor=none;strokeColor=#d6b656;strokeWidth=3;dashed=1" value="" vertex="1">
+          <mxGeometry height="102" width="530" x="350" y="368" as="geometry" />
+        </mxCell>
+        <mxCell id="strace-label" parent="1" style="text;fillColor=#fff2cc;strokeColor=none;fontSize=10;fontStyle=1;align=center" value="strace intercepts every openat() syscall for file I/O" vertex="1">
+          <mxGeometry height="18" width="529" x="350" y="368" as="geometry" />
+        </mxCell>
+        <mxCell id="src2" parent="1" style="rounded=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=9" value=".java" vertex="1">
+          <mxGeometry height="35" width="50" x="370" y="408" as="geometry" />
+        </mxCell>
+        <mxCell id="javac2" parent="1" style="rounded=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=9;align=center" value="openat(read)&#xa;↓&#xa;javac" vertex="1">
+          <mxGeometry height="55" width="80" x="444" y="398" as="geometry" />
+        </mxCell>
+        <mxCell id="class2" parent="1" style="rounded=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=9;fontStyle=2" value=".class" vertex="1">
+          <mxGeometry height="30" width="50" x="548" y="410" as="geometry" />
+        </mxCell>
+        <mxCell id="jar2" parent="1" style="rounded=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=9;align=center" value="openat(write)&#xa;↓&#xa;jar" vertex="1">
+          <mxGeometry height="55" width="70" x="622" y="398" as="geometry" />
+        </mxCell>
+        <mxCell id="jarfile2" parent="1" style="rounded=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=9;fontStyle=2" value=".jar" vertex="1">
+          <mxGeometry height="30" width="40" x="716" y="411" as="geometry" />
+        </mxCell>
+        <mxCell id="bin2c" parent="1" style="rounded=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10" value="" vertex="1">
+          <mxGeometry height="35" width="60" x="796" y="416" as="geometry" />
+        </mxCell>
+        <mxCell id="bin2b" parent="1" style="rounded=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10" value="" vertex="1">
+          <mxGeometry height="35" width="60" x="792" y="412" as="geometry" />
+        </mxCell>
+        <mxCell id="bin2" parent="1" style="rounded=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;fontStyle=1" value="JARs" vertex="1">
+          <mxGeometry height="35" width="60" x="788" y="408" as="geometry" />
+        </mxCell>
+        <mxCell id="b1" edge="1" parent="1" source="src2" style="exitX=1;exitY=0.5;exitDx=0;exitDy=0;" target="javac2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="b2" edge="1" parent="1" source="javac2" style="exitX=1;exitY=0.5;exitDx=0;exitDy=0;" target="class2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="b2b" edge="1" parent="1" source="class2" target="jar2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="b2c" edge="1" parent="1" source="jar2" style="exitX=1;exitY=0.5;exitDx=0;exitDy=0;" target="jarfile2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="b3" edge="1" parent="1" source="jarfile2" style="exitX=1;exitY=0.5;exitDx=0;exitDy=0;" target="bin2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="b5" edge="1" parent="1" source="strace-parent" style="strokeColor=#d6b656;strokeWidth=2" target="make2" value="spawns">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="b6" edge="1" parent="1" source="make2" style="dashed=1;strokeColor=#666666;entryX=0;entryY=0.804;entryDx=0;entryDy=0;entryPerimeter=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" target="strace-zone" value="fork+exec">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="298" y="450" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="meta-javac" edge="1" parent="1" source="javac2" style="endArrow=classic;strokeColor=#8A8A8A;strokeWidth=2;dashed=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;dashPattern=1 2;" target="stracelog" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="484" y="488" />
+              <mxPoint x="200" y="530" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="meta-jar" edge="1" parent="1" source="jar2" style="endArrow=classic;strokeColor=#8A8A8A;strokeWidth=2;dashed=1;exitX=0.5;exitY=1;entryX=0.9;entryY=0;dashPattern=1 2;" target="stracelog" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="657" y="498" />
+              <mxPoint x="290" y="550" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="meta-label" parent="1" style="text;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=8;align=left;spacingLeft=3;verticalAlign=top;rounded=1" value="strace captures per openat():&#xa;• file path (read or write)&#xa;• process ID&#xa;• flags (O_RDONLY, O_WRONLY)" vertex="1">
+          <mxGeometry height="55" width="145" x="48" y="446" as="geometry" />
+        </mxCell>
+        <mxCell id="stracelog" parent="1" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=8;align=left;spacingLeft=5;verticalAlign=top" value="strace_java_logfile (text)&#xa;&#xa;One line per openat() syscall:&#xa;pid openat(AT_FDCWD, &quot;/path/to/file&quot;, flags)&#xa;&#xa;Example: javac reads Main.java&#xa;12345 openat(AT_FDCWD, &quot;src/Main.java&quot;, O_RDONLY) = 3&#xa;&#xa;Example: jar writes app.jar&#xa;12345 openat(AT_FDCWD, &quot;target/app.jar&quot;, O_WRONLY|...) = 4" vertex="1">
+          <mxGeometry height="122" width="270" x="40" y="590" as="geometry" />
+        </mxCell>
+        <mxCell id="bomsh-py" parent="1" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=9;align=left;spacingLeft=5;verticalAlign=top" value="bomsh_create_bom_java.py&#xa;(Python script)&#xa;&#xa;Post-build analysis:&#xa;Scans build tree for .java/.class/.jar&#xa;builds dependency graph" vertex="1">
+          <mxGeometry height="87" width="165" x="350" y="605" as="geometry" />
+        </mxCell>
+        <mxCell id="treedb" parent="1" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=8;align=left;spacingLeft=5;verticalAlign=top" value="bomsh_omnibor_treedb&#xa;(JSON file)&#xa;&#xa;{ &quot;gitoid:sha256:abc123...&quot;:&#xa;    &quot;/repo/src/Main.java&quot;,&#xa;  &quot;gitoid:sha256:def456...&quot;:&#xa;    &quot;/repo/target/Main.class&quot;,&#xa;  &quot;gitoid:sha256:789...&quot;:&#xa;    &quot;/repo/target/app.jar&quot;, ... }" vertex="1">
+          <mxGeometry height="102" width="175" x="561" y="520" as="geometry" />
+        </mxCell>
+        <mxCell id="adg" parent="1" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=8;align=left;spacingLeft=5;verticalAlign=top" value="ADG (.omnibor/ directory)&#xa;&#xa;One file per output artifact:&#xa;gitoid:sha256:&lt;jar_hash&gt;&#xa;├─ blob &lt;Main.class_hash&gt;&#xa;├─ blob &lt;Util.class_hash&gt;&#xa;└─ blob &lt;resource_hash&gt;&#xa;&#xa;Maps: .jar → all .class + resources" vertex="1">
+          <mxGeometry height="107" width="175" x="561" y="641" as="geometry" />
+        </mxCell>
+        <mxCell id="c2" edge="1" parent="1" source="stracelog" target="bomsh-py">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="c3" edge="1" parent="1" source="bomsh-py" style="exitX=0.984;exitY=0.12;exitDx=0;exitDy=0;exitPerimeter=0;" target="treedb">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="530" y="620" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c4" edge="1" parent="1" source="bomsh-py" style="exitX=1;exitY=0.75;exitDx=0;exitDy=0;" target="adg">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="520" y="702" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="s2-note" parent="1" style="shape=note;size=14;fillColor=#e0e0e0;strokeColor=#9e9e9e;fontSize=9;align=left;spacingLeft=5;verticalAlign=top;whiteSpace=wrap" value="SECTION 2 DATA FLOW (Java-specific):&#xa;1. strace spawns orchestrator as child process&#xa;2. strace intercepts every openat() syscall (file I/O)&#xa;3. Records: which files read? which files written?&#xa;4. After build: bomsh_create_bom_java.py runs:&#xa;   • Scans build tree for .java, .class, .jar files&#xa;   • Computes SHA-256 hash (gitoid) of each&#xa;   • Builds dependency graph: .java → .class → .jar&#xa;   • Writes bomsh_omnibor_treedb (JSON)&#xa;   • Writes ADG files (.omnibor/ directory)&#xa;&#xa;Key difference from C/C++:&#xa;• C/C++ uses bomtrace3 + ptrace(execve)&#xa;• Java uses strace + openat() (post-build)&#xa;&#xa;strace options: -f -s99999 --seccomp-bpf -e trace=openat" vertex="1">
+          <mxGeometry height="200" width="240" x="773" y="510" as="geometry" />
+        </mxCell>
+        <mxCell id="div2" parent="1" style="line;strokeWidth=3;strokeColor=#1D1D1D;dashed=1" value="" vertex="1">
+          <mxGeometry height="10" width="980" x="40" y="770" as="geometry" />
+        </mxCell>
+        <mxCell id="s3-title" parent="1" style="text;html=1;fontSize=16;fontStyle=1" value="Section 3: omnibor-analysis — SPDX Generation from ADG (Java)" vertex="1">
+          <mxGeometry height="25" width="550" x="40" y="790" as="geometry" />
+        </mxCell>
+        <mxCell id="adg-in" parent="1" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;fontStyle=1" value="ADG&#xa;(.omnibor/)" vertex="1">
+          <mxGeometry height="45" width="80" x="40" y="840" as="geometry" />
+        </mxCell>
+        <mxCell id="tree-in" parent="1" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=9" value="bomsh_omnibor&#xa;_treedb" vertex="1">
+          <mxGeometry height="45" width="80" x="40" y="900" as="geometry" />
+        </mxCell>
+        <mxCell id="pom-in" parent="1" style="rounded=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=9" value="pom.xml&#xa;build.gradle" vertex="1">
+          <mxGeometry height="45" width="80" x="40" y="960" as="geometry" />
+        </mxCell>
+        <mxCell id="jar-in-c" parent="1" style="rounded=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10" value="" vertex="1">
+          <mxGeometry height="35" width="72" x="48" y="1035" as="geometry" />
+        </mxCell>
+        <mxCell id="jar-in-b" parent="1" style="rounded=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10" value="" vertex="1">
+          <mxGeometry height="35" width="72" x="44" y="1031" as="geometry" />
+        </mxCell>
+        <mxCell id="jar-in" parent="1" style="rounded=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10" value="JAR files" vertex="1">
+          <mxGeometry height="35" width="72" x="40" y="1027" as="geometry" />
+        </mxCell>
+        <mxCell id="parser" parent="1" style="rounded=1;fillColor=#e6d0de;strokeColor=#996185;fontSize=9;align=left;spacingLeft=5;verticalAlign=top" value="AdgParser&#xa;(app/spdx/parser.py)&#xa;&#xa;Reads ADG, resolves&#xa;gitoids → file paths" vertex="1">
+          <mxGeometry height="75" width="130" x="160" y="830" as="geometry" />
+        </mxCell>
+        <mxCell id="parser-out" parent="1" style="rounded=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=8;fontStyle=2" value="source_files[]&#xa;(.java paths)" vertex="1">
+          <mxGeometry height="35" width="90" x="317" y="835" as="geometry" />
+        </mxCell>
+        <mxCell id="mvn-deps" parent="1" style="rounded=1;fillColor=#e6d0de;strokeColor=#996185;fontSize=9;align=left;spacingLeft=5;verticalAlign=top" value="mvn dependency:tree&#xa;&#xa;Resolves full transitive&#xa;dependency graph from&#xa;Maven Central" vertex="1">
+          <mxGeometry height="80" width="130" x="160" y="920" as="geometry" />
+        </mxCell>
+        <mxCell id="mvn-out" parent="1" style="rounded=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=8;fontStyle=2" value="maven_deps[]&#xa;[{groupId, artifactId,&#xa;  version, scope,&#xa;  direct, parent}, ...]" vertex="1">
+          <mxGeometry height="60" width="100" x="312" y="920" as="geometry" />
+        </mxCell>
+        <mxCell id="jarparser" parent="1" style="rounded=1;fillColor=#e6d0de;strokeColor=#996185;fontSize=9;align=left;spacingLeft=5;verticalAlign=top" value="get_jar_source_files()&#xa;&#xa;Maps .class in JAR →&#xa;.java source files" vertex="1">
+          <mxGeometry height="70" width="130" x="160" y="1015" as="geometry" />
+        </mxCell>
+        <mxCell id="jarparser-out" parent="1" style="rounded=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=8;fontStyle=2" value="jar_files[]&#xa;[{sha1, file_path},&#xa; ...]" vertex="1">
+          <mxGeometry height="45" width="90" x="317" y="1020" as="geometry" />
+        </mxCell>
+        <mxCell id="generator" parent="1" style="rounded=1;fillColor=#e6d0de;strokeColor=#996185;fontSize=9;fontStyle=1;align=left;spacingLeft=5;verticalAlign=top" value="JavaSpdxGenerator&#xa;(app/spdx/java_generator.py)&#xa;&#xa;Assembles SPDX 2.3 JSON&#xa;packages + relationships&#xa;" vertex="1">
+          <mxGeometry height="90" width="135" x="445" y="896" as="geometry" />
+        </mxCell>
+        <mxCell id="spdx-out" parent="1" style="rounded=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;fontStyle=1" value="SPDX 2.3 JSON&#xa;(*_build.spdx.json)" vertex="1">
+          <mxGeometry height="45" width="130" x="606" y="850" as="geometry" />
+        </mxCell>
+        <mxCell id="viz" parent="1" style="rounded=1;fillColor=#e6d0de;strokeColor=#996185;fontSize=9" value="spdx_visualize.py&#xa;(D3.js generator)" vertex="1">
+          <mxGeometry height="45" width="130" x="606" y="915" as="geometry" />
+        </mxCell>
+        <mxCell id="html-out" parent="1" style="rounded=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;fontStyle=1" value="Interactive HTML&#xa;(*.spdx.html)" vertex="1">
+          <mxGeometry height="45" width="130" x="606" y="980" as="geometry" />
+        </mxCell>
+        <mxCell id="d1" edge="1" parent="1" source="adg-in" target="parser">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="d2" edge="1" parent="1" source="tree-in" target="parser">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="d3" edge="1" parent="1" source="pom-in" target="mvn-deps">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="d4" edge="1" parent="1" source="jar-in" target="jarparser">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="d5" edge="1" parent="1" source="parser" target="parser-out">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="d5b" edge="1" parent="1" source="parser-out" style="exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0;entryDx=0;entryDy=0;" target="generator">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="d6" edge="1" parent="1" source="mvn-deps" target="mvn-out">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="d6b" edge="1" parent="1" source="mvn-out" target="generator">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="d7" edge="1" parent="1" source="jarparser" target="jarparser-out">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="d7b" edge="1" parent="1" source="jarparser-out" style="exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=1;entryDx=0;entryDy=0;" target="generator">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="d8" edge="1" parent="1" source="generator" style="entryX=0;entryY=1;entryDx=0;entryDy=0;" target="spdx-out">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="d9" edge="1" parent="1" source="spdx-out" target="viz">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="d10" edge="1" parent="1" source="viz" target="html-out">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel-note" parent="1" style="shape=note;size=14;fillColor=#e0e0e0;strokeColor=#9e9e9e;fontSize=9;align=left;spacingLeft=5;verticalAlign=top;whiteSpace=wrap" value="SPDX Relationship Types (Java):&#xa;• DEPENDS_ON — runtime Maven dependencies&#xa;• BUILD_TOOL_OF — compile-time only (provided scope)&#xa;• CONTAINED_BY — .java files contained in JAR&#xa;&#xa;No STATIC_LINK/DYNAMIC_LINK — Java has no linker" vertex="1">
+          <mxGeometry height="100" width="250" x="767" y="830" as="geometry" />
+        </mxCell>
+        <mxCell id="s3-note" parent="1" style="shape=note;size=14;fillColor=#e0e0e0;strokeColor=#9e9e9e;fontSize=9;align=left;spacingLeft=5;verticalAlign=top;whiteSpace=wrap;fontStyle=0" value="SECTION 3 DATA FLOW (Java-specific):&#xa;1. AdgParser reads treedb, resolves gitoid → file path&#xa;   Output: source_files[] (.java paths, test excluded)&#xa;&#xa;2. mvn dependency:tree resolves full Maven graph&#xa;   Filters: compile/runtime/provided scopes only&#xa;   Excludes: test-scope dependencies&#xa;   Output: maven_deps[] with direct/transitive flags&#xa;&#xa;3. get_jar_source_files() maps .class → .java&#xa;   Per-JAR filtering for multi-module projects&#xa;&#xa;4. JavaSpdxGenerator combines all inputs into&#xa;   SPDX 2.3 JSON with packages + relationships&#xa;   • Root JAR DEPENDS_ON direct deps&#xa;   • Direct deps DEPENDS_ON transitive deps&#xa;   • PROVIDED scope → BUILD_TOOL_OF&#xa;   • Source files CONTAINED_BY root JAR&#xa;&#xa;5. spdx_visualize.py generates interactive D3.js&#xa;   graph with direct/transitive/sibling coloring" vertex="1">
+          <mxGeometry height="250" width="250" x="767" y="950" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
