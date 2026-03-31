@@ -9,8 +9,8 @@ cd "$SCRIPT_DIR"
 COUNT=0
 ERRORS=0
 
-# Find all *_analyzed.spdx.json and *_adg.spdx.json files
-find output/spdx -name '*_analyzed.spdx.json' -o -name '*_adg.spdx.json' | sort | while read -r json_file; do
+# Find all *_analyzed.spdx.json, *_build.spdx.json, and *_adg.spdx.json files
+find output/spdx \( -name '*_analyzed.spdx.json' -o -name '*_build.spdx.json' -o -name '*_adg.spdx.json' \) | sort | while read -r json_file; do
     html_file="${json_file%.spdx.json}.spdx.html"
     echo "  $json_file -> $(basename "$html_file")"
     if .venv/bin/python3 -m app.spdx_visualize "$json_file" -o "$html_file" 2>&1; then

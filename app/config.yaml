@@ -207,6 +207,16 @@ repos:
     description: Fast disk usage analyzer with TUI (~10-15 direct + 15-20 indirect Go deps)
     output_binaries:
     - gdu
+  pocketbase:
+    url: https://github.com/pocketbase/pocketbase.git
+    branch: v0.25.9
+    language: go
+    build_steps:
+    - 'go build -a -trimpath -ldflags="-s -w" -o pocketbase ./examples/base'
+    clean_cmd: rm -f pocketbase
+    description: Open source backend (Go, SQLite, REST API, auth, realtime subscriptions)
+    output_binaries:
+    - pocketbase
   oxipng:
     url: https://github.com/oxipng/oxipng.git
     branch: v10.1.0
@@ -252,7 +262,7 @@ repos:
     branch: crawler4j-4.4.0
     language: java
     build_steps:
-    - mvn package -DskipTests -q
+    - mvn package -DskipTests -q -pl crawler4j
     clean_cmd: mvn clean -q
     description: Open source web crawler (42 direct, 35 transitive - Apache HttpComponents, Tika, SLF4J, deep hierarchy)
     output_binaries:
