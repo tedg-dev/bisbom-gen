@@ -343,9 +343,9 @@ The dependency graph structure changed. Common causes:
 
 As of March 2026:
 - **36 golden files** × 3 test functions = **108 parameterized golden tests**
-- Plus ~500 unit/integration tests
-- Total: **608 tests passing**
+- Plus ~612 unit/integration tests
+- Total: **720+ tests passing**
 
 ---
 
-*Last updated: March 12, 2026*
+*Last updated: March 31, 2026*

@@ -708,12 +708,33 @@ actually happened during compilation:
 
 ## 14. Configured Repositories
 
+**C/C++ (bomtrace3):**
 | Repo | Binaries | Vendored Libs | Dynamic Libs | Build Time | Notes |
 |---|---|---|---|---|---|
 | **curl** | curl, libcurl.so | — (uses /deps/) | ~10 | ~5 min | Reference target; autoconf + make |
 | **redis** | redis-server | 8 (jemalloc, lua, hiredis, ...) | ~5 | ~3 min | Good vendored lib test case |
 | **ffmpeg** | ffmpeg, ffprobe, libavcodec.so, ... | — | 20+ | ~24 min | Large build; --enable-shared to avoid bomtrace3 ar overflow |
 | **nmap** | nmap, ncat, nping | 7 (liblua, libssh2, libdnet, ...) | 14 | ~3.3 min | Uses vendored_dirs config for top-level lib detection |
+
+**Go (bomtrace2):**
+| Repo | Binaries | Direct Deps | Indirect Deps | Build Time | Notes |
+|---|---|---|---|---|---|
+| **lazygit** | lazygit | 33 | 29 | ~2 min | Terminal UI; stdlib + direct/indirect grouping |
+| **pocketbase** | pocketbase | 4 | — | ~1 min | Backend-as-a-service |
+
+**Rust (bomtrace2):**
+| Repo | Binaries | Crate Deps | Build Time | Notes |
+|---|---|---|---|---|
+| **oxipng** | oxipng | 44 | ~1 min | All crates use STATIC_LINK |
+| **dura** | dura | 150+ | ~3 min | Large dependency tree |
+
+**Java (strace + bomsh_create_bom_java.py):**
+| Repo | Binaries | Direct Deps | Transitive Deps | Build Time | Notes |
+|---|---|---|---|---|---|
+| **checkstyle** | checkstyle.jar | 10 | 21 | ~1 min | Single module |
+| **jsoup** | jsoup.jar | 1 | 0 | ~30s | Minimal deps |
+| **dependency-check** | 3 JARs (cli, core, utils) | varies | varies | ~2 min | Multi-module with sibling filtering |
+| **crawler4j** | crawler4j.jar | 14 | 12 | ~30s | Single module |
 
 ---
 

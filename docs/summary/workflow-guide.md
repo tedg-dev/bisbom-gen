@@ -57,12 +57,33 @@ Accepts: repo name (`curl`), owner/repo (`curl/curl`), or full GitHub URL.
 
 ### Currently configured repos
 
+**C/C++:**
 | Repo | Description | Build System | Build Time |
 |------|-------------|--------------|------------|
 | `curl` | HTTP transfer library and CLI (~170K LoC) | autoconf + make | ~5 min |
 | `redis` | In-memory data store with 8 vendored libs | plain make | ~3 min |
 | `ffmpeg` | Multimedia framework (~1.2M LoC, 20+ third-party libs) | custom configure + make | ~24 min |
 | `nmap` | Network scanner with 7 vendored libs + 14 dynamic | autoconf + make | ~3.3 min |
+
+**Go:**
+| Repo | Description | Build System | Build Time |
+|------|-------------|--------------|------------|
+| `lazygit` | Terminal UI for git | go build | ~2 min |
+| `pocketbase` | Backend-as-a-service | go build | ~1 min |
+
+**Rust:**
+| Repo | Description | Build System | Build Time |
+|------|-------------|--------------|------------|
+| `oxipng` | PNG optimizer | cargo build --release | ~1 min |
+| `dura` | Background git commit tool | cargo build --release | ~3 min |
+
+**Java:**
+| Repo | Description | Build System | Build Time |
+|------|-------------|--------------|------------|
+| `checkstyle` | Code style checker | mvn package | ~1 min |
+| `jsoup` | HTML parser | mvn package | ~30s |
+| `dependency-check` | Vulnerability scanner (3 modules) | mvn package | ~2 min |
+| `crawler4j` | Web crawler | mvn package | ~30s |
 
 ### Recommendations
 
