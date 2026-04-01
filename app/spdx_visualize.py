@@ -78,7 +78,10 @@ def _build_conditional_legends(type_counts):
 
 def generate_html(doc, output_path):
     """Generate standalone HTML visualization."""
-    nodes, edges = extract_graph(doc)
+    # For _build SPDX, show all deps (no sibling filtering)
+    # For _analyzed SPDX, filter deps only reachable via siblings
+    filter_siblings = "_build" not in str(output_path)
+    nodes, edges = extract_graph(doc, filter_siblings=filter_siblings)
 
     doc_name = doc.get("name", "SPDX Document")
     created = doc.get(

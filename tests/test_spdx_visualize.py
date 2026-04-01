@@ -264,6 +264,103 @@ class TestExtractGraph(unittest.TestCase):
         )
 
 
+class TestSiblingFiltering(unittest.TestCase):
+    """Regression tests for _analyzed vs _build sibling filtering.
+
+    _analyzed SPDX: filter deps only reachable via sibling modules
+    _build SPDX: show ALL deps (no filtering)
+
+    This prevents the bug where _build visualizations showed only
+    11 packages when the SPDX JSON contained 81 packages.
+    """
+
+    def _sibling_pkg(self, spdx_id, name):
+        """Create a sibling module package."""
+        return {
+            "SPDXID": spdx_id,
+            "name": name,
+            "versionInfo": "1.0",
+            "primaryPackagePurpose": "LIBRARY",
+            "comment": "Sibling module. See: other.spdx.json",
+        }
+
+    def _make_sibling_doc(self):
+        """Create doc with root -> sibling -> transitive deps."""
+        return _make_doc(
+            packages=[
+                _root_pkg("SPDXRef-Root"),
+                _lib_pkg("SPDXRef-Direct", "direct-dep"),
+                self._sibling_pkg("SPDXRef-Sibling", "sibling-mod"),
+                _lib_pkg("SPDXRef-SibDep1", "sibling-dep-1"),
+                _lib_pkg("SPDXRef-SibDep2", "sibling-dep-2"),
+            ],
+            relationships=[
+                _rel("SPDXRef-DOCUMENT", "DESCRIBES", "SPDXRef-Root"),
+                _rel("SPDXRef-Root", "DEPENDS_ON", "SPDXRef-Direct"),
+                _rel("SPDXRef-Root", "DEPENDS_ON", "SPDXRef-Sibling"),
+                _rel("SPDXRef-Sibling", "DEPENDS_ON", "SPDXRef-SibDep1"),
+                _rel("SPDXRef-SibDep1", "DEPENDS_ON", "SPDXRef-SibDep2"),
+            ],
+        )
+
+    def test_analyzed_filters_sibling_only_deps(self):
+        """_analyzed SPDX filters deps only reachable via siblings."""
+        doc = self._make_sibling_doc()
+        # filter_siblings=True (default for _analyzed)
+        nodes, edges = extract_graph(doc, filter_siblings=True)
+        node_names = {n["name"] for n in nodes}
+        # Should have: root, direct-dep, sibling-mod
+        # Should NOT have: sibling-dep-1, sibling-dep-2
+        self.assertIn("myapp", node_names)
+        self.assertIn("direct-dep", node_names)
+        self.assertIn("sibling-mod", node_names)
+        self.assertNotIn("sibling-dep-1", node_names)
+        self.assertNotIn("sibling-dep-2", node_names)
+
+    def test_build_shows_all_deps(self):
+        """_build SPDX shows ALL deps including sibling transitive."""
+        doc = self._make_sibling_doc()
+        # filter_siblings=False (for _build)
+        nodes, edges = extract_graph(doc, filter_siblings=False)
+        node_names = {n["name"] for n in nodes}
+        # Should have ALL 5 packages
+        self.assertIn("myapp", node_names)
+        self.assertIn("direct-dep", node_names)
+        self.assertIn("sibling-mod", node_names)
+        self.assertIn("sibling-dep-1", node_names)
+        self.assertIn("sibling-dep-2", node_names)
+        self.assertEqual(len(nodes), 5)
+        # Should have ALL edges including from sibling
+        self.assertEqual(len(edges), 4)  # 4 DEPENDS_ON edges
+        edge_pairs = {(e["source"], e["target"]) for e in edges}
+        self.assertIn(
+            ("SPDXRef-Sibling", "SPDXRef-SibDep1"), edge_pairs
+        )
+
+    def test_generate_html_uses_build_flag_from_path(self):
+        """generate_html disables sibling filter for _build paths."""
+        doc = self._make_sibling_doc()
+        with tempfile.TemporaryDirectory() as td:
+            # _build path should show all 5 packages
+            build_out = Path(td) / "test_build.spdx.html"
+            generate_html(doc, str(build_out))
+            content = build_out.read_text()
+            self.assertIn("sibling-dep-1", content)
+            self.assertIn("sibling-dep-2", content)
+
+    def test_generate_html_filters_for_analyzed_path(self):
+        """generate_html enables sibling filter for _analyzed paths."""
+        doc = self._make_sibling_doc()
+        with tempfile.TemporaryDirectory() as td:
+            # _analyzed path should filter sibling deps
+            analyzed_out = Path(td) / "test_analyzed.spdx.html"
+            generate_html(doc, str(analyzed_out))
+            content = analyzed_out.read_text()
+            # Sibling-only deps should NOT be in the graph data
+            self.assertNotIn('"sibling-dep-1"', content)
+            self.assertNotIn('"sibling-dep-2"', content)
+
+
 class TestGenerateHtml(unittest.TestCase):
     """Tests for generate_html."""
 

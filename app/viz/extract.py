@@ -6,8 +6,14 @@ BFS depth from the root package.
 """
 
 
-def extract_graph(doc):
+def extract_graph(doc, filter_siblings=True):
     """Extract nodes and edges from SPDX document.
+
+    Args:
+        doc: SPDX document dict
+        filter_siblings: If True, filter out deps only reachable via
+            sibling modules (for _analyzed SPDX). If False, show all
+            deps (for _build SPDX).
 
     Returns:
         nodes: list of {id, name, version, purpose, group, fileCount}
@@ -229,32 +235,41 @@ def extract_graph(doc):
         if info.get("sibling", False)
     }
 
-    # Find all nodes reachable ONLY through sibling nodes
-    # These should be hidden from the visualization
-    sibling_transitive = set()
-    for r in rels:
-        rt = r["relationshipType"]
-        if rt in ("DEPENDS_ON", "STATIC_LINK"):
-            src = r["spdxElementId"]
-            tgt = r["relatedSpdxElement"]
-            if src in sibling_ids and tgt in pkg_map:
-                sibling_transitive.add(tgt)
-
-    # BFS to find all transitive deps of siblings
-    queue = list(sibling_transitive)
+    # Find nodes reachable from root WITHOUT going through siblings
+    # These should be kept even if also reachable from siblings
+    reachable_from_root = set(root_ids)
+    queue = list(root_ids)
     while queue:
         current = queue.pop(0)
-        for r in rels:
-            if r["spdxElementId"] == current:
-                rt = r["relationshipType"]
-                if rt in ("DEPENDS_ON", "STATIC_LINK"):
-                    tgt = r["relatedSpdxElement"]
-                    if tgt in pkg_map and tgt not in sibling_transitive:
-                        sibling_transitive.add(tgt)
-                        queue.append(tgt)
+        for child in children_of.get(current, []):
+            if child not in reachable_from_root:
+                # Don't traverse through siblings
+                if child not in sibling_ids:
+                    reachable_from_root.add(child)
+                    queue.append(child)
+                else:
+                    # Add sibling itself but don't traverse
+                    reachable_from_root.add(child)
 
-    # Filter nodes to exclude sibling transitive deps
-    nodes = [n for n in nodes if n["id"] not in sibling_transitive]
+    # Find all nodes reachable from siblings (their transitive deps)
+    sibling_reachable = set()
+    for sid in sibling_ids:
+        queue = [sid]
+        while queue:
+            current = queue.pop(0)
+            for child in children_of.get(current, []):
+                if child not in sibling_reachable:
+                    if child not in sibling_ids:
+                        sibling_reachable.add(child)
+                        queue.append(child)
+
+    # Only filter nodes ONLY reachable via siblings
+    # (not also reachable from root via non-sibling paths)
+    # Skip filtering for _build SPDX (filter_siblings=False)
+    sibling_only = set()
+    if filter_siblings:
+        sibling_only = sibling_reachable - reachable_from_root
+        nodes = [n for n in nodes if n["id"] not in sibling_only]
 
     edges = []
     for r in rels:
@@ -266,12 +281,14 @@ def extract_graph(doc):
             "BUILD_TOOL_OF", "DEPENDS_ON",
         ):
             if src in pkg_map and tgt in pkg_map:
-                # Skip edges FROM sibling nodes
-                if src in sibling_ids:
-                    continue
-                # Skip edges TO sibling transitive deps
-                if tgt in sibling_transitive:
-                    continue
+                # Only filter edges when filter_siblings=True
+                if filter_siblings:
+                    # Skip edges FROM sibling nodes
+                    if src in sibling_ids:
+                        continue
+                    # Skip edges TO sibling-only deps
+                    if tgt in sibling_only:
+                        continue
                 edges.append({
                     "source": src,
                     "target": tgt,
