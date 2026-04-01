@@ -473,13 +473,32 @@ class JavaSpdxGenerator:
                     and dep["groupId"] == project_group_id):
                 sibling_artifacts.add(dep["artifactId"])
 
+        # Build parent->children map for BFS
+        children_of = {}
+        for dep in maven_deps:
+            parent = dep.get("parent")
+            if parent:
+                children_of.setdefault(parent, []).append(
+                    dep["artifactId"]
+                )
+
+        # BFS to find ALL artifacts reachable through siblings
+        # (not just direct children of siblings)
+        sibling_transitive = set()
+        queue = list(sibling_artifacts)
+        while queue:
+            current = queue.pop(0)
+            for child in children_of.get(current, []):
+                if child not in sibling_transitive:
+                    if child not in sibling_artifacts:
+                        sibling_transitive.add(child)
+                        queue.append(child)
+
         # Filter deps: exclude transitive deps of siblings
         # (they belong in the sibling's own SPDX file)
         filtered_deps = []
         for dep in maven_deps:
-            parent = dep.get("parent")
-            if parent and parent in sibling_artifacts:
-                # This dep's parent is a sibling - skip it
+            if dep["artifactId"] in sibling_transitive:
                 continue
             filtered_deps.append(dep)
 

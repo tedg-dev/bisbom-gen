@@ -1208,5 +1208,101 @@ class TestExtractArtifactName(unittest.TestCase):
         )
 
 
+class TestSiblingFiltering(unittest.TestCase):
+    """Regression tests for sibling transitive dep filtering.
+
+    Multi-module Java projects (like dependency-check) have sibling
+    modules that are separate JARs. Each sibling's transitive deps
+    should only appear in that sibling's SPDX file, not in other
+    siblings' SPDX files.
+    """
+
+    def setUp(self):
+        self.gen = JavaSpdxGenerator(
+            bom_dir="/tmp/bom",
+            repos_dir="/tmp/repos",
+            repo_name="myapp",
+        )
+
+    def test_sibling_direct_child_filtered(self):
+        """Direct child of sibling should be filtered."""
+        maven_deps = [
+            {"groupId": "org.myapp", "artifactId": "core",
+             "version": "1.0", "scope": "compile", "direct": True},
+            {"groupId": "org.other", "artifactId": "lib-a",
+             "version": "1.0", "scope": "compile", "parent": "core"},
+        ]
+        with patch.object(
+            self.gen, "_get_project_group_id",
+            return_value="org.myapp"
+        ):
+            with patch.object(
+                self.gen, "_get_version",
+                return_value="1.0"
+            ):
+                with tempfile.TemporaryDirectory() as td:
+                    self.gen.repo_dir = Path(td)
+                    doc = self.gen._build_spdx(
+                        "myapp-1.0.jar", [], maven_deps, "build"
+                    )
+        # lib-a should NOT be in packages (it's child of sibling)
+        pkg_names = [p["name"] for p in doc["packages"]]
+        self.assertIn("core", pkg_names)  # sibling itself
+        self.assertNotIn("lib-a", pkg_names)
+
+    def test_sibling_transitive_grandchild_filtered(self):
+        """Transitive grandchild of sibling should be filtered."""
+        maven_deps = [
+            {"groupId": "org.myapp", "artifactId": "core",
+             "version": "1.0", "scope": "compile", "direct": True},
+            {"groupId": "org.other", "artifactId": "lib-a",
+             "version": "1.0", "scope": "compile", "parent": "core"},
+            {"groupId": "org.other", "artifactId": "lib-b",
+             "version": "1.0", "scope": "compile", "parent": "lib-a"},
+        ]
+        with patch.object(
+            self.gen, "_get_project_group_id",
+            return_value="org.myapp"
+        ):
+            with patch.object(
+                self.gen, "_get_version",
+                return_value="1.0"
+            ):
+                with tempfile.TemporaryDirectory() as td:
+                    self.gen.repo_dir = Path(td)
+                    doc = self.gen._build_spdx(
+                        "myapp-1.0.jar", [], maven_deps, "build"
+                    )
+        pkg_names = [p["name"] for p in doc["packages"]]
+        self.assertIn("core", pkg_names)
+        self.assertNotIn("lib-a", pkg_names)
+        self.assertNotIn("lib-b", pkg_names)
+
+    def test_non_sibling_deps_kept(self):
+        """Direct deps of root (not siblings) should be kept."""
+        maven_deps = [
+            {"groupId": "org.myapp", "artifactId": "core",
+             "version": "1.0", "scope": "compile", "direct": True},
+            {"groupId": "org.external", "artifactId": "commons",
+             "version": "1.0", "scope": "compile", "direct": True},
+        ]
+        with patch.object(
+            self.gen, "_get_project_group_id",
+            return_value="org.myapp"
+        ):
+            with patch.object(
+                self.gen, "_get_version",
+                return_value="1.0"
+            ):
+                with tempfile.TemporaryDirectory() as td:
+                    self.gen.repo_dir = Path(td)
+                    doc = self.gen._build_spdx(
+                        "myapp-1.0.jar", [], maven_deps, "build"
+                    )
+        pkg_names = [p["name"] for p in doc["packages"]]
+        self.assertIn("core", pkg_names)
+        self.assertIn("commons", pkg_names)
+
+
 if __name__ == "__main__":
     unittest.main()

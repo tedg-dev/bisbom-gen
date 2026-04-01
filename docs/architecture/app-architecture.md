@@ -157,8 +157,14 @@ app/pipeline/runners.py
      └─ app/spdx/java_generator.py    # JavaSpdxGenerator
          ├─ app/spdx/parser.py         # AdgParser (shared with native langs)
          ├─ mvn dependency:tree         # Maven CLI for transitive deps
-         └─ pom.xml parsing             # XML for project metadata
+         ├─ pom.xml parsing             # XML for project metadata
+         └─ Sibling module filtering    # BFS to exclude sibling transitive deps
 ```
+
+**Sibling module filtering:** For multi-module Java projects (e.g., dependency-check
+with cli, core, utils modules), each module's SPDX should only contain its own
+dependencies. Transitive deps of sibling modules are excluded via BFS traversal
+and appear in the sibling's own SPDX file instead.
 
 ### The spdx/ package at a glance
 
@@ -168,7 +174,7 @@ app/pipeline/runners.py
 | `resolver.py` | `ComponentResolver` | Load `component_metadata.json` and `dynamic_libs.json`, map files to dpkg packages |
 | `emitter.py` | `SpdxEmitter` | Build SPDX 2.3 JSON: packages, files, relationships, PURLs, ExternalRefs |
 | `generator.py` | `AdgSpdxGenerator` | Facade: compose parser → resolver → emitter → write JSON → generate HTML |
-| `java_generator.py` | `JavaSpdxGenerator` | Java-specific: treedb + Maven deps instead of dynamic libs |
+| `java_generator.py` | `JavaSpdxGenerator` | Java-specific: treedb + Maven deps + sibling filtering |
 | `cli.py` | `main()` | Standalone CLI for `python3 -m app.spdx_from_adg` |
 | `version_detector.py` | — | Backward-compat shim → `app.version_detection` |
 
@@ -391,4 +397,4 @@ path detection, build step generation, and config.yaml writing. Used by
 
 ---
 
-*Last updated: March 20, 2026*
+*Last updated: March 31, 2026*
