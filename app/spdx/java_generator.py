@@ -466,7 +466,24 @@ class JavaSpdxGenerator:
         artifact_to_spdx = {}
         project_group_id = self._get_project_group_id()
 
-        for i, dep in enumerate(maven_deps):
+        # First pass: identify sibling artifacts
+        sibling_artifacts = set()
+        for dep in maven_deps:
+            if (project_group_id is not None
+                    and dep["groupId"] == project_group_id):
+                sibling_artifacts.add(dep["artifactId"])
+
+        # Filter deps: exclude transitive deps of siblings
+        # (they belong in the sibling's own SPDX file)
+        filtered_deps = []
+        for dep in maven_deps:
+            parent = dep.get("parent")
+            if parent and parent in sibling_artifacts:
+                # This dep's parent is a sibling - skip it
+                continue
+            filtered_deps.append(dep)
+
+        for i, dep in enumerate(filtered_deps):
             dep_id = f"SPDXRef-Dep-{i}"
             artifact_to_spdx[dep["artifactId"]] = dep_id
 
@@ -534,7 +551,7 @@ class JavaSpdxGenerator:
             doc["packages"].append(pkg)
 
         # Add relationships for dependencies
-        for i, dep in enumerate(maven_deps):
+        for i, dep in enumerate(filtered_deps):
             dep_id = f"SPDXRef-Dep-{i}"
 
             # Determine relationship target:
