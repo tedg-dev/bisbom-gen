@@ -12,7 +12,7 @@ description: Active infrastructure profile — tedg's AWS EC2 instance
 | **Instance Name** | `omnibor-build` |
 | **SSH alias** | `omnibor-build` |
 | **IP** | `54.215.15.253` (Elastic IP) |
-| **Instance ID** | `i-0c93cd60e3e27ebe9` |
+| **Instance ID** | `i-02ef4bf118d6bae90` |
 | **Region** | `us-west-1` |
 | **Instance Type** | `c6i.4xlarge` (16 vCPU, 32 GB RAM) |
 | **OS** | Ubuntu 22.04 x86_64 |
