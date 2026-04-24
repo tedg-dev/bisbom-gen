@@ -194,13 +194,18 @@ simulation.on('end', () => {
   pinAllNodes();
 });
 
+let didDrag = false;
+let dragStartX = 0, dragStartY = 0;
+
 function dragstarted(event, d) {
-  // All nodes stay pinned — only dragged node moves
+  didDrag = false;
+  dragStartX = d.x; dragStartY = d.y;
   d.fx = d.x; d.fy = d.y;
 }
 function dragged(event, d) {
+  const dx = event.x - dragStartX, dy = event.y - dragStartY;
+  if (dx*dx + dy*dy > 25) didDrag = true;  // >5px = real drag
   d.fx = event.x; d.fy = event.y;
-  // Update position directly for immediate visual feedback
   d.x = event.x; d.y = event.y;
   d3.select(this).attr('transform', 'translate(' + d.x + ',' + d.y + ')');
   // Update links connected to this node
@@ -214,6 +219,8 @@ function dragged(event, d) {
 function dragended(event, d) {
   // Pin dragged node at new position
   d.fx = d.x; d.fy = d.y;
+  // Skip rearrangement if no real drag occurred (just a click)
+  if (!didDrag) return;
   // Unpin all descendants of the dragged node (BFS)
   const adj = {};  // parent -> [children]
   data.links.forEach(l => {
