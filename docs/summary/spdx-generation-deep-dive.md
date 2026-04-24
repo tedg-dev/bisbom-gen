@@ -160,7 +160,7 @@ f"{tracer} {make_cmd}"  # e.g., "bomtrace3 make -j$(nproc)"
 
 ---
 
-## 3. Stage 2: ADG Generation with bomsh_create_bom.py
+## 3. Stage 2: ADG Generation with `bomsh_create_bom.py`
 
 ### What is the ADG?
 
@@ -176,7 +176,7 @@ The ADG provides **complete cryptographic provenance** — for any output binary
 can trace back through every intermediate object file to every source file that
 contributed to it.
 
-### How bomsh_create_bom.py works
+### How `bomsh_create_bom.py` works
 
 The script is invoked as:
 ```bash
@@ -233,7 +233,7 @@ output/omnibor/curl/
                 └── ...                      ← list of files that have OmniBOR docs
 ```
 
-### The bomsh_omnibor_doc_mapping file
+### The `bomsh_omnibor_doc_mapping` file
 
 This is the most important intermediate artifact. It is a JSON file with the structure:
 
@@ -253,7 +253,7 @@ This mapping is what connects a specific binary file to its complete build prove
 
 ---
 
-## 4. Stage 3: SPDX Generation with bomsh_sbom.py
+## 4. Stage 3: SPDX Generation with `bomsh_sbom.py`
 
 ### Overview
 
@@ -360,7 +360,7 @@ After the build, `MetadataCollector` (in `analyze.py`) runs two collection scrip
 to gather dpkg package metadata and dynamic library information needed for rich
 SPDX generation.
 
-### collect_metadata.py (once per repo)
+### `collect_metadata.py` (once per repo)
 
 Reads the bomsh treedb and resolves every system file (libraries, headers, CRT
 objects) to its dpkg package:
@@ -374,7 +374,7 @@ objects) to its dpkg package:
 
 **Output:** `output/omnibor/<repo>/metadata/component_metadata.json`
 
-### collect_dynamic_libs.py (per binary)
+### `collect_dynamic_libs.py` (per binary)
 
 For each output binary, identifies dynamically linked libraries:
 
@@ -450,7 +450,7 @@ Each component becomes an SPDX package with a relationship to the root binary:
 | `BUILD_TOOL_OF` | Compiler/toolchain | gcc version from build |
 | `CONTAINS` | Source file belongs to package | Treedb artifact classification |
 
-### direct_only Mode
+### `direct_only` Mode
 
 When a project produces both executables and shared libraries (e.g., curl +
 libcurl.so), the executable's SBOM uses `direct_only=True` to avoid duplicating
@@ -493,8 +493,8 @@ Every ADG SPDX output automatically generates an interactive HTML dependency
 graph using `spdx_visualize.py`:
 
 - **D3.js force-directed layout** — packages are nodes, relationships are edges
-- **Color-coded by type**: purple (root), teal (STATIC_LINK), red (DYNAMIC_LINK),
-  yellow (BUILD_TOOL_OF)
+- **Color-coded by type**: purple (root), teal (`STATIC_LINK`), red (`DYNAMIC_LINK`),
+  yellow (`BUILD_TOOL_OF`)
 - **Node size** scales by source file count
 - **Interactive**: drag nodes, zoom/pan, hover for tooltips (version, purpose,
   file count, comments)
@@ -709,6 +709,7 @@ actually happened during compilation:
 ## 14. Configured Repositories
 
 **C/C++ (bomtrace3):**
+
 | Repo | Binaries | Vendored Libs | Dynamic Libs | Build Time | Notes |
 |---|---|---|---|---|---|
 | **curl** | curl, libcurl.so | — (uses /deps/) | ~10 | ~5 min | Reference target; autoconf + make |
@@ -717,18 +718,21 @@ actually happened during compilation:
 | **nmap** | nmap, ncat, nping | 7 (liblua, libssh2, libdnet, ...) | 14 | ~3.3 min | Uses vendored_dirs config for top-level lib detection |
 
 **Go (bomtrace2):**
+
 | Repo | Binaries | Direct Deps | Indirect Deps | Build Time | Notes |
 |---|---|---|---|---|---|
 | **lazygit** | lazygit | 33 | 29 | ~2 min | Terminal UI; stdlib + direct/indirect grouping |
 | **pocketbase** | pocketbase | 4 | — | ~1 min | Backend-as-a-service |
 
 **Rust (bomtrace2):**
+
 | Repo | Binaries | Crate Deps | Build Time | Notes |
 |---|---|---|---|---|
-| **oxipng** | oxipng | 44 | ~1 min | All crates use STATIC_LINK |
+| **oxipng** | oxipng | 44 | ~1 min | All crates use `STATIC_LINK` |
 | **dura** | dura | 150+ | ~3 min | Large dependency tree |
 
-**Java (strace + bomsh_create_bom_java.py):**
+**Java (strace + `bomsh_create_bom_java.py`):**
+
 | Repo | Binaries | Direct Deps | Transitive Deps | Build Time | Notes |
 |---|---|---|---|---|---|
 | **checkstyle** | checkstyle.jar | 10 | 21 | ~1 min | Single module |

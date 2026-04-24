@@ -38,8 +38,10 @@ the project root:
 ## AWS session management
 
 - `duo-sso` sessions expire every 1 hour
-- If any `aws` command fails with `RequestExpired`, tell the user to re-auth
-- After re-auth, fix the credentials profile name:
+- If any `aws` command fails with `RequestExpired` or `ExpiredToken`,
+  **immediately run** `duo-sso --profile ted-admin` (interactive Chrome mode).
+  Do NOT just print instructions — always execute the command.
+- After duo-sso completes, fix the credentials profile name:
   `sed -i '' 's/^\[default\]/[ted-admin]/' ~/.aws/credentials`
 
 ## EC2 instance power management
