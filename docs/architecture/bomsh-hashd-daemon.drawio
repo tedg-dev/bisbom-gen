@@ -1,0 +1,109 @@
+<mxfile host="Electron" agent="draw.io" version="29.6.6" pages="1">
+  <diagram name="bomsh_hashd Daemon Architecture" id="hashd-arch">
+    <mxGraphModel dx="1200" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1200" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" parent="1" style="text;fontSize=16;fontStyle=1;align=center" value="bomsh_hashd: Git-Aware Hash Daemon Architecture" vertex="1">
+          <mxGeometry height="30" width="600" x="300" y="15" as="geometry" />
+        </mxCell>
+        <mxCell id="sub" parent="1" style="text;fontSize=10;align=center;fontColor=#666" value="Persistent daemon maintains always-hot SHA256 cache so builds start with zero input-file hashing" vertex="1">
+          <mxGeometry height="18" width="700" x="250" y="45" as="geometry" />
+        </mxCell>
+        <mxCell id="git-box" parent="1" style="rounded=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=9;fontStyle=1;verticalAlign=top;align=center;spacingTop=2" value="Git Hooks&#xa;&#xa;post-checkout&#xa;post-merge&#xa;post-rewrite" vertex="1">
+          <mxGeometry height="80" width="140" x="80" y="90" as="geometry" />
+        </mxCell>
+        <mxCell id="inotify-box" parent="1" style="rounded=1;fillColor=#b3e5fc;strokeColor=#0288d1;fontSize=9;fontStyle=1;verticalAlign=top;align=center;spacingTop=2" value="inotify Watch&#xa;&#xa;IN_MODIFY&#xa;IN_CREATE" vertex="1">
+          <mxGeometry height="80" width="140" x="280" y="90" as="geometry" />
+        </mxCell>
+        <mxCell id="sys-box" parent="1" style="rounded=1;fillColor=#f5f5f5;strokeColor=#666;fontSize=9;fontStyle=1;verticalAlign=top;align=center;spacingTop=2" value="System Headers&#xa;&#xa;/usr/include/*&#xa;/usr/lib/gcc/*" vertex="1">
+          <mxGeometry height="80" width="140" x="480" y="90" as="geometry" />
+        </mxCell>
+        <mxCell id="git-detail" parent="1" style="rounded=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=8;align=left;spacingLeft=5;verticalAlign=top" value="git diff --name-only&#xa;  HEAD@{1} HEAD&#xa;&#xa;Typical: 5-50 files" vertex="1">
+          <mxGeometry height="55" width="140" x="80" y="185" as="geometry" />
+        </mxCell>
+        <mxCell id="ino-detail" parent="1" style="rounded=1;fillColor=#b3e5fc;strokeColor=#0288d1;fontSize=8;align=left;spacingLeft=5;verticalAlign=top" value="./configure output&#xa;cmake generated headers&#xa;vendor updates&#xa;developer file saves" vertex="1">
+          <mxGeometry height="55" width="140" x="280" y="185" as="geometry" />
+        </mxCell>
+        <mxCell id="sys-detail" parent="1" style="rounded=1;fillColor=#f5f5f5;strokeColor=#666;fontSize=8;align=left;spacingLeft=5;verticalAlign=top" value="Hashed once at&#xa;container start.&#xa;~5000 files, ~2 sec.&#xa;Never change." vertex="1">
+          <mxGeometry height="55" width="140" x="480" y="185" as="geometry" />
+        </mxCell>
+        <mxCell id="eg1" edge="1" parent="1" source="git-box" target="git-detail" style="strokeWidth=1;strokeColor=#6c8ebf">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="eg2" edge="1" parent="1" source="inotify-box" target="ino-detail" style="strokeWidth=1;strokeColor=#0288d1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="eg3" edge="1" parent="1" source="sys-box" target="sys-detail" style="strokeWidth=1;strokeColor=#666">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="daemon" parent="1" style="rounded=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;fontStyle=1;align=center;strokeWidth=2" value="bomsh_hashd daemon&#xa;(persistent, multi-threaded)" vertex="1">
+          <mxGeometry height="40" width="540" x="80" y="270" as="geometry" />
+        </mxCell>
+        <mxCell id="ed1" edge="1" parent="1" source="git-detail" target="daemon" style="strokeWidth=2;strokeColor=#82b366" value="changed files">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed2" edge="1" parent="1" source="ino-detail" target="daemon" style="strokeWidth=2;strokeColor=#82b366" value="modified files">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed3" edge="1" parent="1" source="sys-detail" target="daemon" style="strokeWidth=2;strokeColor=#82b366" value="all headers (once)">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="hash-action" parent="1" style="rounded=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=8;align=left;spacingLeft=5;verticalAlign=top" value="For each changed file:&#xa;1. stat() to get inode, mtime, size&#xa;2. SHA256(&quot;blob {size}\0&quot; + content)&#xa;3. Store in cache: path -&gt; (inode, mtime, size, sha256)" vertex="1">
+          <mxGeometry height="55" width="350" x="175" y="330" as="geometry" />
+        </mxCell>
+        <mxCell id="ehd" edge="1" parent="1" source="daemon" target="hash-action" style="strokeWidth=1;strokeColor=#82b366">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="cache" parent="1" style="shape=cylinder3;size=10;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;fontStyle=1;align=center;strokeWidth=2" value="Persistent Hash Cache&#xa;/var/cache/bomsh/hashcache.db&#xa;(mmap shared file)" vertex="1">
+          <mxGeometry height="70" width="250" x="225" y="415" as="geometry" />
+        </mxCell>
+        <mxCell id="ehc" edge="1" parent="1" source="hash-action" target="cache" style="strokeWidth=2;strokeColor=#d6b656" value="write">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="divider" parent="1" style="line;strokeWidth=2;strokeColor=#c62828;dashed=1;dashPattern=8 4" value="" vertex="1">
+          <mxGeometry height="1" width="600" x="50" y="520" as="geometry" />
+        </mxCell>
+        <mxCell id="div-label" parent="1" style="text;fontSize=9;fontStyle=3;fontColor=#c62828;align=center" value="BUILD TIME BOUNDARY  ---  above runs continuously, below runs during make" vertex="1">
+          <mxGeometry height="15" width="500" x="100" y="525" as="geometry" />
+        </mxCell>
+        <mxCell id="bomtrace" parent="1" style="rounded=1;fillColor=#ffcdd2;strokeColor=#c62828;fontSize=10;fontStyle=1;align=center;strokeWidth=2" value="bomtrace3 make -j$(nproc)" vertex="1">
+          <mxGeometry height="35" width="250" x="225" y="560" as="geometry" />
+        </mxCell>
+        <mxCell id="ebc" edge="1" parent="1" source="cache" target="bomtrace" style="strokeWidth=3;strokeColor=#d6b656" value="mmap read-only">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="gcc" parent="1" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=8;align=left;spacingLeft=5;verticalAlign=top" value="gcc -c main.c -o main.o intercepted:&#xa;&#xa;main.c  -&gt; cache_lookup() -&gt; HIT  (0.1 us)&#xa;curl.h  -&gt; cache_lookup() -&gt; HIT  (0.1 us)&#xa;stdio.h -&gt; cache_lookup() -&gt; HIT  (0.1 us)&#xa;30 more headers        -&gt; all HITs&#xa;&#xa;main.o  -&gt; SHA256()      -&gt; MISS (200 us)&#xa;           cache_insert() for ar/ld" vertex="1">
+          <mxGeometry height="120" width="260" x="80" y="620" as="geometry" />
+        </mxCell>
+        <mxCell id="ar" parent="1" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=8;align=left;spacingLeft=5;verticalAlign=top" value="ar rcs libcurl.a *.o intercepted:&#xa;&#xa;main.o -&gt; cache_lookup() -&gt; HIT&#xa;ssl.o  -&gt; cache_lookup() -&gt; HIT&#xa;(cached from their gcc steps)&#xa;&#xa;libcurl.a -&gt; SHA256() -&gt; MISS&#xa;             cache_insert()" vertex="1">
+          <mxGeometry height="110" width="260" x="380" y="620" as="geometry" />
+        </mxCell>
+        <mxCell id="ebg" edge="1" parent="1" source="bomtrace" target="gcc" style="strokeWidth=1;strokeColor=#333">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="eba" edge="1" parent="1" source="bomtrace" target="ar" style="strokeWidth=1;strokeColor=#333">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="result" parent="1" style="rounded=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=9;fontStyle=1;align=center;strokeWidth=2" value="Result: ~96% reduction in build-time hashing&#xa;~4.5 sec hashing -&gt; ~0.17 sec (1000 gcc invocations)" vertex="1">
+          <mxGeometry height="35" width="400" x="150" y="770" as="geometry" />
+        </mxCell>
+        <mxCell id="erg1" edge="1" parent="1" source="gcc" target="result" style="strokeWidth=1;strokeColor=#82b366">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="erg2" edge="1" parent="1" source="ar" target="result" style="strokeWidth=1;strokeColor=#82b366">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="note-ci" parent="1" style="shape=note;size=14;fillColor=#e0e0e0;strokeColor=#9e9e9e;fontSize=8;align=left;spacingLeft=5;verticalAlign=top;whiteSpace=wrap" value="CI/CD Integration:&#xa;&#xa;GitHub Actions: cache hashcache.db&#xa;as CI artifact between runs.&#xa;Next build: load + git diff delta.&#xa;&#xa;Webhook: pre-compute hashes&#xa;on push event BEFORE job starts." vertex="1">
+          <mxGeometry height="115" width="190" x="700" y="90" as="geometry" />
+        </mxCell>
+        <mxCell id="note-key" parent="1" style="shape=note;size=14;fillColor=#ffe0e0;strokeColor=#c62828;fontSize=8;align=left;spacingLeft=5;verticalAlign=top;whiteSpace=wrap" value="Key Insight:&#xa;&#xa;gitoid = git blob hash format&#xa;SHA256(&quot;blob {size}\0&quot; + content)&#xa;&#xa;When repos adopt git SHA-256,&#xa;gitoid comes directly from&#xa;git's object store. Zero hashing." vertex="1">
+          <mxGeometry height="110" width="190" x="700" y="225" as="geometry" />
+        </mxCell>
+        <mxCell id="note-perf" parent="1" style="shape=note;size=14;fillColor=#e0e0e0;strokeColor=#9e9e9e;fontSize=8;align=left;spacingLeft=5;verticalAlign=top;whiteSpace=wrap" value="Performance:&#xa;&#xa;First build: hash all files&#xa;  16 threads, ~9000 files = 2-5 sec&#xa;&#xa;Subsequent builds: re-hash delta&#xa;  5-50 files = &lt;10 ms&#xa;&#xa;During build: 0 input hashing&#xa;  Only output files need SHA256" vertex="1">
+          <mxGeometry height="135" width="190" x="700" y="415" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
