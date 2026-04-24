@@ -190,7 +190,9 @@ simulation.on('end', () => {
     initialFitDone = true;
     zoomToFit(0);
   }
-  // Pin every node so clicks/hovers never cause drift
+  // Kill the simulation permanently — all future
+  // interaction is pure DOM manipulation.
+  simulation.stop();
   pinAllNodes();
 });
 
@@ -200,15 +202,14 @@ let dragStartX = 0, dragStartY = 0;
 function dragstarted(event, d) {
   didDrag = false;
   dragStartX = d.x; dragStartY = d.y;
-  d.fx = d.x; d.fy = d.y;
 }
 function dragged(event, d) {
   const dx = event.x - dragStartX, dy = event.y - dragStartY;
-  if (dx*dx + dy*dy > 25) didDrag = true;  // >5px = real drag
+  if (!didDrag && dx*dx + dy*dy <= 25) return;  // ignore until >5px
+  didDrag = true;
   d.fx = event.x; d.fy = event.y;
   d.x = event.x; d.y = event.y;
   d3.select(this).attr('transform', 'translate(' + d.x + ',' + d.y + ')');
-  // Update links connected to this node
   link.filter(l => l.source === d || l.target === d)
     .attr('x1', l => l.source.x).attr('y1', l => l.source.y)
     .attr('x2', l => l.target.x).attr('y2', l => l.target.y);
@@ -217,43 +218,43 @@ function dragged(event, d) {
     .attr('y', l => (l.source.y + l.target.y) / 2 - 6);
 }
 function dragended(event, d) {
+  if (!didDrag) { d.fx = d.x; d.fy = d.y; return; }
+  // Compute drag delta
+  const dx = d.x - dragStartX, dy = d.y - dragStartY;
   // Pin dragged node at new position
   d.fx = d.x; d.fy = d.y;
-  // Skip rearrangement if no real drag occurred (just a click)
-  if (!didDrag) return;
-  // Unpin all descendants of the dragged node (BFS)
-  const adj = {};  // parent -> [children]
-  data.links.forEach(l => {
-    const sid = typeof l.source === 'object' ? l.source.id : l.source;
-    const tid = typeof l.target === 'object' ? l.target.id : l.target;
-    if (sid !== tid) {
-      if (!adj[sid]) adj[sid] = [];
-      adj[sid].push(tid);
-      // STATIC_LINK reverse: child -> parent
-      if (l.type === 'STATIC_LINK') {
-        if (!adj[tid]) adj[tid] = [];
-        adj[tid].push(sid);
-      }
-    }
+  // Collect tree-descendants via spanning tree
+  const treeChildren = {};
+  Object.keys(treeParent).forEach(child => {
+    const par = treeParent[child];
+    if (!treeChildren[par]) treeChildren[par] = [];
+    treeChildren[par].push(child);
   });
-  const desc = new Set();
+  const desc = [];
   const queue = [d.id];
   while (queue.length) {
     const cur = queue.shift();
-    (adj[cur] || []).forEach(nid => {
-      if (!desc.has(nid) && nid !== d.id) {
-        desc.add(nid);
-        queue.push(nid);
-      }
+    (treeChildren[cur] || []).forEach(cid => {
+      desc.push(cid);
+      queue.push(cid);
     });
   }
+  // Translate all descendants by the same delta — no simulation
   desc.forEach(nid => {
     const n = nodeById[nid];
-    if (n) { n.fx = null; n.fy = null; }
+    if (n) {
+      n.x += dx; n.y += dy;
+      n.fx = n.x; n.fy = n.y;
+    }
   });
-  simulation.alpha(0.15).restart();
-  // Let it cool down; sim 'end' re-pins all
-  setTimeout(() => simulation.alphaTarget(0), 400);
+  // Update DOM for moved descendants
+  node.filter(n => desc.includes(n.id))
+    .attr('transform', n => 'translate(' + n.x + ',' + n.y + ')');
+  // Update all links (some may connect to moved nodes)
+  link.attr('x1', l => l.source.x).attr('y1', l => l.source.y)
+    .attr('x2', l => l.target.x).attr('y2', l => l.target.y);
+  linkLabel.attr('x', l => (l.source.x + l.target.x) / 2)
+    .attr('y', l => (l.source.y + l.target.y) / 2 - 6);
 }
 
 // --- Click-to-highlight subgraph ---
