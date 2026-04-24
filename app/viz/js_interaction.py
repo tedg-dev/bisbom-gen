@@ -36,6 +36,7 @@ const node = g.append('g')
   .data(data.nodes)
   .join('g')
   .call(d3.drag()
+    .clickDistance(5)
     .on('start', dragstarted)
     .on('drag', dragged)
     .on('end', dragended));
@@ -189,18 +190,63 @@ simulation.on('end', () => {
     initialFitDone = true;
     zoomToFit(0);
   }
+  // Pin every node so clicks/hovers never cause drift
+  pinAllNodes();
 });
 
 function dragstarted(event, d) {
-  simulation.alphaTarget(0.01).restart();
+  // All nodes stay pinned — only dragged node moves
   d.fx = d.x; d.fy = d.y;
 }
 function dragged(event, d) {
   d.fx = event.x; d.fy = event.y;
+  // Update position directly for immediate visual feedback
+  d.x = event.x; d.y = event.y;
+  d3.select(this).attr('transform', 'translate(' + d.x + ',' + d.y + ')');
+  // Update links connected to this node
+  link.filter(l => l.source === d || l.target === d)
+    .attr('x1', l => l.source.x).attr('y1', l => l.source.y)
+    .attr('x2', l => l.target.x).attr('y2', l => l.target.y);
+  linkLabel.filter(l => l.source === d || l.target === d)
+    .attr('x', l => (l.source.x + l.target.x) / 2)
+    .attr('y', l => (l.source.y + l.target.y) / 2 - 6);
 }
 function dragended(event, d) {
-  simulation.alphaTarget(0);
-  d.fx = null; d.fy = null;
+  // Pin dragged node at new position
+  d.fx = d.x; d.fy = d.y;
+  // Unpin all descendants of the dragged node (BFS)
+  const adj = {};  // parent -> [children]
+  data.links.forEach(l => {
+    const sid = typeof l.source === 'object' ? l.source.id : l.source;
+    const tid = typeof l.target === 'object' ? l.target.id : l.target;
+    if (sid !== tid) {
+      if (!adj[sid]) adj[sid] = [];
+      adj[sid].push(tid);
+      // STATIC_LINK reverse: child -> parent
+      if (l.type === 'STATIC_LINK') {
+        if (!adj[tid]) adj[tid] = [];
+        adj[tid].push(sid);
+      }
+    }
+  });
+  const desc = new Set();
+  const queue = [d.id];
+  while (queue.length) {
+    const cur = queue.shift();
+    (adj[cur] || []).forEach(nid => {
+      if (!desc.has(nid) && nid !== d.id) {
+        desc.add(nid);
+        queue.push(nid);
+      }
+    });
+  }
+  desc.forEach(nid => {
+    const n = nodeById[nid];
+    if (n) { n.fx = null; n.fy = null; }
+  });
+  simulation.alpha(0.15).restart();
+  // Let it cool down; sim 'end' re-pins all
+  setTimeout(() => simulation.alphaTarget(0), 400);
 }
 
 // --- Click-to-highlight subgraph ---
