@@ -1,13 +1,20 @@
 #!/usr/bin/env python3
-"""One-off: merge three dependency-check SPDX files into a single
-combined visualization.
+"""Merge sibling SPDX modules into a single combined visualization.
 
-Replaces the sibling stub nodes in the parent SPDX with the actual
-packages/relationships from the child SPDX docs, then generates
-one HTML visualization via spdx_visualize.generate_html().
+Replaces sibling stub nodes in the parent SPDX with the actual
+packages/relationships from child SPDX docs, deduplicates shared
+dependencies, and generates one HTML visualization.
+
+Usage:
+    # Auto-detect siblings from parent's "Sibling module. See:" comments:
+    python3 scripts/combine_spdx_viz.py parent_build.spdx.json
+
+    # Explicit children:
+    python3 scripts/combine_spdx_viz.py parent.spdx.json child1.spdx.json child2.spdx.json
 """
 
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -82,7 +89,7 @@ def merge_spdx(parent_path, child_paths):
     ]
 
     # Load and merge each child
-    for stub_id, (frag, child_path, prefix) in sibling_ids.items():
+    for _stub_id, (frag, child_path, prefix) in sibling_ids.items():
         with open(child_path) as f:
             child = json.load(f)
 
@@ -127,43 +134,145 @@ def merge_spdx(parent_path, child_paths):
                 "relationshipType": "DEPENDS_ON",
             })
 
+    # Dedup packages by name+version — keep first occurrence,
+    # rewrite relationships to point to canonical SPDX ID.
+    seen = {}  # (name, version) -> canonical SPDXID
+    id_remap = {}  # duplicate SPDXID -> canonical SPDXID
+    deduped_pkgs = []
+    for p in parent["packages"]:
+        key = (p["name"], p.get("versionInfo", ""))
+        if key in seen:
+            id_remap[p["SPDXID"]] = seen[key]
+        else:
+            seen[key] = p["SPDXID"]
+            deduped_pkgs.append(p)
+    parent["packages"] = deduped_pkgs
+
+    if id_remap:
+        print(f"\n  Deduped {len(id_remap)} duplicate packages:")
+        for dup_id, canon_id in id_remap.items():
+            print(f"    {dup_id} -> {canon_id}")
+
+    # Rewrite relationships and remove self-loops
+    remapped_rels = []
+    for r in parent["relationships"]:
+        r["spdxElementId"] = id_remap.get(
+            r["spdxElementId"], r["spdxElementId"])
+        r["relatedSpdxElement"] = id_remap.get(
+            r["relatedSpdxElement"], r["relatedSpdxElement"])
+        # Skip self-loops created by dedup
+        if r["spdxElementId"] != r["relatedSpdxElement"]:
+            remapped_rels.append(r)
+    # Remove duplicate relationships
+    seen_rels = set()
+    unique_rels = []
+    for r in remapped_rels:
+        key = (r["spdxElementId"], r["relatedSpdxElement"],
+               r["relationshipType"])
+        if key not in seen_rels:
+            seen_rels.add(key)
+            unique_rels.append(r)
+    parent["relationships"] = unique_rels
+
     print(f"\nCombined: {len(parent['packages'])} packages, "
           f"{len(parent['relationships'])} relationships, "
           f"{len(parent.get('files', []))} files")
 
     # Update document name
-    parent["name"] = "dependency-check-9.2.0-combined"
+    base_name = parent.get("name", "combined")
+    parent["name"] = base_name + "-combined"
 
     return parent
 
 
+def auto_detect(parent_path):
+    """Auto-detect sibling SPDX files referenced in parent's comments.
+
+    Scans the parent doc for packages with "Sibling module. See: <file>"
+    comments and builds the child_paths dict automatically.
+    """
+    parent_dir = Path(parent_path).parent
+    with open(parent_path) as f:
+        parent = json.load(f)
+
+    child_paths = {}
+    for p in parent.get("packages", []):
+        comment = p.get("comment", "")
+        if "sibling module" not in comment.lower():
+            continue
+        # Extract filename from "See: <filename>"
+        match = re.search(r"See:\s*(\S+\.spdx\.json)", comment)
+        if not match:
+            continue
+        child_file = match.group(1)
+        child_full = parent_dir / child_file
+        if not child_full.exists():
+            print(f"  [WARN] Sibling file not found: {child_full}")
+            continue
+        # Use the package name as the key and prefix
+        name = p.get("name", "unknown")
+        # Short prefix from name (last segment)
+        prefix = name.split("-")[-1] if "-" in name else name
+        child_paths[name] = (child_full, prefix)
+
+    return child_paths
+
+
 def main():
-    base = (PROJECT_ROOT / "output" / "spdx" / "java"
-            / "dependency-check" / "2026-04-23_2352")
+    import argparse
+    ap = argparse.ArgumentParser(
+        description="Merge sibling SPDX modules into a single "
+                    "combined visualization.",
+    )
+    ap.add_argument(
+        "parent",
+        help="Path to the parent SPDX JSON (e.g. foo_build.spdx.json)",
+    )
+    ap.add_argument(
+        "children", nargs="*",
+        help="Paths to child SPDX JSON files. If omitted, "
+             "auto-detects siblings from parent's comments.",
+    )
+    ap.add_argument(
+        "-o", "--output", default=None,
+        help="Output base name (default: <parent>_combined)",
+    )
+    args = ap.parse_args()
 
-    parent_path = base / "dependency-check-9.2.0_build.spdx.json"
+    parent_path = Path(args.parent).resolve()
 
-    child_paths = {
-        "utils": (
-            base / "dependency-check-utils-9.2.0_build.spdx.json",
-            "utils",
-        ),
-        "core": (
-            base / "dependency-check-core-9.2.0_build.spdx.json",
-            "core",
-        ),
-    }
+    if args.children:
+        child_paths = {}
+        for cp in args.children:
+            cp = Path(cp).resolve()
+            name = cp.stem.replace("_build.spdx", "")
+            prefix = name.split("-")[-1] if "-" in name else name
+            child_paths[name] = (cp, prefix)
+    else:
+        child_paths = auto_detect(parent_path)
+        if not child_paths:
+            print("[ERROR] No sibling modules found. "
+                  "Pass child files explicitly.")
+            sys.exit(1)
+
+    print(f"Parent: {parent_path.name}")
+    print(f"Children: {', '.join(child_paths.keys())}")
 
     combined = merge_spdx(parent_path, child_paths)
 
-    # Save combined SPDX
-    combined_json = base / "dependency-check-9.2.0_combined.spdx.json"
+    # Determine output paths
+    if args.output:
+        base_name = args.output
+    else:
+        stem = parent_path.stem.replace("_build.spdx", "")
+        base_name = str(parent_path.parent / f"{stem}_combined.spdx")
+
+    combined_json = Path(base_name + ".json")
     with open(combined_json, "w") as f:
         json.dump(combined, f, indent=2)
     print(f"\n[OK] Combined SPDX: {combined_json}")
 
-    # Generate visualization
-    output_html = base / "dependency-check-9.2.0_combined.spdx.html"
+    output_html = Path(base_name + ".html")
     generate_html(combined, str(output_html))
 
 
