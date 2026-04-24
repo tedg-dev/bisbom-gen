@@ -27,11 +27,18 @@ class JavaSpdxGenerator:
 
     def __init__(
         self, bom_dir, repos_dir, repo_name,
+        strace_accessed=None,
     ):
         self.bom_dir = Path(bom_dir)
         self.repos_dir = Path(repos_dir)
         self.repo_name = repo_name
         self.repo_dir = self.repos_dir / repo_name
+        # Set of absolute file paths opened during
+        # the build (from strace openat log).  Used
+        # to filter workspace-scan results to only
+        # files actually accessed — mirrors how
+        # C/C++ uses the raw logfile for evidence.
+        self.strace_accessed = strace_accessed or set()
 
     def generate(
         self, output_path, binary_name=None,
@@ -85,6 +92,28 @@ class JavaSpdxGenerator:
         test_files_excluded = (
             len(all_files) - len(source_files)
         )
+
+        # Filter to strace-verified files when the
+        # openat log is available.  This narrows
+        # workspace-scan results to only files the
+        # build actually opened.
+        strace_excluded = 0
+        if self.strace_accessed:
+            verified = []
+            for f in source_files:
+                fp = f.get("file_path", "")
+                if fp in self.strace_accessed:
+                    verified.append(f)
+                else:
+                    strace_excluded += 1
+            source_files = verified
+
+        strace_msg = ""
+        if strace_excluded:
+            strace_msg = (
+                f", {strace_excluded} not in "
+                f"strace log"
+            )
         test_msg = (
             f", {test_files_excluded} test excluded"
             if test_files_excluded else ""
@@ -92,7 +121,7 @@ class JavaSpdxGenerator:
         print(
             f"[{bin_name}] Source files: "
             f"{len(source_files)} production"
-            f"{test_msg}"
+            f"{test_msg}{strace_msg}"
         )
 
         # Get Maven dependencies via dependency:tree

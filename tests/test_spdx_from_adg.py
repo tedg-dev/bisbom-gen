@@ -159,6 +159,127 @@ class TestAdgParser(unittest.TestCase):
             result = parser.load_raw_logfile_hashes()
             self.assertEqual(result, {})
 
+    def test_parse_strace_openat_log(self):
+        """Parses strace openat log for Java builds."""
+        with tempfile.TemporaryDirectory() as td:
+            meta = self._setup_bom_dir(td)
+            lines = [
+                '1234 openat(AT_FDCWD, '
+                '"/repo/src/Main.java", '
+                'O_RDONLY) = 3',
+                '1234 openat(AT_FDCWD, '
+                '"/repo/target/Main.class", '
+                'O_WRONLY|O_CREAT) = 4',
+                '1234 openat(AT_FDCWD, '
+                '"/missing/Nope.java", '
+                'O_RDONLY) = -1 ENOENT',
+                '1234 openat(AT_FDCWD, '
+                '"/m2/repo/guava.jar", '
+                'O_RDONLY) = 5',
+            ]
+            (meta / "strace_java_logfile").write_text(
+                "\n".join(lines) + "\n"
+            )
+            parser = AdgParser(
+                str(Path(td) / "bom"), "/repos"
+            )
+            result = parser.parse_strace_openat_log()
+            # 3 successful opens, 1 failed (ENOENT)
+            self.assertEqual(len(result), 3)
+            self.assertIn(
+                "/repo/src/Main.java", result
+            )
+            self.assertIn(
+                "/repo/target/Main.class", result
+            )
+            self.assertIn(
+                "/m2/repo/guava.jar", result
+            )
+            # Failed open excluded
+            self.assertNotIn(
+                "/missing/Nope.java", result
+            )
+
+    def test_parse_strace_openat_log_missing(self):
+        """Returns empty set when log doesn't exist."""
+        with tempfile.TemporaryDirectory() as td:
+            self._setup_bom_dir(td)
+            parser = AdgParser(
+                str(Path(td) / "bom"), "/repos"
+            )
+            result = parser.parse_strace_openat_log()
+            self.assertEqual(result, set())
+
+    def test_parse_strace_openat_log_empty(self):
+        """Returns empty set for empty log file."""
+        with tempfile.TemporaryDirectory() as td:
+            meta = self._setup_bom_dir(td)
+            (meta / "strace_java_logfile").write_text("")
+            parser = AdgParser(
+                str(Path(td) / "bom"), "/repos"
+            )
+            result = parser.parse_strace_openat_log()
+            self.assertEqual(result, set())
+
+    def test_parse_strace_openat_unfinished(self):
+        """Captures files from <unfinished ...> lines."""
+        with tempfile.TemporaryDirectory() as td:
+            meta = self._setup_bom_dir(td)
+            lines = [
+                '187 openat(AT_FDCWD, '
+                '"/repo/src/App.java", '
+                'O_RDONLY <unfinished ...>',
+                '187 <... openat resumed>) = 88',
+                '187 openat(AT_FDCWD, '
+                '"/repo/src/Util.java", '
+                'O_RDONLY) = 5',
+                '187 openat(AT_FDCWD, '
+                '"/nope/Missing.java", '
+                'O_RDONLY <unfinished ...>',
+                '187 <... openat resumed>) = -1',
+            ]
+            (meta / "strace_java_logfile").write_text(
+                "\n".join(lines) + "\n"
+            )
+            parser = AdgParser(
+                str(Path(td) / "bom"), "/repos"
+            )
+            result = parser.parse_strace_openat_log()
+            self.assertIn(
+                "/repo/src/App.java", result
+            )
+            self.assertIn(
+                "/repo/src/Util.java", result
+            )
+            # unfinished that later failed — but we
+            # can't correlate resume lines to start
+            # lines, so unfinished paths are included
+            # optimistically.  Only paths that ALSO
+            # have an explicit = -1 are removed.
+            self.assertIn(
+                "/nope/Missing.java", result
+            )
+
+    def test_parse_strace_only_failed(self):
+        """Path only seen as failed is excluded."""
+        with tempfile.TemporaryDirectory() as td:
+            meta = self._setup_bom_dir(td)
+            lines = [
+                '1 openat(AT_FDCWD, '
+                '"/gone/X.java", '
+                'O_RDONLY) = -1 ENOENT',
+            ]
+            (meta / "strace_java_logfile").write_text(
+                "\n".join(lines) + "\n"
+            )
+            parser = AdgParser(
+                str(Path(td) / "bom"), "/repos"
+            )
+            result = parser.parse_strace_openat_log()
+            self.assertNotIn(
+                "/gone/X.java", result
+            )
+
     def test_classify_empty_filepath(self):
         """Entries with empty file_path are skipped."""
         with tempfile.TemporaryDirectory() as td:

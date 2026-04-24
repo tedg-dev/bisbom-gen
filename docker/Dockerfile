@@ -126,13 +126,15 @@ RUN ln -sf /opt/apache-maven-${MAVEN_VERSION}/bin/mvn /usr/local/bin/mvn && \
     ln -s /opt/apache-maven-${MAVEN_VERSION}/bin/mvn /usr/local/bin/mvn3.9 && \
     ln -s /usr/share/maven/bin/mvn /usr/local/bin/mvn3.6
 # Unblock HTTP Maven repositories (Maven 3.8.1+ blocks HTTP by default).
-# Some repos (e.g. Oracle BerkeleyDB) only serve from HTTP mirrors.
-# This applies to both apt Maven (3.6) and downloaded Maven (3.9).
+# Some repos (e.g. Oracle BerkeleyDB for crawler4j) only serve HTTP.
+# In Maven 3.9+ setting <blocked>false</blocked> is not enough — the
+# mirror still redirects to http://0.0.0.0/.  Remove the entire
+# maven-default-http-blocker mirror entry instead.
 RUN for settings in \
         /opt/apache-maven-${MAVEN_VERSION}/conf/settings.xml \
         /usr/share/maven/conf/settings.xml; do \
       if [ -f "$settings" ]; then \
-        sed -i 's|<blocked>true</blocked>|<blocked>false</blocked>|g' "$settings"; \
+        sed -i '/<mirror>/,/<\/mirror>/{/maven-default-http-blocker/,/<\/mirror>/d; /<mirror>/d}' "$settings"; \
       fi; \
     done
 ENV PATH="${JAVA_HOME}/bin:${PATH}"
