@@ -273,7 +273,8 @@ const deepIdSet = new Set(
 
 // Force simulation (original layout + fan-out)
 const simulation = d3.forceSimulation(data.nodes)
-  .alphaDecay(0.05)
+  .alphaDecay(0.06)
+  .alphaMin(0.002)
   .force('link', d3.forceLink(data.links)
     .id(d => d.id)
     .distance(d => {
@@ -303,6 +304,15 @@ const simulation = d3.forceSimulation(data.nodes)
       return 0.10;
     }))
   .force('collision', d3.forceCollide().radius(50));
+
+// After simulation settles, pin every node so that
+// click-to-highlight never causes layout re-adjustment.
+function pinAllNodes() {
+  data.nodes.forEach(d => { d.fx = d.x; d.fy = d.y; });
+}
+function unpinAllNodes() {
+  data.nodes.forEach(d => { d.fx = null; d.fy = null; });
+}
 
 // --- Fan-out force (alpha-dependent, strong) ---
 // Pushes depth-2+ nodes beyond their parent in the
