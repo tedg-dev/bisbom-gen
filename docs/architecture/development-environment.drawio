@@ -1,0 +1,225 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/29.6.6 Chrome/144.0.7559.236 Electron/40.8.4 Safari/537.36" version="29.6.6">
+  <diagram name="Development Environment Overview" id="page1">
+    <mxGraphModel dx="1761" dy="1089" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1200" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" parent="1" style="text;fontSize=24;fontStyle=1;align=center;verticalAlign=middle;fillColor=none;strokeColor=none;" value="OmniBOR Analysis — Development Environment" vertex="1">
+          <mxGeometry height="30" width="600" x="400" y="10" as="geometry" />
+        </mxCell>
+        <mxCell id="subtitle" parent="1" style="text;fontSize=13;fontStyle=2;align=center;verticalAlign=middle;fillColor=none;strokeColor=none;fontColor=#666666;" value="C4 System Context — all components and data flows" vertex="1">
+          <mxGeometry height="20" width="600" x="400" y="42" as="geometry" />
+        </mxCell>
+        <mxCell id="windsurf" parent="1" style="rounded=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;fontSize=17;fontStyle=1;verticalAlign=top;align=center;spacingTop=5;container=1;collapsible=0;" value="Windsurf IDE (Developer&#39;s macOS)" vertex="1">
+          <mxGeometry height="330" width="1320" x="40" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="cascade" parent="windsurf" style="rounded=1;fillColor=#b3cde3;strokeColor=#5c8eb8;fontSize=14;fontStyle=1;verticalAlign=top;align=center;spacingTop=3;" value="Cascade AI Chat" vertex="1">
+          <mxGeometry height="200" width="400" x="20" y="47" as="geometry" />
+        </mxCell>
+        <mxCell id="cascade-model" parent="windsurf" style="rounded=1;fillColor=#e6d0de;strokeColor=#996185;fontSize=11;fontStyle=1;align=center;" value="AI Model: Claude Opus 4.6 Thinking" vertex="1">
+          <mxGeometry height="25" width="320" x="60" y="77" as="geometry" />
+        </mxCell>
+        <mxCell id="cascade-text" parent="windsurf" style="text;fontSize=12;align=left;verticalAlign=top;fillColor=none;strokeColor=none;spacingLeft=10;" value="• AI pair programming&#xa;• Proposes terminal commands&#xa;• Reads terminal output&#xa;• Code review and debugging&#xa;• Architecture documentation&#xa;• Reads/writes all project files" vertex="1">
+          <mxGeometry height="110" width="380" x="30" y="107" as="geometry" />
+        </mxCell>
+        <mxCell id="wsconfig" parent="windsurf" style="rounded=1;fillColor=#d4edda;strokeColor=#5cb85c;fontSize=14;fontStyle=1;verticalAlign=top;align=center;spacingTop=3;" value=".windsurf/ Configuration" vertex="1">
+          <mxGeometry height="200" width="440" x="440" y="47" as="geometry" />
+        </mxCell>
+        <mxCell id="wsconfig-text" parent="windsurf" style="text;fontSize=12;align=left;verticalAlign=top;fillColor=none;strokeColor=none;spacingLeft=10;fontFamily=Courier New;" value="rules/ (30+ markdown files)&#xa;  • cascade/ — AI behavior constraints&#xa;  • code-standards/ — formatting, quality&#xa;  • infrastructure/ — EC2, Docker, toolchains&#xa;  • project/ — SPDX, golden files, releases&#xa;  • workflow/ — PR, sync, versioning&#xa;&#xa;workflows/ (9 slash commands)&#xa;  /run-analysis  /add-repo  /docker-build&#xa;  /run-comparison  /ec2-start  /merge-pr&#xa;  /setup-environment  /first-time-setup" vertex="1">
+          <mxGeometry height="165" width="420" x="450" y="74" as="geometry" />
+        </mxCell>
+        <mxCell id="localdev" parent="windsurf" style="rounded=1;fillColor=#FFFFFF;strokeColor=#6c8ebf;fontSize=14;fontStyle=1;verticalAlign=top;align=center;spacingTop=3;" value="Local Dev Tools" vertex="1">
+          <mxGeometry height="200" width="400" x="900" y="47" as="geometry" />
+        </mxCell>
+        <mxCell id="localdev-text" parent="windsurf" style="text;fontSize=12;align=left;verticalAlign=top;fillColor=none;strokeColor=none;spacingLeft=10;fontFamily=Courier New;" value="Python .venv/&#xa;  • pytest (97%+ coverage)&#xa;  • pyyaml, spdx-tools&#xa;  • pre-commit hooks&#xa;&#xa;Local tools&#xa;  • git, gh CLI&#xa;  • aws CLI + duo-sso&#xa;  • draw.io desktop&#xa;  • rsync for file sync" vertex="1">
+          <mxGeometry height="165" width="380" x="910" y="74" as="geometry" />
+        </mxCell>
+        <mxCell id="terminal" parent="windsurf" style="rounded=1;fillColor=#f0f0f0;strokeColor=#999999;fontSize=12;fontStyle=0;align=center;verticalAlign=middle;fontFamily=Courier New;" value="Windsurf Terminal — ssh omnibor-build | docker exec | git push | aws ec2 | rsync" vertex="1">
+          <mxGeometry height="45" width="1280" x="20" y="260" as="geometry" />
+        </mxCell>
+        <mxCell id="github" parent="1" style="shape=cloud;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=2;fontSize=13;fontStyle=1;verticalAlign=top;align=center;spacingTop=15;" value="                          GitHub" vertex="1">
+          <mxGeometry height="270" width="340" x="40" y="470" as="geometry" />
+        </mxCell>
+        <mxCell id="github-text" parent="1" style="text;fontSize=11;align=left;verticalAlign=top;fillColor=none;strokeColor=none;spacingLeft=35;spacingTop=10;" value="tedg-dev/omnibor-analysis&#xa;&#xa;• Source: app/, docker/, tests/&#xa;• .windsurf/ rules + workflows&#xa;  (auto-loaded by Cascade on clone)&#xa;• PR-first workflow (no direct main)&#xa;• Branch protection&#xa;&#xa;omnibor/bomsh (upstream)&#xa;• bomtrace3 source + patches&#xa;• bomsh Python scripts" vertex="1">
+          <mxGeometry height="180" width="230" x="100" y="520" as="geometry" />
+        </mxCell>
+        <mxCell id="ec2" parent="1" style="rounded=1;fillColor=#ffe6cc;strokeColor=#d79b00;strokeWidth=2;fontSize=16;fontStyle=1;verticalAlign=top;align=center;spacingTop=5;container=1;collapsible=0;" value="AWS EC2 Build Host" vertex="1">
+          <mxGeometry height="340" width="860" x="500" y="440" as="geometry" />
+        </mxCell>
+        <mxCell id="ec2-specs" parent="ec2" style="text;fontSize=12;fontStyle=2;align=center;verticalAlign=middle;fillColor=none;strokeColor=none;fontColor=#666666;" value="c6i.4xlarge · 16 vCPU · 32 GB RAM · Ubuntu 22.04 x86_64 · 50 GB gp3 SSD" vertex="1">
+          <mxGeometry height="18" width="600" x="130" y="33" as="geometry" />
+        </mxCell>
+        <mxCell id="docker" parent="ec2" style="rounded=1;fillColor=#e1d5e7;strokeColor=#9673a6;strokeWidth=2;fontSize=13;fontStyle=1;verticalAlign=top;align=center;spacingTop=5;container=1;collapsible=0;" value="Docker Container (omnibor-env)" vertex="1">
+          <mxGeometry height="230" width="820" x="20" y="58" as="geometry" />
+        </mxCell>
+        <mxCell id="docker-caps" parent="docker" style="text;fontSize=10;fontStyle=2;align=center;verticalAlign=middle;fillColor=none;strokeColor=none;fontColor=#666666;" value="SYS_PTRACE · seccomp:unconfined · linux/amd64" vertex="1">
+          <mxGeometry height="15" width="420" x="200" y="25" as="geometry" />
+        </mxCell>
+        <mxCell id="omnibor-tools" parent="docker" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;fontStyle=1;verticalAlign=top;align=center;spacingTop=3;" value="OmniBOR / bomsh" vertex="1">
+          <mxGeometry height="85" width="195" x="15" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="omnibor-text" parent="docker" style="text;fontSize=11;align=left;verticalAlign=top;fillColor=none;strokeColor=none;spacingLeft=5;fontFamily=Courier New;fontStyle=0" value="bomtrace3 (ptrace intercept)&#xa;bomtrace2 (hook-based)&#xa;bomsh_create_bom.py&#xa;bomsh_hook2.py" vertex="1">
+          <mxGeometry height="60" width="175" x="17" y="71" as="geometry" />
+        </mxCell>
+        <mxCell id="toolchains" parent="docker" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;fontStyle=1;verticalAlign=top;align=center;spacingTop=3;" value="Build Toolchains" vertex="1">
+          <mxGeometry height="85" width="185" x="222" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="toolchains-text" parent="docker" style="text;fontSize=11;align=left;verticalAlign=top;fillColor=none;strokeColor=none;spacingLeft=5;fontFamily=Courier New;fontStyle=0" value="gcc/g++ · clang · make&#xa;cmake · autotools · ninja&#xa;Go 1.26 · Rust stable&#xa;JDK 17/21 · Maven 3.9" vertex="1">
+          <mxGeometry height="60" width="175" x="227" y="71" as="geometry" />
+        </mxCell>
+        <mxCell id="scripts" parent="docker" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;fontStyle=1;verticalAlign=top;align=center;spacingTop=3;" value="Analysis Pipeline" vertex="1">
+          <mxGeometry height="85" width="190" x="417" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="scripts-text" parent="docker" style="text;fontSize=11;align=left;verticalAlign=top;fillColor=none;strokeColor=none;spacingLeft=5;fontFamily=Courier New;fontStyle=0" value="analyze.py (orchestrator)&#xa;spdx_from_adg.py&#xa;compare.py&#xa;spdx_visualize.py" vertex="1">
+          <mxGeometry height="60" width="175" x="422" y="71" as="geometry" />
+        </mxCell>
+        <mxCell id="sbom-tools" parent="docker" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;fontStyle=1;verticalAlign=top;align=center;spacingTop=3;" value="SBOM Generation" vertex="1">
+          <mxGeometry height="85" width="190" x="615" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="sbom-text" parent="docker" style="text;fontSize=11;align=left;verticalAlign=top;fillColor=none;strokeColor=none;spacingLeft=5;fontFamily=Courier New;fontStyle=0" value="Syft (manifest-based)&#xa;SPDX 2.3 JSON output&#xa;D3.js HTML graphs&#xa;Golden file regression" vertex="1">
+          <mxGeometry height="60" width="175" x="620" y="71" as="geometry" />
+        </mxCell>
+        <mxCell id="volumes" parent="docker" style="text;fontSize=10;fontStyle=1;align=left;verticalAlign=middle;fillColor=none;strokeColor=none;" value="Volume Mounts (persist on EC2 host):" vertex="1">
+          <mxGeometry height="20" width="250" x="15" y="146" as="geometry" />
+        </mxCell>
+        <mxCell id="vol-repos" parent="docker" style="rounded=1;fillColor=#f5f5f5;strokeColor=#999999;fontSize=11;align=center;verticalAlign=middle;fontFamily=Courier New;" value="repos/" vertex="1">
+          <mxGeometry height="28" width="120" x="15" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="vol-repos-label" parent="docker" style="text;fontSize=9;align=center;verticalAlign=top;fillColor=none;strokeColor=none;fontColor=#666666;" value="cloned source code" vertex="1">
+          <mxGeometry height="15" width="120" x="15" y="198" as="geometry" />
+        </mxCell>
+        <mxCell id="vol-output" parent="docker" style="rounded=1;fillColor=#f5f5f5;strokeColor=#999999;fontSize=11;align=center;verticalAlign=middle;fontFamily=Courier New;" value="output/" vertex="1">
+          <mxGeometry height="28" width="120" x="155" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="vol-output-label" parent="docker" style="text;fontSize=9;align=center;verticalAlign=top;fillColor=none;strokeColor=none;fontColor=#666666;" value="SPDX, ADG, logs" vertex="1">
+          <mxGeometry height="15" width="120" x="155" y="198" as="geometry" />
+        </mxCell>
+        <mxCell id="vol-app" parent="docker" style="rounded=1;fillColor=#f5f5f5;strokeColor=#999999;fontSize=11;align=center;verticalAlign=middle;fontFamily=Courier New;" value="app/" vertex="1">
+          <mxGeometry height="28" width="120" x="295" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="vol-app-label" parent="docker" style="text;fontSize=9;align=center;verticalAlign=top;fillColor=none;strokeColor=none;fontColor=#666666;" value="pipeline scripts" vertex="1">
+          <mxGeometry height="15" width="120" x="295" y="198" as="geometry" />
+        </mxCell>
+        <mxCell id="vol-docs" parent="docker" style="rounded=1;fillColor=#f5f5f5;strokeColor=#999999;fontSize=11;align=center;verticalAlign=middle;fontFamily=Courier New;" value="docs/" vertex="1">
+          <mxGeometry height="28" width="120" x="435" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="vol-docs-label" parent="docker" style="text;fontSize=9;align=center;verticalAlign=top;fillColor=none;strokeColor=none;fontColor=#666666;" value="build logs, reports" vertex="1">
+          <mxGeometry height="15" width="120" x="435" y="198" as="geometry" />
+        </mxCell>
+        <mxCell id="ec2-mgmt" parent="ec2" style="text;fontSize=11;align=left;verticalAlign=top;fillColor=none;strokeColor=none;fontColor=#666666;spacingLeft=5;" value="Power: aws ec2 start/stop&#xa;Auth: Cisco Duo SSO → SAML&#xa;Cost: ~$0.17/hr running" vertex="1">
+          <mxGeometry height="50" width="180" x="600" y="285" as="geometry" />
+        </mxCell>
+        <mxCell id="repos" parent="1" style="rounded=1;fillColor=#f5f5f5;strokeColor=#666666;strokeWidth=1;fontSize=15;fontStyle=1;verticalAlign=top;align=center;spacingTop=5;" value="Target Repositories (20+ configured in config.yaml)" vertex="1">
+          <mxGeometry height="95" width="660" x="320" y="850" as="geometry" />
+        </mxCell>
+        <mxCell id="repos-text" parent="1" style="text;fontSize=13;align=center;verticalAlign=top;fillColor=none;strokeColor=none;spacingTop=2;" value="C/C++: curl · redis · openosc · ffmpeg · nmap · node · cpython                Go: fzf · lazygit · croc · dive · gdu · pocketbase&#xa;Rust: oxipng · dura                Java: jsoup · checkstyle · crawler4j · dependency-check · datahub-client" vertex="1">
+          <mxGeometry height="55" width="860" x="220" y="880" as="geometry" />
+        </mxCell>
+        <mxCell id="output" parent="1" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=1;fontSize=15;fontStyle=1;verticalAlign=top;align=center;spacingTop=5;" value="Output Artifacts (per repo, timestamped)" vertex="1">
+          <mxGeometry height="80" width="660" x="320" y="985" as="geometry" />
+        </mxCell>
+        <mxCell id="output-text" parent="1" style="text;fontSize=13;align=center;verticalAlign=top;fillColor=none;strokeColor=none;spacingTop=2;" value="SPDX 2.3 JSON SBOMs · OmniBOR ADG objects · bomsh_omnibor_treedb JSON · bomsh_hook_raw_logfile&#xa;Component metadata · D3.js interactive HTML dependency graphs · Build documentation (Markdown)" vertex="1">
+          <mxGeometry height="40" width="860" x="220" y="1015" as="geometry" />
+        </mxCell>
+        <mxCell id="a-ws-gh" edge="1" parent="1" source="windsurf" style="endArrow=classic;startArrow=classic;strokeColor=#82b366;strokeWidth=2;entryX=0.484;entryY=0.095;exitX=0.15;exitY=1;entryDx=0;entryDy=0;entryPerimeter=0;" target="github">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a-ws-gh-label" connectable="0" parent="a-ws-gh" style="edgeLabel;fontSize=12;fillColor=#FFFFFF;strokeColor=none;" value="git push/pull&#xa;PRs via gh CLI" vertex="1">
+          <mxGeometry relative="1" x="-0.1" as="geometry">
+            <mxPoint x="7" y="-13" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="a-ws-ec2" edge="1" parent="1" source="windsurf" style="endArrow=classic;startArrow=classic;strokeColor=#d79b00;strokeWidth=2;exitX=0.673;exitY=0.997;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitDx=0;exitDy=0;exitPerimeter=0;" target="ec2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a-ws-ec2-label" connectable="0" parent="a-ws-ec2" style="edgeLabel;fontSize=10;fillColor=#FFFFFF;strokeColor=none;" value="SSH (port 443)&#xa;rsync code → EC2&#xa;rsync results ← EC2" vertex="1">
+          <mxGeometry relative="1" x="-0.1" as="geometry">
+            <mxPoint x="26" y="-22" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="a-docker-repos" edge="1" parent="1" style="endArrow=classic;strokeColor=#666666;strokeWidth=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.6;entryY=0;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="930" y="780" as="sourcePoint" />
+            <mxPoint x="740" y="850" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="a-docker-repos-label" connectable="0" parent="a-docker-repos" style="edgeLabel;fontSize=12;fillColor=#FFFFFF;strokeColor=none;" value="git clone + bomtrace3 build" vertex="1">
+          <mxGeometry relative="1" x="-0.1" as="geometry">
+            <mxPoint x="-5" y="-1" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="a-repos-output" edge="1" parent="1" source="repos" style="endArrow=classic;strokeColor=#d6b656;strokeWidth=1;" target="output">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a-repos-output-label" connectable="0" parent="a-repos-output" style="edgeLabel;fontSize=12;fillColor=#FFFFFF;strokeColor=none;" value="generates SPDX, ADG, metadata" vertex="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="5" y="-14" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="clone-note" parent="1" style="text;fontSize=11;fontStyle=2;align=center;verticalAlign=middle;fillColor=#ffffcc;strokeColor=#d6b656;rounded=1;" value="New users clone repo →&#xa;.windsurf/ rules auto-load&#xa;into their Cascade AI" vertex="1">
+          <mxGeometry height="50" width="160" x="60" y="760" as="geometry" />
+        </mxCell>
+        <mxCell id="a-clone-note" edge="1" parent="1" source="github" style="endArrow=classic;strokeColor=#82b366;strokeWidth=1;dashed=1;" target="clone-note">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-box" parent="1" style="rounded=1;fillColor=#f9f9f9;strokeColor=#cccccc;strokeWidth=1;" value="" vertex="1">
+          <mxGeometry height="230" width="200" x="1140" y="850" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-title" parent="1" style="text;fontSize=15;fontStyle=1;align=center;verticalAlign=middle;fillColor=none;strokeColor=none;" value="Legend" vertex="1">
+          <mxGeometry height="20" width="100" x="1200" y="855" as="geometry" />
+        </mxCell>
+        <mxCell id="leg1" parent="1" style="rounded=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=1;fontSize=12;" value="" vertex="1">
+          <mxGeometry height="14" width="20" x="1155" y="884" as="geometry" />
+        </mxCell>
+        <mxCell id="leg1t" parent="1" style="text;fontSize=12;align=left;fillColor=none;strokeColor=none;" value="Windsurf IDE" vertex="1">
+          <mxGeometry height="18" width="100" x="1182" y="877" as="geometry" />
+        </mxCell>
+        <mxCell id="leg2" parent="1" style="rounded=1;fillColor=#b3cde3;strokeColor=#5c8eb8;strokeWidth=1;fontSize=12;" value="" vertex="1">
+          <mxGeometry height="14" width="20" x="1155" y="904" as="geometry" />
+        </mxCell>
+        <mxCell id="leg2t" parent="1" style="text;fontSize=12;align=left;fillColor=none;strokeColor=none;" value="Cascade AI (Claude)" vertex="1">
+          <mxGeometry height="18" width="130" x="1182" y="897" as="geometry" />
+        </mxCell>
+        <mxCell id="leg3" parent="1" style="rounded=1;fillColor=#d4edda;strokeColor=#5cb85c;strokeWidth=1;fontSize=12;" value="" vertex="1">
+          <mxGeometry height="14" width="20" x="1155" y="924" as="geometry" />
+        </mxCell>
+        <mxCell id="leg3t" parent="1" style="text;fontSize=12;align=left;fillColor=none;strokeColor=none;" value=".windsurf/ config" vertex="1">
+          <mxGeometry height="18" width="130" x="1182" y="917" as="geometry" />
+        </mxCell>
+        <mxCell id="leg4" parent="1" style="shape=cloud;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=1;" value="" vertex="1">
+          <mxGeometry height="18" width="30" x="1150" y="942" as="geometry" />
+        </mxCell>
+        <mxCell id="leg4t" parent="1" style="text;fontSize=12;align=left;fillColor=none;strokeColor=none;" value="GitHub" vertex="1">
+          <mxGeometry height="18" width="100" x="1182" y="937" as="geometry" />
+        </mxCell>
+        <mxCell id="leg5" parent="1" style="rounded=1;fillColor=#ffe6cc;strokeColor=#d79b00;strokeWidth=1;fontSize=12;" value="" vertex="1">
+          <mxGeometry height="14" width="20" x="1155" y="964" as="geometry" />
+        </mxCell>
+        <mxCell id="leg5t" parent="1" style="text;fontSize=12;align=left;fillColor=none;strokeColor=none;" value="AWS EC2" vertex="1">
+          <mxGeometry height="18" width="100" x="1182" y="957" as="geometry" />
+        </mxCell>
+        <mxCell id="leg6" parent="1" style="rounded=1;fillColor=#e1d5e7;strokeColor=#9673a6;strokeWidth=1;fontSize=12;" value="" vertex="1">
+          <mxGeometry height="14" width="20" x="1155" y="984" as="geometry" />
+        </mxCell>
+        <mxCell id="leg6t" parent="1" style="text;fontSize=12;align=left;fillColor=none;strokeColor=none;" value="Docker container" vertex="1">
+          <mxGeometry height="18" width="130" x="1182" y="977" as="geometry" />
+        </mxCell>
+        <mxCell id="leg7" parent="1" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=1;fontSize=12;" value="" vertex="1">
+          <mxGeometry height="14" width="20" x="1155" y="1004" as="geometry" />
+        </mxCell>
+        <mxCell id="leg7t" parent="1" style="text;fontSize=12;align=left;fillColor=none;strokeColor=none;" value="OmniBOR / build tools" vertex="1">
+          <mxGeometry height="18" width="130" x="1182" y="997" as="geometry" />
+        </mxCell>
+        <mxCell id="leg8" parent="1" style="rounded=1;fillColor=#f5f5f5;strokeColor=#666666;strokeWidth=1;fontSize=12;" value="" vertex="1">
+          <mxGeometry height="14" width="20" x="1155" y="1024" as="geometry" />
+        </mxCell>
+        <mxCell id="leg8t" parent="1" style="text;fontSize=12;align=left;fillColor=none;strokeColor=none;" value="Target repos" vertex="1">
+          <mxGeometry height="18" width="100" x="1182" y="1017" as="geometry" />
+        </mxCell>
+        <mxCell id="leg-page" parent="1" style="text;fontSize=9;fontStyle=3;align=center;verticalAlign=middle;fillColor=none;strokeColor=none;fontColor=#9673a6;" value="See Page 2 →&#xa;OmniBOR Container Detail" vertex="1">
+          <mxGeometry height="25" width="170" x="1160" y="1046" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

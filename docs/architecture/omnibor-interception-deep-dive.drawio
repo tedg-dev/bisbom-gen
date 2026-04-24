@@ -1,0 +1,556 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/29.6.6 Chrome/144.0.7559.236 Electron/40.8.4 Safari/537.36" version="29.6.6" pages="4">
+  <diagram name="1 - ptrace Mechanism Deep Dive" id="ptrace-deep-dive">
+    <mxGraphModel dx="1634" dy="834" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1200" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="p1-title" parent="1" style="text;html=1;fontSize=22;fontStyle=1;align=center" value="Deep Dive: ptrace-Based Build Interception Mechanism" vertex="1">
+          <mxGeometry height="40" width="800" x="400" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="p1-sub" parent="1" style="text;fontSize=11;align=center;fontColor=#666666" value="How bomtrace3 (patched strace v6.11) attaches to child processes and intercepts every execve() syscall during a build" vertex="1">
+          <mxGeometry height="25" width="900" x="350" y="55" as="geometry" />
+        </mxCell>
+        <mxCell id="tracer-box" parent="1" style="rounded=0;fillColor=none;strokeColor=#d6b656;strokeWidth=3" value="" vertex="1">
+          <mxGeometry height="920" width="440" x="40" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="tracer-lbl" parent="1" style="text;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=14;fontStyle=1;align=center;rounded=1" value="TRACER PROCESS: bomtrace3 (PID 1)" vertex="1">
+          <mxGeometry height="28" width="438" x="41" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="t1" parent="1" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=9;fontStyle=1" value="bomsh_init(argc, argv)&#xa;&#xa;bomsh_config.c&#xa;Parse bomsh CLI: -r raw_logfile -w watched_progs -v verbose&#xa;Open raw_logfile for writing&#xa;Construct new argv, call strace_init()" vertex="1">
+          <mxGeometry height="90" width="300" x="110" y="145" as="geometry" />
+        </mxCell>
+        <mxCell id="t2" parent="1" style="rounded=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=9;fontStyle=1" value="strace_init(new_argc, new_argv)&#xa;&#xa;strace.c&#xa;Parse strace args: -f -e trace=execve&#xa;fork() child → child calls exec(make)&#xa;Attach via ptrace(PTRACE_TRACEME)" vertex="1">
+          <mxGeometry height="90" width="300" x="110" y="255" as="geometry" />
+        </mxCell>
+        <mxCell id="t3" parent="1" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=9;fontStyle=1" value="bomsh_hook_init()&#xa;&#xa;bomsh_hook.c&#xa;Allocate bomsh_cmds[1024] hash table&#xa;(stores cmd_data per traced PID)" vertex="1">
+          <mxGeometry height="70" width="300" x="110" y="365" as="geometry" />
+        </mxCell>
+        <mxCell id="t4" parent="1" style="rounded=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;fontStyle=1;strokeWidth=2" value="dispatch_event() - Main Event Loop&#xa;&#xa;strace.c - waitpid() blocks until kernel&#xa;delivers ptrace event from any child" vertex="1">
+          <mxGeometry height="65" width="300" x="110" y="455" as="geometry" />
+        </mxCell>
+        <mxCell id="t5" parent="1" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=9;fontStyle=1" value="Event: PTRACE_EVENT_EXEC&#xa;&#xa;execve.c - decode_execve()&#xa;PATCHED: calls bomsh_record_command()&#xa;PRE-EXEC HOOK (before tool runs)" vertex="1">
+          <mxGeometry height="75" width="190" x="60" y="545" as="geometry" />
+        </mxCell>
+        <mxCell id="t6" parent="1" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=9;fontStyle=1" value="Event: TE_EXITED&#xa;&#xa;strace.c - dispatch_event()&#xa;PATCHED: calls bomsh_hook_program()&#xa;POST-EXEC HOOK (after tool exits)" vertex="1">
+          <mxGeometry height="75" width="190" x="270" y="545" as="geometry" />
+        </mxCell>
+        <mxCell id="t7" parent="1" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=8;align=left;spacingLeft=6;verticalAlign=top" value="&#xa;bomsh_record_command() does:&#xa;&#xa;1. copy_path(tcp) - read /proc/PID/exe&#xa;   Result: /usr/bin/gcc&#xa;&#xa;2. copy_argv_array(tcp) - read argv[0..N]&#xa;   Result: [gcc, -c, main.c, -o, main.o]&#xa;&#xa;3. bomsh_get_pwd(tcp)&#xa;   readlink /proc/PID/cwd&#xa;&#xa;4. Is it watched?&#xa;   is_cc_compiler() / is_cc_linker() / is_ar()&#xa;&#xa;5. bomsh_prehook_program(cmd)&#xa;   Parses argv, extracts -o, input files&#xa;   May inject -MD flags via PTRACE_POKEDATA&#xa;&#xa;6. bomsh_add_cmd()&#xa;   Store cmd_data in hash table" vertex="1">
+          <mxGeometry height="240" width="205" x="55" y="640" as="geometry" />
+        </mxCell>
+        <mxCell id="t8" parent="1" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=8;align=left;spacingLeft=6;verticalAlign=top" value="&#xa;bomsh_hook_program() does:&#xa;&#xa;1. bomsh_remove_cmd(pid)&#xa;   Retrieve stored cmd_data&#xa;&#xa;2. bomsh_process_shell_command(cmd, 0)&#xa;   For gcc: read .d dependency file&#xa;   Lists every #included header&#xa;&#xa;3. Hash every input file:&#xa;   calculate_sha256_omnibor()&#xa;   SHA256(&quot;blob {size}\0&quot; + content)&#xa;   = gitoid (same as git hash-object)&#xa;&#xa;&#xa;4. Hash the output file (now exists)&#xa;&#xa;5. bomsh_record_raw_info(cmd)&#xa;   Write to raw_logfile:&#xa;   outfile: {hash} path: {path}&#xa;   infile:  {hash} path: {path}&#xa;   dynlib:  {hash} path: {path}&#xa;&#xa;6. bomsh_free_cmd(cmd)" vertex="1">
+          <mxGeometry height="275" width="205" x="265" y="640" as="geometry" />
+        </mxCell>
+        <mxCell id="ta1" edge="1" parent="1" source="t1" style="strokeWidth=2;strokeColor=#333" target="t2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ta2" edge="1" parent="1" source="t2" style="strokeWidth=2;strokeColor=#333" target="t3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ta3" edge="1" parent="1" source="t3" style="strokeWidth=2;strokeColor=#333" target="t4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ta4" edge="1" parent="1" source="t4" style="strokeWidth=2;strokeColor=#333" target="t5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ta5" edge="1" parent="1" source="t4" style="strokeWidth=2;strokeColor=#333" target="t6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ta6" edge="1" parent="1" source="t5" style="strokeWidth=2;strokeColor=#333" target="t7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ta7" edge="1" parent="1" source="t6" style="strokeWidth=2;strokeColor=#333" target="t8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="kernel-box" parent="1" style="rounded=0;fillColor=none;strokeColor=#c62828;strokeWidth=3" value="" vertex="1">
+          <mxGeometry height="920" width="250" x="530" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="kernel-lbl" parent="1" style="text;fillColor=#ffcdd2;strokeColor=#c62828;fontSize=13;fontStyle=1;align=center;rounded=1" value="LINUX KERNEL (ptrace subsystem)" vertex="1">
+          <mxGeometry height="28" width="248" x="531" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="k1" parent="1" style="rounded=1;fillColor=#ffcdd2;strokeColor=#c62828;fontSize=9;fontStyle=1" value="ptrace(PTRACE_TRACEME)&#xa;Child requests tracing by parent" vertex="1">
+          <mxGeometry height="40" width="210" x="550" y="280" as="geometry" />
+        </mxCell>
+        <mxCell id="k2" parent="1" style="rounded=1;fillColor=#ffcdd2;strokeColor=#c62828;fontSize=9;fontStyle=1" value="execve() syscall intercepted&#xa;&#xa;Kernel pauses tracee,&#xa;delivers SIGTRAP to tracer&#xa;via waitpid()&#xa;Tracee is FROZEN" vertex="1">
+          <mxGeometry height="90" width="210" x="550" y="440" as="geometry" />
+        </mxCell>
+        <mxCell id="k3" parent="1" style="rounded=1;fillColor=#ffcdd2;strokeColor=#c62828;fontSize=9;fontStyle=1" value="PTRACE_PEEKDATA / POKEDATA&#xa;&#xa;PEEK: tracer reads tracee memory&#xa;(copies argv, path strings)&#xa;&#xa;POKE: tracer writes tracee memory&#xa;(injects -MD flags into gcc argv)" vertex="1">
+          <mxGeometry height="110" width="210" x="550" y="630" as="geometry" />
+        </mxCell>
+        <mxCell id="k4" parent="1" style="rounded=1;fillColor=#ffcdd2;strokeColor=#c62828;fontSize=9;fontStyle=1" value="PTRACE_CONT&#xa;Tracer resumes tracee&#xa;Tool executes normally" vertex="1">
+          <mxGeometry height="50" width="210" x="550" y="790" as="geometry" />
+        </mxCell>
+        <mxCell id="k5" parent="1" style="rounded=1;fillColor=#ffcdd2;strokeColor=#c62828;fontSize=9;fontStyle=1" value="Process exit()&#xa;Kernel delivers TE_EXITED to tracer" vertex="1">
+          <mxGeometry height="40" width="210" x="550" y="890" as="geometry" />
+        </mxCell>
+        <mxCell id="ka1" edge="1" parent="1" source="k1" style="strokeWidth=2;strokeColor=#c62828" target="k2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ka2" edge="1" parent="1" source="k2" style="strokeWidth=2;strokeColor=#c62828" target="k3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ka3" edge="1" parent="1" source="k3" style="strokeWidth=2;strokeColor=#c62828" target="k4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ka4" edge="1" parent="1" source="k4" style="strokeWidth=2;strokeColor=#c62828" target="k5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="xk1" edge="1" parent="1" source="t2" style="strokeWidth=2;strokeColor=#8A8A8A;dashed=1;dashPattern=4 4" target="k1" value="fork child">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="xk2" edge="1" parent="1" source="k2" style="strokeWidth=2;strokeColor=#8A8A8A;dashed=1;dashPattern=4 4" target="t4" value="waitpid() returns">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="xk3" edge="1" parent="1" source="t7" style="strokeWidth=2;strokeColor=#8A8A8A;dashed=1;dashPattern=4 4;exitX=0.973;exitY=0.076;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.005;entryY=0.195;entryDx=0;entryDy=0;entryPerimeter=0;" target="k3" value="read/write mem">
+          <mxGeometry relative="1" x="0.3062" y="-4" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="290" y="650" />
+              <mxPoint x="450" y="650" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="xk5" edge="1" parent="1" source="k5" style="strokeWidth=2;strokeColor=#8A8A8A;dashed=1;dashPattern=4 4;entryX=0.967;entryY=0.846;entryDx=0;entryDy=0;entryPerimeter=0;" target="t4" value="waitpid() returns">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="530" y="915" />
+              <mxPoint x="500" y="910" />
+              <mxPoint x="500" y="510" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="tracee-box" parent="1" style="rounded=0;fillColor=none;strokeColor=#6c8ebf;strokeWidth=3" value="" vertex="1">
+          <mxGeometry height="920" width="440" x="830" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="tracee-lbl" parent="1" style="text;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;fontStyle=1;align=center;rounded=1" value="TRACEE PROCESSES: Build Tools (children)" vertex="1">
+          <mxGeometry height="28" width="438" x="831" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="c-make" parent="1" style="rounded=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;fontStyle=1" value="make -j$(nproc)&#xa;Reads Makefile, spawns tools via fork()+execve()" vertex="1">
+          <mxGeometry height="45" width="300" x="900" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="c-gcc" parent="1" style="rounded=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=9;fontStyle=1" value="execve(gcc -c main.c -o main.o)&#xa;Kernel pauses here, tracer inspects&#xa;After PTRACE_CONT: compiles, exit(0)" vertex="1">
+          <mxGeometry height="55" width="300" x="900" y="290" as="geometry" />
+        </mxCell>
+        <mxCell id="c-ar" parent="1" style="rounded=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=9;fontStyle=1" value="execve(ar rcs libcurl.a *.o)&#xa;Kernel pauses, tracer inspects, CONT, exit(0)" vertex="1">
+          <mxGeometry height="45" width="300" x="900" y="400" as="geometry" />
+        </mxCell>
+        <mxCell id="c-ld" parent="1" style="rounded=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=9;fontStyle=1" value="execve(ld -o curl *.o *.a -lssl)&#xa;Kernel pauses, tracer inspects, CONT, exit(0)" vertex="1">
+          <mxGeometry height="45" width="300" x="900" y="500" as="geometry" />
+        </mxCell>
+        <mxCell id="c-dots" parent="1" style="text;fontSize=10;fontStyle=2;align=center;fontColor=#888" value="... repeated for every tool invocation ..." vertex="1">
+          <mxGeometry height="25" width="300" x="900" y="575" as="geometry" />
+        </mxCell>
+        <mxCell id="rawlog-p1" parent="1" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=8;align=left;spacingLeft=8;verticalAlign=top" value="bomsh_hook_raw_logfile (output)&#xa;&#xa;Record 1 (gcc):&#xa;outfile: 7a8b.. path: main.o&#xa;infile: 1234.. path: main.c&#xa;infile: abcd.. path: curl.h&#xa;infile: fedc.. path: stdio.h&#xa;&#xa;Record 2 (ar):&#xa;outfile: 2223.. path: libcurl.a&#xa;infile: aaa1.. path: x509.o&#xa;infile: bbb2.. path: ssl.o&#xa;&#xa;Record 3 (ld):&#xa;outfile: fff0.. path: curl&#xa;infile: 7a8b.. path: main.o&#xa;infile: 2223.. path: libcurl.a&#xa;dynlib: ccc5.. path: libssl.so" vertex="1">
+          <mxGeometry height="270" width="230" x="900" y="630" as="geometry" />
+        </mxCell>
+        <mxCell id="ca1" edge="1" parent="1" source="c-make" style="dashed=1;strokeColor=#666" target="c-gcc" value="fork+exec">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ca2" edge="1" parent="1" source="c-make" style="dashed=1;strokeColor=#666" target="c-ar">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ca3" edge="1" parent="1" source="c-make" style="dashed=1;strokeColor=#666" target="c-ld">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="xc1" edge="1" parent="1" source="k2" style="strokeWidth=2;strokeColor=#c62828;dashed=1;dashPattern=4 4" target="c-gcc" value="SIGTRAP">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="xc2" edge="1" parent="1" source="k4" style="strokeWidth=2;strokeColor=#c62828;dashed=1;dashPattern=4 4" target="c-ld" value="resume">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="n1" parent="1" style="shape=note;size=14;fillColor=#e0e0e0;strokeColor=#9e9e9e;fontSize=9;align=left;spacingLeft=5;verticalAlign=top;whiteSpace=wrap" value="KEY INSIGHT: Zero-instrumentation tracing&#xa;&#xa;bomtrace3 does NOT modify gcc, ar, or ld source code.&#xa;It uses the kernel ptrace() API to passively observe syscalls.&#xa;Build tools run their original, unmodified code.&#xa;&#xa;The ONLY modification is optional injection of -MD/-MF&#xa;flags into gcc argv (via PTRACE_POKEDATA) to force&#xa;dependency file generation. Does not affect output.&#xa;&#xa;Requirement: docker --cap-add=SYS_PTRACE&#xa;ptrace() is disabled by default in Docker." vertex="1">
+          <mxGeometry height="175" width="310" x="1300" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="n2" parent="1" style="shape=note;size=14;fillColor=#e0e0e0;strokeColor=#9e9e9e;fontSize=9;align=left;spacingLeft=5;verticalAlign=top;whiteSpace=wrap" value="PERFORMANCE:&#xa;&#xa;Each execve() interception = 2 context switches:&#xa;1. Tracee → Kernel → Tracer (pre-exec)&#xa;2. Tracer → Kernel → Tracee (PTRACE_CONT)&#xa;Plus one more pair at exit.&#xa;&#xa;For 1000 gcc invocations:&#xa;~4000 context switches + ~1000 file hashing ops.&#xa;Parallel -j builds amortize this overhead." vertex="1">
+          <mxGeometry height="155" width="310" x="1300" y="320" as="geometry" />
+        </mxCell>
+        <mxCell id="p1-leg" parent="1" style="rounded=0;fillColor=none;strokeColor=#999;dashed=1" value="" vertex="1">
+          <mxGeometry height="40" width="600" x="40" y="1040" as="geometry" />
+        </mxCell>
+        <mxCell id="p1lt" parent="1" style="text;fontSize=11;fontStyle=1;align=left" value="Legend:" vertex="1">
+          <mxGeometry height="25" width="50" x="50" y="1048" as="geometry" />
+        </mxCell>
+        <mxCell id="p1l1" parent="1" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656" value="" vertex="1">
+          <mxGeometry height="14" width="14" x="110" y="1052" as="geometry" />
+        </mxCell>
+        <mxCell id="p1l1t" parent="1" style="text;fontSize=9;align=left" value="bomsh code" vertex="1">
+          <mxGeometry height="18" width="65" x="128" y="1050" as="geometry" />
+        </mxCell>
+        <mxCell id="p1l2" parent="1" style="rounded=1;fillColor=#f5f5f5;strokeColor=#666" value="" vertex="1">
+          <mxGeometry height="14" width="14" x="200" y="1052" as="geometry" />
+        </mxCell>
+        <mxCell id="p1l2t" parent="1" style="text;fontSize=9;align=left" value="strace code" vertex="1">
+          <mxGeometry height="18" width="65" x="218" y="1050" as="geometry" />
+        </mxCell>
+        <mxCell id="p1l3" parent="1" style="rounded=1;fillColor=#ffcdd2;strokeColor=#c62828" value="" vertex="1">
+          <mxGeometry height="14" width="14" x="290" y="1052" as="geometry" />
+        </mxCell>
+        <mxCell id="p1l3t" parent="1" style="text;fontSize=9;align=left" value="Kernel" vertex="1">
+          <mxGeometry height="18" width="45" x="308" y="1050" as="geometry" />
+        </mxCell>
+        <mxCell id="p1l4" parent="1" style="rounded=1;fillColor=#dae8fc;strokeColor=#6c8ebf" value="" vertex="1">
+          <mxGeometry height="14" width="14" x="360" y="1052" as="geometry" />
+        </mxCell>
+        <mxCell id="p1l4t" parent="1" style="text;fontSize=9;align=left" value="Build tools" vertex="1">
+          <mxGeometry height="18" width="65" x="378" y="1050" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram name="2 - gcc/clang Compiler Interception" id="gcc-interception">
+    <mxGraphModel dx="1422" dy="1200" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1200" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="g-title" parent="1" style="text;html=1;fontSize=22;fontStyle=1;align=center" value="Deep Dive: gcc/clang Compiler Interception" vertex="1">
+          <mxGeometry height="40" width="700" x="450" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="g-sub" parent="1" style="text;fontSize=11;align=center;fontColor=#666" value="bomsh_process_gcc_command() - the most complex handler in bomsh_hook.c" vertex="1">
+          <mxGeometry height="25" width="700" x="450" y="55" as="geometry" />
+        </mxCell>
+        <!-- PRE-EXEC BOX -->
+        <mxCell id="pre-box" parent="1" style="rounded=0;fillColor=none;strokeColor=#d6b656;strokeWidth=3" value="" vertex="1">
+          <mxGeometry height="870" width="580" x="40" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="pre-lbl" parent="1" style="text;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=13;fontStyle=1;align=center;rounded=1" value="PRE-EXEC PHASE (before gcc runs)" vertex="1">
+          <mxGeometry height="26" width="578" x="41" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="g1" parent="1" style="rounded=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=9;fontStyle=1" value="Incoming cmd_data:&#xa;path = /usr/bin/gcc&#xa;argv = [gcc, -c, main.c, -o, main.o]&#xa;pwd = /workspace/repos/curl/src" vertex="1">
+          <mxGeometry height="65" width="260" x="200" y="145" as="geometry" />
+        </mxCell>
+        <mxCell id="g2" parent="1" style="rhombus;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;fontStyle=1" value="Is -c flag&#xa;in argv?&#xa;gcc_is_compile_only()" vertex="1">
+          <mxGeometry height="80" width="200" x="230" y="230" as="geometry" />
+        </mxCell>
+        <mxCell id="g3l" parent="1" style="rounded=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=9;fontStyle=1" value="Compile-only mode&#xa;Single .c → single .o" vertex="1">
+          <mxGeometry height="40" width="160" x="80" y="335" as="geometry" />
+        </mxCell>
+        <mxCell id="g3r" parent="1" style="rounded=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=9;fontStyle=1" value="Linking mode&#xa;Multiple .o/.a → binary" vertex="1">
+          <mxGeometry height="40" width="160" x="380" y="335" as="geometry" />
+        </mxCell>
+        <mxCell id="g4" parent="1" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=9;fontStyle=1" value="get_outfile_in_argv(argv)&#xa;Parse -o flag → output_file = main.o&#xa;If -o /dev/null → skip (preprocessor-only)" vertex="1">
+          <mxGeometry height="50" width="320" x="170" y="400" as="geometry" />
+        </mxCell>
+        <mxCell id="g5" parent="1" style="rhombus;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;fontStyle=1" value="Has -MD/-MMD&#xa;already?" vertex="1">
+          <mxGeometry height="70" width="170" x="245" y="475" as="geometry" />
+        </mxCell>
+        <mxCell id="g6l" parent="1" style="rounded=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=9" value="Dep file will be generated&#xa;by gcc automatically&#xa;No modification needed" vertex="1">
+          <mxGeometry height="50" width="180" x="60" y="575" as="geometry" />
+        </mxCell>
+        <mxCell id="g6r" parent="1" style="rounded=1;fillColor=#ffe0e0;strokeColor=#c62828;fontSize=8;strokeWidth=2;align=left;spacingLeft=6;verticalAlign=top" value="INJECT DEP FLAGS&#xa;bomsh_execve_instrument_for_dependency()&#xa;&#xa;Uses PTRACE_POKEDATA to write&#xa;into tracee stack memory:&#xa;  -MD -MF /tmp/bomsh_hook_target_&#xa;  dependency_pid{PID}&#xa;&#xa;Forces gcc to produce .d file&#xa;listing every included header" vertex="1">
+          <mxGeometry height="145" width="230" x="340" y="560" as="geometry" />
+        </mxCell>
+        <mxCell id="g7" parent="1" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=9;fontStyle=1" value="bomsh_add_cmd(tcp, pwd, root, path, argv)&#xa;Store cmd_data in bomsh_cmds[PID % 1024]" vertex="1">
+          <mxGeometry height="40" width="330" x="165" y="740" as="geometry" />
+        </mxCell>
+        <mxCell id="g8" parent="1" style="rounded=1;fillColor=#f5f5f5;strokeColor=#666;fontSize=11;fontStyle=1;align=center" value="PTRACE_CONT: gcc runs..." vertex="1">
+          <mxGeometry height="30" width="280" x="190" y="810" as="geometry" />
+        </mxCell>
+        <mxCell id="ga1" edge="1" parent="1" source="g1" target="g2" style="strokeWidth=2;strokeColor=#333">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ga2" edge="1" parent="1" source="g2" target="g3l" style="strokeWidth=2;strokeColor=#333" value="Yes">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ga3" edge="1" parent="1" source="g2" target="g3r" style="strokeWidth=2;strokeColor=#333" value="No">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ga4" edge="1" parent="1" source="g3l" target="g4" style="strokeWidth=2;strokeColor=#333">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ga5" edge="1" parent="1" source="g3r" target="g4" style="strokeWidth=2;strokeColor=#333">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ga6" edge="1" parent="1" source="g4" target="g5" style="strokeWidth=2;strokeColor=#333">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ga7" edge="1" parent="1" source="g5" target="g6l" style="strokeWidth=2;strokeColor=#333" value="Yes">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ga8" edge="1" parent="1" source="g5" target="g6r" style="strokeWidth=2;strokeColor=#333" value="No">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ga9" edge="1" parent="1" source="g6l" target="g7" style="strokeWidth=2;strokeColor=#333">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ga10" edge="1" parent="1" source="g6r" target="g7" style="strokeWidth=2;strokeColor=#333">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ga11" edge="1" parent="1" source="g7" target="g8" style="strokeWidth=2;strokeColor=#333">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <!-- POST-EXEC BOX -->
+        <mxCell id="post-box" parent="1" style="rounded=0;fillColor=none;strokeColor=#d6b656;strokeWidth=3" value="" vertex="1">
+          <mxGeometry height="870" width="580" x="680" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="post-lbl" parent="1" style="text;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=13;fontStyle=1;align=center;rounded=1" value="POST-EXEC PHASE (after gcc exits)" vertex="1">
+          <mxGeometry height="26" width="578" x="681" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="h1" parent="1" style="rounded=1;fillColor=#f5f5f5;strokeColor=#666;fontSize=11;fontStyle=1;align=center" value="gcc exits with status 0" vertex="1">
+          <mxGeometry height="30" width="280" x="830" y="150" as="geometry" />
+        </mxCell>
+        <mxCell id="h2" parent="1" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=9;fontStyle=1" value="bomsh_remove_cmd(PID)&#xa;Retrieve stored cmd_data from hash table" vertex="1">
+          <mxGeometry height="40" width="280" x="830" y="200" as="geometry" />
+        </mxCell>
+        <mxCell id="h3" parent="1" style="rhombus;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;fontStyle=1" value="Dependency&#xa;file exists?" vertex="1">
+          <mxGeometry height="65" width="140" x="900" y="265" as="geometry" />
+        </mxCell>
+        <mxCell id="h4l" parent="1" style="rounded=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=8;align=left;spacingLeft=5;verticalAlign=top" value="bomsh_cmd_read_depend_file()&#xa;&#xa;Reads .d file generated by gcc:&#xa;  main.o: main.c \&#xa;   curl.h stdio.h stdlib.h&#xa;&#xa;Parses into depends_array[]:&#xa;[main.c, curl.h, stdio.h, ...]&#xa;&#xa;Captures ALL transitive&#xa;#include dependencies!" vertex="1">
+          <mxGeometry height="160" width="210" x="710" y="360" as="geometry" />
+        </mxCell>
+        <mxCell id="h4r" parent="1" style="rounded=1;fillColor=#ffe0e0;strokeColor=#c62828;fontSize=9" value="Fallback: bomsh_try_get_gcc_subfiles()&#xa;Parse argv for .c files only&#xa;(misses transitive #includes)" vertex="1">
+          <mxGeometry height="55" width="210" x="1030" y="370" as="geometry" />
+        </mxCell>
+        <mxCell id="h5" parent="1" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=9;fontStyle=1" value="Hash every input file:&#xa;bomsh_get_hash() → calculate_sha256_omnibor()&#xa;SHA256(&quot;blob {size}\0&quot; + content) → 64 hex chars" vertex="1">
+          <mxGeometry height="55" width="340" x="800" y="560" as="geometry" />
+        </mxCell>
+        <mxCell id="h6" parent="1" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=9;fontStyle=1" value="Hash the output file (main.o)&#xa;File now exists after gcc completed" vertex="1">
+          <mxGeometry height="40" width="340" x="800" y="645" as="geometry" />
+        </mxCell>
+        <mxCell id="h7" parent="1" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=8;strokeWidth=2;align=left;spacingLeft=8;verticalAlign=top" value="bomsh_record_raw_info(cmd)&#xa;Write to raw_logfile:&#xa;&#xa;outfile: 7a8b9c.. path: /workspace/.../main.o&#xa;infile: 1234ab.. path: /workspace/.../main.c&#xa;infile: abcdef.. path: /workspace/.../curl.h&#xa;infile: fedcba.. path: /usr/include/stdio.h&#xa;infile: 112233.. path: /usr/include/stdlib.h" vertex="1">
+          <mxGeometry height="125" width="350" x="795" y="720" as="geometry" />
+        </mxCell>
+        <mxCell id="ha1" edge="1" parent="1" source="h1" target="h2" style="strokeWidth=2;strokeColor=#333">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ha2" edge="1" parent="1" source="h2" target="h3" style="strokeWidth=2;strokeColor=#333">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ha3" edge="1" parent="1" source="h3" target="h4l" style="strokeWidth=2;strokeColor=#333" value="Yes">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ha4" edge="1" parent="1" source="h3" target="h4r" style="strokeWidth=2;strokeColor=#333" value="No">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ha5" edge="1" parent="1" source="h4l" target="h5" style="strokeWidth=2;strokeColor=#333">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ha6" edge="1" parent="1" source="h4r" target="h5" style="strokeWidth=2;strokeColor=#333">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ha7" edge="1" parent="1" source="h5" target="h6" style="strokeWidth=2;strokeColor=#333">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ha8" edge="1" parent="1" source="h6" target="h7" style="strokeWidth=2;strokeColor=#333">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <!-- NOTES -->
+        <mxCell id="gn1" parent="1" style="shape=note;size=14;fillColor=#e0e0e0;strokeColor=#9e9e9e;fontSize=9;align=left;spacingLeft=5;verticalAlign=top;whiteSpace=wrap" value="WHY DEP FILE INJECTION MATTERS:&#xa;&#xa;Without -MD, gcc does NOT report which headers it opened.&#xa;To know the full #include graph:&#xa;&#xa;Option A: Trace every open() syscall (very expensive)&#xa;Option B: Ask gcc itself via -MD -MF flag (cheap)&#xa;&#xa;bomtrace3 uses Option B: inject the flag before gcc runs.&#xa;gcc then writes a .d file listing every header it included.&#xa;Same mechanism build systems use for incremental builds.&#xa;&#xa;Source: bomsh_hook.c&#xa;  bomsh_execve_instrument_for_dependency()" vertex="1">
+          <mxGeometry height="200" width="300" x="50" y="990" as="geometry" />
+        </mxCell>
+        <mxCell id="gn2" parent="1" style="shape=note;size=14;fillColor=#e0e0e0;strokeColor=#9e9e9e;fontSize=9;align=left;spacingLeft=5;verticalAlign=top;whiteSpace=wrap" value="GITOID HASH FORMAT (OmniBOR Standard):&#xa;&#xa;Identical to git hash-object:&#xa;SHA256(&quot;blob &quot; + decimal_size + &quot;\0&quot; + raw_bytes)&#xa;&#xa;Example for 1234-byte file:&#xa;SHA256(&quot;blob 1234\0&quot; + file_content) → 64 hex chars&#xa;&#xa;Verify: git hash-object --algorithm=sha256 file.c&#xa;produces the same hash as bomtrace3.&#xa;&#xa;Source: bomsh_hook.c&#xa;  calculate_sha256_omnibor()" vertex="1">
+          <mxGeometry height="190" width="300" x="400" y="990" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram name="3 - ar and ld Interception" id="ar-ld-interception">
+    <mxGraphModel dx="1422" dy="1200" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1200" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="al-title" parent="1" style="text;html=1;fontSize=22;fontStyle=1;align=center" value="Deep Dive: ar (Archiver) and ld (Linker) Interception" vertex="1">
+          <mxGeometry height="40" width="700" x="450" y="20" as="geometry" />
+        </mxCell>
+        <!-- AR SECTION -->
+        <mxCell id="ar-box" parent="1" style="rounded=0;fillColor=none;strokeColor=#d6b656;strokeWidth=3" value="" vertex="1">
+          <mxGeometry height="430" width="1500" x="40" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="ar-lbl" parent="1" style="text;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=14;fontStyle=1;align=center;rounded=1" value="ARCHIVER: bomsh_process_ar_command() - bomsh_hook.c" vertex="1">
+          <mxGeometry height="26" width="1498" x="41" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="ar-cmd" parent="1" style="rounded=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;fontStyle=1" value="Intercepted command:&#xa;ar rcs libcurl.a x509.o ssl.o http.o" vertex="1">
+          <mxGeometry height="40" width="310" x="60" y="125" as="geometry" />
+        </mxCell>
+        <mxCell id="ar-p1" parent="1" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=9" value="Parse argv:&#xa;argv[1] = &quot;rcs&quot; (operation flags)&#xa;argv[2] = libcurl.a → output_file&#xa;argv[3..N] = [x509.o, ssl.o, http.o] → input_files[]" vertex="1">
+          <mxGeometry height="65" width="310" x="60" y="185" as="geometry" />
+        </mxCell>
+        <mxCell id="ar-p2" parent="1" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=8;strokeWidth=2;align=left;spacingLeft=6;verticalAlign=top" value="PRE-EXEC: get_hash_of_infiles(cmd)&#xa;&#xa;Hash every .o input NOW (they already exist):&#xa;SHA256(x509.o) → aaa111..&#xa;SHA256(ssl.o)  → bbb222..&#xa;SHA256(http.o) → ccc333..&#xa;&#xa;Why pre-hash? For strip/ranlib the tool&#xa;modifies files in-place. Pre-hashing&#xa;captures the BEFORE state." vertex="1">
+          <mxGeometry height="150" width="250" x="60" y="270" as="geometry" />
+        </mxCell>
+        <mxCell id="ar-run" parent="1" style="rounded=1;fillColor=#f5f5f5;strokeColor=#666;fontSize=11;fontStyle=1;align=center" value="PTRACE_CONT → ar runs → exit(0)" vertex="1">
+          <mxGeometry height="30" width="250" x="500" y="280" as="geometry" />
+        </mxCell>
+        <mxCell id="ar-h1" parent="1" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=9;fontStyle=1" value="POST-EXEC: Hash output&#xa;SHA256(libcurl.a) → ddd444..&#xa;(file now exists)" vertex="1">
+          <mxGeometry height="50" width="230" x="850" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="ar-h2" parent="1" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=9;fontStyle=1;strokeWidth=2" value="bomsh_record_raw_info(cmd)&#xa;Write to raw_logfile" vertex="1">
+          <mxGeometry height="35" width="230" x="850" y="240" as="geometry" />
+        </mxCell>
+        <mxCell id="ar-log" parent="1" style="rounded=1;fillColor=#f0f0f0;strokeColor=#999;fontSize=9;align=left;spacingLeft=8;verticalAlign=top" value="outfile: ddd444.. path: libcurl.a&#xa;infile: aaa111.. path: x509.o&#xa;infile: bbb222.. path: ssl.o&#xa;infile: ccc333.. path: http.o" vertex="1">
+          <mxGeometry height="70" width="280" x="1200" y="200" as="geometry" />
+        </mxCell>
+        <mxCell id="ar-note" parent="1" style="shape=note;size=14;fillColor=#e0e0e0;strokeColor=#9e9e9e;fontSize=9;align=left;spacingLeft=5;verticalAlign=top;whiteSpace=wrap" value="KEY: Pre-hashing vs Post-hashing&#xa;&#xa;Input .o files are hashed in PRE-EXEC (already exist).&#xa;Output .a file is hashed in POST-EXEC (just created).&#xa;&#xa;For strip/ranlib (same-file operations), pre-hashing&#xa;captures the file BEFORE modification.&#xa;Critical for provenance tracking." vertex="1">
+          <mxGeometry height="120" width="280" x="60" y="440" as="geometry" />
+        </mxCell>
+        <mxCell id="ar-a1" edge="1" parent="1" source="ar-cmd" target="ar-p1" style="strokeWidth=2;strokeColor=#333">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ar-a2" edge="1" parent="1" source="ar-p1" target="ar-p2" style="strokeWidth=2;strokeColor=#333">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ar-a3" edge="1" parent="1" source="ar-p2" target="ar-run" style="strokeWidth=2;strokeColor=#333;exitX=1;exitY=0;exitDx=0;exitDy=0">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ar-a4" edge="1" parent="1" source="ar-run" target="ar-h1" style="strokeWidth=2;strokeColor=#333">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ar-a5" edge="1" parent="1" source="ar-h1" target="ar-h2" style="strokeWidth=2;strokeColor=#333">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ar-a6" edge="1" parent="1" source="ar-h2" target="ar-log" style="strokeWidth=2;strokeColor=#333">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <!-- LD SECTION -->
+        <mxCell id="ld-box" parent="1" style="rounded=0;fillColor=none;strokeColor=#d6b656;strokeWidth=3" value="" vertex="1">
+          <mxGeometry height="530" width="1500" x="40" y="540" as="geometry" />
+        </mxCell>
+        <mxCell id="ld-lbl" parent="1" style="text;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=14;fontStyle=1;align=center;rounded=1" value="LINKER: bomsh_process_ld_command() + get_all_subfiles_in_ld_cmdline() - bomsh_hook.c" vertex="1">
+          <mxGeometry height="26" width="1498" x="41" y="540" as="geometry" />
+        </mxCell>
+        <mxCell id="ld-cmd" parent="1" style="rounded=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;fontStyle=1" value="Intercepted command:&#xa;ld -o curl main.o libcurl.a -L/usr/lib -lssl -lcrypto -lz" vertex="1">
+          <mxGeometry height="40" width="430" x="60" y="590" as="geometry" />
+        </mxCell>
+        <mxCell id="ld-parse" parent="1" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=8;align=left;spacingLeft=6;verticalAlign=top" value="PRE-EXEC: get_all_subfiles_in_ld_cmdline()&#xa;&#xa;Parse argv token by token:&#xa;-o curl        → output_file&#xa;main.o         → input_files[] (static)&#xa;libcurl.a      → input_files[] (static archive)&#xa;-L/usr/lib     → library_paths[] (search path)&#xa;-lssl          → RESOLVE to filesystem path" vertex="1">
+          <mxGeometry height="125" width="260" x="60" y="650" as="geometry" />
+        </mxCell>
+        <mxCell id="ld-resolve" parent="1" style="rounded=1;fillColor=#b3e5fc;strokeColor=#0288d1;fontSize=8;strokeWidth=2;align=left;spacingLeft=6;verticalAlign=top" value="-l Library Resolution:&#xa;&#xa;For -lssl: search -L paths + system defaults&#xa;→ /usr/lib/x86_64-linux-gnu/libssl.so&#xa;&#xa;Resolved to dynlib_files[]&#xa;(NOT input_files[] - different!)&#xa;&#xa;This distinction enables SPDX to&#xa;differentiate STATIC_LINK from DYNAMIC_LINK" vertex="1">
+          <mxGeometry height="145" width="250" x="370" y="650" as="geometry" />
+        </mxCell>
+        <mxCell id="ld-run" parent="1" style="rounded=1;fillColor=#f5f5f5;strokeColor=#666;fontSize=11;fontStyle=1;align=center" value="PTRACE_CONT → ld runs → exit(0)" vertex="1">
+          <mxGeometry height="30" width="250" x="680" y="650" as="geometry" />
+        </mxCell>
+        <mxCell id="ld-h1" parent="1" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=9;fontStyle=1" value="POST-EXEC: Hash output binary&#xa;SHA256(curl) → fff000.." vertex="1">
+          <mxGeometry height="35" width="230" x="680" y="700" as="geometry" />
+        </mxCell>
+        <mxCell id="ld-h2" parent="1" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=9;fontStyle=1;strokeWidth=2" value="bomsh_record_raw_info(cmd)&#xa;Write to raw_logfile" vertex="1">
+          <mxGeometry height="35" width="230" x="680" y="755" as="geometry" />
+        </mxCell>
+        <mxCell id="ld-log" parent="1" style="rounded=1;fillColor=#f0f0f0;strokeColor=#999;fontSize=8;align=left;spacingLeft=8;verticalAlign=top" value="outfile: fff000.. path: curl&#xa;infile: 7a8b9c.. path: main.o&#xa;infile: ddd444.. path: libcurl.a&#xa;dynlib: ccc555.. path: /usr/lib/.../libssl.so&#xa;dynlib: eee777.. path: /usr/lib/.../libcrypto.so&#xa;dynlib: fff999.. path: /usr/lib/.../libz.so" vertex="1">
+          <mxGeometry height="95" width="330" x="1050" y="670" as="geometry" />
+        </mxCell>
+        <mxCell id="ld-note" parent="1" style="shape=note;size=14;fillColor=#e0e0e0;strokeColor=#9e9e9e;fontSize=9;align=left;spacingLeft=5;verticalAlign=top;whiteSpace=wrap" value="KEY: infile vs dynlib in raw logfile&#xa;&#xa;infile: = Statically linked (code embedded in binary)&#xa;  → SPDX relationship: STATIC_LINK&#xa;&#xa;dynlib: = Dynamically linked (loaded at runtime)&#xa;  → SPDX relationship: DYNAMIC_LINK&#xa;&#xa;This distinction is captured at build-interception time&#xa;by examining -l flags vs bare .o/.a arguments." vertex="1">
+          <mxGeometry height="150" width="300" x="1050" y="800" as="geometry" />
+        </mxCell>
+        <mxCell id="ld-a1" edge="1" parent="1" source="ld-cmd" target="ld-parse" style="strokeWidth=2;strokeColor=#333">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ld-a2" edge="1" parent="1" source="ld-parse" target="ld-resolve" style="strokeWidth=2;strokeColor=#333">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ld-a3" edge="1" parent="1" source="ld-resolve" target="ld-run" style="strokeWidth=2;strokeColor=#333">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ld-a4" edge="1" parent="1" source="ld-run" target="ld-h1" style="strokeWidth=2;strokeColor=#333">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ld-a5" edge="1" parent="1" source="ld-h1" target="ld-h2" style="strokeWidth=2;strokeColor=#333">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ld-a6" edge="1" parent="1" source="ld-h2" target="ld-log" style="strokeWidth=2;strokeColor=#333">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram name="4 - Raw Logfile to SPDX End-to-End" id="raw-to-spdx">
+    <mxGraphModel dx="1422" dy="1200" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1200" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="e-title" parent="1" style="text;html=1;fontSize=22;fontStyle=1;align=center" value="End-to-End: Raw Logfile to ADG/Treedb to SPDX 2.3 JSON" vertex="1">
+          <mxGeometry height="40" width="800" x="400" y="20" as="geometry" />
+        </mxCell>
+        <!-- bomsh layer -->
+        <mxCell id="rawlog" parent="1" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=8;align=left;spacingLeft=8;verticalAlign=top" value="bomsh_hook_raw_logfile (text)&#xa;&#xa;gcc record:&#xa;outfile: 7a8b.. path: main.o&#xa;infile: 1234.. path: main.c&#xa;infile: abcd.. path: curl.h&#xa;infile: fedc.. path: stdio.h&#xa;&#xa;ar record:&#xa;outfile: ddd4.. path: libcurl.a&#xa;infile: aaa1.. path: x509.o&#xa;infile: bbb2.. path: ssl.o&#xa;&#xa;ld record:&#xa;outfile: fff0.. path: curl&#xa;infile: 7a8b.. path: main.o&#xa;infile: ddd4.. path: libcurl.a&#xa;dynlib: ccc5.. path: libssl.so" vertex="1">
+          <mxGeometry height="260" width="230" x="40" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="bom-py" parent="1" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;fontStyle=1" value="bomsh_create_bom.py&#xa;(bomsh/scripts/)&#xa;Parses raw logfile,&#xa;builds dependency graph" vertex="1">
+          <mxGeometry height="65" width="200" x="370" y="160" as="geometry" />
+        </mxCell>
+        <mxCell id="treedb" parent="1" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=8;align=left;spacingLeft=8;verticalAlign=top" value="bomsh_omnibor_treedb (JSON)&#xa;&#xa;{ &quot;gitoid:sha256:1234..&quot;:&#xa;    { &quot;file_path&quot;: &quot;main.c&quot; },&#xa;  &quot;gitoid:sha256:7a8b..&quot;:&#xa;    { &quot;file_path&quot;: &quot;main.o&quot;,&#xa;      &quot;build_cmd&quot;: &quot;gcc -c..&quot; },&#xa;  ... }&#xa;&#xa;Maps: gitoid hash → file path" vertex="1">
+          <mxGeometry height="150" width="220" x="370" y="290" as="geometry" />
+        </mxCell>
+        <mxCell id="adg" parent="1" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=8;align=left;spacingLeft=8;verticalAlign=top" value="ADG (.omnibor/ directory)&#xa;&#xa;One file per output artifact:&#xa;gitoid_sha256_fff0..&#xa;  (for curl binary)&#xa;  blob gitoid:sha256:7a8b..&#xa;  blob gitoid:sha256:ddd4..&#xa;&#xa;Maps: output → all its inputs&#xa;(OmniBOR standard format)" vertex="1">
+          <mxGeometry height="145" width="220" x="370" y="465" as="geometry" />
+        </mxCell>
+        <mxCell id="e-a1" edge="1" parent="1" source="rawlog" target="bom-py" style="strokeWidth=2;strokeColor=#333">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-a2" edge="1" parent="1" source="bom-py" target="treedb" style="strokeWidth=2;strokeColor=#333">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-a3" edge="1" parent="1" source="bom-py" target="adg" style="strokeWidth=2;strokeColor=#333">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <!-- divider -->
+        <mxCell id="div" parent="1" style="line;strokeWidth=3;strokeColor=#111;dashed=1" value="" vertex="1">
+          <mxGeometry height="10" width="1500" x="40" y="660" as="geometry" />
+        </mxCell>
+        <mxCell id="oa-title" parent="1" style="text;fontSize=16;fontStyle=1" value="omnibor-analysis Pipeline (Python)" vertex="1">
+          <mxGeometry height="25" width="350" x="40" y="690" as="geometry" />
+        </mxCell>
+        <!-- omnibor-analysis layer -->
+        <mxCell id="adg-in" parent="1" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;fontStyle=1" value="ADG + treedb" vertex="1">
+          <mxGeometry height="35" width="100" x="40" y="740" as="geometry" />
+        </mxCell>
+        <mxCell id="bin-in" parent="1" style="rounded=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;fontStyle=1" value="Binaries" vertex="1">
+          <mxGeometry height="35" width="100" x="40" y="900" as="geometry" />
+        </mxCell>
+        <mxCell id="parser" parent="1" style="rounded=1;fillColor=#e6d0de;strokeColor=#996185;fontSize=8;align=left;spacingLeft=5;verticalAlign=top" value="AdgParser (app/spdx/parser.py)&#xa;&#xa;Reads treedb, classifies artifacts:&#xa;/usr/lib/... → system_lib&#xa;/usr/include/... → system_header&#xa;/workspace/repos/... → project_source&#xa;*.o → build_intermediate&#xa;crt*.o → crt_object" vertex="1">
+          <mxGeometry height="120" width="200" x="200" y="720" as="geometry" />
+        </mxCell>
+        <mxCell id="vendored" parent="1" style="rounded=1;fillColor=#e6d0de;strokeColor=#996185;fontSize=8;align=left;spacingLeft=5;verticalAlign=top" value="VendoredVersionDetector&#xa;(app/version_detection.py)&#xa;&#xa;12 strategies:&#xa;configure.ac, CMakeLists.txt,&#xa;#define VERSION, Cargo.toml,&#xa;go.mod, pom.xml, git tags..." vertex="1">
+          <mxGeometry height="105" width="200" x="440" y="720" as="geometry" />
+        </mxCell>
+        <mxCell id="dynlibs" parent="1" style="rounded=1;fillColor=#e6d0de;strokeColor=#996185;fontSize=8;align=left;spacingLeft=5;verticalAlign=top" value="collect_dynamic_libs.py&#xa;&#xa;Runs ldd on each binary&#xa;→ .so paths&#xa;Runs dpkg -S to resolve&#xa;.so → apt package + version" vertex="1">
+          <mxGeometry height="95" width="180" x="200" y="870" as="geometry" />
+        </mxCell>
+        <mxCell id="emitter" parent="1" style="rounded=1;fillColor=#e6d0de;strokeColor=#996185;fontSize=8;fontStyle=1;align=left;spacingLeft=5;verticalAlign=top" value="SpdxEmitter (app/spdx/emitter.py)&#xa;&#xa;Assembles SPDX 2.3 JSON:&#xa;- Document metadata (namespace, creators)&#xa;- Root binary package&#xa;- Static-link packages (from infile: records)&#xa;- Dynamic-link packages (from dynlib:)&#xa;- Build tool packages (gcc, ld)&#xa;- Source file entries (.c, .h)&#xa;- ExternalRefs: PURL, CPE, gitoid" vertex="1">
+          <mxGeometry height="145" width="230" x="700" y="740" as="geometry" />
+        </mxCell>
+        <mxCell id="spdx-out" parent="1" style="rounded=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;fontStyle=1;align=center" value="SPDX 2.3 JSON&#xa;(*_build.spdx.json)" vertex="1">
+          <mxGeometry height="40" width="150" x="1000" y="750" as="geometry" />
+        </mxCell>
+        <mxCell id="viz" parent="1" style="rounded=1;fillColor=#e6d0de;strokeColor=#996185;fontSize=9" value="spdx_visualize.py&#xa;(D3.js generator)" vertex="1">
+          <mxGeometry height="35" width="150" x="1000" y="815" as="geometry" />
+        </mxCell>
+        <mxCell id="html-out" parent="1" style="rounded=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;fontStyle=1;align=center" value="Interactive HTML&#xa;(*.spdx.html)" vertex="1">
+          <mxGeometry height="40" width="150" x="1000" y="875" as="geometry" />
+        </mxCell>
+        <mxCell id="ea1" edge="1" parent="1" source="adg-in" target="parser" style="strokeWidth=2;strokeColor=#333">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ea2" edge="1" parent="1" source="parser" target="vendored" style="strokeWidth=2;strokeColor=#333">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ea3" edge="1" parent="1" source="bin-in" target="dynlibs" style="strokeWidth=2;strokeColor=#333">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ea4" edge="1" parent="1" source="parser" target="emitter" style="strokeWidth=2;strokeColor=#333">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ea5" edge="1" parent="1" source="vendored" target="emitter" style="strokeWidth=2;strokeColor=#333">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ea6" edge="1" parent="1" source="dynlibs" target="emitter" style="strokeWidth=2;strokeColor=#333">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ea7" edge="1" parent="1" source="emitter" target="spdx-out" style="strokeWidth=2;strokeColor=#333">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ea8" edge="1" parent="1" source="spdx-out" target="viz" style="strokeWidth=2;strokeColor=#333">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ea9" edge="1" parent="1" source="viz" target="html-out" style="strokeWidth=2;strokeColor=#333">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <!-- NOTES -->
+        <mxCell id="rel-note" parent="1" style="shape=note;size=14;fillColor=#e0e0e0;strokeColor=#9e9e9e;fontSize=9;align=left;spacingLeft=5;verticalAlign=top;whiteSpace=wrap" value="SPDX Relationship Type Mapping:&#xa;&#xa;infile: .o/.a in raw logfile → STATIC_LINK&#xa;  Code is embedded in binary at build time&#xa;&#xa;dynlib: .so in raw logfile → DYNAMIC_LINK&#xa;  Library loaded at runtime by ld-linux.so&#xa;&#xa;gcc/ld tool usage → BUILD_TOOL_OF&#xa;  Tool used during compilation/linking&#xa;&#xa;.c/.h source files → CONTAINS&#xa;  Source compiled into the binary" vertex="1">
+          <mxGeometry height="180" width="260" x="1220" y="730" as="geometry" />
+        </mxCell>
+        <mxCell id="term-note" parent="1" style="shape=note;size=14;fillColor=#e0e0e0;strokeColor=#9e9e9e;fontSize=9;align=left;spacingLeft=5;verticalAlign=top;whiteSpace=wrap" value="TERMINOLOGY:&#xa;&#xa;gitoid: Git Object ID&#xa;  SHA256(&quot;blob {size}\0&quot; + content)&#xa;ADG: Artifact Dependency Graph (OmniBOR)&#xa;treedb: bomsh JSON mapping gitoid → path&#xa;SPDX: ISO/IEC 5962:2021 SBOM standard&#xa;PURL: Package URL (pkg:deb/ubuntu/...)&#xa;CPE: Common Platform Enumeration (NIST)&#xa;SBOM: Software Bill of Materials" vertex="1">
+          <mxGeometry height="155" width="260" x="1220" y="930" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
