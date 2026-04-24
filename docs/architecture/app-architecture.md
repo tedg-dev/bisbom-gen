@@ -120,7 +120,7 @@ app/pipeline/runners.py          # CLI main() + language-specific runners
          └─ app/config.py
 ```
 
-## 3. SPDX Generation (spdx_from_adg.py)
+## 3. SPDX Generation (`spdx_from_adg.py`)
 
 `spdx_from_adg.py` is a backward-compatibility **shim** that re-exports
 everything from the refactored `app/spdx/` package. New code should
@@ -178,7 +178,7 @@ and appear in the sibling's own SPDX file instead.
 | `cli.py` | `main()` | Standalone CLI for `python3 -m app.spdx_from_adg` |
 | `version_detector.py` | — | Backward-compat shim → `app.version_detection` |
 
-## 4. Visualization (spdx_visualize.py)
+## 4. Visualization (`spdx_visualize.py`)
 
 `spdx_visualize.py` is the **orchestrator** that reads an SPDX JSON
 document and assembles a standalone HTML file from modular parts in
@@ -254,7 +254,7 @@ app/compare.py
  └─ ComparisonPipeline  # Facade orchestrating the above
 ```
 
-## 6. Repo Discovery (add_repo.py)
+## 6. Repo Discovery (`add_repo.py`)
 
 `add_repo.py` auto-discovers build system, dependencies, and output
 binaries for a GitHub repository and generates a `config.yaml` entry.
