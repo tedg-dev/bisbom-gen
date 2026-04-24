@@ -280,6 +280,156 @@ class TestAdgParser(unittest.TestCase):
                 "/gone/X.java", result
             )
 
+    def test_get_jar_source_files_basic(self):
+        """Extracts sources for project JARs."""
+        with tempfile.TemporaryDirectory() as td:
+            meta = self._setup_bom_dir(td)
+            treedb = {
+                "jar_sha": {
+                    "file_path": (
+                        "/repos/myapp/target/app.jar"
+                    ),
+                    "hash_tree": ["cls_sha"],
+                },
+                "cls_sha": {
+                    "file_path": (
+                        "/repos/myapp/target/"
+                        "classes/App.class"
+                    ),
+                    "hash_tree": ["src_sha"],
+                },
+                "src_sha": {
+                    "file_path": (
+                        "/repos/myapp/src/App.java"
+                    ),
+                },
+            }
+            (meta / "bomsh_omnibor_treedb").write_text(
+                json.dumps(treedb)
+            )
+            parser = AdgParser(
+                str(Path(td) / "bom"), "/repos"
+            )
+            result = parser.get_jar_source_files()
+            self.assertIn(
+                "myapp/target/app.jar", result
+            )
+            sources = result["myapp/target/app.jar"]
+            paths = [s["file_path"] for s in sources]
+            self.assertTrue(
+                any("App.java" in p for p in paths)
+            )
+            self.assertTrue(
+                any("App.class" in p for p in paths)
+            )
+
+    def test_get_jar_source_files_skips_test_jars(self):
+        """Excludes test JARs and non-project JARs."""
+        with tempfile.TemporaryDirectory() as td:
+            meta = self._setup_bom_dir(td)
+            treedb = {
+                "test_jar": {
+                    "file_path": (
+                        "/repos/myapp/target/"
+                        "app-tests.jar"
+                    ),
+                    "hash_tree": ["c1"],
+                },
+                "test_cls_jar": {
+                    "file_path": (
+                        "/repos/myapp/target/"
+                        "test-classes/Test.jar"
+                    ),
+                    "hash_tree": ["c2"],
+                },
+                "system_jar": {
+                    "file_path": "/usr/lib/rt.jar",
+                    "hash_tree": ["c3"],
+                },
+                "no_tree": {
+                    "file_path": (
+                        "/repos/myapp/target/x.jar"
+                    ),
+                },
+                "test_dir_jar": {
+                    "file_path": (
+                        "/repos/myapp/target/test/"
+                        "foo.jar"
+                    ),
+                    "hash_tree": ["c4"],
+                },
+                "c1": {"file_path": "/f1"},
+                "c2": {"file_path": "/f2"},
+                "c3": {"file_path": "/f3"},
+                "c4": {"file_path": "/f4"},
+            }
+            (meta / "bomsh_omnibor_treedb").write_text(
+                json.dumps(treedb)
+            )
+            parser = AdgParser(
+                str(Path(td) / "bom"), "/repos"
+            )
+            result = parser.get_jar_source_files()
+            self.assertEqual(len(result), 0)
+
+    def test_get_jar_source_files_missing_class(self):
+        """Handles class SHA not in treedb."""
+        with tempfile.TemporaryDirectory() as td:
+            meta = self._setup_bom_dir(td)
+            treedb = {
+                "jar_sha": {
+                    "file_path": (
+                        "/repos/myapp/target/app.jar"
+                    ),
+                    "hash_tree": ["missing_cls"],
+                },
+            }
+            (meta / "bomsh_omnibor_treedb").write_text(
+                json.dumps(treedb)
+            )
+            parser = AdgParser(
+                str(Path(td) / "bom"), "/repos"
+            )
+            result = parser.get_jar_source_files()
+            # JAR has no resolvable sources
+            self.assertEqual(len(result), 0)
+
+    def test_get_jar_source_files_no_source_tree(self):
+        """Class without hash_tree still included."""
+        with tempfile.TemporaryDirectory() as td:
+            meta = self._setup_bom_dir(td)
+            treedb = {
+                "jar_sha": {
+                    "file_path": (
+                        "/repos/myapp/target/app.jar"
+                    ),
+                    "hash_tree": ["cls_sha"],
+                },
+                "cls_sha": {
+                    "file_path": (
+                        "/repos/myapp/target/"
+                        "classes/App.class"
+                    ),
+                },
+            }
+            (meta / "bomsh_omnibor_treedb").write_text(
+                json.dumps(treedb)
+            )
+            parser = AdgParser(
+                str(Path(td) / "bom"), "/repos"
+            )
+            result = parser.get_jar_source_files()
+            self.assertIn(
+                "myapp/target/app.jar", result
+            )
+            # Only the class file, no source
+            sources = result["myapp/target/app.jar"]
+            self.assertEqual(len(sources), 1)
+            self.assertIn(
+                "App.class",
+                sources[0]["file_path"],
+            )
+
     def test_classify_empty_filepath(self):
         """Entries with empty file_path are skipped."""
         with tempfile.TemporaryDirectory() as td:

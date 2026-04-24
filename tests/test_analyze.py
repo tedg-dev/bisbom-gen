@@ -397,6 +397,142 @@ class TestBomtraceBuilder(unittest.TestCase):
         )
 
 
+class TestBomtraceBuilderJava(unittest.TestCase):
+    """Tests for BomtraceBuilder.build_java()."""
+
+    def _java_cfg(self, td):
+        repo_dir = Path(td) / "repos" / "myapp"
+        repo_dir.mkdir(parents=True)
+        return (
+            {
+                "build_steps": [
+                    "mvn package -DskipTests",
+                ],
+                "clean_cmd": "mvn clean",
+                "language": "java",
+            },
+            {
+                "repos_dir": str(Path(td) / "repos"),
+                "output_dir": str(Path(td) / "output"),
+            },
+            {
+                "strace_opts": "-f -e trace=openat",
+                "strace_logfile": str(
+                    Path(td) / "strace.log"
+                ),
+                "create_bom_script": "/opt/bomsh/bom_java.py",
+            },
+        )
+
+    def test_success_with_strace_log(self):
+        runner = MagicMock()
+        runner.run.return_value = 0
+        builder = BomtraceBuilder(runner)
+        with tempfile.TemporaryDirectory() as td:
+            repo_cfg, paths, java_cfg = self._java_cfg(td)
+            # Create strace log so archive succeeds
+            Path(java_cfg["strace_logfile"]).write_text(
+                "1 openat(AT_FDCWD, \"/f\", 0) = 3\n"
+            )
+            with patch("builtins.print"):
+                result = builder.build_java(
+                    "myapp", repo_cfg, paths, java_cfg
+                )
+            self.assertTrue(result)
+            # clean + instrumented build + treedb gen = 3
+            self.assertEqual(runner.run.call_count, 3)
+            # Verify strace log was archived
+            bom_dir = list(
+                (Path(td) / "output" / "omnibor"
+                 / "java" / "myapp").iterdir()
+            )[0]
+            archive = (
+                bom_dir / "metadata" / "bomsh"
+                / "strace_java_logfile"
+            )
+            self.assertTrue(archive.exists())
+
+    def test_success_strace_log_missing(self):
+        runner = MagicMock()
+        runner.run.return_value = 0
+        builder = BomtraceBuilder(runner)
+        with tempfile.TemporaryDirectory() as td:
+            repo_cfg, paths, java_cfg = self._java_cfg(td)
+            # No strace log file created
+            printed = []
+            with patch(
+                "builtins.print",
+                side_effect=lambda *a, **kw: (
+                    printed.append(
+                        " ".join(str(x) for x in a)
+                    )
+                ),
+            ):
+                result = builder.build_java(
+                    "myapp", repo_cfg, paths, java_cfg
+                )
+            self.assertTrue(result)
+            self.assertTrue(
+                any("WARN" in p for p in printed)
+            )
+
+    def test_no_clean_cmd(self):
+        runner = MagicMock()
+        runner.run.return_value = 0
+        builder = BomtraceBuilder(runner)
+        with tempfile.TemporaryDirectory() as td:
+            repo_cfg, paths, java_cfg = self._java_cfg(td)
+            del repo_cfg["clean_cmd"]
+            with patch("builtins.print"):
+                result = builder.build_java(
+                    "myapp", repo_cfg, paths, java_cfg
+                )
+            self.assertTrue(result)
+            # no clean + instrumented + treedb = 2
+            self.assertEqual(runner.run.call_count, 2)
+
+    def test_prebuild_failure(self):
+        runner = MagicMock()
+        runner.run.side_effect = [0, 1]
+        builder = BomtraceBuilder(runner)
+        with tempfile.TemporaryDirectory() as td:
+            repo_cfg, paths, java_cfg = self._java_cfg(td)
+            repo_cfg["build_steps"] = [
+                "mvn validate", "mvn package",
+            ]
+            with patch("builtins.print"):
+                result = builder.build_java(
+                    "myapp", repo_cfg, paths, java_cfg
+                )
+            self.assertFalse(result)
+
+    def test_instrumented_build_failure(self):
+        runner = MagicMock()
+        # clean ok, instrumented build fails
+        runner.run.side_effect = [0, 1]
+        builder = BomtraceBuilder(runner)
+        with tempfile.TemporaryDirectory() as td:
+            repo_cfg, paths, java_cfg = self._java_cfg(td)
+            with patch("builtins.print"):
+                result = builder.build_java(
+                    "myapp", repo_cfg, paths, java_cfg
+                )
+            self.assertFalse(result)
+
+    def test_create_bom_failure(self):
+        runner = MagicMock()
+        # clean ok, build ok, create_bom fails
+        runner.run.side_effect = [0, 0, 1]
+        builder = BomtraceBuilder(runner)
+        with tempfile.TemporaryDirectory() as td:
+            repo_cfg, paths, java_cfg = self._java_cfg(td)
+            with patch("builtins.print"):
+                result = builder.build_java(
+                    "myapp", repo_cfg, paths, java_cfg
+                )
+            self.assertFalse(result)
+
+
 # ============================================================
 # SpdxGenerator
 # ============================================================
@@ -1596,6 +1732,53 @@ class TestSyftGenerator(unittest.TestCase):
             output = "\n".join(printed)
             self.assertIn("WARN", output)
 
+    def test_viz_exception_caught(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            runner = MagicMock()
+            spdx_dir = (
+                Path(tmpdir) / "spdx" / "c-cpp"
+                / "curl" / "ts1"
+            )
+            spdx_dir.mkdir(parents=True)
+            spdx_file = (
+                spdx_dir / "curl_syft.spdx.json"
+            )
+
+            def fake_run(cmd, **kw):
+                import json
+                spdx_file.write_text(
+                    json.dumps({"packages": []})
+                )
+                return 0
+
+            runner.run.side_effect = fake_run
+            gen = SyftGenerator(runner)
+            repo_cfg = {"language": "c-cpp"}
+            paths = {
+                "repos_dir": tmpdir,
+                "output_dir": tmpdir,
+            }
+
+            printed = []
+            with patch(
+                "builtins.print",
+                side_effect=lambda *a, **kw: (
+                    printed.append(
+                        " ".join(str(x) for x in a)
+                    )
+                ),
+            ):
+                with patch(
+                    "spdx_visualize.generate_html",
+                    side_effect=Exception("boom"),
+                ):
+                    gen.generate(
+                        "curl", repo_cfg, paths,
+                        run_ts="ts1",
+                    )
+            output = "\n".join(printed)
+            self.assertIn("visualization", output)
+
 
 # ============================================================
 # BinaryCollector
@@ -1704,6 +1887,78 @@ class TestBinaryCollector(unittest.TestCase):
         self.assertEqual(len(result), 0)
         output = "\n".join(printed)
         self.assertIn("No output_binaries", output)
+
+    @patch("app.pipeline.binary_collector.timestamp", return_value="2026-02-12_1300")
+    def test_collect_glob_pattern(self, _ts):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            repo_dir = Path(tmpdir) / "repos" / "jsoup"
+            target = repo_dir / "target"
+            target.mkdir(parents=True)
+            (target / "jsoup-1.17.jar").write_bytes(
+                b"jar1"
+            )
+            (target / "jsoup-1.17-sources.jar").write_bytes(
+                b"src"
+            )
+            (target / "jsoup-1.17-javadoc.jar").write_bytes(
+                b"doc"
+            )
+
+            paths = {
+                "repos_dir": str(Path(tmpdir) / "repos"),
+                "output_dir": str(
+                    Path(tmpdir) / "output"
+                ),
+            }
+            cfg = {
+                "output_binaries": ["target/jsoup-*.jar"],
+                "language": "java",
+            }
+
+            with patch("builtins.print"):
+                result = BinaryCollector.collect(
+                    "jsoup", cfg, paths
+                )
+            # Only production JAR, not sources/javadoc
+            self.assertEqual(len(result), 1)
+            self.assertIn(
+                "jsoup-1.17.jar",
+                Path(result[0][1]).name,
+            )
+
+    @patch("app.pipeline.binary_collector.timestamp", return_value="2026-02-12_1300")
+    def test_collect_glob_no_match(self, _ts):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            repo_dir = Path(tmpdir) / "repos" / "myapp"
+            repo_dir.mkdir(parents=True)
+
+            paths = {
+                "repos_dir": str(Path(tmpdir) / "repos"),
+                "output_dir": str(
+                    Path(tmpdir) / "output"
+                ),
+            }
+            cfg = {
+                "output_binaries": ["target/*.jar"],
+                "language": "java",
+            }
+
+            printed = []
+            with patch(
+                "builtins.print",
+                side_effect=lambda *a, **kw: (
+                    printed.append(
+                        " ".join(str(x) for x in a)
+                    )
+                ),
+            ):
+                result = BinaryCollector.collect(
+                    "myapp", cfg, paths
+                )
+            self.assertEqual(len(result), 0)
+            self.assertTrue(
+                any("No files match" in p for p in printed)
+            )
 
     @patch("app.pipeline.binary_collector.timestamp", return_value="2026-02-12_1300")
     def test_collect_multiple_binaries(self, _ts):

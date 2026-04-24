@@ -1047,20 +1047,36 @@ class TestConfigGenerator(unittest.TestCase):
         tmp_path.unlink()
 
     def test_create_output_dirs(self):
+        import app.repo_discovery.config_generator as cg
         with tempfile.TemporaryDirectory() as tmpdir:
-            tmp = Path(tmpdir)
-            # Simulate the logic of create_output_dirs
-            dirs = [
-                tmp / "output" / "omnibor" / "test",
-                tmp / "output" / "spdx" / "test",
-                tmp / "output" / "binary-scan"
-                / "test",
-                tmp / "docs" / "test",
-            ]
-            for d in dirs:
-                d.mkdir(parents=True, exist_ok=True)
-            for d in dirs:
-                self.assertTrue(d.exists())
+            fake_file = str(
+                Path(tmpdir) / "repo_discovery"
+                / "config_generator.py"
+            )
+            (Path(tmpdir) / "repo_discovery").mkdir()
+            with patch.object(
+                cg, "__file__", fake_file
+            ):
+                with patch("builtins.print"):
+                    ConfigGenerator.create_output_dirs(
+                        "test"
+                    )
+            self.assertTrue(
+                (Path(tmpdir) / "output"
+                 / "omnibor" / "test").exists()
+            )
+            self.assertTrue(
+                (Path(tmpdir) / "output"
+                 / "spdx" / "test").exists()
+            )
+            self.assertTrue(
+                (Path(tmpdir) / "output"
+                 / "binary-scan" / "test").exists()
+            )
+            self.assertTrue(
+                (Path(tmpdir) / "docs"
+                 / "test").exists()
+            )
 
     def test_get_repo_stats(self):
         github = MagicMock()
