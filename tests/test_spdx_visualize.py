@@ -364,5 +364,397 @@ class TestMain(unittest.TestCase):
             self.assertTrue(out.exists())
 
 
+class TestConditionalLegends(unittest.TestCase):
+    """Cover _build_conditional_legends branches."""
+
+    def test_build_deep_legend(self):
+        from spdx_visualize import _build_conditional_legends
+        bl, gl = _build_conditional_legends(
+            {"build_deep": 3}
+        )
+        self.assertIn("Build tool chain", bl)
+        self.assertIn("(3)", bl)
+        self.assertEqual(gl, "")
+
+    def test_go_stdlib_legend(self):
+        from spdx_visualize import _build_conditional_legends
+        bl, gl = _build_conditional_legends(
+            {"go_stdlib": 5}
+        )
+        self.assertEqual(bl, "")
+        self.assertIn("Go stdlib", gl)
+        self.assertIn("(5)", gl)
+
+    def test_go_direct_legend(self):
+        from spdx_visualize import _build_conditional_legends
+        bl, gl = _build_conditional_legends(
+            {"go_direct": 2}
+        )
+        self.assertIn("Go direct", gl)
+
+    def test_go_indirect_legend(self):
+        from spdx_visualize import _build_conditional_legends
+        bl, gl = _build_conditional_legends(
+            {"go_indirect": 7}
+        )
+        self.assertIn("Go indirect", gl)
+
+    def test_all_go_legends(self):
+        from spdx_visualize import _build_conditional_legends
+        bl, gl = _build_conditional_legends({
+            "go_stdlib": 1,
+            "go_direct": 2,
+            "go_indirect": 3,
+        })
+        self.assertIn("Go stdlib", gl)
+        self.assertIn("Go direct", gl)
+        self.assertIn("Go indirect", gl)
+
+
+class TestExtractGraphGo(unittest.TestCase):
+    """Cover Go module type detection in extract.py."""
+
+    def test_go_node_types(self):
+        pkgs = [
+            _root_pkg("SPDXRef-Root"),
+            {
+                "SPDXID": "SPDXRef-Stdlib",
+                "name": "net/http",
+                "primaryPackagePurpose": "LIBRARY",
+                "comment": "Go standard library module",
+            },
+            {
+                "SPDXID": "SPDXRef-Direct",
+                "name": "github.com/foo/bar",
+                "primaryPackagePurpose": "LIBRARY",
+                "comment": "Go module (direct)",
+            },
+            {
+                "SPDXID": "SPDXRef-Indirect",
+                "name": "github.com/baz/qux",
+                "primaryPackagePurpose": "LIBRARY",
+                "comment": "Go module (indirect)",
+            },
+        ]
+        rels = [
+            _rel(
+                "SPDXRef-Root", "DEPENDS_ON",
+                "SPDXRef-Stdlib",
+            ),
+            _rel(
+                "SPDXRef-Root", "DEPENDS_ON",
+                "SPDXRef-Direct",
+            ),
+            _rel(
+                "SPDXRef-Direct", "DEPENDS_ON",
+                "SPDXRef-Indirect",
+            ),
+        ]
+        doc = _make_doc(pkgs, rels)
+        nodes, edges = extract_graph(doc)
+        types = {
+            n["id"]: n["node_type"] for n in nodes
+        }
+        self.assertEqual(
+            types["SPDXRef-Stdlib"], "go_stdlib"
+        )
+        self.assertEqual(
+            types["SPDXRef-Direct"], "go_direct"
+        )
+        self.assertEqual(
+            types["SPDXRef-Indirect"], "go_indirect"
+        )
+
+
+class TestExtractGraphJava(unittest.TestCase):
+    """Cover Java direct/transitive depth detection."""
+
+    def test_java_depth_classification(self):
+        pkgs = [
+            _root_pkg("SPDXRef-Root"),
+            {
+                "SPDXID": "SPDXRef-DirectDep",
+                "name": "commons-io",
+                "primaryPackagePurpose": "LIBRARY",
+            },
+            {
+                "SPDXID": "SPDXRef-TransDep",
+                "name": "commons-logging",
+                "primaryPackagePurpose": "LIBRARY",
+            },
+        ]
+        rels = [
+            _rel(
+                "SPDXRef-Root", "DEPENDS_ON",
+                "SPDXRef-DirectDep",
+            ),
+            _rel(
+                "SPDXRef-DirectDep", "DEPENDS_ON",
+                "SPDXRef-TransDep",
+            ),
+        ]
+        doc = _make_doc(pkgs, rels)
+        nodes, edges = extract_graph(doc)
+        types = {
+            n["id"]: n["node_type"] for n in nodes
+        }
+        self.assertEqual(
+            types["SPDXRef-DirectDep"], "direct_dep"
+        )
+        self.assertEqual(
+            types["SPDXRef-TransDep"], "transitive_dep"
+        )
+
+
+class TestExtractGraphSibling(unittest.TestCase):
+    """Cover sibling module filtering."""
+
+    def test_sibling_transitive_filtered(self):
+        pkgs = [
+            _root_pkg("SPDXRef-Root"),
+            {
+                "SPDXID": "SPDXRef-Sibling",
+                "name": "sibling-module",
+                "primaryPackagePurpose": "LIBRARY",
+                "comment": "Sibling module",
+                "annotations": [{
+                    "annotationType": "OTHER",
+                    "comment": "sibling_module=true",
+                }],
+            },
+            {
+                "SPDXID": "SPDXRef-SibDep",
+                "name": "sibling-dep",
+                "primaryPackagePurpose": "LIBRARY",
+            },
+        ]
+        rels = [
+            _rel(
+                "SPDXRef-Root", "DEPENDS_ON",
+                "SPDXRef-Sibling",
+            ),
+            _rel(
+                "SPDXRef-Sibling", "DEPENDS_ON",
+                "SPDXRef-SibDep",
+            ),
+        ]
+        doc = _make_doc(pkgs, rels)
+
+        # Manually set sibling flag since extract_graph
+        # looks for it in the package
+        for p in doc["packages"]:
+            if p["SPDXID"] == "SPDXRef-Sibling":
+                p["sibling"] = True
+
+        nodes, edges = extract_graph(doc)
+        node_ids = [n["id"] for n in nodes]
+        # SibDep should be filtered out as
+        # sibling transitive dep
+        self.assertNotIn("SPDXRef-SibDep", node_ids)
+
+
+class TestExtractGraphBuildDeep(unittest.TestCase):
+    """Cover build_deep node type at depth >= 2."""
+
+    def test_build_deep(self):
+        pkgs = [
+            _root_pkg("SPDXRef-Root"),
+            _lib_pkg(
+                "SPDXRef-GCC", "gcc", "12.0"
+            ),
+            _lib_pkg(
+                "SPDXRef-Binutils", "binutils", "2.38"
+            ),
+        ]
+        rels = [
+            _rel(
+                "SPDXRef-GCC", "BUILD_TOOL_OF",
+                "SPDXRef-Root",
+            ),
+            _rel(
+                "SPDXRef-Binutils", "BUILD_TOOL_OF",
+                "SPDXRef-GCC",
+            ),
+        ]
+        doc = _make_doc(pkgs, rels)
+        nodes, edges = extract_graph(doc)
+        types = {
+            n["id"]: n["node_type"] for n in nodes
+        }
+        self.assertEqual(
+            types["SPDXRef-GCC"], "build"
+        )
+        # Binutils at depth 2 should be build_deep
+        self.assertEqual(
+            types["SPDXRef-Binutils"], "build_deep"
+        )
+
+
+class TestExtractGraphCppDepends(unittest.TestCase):
+    """Cover C/C++ DEPENDS_ON with STATIC_LINK present."""
+
+    def test_cpp_transitive(self):
+        pkgs = [
+            _root_pkg("SPDXRef-Root"),
+            _lib_pkg(
+                "SPDXRef-Static", "libfoo", "1.0"
+            ),
+            _lib_pkg(
+                "SPDXRef-Trans", "libbaz", "2.0"
+            ),
+        ]
+        rels = [
+            _rel(
+                "SPDXRef-Root", "STATIC_LINK",
+                "SPDXRef-Static",
+            ),
+            _rel(
+                "SPDXRef-Root", "DEPENDS_ON",
+                "SPDXRef-Trans",
+            ),
+        ]
+        doc = _make_doc(pkgs, rels)
+        nodes, edges = extract_graph(doc)
+        types = {
+            n["id"]: n["node_type"] for n in nodes
+        }
+        self.assertEqual(
+            types["SPDXRef-Static"], "static"
+        )
+        self.assertEqual(
+            types["SPDXRef-Trans"], "transitive_dep"
+        )
+
+
+class TestExtractGraphVendoredStatic(unittest.TestCase):
+    """Cover vendored static and static no-depth."""
+
+    def test_vendored_static(self):
+        pkgs = [
+            _root_pkg("SPDXRef-Root"),
+            {
+                "SPDXID": "SPDXRef-Vendored",
+                "name": "vendored-lib",
+                "primaryPackagePurpose": "LIBRARY",
+                "comment": "Vendored copy of lib",
+            },
+        ]
+        rels = [
+            _rel(
+                "SPDXRef-Root", "STATIC_LINK",
+                "SPDXRef-Vendored",
+            ),
+        ]
+        doc = _make_doc(pkgs, rels)
+        nodes, edges = extract_graph(doc)
+        groups = {
+            n["id"]: n["group"] for n in nodes
+        }
+        self.assertEqual(
+            groups["SPDXRef-Vendored"], "vendored"
+        )
+
+    def test_static_no_depth(self):
+        pkgs = [
+            {
+                "SPDXID": "SPDXRef-Root",
+                "name": "myapp",
+                "versionInfo": "1.0",
+                "primaryPackagePurpose": "APPLICATION",
+                "comment": "Root binary",
+            },
+            {
+                "SPDXID": "SPDXRef-Lib",
+                "name": "lib",
+                "primaryPackagePurpose": "LIBRARY",
+                "comment": "",
+            },
+        ]
+        rels = [
+            _rel(
+                "SPDXRef-Root", "STATIC_LINK",
+                "SPDXRef-Lib",
+            ),
+        ]
+        doc = _make_doc(pkgs, rels)
+        nodes, edges = extract_graph(doc)
+        lib_node = [
+            n for n in nodes
+            if n["id"] == "SPDXRef-Lib"
+        ][0]
+        # Lib is static with depth >= 1
+        self.assertEqual(
+            lib_node["node_type"], "static"
+        )
+
+
+class TestExtractGraphSiblingBFS(unittest.TestCase):
+    """Cover multi-level sibling BFS and edge filter."""
+
+    def test_sibling_bfs_multi_level(self):
+        pkgs = [
+            _root_pkg("SPDXRef-Root"),
+            {
+                "SPDXID": "SPDXRef-Sib",
+                "name": "sibling",
+                "primaryPackagePurpose": "LIBRARY",
+                "comment": "Sibling module",
+            },
+            {
+                "SPDXID": "SPDXRef-L1",
+                "name": "level1-dep",
+                "primaryPackagePurpose": "LIBRARY",
+                "comment": "",
+            },
+            {
+                "SPDXID": "SPDXRef-L2",
+                "name": "level2-dep",
+                "primaryPackagePurpose": "LIBRARY",
+                "comment": "",
+            },
+        ]
+        rels = [
+            _rel(
+                "SPDXRef-Root", "DEPENDS_ON",
+                "SPDXRef-Sib",
+            ),
+            _rel(
+                "SPDXRef-Sib", "DEPENDS_ON",
+                "SPDXRef-L1",
+            ),
+            _rel(
+                "SPDXRef-L1", "DEPENDS_ON",
+                "SPDXRef-L2",
+            ),
+            # Also root depends on L1 directly —
+            # but since L1 is reachable only from sib,
+            # it should still be filtered
+            _rel(
+                "SPDXRef-Root", "DEPENDS_ON",
+                "SPDXRef-L1",
+            ),
+        ]
+        doc = _make_doc(pkgs, rels)
+        nodes, edges = extract_graph(doc)
+        node_ids = [n["id"] for n in nodes]
+        # L1 and L2 are sibling-transitive
+        self.assertNotIn("SPDXRef-L2", node_ids)
+        # Edges TO sibling deps should be filtered
+        edge_tgts = [e["target"] for e in edges]
+        self.assertNotIn("SPDXRef-L2", edge_tgts)
+
+
+class TestVersionDetectorShim(unittest.TestCase):
+    """Cover app/spdx/version_detector.py shim."""
+
+    def test_import(self):
+        from app.spdx.version_detector import (
+            VendoredVersionDetector,
+        )
+        self.assertTrue(
+            callable(VendoredVersionDetector)
+        )
+
+
 if __name__ == "__main__":
     unittest.main()

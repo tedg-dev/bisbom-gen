@@ -196,6 +196,64 @@ class AdgParser:
             return {}
         return json.loads(path.read_text())
 
+    def parse_strace_openat_log(self):
+        """Parse strace openat log for Java builds.
+
+        Returns set of absolute file paths that were
+        opened during the build (via openat syscalls).
+        Mirrors how C/C++ uses load_raw_logfile_hashes()
+        to consume tracer output.
+
+        strace -e trace=openat format (single-thread):
+          PID openat(AT_FDCWD, "/path", flags) = fd
+          PID openat(AT_FDCWD, "/path", flags) = -1
+        Multi-threaded (common in Java/Maven builds):
+          PID openat(AT_FDCWD, "/path", flags <unfinished ...>
+          PID <... openat resumed>) = fd
+        We capture both completed and unfinished lines.
+        For unfinished lines we include the path since
+        a successful resume is likely (and the resumed
+        line does not repeat the path).
+        """
+        log_path = (
+            self.meta_dir / "strace_java_logfile"
+        )
+        if not log_path.exists():
+            return set()
+
+        accessed = set()
+        failed = set()
+        for line in log_path.read_text(
+            errors="replace"
+        ).splitlines():
+            # Completed: PID openat(..., "/path", ...)= N
+            m = re.match(
+                r'^\d+\s+openat\('
+                r'[^,]*,\s*"([^"]+)"'
+                r'.*=\s*(\d+|-1)',
+                line,
+            )
+            if m:
+                if m.group(2) != "-1":
+                    accessed.add(m.group(1))
+                else:
+                    failed.add(m.group(1))
+                continue
+
+            # Unfinished: PID openat(..., "/path", ... <unfinished
+            m = re.match(
+                r'^\d+\s+openat\('
+                r'[^,]*,\s*"([^"]+)"'
+                r'.*<unfinished',
+                line,
+            )
+            if m:
+                accessed.add(m.group(1))
+
+        # Remove paths that only appeared as failures
+        accessed -= failed
+        return accessed
+
     def load_raw_logfile_hashes(self):
         """Return dict: file_path -> build-time sha1."""
         path = (

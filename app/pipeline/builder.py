@@ -5,6 +5,7 @@ Runs pre-build steps, the instrumented build via bomtrace3/bomtrace2,
 and generates OmniBOR ADG documents.
 """
 
+import shutil
 from pathlib import Path
 
 from app.config import lang_subdir, timestamp
@@ -190,6 +191,28 @@ class BomtraceBuilder:
         if rc != 0:
             print("[ERROR] bomsh_create_bom_java.py failed")
             return False
+
+        # Archive strace log to metadata dir so
+        # AdgParser.parse_strace_openat_log() can
+        # consume it — mirrors how C/C++ archives
+        # the raw logfile via bomsh_create_bom.py.
+        strace_archive = (
+            meta_dir / "strace_java_logfile"
+        )
+        strace_src = Path(strace_log)
+        if strace_src.exists():
+            shutil.copy2(
+                str(strace_src), str(strace_archive)
+            )
+            print(
+                "[OK] strace log archived to "
+                f"{strace_archive}"
+            )
+        else:
+            print(
+                f"[WARN] strace log not found: "
+                f"{strace_log}"
+            )
 
         print(
             "[OK] OmniBOR treedb written to "

@@ -1304,5 +1304,142 @@ class TestSiblingFiltering(unittest.TestCase):
         self.assertIn("commons", pkg_names)
 
 
+class TestStraceFiltering(unittest.TestCase):
+    """Tests for strace openat log filtering."""
+
+    def test_init_default_strace_empty(self):
+        """Default strace_accessed is empty set."""
+        gen = JavaSpdxGenerator(
+            bom_dir="/tmp/bom",
+            repos_dir="/tmp/repos",
+            repo_name="myapp",
+        )
+        self.assertEqual(gen.strace_accessed, set())
+
+    def test_init_with_strace_set(self):
+        """strace_accessed passed to constructor."""
+        accessed = {"/repo/src/A.java", "/repo/B.java"}
+        gen = JavaSpdxGenerator(
+            bom_dir="/tmp/bom",
+            repos_dir="/tmp/repos",
+            repo_name="myapp",
+            strace_accessed=accessed,
+        )
+        self.assertEqual(gen.strace_accessed, accessed)
+
+    @patch.object(
+        JavaSpdxGenerator, "_get_maven_deps"
+    )
+    @patch("app.spdx.java_generator.AdgParser")
+    def test_strace_filters_source_files(
+        self, mock_parser_cls, mock_maven
+    ):
+        """Files not in strace log are excluded."""
+        with tempfile.TemporaryDirectory() as td:
+            repos = Path(td) / "repos"
+            repo = repos / "myapp"
+            repo.mkdir(parents=True)
+            (repo / "pom.xml").write_text(
+                "<project>"
+                "<version>1.0</version>"
+                "</project>"
+            )
+            bom = Path(td) / "bom"
+            bom.mkdir()
+            out = Path(td) / "out.spdx.json"
+
+            mock_maven.return_value = []
+
+            # Two files in treedb, only one in strace
+            accessed = {
+                str(repo / "src/main/App.java"),
+            }
+            gen = JavaSpdxGenerator(
+                bom_dir=str(bom),
+                repos_dir=str(repos),
+                repo_name="myapp",
+                strace_accessed=accessed,
+            )
+            jar_files = [
+                {
+                    "sha1": "aaa",
+                    "file_path": str(
+                        repo / "src/main/App.java"
+                    ),
+                },
+                {
+                    "sha1": "bbb",
+                    "file_path": str(
+                        repo / "src/main/Stale.java"
+                    ),
+                },
+            ]
+            result = gen.generate(
+                str(out),
+                binary_name="myapp-1.0.jar",
+                sbom_type="analyzed",
+                jar_files=jar_files,
+            )
+            doc = json.loads(out.read_text())
+            # Only App.java should be in files
+            self.assertEqual(len(doc["files"]), 1)
+            self.assertIn(
+                "src/main/App.java",
+                doc["files"][0]["fileName"],
+            )
+
+    @patch.object(
+        JavaSpdxGenerator, "_get_maven_deps"
+    )
+    @patch("app.spdx.java_generator.AdgParser")
+    def test_no_strace_keeps_all_files(
+        self, mock_parser_cls, mock_maven
+    ):
+        """Without strace data, all files pass through."""
+        with tempfile.TemporaryDirectory() as td:
+            repos = Path(td) / "repos"
+            repo = repos / "myapp"
+            repo.mkdir(parents=True)
+            (repo / "pom.xml").write_text(
+                "<project>"
+                "<version>1.0</version>"
+                "</project>"
+            )
+            bom = Path(td) / "bom"
+            bom.mkdir()
+            out = Path(td) / "out.spdx.json"
+
+            mock_maven.return_value = []
+
+            gen = JavaSpdxGenerator(
+                bom_dir=str(bom),
+                repos_dir=str(repos),
+                repo_name="myapp",
+            )
+            jar_files = [
+                {
+                    "sha1": "aaa",
+                    "file_path": str(
+                        repo / "src/main/App.java"
+                    ),
+                },
+                {
+                    "sha1": "bbb",
+                    "file_path": str(
+                        repo / "src/main/Other.java"
+                    ),
+                },
+            ]
+            result = gen.generate(
+                str(out),
+                binary_name="myapp-1.0.jar",
+                sbom_type="analyzed",
+                jar_files=jar_files,
+            )
+            doc = json.loads(out.read_text())
+            # Both files kept
+            self.assertEqual(len(doc["files"]), 2)
+
+
 if __name__ == "__main__":
     unittest.main()

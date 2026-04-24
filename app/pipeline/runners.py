@@ -447,6 +447,18 @@ def _generate_java_adg_spdx(
         print(f"[ERROR] {e}")
         return []
 
+    # Parse strace openat log — the set of files
+    # actually opened during the build.  Mirrors
+    # how C/C++ uses load_raw_logfile_hashes() to
+    # consume tracer output.
+    strace_accessed = parser.parse_strace_openat_log()
+    if strace_accessed:
+        print(
+            f"[OK] strace log: "
+            f"{len(strace_accessed)} files "
+            f"accessed during build"
+        )
+
     # Resolve output_binaries globs to actual JARs
     bins = repo_cfg.get("output_binaries", [])
     jar_paths = []
@@ -480,6 +492,7 @@ def _generate_java_adg_spdx(
         bom_dir=str(bom_dir),
         repos_dir=repos_dir,
         repo_name=repo_name,
+        strace_accessed=strace_accessed,
     )
 
     results = []
