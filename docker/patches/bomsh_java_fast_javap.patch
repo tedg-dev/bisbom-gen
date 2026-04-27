@@ -1,0 +1,152 @@
+--- a/scripts/bomsh_create_bom_java.py
++++ b/scripts/bomsh_create_bom_java.py
+@@ -28,6 +28,7 @@
+ import os
+ import shutil
+ import subprocess
++from bomsh_java_fast_classreader import read_source_file as _fast_read_source_file, read_source_files as _fast_read_source_files, read_class_info as _fast_read_class_info
+ import json
+ import hashlib
+ import tempfile
+@@ -462,80 +463,56 @@
+ #### End of shell command handling routines ####
+ ############################################################
+ 
+ def get_source_file_of_class_file(classfile):
+     """
+-    Get the SourceFile attribute of a Java .class file.
++    Get the SourceFile attribute of a Java .class file
++    using fast pure-Python bytecode reader (no JVM/javap).
+     """
+-    cmd = "javap " + cmd_quote(classfile) + " || true"
+-    # print(cmd)
+-    output = get_shell_cmd_output(cmd)
+-    lines = output.splitlines()
+-    source_file = ''
+-    if not lines:
+-        return source_file
+-    line0 = lines[0]
+-    if line0[:15] == 'Compiled from "':
+-        source_file = line0[15:-1]
+-    return source_file
++    return _fast_read_source_file(classfile)
+ 
+ 
+ def get_source_file_of_class_files_internal(classfiles):
+     """
+-    Get the SourceFile attribute of a list of Java .class files.
++    Get the SourceFile attribute of a list of Java .class files
++    using fast pure-Python bytecode reader (no JVM/javap).
+     """
+-    all_classfiles = ' '.join([cmd_quote(f) for f in classfiles])
+-    #cmd = "javap " + cmd_quote(all_classfiles) + ' | grep "Compiled from " || true'
+-    cmd = "javap " + all_classfiles + ' | grep "Compiled from " || true'
+-    #print(cmd)
+-    output = get_shell_cmd_output(cmd)
+-    lines = output.splitlines()
+-    if len(lines) != len(classfiles):
+-        print("Warning: Different number " + str(len(lines)) + " of SourceFile attributes than number " + str(len(classfiles)) + " of .class files");
+-        return []
+-    source_files = []
+-    for line in lines:
+-        source_file = line[15:-1]
+-        source_files.append(source_file)
+-    verbose("Number of SourceFile attributes found: " + str(len(source_files)), LEVEL_2)
+-    return source_files
++    return _fast_read_source_files(classfiles)
+ 
+ 
+ bash_cmd_line_maxlimit = 100000
+ 
+ def get_source_file_of_class_files(afiles):
+     """
+-    Get the SourceFile attribute of a list of Java .class files.
+-    """
+-    afiles_arg = ' '.join(afiles)
+-    len_afiles_arg = len(afiles_arg)
+-    if len_afiles_arg > bash_cmd_line_maxlimit:
+-        num_cmd = len_afiles_arg // bash_cmd_line_maxlimit + 1
+-        len_afiles = len(afiles)
+-        step = len_afiles // num_cmd + 1
+-        verbose("Get SourceFile for " + str(len(afiles)) + " class files: divided into " + str(num_cmd) + " steps, each step processes " + str(step) + " files.")
+-        bundle_files = []
+-        for i in range(num_cmd):
+-            sub_afiles = afiles[i * step : (i+1) * step]
+-            if not sub_afiles:
+-                continue
+-            afiles_arg = ' '.join(sub_afiles)
+-            if len(afiles_arg) > bash_cmd_line_maxlimit:  # still possible to exceed the 100K bash limit, if so, divide into two more commands
+-                sub_afiles = afiles[i * step: (i * step + step // 2)]
+-                source_files = get_source_file_of_class_files_internal(sub_afiles)
+-                verbose("get_source_file_of_class_files is divided into " + str(num_cmd) + " steps. This is step " + str(i) + " substep 1", LEVEL_3)
+-                if not source_files:
+-                    return []
+-                bundle_files.extend(source_files)
+-                sub_afiles = afiles[(i * step + step // 2) : (i + 1) * step]
+-            source_files = get_source_file_of_class_files_internal(sub_afiles)
+-            if not source_files:
+-                #print("Warning: Different number " + str(len(bundlefiles)) + " of SourceFile attributes than number " + str(len(afiles)) + " of .class files");
+-                return []
+-            bundle_files.extend(source_files)
+-            verbose("get_source_file_of_class_files is divided into " + str(num_cmd) + " steps. This is step " + str(i), LEVEL_2)
+-    else:
+-        bundle_files = get_source_file_of_class_files_internal(afiles)
+-    verbose("Total number of SourceFile attributes found: " + str(len(bundle_files)))
+-    return bundle_files
++    Get the SourceFile attribute of a list of Java .class files
++    using fast pure-Python bytecode reader (no JVM/javap).
++    No bash command-line length limits to worry about.
++    """
++    bundle_files = _fast_read_source_files(afiles)
++    verbose("Total number of SourceFile attributes found: " + str(len(bundle_files)))
++    return bundle_files
+ 
+ 
+ def get_class_name_of_class_file(classfile):
+     """
+-    Get the full class name of a Java .class file.
++    Get the full class name of a Java .class file
++    using fast pure-Python bytecode reader (no JVM/javap).
+     """
+-    cmd = "javap " + cmd_quote(classfile) + " || true"
+-    # print(cmd)
+-    output = get_shell_cmd_output(cmd)
+-    lines = output.splitlines()
+-    if not lines:
+-        return ''
+-    for line in lines:
+-        tokens = line.split()
+-        if len(tokens) > 4 and line[-2:] == " {":
+-            return line[3]
+-    return ''
++    _, class_name = _fast_read_class_info(classfile)
++    return class_name
+ 
+ 
+ def get_javap_info_of_class_file(classfile):
+     """
+-    Get the SourceFile and class name or interface name of a Java .class file.
++    Get the SourceFile and class name of a Java .class file
++    using fast pure-Python bytecode reader (no JVM/javap).
+     """
+-    cmd = "javap " + cmd_quote(classfile) + " || true"
+-    # print(cmd)
+-    output = get_shell_cmd_output(cmd)
+-    lines = output.splitlines()
+-    if not lines:
+-        return ('', '')
+-    source_file, class_name = ('', '')
+-    for line in lines:
+-        tokens = line.split()
+-        if line[:15] == 'Compiled from "':
+-            source_file = line[15:-1]
+-        elif line[-2:] == " {":
+-            if " class " in line and len(tokens) > 4:
+-                class_name = tokens[3]
+-            elif " interface " in line and len(tokens) > 3:
+-                class_name = tokens[2]
+-    return (source_file, class_name)
++    return _fast_read_class_info(classfile)
+ 
+ 
+ def get_next_token(tokens, match_token):

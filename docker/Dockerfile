@@ -244,6 +244,15 @@ COPY docker/patches/bomsh_java_sourcefile.patch /tmp/bomsh_java.patch
 RUN cd /opt/bomsh && patch -p1 < /tmp/bomsh_java.patch && \
     rm /tmp/bomsh_java.patch
 
+# Performance: replace javap subprocess calls with pure-Python .class
+# bytecode reader.  bomsh_create_bom_java.py spawns a JVM per .class
+# file (~1s each) just to read the SourceFile attribute.  The fast
+# reader does it in microseconds by parsing the binary directly.
+# 6,000 class files: ~100 min with javap → <1s with bytecode reader.
+COPY docker/patches/bomsh_java_fast_classreader.py /opt/bomsh/scripts/bomsh_java_fast_classreader.py
+COPY docker/patches/apply_fast_javap.py /tmp/apply_fast_javap.py
+RUN python3 /tmp/apply_fast_javap.py && rm /tmp/apply_fast_javap.py
+
 # Go-specific bomtrace2 config (watches go compile/link tools + openat syscall)
 COPY docker/bomtrace_go.conf /opt/bomsh/bin/bomtrace_go.conf
 

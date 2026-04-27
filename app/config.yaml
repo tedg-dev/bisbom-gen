@@ -312,9 +312,9 @@ repos:
     branch: r1rv84
     language: java
     build_steps:
-    - ./gradlew :prov:build -x test --no-daemon -q
+    - ./gradlew :prov:build -x test -x compileJava25Java --no-daemon -q
     clean_cmd: ./gradlew clean --no-daemon -q
-    description: Bouncy Castle crypto library (Gradle multi-module, building bcprov provider, requires JDK 21)
+    description: Bouncy Castle crypto library (Gradle multi-module, building bcprov provider, JDK 21, Java25 MR classes excluded)
     output_binaries:
     - '**/build/libs/*.jar'
 paths:
