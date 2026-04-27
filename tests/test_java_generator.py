@@ -438,7 +438,7 @@ class TestGetMavenDeps(unittest.TestCase):
             result = gen._get_maven_deps()
             self.assertEqual(result, [])
 
-    @patch("app.spdx.java_generator.subprocess.run")
+    @patch("app.spdx.maven_parser.subprocess.run")
     def test_mvn_success(self, mock_run):
         with tempfile.TemporaryDirectory() as td:
             repos = Path(td) / "repos"
@@ -465,7 +465,7 @@ class TestGetMavenDeps(unittest.TestCase):
                 result[0]["artifactId"], "liba"
             )
 
-    @patch("app.spdx.java_generator.subprocess.run")
+    @patch("app.spdx.maven_parser.subprocess.run")
     def test_mvn_failure_falls_back_to_pom(
         self, mock_run
     ):
@@ -497,7 +497,7 @@ class TestGetMavenDeps(unittest.TestCase):
             self.assertEqual(len(result), 1)
             self.assertEqual(result[0]["version"], "2.0")
 
-    @patch("app.spdx.java_generator.subprocess.run")
+    @patch("app.spdx.maven_parser.subprocess.run")
     def test_mvn_timeout_falls_back(self, mock_run):
         import subprocess
         mock_run.side_effect = (
@@ -526,7 +526,7 @@ class TestGetMavenDeps(unittest.TestCase):
             result = gen._get_maven_deps()
             self.assertEqual(len(result), 1)
 
-    @patch("app.spdx.java_generator.subprocess.run")
+    @patch("app.spdx.maven_parser.subprocess.run")
     def test_mvn_not_found_falls_back(self, mock_run):
         mock_run.side_effect = FileNotFoundError("mvn")
         with tempfile.TemporaryDirectory() as td:

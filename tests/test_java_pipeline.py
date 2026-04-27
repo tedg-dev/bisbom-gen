@@ -46,7 +46,7 @@ class TestRunJavaPipeline(unittest.TestCase):
         return paths_cfg, repo_cfg, omnibor_java_cfg
 
     @patch(
-        "app.pipeline.runners._generate_java_adg_spdx"
+        "app.pipeline.lang_runners.generate_java_adg_spdx"
     )
     def test_success_flow(self, mock_adg):
         mock_adg.return_value = ["/tmp/adg.spdx.json"]
@@ -84,7 +84,7 @@ class TestRunJavaPipeline(unittest.TestCase):
             )
 
     @patch(
-        "app.pipeline.runners._generate_java_adg_spdx"
+        "app.pipeline.lang_runners.generate_java_adg_spdx"
     )
     def test_build_failure_skips_steps(self, mock_adg):
         mock_adg.return_value = []
@@ -104,7 +104,7 @@ class TestRunJavaPipeline(unittest.TestCase):
             pipeline.binary_collector.collect.assert_not_called()
 
     @patch(
-        "app.pipeline.runners._generate_java_adg_spdx"
+        "app.pipeline.lang_runners.generate_java_adg_spdx"
     )
     def test_no_spdx_file_skips_validation(
         self, mock_adg
@@ -341,7 +341,7 @@ class TestGenerateJavaAdgSpdx(unittest.TestCase):
 class TestMainJavaDispatch(unittest.TestCase):
     """Test that main() dispatches to Java pipeline."""
 
-    @patch("app.pipeline.runners._run_java_pipeline")
+    @patch("app.pipeline.runners.run_java_pipeline")
     @patch("app.pipeline.runners.AnalysisPipeline")
     @patch("app.pipeline.runners.load_config")
     @patch("app.pipeline.runners.timestamp")
@@ -386,7 +386,7 @@ class TestMainJavaDispatch(unittest.TestCase):
 
         mock_java.assert_called_once()
 
-    @patch("app.pipeline.runners._run_rust_pipeline")
+    @patch("app.pipeline.runners.run_rust_pipeline")
     @patch("app.pipeline.runners.AnalysisPipeline")
     @patch("app.pipeline.runners.load_config")
     @patch("app.pipeline.runners.timestamp")
