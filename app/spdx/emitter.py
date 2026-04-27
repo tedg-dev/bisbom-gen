@@ -8,6 +8,19 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from app.version_detection import VendoredVersionDetector
+from app.spdx.lang_parsers import (
+    detect_go_version,
+    go_module_from_vendor_path,
+    parse_cargo_lock,
+    parse_cargo_toml,
+    parse_go_mod,
+    parse_go_modules_txt,
+    rust_crate_from_registry_path,
+)
+from app.spdx.vendored import (
+    VENDORED_DIRS as _DEFAULT_VENDORED_DIRS,
+    detect_vendored_groups,
+)
 
 
 class SpdxEmitter:
@@ -55,6 +68,10 @@ class SpdxEmitter:
         else:
             self._vendored_dirs = self.VENDORED_DIRS
 
+    # -------------------------------------------------
+    # Backward-compatible class constants & delegates
+    # -------------------------------------------------
+
     def _next_spdx_id(self, prefix="Package"):
         """Generate unique SPDX identifier."""
         self._spdx_id_counter += 1
@@ -72,338 +89,38 @@ class SpdxEmitter:
 
     # Directories that indicate vendored/embedded
     # third-party source code.
-    VENDORED_DIRS = (
-        "/deps/", "/vendor/", "/third_party/",
-        "/thirdparty/", "/external/", "/contrib/",
+    VENDORED_DIRS = _DEFAULT_VENDORED_DIRS
+
+    # Backward-compatible static method delegates.
+    # These preserve the original API so that tests
+    # calling SpdxEmitter._go_module_from_vendor_path
+    # etc. continue to work.
+    _detect_go_version = staticmethod(
+        detect_go_version
     )
-
-    # Regex for #define PREFIX_VERSION "x.y.z"
-    # Captures (prefix, version_string)
-    _SUB_VERSION_RE = re.compile(
-        r'#define\s+(\w+?)_VERSION\s+'
-        r'"[^"]*?(\d+\.\d+(?:\.\d+)?)'
+    _go_module_from_vendor_path = staticmethod(
+        go_module_from_vendor_path
     )
-
-    # Regex to extract Go version from build commands
-    _GO_VERSION_RE = re.compile(
-        r"-goversion\s+(go\d+\.\d+(?:\.\d+)?)"
+    _rust_crate_from_registry_path = staticmethod(
+        rust_crate_from_registry_path
     )
-
-    @staticmethod
-    def _detect_go_version(go_stdlib):
-        """Detect Go version from stdlib or install.
-
-        Strategy:
-          1. Look for -goversion flag in build commands
-          2. Read /usr/local/go/VERSION file
-          3. Fall back to 'unknown'
-        """
-        for art in go_stdlib:
-            cmd = art.get("build_cmd", "")
-            m = SpdxEmitter._GO_VERSION_RE.search(cmd)
-            if m:
-                return m.group(1).lstrip("go")
-        # Fallback: read Go VERSION file
-        ver_file = Path("/usr/local/go/VERSION")
-        if ver_file.exists():
-            # File is multi-line: "go1.26.0\ntime ..."
-            first_line = (
-                ver_file.read_text().splitlines()[0]
-            )
-            return first_line.strip().lstrip("go")
-        return "unknown"
-
-    # Well-known Go module hosting prefixes that use
-    # three path segments: host/owner/repo
-    _GO_THREE_SEGMENT_HOSTS = (
-        "github.com", "gitlab.com", "bitbucket.org",
-        "golang.org",
+    _parse_cargo_lock = staticmethod(
+        parse_cargo_lock
     )
-
-    # Regex matching Go major-version suffix /vN (N>=2)
-    _GO_MAJOR_VER_RE = re.compile(r"^v\d+$")
-
-    @staticmethod
-    def _go_module_from_vendor_path(rest):
-        """Extract Go module name from vendor-relative path.
-
-        Go modules under vendor/ have multi-segment names:
-          github.com/fatih/color/color.go      -> github.com/fatih/color
-          github.com/gdamore/tcell/v2/foo.go   -> github.com/gdamore/tcell/v2
-          golang.org/x/sys/unix/syscall.go     -> golang.org/x/sys
-          dario.cat/mergo/merge.go             -> dario.cat/mergo
-          gopkg.in/yaml.v3/yaml.go             -> gopkg.in/yaml.v3
-          gopkg.in/ozeidan/fuzzy-patricia.v3/
-            -> gopkg.in/ozeidan/fuzzy-patricia.v3
-
-        Rules:
-          - github.com, gitlab.com, bitbucket.org,
-            golang.org -> 3 segments (+ optional /vN)
-          - gopkg.in -> 2 or 3 segments depending on
-            whether second segment has a dot
-          - Everything else -> 2 segments
-          - Must contain a dot in first segment (domain)
-          - /vN suffix (N>=2) appended when present
-        """
-        parts = rest.split("/")
-        if len(parts) < 2:
-            return None
-        # First segment must look like a domain
-        if "." not in parts[0]:
-            return None
-
-        # gopkg.in special handling:
-        #   gopkg.in/yaml.v3     -> 2 segments
-        #   gopkg.in/ozeidan/... -> 3 segments
-        if parts[0] == "gopkg.in":
-            # If second segment contains a dot
-            # (e.g. yaml.v3), it's a 2-segment module
-            if "." in parts[1]:
-                return "/".join(parts[:2])
-            if len(parts) >= 3:
-                return "/".join(parts[:3])
-            return None
-
-        if parts[0] in SpdxEmitter._GO_THREE_SEGMENT_HOSTS:
-            if len(parts) < 3:
-                return None
-            base = "/".join(parts[:3])
-            # Append /vN major version suffix if present
-            if (
-                len(parts) >= 4
-                and SpdxEmitter._GO_MAJOR_VER_RE.match(
-                    parts[3]
-                )
-            ):
-                return base + "/" + parts[3]
-            return base
-        # Other domains: 2 segments
-        return "/".join(parts[:2])
-
-    _CARGO_REGISTRY_RE = re.compile(
-        r"/.cargo/registry/src/[^/]+/"
-        r"([a-zA-Z0-9_-]+)-(\d+\.\d+\.\d+[^/]*)"
-        r"/"
+    _parse_cargo_toml = staticmethod(
+        parse_cargo_toml
     )
-
-    @classmethod
-    def _rust_crate_from_registry_path(cls, fp):
-        """Extract (crate_name, version) from a Cargo
-        registry source path.
-
-        Paths look like:
-          /root/.cargo/registry/src/index.crates.io-*/
-            bitvec-1.0.1/src/lib.rs
-
-        Returns (crate_name, version) or (None, None).
-        """
-        m = cls._CARGO_REGISTRY_RE.search(fp)
-        if m:
-            return m.group(1), m.group(2)
-        return None, None
-
-    @staticmethod
-    def _parse_cargo_lock(
-        project_files, repos_dir=None,
-        repo_name=None,
-    ):
-        """Parse Cargo.lock for crate versions.
-
-        Returns dict: crate_name -> version string.
-
-        Cargo.lock format:
-          [[package]]
-          name = "bitvec"
-          version = "1.0.1"
-
-        Searches for Cargo.lock in two ways:
-        1. Directly in repos_dir/repo_name/
-        2. Walking up from each project file path
-        """
-        versions = {}
-        if not project_files:
-            return versions
-
-        # Build list of candidate Cargo.lock paths
-        candidates = []
-        if repos_dir and repo_name:
-            candidates.append(
-                Path(repos_dir) / repo_name
-                / "Cargo.lock"
-            )
-        for pf in project_files:
-            p = Path(pf["file_path"])
-            while p.parent != p:
-                candidates.append(
-                    p / "Cargo.lock"
-                )
-                p = p.parent
-
-        for lock_file in candidates:
-            if lock_file.exists():
-                name = None
-                for line in (
-                    lock_file.read_text()
-                    .splitlines()
-                ):
-                    line = line.strip()
-                    if line.startswith(
-                        "name = "
-                    ):
-                        name = line.split(
-                            '"'
-                        )[1]
-                    elif (
-                        line.startswith(
-                            "version = "
-                        )
-                        and name
-                    ):
-                        ver = line.split(
-                            '"'
-                        )[1]
-                        versions[name] = ver
-                        name = None
-                return versions
-        return versions
-
-    @staticmethod
-    def _parse_cargo_toml(
-        project_files, repos_dir=None,
-        repo_name=None,
-    ):
-        """Parse Cargo.toml for direct dependency names.
-
-        Returns set of crate names that are direct
-        dependencies (listed under [dependencies] or
-        [target.*.dependencies]).
-
-        Cargo.toml format (simplified):
-          [dependencies]
-          clap = "4.5"
-          rayon = { version = "1.10" }
-        """
-        direct = set()
-        if not project_files:
-            return direct
-
-        candidates = []
-        if repos_dir and repo_name:
-            candidates.append(
-                Path(repos_dir) / repo_name
-                / "Cargo.toml"
-            )
-        for pf in project_files:
-            p = Path(pf["file_path"])
-            while p.parent != p:
-                candidates.append(
-                    p / "Cargo.toml"
-                )
-                p = p.parent
-
-        for toml_file in candidates:
-            if toml_file.exists():
-                in_deps = False
-                for line in (
-                    toml_file.read_text()
-                    .splitlines()
-                ):
-                    stripped = line.strip()
-                    if stripped.startswith("["):
-                        in_deps = (
-                            "dependencies" in stripped
-                            and "dev" not in stripped
-                            and "build" not in stripped
-                        )
-                        continue
-                    if in_deps and "=" in stripped:
-                        name = stripped.split(
-                            "="
-                        )[0].strip()
-                        # Normalize: Cargo.toml uses
-                        # hyphens, Cargo.lock uses
-                        # either form
-                        direct.add(name)
-                        direct.add(
-                            name.replace("-", "_")
-                        )
-                        direct.add(
-                            name.replace("_", "-")
-                        )
-                return direct
-        return direct
-
-    @staticmethod
-    def _parse_go_mod(project_files):
-        """Parse go.mod for direct vs indirect deps.
-
-        Returns set of indirect module paths.
-        Modules NOT in the set are direct deps.
-        Lines with '// indirect' are indirect.
-        """
-        indirect = set()
-        if not project_files:
-            return indirect
-        sample = project_files[0]["file_path"]
-        p = Path(sample)
-        while p.parent != p:
-            go_mod = p / "go.mod"
-            if go_mod.exists():
-                for line in go_mod.read_text(
-                ).splitlines():
-                    line = line.strip()
-                    if "// indirect" in line:
-                        tokens = line.split()
-                        if tokens and (
-                            tokens[0] != "require"
-                            and tokens[0] != "//"
-                            and tokens[0] != "("
-                        ):
-                            indirect.add(tokens[0])
-                return indirect
-            p = p.parent
-        return indirect
-
-    @staticmethod
-    def _parse_go_modules_txt(project_files):
-        """Parse vendor/modules.txt for module versions.
-
-        Returns dict: module_path -> version string.
-        Lines like: # github.com/fatih/color v1.16.0
-        """
-        versions = {}
-        # Find a project file path to locate the repo root
-        if not project_files:
-            return versions
-        sample = project_files[0]["file_path"]
-        # Walk up to find vendor/modules.txt
-        p = Path(sample)
-        while p.parent != p:
-            modules_txt = p / "vendor" / "modules.txt"
-            if modules_txt.exists():
-                for line in modules_txt.read_text(
-                ).splitlines():
-                    if line.startswith("# "):
-                        tokens = line[2:].split()
-                        if len(tokens) >= 2:
-                            versions[tokens[0]] = (
-                                tokens[1].lstrip("v")
-                            )
-                return versions
-            p = p.parent
-        return versions
+    _parse_go_mod = staticmethod(
+        parse_go_mod
+    )
+    _parse_go_modules_txt = staticmethod(
+        parse_go_modules_txt
+    )
 
     def _detect_vendored_groups(self, project_files):
         """Group source files by vendored library.
 
-        Scans project_files for paths matching
-        VENDORED_DIRS patterns, then splits out
-        embedded sub-components that declare their
-        own version identifiers.
-
-        For Go vendor directories, extracts full
-        Go module names (e.g. github.com/fatih/color)
-        instead of just the first path component.
+        Delegates to vendored.detect_vendored_groups().
 
         Returns:
           vendored: dict[lib_name] -> list[artifact]
@@ -413,196 +130,13 @@ class SpdxEmitter:
         with {lib_name: version} for sub-components
         whose version was found during splitting.
         """
-        vendored = {}
-        own = []
-        for art in project_files:
-            # Normalize path to resolve ../ components
-            # (e.g. /libnetutil/../nbase/x.h -> /nbase/x.h)
-            fp = str(Path(art["file_path"]).resolve())
-            matched = False
-            # Skip Rust build output directories —
-            # target/release/deps/ and target/debug/deps/
-            # contain .rlib intermediates that falsely
-            # match the /deps/ vendored pattern.
-            if "/target/release/" in fp or (
-                "/target/debug/" in fp
-            ):
-                own.append(art)
-                continue
-            # Try Rust crate from Cargo registry first
-            crate_name, _ = (
-                self._rust_crate_from_registry_path(fp)
+        vendored, own, self._sub_versions = (
+            detect_vendored_groups(
+                project_files,
+                vendored_dirs=self._vendored_dirs,
             )
-            if crate_name:
-                vendored.setdefault(
-                    crate_name, []
-                ).append(art)
-                continue
-            for vdir in self._vendored_dirs:
-                idx = fp.find(vdir)
-                if idx < 0:
-                    continue
-                rest = fp[idx + len(vdir):]
-                # Try Go module extraction first
-                go_mod = self._go_module_from_vendor_path(
-                    rest
-                )
-                if go_mod:
-                    vendored.setdefault(
-                        go_mod, []
-                    ).append(art)
-                    matched = True
-                    break
-                # C/C++ fallback: generic patterns use
-                # first component; specific dirs use
-                # the directory name itself
-                if vdir in self.VENDORED_DIRS:
-                    lib = rest.split("/")[0]
-                else:
-                    lib = (
-                        vdir.strip("/").split("/")[-1]
-                    )
-                if lib:
-                    vendored.setdefault(
-                        lib, []
-                    ).append(art)
-                    matched = True
-                    break
-            if not matched:
-                own.append(art)
-
-        # Split out sub-components (C/C++ only)
-        vendored, self._sub_versions = (
-            self._split_sub_components(vendored)
         )
         return vendored, own
-
-    def _split_sub_components(self, vendored):
-        """Split embedded sub-libraries out of
-        vendored groups.
-
-        Scans .c files in each vendored group for
-        #define PREFIX_VERSION "x.y.z" where PREFIX
-        does not match the parent library name.
-        Files whose basename matches the sub-component
-        prefix are moved to a new group.
-
-        Example: deps/lua/src/lua_cjson.c defines
-        CJSON_VERSION "2.1.0" -> split into a new
-        "lua-cjson" group.
-
-        Returns:
-            (result, versions) where result is the
-            updated vendored dict and versions is
-            {full_name: version} for sub-components.
-        """
-        result = {}
-        versions = {}
-        for lib_name, arts in vendored.items():
-            parent_prefix = (
-                lib_name.upper()
-                .replace("-", "_")
-                .replace(".", "_")
-            )
-            sub_map = {}  # key -> (name, ver, [arts])
-            remaining = []
-
-            for art in arts:
-                fp = art["file_path"]
-                ext = Path(fp).suffix.lower()
-                if ext not in (".c", ".h"):
-                    remaining.append(art)
-                    continue
-
-                sub = self._detect_sub_component(
-                    fp, parent_prefix
-                )
-                if sub:
-                    sub_name, sub_ver = sub
-                    key = sub_name.lower()
-                    if key not in sub_map:
-                        sub_map[key] = (
-                            sub_name, sub_ver, []
-                        )
-                    sub_map[key][2].append(art)
-                else:
-                    remaining.append(art)
-
-            # Assign remaining files that match a
-            # sub-component by basename prefix
-            still_remaining = []
-            for art in remaining:
-                basename = Path(
-                    art["file_path"]
-                ).stem.lower()
-                assigned = False
-                for key in sub_map:
-                    if key in basename:
-                        sub_map[key][2].append(art)
-                        assigned = True
-                        break
-                if not assigned:
-                    still_remaining.append(art)
-
-            # Keep parent group with remaining files
-            if still_remaining:
-                result[lib_name] = still_remaining
-
-            # Add sub-component groups
-            for key, (name, ver, sub_arts) in (
-                sub_map.items()
-            ):
-                full_name = f"{lib_name}-{name}"
-                result[full_name] = sub_arts
-                if ver:
-                    versions[full_name] = ver
-
-        return result, versions
-
-    def _detect_sub_component(
-        self, file_path, parent_prefix
-    ):
-        """Check if a source file defines its own
-        version distinct from the parent library.
-
-        Returns (sub_name, version) or None.
-        """
-        try:
-            text = Path(file_path).read_text(
-                errors="replace"
-            )
-        except OSError:
-            return None
-
-        for m in self._SUB_VERSION_RE.finditer(text):
-            prefix = m.group(1)
-            version = m.group(2)
-            norm = prefix.upper().replace(
-                "-", "_"
-            )
-            # Skip if this is the parent lib's own
-            # version define (e.g. LUA_VERSION,
-            # LUA_VERSION_NUM) but NOT a different
-            # library that starts with the parent
-            # name (e.g. LUA_BITOP is lua-bitop)
-            if norm == parent_prefix:
-                continue
-            # Skip generic names
-            if norm in (
-                "VERSION", "LIB", "PACKAGE",
-                "MODULE",
-            ):
-                continue
-            # Derive readable name from prefix
-            name = prefix.lower().replace("_", "-")
-            # Strip leading "lua-" etc. if parent
-            # is already in the name
-            lp = parent_prefix.lower()
-            if name.startswith(lp + "-"):
-                name = name[len(lp) + 1:]
-            return (name, version)
-
-        return None
 
     def emit(
         self, components, project_files,

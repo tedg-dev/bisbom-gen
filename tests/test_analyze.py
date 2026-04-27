@@ -2511,7 +2511,7 @@ class TestMainUnknownRepo(unittest.TestCase):
 class TestMainFullRun(unittest.TestCase):
     """Tests for main() full analysis run."""
 
-    @patch("app.pipeline.runners.time.time")
+    @patch("app.pipeline.lang_runners.time.time")
     @patch("app.pipeline.runners.AnalysisPipeline")
     @patch(
         "sys.argv",
@@ -2561,7 +2561,7 @@ class TestMainFullRun(unittest.TestCase):
 
         p.builder.build.assert_not_called()
 
-    @patch("app.pipeline.runners.time.time")
+    @patch("app.pipeline.lang_runners.time.time")
     @patch("app.pipeline.runners.AnalysisPipeline")
     @patch(
         "sys.argv",
@@ -2583,7 +2583,7 @@ class TestMainFullRun(unittest.TestCase):
         p.binary_collector.collect.assert_not_called()
         p.docs.write_build_doc.assert_called_once()
 
-    @patch("app.pipeline.runners.time.time")
+    @patch("app.pipeline.lang_runners.time.time")
     @patch("app.pipeline.runners.AnalysisPipeline")
     @patch(
         "sys.argv",
@@ -2630,7 +2630,7 @@ class TestMainFullRun(unittest.TestCase):
 class TestMainGoRepo(unittest.TestCase):
     """Tests for main() with Go repos."""
 
-    @patch("app.pipeline.runners.time.time")
+    @patch("app.pipeline.lang_runners.time.time")
     @patch("app.pipeline.runners.AnalysisPipeline")
     @patch(
         "sys.argv",
@@ -2663,7 +2663,7 @@ class TestMainGoRepo(unittest.TestCase):
         p.docs.write_runtime_doc\
             .assert_called_once()
 
-    @patch("app.pipeline.runners.time.time")
+    @patch("app.pipeline.lang_runners.time.time")
     @patch("app.pipeline.runners.AnalysisPipeline")
     @patch(
         "sys.argv",
@@ -2684,7 +2684,7 @@ class TestMainGoRepo(unittest.TestCase):
             .assert_not_called()
         p.docs.write_build_doc.assert_called_once()
 
-    @patch("app.pipeline.runners.time.time")
+    @patch("app.pipeline.lang_runners.time.time")
     @patch("app.pipeline.runners.AnalysisPipeline")
     @patch(
         "sys.argv",
@@ -3510,7 +3510,7 @@ class TestMetadataCollector(unittest.TestCase):
 class TestMainAdgValidation(unittest.TestCase):
     """Cover line 1400: adg_files validation loop."""
 
-    @patch("app.pipeline.runners.time.time")
+    @patch("app.pipeline.lang_runners.time.time")
     @patch("app.pipeline.runners.AnalysisPipeline")
     @patch(
         "sys.argv",
