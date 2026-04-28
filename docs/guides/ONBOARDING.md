@@ -21,13 +21,15 @@ with full dependency breakdown:
 |---|---|
 | **Windsurf IDE** | IDE with Cascade AI assistant |
 | **Python 3.9+** | Local development, testing, and repo configuration |
-| **Docker 20.10+** on a **Linux x86_64** host | Running the analysis container |
+| **Docker 20.10+** | Running the analysis container (any OS — Linux, macOS, or Windows) |
 | **Git** | Version control |
 
-> **Important:** The analysis container requires native Linux x86_64 with ptrace
-> support. It does NOT work on macOS, Windows, ARM64, or under QEMU/Rosetta.
-> You can develop and test locally on any OS, but the actual build analysis
-> must run on a Linux x86_64 host (local, cloud VM, or remote server).
+> **Important:** The analysis container runs as Linux x86_64 and requires
+> Docker with `SYS_PTRACE` capability. Docker Desktop on macOS or Windows
+> works — it provides a Linux VM transparently. Apple Silicon (ARM64) Macs
+> can run x86_64 containers via Rosetta, but ptrace results may be unreliable
+> under emulation. For production analysis, use a native x86_64 host (local,
+> cloud VM, or remote server). See [Platform Support](../architecture/platform-support.md).
 
 ## Step 1: Clone and Open in Windsurf
 
@@ -125,11 +127,13 @@ Or use the workflow directly:
 /run-analysis
 ```
 
-Pre-configured C/C++ repos: **curl**, **redis**, **ffmpeg**, **nmap**
+Pre-configured C/C++ repos: **curl**, **redis**, **ffmpeg**, **nmap**, **openosc**, **node**
 
 Pre-configured Rust repos: **oxipng**, **dura**
 
-Go repos (experimental, TBD): **lazygit**, **pocketbase**
+Pre-configured Go repos: **lazygit**, **fzf**, **pocketbase**, **croc**, **dive**, **gdu**
+
+Pre-configured Java repos: **checkstyle**, **jsoup**, **crawler4j**, **dependency-check**, **logging-log4j2**, **spring-boot**, **bc-java**, **datahub**
 
 ### Add a new repo from GitHub
 
@@ -155,8 +159,9 @@ After analysis completes, you'll find:
 
 | Output | Location | Description |
 |---|---|---|
-| SPDX SBOM (per binary) | `output/spdx/{lang}/{repo}/{ts}/<binary>_adg.spdx.json` | Full dependency breakdown |
-| HTML visualization | `output/spdx/{lang}/{repo}/{ts}/<binary>_adg.spdx.html` | Interactive D3.js graph |
+| SPDX SBOM (analyzed) | `output/spdx/{lang}/{repo}/{ts}/<binary>_analyzed.spdx.json` | Static deps compiled into the binary |
+| SPDX SBOM (build) | `output/spdx/{lang}/{repo}/{ts}/<binary>_build.spdx.json` | Full dependency graph (static + dynamic + transitive) |
+| HTML visualization | `output/spdx/{lang}/{repo}/{ts}/<binary>_*.spdx.html` | Interactive D3.js graph (one per SPDX file) |
 | OmniBOR ADG | `output/omnibor/{lang}/{repo}/{ts}/` | Cryptographic build provenance |
 | Component metadata | `output/omnibor/{lang}/{repo}/{ts}/metadata/` | dpkg package resolution |
 
