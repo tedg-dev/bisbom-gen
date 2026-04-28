@@ -11,6 +11,7 @@ output/omnibor/*/
 output/spdx/*/
 output/binaries/*/
 output/binary-scan/*/
+output/build-logs/*/
 !output/**/.gitkeep
 
 # ============================================================
