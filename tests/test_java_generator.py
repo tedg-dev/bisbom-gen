@@ -421,6 +421,52 @@ class TestGetVersion(unittest.TestCase):
                 gen._get_version(), "10.13.4"
             )
 
+    def test_version_resolves_ci_friendly_revision(self):
+        with tempfile.TemporaryDirectory() as td:
+            repos = Path(td) / "repos"
+            repo = repos / "myapp"
+            repo.mkdir(parents=True)
+            pom = repo / "pom.xml"
+            pom.write_text(
+                '<project>\n'
+                '  <version>${revision}</version>\n'
+                '  <properties>\n'
+                '    <revision>2.24.3</revision>\n'
+                '  </properties>\n'
+                '</project>\n'
+            )
+            gen = JavaSpdxGenerator(
+                bom_dir="/tmp/bom",
+                repos_dir=str(repos),
+                repo_name="myapp",
+            )
+            self.assertEqual(
+                gen._get_version(), "2.24.3"
+            )
+
+    def test_version_falls_back_to_jar_name(self):
+        with tempfile.TemporaryDirectory() as td:
+            repos = Path(td) / "repos"
+            repo = repos / "myapp"
+            repo.mkdir(parents=True)
+            pom = repo / "pom.xml"
+            pom.write_text(
+                '<project>\n'
+                '  <version>${revision}</version>\n'
+                '</project>\n'
+            )
+            gen = JavaSpdxGenerator(
+                bom_dir="/tmp/bom",
+                repos_dir=str(repos),
+                repo_name="myapp",
+            )
+            self.assertEqual(
+                gen._get_version(
+                    artifact_path="log4j-core-2.24.3.jar"
+                ),
+                "2.24.3",
+            )
+
 
 class TestGetMavenDeps(unittest.TestCase):
     """Tests for _get_maven_deps."""
@@ -693,7 +739,7 @@ class TestBuildSpdx(unittest.TestCase):
             "SPDXRef-Dep-1",
         )
 
-    def test_provided_dep_build_tool_of(self):
+    def test_provided_dep_depends_on(self):
         deps = [{
             "groupId": "javax",
             "artifactId": "javaee-api",
@@ -706,13 +752,13 @@ class TestBuildSpdx(unittest.TestCase):
         doc = self.gen._build_spdx(
             "myapp.jar", [], deps
         )
-        build_rels = [
+        dep_rels = [
             r for r in doc["relationships"]
-            if r["relationshipType"] == "BUILD_TOOL_OF"
+            if r["relationshipType"] == "DEPENDS_ON"
         ]
-        self.assertEqual(len(build_rels), 1)
+        self.assertEqual(len(dep_rels), 1)
 
-    def test_transitive_provided_build_tool_of(self):
+    def test_transitive_provided_depends_on(self):
         deps = [
             {
                 "groupId": "a",
@@ -736,11 +782,13 @@ class TestBuildSpdx(unittest.TestCase):
         doc = self.gen._build_spdx(
             "myapp.jar", [], deps
         )
-        build_rels = [
+        dep_rels = [
             r for r in doc["relationships"]
-            if r["relationshipType"] == "BUILD_TOOL_OF"
+            if r["relationshipType"] == "DEPENDS_ON"
         ]
-        self.assertEqual(len(build_rels), 1)
+        # Both deps use DEPENDS_ON (provided scope
+        # info is in the comment field)
+        self.assertEqual(len(dep_rels), 2)
 
     def test_transitive_no_parent_match_falls_to_root(
         self,

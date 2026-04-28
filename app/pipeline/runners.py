@@ -47,7 +47,8 @@ def main():
         "--syft-only", action="store_true",
         help=(
             "Only generate Syft manifest SBOM "
-            "(no build)"
+            "(no build). Overrides pipeline."
+            "syft_enabled config."
         ),
     )
     args = parser.parse_args()
@@ -125,12 +126,17 @@ def main():
             args.repo, repo_cfg, paths_cfg
         )
 
-    # Step 2: Syft SBOM (manifest-based — works for
-    # all languages; primary SBOM for Go repos)
-    pipeline.syft_gen.generate(
-        args.repo, repo_cfg, paths_cfg,
-        run_ts=run_ts,
-    )
+    # Step 2: Syft SBOM (manifest-based — optional,
+    # disabled by default in config.yaml).
+    # --syft-only CLI flag overrides config.
+    syft_enabled = config.get(
+        "pipeline", {}
+    ).get("syft_enabled", False) or args.syft_only
+    if syft_enabled:
+        pipeline.syft_gen.generate(
+            args.repo, repo_cfg, paths_cfg,
+            run_ts=run_ts,
+        )
 
     if args.syft_only:
         print(
@@ -163,11 +169,12 @@ def main():
             paths_cfg, omnibor_cfg, run_ts,
         )
 
-    # Step 7b: Validate Syft SPDX (all languages)
-    _validate_syft_spdx(
-        pipeline, args.repo, repo_cfg,
-        paths_cfg, run_ts,
-    )
+    # Step 7b: Validate Syft SPDX (if enabled)
+    if syft_enabled:
+        _validate_syft_spdx(
+            pipeline, args.repo, repo_cfg,
+            paths_cfg, run_ts,
+        )
 
     # Step 8: Write docs (all languages)
     tracer = omnibor_cfg.get("tracer")

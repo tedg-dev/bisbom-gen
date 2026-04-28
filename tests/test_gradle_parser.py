@@ -93,12 +93,15 @@ class TestParseGradleDepTree(unittest.TestCase):
             ":spring-core:5.3.4 (*)\n"
         )
         result = parse_gradle_dep_tree(output)
-        self.assertEqual(len(result), 4)
-        last = result[3]
+        # spring-core appears twice but should be
+        # deduplicated to 3 unique entries
+        self.assertEqual(len(result), 3)
+        names = [d["artifactId"] for d in result]
         self.assertEqual(
-            last["artifactId"], "spring-core"
+            names,
+            ["spring-aop", "spring-beans",
+             "spring-core"],
         )
-        self.assertEqual(last["version"], "5.3.4")
 
     def test_deep_tree(self):
         output = (
@@ -176,9 +179,97 @@ class TestParseGradleDepTree(unittest.TestCase):
             ":jsr305:3.0.1 -> 3.0.2 (*)\n"
         )
         result = parse_gradle_dep_tree(output)
-        self.assertEqual(len(result), 3)
-        last = result[2]
-        self.assertEqual(last["version"], "3.0.2")
+        # jsr305 resolved to 3.0.2 appears twice
+        # but dedup keeps only the first
+        self.assertEqual(len(result), 2)
+        self.assertEqual(
+            result[1]["artifactId"], "jsr305"
+        )
+        self.assertEqual(result[1]["version"], "3.0.2")
+
+    def test_dedup_same_artifact_different_parents(self):
+        output = (
+            "runtimeClasspath - Runtime classpath.\n"
+            "+--- org.a:lib-a:1.0\n"
+            "|    \\--- org.c:shared:2.0\n"
+            "\\--- org.b:lib-b:1.0\n"
+            "     \\--- org.c:shared:2.0 (*)\n"
+        )
+        result = parse_gradle_dep_tree(output)
+        names = [d["artifactId"] for d in result]
+        self.assertEqual(
+            names, ["lib-a", "shared", "lib-b"]
+        )
+        # First occurrence kept (parent = lib-a)
+        shared = result[1]
+        self.assertEqual(shared["parent"], "lib-a")
+
+    def test_filters_bom_entries(self):
+        output = (
+            "runtimeClasspath - Runtime classpath.\n"
+            "+--- com.fasterxml.jackson"
+            ":jackson-bom:2.18.3\n"
+            "+--- io.netty:netty-bom"
+            ":4.1.119.Final\n"
+            "+--- org.slf4j:slf4j-api:2.0.9\n"
+        )
+        result = parse_gradle_dep_tree(output)
+        self.assertEqual(len(result), 1)
+        self.assertEqual(
+            result[0]["artifactId"], "slf4j-api"
+        )
+
+    def test_filters_dependencies_suffix(self):
+        output = (
+            "runtimeClasspath - Runtime classpath.\n"
+            "+--- org.spring:spring-dependencies"
+            ":3.4.4\n"
+            "+--- org.slf4j:slf4j-api:2.0.9\n"
+        )
+        result = parse_gradle_dep_tree(output)
+        self.assertEqual(len(result), 1)
+        self.assertEqual(
+            result[0]["artifactId"], "slf4j-api"
+        )
+
+    def test_filters_constraint_entries(self):
+        output = (
+            "runtimeClasspath - Runtime classpath.\n"
+            "+--- org.slf4j:slf4j-api:2.0.9\n"
+            "+--- com.google.guava:guava:30.1-jre"
+            " (c)\n"
+        )
+        result = parse_gradle_dep_tree(output)
+        self.assertEqual(len(result), 1)
+        self.assertEqual(
+            result[0]["artifactId"], "slf4j-api"
+        )
+
+    def test_filters_underscore_bom(self):
+        output = (
+            "runtimeClasspath - Runtime classpath.\n"
+            "+--- io.prometheus:simpleclient_bom"
+            ":0.16.0\n"
+            "+--- org.slf4j:slf4j-api:2.0.9\n"
+        )
+        result = parse_gradle_dep_tree(output)
+        self.assertEqual(len(result), 1)
+        self.assertEqual(
+            result[0]["artifactId"], "slf4j-api"
+        )
+
+    def test_filters_rich_version_strictly(self):
+        output = (
+            "runtimeClasspath - Runtime classpath.\n"
+            "+--- org.codehaus.janino"
+            ":janino:{strictly 3.1.10}\n"
+            "+--- org.slf4j:slf4j-api:2.0.9\n"
+        )
+        result = parse_gradle_dep_tree(output)
+        self.assertEqual(len(result), 1)
+        self.assertEqual(
+            result[0]["artifactId"], "slf4j-api"
+        )
 
 
 class TestParseBuildGradle(unittest.TestCase):

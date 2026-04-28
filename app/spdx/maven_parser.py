@@ -222,7 +222,12 @@ def resolve_property(value, properties):
 
 
 def get_version(repo_dir):
-    """Try to get version from pom.xml."""
+    """Try to get version from pom.xml.
+
+    Resolves Maven CI-friendly version properties
+    (``${revision}``, ``${sha1}``, ``${changelist}``)
+    using ``<properties>`` from the POM.
+    """
     pom_path = Path(repo_dir) / "pom.xml"
     if not pom_path.exists():
         return "unknown"
@@ -243,16 +248,46 @@ def get_version(repo_dir):
 
         if version is not None:
             ver = version.text or "unknown"
+
+            # Resolve CI-friendly properties
+            if "${" in ver:
+                ver = _resolve_pom_version(
+                    ver, root, ns,
+                )
+
             # Strip -SNAPSHOT suffix — we're
             # analyzing a specific commit, not a
             # development snapshot.
             if ver.endswith("-SNAPSHOT"):
                 ver = ver[: -len("-SNAPSHOT")]
+
             return ver
     except ET.ParseError:
         pass
 
     return "unknown"
+
+
+def _resolve_pom_version(ver, root, ns):
+    """Resolve ``${...}`` placeholders against POM
+    ``<properties>``."""
+    properties = {}
+    if ns:
+        props_elem = root.find(
+            "m:properties", ns,
+        )
+    else:
+        props_elem = root.find("properties")
+
+    if props_elem is not None:
+        for prop in props_elem:
+            tag = prop.tag
+            if "}" in tag:
+                tag = tag.split("}")[1]
+            if prop.text:
+                properties[tag] = prop.text
+
+    return resolve_property(ver, properties)
 
 
 def get_project_group_id(repo_dir):

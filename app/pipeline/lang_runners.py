@@ -335,13 +335,22 @@ def generate_java_adg_spdx(
                 f"{rel_jar}, using all project files"
             )
 
-        # Determine module pom_dir for per-module
-        # Maven deps (e.g. cli/pom.xml, core/pom.xml)
+        # Determine module dir for per-module dependency
+        # resolution (Maven: pom.xml, Gradle: build.gradle)
         pom_dir = None
         jar_dir = jar_path.parent
-        # Walk up from target/ to find module pom.xml
-        for parent in [jar_dir, jar_dir.parent]:
-            if (parent / "pom.xml").exists():
+        # Walk up from build output dir to find module root
+        build_files = (
+            "pom.xml", "build.gradle", "build.gradle.kts"
+        )
+        for parent in [
+            jar_dir, jar_dir.parent,
+            jar_dir.parent.parent,
+        ]:
+            if any(
+                (parent / bf).exists()
+                for bf in build_files
+            ):
                 pom_dir = str(parent)
                 break
 

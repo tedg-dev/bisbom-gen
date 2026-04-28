@@ -86,6 +86,7 @@ def parse_gradle_dep_tree(output):
     maven_parser.parse_dep_tree() output.
     """
     deps = []
+    seen = set()
     parent_stack = [None]
     seen_config = False
 
@@ -121,6 +122,11 @@ def parse_gradle_dep_tree(output):
         if remainder.startswith("project "):
             continue
 
+        # Skip constraint-only entries (c) — these are
+        # BOM/platform version constraints, not real deps
+        if "(c)" in remainder:
+            continue
+
         # Parse group:artifact:version with optional -> resolved
         dep_match = re.match(
             r"([^:]+):([^:]+):([^\s]+)"
@@ -137,6 +143,12 @@ def parse_gradle_dep_tree(output):
         resolved_version = dep_match.group(4)
 
         version = resolved_version or declared_version
+
+        # Skip Gradle rich-version constraints like
+        # {strictly 3.1.10} — these are metadata, not
+        # real resolved versions.
+        if version.startswith("{"):
+            continue
 
         # Calculate depth from marker position
         # depth 0: marker at column 0
@@ -155,6 +167,21 @@ def parse_gradle_dep_tree(output):
         while len(parent_stack) <= depth + 1:
             parent_stack.append(None)
         parent_stack[depth + 1] = artifact_id
+
+        # Skip BOM/platform entries — these are POM-only
+        # dependency management imports, not actual JARs.
+        # Naming: *-bom, *_bom, *-dependencies
+        if (artifact_id.endswith(("-bom", "_bom"))
+                or artifact_id.endswith("-dependencies")):
+            continue
+
+        # Deduplicate: keep only the first (shallowest)
+        # occurrence of each groupId:artifactId:version.
+        # Gradle repeats transitive deps under each parent.
+        key = f"{group_id}:{artifact_id}:{version}"
+        if key in seen:
+            continue
+        seen.add(key)
 
         # Gradle runtimeClasspath ≈ Maven compile scope
         deps.append({

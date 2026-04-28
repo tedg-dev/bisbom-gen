@@ -343,6 +343,11 @@ omnibor_java:
   strace_opts: -f -s99999 --seccomp-bpf -e trace=openat -qqq
   create_bom_script: bomsh_create_bom_java.py
   strace_logfile: /tmp/strace_java_logfile
+pipeline:
+  # Syft manifest-based SBOM generation.  Disabled by default
+  # because OmniBOR build-time SBOMs are the primary output.
+  # Enable for supplementary manifest-based baseline comparison.
+  syft_enabled: false
 docs:
   timestamp_format: '%Y-%m-%d_%H%M'
   types:
