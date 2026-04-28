@@ -38,11 +38,13 @@ the project root:
 ## AWS session management
 
 - `duo-sso` sessions expire every 1 hour
-- If any `aws` command fails with `RequestExpired` or `ExpiredToken`,
-  **immediately run** `duo-sso --profile ted-admin` (interactive Chrome mode).
-  Do NOT just print instructions — always execute the command.
+- If any `aws` command fails with `RequestExpired`, `ExpiredToken`, or
+  `NoCredentials`, Cascade **MUST immediately execute** duo-sso itself:
+  `run_command: duo-sso --profile ted-admin`
+  **NEVER print instructions for the user to run it manually. EVER.**
 - After duo-sso completes, fix the credentials profile name:
   `sed -i '' 's/^\[default\]/[ted-admin]/' ~/.aws/credentials`
+- Then retry the failed AWS command
 
 ## EC2 instance power management
 

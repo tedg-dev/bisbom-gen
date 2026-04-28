@@ -3,7 +3,8 @@ Java ADG SPDX Generator.
 
 Generates SPDX 2.3 SBOMs for Java projects using:
 - OmniBOR treedb for .java → .class → .jar relationships
-- mvn dependency:tree for full transitive Maven dependencies
+- mvn dependency:tree or ./gradlew dependencies for
+  full transitive dependency graphs
 """
 
 import json
@@ -23,6 +24,12 @@ from app.spdx.maven_parser import (
     parse_pom,
     resolve_property,
 )
+from app.spdx.gradle_parser import (
+    get_gradle_deps,
+    get_gradle_version,
+    get_gradle_group,
+    is_gradle_project,
+)
 
 
 class JavaSpdxGenerator:
@@ -30,7 +37,11 @@ class JavaSpdxGenerator:
 
     Unlike native binaries, Java JARs don't have dynamic
     library dependencies. Instead, dependencies come from
-    Maven and are resolved via `mvn dependency:tree`.
+    Maven or Gradle and are resolved via
+    ``mvn dependency:tree`` or ``./gradlew dependencies``.
+
+    Build system is auto-detected: if gradlew exists in the
+    repo root, Gradle is used; otherwise Maven.
     """
 
     def __init__(
@@ -49,12 +60,42 @@ class JavaSpdxGenerator:
         self.strace_accessed = strace_accessed or set()
 
     # -------------------------------------------------
-    # Backward-compatible delegates to maven_parser
+    # Build-system-aware delegates
     # -------------------------------------------------
+    def _is_gradle(self):
+        return is_gradle_project(self.repo_dir)
+
     def _get_maven_deps(self, pom_dir=None):
+        if self._is_gradle():
+            project = self._gradle_project_from_dir(
+                pom_dir
+            )
+            return get_gradle_deps(
+                self.repo_dir, project=project
+            )
         return get_maven_deps(
             self.repo_dir, pom_dir=pom_dir,
         )
+
+    def _gradle_project_from_dir(self, module_dir):
+        """Derive Gradle project path from module directory.
+
+        E.g. /repos/spring-boot/spring-boot-project/spring-boot
+        with repo_dir /repos/spring-boot
+        → ':spring-boot-project:spring-boot'
+        """
+        if not module_dir:
+            return None
+        try:
+            rel = Path(module_dir).relative_to(
+                self.repo_dir
+            )
+            parts = rel.parts
+            if not parts or parts == ('.',):
+                return None
+            return ':' + ':'.join(parts)
+        except ValueError:
+            return None
 
     def _parse_dep_tree(self, output):
         return parse_dep_tree(output)
@@ -66,10 +107,41 @@ class JavaSpdxGenerator:
     def _resolve_property(value, properties):
         return resolve_property(value, properties)
 
-    def _get_version(self):
-        return get_version(self.repo_dir)
+    def _get_version(self, artifact_path=None):
+        if self._is_gradle():
+            ver = get_gradle_version(self.repo_dir)
+        else:
+            ver = get_version(self.repo_dir)
+
+        # Universal fallback: if the build-system
+        # parser returned an unresolved placeholder
+        # or "unknown", extract from the artifact
+        # filename (e.g. log4j-core-2.24.3.jar).
+        if artifact_path and (
+            ver == "unknown" or "${" in ver
+        ):
+            ver = (
+                self._version_from_artifact(
+                    artifact_path,
+                ) or ver
+            )
+        return ver
+
+    @staticmethod
+    def _version_from_artifact(filename):
+        """Extract version from an artifact filename.
+
+        Works for any naming convention that uses
+        ``name-X.Y.Z.ext`` (JAR, WAR, EAR, etc.).
+        Returns *None* if no version is found.
+        """
+        stem = Path(filename).stem
+        m = re.search(r"-(\d+\.\d[\w.]*)", stem)
+        return m.group(1) if m else None
 
     def _get_project_group_id(self):
+        if self._is_gradle():
+            return get_gradle_group(self.repo_dir)
         return get_project_group_id(self.repo_dir)
 
     def generate(
@@ -156,8 +228,9 @@ class JavaSpdxGenerator:
             f"{test_msg}{strace_msg}"
         )
 
-        # Get Maven dependencies via dependency:tree
-        # Filter to only runtime dependencies (compile, runtime, provided)
+        # Get dependencies via mvn dependency:tree
+        # or ./gradlew dependencies (auto-detected).
+        # Filter to only runtime deps (compile, runtime, provided).
         # Exclude test scope - those aren't in the final JAR
         all_deps = self._get_maven_deps(
             pom_dir=pom_dir
@@ -173,8 +246,12 @@ class JavaSpdxGenerator:
             1 for d in maven_deps if d["direct"]
         )
         trans = len(maven_deps) - direct
+        build_sys = (
+            "Gradle" if self._is_gradle()
+            else "Maven"
+        )
         print(
-            f"[{bin_name}] Maven dependencies: "
+            f"[{bin_name}] {build_sys} dependencies: "
             f"{len(maven_deps)} runtime "
             f"({direct} direct, "
             f"{trans} transitive), "
@@ -264,7 +341,9 @@ class JavaSpdxGenerator:
         doc["packages"].append({
             "SPDXID": root_pkg_id,
             "name": artifact_name,
-            "versionInfo": self._get_version(),
+            "versionInfo": self._get_version(
+                artifact_path=bin_name,
+            ),
             "downloadLocation": "NOASSERTION",
             "filesAnalyzed": True,
             "primaryPackagePurpose": "APPLICATION",
@@ -444,25 +523,16 @@ class JavaSpdxGenerator:
                 else:
                     target = root_pkg_id
 
-            # SPDX relationship direction:
-            #   DEPENDS_ON: A depends on B →
-            #     "A DEPENDS_ON B" (parent→child)
-            #   BUILD_TOOL_OF: tool builds target →
-            #     "tool BUILD_TOOL_OF target"
-            if dep["scope"] == "provided":
-                # Provided = compile-time only tool
-                doc["relationships"].append({
-                    "spdxElementId": dep_id,
-                    "relatedSpdxElement": target,
-                    "relationshipType": "BUILD_TOOL_OF",
-                })
-            else:
-                # Runtime dep: parent DEPENDS_ON child
-                doc["relationships"].append({
-                    "spdxElementId": target,
-                    "relatedSpdxElement": dep_id,
-                    "relationshipType": "DEPENDS_ON",
-                })
+            # SPDX relationship: parent DEPENDS_ON child.
+            # All non-test deps (compile, runtime, provided)
+            # are DEPENDS_ON.  Scope metadata is in the
+            # package comment field.  BUILD_TOOL_OF is
+            # reserved for actual build tools (javac, maven).
+            doc["relationships"].append({
+                "spdxElementId": target,
+                "relatedSpdxElement": dep_id,
+                "relationshipType": "DEPENDS_ON",
+            })
 
         return doc
 

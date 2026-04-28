@@ -2529,7 +2529,8 @@ class TestMainFullRun(unittest.TestCase):
             analyze.main()
 
         p.cloner.clone.assert_called_once()
-        p.syft_gen.generate.assert_called_once()
+        # Syft disabled by default in config.yaml
+        p.syft_gen.generate.assert_not_called()
         p.validator.validate.assert_called_once()
         p.builder.build.assert_called_once()
         p.spdx_gen.generate.assert_called_once()
@@ -2603,6 +2604,33 @@ class TestMainFullRun(unittest.TestCase):
 
         p.cloner.clone.assert_not_called()
 
+    @patch(
+        "app.pipeline.runners.load_config",
+    )
+    @patch("app.pipeline.lang_runners.time.time")
+    @patch("app.pipeline.runners.AnalysisPipeline")
+    @patch(
+        "sys.argv",
+        ["analyze.py", "--repo", "curl"],
+    )
+    def test_syft_enabled_via_config(
+        self, mock_cls, mock_time, mock_cfg
+    ):
+        p = _mock_pipeline()
+        mock_cls.return_value = p
+        p.builder.build.return_value = True
+        mock_time.side_effect = [100.0, 110.0]
+        real_cfg = load_config()
+        real_cfg.setdefault(
+            "pipeline", {}
+        )["syft_enabled"] = True
+        mock_cfg.return_value = real_cfg
+
+        with patch("builtins.print"):
+            analyze.main()
+
+        p.syft_gen.generate.assert_called_once()
+
     @patch("app.pipeline.runners.AnalysisPipeline")
     @patch(
         "sys.argv",
@@ -2611,13 +2639,16 @@ class TestMainFullRun(unittest.TestCase):
             "--syft-only",
         ],
     )
-    def test_syft_only(self, mock_cls):
+    def test_syft_only_overrides_config(
+        self, mock_cls
+    ):
         p = _mock_pipeline()
         mock_cls.return_value = p
 
         with patch("builtins.print"):
             analyze.main()
 
+        # --syft-only overrides syft_enabled=false
         p.syft_gen.generate.assert_called_once()
         p.builder.build.assert_not_called()
         p.spdx_gen.generate.assert_not_called()
@@ -2652,7 +2683,8 @@ class TestMainGoRepo(unittest.TestCase):
         p.builder.build.assert_called_once()
         # Full pipeline steps called
         p.cloner.clone.assert_called_once()
-        p.syft_gen.generate.assert_called_once()
+        # Syft disabled by default in config.yaml
+        p.syft_gen.generate.assert_not_called()
         p.spdx_gen.generate.assert_called_once()
         p.metadata_collector.collect\
             .assert_called_once()
@@ -2684,26 +2716,32 @@ class TestMainGoRepo(unittest.TestCase):
             .assert_not_called()
         p.docs.write_build_doc.assert_called_once()
 
+    @patch(
+        "app.pipeline.runners.load_config",
+    )
     @patch("app.pipeline.lang_runners.time.time")
     @patch("app.pipeline.runners.AnalysisPipeline")
     @patch(
         "sys.argv",
-        [
-            "analyze.py", "--repo", "fzf",
-            "--syft-only",
-        ],
+        ["analyze.py", "--repo", "fzf"],
     )
-    def test_go_syft_only(
-        self, mock_cls, mock_time
+    def test_go_syft_enabled(
+        self, mock_cls, mock_time, mock_cfg
     ):
         p = _mock_pipeline()
         mock_cls.return_value = p
+        p.builder.build.return_value = True
+        mock_time.side_effect = [100.0, 110.0]
+        real_cfg = load_config()
+        real_cfg.setdefault(
+            "pipeline", {}
+        )["syft_enabled"] = True
+        mock_cfg.return_value = real_cfg
 
         with patch("builtins.print"):
             analyze.main()
 
         p.syft_gen.generate.assert_called_once()
-        p.builder.build.assert_not_called()
 
 
 class TestRunGoPipeline(unittest.TestCase):

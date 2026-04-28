@@ -27,13 +27,21 @@ aws ec2 describe-instances --profile ted-admin \
   --output table --no-cli-pager
 ```
 
-If this fails with `RequestExpired`, tell the user to re-auth:
+If this fails with `RequestExpired` or `ExpiredToken` or `NoCredentials`,
+**Cascade MUST run duo-sso itself** — NEVER tell the user to do it manually:
+
+```bash
+duo-sso --profile ted-admin
 ```
-1. Go to https://go2.cisco.com/aws → SSO + Duo MFA
-2. Use SAML bookmarklet → download fresh saml.txt
-3. Run: duo-sso -saml $(cat ~/Downloads/saml.txt) -profile ted-admin -set-aws-region us-west-1
-4. Run: sed -i '' 's/^\[default\]/[ted-admin]/' ~/.aws/credentials
+
+Then fix the credentials profile name:
+
+// turbo
+```bash
+sed -i '' 's/^\[default\]/[ted-admin]/' ~/.aws/credentials
 ```
+
+Then retry the describe-instances command above.
 
 ## 2. Start instance (if stopped)
 
