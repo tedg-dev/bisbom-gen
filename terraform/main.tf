@@ -132,7 +132,9 @@ resource "aws_instance" "omnibor_build" {
     delete_on_termination = true
   }
 
-  user_data = file("${path.module}/user-data.sh")
+  user_data = templatefile("${path.module}/user-data.sh", {
+    repo_url = var.repo_url
+  })
 
   tags = {
     Name    = "${var.project_name}-build"

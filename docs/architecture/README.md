@@ -29,7 +29,7 @@ These diagrams show how OmniBOR/bomsh intercepts the build process for each supp
 | Document | Description |
 |----------|-------------|
 | [App Architecture](app-architecture.md) | Pipeline structure, module dependencies, data flow |
-| [Analyzed vs Build SBOMs](analyzed-vs-build-sboms.md) | CISA SBOM types and two-file approach rationale |
+| [Analyzed vs Build SBOMs](../features/analyzed-vs-build-sboms.md) | CISA SBOM types and two-file approach rationale |
 | [Technical Overview](omnibor-analysis-technical-overview.md) | High-level system overview for stakeholders |
 | [OmniBOR Analysis Overview](omnibor-analysis-overview.md) | Detailed project methodology |
 

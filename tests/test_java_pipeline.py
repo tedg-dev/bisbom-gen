@@ -359,7 +359,6 @@ class TestMainJavaDispatch(unittest.TestCase):
             "paths": {
                 "output_dir": "/tmp/out",
                 "repos_dir": "/tmp/repos",
-                "docs_dir": "/tmp/docs",
             },
             "omnibor": {
                 "tracer": "bomtrace3",
@@ -404,7 +403,6 @@ class TestMainJavaDispatch(unittest.TestCase):
             "paths": {
                 "output_dir": "/tmp/out",
                 "repos_dir": "/tmp/repos",
-                "docs_dir": "/tmp/docs",
             },
             "omnibor": {
                 "tracer": "bomtrace3",

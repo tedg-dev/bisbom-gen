@@ -95,11 +95,11 @@ class DocWriter:
         run_ts=None, tracer=None,
         raw_logfile=None,
     ):
-        """Write build log to docs/build-logs/<lang>/<repo>/<ts>/."""
+        """Write build log to output/build-logs/<lang>/<repo>/<ts>/."""
         ts = run_ts or timestamp()
         lang = lang_subdir(repo_cfg)
         docs_dir = (
-            Path(paths_cfg["docs_dir"])
+            Path(paths_cfg["output_dir"])
             / "build-logs" / lang / repo_name / ts
         )
         docs_dir.mkdir(parents=True, exist_ok=True)
@@ -187,7 +187,7 @@ class DocWriter:
         ts = run_ts or timestamp()
         lang = lang_subdir(repo_cfg)
         runtime_dir = (
-            Path(paths_cfg["docs_dir"])
+            Path(paths_cfg["output_dir"])
             / "runtime" / lang / repo_name / ts
         )
         runtime_dir.mkdir(

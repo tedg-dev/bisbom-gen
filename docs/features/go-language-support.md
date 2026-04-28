@@ -59,7 +59,7 @@ The upstream `bomsh_hook2.py` function `is_golang_prog()` only
 matches Go tools under `/usr/lib/go-*` and `/usr/lib/golang/`.
 The official Go installer (go.dev/dl) installs to
 `/usr/local/go/`, which is not matched. Our patch adds
-`"local/go"` to the path check. See `docs/upstream-changes.md`
+`"local/go"` to the path check. See `docs/issues/upstream-changes.md`
 for details on proposing this fix upstream.
 
 ## Go Module Resolution in ADG SPDX
@@ -164,8 +164,8 @@ contain underscores (e.g., `jibber_jabber` → `jibber-jabber`).
 |------|---------|
 | `docker/bomtrace_go.conf` | Go-specific bomtrace2 configuration |
 | `docker/patches/bomsh_hook2_golang_path.patch` | Upstream fix for `is_golang_prog()` |
-| `docs/go-language-support.md` | This document |
-| `docs/upstream-changes.md` | Tracking upstream bomsh issues |
+| `docs/features/go-language-support.md` | This document |
+| `docs/issues/upstream-changes.md` | Tracking upstream bomsh issues |
 
 ### Modified files
 

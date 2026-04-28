@@ -97,3 +97,20 @@ See: https://github.com/omnibor/bomsh#software-vulnerability-cve-search-for-rust
 - SPDX v2.3 is the supported version
 - `vendored_dirs` in config.yaml allows per-repo vendored directory patterns
 - `direct_only` mode prevents duplicate deps when a project has both executables and shared libs
+
+## OmniBOR Version Check
+
+Before running a new analysis session (not every repo run):
+
+1. Query GitHub API: `GET /repos/omnibor/bomsh/releases/latest`
+2. Compare against the pinned version in Dockerfile
+3. If newer release exists: **STOP**, report to user, ask before updating
+
+| Component | Repository | Pinned | Last Checked |
+|-----------|------------|--------|--------------|
+| bomsh | omnibor/bomsh | master (HEAD) | 2026-03-27 |
+
+Skip the check if `--skip-version-check` is passed or `CI` env var is set.
+
+When updating bomsh: update Dockerfile git clone → rebuild image →
+smoke test on a known-good repo → commit the Dockerfile change.

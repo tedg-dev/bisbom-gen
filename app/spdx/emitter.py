@@ -17,6 +17,14 @@ from app.spdx.lang_parsers import (
     parse_go_modules_txt,
     rust_crate_from_registry_path,
 )
+from app.spdx.relationships import (
+    BUILD_TOOL_OF,
+    CONTAINS,
+    DEPENDS_ON,
+    DESCRIBES,
+    DYNAMIC_LINK,
+    STATIC_LINK,
+)
 from app.spdx.vendored import (
     VENDORED_DIRS as _DEFAULT_VENDORED_DIRS,
     detect_vendored_groups,
@@ -255,7 +263,7 @@ class SpdxEmitter:
         # DESCRIBES relationship
         doc["relationships"].append({
             "spdxElementId": "SPDXRef-DOCUMENT",
-            "relationshipType": "DESCRIBES",
+            "relationshipType": DESCRIBES,
             "relatedSpdxElement": root_id,
         })
 
@@ -397,7 +405,7 @@ class SpdxEmitter:
                 doc["relationships"].append({
                     "spdxElementId": root_id,
                     "relationshipType":
-                        "DYNAMIC_LINK",
+                        DYNAMIC_LINK,
                     "relatedSpdxElement": pkg_id,
                 })
 
@@ -440,7 +448,7 @@ class SpdxEmitter:
             doc["packages"].append(go_pkg)
             doc["relationships"].append({
                 "spdxElementId": go_id,
-                "relationshipType": "BUILD_TOOL_OF",
+                "relationshipType": BUILD_TOOL_OF,
                 "relatedSpdxElement": root_id,
             })
 
@@ -491,7 +499,7 @@ class SpdxEmitter:
             doc["packages"].append(stdlib_pkg)
             doc["relationships"].append({
                 "spdxElementId": root_id,
-                "relationshipType": "DEPENDS_ON",
+                "relationshipType": DEPENDS_ON,
                 "relatedSpdxElement": stdlib_id,
             })
 
@@ -534,7 +542,7 @@ class SpdxEmitter:
         doc["packages"].append(gcc_pkg)
         doc["relationships"].append({
             "spdxElementId": gcc_id,
-            "relationshipType": "BUILD_TOOL_OF",
+            "relationshipType": BUILD_TOOL_OF,
             "relatedSpdxElement": root_id,
         })
 
@@ -781,11 +789,11 @@ class SpdxEmitter:
                 )
             )
             if is_go_module:
-                rel_type = "DEPENDS_ON"
+                rel_type = DEPENDS_ON
             elif is_rust_crate:
-                rel_type = "STATIC_LINK"
+                rel_type = STATIC_LINK
             else:
-                rel_type = "STATIC_LINK"
+                rel_type = STATIC_LINK
             doc["relationships"].append({
                 "spdxElementId": root_id,
                 "relationshipType": rel_type,
@@ -800,7 +808,7 @@ class SpdxEmitter:
             if is_vendored:
                 doc["relationships"].append({
                     "spdxElementId": root_id,
-                    "relationshipType": "CONTAINS",
+                    "relationshipType": CONTAINS,
                     "relatedSpdxElement": pkg_id,
                 })
 
@@ -862,7 +870,7 @@ class SpdxEmitter:
             )
             doc["relationships"].append({
                 "spdxElementId": owner_id,
-                "relationshipType": "CONTAINS",
+                "relationshipType": CONTAINS,
                 "relatedSpdxElement": file_id,
             })
 
@@ -876,12 +884,12 @@ class SpdxEmitter:
                 r["spdxElementId"]
                 for r in doc["relationships"]
                 if r["relationshipType"]
-                == "BUILD_TOOL_OF"
+                == BUILD_TOOL_OF
             }
             doc["relationships"] = [
                 r for r in doc["relationships"]
                 if r["relationshipType"]
-                != "BUILD_TOOL_OF"
+                != BUILD_TOOL_OF
             ]
             # IDs still referenced by other rels
             still_used = set()

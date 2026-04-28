@@ -168,13 +168,6 @@ def parse_gradle_dep_tree(output):
             parent_stack.append(None)
         parent_stack[depth + 1] = artifact_id
 
-        # Skip BOM/platform entries — these are POM-only
-        # dependency management imports, not actual JARs.
-        # Naming: *-bom, *_bom, *-dependencies
-        if (artifact_id.endswith(("-bom", "_bom"))
-                or artifact_id.endswith("-dependencies")):
-            continue
-
         # Deduplicate: keep only the first (shallowest)
         # occurrence of each groupId:artifactId:version.
         # Gradle repeats transitive deps under each parent.

@@ -38,7 +38,7 @@ usermod -aG docker ubuntu
 
 # --- Install docker-compose (standalone v2) ---
 DOCKER_COMPOSE_VERSION="v2.29.2"
-curl -fsSL "https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-linux-x86_64" \
+curl -fsSL "https://github.com/docker/compose/releases/download/$${DOCKER_COMPOSE_VERSION}/docker-compose-linux-x86_64" \
   -o /usr/local/bin/docker-compose
 chmod +x /usr/local/bin/docker-compose
 
@@ -47,7 +47,7 @@ apt-get install -y git rsync
 
 # --- Clone omnibor-analysis repo ---
 # If the repo is private, clone will fail here. User can clone manually via SSH.
-if sudo -u ubuntu git clone https://github.com/tedg-cisco/omnibor-analysis.git /home/ubuntu/omnibor-analysis 2>/dev/null; then
+if sudo -u ubuntu git clone ${repo_url} /home/ubuntu/omnibor-analysis 2>/dev/null; then
   echo "=== Repo cloned, building Docker image ==="
   cd /home/ubuntu/omnibor-analysis
   sudo -u ubuntu docker-compose -f docker/docker-compose.yml build

@@ -14,14 +14,20 @@ any session that needs remote builds.
 cat .windsurf/rules/infrastructure/active-profile.md
 ```
 
-Extract **Instance ID**, **SSH alias**, and **Repo path on host** from the profile.
-Use these values in all subsequent steps. **NEVER hardcode instance IDs from memory.**
+Extract these values from the profile and use them in **all subsequent steps**:
+
+- **AWS_PROFILE** — the `AWS Profile` field (e.g. `ted-admin`)
+- **INSTANCE_ID** — the `Instance ID` field
+- **SSH_ALIAS** — the `SSH alias` field (e.g. `omnibor-build`)
+- **REPO_PATH** — the `Repo path on host` field
+
+**NEVER hardcode these values.** Always read them from the profile.
 
 ## 1. Check AWS session & instance status
 
 // turbo
 ```bash
-aws ec2 describe-instances --profile ted-admin \
+aws ec2 describe-instances --profile <AWS_PROFILE> \
   --filters "Name=tag:Name,Values=*omnibor*" \
   --query "Reservations[].Instances[].{ID:InstanceId,State:State.Name,IP:PublicIpAddress,Name:Tags[?Key=='Name'].Value|[0]}" \
   --output table --no-cli-pager
@@ -31,14 +37,14 @@ If this fails with `RequestExpired` or `ExpiredToken` or `NoCredentials`,
 **Cascade MUST run duo-sso itself** — NEVER tell the user to do it manually:
 
 ```bash
-duo-sso --profile ted-admin
+duo-sso --profile <AWS_PROFILE>
 ```
 
 Then fix the credentials profile name:
 
 // turbo
 ```bash
-sed -i '' 's/^\[default\]/[ted-admin]/' ~/.aws/credentials
+sed -i '' 's/^\[default\]/[<AWS_PROFILE>]/' ~/.aws/credentials
 ```
 
 Then retry the describe-instances command above.
@@ -48,7 +54,7 @@ Then retry the describe-instances command above.
 Use the Instance ID from step 1 (NOT from memory):
 
 ```bash
-aws ec2 start-instances --profile ted-admin \
+aws ec2 start-instances --profile <AWS_PROFILE> \
   --instance-ids <INSTANCE_ID> --no-cli-pager
 ```
 
@@ -56,7 +62,7 @@ Wait for it to be running:
 
 // turbo
 ```bash
-aws ec2 wait instance-running --profile ted-admin \
+aws ec2 wait instance-running --profile <AWS_PROFILE> \
   --instance-ids <INSTANCE_ID> --no-cli-pager && echo "Instance is running"
 ```
 
@@ -66,7 +72,7 @@ Wait a few seconds for sshd to start, then test:
 
 // turbo
 ```bash
-sleep 5 && ssh -o ConnectTimeout=10 omnibor-build "echo SSH OK"
+sleep 5 && ssh -o ConnectTimeout=10 <SSH_ALIAS> "echo SSH OK"
 ```
 
 If connection is refused on port 443, user may need to disable VPN first.
@@ -79,19 +85,19 @@ directories that contain Docker-generated files (like __pycache__).**
 
 ```bash
 rsync -avz --exclude='__pycache__' --exclude='.pytest_cache' \
-  app/ omnibor-build:/home/ubuntu/omnibor-analysis/app/
+  app/ <SSH_ALIAS>:<REPO_PATH>/app/
 rsync -avz --exclude='__pycache__' --exclude='.pytest_cache' \
-  docker/ omnibor-build:/home/ubuntu/omnibor-analysis/docker/
+  docker/ <SSH_ALIAS>:<REPO_PATH>/docker/
 rsync -avz --exclude='__pycache__' --exclude='.pytest_cache' \
-  tests/ omnibor-build:/home/ubuntu/omnibor-analysis/tests/
+  tests/ <SSH_ALIAS>:<REPO_PATH>/tests/
 rsync -avz --exclude='__pycache__' --exclude='.pytest_cache' \
-  docs/ omnibor-build:/home/ubuntu/omnibor-analysis/docs/
+  docs/ <SSH_ALIAS>:<REPO_PATH>/docs/
 rsync -avz --exclude='__pycache__' --exclude='.pytest_cache' \
-  scripts/ omnibor-build:/home/ubuntu/omnibor-analysis/scripts/
+  scripts/ <SSH_ALIAS>:<REPO_PATH>/scripts/
 rsync -avz --exclude='__pycache__' --exclude='.pytest_cache' \
-  .windsurf/ omnibor-build:/home/ubuntu/omnibor-analysis/.windsurf/
+  .windsurf/ <SSH_ALIAS>:<REPO_PATH>/.windsurf/
 rsync -avz requirements.txt requirements-dev.txt .coveragerc VERSION \
-  omnibor-build:/home/ubuntu/omnibor-analysis/
+  <SSH_ALIAS>:<REPO_PATH>/
 ```
 
 ## 5. Rebuild Docker image
@@ -100,7 +106,7 @@ The build context is the **project root** (set by docker-compose.yml `context: .
 All COPY paths in the Dockerfile are relative to the project root, NOT docker/.
 
 ```bash
-ssh omnibor-build "cd /home/ubuntu/omnibor-analysis && \
+ssh <SSH_ALIAS> "cd <REPO_PATH> && \
   docker compose -f docker/docker-compose.yml build 2>&1"
 ```
 
@@ -110,7 +116,7 @@ If a full rebuild is needed, add `--no-cache` (takes 10-20 min).
 ## 6. Verify container tools
 
 ```bash
-ssh omnibor-build "cd /home/ubuntu/omnibor-analysis && \
+ssh <SSH_ALIAS> "cd <REPO_PATH> && \
   docker compose -f docker/docker-compose.yml run --rm omnibor-env \
   bash -c 'which bomtrace2 && which bomtrace3 && syft version && go version && \
   echo \"bomtrace_go.conf:\" && head -1 /opt/bomsh/bin/bomtrace_go.conf'"

@@ -1,12 +1,12 @@
 # OmniBOR Analysis — Onboarding Guide
 
 Welcome! This guide will get you from a fresh clone to running OmniBOR build
-interception analysis on any C/C++ GitHub repository, with Windsurf Cascade AI
-handling the heavy lifting.
+interception analysis on any C/C++, Rust, Go, or Java GitHub repository,
+with Windsurf Cascade AI handling the heavy lifting.
 
 ## What This Project Does
 
-This project **instruments C/C++ and Rust builds** using [OmniBOR/Bomsh](https://github.com/omnibor/bomsh)
+This project **instruments C/C++, Rust, Go, and Java builds** using [OmniBOR/Bomsh](https://github.com/omnibor/bomsh)
 to capture every compiler and linker invocation, then generates **SPDX 2.3 SBOMs**
 with full dependency breakdown:
 
@@ -60,7 +60,7 @@ This will:
 - Read all project rules and workflows
 - Create the Python virtual environment
 - Install dependencies from `requirements.txt`
-- Run the test suite (427+ tests, 99% coverage)
+- Run the test suite (874+ tests, 97%+ coverage)
 - Check Docker availability
 - Report the environment status
 
@@ -80,7 +80,7 @@ This takes 10-20 minutes on first build (compiles bomtrace3 from source).
 
 Follow the comprehensive setup guide:
 
-**[docs/guides/aws-setup-guide.md](docs/guides/aws-setup-guide.md)**
+**[AWS Setup Guide](aws-setup-guide.md)**
 
 This covers Cisco Duo SSO authentication, Terraform provisioning, and
 everything needed to go from zero to running builds. The guide handles:
@@ -160,7 +160,7 @@ After analysis completes, you'll find:
 | OmniBOR ADG | `output/omnibor/{lang}/{repo}/{ts}/` | Cryptographic build provenance |
 | Component metadata | `output/omnibor/{lang}/{repo}/{ts}/metadata/` | dpkg package resolution |
 
-`{lang}` is `c-cpp`, `rust`, or `go`. `{ts}` is `YYYY-MM-DD_HHMM`.
+`{lang}` is `c-cpp`, `rust`, `go`, or `java`. `{ts}` is `YYYY-MM-DD_HHMM`.
 
 Open the `.spdx.html` files in a browser to see interactive dependency graphs
 with color-coded nodes (purple=root, teal=vendored, red=dynamic, yellow=build tool).
@@ -194,9 +194,13 @@ omnibor-analysis/
 │   ├── Dockerfile          # Ubuntu 22.04 + gcc + Rust + Go + bomtrace
 │   └── docker-compose.yml  # Container orchestration
 ├── terraform/              # AWS EC2 infrastructure as code
-├── tests/                  # Unit tests (427+ tests, 99% coverage)
-├── docs/                   # Documentation and analysis reports
-│   └── summary/            # Architecture and deep-dive docs
+├── tests/                  # Unit tests (874+ tests, 97%+ coverage)
+├── docs/                   # Hand-written documentation
+│   ├── architecture/       # System diagrams and technical design
+│   ├── features/           # Feature documentation
+│   ├── guides/             # Onboarding, contributing, AWS setup
+│   ├── deep-dive/          # Research, performance, optimization
+│   └── issues/             # Upstream bug tracking
 ├── .windsurf/              # Cascade AI configuration
 │   ├── rules/              # Project rules (always loaded)
 │   └── workflows/          # Slash commands (/add-repo, etc.)
@@ -209,7 +213,7 @@ omnibor-analysis/
 1. All changes go through feature branches (never commit directly to main)
 2. Pre-commit gates: all tests pass + per-file 95%+ coverage + overall 97%+
 3. Cascade handles branch names, commits, and merges via `/merge-pr`
-4. Every commit includes a markdown doc in `docs/summary/` describing changes
+4. Build logs and runtime metrics are generated under `output/` (gitignored)
 
 ## Troubleshooting
 
@@ -224,8 +228,8 @@ omnibor-analysis/
 
 ## Further Reading
 
-- `docs/guides/aws-setup-guide.md` — **Greenfield AWS EC2 setup (Cisco Duo SSO + Terraform)**
-- `docs/infrastructure/aws-ec2-migration-recommendation.md` — Instance sizing and cost comparison
-- `docs/summary/spdx-generation-deep-dive.md` — Full technical pipeline documentation
-- `docs/summary/workflow-guide.md` — Detailed workflow descriptions
-- `docs/summary/nmap-target-vendored-dirs.md` — Vendored directory detection explained
+- [AWS Setup Guide](aws-setup-guide.md) — **Greenfield AWS EC2 setup (Cisco Duo SSO + Terraform)**
+- [SPDX Generation Deep Dive](../deep-dive/spdx-generation-deep-dive.md) — Full technical pipeline documentation
+- [Workflow Guide](../deep-dive/workflow-guide.md) — Detailed workflow descriptions
+- [Vendored Directory Detection](../deep-dive/nmap-target-vendored-dirs.md) — Vendored directory detection explained
+- [Architecture README](../architecture/README.md) — System diagrams and technical overview

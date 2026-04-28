@@ -198,8 +198,9 @@ docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
 
 ## Documentation
 
-- All analysis results go in `docs/build-logs/{lang}/{repo}/{ts}/` (e.g., `docs/build-logs/rust/oxipng/2026-03-06_2235/build.md`)
-- Cross-repo summaries go in `docs/summary/`
-- Runtime/performance metrics go in `docs/runtime/{lang}/{repo}/{ts}/`
+- All generated artifacts (build logs, SBOMs, runtime metrics) go in `output/` (gitignored)
+- Build logs: `output/build-logs/{lang}/{repo}/{ts}/build.md`
+- Runtime metrics: `output/runtime/{lang}/{repo}/{ts}/runtime.md`
 - `{lang}` is `c-cpp`, `rust`, `go`, or `java`. `{ts}` is `YYYY-MM-DD_HHMM`.
+- Hand-written documentation goes in `docs/` — see `docs/README.md` for structure
 - Update `README.md` when adding new target repos or changing workflows

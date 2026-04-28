@@ -63,14 +63,8 @@ and are never deferred to "later."
 
 ## Golden File / Baseline Testing
 
-- When comparing output against known-good baselines (golden files):
-
-  1. Report EVERY difference — no matter how small
-  2. Do NOT assume any diff is benign
-  3. Do NOT update golden files without explicit user approval
-  4. Provide a side-by-side summary of what changed
-
-- Updating golden files without approval is a **critical violation**
+See `cascade/golden-file-policy.md` for the full policy. Key rule:
+**NEVER** update golden files without explicit user approval.
 
 ## Pre-Existing Failures
 

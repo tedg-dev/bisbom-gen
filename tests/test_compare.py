@@ -498,7 +498,6 @@ class TestMainFullRun(unittest.TestCase):
                 "compare.load_config",
                 return_value={
                     "paths": {
-                        "docs_dir": tmpdir,
                         "output_dir": tmpdir,
                     },
                     "repos": {
@@ -549,7 +548,6 @@ class TestMainAutoDiscover(unittest.TestCase):
                 "compare.load_config",
                 return_value={
                     "paths": {
-                        "docs_dir": tmpdir,
                         "output_dir": tmpdir,
                     },
                     "repos": {
