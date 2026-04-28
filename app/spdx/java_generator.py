@@ -30,6 +30,11 @@ from app.spdx.gradle_parser import (
     get_gradle_group,
     is_gradle_project,
 )
+from app.spdx.relationships import (
+    CONTAINED_BY,
+    DESCRIBES,
+    java_dep_relationship,
+)
 
 
 class JavaSpdxGenerator:
@@ -138,6 +143,37 @@ class JavaSpdxGenerator:
         stem = Path(filename).stem
         m = re.search(r"-(\d+\.\d[\w.]*)", stem)
         return m.group(1) if m else None
+
+    @staticmethod
+    def _artifact_annotation(dep):
+        """Return an annotation string if the artifact
+        is a known non-code dependency, else *None*.
+
+        Covers:
+        - Placeholder/conflict-avoidance stubs (e.g.,
+          ``listenablefuture`` with version
+          ``9999.0-empty-to-avoid-conflict-with-guava``).
+        - BOM/platform artifacts that contain no
+          compiled code (POM-only).
+        """
+        ver = dep.get("version", "")
+        aid = dep.get("artifactId", "")
+
+        if "empty-to-avoid-conflict" in ver:
+            return (
+                "Placeholder artifact — empty JAR "
+                "for conflict avoidance"
+            )
+        if (
+            aid.endswith("-bom")
+            or aid.endswith("_bom")
+            or aid.endswith("-dependencies")
+        ):
+            return (
+                "BOM/platform artifact — POM-only, "
+                "no compiled code"
+            )
+        return None
 
     def _get_project_group_id(self):
         if self._is_gradle():
@@ -362,7 +398,7 @@ class JavaSpdxGenerator:
         doc["relationships"].append({
             "spdxElementId": "SPDXRef-DOCUMENT",
             "relatedSpdxElement": root_pkg_id,
-            "relationshipType": "DESCRIBES",
+            "relationshipType": DESCRIBES,
         })
 
         # Add source files
@@ -390,7 +426,7 @@ class JavaSpdxGenerator:
             doc["relationships"].append({
                 "spdxElementId": file_id,
                 "relatedSpdxElement": root_pkg_id,
-                "relationshipType": "CONTAINED_BY",
+                "relationshipType": CONTAINED_BY,
             })
 
         # For analyzed SBOMs, skip Maven deps entirely —
@@ -432,7 +468,7 @@ class JavaSpdxGenerator:
                         queue.append(child)
 
         # Filter deps: exclude transitive deps of siblings
-        # (they belong in the sibling's own SPDX file)
+        # (they belong in the sibling's own SPDX file).
         filtered_deps = []
         for dep in maven_deps:
             if dep["artifactId"] in sibling_transitive:
@@ -476,6 +512,9 @@ class JavaSpdxGenerator:
                 comment_parts.append(
                     f"Required by: {dep['parent']}"
                 )
+            annotation = self._artifact_annotation(dep)
+            if annotation:
+                comment_parts.append(annotation)
             comment = ". ".join(comment_parts)
 
             # Build PackageSourceInfo
@@ -523,15 +562,20 @@ class JavaSpdxGenerator:
                 else:
                     target = root_pkg_id
 
-            # SPDX relationship: parent DEPENDS_ON child.
-            # All non-test deps (compile, runtime, provided)
-            # are DEPENDS_ON.  Scope metadata is in the
-            # package comment field.  BUILD_TOOL_OF is
-            # reserved for actual build tools (javac, maven).
+            # SPDX 2.3 Table 68: compile, runtime,
+            # and provided scopes all map to DEPENDS_ON.
+            # BUILD_TOOL_OF is reserved for the build
+            # system itself (javac, maven, gradle).
+            # Scope metadata is in the package comment.
+            rel_type = java_dep_relationship(
+                dep.get("scope", "compile"),
+            )
+            if rel_type is None:
+                continue
             doc["relationships"].append({
                 "spdxElementId": target,
                 "relatedSpdxElement": dep_id,
-                "relationshipType": "DEPENDS_ON",
+                "relationshipType": rel_type,
             })
 
         return doc

@@ -13,24 +13,28 @@ and completeness.
 ## Directory Structure
 
 - **app/** — Orchestration scripts, modular packages, config.yaml
-  - **app/pipeline/** — Analysis pipeline (12 modules, extracted from analyze.py)
-  - **app/spdx/** — SPDX generation (6 modules, extracted from spdx_from_adg.py)
-  - **app/repo_discovery/** — Repo discovery (8 modules, extracted from add_repo.py)
+  - **app/pipeline/** — Analysis pipeline (16 modules)
+  - **app/spdx/** — SPDX generation (13 modules)
+  - **app/repo_discovery/** — Repo discovery (8 modules)
+  - **app/version_detection/** — Version detection (3 modules, 12 strategies)
+  - **app/viz/** — D3.js visualization package
   - **app/config.py** — Shared config loading, timestamp, lang_subdir
   - **app/runner.py** — CommandRunner utility
 - **docker/** — Linux container environment (Ubuntu 22.04) with gcc, bomtrace3, syft
-- **tests/** — Unit tests (670+ tests, 97%+ coverage)
-- **docs/** — Documentation and reports
-  - **docs/architecture/** — System design, overview, drawio diagram
-  - **docs/build-logs/** — Timestamped build logs (`{lang}/{repo}/{ts}/`)
+- **tests/** — Unit tests (874 tests, 97%+ coverage)
+- **docs/** — Hand-written documentation only (no generated files)
+  - **docs/guides/** — Onboarding, contributing, AWS setup
+  - **docs/architecture/** — System design, diagrams, pipeline overview
   - **docs/features/** — Feature documentation
-  - **docs/guides/** — Contributing, onboarding, setup guides
-  - **docs/infrastructure/** — Cloud migration recommendations
-  - **docs/issues/** — Upstream issue tracking
-  - **docs/runtime/** — Build performance metrics (`{lang}/{repo}/{ts}/`)
-  - **docs/summary/** — Cross-repo findings and methodology
+  - **docs/issues/** — Upstream bug tracking and workarounds
+  - **docs/deep-dive/** — Research, performance, enterprise docs
 - **repos/** — Cloned target repositories (gitignored)
-- **output/** — Generated artifacts organized by language: `output/{category}/{lang}/{repo}/{ts}/` (gitignored)
+- **output/** — All generated artifacts (gitignored)
+  - **output/omnibor/{lang}/{repo}/{ts}/** — OmniBOR ADG documents
+  - **output/spdx/{lang}/{repo}/{ts}/** — SPDX SBOMs + HTML visualizations
+  - **output/binaries/{lang}/{repo}/{ts}/** — Compiled binaries
+  - **output/build-logs/{lang}/{repo}/{ts}/** — Build environment logs
+  - **output/runtime/{lang}/{repo}/{ts}/** — Performance metrics
 - **.windsurf/** — Cascade AI rules and workflows
 
 ## Key Technologies
@@ -80,9 +84,12 @@ and traces the openat syscall. The `-a` flag bypasses Go's build cache.
 | `app/spdx_from_adg.py` | SPDX entry point — thin shim re-exporting from `app.spdx` |
 | `app/add_repo.py` | Repo discovery entry point — thin shim re-exporting from `app.repo_discovery` |
 | `app/pipeline/facade.py` | AnalysisPipeline orchestrator |
-| `app/pipeline/runners.py` | main(), _run_c_cpp_pipeline, _run_rust_pipeline, _run_go_pipeline |
+| `app/pipeline/runners.py` | main() CLI entry point and pipeline dispatch |
+| `app/pipeline/lang_runners.py` | Per-language runners: C/C++, Rust, Go, Java |
 | `app/spdx/generator.py` | AdgSpdxGenerator: per-binary SPDX from ADG |
 | `app/spdx/emitter.py` | SpdxEmitter: SPDX 2.3 JSON document assembly |
+| `app/spdx/relationships.py` | SPDX relationship constants and classifiers |
+| `app/spdx/java_generator.py` | Java-specific SPDX from Maven/Gradle deps |
 | `app/repo_discovery/facade.py` | RepoDiscovery: GitHub search + config generation |
 | `app/spdx_visualize.py` | D3.js HTML dependency graph generator |
 | `app/collect_metadata.py` | Resolve system files to dpkg packages |

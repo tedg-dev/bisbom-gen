@@ -2020,7 +2020,7 @@ class TestDocWriter(unittest.TestCase):
 
     def test_write_build_doc_success(self):
         with tempfile.TemporaryDirectory() as tmpdir:
-            paths = {"docs_dir": tmpdir}
+            paths = {"output_dir": tmpdir}
             cfg = {
                 "url": "https://github.com/x/y.git",
                 "branch": "main",
@@ -2043,7 +2043,7 @@ class TestDocWriter(unittest.TestCase):
 
     def test_write_build_doc_failure(self):
         with tempfile.TemporaryDirectory() as tmpdir:
-            paths = {"docs_dir": tmpdir}
+            paths = {"output_dir": tmpdir}
             cfg = {
                 "url": "x",
                 "build_steps": ["make"],
@@ -2059,7 +2059,7 @@ class TestDocWriter(unittest.TestCase):
 
     def test_write_runtime_doc(self):
         with tempfile.TemporaryDirectory() as tmpdir:
-            paths = {"docs_dir": tmpdir}
+            paths = {"output_dir": tmpdir}
             repo_cfg = {"language": "c-cpp"}
             with patch("builtins.print"):
                 result = DocWriter.write_runtime_doc(
@@ -2072,7 +2072,7 @@ class TestDocWriter(unittest.TestCase):
 
     def test_write_runtime_doc_with_baseline(self):
         with tempfile.TemporaryDirectory() as tmpdir:
-            paths = {"docs_dir": tmpdir}
+            paths = {"output_dir": tmpdir}
             repo_cfg = {"language": "c-cpp"}
             with patch("builtins.print"):
                 result = DocWriter.write_runtime_doc(
@@ -2084,7 +2084,7 @@ class TestDocWriter(unittest.TestCase):
 
     def test_write_runtime_doc_no_baseline(self):
         with tempfile.TemporaryDirectory() as tmpdir:
-            paths = {"docs_dir": tmpdir}
+            paths = {"output_dir": tmpdir}
             repo_cfg = {"language": "c-cpp"}
             with patch("builtins.print"):
                 result = DocWriter.write_runtime_doc(
@@ -2096,7 +2096,7 @@ class TestDocWriter(unittest.TestCase):
 
     def test_write_build_doc_go(self):
         with tempfile.TemporaryDirectory() as tmpdir:
-            paths = {"docs_dir": tmpdir}
+            paths = {"output_dir": tmpdir}
             cfg = {
                 "url": "https://github.com/x/y.git",
                 "branch": "master",
@@ -2122,7 +2122,7 @@ class TestDocWriter(unittest.TestCase):
 
     def test_write_runtime_doc_go(self):
         with tempfile.TemporaryDirectory() as tmpdir:
-            paths = {"docs_dir": tmpdir}
+            paths = {"output_dir": tmpdir}
             repo_cfg = {
                 "language": "go",
                 "build_steps": ["go build -a -o fzf ."],
@@ -2141,7 +2141,7 @@ class TestDocWriter(unittest.TestCase):
 
     def test_write_build_doc_rust(self):
         with tempfile.TemporaryDirectory() as tmpdir:
-            paths = {"docs_dir": tmpdir}
+            paths = {"output_dir": tmpdir}
             cfg = {
                 "url": "https://github.com/oxipng/oxipng.git",
                 "branch": "master",
@@ -2166,7 +2166,7 @@ class TestDocWriter(unittest.TestCase):
 
     def test_write_runtime_doc_rust(self):
         with tempfile.TemporaryDirectory() as tmpdir:
-            paths = {"docs_dir": tmpdir}
+            paths = {"output_dir": tmpdir}
             repo_cfg = {
                 "language": "rust",
                 "build_steps": [
@@ -2189,7 +2189,7 @@ class TestDocWriter(unittest.TestCase):
 
     def test_write_build_doc_c_cpp_has_bomtrace(self):
         with tempfile.TemporaryDirectory() as tmpdir:
-            paths = {"docs_dir": tmpdir}
+            paths = {"output_dir": tmpdir}
             cfg = {
                 "url": "https://github.com/x/y.git",
                 "branch": "main",
@@ -2209,7 +2209,7 @@ class TestDocWriter(unittest.TestCase):
 
     def test_write_build_doc_has_release_section(self):
         with tempfile.TemporaryDirectory() as tmpdir:
-            paths = {"docs_dir": tmpdir}
+            paths = {"output_dir": tmpdir}
             cfg = {
                 "url": "https://github.com/x/y.git",
                 "branch": "main",

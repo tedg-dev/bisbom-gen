@@ -11,12 +11,13 @@ for the first time in Windsurf IDE.
 
 When a new user opens this project, Cascade should:
 
-1. **Read all rules** in `.windsurf/rules/` to load project conventions
-2. **Read all workflows** in `.windsurf/workflows/` to understand available commands
-3. **Run `/setup-environment`** to verify the local development environment
-4. **Explain the project** — this is an OmniBOR build interception pipeline that
-   generates SPDX 2.3 SBOMs from instrumented C/C++ builds
-5. **Offer to run `/add-repo`** if the user wants to analyze a new GitHub repository
+1. **Read `CRITICAL.md`** first — the master checklist of all MUST/NEVER rules
+2. **Read `project/`** rules — project-specific context, code standards, pipelines
+3. **Read `cascade/`** rules — AI behavior, terminal safety, auto-run policy
+4. **Run `/setup-environment`** to verify the local development environment
+5. **Explain the project** — this is an OmniBOR build interception pipeline that
+   generates SPDX 2.3 SBOMs from instrumented builds (C/C++, Go, Rust, Java)
+6. **Offer to run `/add-repo`** if the user wants to analyze a new GitHub repository
 
 ## Recommended Cascade Model
 
@@ -30,14 +31,15 @@ To set the model in Windsurf:
 
 ## What This Project Does
 
-1. Takes any C/C++ GitHub repository
-2. Instruments the build with bomtrace3 (ptrace-based interception)
+1. Takes any C/C++, Go, Rust, or Java GitHub repository
+2. Instruments the build with bomtrace (ptrace-based interception)
 3. Captures every compiler/linker invocation
 4. Generates SPDX 2.3 SBOMs with:
    - Vendored static libraries (STATIC_LINK)
    - Dynamic system libraries (DYNAMIC_LINK)
    - Build tools (BUILD_TOOL_OF)
-   - Automatic version detection for vendored libs
+   - Dependency resolution (DEPENDS_ON)
+   - Automatic version detection
 5. Produces interactive D3.js HTML dependency graphs
 6. Optionally compares against proprietary binary scanner SBOMs
 

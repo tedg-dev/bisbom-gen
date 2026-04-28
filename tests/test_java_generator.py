@@ -820,6 +820,69 @@ class TestBuildSpdx(unittest.TestCase):
             "SPDXRef-Dep-0",
         )
 
+    def test_placeholder_artifact_annotated(self):
+        deps = [
+            {
+                "groupId": "com.google",
+                "artifactId": "guava",
+                "version": "33.0",
+                "scope": "compile",
+                "direct": True,
+                "optional": False,
+                "parent": None,
+            },
+            {
+                "groupId": "com.google.guava",
+                "artifactId": "listenablefuture",
+                "version": (
+                    "9999.0-empty-to-avoid"
+                    "-conflict-with-guava"
+                ),
+                "scope": "compile",
+                "direct": False,
+                "optional": False,
+                "parent": "guava",
+            },
+        ]
+        doc = self.gen._build_spdx(
+            "myapp.jar", [], deps
+        )
+        pkg_names = [
+            p["name"] for p in doc["packages"]
+        ]
+        self.assertIn("guava", pkg_names)
+        self.assertIn(
+            "listenablefuture", pkg_names,
+        )
+        lf_pkg = [
+            p for p in doc["packages"]
+            if p["name"] == "listenablefuture"
+        ][0]
+        self.assertIn(
+            "Placeholder artifact", lf_pkg["comment"]
+        )
+
+    def test_bom_artifact_annotated(self):
+        deps = [{
+            "groupId": "io.prometheus",
+            "artifactId": "simpleclient_bom",
+            "version": "0.16.0",
+            "scope": "compile",
+            "direct": True,
+            "optional": False,
+            "parent": None,
+        }]
+        doc = self.gen._build_spdx(
+            "myapp.jar", [], deps
+        )
+        pkg = doc["packages"][1]
+        self.assertEqual(
+            pkg["name"], "simpleclient_bom"
+        )
+        self.assertIn(
+            "BOM/platform artifact", pkg["comment"]
+        )
+
     def test_optional_dep_comment(self):
         deps = [{
             "groupId": "com.opt",

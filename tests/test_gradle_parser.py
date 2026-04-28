@@ -204,7 +204,7 @@ class TestParseGradleDepTree(unittest.TestCase):
         shared = result[1]
         self.assertEqual(shared["parent"], "lib-a")
 
-    def test_filters_bom_entries(self):
+    def test_keeps_bom_entries(self):
         output = (
             "runtimeClasspath - Runtime classpath.\n"
             "+--- com.fasterxml.jackson"
@@ -214,12 +214,13 @@ class TestParseGradleDepTree(unittest.TestCase):
             "+--- org.slf4j:slf4j-api:2.0.9\n"
         )
         result = parse_gradle_dep_tree(output)
-        self.assertEqual(len(result), 1)
-        self.assertEqual(
-            result[0]["artifactId"], "slf4j-api"
-        )
+        self.assertEqual(len(result), 3)
+        names = [d["artifactId"] for d in result]
+        self.assertIn("jackson-bom", names)
+        self.assertIn("netty-bom", names)
+        self.assertIn("slf4j-api", names)
 
-    def test_filters_dependencies_suffix(self):
+    def test_keeps_dependencies_suffix(self):
         output = (
             "runtimeClasspath - Runtime classpath.\n"
             "+--- org.spring:spring-dependencies"
@@ -227,10 +228,10 @@ class TestParseGradleDepTree(unittest.TestCase):
             "+--- org.slf4j:slf4j-api:2.0.9\n"
         )
         result = parse_gradle_dep_tree(output)
-        self.assertEqual(len(result), 1)
-        self.assertEqual(
-            result[0]["artifactId"], "slf4j-api"
-        )
+        self.assertEqual(len(result), 2)
+        names = [d["artifactId"] for d in result]
+        self.assertIn("spring-dependencies", names)
+        self.assertIn("slf4j-api", names)
 
     def test_filters_constraint_entries(self):
         output = (
@@ -245,7 +246,7 @@ class TestParseGradleDepTree(unittest.TestCase):
             result[0]["artifactId"], "slf4j-api"
         )
 
-    def test_filters_underscore_bom(self):
+    def test_keeps_underscore_bom(self):
         output = (
             "runtimeClasspath - Runtime classpath.\n"
             "+--- io.prometheus:simpleclient_bom"
@@ -253,10 +254,10 @@ class TestParseGradleDepTree(unittest.TestCase):
             "+--- org.slf4j:slf4j-api:2.0.9\n"
         )
         result = parse_gradle_dep_tree(output)
-        self.assertEqual(len(result), 1)
-        self.assertEqual(
-            result[0]["artifactId"], "slf4j-api"
-        )
+        self.assertEqual(len(result), 2)
+        names = [d["artifactId"] for d in result]
+        self.assertIn("simpleclient_bom", names)
+        self.assertIn("slf4j-api", names)
 
     def test_filters_rich_version_strictly(self):
         output = (

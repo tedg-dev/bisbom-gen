@@ -6,8 +6,8 @@
 # Most defaults are fine. Override only what you need.
 # =============================================================================
 
-# AWS profile name (from duo-sso authentication)
-# aws_profile = "ted-admin"
+# REQUIRED — AWS profile name (from duo-sso authentication)
+aws_profile = "your-profile-name"
 
 # AWS region
 # aws_region = "us-west-1"
@@ -21,3 +21,6 @@
 
 # Path to your SSH public key
 # ssh_public_key_path = "~/.ssh/id_ed25519.pub"
+
+# Git URL for the omnibor-analysis repository
+# repo_url = "https://github.com/tedg-dev/omnibor-analysis.git"

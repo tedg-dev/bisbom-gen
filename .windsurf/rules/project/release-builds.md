@@ -53,7 +53,7 @@ build doc should note: "N test-scope dependencies excluded from SPDX."
 
 ## Build Documentation
 
-Every build doc (`docs/build-logs/{lang}/{repo}/{ts}/build.md`) must include
+Every build doc (`output/build-logs/{lang}/{repo}/{ts}/build.md`) must include
 a **Release Build Verification** section reporting:
 
 - Whether the build is classified as release or debug

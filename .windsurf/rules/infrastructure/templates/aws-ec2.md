@@ -119,7 +119,7 @@ aws sts get-caller-identity --profile <YOUR_PROFILE> --no-cli-pager
 ### Terraform
 
 - Install: `brew install terraform` (macOS)
-- Terraform uses the same `ted-admin` profile from `~/.aws/credentials`
+- Terraform uses the same AWS profile from `~/.aws/credentials`
 - All Terraform files live in `terraform/` in the project root
 - Run `terraform init` once, then `terraform plan` and `terraform apply`
 
@@ -207,9 +207,8 @@ ssh omnibor-build "cd ~/omnibor-analysis && docker-compose -f docker/docker-comp
 ## Syncing Results
 
 ```bash
-# Download results to local machine
+# Download results to local machine (all generated artifacts are under output/)
 rsync -avz omnibor-build:~/omnibor-analysis/output/ output/
-rsync -avz omnibor-build:~/omnibor-analysis/docs/ docs/
 
 # Upload code to instance
 rsync -avz --exclude='.venv' --exclude='output' --exclude='repos' --exclude='.git' \

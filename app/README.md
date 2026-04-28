@@ -35,7 +35,8 @@ Full build interception and SBOM generation pipeline.
 | Module | Class/Function | Purpose |
 |--------|---------------|---------|
 | `facade.py` | `AnalysisPipeline` | Top-level orchestrator |
-| `runners.py` | `main()`, `_run_c_cpp_pipeline()`, `_run_rust_pipeline()`, `_run_go_pipeline()` | CLI and per-language runners |
+| `runners.py` | `main()` | CLI entry point and pipeline dispatch |
+| `lang_runners.py` | `_run_c_cpp_pipeline()`, `_run_rust_pipeline()`, `_run_go_pipeline()`, `_run_java_pipeline()` | Per-language pipeline runners |
 | `cloner.py` | `RepoCloner` | Git clone with depth/branch control |
 | `builder.py` | `BomtraceBuilder` | bomtrace2/3 instrumented builds |
 | `spdx_generator.py` | `SpdxGenerator` | bomsh_sbom.py SPDX generation |
@@ -46,6 +47,8 @@ Full build interception and SBOM generation pipeline.
 | `binary_collector.py` | `BinaryCollector` | Copy output binaries to output dir |
 | `doc_writer.py` | `DocWriter` | Generate build.md and runtime.md |
 | `validator.py` | `DependencyValidator` | Verify apt deps are installed |
+| `language_validator.py` | `LanguageValidator` | Validate repo language is supported |
+| `version_checker.py` | `VersionChecker` | Check for OmniBOR/bomsh updates |
 
 ### `spdx/` — SPDX Generation (from `spdx_from_adg.py`)
 
@@ -59,6 +62,12 @@ version extraction, and relationship classification.
 | `resolver.py` | `ComponentResolver` | Group source files into components |
 | `version_detector.py` | `VendoredVersionDetector` | Backward-compat shim → `app.version_detection` |
 | `emitter.py` | `SpdxEmitter` | Assemble SPDX 2.3 JSON document |
+| `relationships.py` | `BUILD_TOOL_OF`, `DEPENDS_ON`, etc. | SPDX relationship constants and classifiers |
+| `java_generator.py` | `JavaSpdxGenerator` | Java-specific SPDX from Maven/Gradle |
+| `maven_parser.py` | `MavenDependencyParser` | Parse Maven dependency:tree output |
+| `gradle_parser.py` | `GradleDependencyParser` | Parse Gradle dependencies output |
+| `lang_parsers.py` | `GoModParser`, `CargoLockParser` | Go/Rust dependency parsers |
+| `vendored.py` | `VendoredDetector` | Vendored library detection logic |
 | `cli.py` | `main()` | CLI entry point |
 
 ### `repo_discovery/` — Repo Discovery (from `add_repo.py`)

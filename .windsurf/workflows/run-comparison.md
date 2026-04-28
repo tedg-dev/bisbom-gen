@@ -36,7 +36,7 @@ docker-compose -f docker/docker-compose.yml run --rm omnibor-env python3 /worksp
 
 ## 3. Review the comparison report
 
-The report is written to `docs/build-logs/{lang}/<repo>/{ts}/` and includes:
+The report is written to `output/build-logs/{lang}/<repo>/{ts}/` and includes:
 
 - **Summary table** — package counts, overlap percentage, version agreement
 - **Common packages** — detected by both methods, with version match/mismatch

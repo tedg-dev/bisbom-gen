@@ -5,7 +5,7 @@
 variable "aws_profile" {
   description = "AWS CLI profile name (from ~/.aws/credentials, populated by duo-sso)"
   type        = string
-  default     = "ted-admin"
+  # No default — each developer must set this in terraform.tfvars
 }
 
 variable "aws_region" {
@@ -42,4 +42,10 @@ variable "ssh_public_key_path" {
   description = "Path to SSH public key for EC2 access"
   type        = string
   default     = "~/.ssh/id_ed25519.pub"
+}
+
+variable "repo_url" {
+  description = "Git URL for omnibor-analysis repository (HTTPS or SSH)"
+  type        = string
+  default     = "https://github.com/tedg-dev/omnibor-analysis.git"
 }

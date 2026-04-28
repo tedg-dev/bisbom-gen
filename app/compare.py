@@ -279,9 +279,9 @@ def main():
         omnibor_file, binary_file,
     )
 
-    # Write to docs
+    # Write to output
     docs_dir = (
-        Path(paths_cfg["docs_dir"])
+        Path(paths_cfg["output_dir"])
         / "build-logs" / lang / args.repo
     )
     docs_dir.mkdir(parents=True, exist_ok=True)

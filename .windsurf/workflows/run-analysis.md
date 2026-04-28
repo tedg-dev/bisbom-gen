@@ -71,10 +71,10 @@ See `.windsurf/rules/workflow/sync-results.md` for the full rule.
 
 ```bash
 rsync -avz <SSH_ALIAS>:<REPO_PATH>/output/ output/
-rsync -avz <SSH_ALIAS>:<REPO_PATH>/docs/ docs/
 ```
 
-Never report analysis as complete until both syncs succeed.
+Never report analysis as complete until the sync succeeds.
+All generated artifacts (SBOMs, build-logs, runtime metrics) are under `output/`.
 
 ## What happens during analysis
 
@@ -117,5 +117,5 @@ The `<ts>` timestamp is generated once per run and shared across all output type
 | Visualization (per binary) | `output/spdx/<lang>/<repo>/<ts>/<binary>_adg.spdx.html` |
 | SPDX SBOM (Syft) | `output/spdx/<lang>/<repo>/<ts>/<repo>_syft.spdx.json` |
 | Output binaries | `output/binaries/<lang>/<repo>/<ts>/` |
-| Build log | `docs/build-logs/<lang>/<repo>/<ts>/build.md` |
-| Runtime metrics | `docs/runtime/<lang>/<repo>/<ts>/runtime.md` |
+| Build log | `output/build-logs/<lang>/<repo>/<ts>/build.md` |
+| Runtime metrics | `output/runtime/<lang>/<repo>/<ts>/runtime.md` |

@@ -32,7 +32,7 @@ OmniBOR analysis.
 | **Cisco CEC account** | Your standard Cisco login |
 | **Duo MFA enrolled** | Enroll at https://disco.cisco.com |
 | **AWS account with Duo SSO** | Request via your team's cloud access process |
-| **macOS or Linux workstation** | For running CLI tools |
+| **macOS, Linux, or Windows (WSL2) workstation** | For running CLI tools |
 | **Homebrew** (macOS) | https://brew.sh |
 | **Git** | `brew install git` or `apt install git` |
 
@@ -55,7 +55,36 @@ brew tap ats-operations/homebrew-tap https://wwwin-github.cisco.com/ATS-operatio
 brew install ats-operations/tap/duo-sso
 ```
 
-### Verify installations
+### Linux (Ubuntu/Debian)
+
+```bash
+# AWS CLI v2
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o awscliv2.zip
+unzip awscliv2.zip && sudo ./aws/install && rm -rf aws awscliv2.zip
+
+# Terraform
+sudo apt-get install -y gnupg software-properties-common
+wget -O- https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
+sudo apt update && sudo apt install -y terraform
+
+# duo-sso (via Nix — recommended on Linux)
+sh <(curl -L https://nixos.org/nix/install) --daemon
+nix run "git+https://wwwin-github.cisco.com/ATS-operations/duo-sso.git" --
+```
+
+### Windows (WSL2)
+
+All commands run inside a WSL2 Ubuntu terminal. Install WSL first if needed:
+
+```powershell
+# In PowerShell (admin)
+wsl --install
+```
+
+Then inside WSL, follow the **Linux (Ubuntu/Debian)** instructions above.
+
+### Verify installations (all platforms)
 
 ```bash
 aws --version          # aws-cli/2.x.x ...
@@ -63,7 +92,7 @@ terraform --version    # Terraform v1.x.x
 duo-sso --version      # duo-sso v3.x.x
 ```
 
-### Optional: Nix (alternative for duo-sso)
+### Optional: Nix (alternative for duo-sso on macOS)
 
 If Homebrew tap doesn't work (e.g., off-network), install Nix and use:
 
@@ -380,7 +409,6 @@ ssh omnibor-build "cd ~/omnibor-analysis && \
 
 ```bash
 rsync -avz omnibor-build:~/omnibor-analysis/output/ output/
-rsync -avz omnibor-build:~/omnibor-analysis/docs/ docs/
 ```
 
 ---
@@ -483,9 +511,8 @@ This removes the EC2 instance, EBS volume, Elastic IP, security group, and
 key pair. **All data on the instance will be lost** — sync results first!
 
 ```bash
-# Sync before destroying
+# Sync results before destroying
 rsync -avz omnibor-build:~/omnibor-analysis/output/ output/
-rsync -avz omnibor-build:~/omnibor-analysis/docs/ docs/
 
 # Then destroy
 terraform destroy

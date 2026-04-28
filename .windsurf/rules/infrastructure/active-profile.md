@@ -42,13 +42,13 @@ Requires valid AWS session (`duo-sso` re-auth every 1 hour).
 
 ```bash
 # Check status
-aws ec2 describe-instances --profile ted-admin --instance-ids i-0c93cd60e3e27ebe9 --query 'Reservations[].Instances[].{State:State.Name,IP:PublicIpAddress}' --output table --no-cli-pager
+aws ec2 describe-instances --profile ted-admin --instance-ids i-02ef4bf118d6bae90 --query 'Reservations[].Instances[].{State:State.Name,IP:PublicIpAddress}' --output table --no-cli-pager
 
 # Power on
-aws ec2 start-instances --profile ted-admin --instance-ids i-0c93cd60e3e27ebe9 --no-cli-pager
+aws ec2 start-instances --profile ted-admin --instance-ids i-02ef4bf118d6bae90 --no-cli-pager
 
 # Power off
-aws ec2 stop-instances --profile ted-admin --instance-ids i-0c93cd60e3e27ebe9 --no-cli-pager
+aws ec2 stop-instances --profile ted-admin --instance-ids i-02ef4bf118d6bae90 --no-cli-pager
 ```
 
 ## Running Analysis
@@ -61,8 +61,8 @@ ssh omnibor-build "cd /home/ubuntu/omnibor-analysis && docker-compose -f docker/
 ## Syncing Results
 
 ```bash
+# Download results to local machine (all generated artifacts are under output/)
 rsync -avz omnibor-build:/home/ubuntu/omnibor-analysis/output/ output/
-rsync -avz omnibor-build:/home/ubuntu/omnibor-analysis/docs/ docs/
 ```
 
 ## Cost
