@@ -43,9 +43,9 @@ Open this directory in Windsurf IDE.
 ## Step 2: Configure Cascade
 
 1. Open Windsurf Settings → Cascade → Model
-2. Select **Claude Opus 4.6** — this is strongly recommended. All project
+2. Select **Claude Opus 4.6 (Thinking)** — this is strongly recommended. All project
    rules, workflows, and automation in this repository were developed and
-   tested using Claude Opus 4.6. Other models may not follow the `.windsurf/`
+   tested using Claude Opus 4.6 (Thinking). Other models may not follow the `.windsurf/`
    rules correctly or produce consistent results.
 3. The `.windsurf/` directory contains all rules and workflows that Cascade
    reads automatically — no manual configuration needed

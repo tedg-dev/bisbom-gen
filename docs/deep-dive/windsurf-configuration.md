@@ -2,7 +2,7 @@
 
 This document describes all `.windsurf/` rules and workflows configured for this workspace.
 
-> **AI Model:** This project was developed and tested using **Claude Opus 4.6** in Windsurf Cascade.
+> **AI Model:** This project was developed and tested using **Claude Opus 4.6 (Thinking)** in Windsurf Cascade.
 > It is strongly recommended for onboarding and development. Other models may not follow
 > the `.windsurf/` rules correctly.
 
