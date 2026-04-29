@@ -3397,6 +3397,7 @@ class TestMetadataCollector(unittest.TestCase):
                 def write_meta(
                     treedb_p, repos, out,
                     repo_name=None,
+                    config_branch=None,
                 ):
                     Path(out).mkdir(
                         parents=True, exist_ok=True,
