@@ -80,22 +80,27 @@ This takes 10-20 minutes on first build (compiles bomtrace3 from source).
 
 ### Option B: AWS EC2 (Recommended for Cisco Engineers)
 
-Follow the comprehensive setup guide:
+Choose the guide that matches your situation:
 
-**[AWS Setup Guide](aws-setup-guide.md)**
+**[AWS Greenfield Setup Guide](aws-setup-guide.md)** — Start from scratch
+with Terraform. Creates a new VPC, security group, key pair, EC2 instance,
+and Elastic IP. Best if you have no existing AWS infrastructure.
 
-This covers Cisco Duo SSO authentication, Terraform provisioning, and
-everything needed to go from zero to running builds. The guide handles:
+**[AWS Existing Environment Guide](aws-existing-environment-guide.md)** —
+Add an OmniBOR build host to an existing AWS account. Covers reusing existing
+EC2 instances, launching new instances in existing VPCs, corporate networking
+(VPN, bastion, NAT Gateway, proxy), IAM permissions, and Graviton/ARM64
+compatibility assessment.
 
-- Installing duo-sso, AWS CLI, and Terraform
+Both guides cover:
+
 - Authenticating via Cisco Duo SSO (SAML → AWS STS)
-- Provisioning an EC2 instance with Terraform (IaC)
 - SSH configuration and infrastructure profile setup
 - Re-authentication (sessions expire every 1 hour)
 - Cost management and daily workflow
 
-> **Note:** Cisco Duo SSO sessions expire every **1 hour**. The guide
-> documents the re-authentication flow in detail.
+> **Note:** Cisco Duo SSO sessions expire every **1 hour**. Both guides
+> document the re-authentication flow in detail.
 
 ### Option B2: Other Cloud VM (DigitalOcean, etc.)
 
@@ -233,7 +238,8 @@ omnibor-analysis/
 
 ## Further Reading
 
-- [AWS Setup Guide](aws-setup-guide.md) — **Greenfield AWS EC2 setup (Cisco Duo SSO + Terraform)**
+- [AWS Greenfield Setup Guide](aws-setup-guide.md) — **New AWS environment from scratch (Cisco Duo SSO + Terraform)**
+- [AWS Existing Environment Guide](aws-existing-environment-guide.md) — **Add OmniBOR build host to existing AWS infrastructure**
 - [SPDX Generation Deep Dive](../deep-dive/spdx-generation-deep-dive.md) — Full technical pipeline documentation
 - [Workflow Guide](../deep-dive/workflow-guide.md) — Detailed workflow descriptions
 - [Vendored Directory Detection](../deep-dive/nmap-target-vendored-dirs.md) — Vendored directory detection explained
