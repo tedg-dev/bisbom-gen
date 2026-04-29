@@ -34,7 +34,6 @@ uses Terraform to provision everything from zero.
 - [Instance Sizing Guide](#instance-sizing-guide)
 - [Daily Workflow](#daily-workflow)
 - [Troubleshooting](#troubleshooting)
-- [Decision Flowchart](#decision-flowchart)
 
 ---
 
@@ -145,6 +144,14 @@ Based on your assessment, follow the appropriate scenario:
 > **Graviton/ARM64 instances:** If all your existing instances are ARM64,
 > you **must** launch a new x86_64 instance (Scenario B). There is no
 > workaround for the architecture requirement.
+
+### Decision flowchart
+
+Use this to quickly determine the right path:
+
+<a href="aws-existing-decision-flowchart.png"><img src="aws-existing-decision-flowchart.png" width="700" alt="Decision flowchart — click to enlarge"></a>
+
+<sub>Source: [aws-existing-decision-flowchart.drawio](aws-existing-decision-flowchart.drawio)</sub>
 
 ---
 
@@ -1010,18 +1017,6 @@ aws ec2 describe-instances --instance-ids i-YOUR_ID \
 uname -m
 # Must show: x86_64
 ```
-
----
-
-<a id="decision-flowchart"></a>
-
-## Decision Flowchart
-
-Use this to quickly determine the right path:
-
-<a href="aws-existing-decision-flowchart.png"><img src="aws-existing-decision-flowchart.png" width="700" alt="Decision flowchart — click to enlarge"></a>
-
-<sub>Source: [aws-existing-decision-flowchart.drawio](aws-existing-decision-flowchart.drawio)</sub>
 
 ---
 
