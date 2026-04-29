@@ -7,11 +7,12 @@ repos/*/
 # ============================================================
 # Raw output artifacts (regenerable via analysis scripts)
 # ============================================================
-output/omnibor/*/
-output/spdx/*/
-output/binaries/*/
-output/binary-scan/*/
-output/build-logs/*/
+output/omnibor/*/**
+output/spdx/*/**
+output/binaries/*/**
+output/binary-scan/*/**
+output/build-logs/*/**
+output/runtime/*/**
 !output/**/.gitkeep
 
 # ============================================================
