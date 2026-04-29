@@ -175,9 +175,19 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 docker-compose -f docker/docker-compose.yml build
 ```
 
-### 4. Create output and docs directories
+### 4. Create output directories
 
-Directories are created automatically by `analyze.py` using the `{lang}/{repo}/{ts}/` convention. No manual setup needed.
+Per-run directories (`{lang}/{repo}/{ts}/`) are created automatically by
+`analyze.py`. However, if you are adding a **new language** (not just a new
+repo for an existing language), you must create the language-level skeleton
+with `.gitkeep` files so the directory structure is preserved on fresh clone:
+
+```bash
+for dir in binaries binary-scan build-logs omnibor runtime spdx; do
+  touch output/$dir/<new-lang>/.gitkeep
+done
+git add output/**/<new-lang>/.gitkeep
+```
 
 ### 5. Test the build manually first
 
