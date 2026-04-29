@@ -12,7 +12,7 @@
 
 | Directory | Contents |
 |-----------|----------|
-| **[guides/](guides/)** | Setup, onboarding, contributing, AWS infrastructure |
+| **[guides/](guides/)** | Setup, onboarding, contributing, AWS infrastructure (greenfield and existing environment) |
 | **[architecture/](architecture/)** | System design diagrams (draw.io + PNG), pipeline overview, app architecture |
 | **[features/](features/)** | Feature documentation: Go support, SPDX comparison, vendored detection, etc. |
 | **[issues/](issues/)** | Upstream bomsh/bomtrace bug reports and workarounds |
