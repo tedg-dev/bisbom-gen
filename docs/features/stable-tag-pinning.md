@@ -91,7 +91,11 @@ known stable release tag**.
 ## 3. Why Tags Matter for SPDX
 
 SPDX 2.3 records the version of each package in the `versionInfo`
-field. Downstream consumers rely on this field for:
+field. The pipeline automatically extracts the root package version
+from the config tag (see [Version Detection](vendored-version-detection.md#3-root-package-version-detection)),
+so tag accuracy directly determines SPDX `versionInfo` accuracy.
+
+Downstream consumers rely on this field for:
 
 | Consumer | What they need | Broken by dev branches |
 |----------|---------------|----------------------|
@@ -103,28 +107,32 @@ field. Downstream consumers rely on this field for:
 
 ## 4. Current Tag Map
 
-All repositories in `config.yaml` as of March 2026:
+All repositories in `config.yaml` as of April 2026:
 
-| Repo | Language | Tag | Source |
-|------|----------|-----|--------|
-| curl | c-cpp | `curl-8_19_0` | GitHub Release |
-| ffmpeg | c-cpp | `n8.1` | Git tag (FFmpeg uses `nX.Y` convention) |
-| nmap | c-cpp | `master` | No tags exist (see [§7](#7-repos-without-tags)) |
-| redis | c-cpp | `8.0.6` | GitHub Release |
-| openosc | c-cpp | `v1.0.7` | GitHub Release |
-| node | c-cpp | `v22.19.0` | GitHub Release |
-| fzf | go | `v0.70.0` | GitHub Release |
-| lazygit | go | `v0.60.0` | GitHub Release |
-| pocketbase | go | `v0.25.9` | GitHub Release |
-| croc | go | `v10.4.2` | GitHub Release |
-| dive | go | `v0.13.1` | GitHub Release |
-| gdu | go | `v5.34.1` | GitHub Release |
-| oxipng | rust | `v10.1.0` | GitHub Release |
-| dura | rust | `v0.2.0` | Git tag |
-| jsoup | java | `jsoup-1.22.1` | GitHub Release |
-| checkstyle | java | `checkstyle-13.3.0` | GitHub Release |
-| crawler4j | java | `crawler4j-4.4.0` | GitHub Release |
-| dependency-check | java | `v9.2.0` | GitHub Release |
+| Repo | Language | Tag | Extracted Version | Source |
+|------|----------|-----|-------------------|--------|
+| curl | c-cpp | `curl-8_19_0` | — (underscores) | GitHub Release |
+| ffmpeg | c-cpp | `n8.1` | `8.1` | Git tag |
+| nmap | c-cpp | `master` | — (no version) | No tags exist (see [§7](#7-repos-without-tags)) |
+| redis | c-cpp | `8.0.6` | `8.0.6` | GitHub Release |
+| openosc | c-cpp | `v1.0.7` | `1.0.7` | GitHub Release |
+| node | c-cpp | `v22.19.0` | `22.19.0` | GitHub Release |
+| fzf | go | `v0.70.0` | `0.70.0` | GitHub Release |
+| lazygit | go | `v0.60.0` | `0.60.0` | GitHub Release |
+| croc | go | `v10.4.2` | `10.4.2` | GitHub Release |
+| dive | go | `v0.13.1` | `0.13.1` | GitHub Release |
+| gdu | go | `v5.34.1` | `5.34.1` | GitHub Release |
+| pocketbase | go | `v0.25.9` | `0.25.9` | GitHub Release |
+| oxipng | rust | `v10.1.0` | `10.1.0` | GitHub Release |
+| dura | rust | `v0.2.0` | `0.2.0` | Git tag |
+| jsoup | java | `jsoup-1.22.1` | `1.22.1` | GitHub Release |
+| checkstyle | java | `checkstyle-13.3.0` | `13.3.0` | GitHub Release |
+| crawler4j | java | `crawler4j-4.4.0` | `4.4.0` | GitHub Release |
+| dependency-check | java | `v9.2.0` | `9.2.0` | GitHub Release |
+| datahub | java | `v1.5.0.1` | `1.5.0.1` | GitHub Release |
+| logging-log4j2 | java | `rel/2.24.3` | `2.24.3` | GitHub Release |
+| spring-boot | java | `v3.4.4` | `3.4.4` | GitHub Release |
+| bc-java | java | `r1rv84` | — (non-numeric) | Git tag |
 
 ## 5. How Tags Were Selected
 
@@ -197,4 +205,4 @@ produces a more useful SBOM than a moving development target.
 
 ---
 
-*Last updated: March 20, 2026*
+*Last updated: April 29, 2026*

@@ -1,9 +1,10 @@
-# Vendored Version Detection
+# Version Detection
 
 This document describes how omnibor-analysis detects version information for
-vendored (statically linked) libraries from source code. It covers the 10
-detection strategies, real-world patterns that motivated each one, known
-limitations, and guidance for handling edge cases.
+both the **root package** (the project being built) and **vendored (statically
+linked) libraries** from source code. It covers root version extraction from
+config tags, the 12 vendored detection strategies, real-world patterns that
+motivated each one, known limitations, and guidance for handling edge cases.
 
 ---
 
@@ -11,13 +12,14 @@ limitations, and guidance for handling edge cases.
 
 1. [The Problem](#1-the-problem)
 2. [Why Versions Matter in SBOMs](#2-why-versions-matter-in-sboms)
-3. [Design Principles](#3-design-principles)
-4. [The 10 Detection Strategies](#4-the-10-detection-strategies)
-5. [Library Name Prefix Handling](#5-library-name-prefix-handling)
-6. [Real-World Examples](#6-real-world-examples)
-7. [Known Limitations](#7-known-limitations)
-8. [How to Debug Missing Versions](#8-how-to-debug-missing-versions)
-9. [Adding New Strategies](#9-adding-new-strategies)
+3. [Root Package Version Detection](#3-root-package-version-detection)
+4. [Design Principles](#4-design-principles)
+5. [The 12 Vendored Detection Strategies](#5-the-12-vendored-detection-strategies)
+6. [Library Name Prefix Handling](#6-library-name-prefix-handling)
+7. [Real-World Examples](#7-real-world-examples)
+8. [Known Limitations](#8-known-limitations)
+9. [How to Debug Missing Versions](#9-how-to-debug-missing-versions)
+10. [Adding New Strategies](#10-adding-new-strategies)
 
 ---
 
@@ -58,7 +60,57 @@ useful:
 - **SPDX quality** — NTIA minimum elements for SBOMs include version as a
   recommended field.
 
-## 3. Design Principles
+## 3. Root Package Version Detection
+
+The **root package** is the project being built (e.g., redis, oxipng,
+checkstyle). Its version is set via a two-pronged approach:
+
+### Primary: Config tag extraction
+
+The pipeline extracts a semver-like version from the `branch` field in
+`config.yaml`. Since every repo is pinned to a stable release tag (see
+[Stable Tag Pinning](stable-tag-pinning.md)), the tag usually contains
+the version:
+
+| Tag format | Example | Extracted version |
+|------------|---------|-------------------|
+| `vX.Y.Z` | `v0.25.9` | `0.25.9` |
+| `X.Y.Z` | `8.0.6` | `8.0.6` |
+| `name-X.Y.Z` | `jsoup-1.22.1` | `1.22.1` |
+| `rel/X.Y.Z` | `rel/2.24.3` | `2.24.3` |
+| `nX.Y` | `n8.1` | `8.1` |
+
+This covers **20 of 23** configured repos. The three exceptions are:
+- `nmap` (`master` — no stable tags exist)
+- `bc-java` (`r1rv84` — non-numeric tag)
+- `curl` (`curl-8_19_0` — underscores instead of dots)
+
+### Fallback: File-based detection
+
+If no version is found in the tag, the pipeline falls back to
+file-based detection using language-specific parsers:
+
+| File | Language | Parser |
+|------|----------|--------|
+| `Cargo.toml` | Rust | `parse_cargo_toml` — extracts `version = "x.y.z"` |
+| `pom.xml` | Java/Maven | `parse_pom_xml` — extracts `<version>`, skips `<parent>` block, handles `-SNAPSHOT` |
+
+These parsers supplement the existing vendored strategies (which also
+scan the repo root for VERSION files, `configure.ac`, etc.).
+
+### Implementation
+
+- **`collect_metadata.py`**: `_version_from_tag()` extracts version
+  from config branch; `_detect_repo_version()` tries tag first, then
+  file-based detection
+- **`metadata_collector.py`**: passes `config_branch` from
+  `config.yaml` to `collect_metadata.main()`
+- **SPDX emitter**: uses the detected version as the root package
+  `versionInfo` field
+
+---
+
+## 4. Design Principles
 
 The `VendoredVersionDetector` class in `app/spdx/version_detector.py` follows
 these principles:
@@ -96,11 +148,11 @@ Library names in `#define` macros often differ from directory names:
 The detector generates multiple prefix candidates and falls back to a
 prefix-agnostic scan.
 
-## 4. The 10 Detection Strategies
+## 5. The 12 Vendored Detection Strategies
 
 Strategies are tried in this order. The first match wins.
 
-### Strategy 1: VERSION / RELEASE / VERSION.txt Files
+### Strategy 1: VERSION / RELEASE / VERSION.txt files
 
 **Pattern:** Plain text file containing a semver string.
 
@@ -121,7 +173,38 @@ the most unambiguous source.
 
 **File names checked:** `VERSION`, `VERSION.txt`, `RELEASE`
 
-### Strategy 2: configure.ac AC_INIT
+### Strategy 2: Key-value version files
+
+**Pattern:** Structured key-value files like `VERSION.dat`.
+
+**Examples:**
+```
+# jemalloc VERSION.dat
+VERSION=5.3.0
+```
+
+### Strategy 3: Structured data files (package.json, Cargo.toml, pom.xml)
+
+**Pattern:** Language-ecosystem files with a version field.
+
+**Parsers:**
+
+| File | Parser | Pattern |
+|------|--------|---------|
+| `package.json` | `parse_package_json` | `"version": "x.y.z"` |
+| `version.json` | `parse_version_json` | `"version": "x.y.z"` |
+| `pyproject.toml` | `parse_pyproject_toml` | `version = "x.y.z"` |
+| `Cargo.toml` | `parse_cargo_toml` | `version = "x.y.z"` (Rust) |
+| `pom.xml` | `parse_pom_xml` | `<version>x.y.z</version>` (Java/Maven) |
+
+**`Cargo.toml` details:** Parses the `[package]` section for
+`version = "x.y.z"`. Uses regex to extract the first semver match.
+
+**`pom.xml` details:** Strips the `<parent>` block before extracting
+`<version>` to avoid matching the parent POM's version. Handles
+`-SNAPSHOT` suffixes by extracting only the numeric prefix.
+
+### Strategy 4: configure.ac AC_INIT
 
 **Pattern:** Autoconf `AC_INIT` macro with version argument.
 
@@ -140,7 +223,7 @@ projects. The version in `AC_INIT` is what gets substituted into `config.h`,
 
 **Real-world hit:** libdnet-stripped in nmap (`AC_INIT([libdnet],[1.18.0])`)
 
-### Strategy 3: CMakeLists.txt project(VERSION)
+### Strategy 5: CMakeLists.txt project(VERSION)
 
 **Pattern:** CMake `project()` command with VERSION keyword.
 
@@ -156,7 +239,7 @@ project(mylib VERSION 2.0.0 LANGUAGES C CXX)
 **Note:** The regex matches `VERSION` inside `project()` parentheses, avoiding
 false matches on `cmake_minimum_required(VERSION ...)`.
 
-### Strategy 4: meson.build project(version:)
+### Strategy 6: meson.build project(version:)
 
 **Pattern:** Meson build system `project()` with `version:` keyword argument.
 
@@ -169,7 +252,7 @@ project('mylib', 'c',
 
 **Regex:** `project\s*\([^)]*?version\s*:\s*['"](\d+\.\d+(?:\.\d+)?)`
 
-### Strategy 5: .pc.in Files
+### Strategy 7: .pc.in files
 
 **Pattern:** pkg-config template files with `Version:` field.
 
@@ -181,7 +264,7 @@ Version: 1.2.0
 
 **Real-world hit:** hiredis in redis (`hiredis.pc.in`)
 
-### Strategy 6: #define PREFIX_VERSION / PREFIX_RELEASE Strings
+### Strategy 8: #define PREFIX_VERSION / PREFIX_RELEASE strings
 
 **Pattern:** Single-line `#define` with the library prefix, containing a
 quoted version string.
@@ -206,7 +289,7 @@ If we checked VERSION first, we'd get `5.4` instead of `5.4.8`.
 **Prefix candidates:** Generated by `_name_prefixes()` — see
 [Section 5](#5-library-name-prefix-handling).
 
-### Strategy 7: #define MAJOR / MINOR / PATCH|RELEASE|MICRO Parts
+### Strategy 9: #define MAJOR / MINOR / PATCH|RELEASE|MICRO parts
 
 **Pattern:** Separate `#define` macros for each version component.
 
@@ -246,7 +329,7 @@ detector tries a wildcard `\w*` prefix. This handles cases like xxhash where
 the library name is "xxhash" but the macros use `XXH_` — a prefix that cannot
 be algorithmically derived from the name.
 
-### Strategy 8: Broad #define Fallback
+### Strategy 10: Broad #define fallback
 
 **Pattern:** Any `#define` with `VERSION` or `VER` in its name containing a
 quoted semver string.
@@ -261,7 +344,7 @@ quoted semver string.
 order to avoid false matches. It does not require the macro name to match the
 library name at all.
 
-### Strategy 9: Header Comment Version
+### Strategy 11: Header comment version
 
 **Pattern:** Version string in a comment block in the first 20 lines of a
 header file.
@@ -279,7 +362,7 @@ header file.
 file that may refer to something else (protocol versions, format versions,
 etc.).
 
-### Strategy 10: Makefile VERSION Variables
+### Strategy 12: Makefile VERSION variables
 
 **Pattern:** VERSION assignment in a Makefile.
 
@@ -295,7 +378,7 @@ VERSION := 2.1.0
 **Why last:** Makefile version variables are less reliable because they may
 refer to ABI versions, SO versions, or other non-semantic version numbers.
 
-## 5. Library Name Prefix Handling
+## 6. Library Name Prefix Handling
 
 The `_name_prefixes()` method generates multiple prefix candidates from the
 library directory name, accounting for common naming conventions:
@@ -326,7 +409,7 @@ removed while preserving order (most specific first).
 After all named prefixes are exhausted, Strategy 7 falls back to `\w*` as a
 wildcard prefix to catch completely unpredictable naming.
 
-## 6. Real-World Examples
+## 7. Real-World Examples
 
 ### nmap Vendored Libraries (March 2026)
 
@@ -355,7 +438,7 @@ wildcard prefix to catch completely unpredictable naming.
 
 ### Improvement Over Previous Detector
 
-| Package | Before (4 strategies) | After (10 strategies) |
+| Package | Before (4 strategies) | After (12 strategies) |
 |---------|----------------------|----------------------|
 | liblua (nmap) | (none) | **5.4.8** |
 | nsock (nmap) | (none) | **0.02** |
@@ -368,7 +451,7 @@ The improvements came from: quoted string support, RELEASE-as-PATCH alias,
 lib prefix stripping, prefix-agnostic fallback, expanded header comment
 scanning window, and configure.ac/CMakeLists.txt parsing.
 
-## 7. Known Limitations
+## 8. Known Limitations
 
 ### Flat integer versions
 
@@ -413,7 +496,7 @@ with the library's prefix. The broad fallback (Strategy 8) could
 theoretically match the wrong one, but since it runs last, a prefix-specific
 match will win first.
 
-## 8. How to Debug Missing Versions
+## 9. How to Debug Missing Versions
 
 If a vendored library is showing `(none)` for its version:
 
@@ -448,22 +531,25 @@ If a vendored library is showing `(none)` for its version:
    print(det._name_prefixes("libname"))
    ```
 
-## 9. Adding New Strategies
+## 10. Adding New Strategies
 
 To add a new detection strategy:
 
-1. Add a new `_parse_*` method to `VendoredVersionDetector`
-2. Call it from `detect()` in the appropriate position (more reliable
-   strategies earlier)
-3. Use `_safe_read()` for file I/O (handles OSError gracefully)
-4. Match against `_VER_RE` for consistent semver extraction
-5. Add tests in `tests/test_spdx_from_adg.py` under
-   `TestVendoredVersionDetector`
-6. Add an unreadable-file test for graceful error handling
+1. Add a `parse_*` function in `app/version_detection/strategies.py`
+2. For structured data files (e.g., `Cargo.toml`), register the parser
+   in `_STRUCTURED_PARSERS` in `app/version_detection/detector.py` and
+   add the filename to `STRUCTURED_VERSION_FILES` in
+   `app/version_detection/patterns.py`
+3. For other strategies, add the call in `detect()` in the appropriate
+   position (more reliable strategies earlier)
+4. Use `_safe_read()` for file I/O (handles OSError gracefully)
+5. Match against `VER_RE` for consistent semver extraction
+6. Add tests in `tests/test_version_detection.py`
+7. Add an unreadable-file test for graceful error handling
 
-The test suite currently has 20+ version detector tests covering all 10
-strategies plus error handling and prefix generation.
+The test suite currently has 80+ version detector tests covering all 12
+strategies, root version extraction, and prefix generation.
 
 ---
 
-*Last updated: March 12, 2026*
+*Last updated: April 29, 2026*

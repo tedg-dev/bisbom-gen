@@ -139,9 +139,9 @@ app/spdx/generator.py            # AdgSpdxGenerator (facade)
  ├─ app/spdx/parser.py           # AdgParser — reads bomsh treedb, classifies artifacts
  ├─ app/spdx/resolver.py         # ComponentResolver — maps artifacts to packages
  ├─ app/spdx/emitter.py          # SpdxEmitter — produces SPDX 2.3 JSON
- │   └─ app/version_detection/   # VendoredVersionDetector (12 strategies)
+ │   └─ app/version_detection/   # VendoredVersionDetector (14 strategies)
  │       ├─ detector.py           # Orchestrates strategies in priority order
- │       ├─ strategies.py         # 12 version detection strategies
+ │       ├─ strategies.py         # 14 version detection strategies
  │       └─ patterns.py           # Regex patterns and file name constants
  └─ app/spdx_visualize.py        # generate_html() [called at end of generate()]
      └─ app/viz/                  # Visualization sub-package (see §4)
@@ -293,7 +293,7 @@ These run inside the Docker container during pipeline execution:
 
 | File | Purpose | Called by |
 |------|---------|----------|
-| `app/collect_metadata.py` | dpkg metadata for system files → `component_metadata.json` | `MetadataCollector` |
+| `app/collect_metadata.py` | dpkg metadata for system files → `component_metadata.json`; root version from config tag | `MetadataCollector` |
 | `app/collect_dynamic_libs.py` | ldd/readelf → `dynamic_libs.json` per binary | `MetadataCollector` |
 | `app/apply_qemu_fallback.py` | Patch bomsh for QEMU/Apple Silicon compatibility | Dockerfile |
 
@@ -382,12 +382,14 @@ Modular HTML generation for interactive dependency graphs. The
 orchestrator (`spdx_visualize.py`) assembles CSS, HTML fragments, and
 JS code from dedicated modules. Each module is under 340 lines.
 
-### `app/version_detection/` — Vendored library version detection (3 modules)
+### `app/version_detection/` — Root + vendored version detection (3 modules)
 
 12 ordered strategies for detecting versions from source trees
 (VERSION files, CMakeLists.txt, configure.ac, package.json, Cargo.toml,
-Makefile variables, etc.). Used by `SpdxEmitter` to set `versionInfo`
-on vendored packages.
+pom.xml, Makefile variables, etc.). Used by `SpdxEmitter` to set
+`versionInfo` on vendored packages, and by `collect_metadata.py` to
+detect the root package version from config tags with file-based
+fallback.
 
 ### `app/repo_discovery/` — Auto-discover repos (6 modules)
 
@@ -397,4 +399,4 @@ path detection, build step generation, and config.yaml writing. Used by
 
 ---
 
-*Last updated: March 31, 2026*
+*Last updated: April 29, 2026*
