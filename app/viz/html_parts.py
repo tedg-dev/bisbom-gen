@@ -46,7 +46,7 @@ def get_legend_html(
     <span>Static ({type_counts.get('static', 0)})</span>
   </div>
   <div class="legend-item">
-    <div class="legend-dot" style="background:#4ecdc4;border:2px dashed #ff8c00"></div>
+    <div class="legend-dot" style="background:#888;border:2px dashed #ff8c00"></div>
     <span>Vendored ({vendored_count})</span>
   </div>
   <div class="legend-item">
