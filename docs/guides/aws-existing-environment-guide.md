@@ -715,17 +715,9 @@ as long as:
 2. Route tables for the subnet include a route to the NAT Gateway
 3. SSH access is through a **bastion host** or **AWS Systems Manager Session Manager**
 
-```
-┌─────────────────┐     ┌─────────────┐     ┌──────────┐
-│  Your Laptop    │────▶│  Bastion /   │────▶│ omnibor  │
-│  (SSH client)   │     │  SSM         │     │ build    │
-└─────────────────┘     └─────────────┘     └──────────┘
-                                                  │
-                                           ┌──────▼──────┐
-                                           │ NAT Gateway  │
-                                           │ (outbound)   │
-                                           └──────────────┘
-```
+<a href="aws-existing-private-subnet.png"><img src="aws-existing-private-subnet.png" width="600" alt="Private subnet with NAT Gateway — click to enlarge"></a>
+
+<sub>Source: [aws-existing-private-subnet.drawio](aws-existing-private-subnet.drawio)</sub>
 
 Update your `~/.ssh/config` for bastion access:
 
@@ -1027,21 +1019,9 @@ uname -m
 
 Use this to quickly determine the right path:
 
-```text
-Do you have an existing x86_64 Linux server (any provider)?
-├── YES → Does it have Docker installed?
-│   ├── YES → Does Docker allow SYS_PTRACE + seccomp:unconfined?
-│   │   ├── YES → Scenario A: Clone repo, build image, validate
-│   │   └── NO  → Can you change Docker config?
-│   │       ├── YES → Enable capabilities, then Scenario A
-│   │       └── NO  → Scenario B: Launch a new dedicated EC2
-│   └── NO  → Can you install Docker?
-│       ├── YES → Install Docker, then Scenario A
-│       └── NO  → Scenario B: Launch a new dedicated EC2
-├── NO  → Do you have an existing AWS account with a VPC?
-│   ├── YES → Scenario B: Launch new x86_64 EC2 in your VPC
-│   └── NO  → Use the Greenfield Guide (aws-setup-guide.md)
-```
+<a href="aws-existing-decision-flowchart.png"><img src="aws-existing-decision-flowchart.png" width="700" alt="Decision flowchart — click to enlarge"></a>
+
+<sub>Source: [aws-existing-decision-flowchart.drawio](aws-existing-decision-flowchart.drawio)</sub>
 
 ---
 
