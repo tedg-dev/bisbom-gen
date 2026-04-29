@@ -54,3 +54,14 @@ When OmniBOR/bomsh adds support for a new language:
 1. Update the tables above
 2. Update `app/pipeline/language_validator.py` with the new mapping
 3. Update the version comment (e.g., "bomsh v2026.2")
+4. Create language subdirectories with `.gitkeep` under **all** output
+   categories to preserve the directory skeleton on fresh clone:
+   ```
+   output/binaries/<lang>/.gitkeep
+   output/binary-scan/<lang>/.gitkeep
+   output/build-logs/<lang>/.gitkeep
+   output/omnibor/<lang>/.gitkeep
+   output/runtime/<lang>/.gitkeep
+   output/spdx/<lang>/.gitkeep
+   ```
+5. Commit the `.gitkeep` files (they are allowed through `.gitignore`)

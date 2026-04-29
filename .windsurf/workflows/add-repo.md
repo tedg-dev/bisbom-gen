@@ -42,6 +42,16 @@ Once the user approves:
 
 This writes the entry to `app/config.yaml` and creates output directories.
 
+If this is a **new language** (not an existing one like c-cpp, rust, go, java),
+also create `.gitkeep` files under all output categories:
+
+```bash
+for dir in binaries binary-scan build-logs omnibor runtime spdx; do
+  touch output/$dir/<new-lang>/.gitkeep
+done
+git add output/**/<new-lang>/.gitkeep
+```
+
 ## 4. Add missing Dockerfile packages (if any)
 
 If the script reports missing apt packages, add them to `docker/Dockerfile`
