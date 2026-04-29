@@ -7,6 +7,7 @@
 | [ONBOARDING.md](guides/ONBOARDING.md) | New contributors | First-day setup, environment, workflows |
 | [CONTRIBUTING.md](guides/CONTRIBUTING.md) | All contributors | Branch workflow, PR process, code style |
 | [Architecture README](architecture/README.md) | All contributors | System diagrams and technical overview |
+| [SPDX Output FAQ](guides/spdx-faq.md) | All contributors | Why SPDX output looks the way it does — relationship types, versions, two-file approach |
 
 ## Directory Guide
 
