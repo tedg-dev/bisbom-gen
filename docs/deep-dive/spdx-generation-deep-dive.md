@@ -363,14 +363,18 @@ SPDX generation.
 ### `collect_metadata.py` (once per repo)
 
 Reads the bomsh treedb and resolves every system file (libraries, headers, CRT
-objects) to its dpkg package:
+objects) to its dpkg package. Also detects the **root package version** using
+a two-pronged approach: (1) extract semver from the config tag (primary), or
+(2) fall back to file-based detection via `Cargo.toml`, `pom.xml`, or other
+version strategies. See [Version Detection](../features/vendored-version-detection.md#3-root-package-version-detection).
 
-1. Iterates all treedb entries, filters system files (not under `repos/`)
-2. Resolves canonical paths (`os.path.realpath` to handle `/../`)
-3. Runs `dpkg -S <path>` for each file to find the owning package
-4. Runs `dpkg-query --showformat` to extract full metadata: name, version,
+1. Detects root package version from config tag or file-based fallback
+2. Iterates all treedb entries, filters system files (not under `repos/`)
+3. Resolves canonical paths (`os.path.realpath` to handle `/../`)
+4. Runs `dpkg -S <path>` for each file to find the owning package
+5. Runs `dpkg-query --showformat` to extract full metadata: name, version,
    source package, architecture, maintainer, homepage, section
-5. Writes `component_metadata.json` to the metadata directory
+6. Writes `component_metadata.json` to the metadata directory
 
 **Output:** `output/omnibor/<repo>/metadata/component_metadata.json`
 
@@ -432,12 +436,23 @@ Two modes:
 ### Vendored Version Detection
 
 `VendoredVersionDetector` scans vendored source directories for version
-information using multiple strategies:
+information using 12 ordered strategies (first match wins):
 
-1. **VERSION files** — `VERSION`, `version.txt`, etc.
-2. **#define macros** — `#define LIB_VERSION "1.2.3"`, `#define MAJOR 1`
-3. **Header comments** — `/* libfoo v1.2.3 */`
-4. **.pc.in files** — `Version: @VERSION@` patterns
+1. **VERSION / RELEASE files** — `VERSION`, `VERSION.txt`, `RELEASE`
+2. **Key-value files** — `VERSION.dat`
+3. **Structured data** — `package.json`, `Cargo.toml`, `pom.xml`, etc.
+4. **configure.ac** — `AC_INIT([lib],[x.y.z])`
+5. **CMakeLists.txt** — `project(VERSION x.y.z)`
+6. **meson.build** — `project(version: 'x.y.z')`
+7. **.pc.in files** — `Version: x.y.z`
+8. **#define PREFIX_VERSION** — `#define LIB_VERSION "1.2.3"`
+9. **#define MAJOR/MINOR/PATCH** — split macros
+10. **Broad #define fallback** — any `#define` with VERSION/VER
+11. **Header comments** — `/* libfoo v1.2.3 */`
+12. **Makefile variables** — `VERSION = x.y.z`
+
+See [Version Detection](../features/vendored-version-detection.md)
+for full strategy documentation.
 
 ### SPDX Relationship Types
 

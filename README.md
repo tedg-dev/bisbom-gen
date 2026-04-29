@@ -54,7 +54,7 @@ omnibor-analysis/
 │   ├── pipeline/           Analysis pipeline (clone, build, instrument, generate SBOMs)
 │   ├── spdx/              Per-binary SPDX 2.3 generation from ADG data
 │   ├── viz/               D3.js visualization package (extract, styles, JS templates)
-│   ├── version_detection/ Package version detection (12 ordered strategies)
+│   ├── version_detection/ Root + vendored package version detection (14 strategies)
 │   ├── repo_discovery/    Auto-discover and configure repos from GitHub
 │   └── templates/         Report templates
 ├── docker/                Docker environment (Linux + gcc + Rust + Go + Maven + bomtrace)
@@ -65,7 +65,7 @@ omnibor-analysis/
 │   ├── issues/            Upstream bug tracking and workarounds
 │   └── deep-dive/         Research, performance, enterprise docs
 ├── terraform/             AWS EC2 infrastructure as code
-├── tests/                 Unit tests (874 tests)
+├── tests/                 Unit tests (900 tests)
 ├── repos/                 Cloned target repositories (gitignored)
 ├── output/                Generated artifacts: SBOMs, ADGs, binaries (gitignored)
 ├── .windsurf/             Cascade AI rules and workflows
@@ -188,7 +188,6 @@ Go modules are classified as direct or indirect from `go.mod`. Each gets a `pkg:
 | [logging-log4j2](https://github.com/apache/logging-log4j2) | ~10 | ~20 | Apache Log4j2 logging framework, Maven multi-module |
 | [spring-boot](https://github.com/spring-projects/spring-boot) | ~50 | ~70 | Spring Boot framework, Gradle multi-module |
 | [bc-java](https://github.com/bcgit/bc-java) | ~10 | ~5 | Bouncy Castle crypto library, Gradle multi-module |
-| [datahub](https://github.com/datahub-project/datahub) | ~30 | ~60 | DataHub metadata platform, Gradle multi-module |
 
 Java uses strace-based post-build analysis instead of bomtrace. Maven dependencies are classified as direct (depth 1) or transitive (depth 2+) via BFS.
 

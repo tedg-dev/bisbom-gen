@@ -30,7 +30,7 @@ Clone → Validate deps → bomtrace build → ADG → SPDX → Validate → Vis
 | `bomsh_sbom.py` | omnibor/bomsh | ADG → basic OmniBOR SPDX |
 | `app/spdx/generator.py` | omnibor-analysis | ADG → enriched per-binary SPDX with dpkg metadata |
 | `app/spdx/java_generator.py` | omnibor-analysis | Java: ADG + `mvn dependency:tree` → SPDX |
-| `app/version_detection/` | omnibor-analysis | 12 strategies for vendored library version detection |
+| `app/version_detection/` | omnibor-analysis | Root version from config tags + 12 vendored detection strategies |
 | `app/spdx_visualize.py` | omnibor-analysis | SPDX → interactive D3.js HTML |
 
 **Environment:** Docker container on AWS EC2 (Ubuntu 22.04 x86_64) with `SYS_PTRACE` capability.

@@ -141,38 +141,56 @@ graph TD
 
 ---
 
-## Vendored Version Detection: 12 Strategies
+## Version Detection
+
+omnibor-analysis detects versions for both the **root package** and
+**vendored libraries**:
+
+### Root package version (all languages)
+
+The pipeline extracts the root `versionInfo` from the `config.yaml`
+`branch` tag (e.g., `v0.25.9` → `0.25.9`). This covers 20 of 23
+configured repos. For repos without a semver tag, it falls back to
+file-based detection (`Cargo.toml` for Rust, `pom.xml` for Java,
+VERSION files for C/C++). See [Stable Tag Pinning](../features/stable-tag-pinning.md).
+
+### Vendored library version (12 strategies)
 
 C/C++ vendored libraries declare versions in ad-hoc ways. omnibor-analysis
 implements 12 detection strategies, ordered most-reliable first:
 
 ```mermaid
 flowchart LR
-    A["VERSION /<br/>RELEASE file"] --> B["configure.ac<br/>AC_INIT"]
-    B --> C["CMakeLists.txt<br/>project(VERSION)"]
-    C --> D["meson.build<br/>project(version:)"]
-    D --> E[".pc.in<br/>Version: field"]
-    E --> F["#define<br/>PREFIX_VERSION"]
-    F --> G["#define<br/>MAJOR/MINOR/PATCH"]
-    G --> H["Broad #define<br/>fallback"]
-    H --> I["Header comment<br/>(first 20 lines)"]
-    I --> J["Makefile<br/>VERSION = x.y.z"]
+    A["VERSION /<br/>RELEASE file"] --> B["Key-value<br/>VERSION.dat"]
+    B --> C["Structured data<br/>package.json / Cargo.toml<br/>pom.xml"]
+    C --> D["configure.ac<br/>AC_INIT"]
+    D --> E["CMakeLists.txt<br/>project(VERSION)"]
+    E --> F["meson.build<br/>project(version:)"]
+    F --> G[".pc.in<br/>Version: field"]
+    G --> H["#define<br/>PREFIX_VERSION"]
+    H --> I["#define<br/>MAJOR/MINOR/PATCH"]
+    I --> J["Broad #define<br/>fallback"]
+    J --> K["Header comment<br/>(first 20 lines)"]
+    K --> L["Makefile<br/>VERSION = x.y.z"]
 
     style A fill:#2ecc71,color:#fff
     style B fill:#27ae60,color:#fff
     style C fill:#229954,color:#fff
     style D fill:#1e8449,color:#fff
     style E fill:#196f3d,color:#fff
-    style F fill:#3498db,color:#fff
-    style G fill:#2980b9,color:#fff
-    style H fill:#2471a3,color:#fff
-    style I fill:#e67e22,color:#fff
-    style J fill:#d35400,color:#fff
+    style F fill:#117a65,color:#fff
+    style G fill:#0e6655,color:#fff
+    style H fill:#3498db,color:#fff
+    style I fill:#2980b9,color:#fff
+    style J fill:#2471a3,color:#fff
+    style K fill:#e67e22,color:#fff
+    style L fill:#d35400,color:#fff
 ```
 
 **First match wins.** A VERSION file (most reliable) always beats a regex in a
 Makefile (least reliable). Handles quoted strings (`"5"`), RELEASE/MICRO as PATCH
 aliases, and flexible `lib` prefix stripping (`liblua` → `LUA_` prefix matching).
+See [Version Detection](../features/vendored-version-detection.md) for full details.
 
 ---
 
@@ -225,10 +243,10 @@ Source code → bomtrace3 (ptrace) → raw logfile → OmniBOR ADG → SPDX 2.3 
 - **bomtrace3** — modified strace that intercepts gcc/ld via ptrace
 - **bomsh_create_bom.py** — builds the OmniBOR Artifact Dependency Graph
 - **app/spdx/emitter.py** — generates per-binary SPDX with vendored detection
-- **app/version_detection/** — 12-strategy vendored version detection
+- **app/version_detection/** — root + vendored version detection (14 strategies)
 - **app/spdx_visualize.py** — D3.js interactive dependency graphs
 
-**Quality gates:** 670 tests, 97% code coverage, golden file regression baselines
+**Quality gates:** 900 tests, 98% code coverage, golden file regression baselines
 for all 18 C/C++ binary artifacts across 4 projects.
 
 ---
