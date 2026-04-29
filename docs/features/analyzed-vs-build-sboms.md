@@ -12,7 +12,7 @@ CISA guidance and industry best practices.
 2. [CISA SBOM Types](#2-cisa-sbom-types)
 3. [Our Two-File Approach](#3-our-two-file-approach)
 4. [What Goes in Each SBOM](#4-what-goes-in-each-sbom)
-5. [BUILD_TOOL_OF Exclusion](#5-build_tool_of-exclusion)
+5. [`BUILD_TOOL_OF` Exclusion](#5-build_tool_of-exclusion)
 6. [Naming Conventions](#6-naming-conventions)
 7. [Implementation Details](#7-implementation-details)
 8. [Use Cases](#8-use-cases)
@@ -101,28 +101,28 @@ nmap_build.spdx.json          # Everything used to BUILD the binary
 Contains **only components whose code is compiled into the binary**:
 
 - The root binary package itself
-- Vendored/statically linked libraries (STATIC_LINK relationship)
+- Vendored/statically linked libraries (`STATIC_LINK` relationship)
 - For Java: nothing beyond the root JAR (Maven deps are not bundled in
   thin JARs)
 - For Rust: crate code compiled into the final binary
 - For Go: Go module code compiled into the final binary
 
 **Excludes:**
-- Dynamically linked system libraries (DYNAMIC_LINK)
-- Build tools (BUILD_TOOL_OF) — GCC, Go compiler, etc.
-- Transitive dependencies not compiled in (DEPENDS_ON for non-embedded)
+- Dynamically linked system libraries (`DYNAMIC_LINK`)
+- Build tools (`BUILD_TOOL_OF`) — GCC, Go compiler, etc.
+- Transitive dependencies not compiled in (`DEPENDS_ON` for non-embedded)
 
 ### Build SBOM (`_build.spdx.json`)
 
 Contains **everything involved in producing the binary**:
 
 - Everything in the analyzed SBOM, plus:
-- Dynamically linked system libraries (DYNAMIC_LINK)
-- Build tools: GCC, Go compiler, rustc (BUILD_TOOL_OF)
-- Transitive dependencies (DEPENDS_ON)
+- Dynamically linked system libraries (`DYNAMIC_LINK`)
+- Build tools: GCC, Go compiler, rustc (`BUILD_TOOL_OF`)
+- Transitive dependencies (`DEPENDS_ON`)
 - For Java: all Maven compile/runtime/provided scope dependencies
 
-## 5. BUILD_TOOL_OF Exclusion
+## 5. `BUILD_TOOL_OF` Exclusion
 
 Build tools like GCC are recorded in the SPDX with a `BUILD_TOOL_OF`
 relationship. These tools are essential for reproducibility but their code is
@@ -268,10 +268,10 @@ picture — what is in the artifact and what was used to produce it.
 
 | Relationship | Analyzed | Build | Meaning |
 |-------------|----------|-------|---------|
-| STATIC_LINK | Yes | Yes | Library code compiled into binary |
-| DYNAMIC_LINK | No | Yes | Runtime shared library dependency |
-| BUILD_TOOL_OF | No | Yes | Compiler/toolchain used to build |
-| DEPENDS_ON | Partial | Yes | Transitive dependency (only if embedded) |
+| `STATIC_LINK` | Yes | Yes | Library code compiled into binary |
+| `DYNAMIC_LINK` | No | Yes | Runtime shared library dependency |
+| `BUILD_TOOL_OF` | No | Yes | Compiler/toolchain used to build |
+| `DEPENDS_ON` | Partial | Yes | Transitive dependency (only if embedded) |
 | CONTAINS | Yes | Yes | Source files belonging to a package |
 
 ## 10. Examples from Real Projects
