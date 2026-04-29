@@ -113,6 +113,8 @@ STRUCTURED_VERSION_FILES = (
     "package.json",
     "version.json",
     "pyproject.toml",
+    "Cargo.toml",
+    "pom.xml",
 )
 
 # ── Name prefix generation ──────────────────────

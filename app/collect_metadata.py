@@ -9,12 +9,49 @@ Outputs component_metadata.json alongside the treedb.
 """
 import json
 import os
+import re
 import subprocess
 from pathlib import Path
 
+# Matches semver-like version in git tags
+_TAG_VER_RE = re.compile(
+    r"(\d+\.\d+(?:\.\d+){0,2})"
+)
 
-def _detect_repo_version(repo_name, repos_dir):
-    """Detect the repo's own version from its source tree."""
+
+def _version_from_tag(tag):
+    """Extract version from a git tag string.
+
+    Handles common tag formats:
+        v0.25.9  -> 0.25.9
+        v10.1.0  -> 10.1.0
+        7.2.4    -> 7.2.4
+        release-1.2.3 -> 1.2.3
+        main, master  -> None
+    """
+    if not tag:
+        return None
+    m = _TAG_VER_RE.search(tag)
+    return m.group(1) if m else None
+
+
+def _detect_repo_version(
+    repo_name, repos_dir, config_branch=None,
+):
+    """Detect the repo's own version.
+
+    Priority:
+    1. Config branch/tag (most reliable — explicit
+       release tag from config.yaml)
+    2. File-based detection (VERSION files,
+       Cargo.toml, pom.xml, #define macros, etc.)
+    """
+    # 1. Try config branch/tag first
+    ver = _version_from_tag(config_branch)
+    if ver:
+        return ver
+
+    # 2. Fall back to file-based detection
     try:
         from app.version_detection import (
             VendoredVersionDetector,
@@ -45,7 +82,10 @@ def _detect_repo_version(repo_name, repos_dir):
     return detector.detect(repo_name, files)
 
 
-def main(treedb_path, repos_dir, out_dir, repo_name=None):
+def main(
+    treedb_path, repos_dir, out_dir,
+    repo_name=None, config_branch=None,
+):
     treedb = json.load(open(treedb_path))
 
     # Collect all system file paths (not under repos)
@@ -124,7 +164,8 @@ def main(treedb_path, repos_dir, out_dir, repo_name=None):
     repo_version = None
     if repo_name:
         repo_version = _detect_repo_version(
-            repo_name, repos_dir
+            repo_name, repos_dir,
+            config_branch=config_branch,
         )
 
     # Distro info

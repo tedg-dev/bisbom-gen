@@ -75,6 +75,9 @@ class MetadataCollector:
                     repos_dir,
                     str(meta_dir),
                     repo_name=repo_name,
+                    config_branch=repo_cfg.get(
+                        "branch"
+                    ),
                 )
             except Exception as e:
                 print(

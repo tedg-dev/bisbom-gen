@@ -9,7 +9,8 @@ This makes strategies independently testable.
 Strategy ordering:
   1. VERSION / RELEASE text files
   2. Key-value version files (VERSION.dat)
-  3. Structured data files (package.json, etc.)
+  3. Structured data files (package.json, Cargo.toml,
+     pom.xml, etc.)
   4. configure.ac  AC_INIT
   5. CMakeLists.txt  project(VERSION)
   6. meson.build  project(version:)
@@ -167,6 +168,57 @@ def parse_pyproject_toml(path):
         rf"({VER_RE.pattern})",
         text,
         re.MULTILINE,
+    )
+    return m.group(1) if m else None
+
+
+# ── Strategy 3d: Cargo.toml (Rust) ─────────────
+
+
+def parse_cargo_toml(path):
+    """Parse version from Cargo.toml.
+
+    Standard for Rust projects:
+        [package]
+        version = "10.1.0"
+    """
+    text = _safe_read(path)
+    if not text:
+        return None
+    m = re.search(
+        r'^\s*version\s*=\s*["\']'
+        rf"({VER_RE.pattern})",
+        text,
+        re.MULTILINE,
+    )
+    return m.group(1) if m else None
+
+
+# ── Strategy 3e: pom.xml (Java/Maven) ──────────
+
+
+def parse_pom_xml(path):
+    """Parse version from pom.xml.
+
+    Standard for Java/Maven projects:
+        <version>1.2.3</version>
+
+    Uses the first <version> under the root
+    <project>, skipping parent version.
+    """
+    text = _safe_read(path)
+    if not text:
+        return None
+    # Skip <parent>...</parent> block
+    cleaned = re.sub(
+        r"<parent>.*?</parent>",
+        "", text, flags=re.DOTALL,
+    )
+    m = re.search(
+        r"<version>\s*"
+        rf"({VER_RE.pattern})"
+        r"[^<]*</version>",
+        cleaned,
     )
     return m.group(1) if m else None
 

@@ -2,8 +2,8 @@
 Version Detection — detect versions of vendored
 libraries and project root packages from source code.
 
-Supports C/C++, JavaScript/Node.js, Python, Rust, Go,
-and Java ecosystems with 13 ordered strategies from
+Supports C/C++, JavaScript/Node.js, Python, Rust,
+and Java ecosystems with file-based strategies from
 most-reliable to broadest-fallback.
 
 Usage:

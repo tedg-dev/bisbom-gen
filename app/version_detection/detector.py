@@ -5,7 +5,8 @@ detection strategies for vendored libraries.
 Strategies (ordered most-reliable first):
   1. VERSION / RELEASE text files
   2. Key-value version files (VERSION.dat, etc.)
-  3. Structured data files (package.json, etc.)
+  3. Structured data files (package.json,
+     Cargo.toml, pom.xml, etc.)
   4. configure.ac  AC_INIT([name],[ver])
   5. CMakeLists.txt  project(... VERSION x.y.z)
   6. meson.build  project(... version: 'x.y.z')
@@ -32,6 +33,8 @@ from app.version_detection.strategies import (
     parse_package_json,
     parse_version_json,
     parse_pyproject_toml,
+    parse_cargo_toml,
+    parse_pom_xml,
     parse_configure_ac,
     parse_cmakelists,
     parse_meson_build,
@@ -48,6 +51,8 @@ _STRUCTURED_PARSERS = {
     "package.json": parse_package_json,
     "version.json": parse_version_json,
     "pyproject.toml": parse_pyproject_toml,
+    "Cargo.toml": parse_cargo_toml,
+    "pom.xml": parse_pom_xml,
 }
 
 

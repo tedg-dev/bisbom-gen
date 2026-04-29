@@ -28,6 +28,8 @@ from app.version_detection.strategies import (
     parse_package_json,
     parse_version_json,
     parse_pyproject_toml,
+    parse_cargo_toml,
+    parse_pom_xml,
     parse_configure_ac,
     parse_cmakelists,
     parse_meson_build,
@@ -37,6 +39,10 @@ from app.version_detection.strategies import (
     parse_define_any_version,
     parse_header_comment,
     parse_makefile,
+)
+from app.collect_metadata import (
+    _version_from_tag,
+    _detect_repo_version,
 )
 
 
@@ -739,6 +745,293 @@ class TestDetectorIntegration(unittest.TestCase):
             self.assertIsNone(
                 det.detect("unknown", [str(h)])
             )
+
+    def test_cargo_toml_rust_project(self):
+        """Rust: version from Cargo.toml."""
+        with tempfile.TemporaryDirectory() as td:
+            ct = Path(td) / "Cargo.toml"
+            ct.write_text(
+                '[package]\n'
+                'name = "oxipng"\n'
+                'version = "10.1.0"\n'
+            )
+            src = Path(td) / "src"
+            src.mkdir()
+            (src / "main.rs").write_text("")
+            det = VendoredVersionDetector()
+            ver = det.detect("oxipng", [
+                str(src / "main.rs"),
+            ])
+            self.assertEqual(ver, "10.1.0")
+
+    def test_pom_xml_java_project(self):
+        """Java: version from pom.xml."""
+        with tempfile.TemporaryDirectory() as td:
+            pom = Path(td) / "pom.xml"
+            pom.write_text(
+                '<project>\n'
+                '  <parent>\n'
+                '    <version>2.0.0</version>\n'
+                '  </parent>\n'
+                '  <artifactId>mylib</artifactId>\n'
+                '  <version>1.8.3</version>\n'
+                '</project>\n'
+            )
+            src = Path(td) / "src"
+            src.mkdir()
+            (src / "Main.java").write_text("")
+            det = VendoredVersionDetector()
+            ver = det.detect("mylib", [
+                str(src / "Main.java"),
+            ])
+            self.assertEqual(ver, "1.8.3")
+
+
+# ── Strategy 3d: Cargo.toml ────────────────────
+
+
+class TestParseCargoToml(unittest.TestCase):
+    """Strategy 3d: Cargo.toml (Rust)."""
+
+    def test_standard_cargo_toml(self):
+        with tempfile.TemporaryDirectory() as td:
+            ct = Path(td) / "Cargo.toml"
+            ct.write_text(
+                '[package]\n'
+                'name = "oxipng"\n'
+                'version = "10.1.0"\n'
+                'edition = "2021"\n'
+            )
+            self.assertEqual(
+                parse_cargo_toml(ct), "10.1.0"
+            )
+
+    def test_workspace_cargo_toml(self):
+        """Workspace Cargo.toml with
+        workspace.package.version."""
+        with tempfile.TemporaryDirectory() as td:
+            ct = Path(td) / "Cargo.toml"
+            ct.write_text(
+                '[workspace.package]\n'
+                'version = "0.25.9"\n'
+            )
+            self.assertEqual(
+                parse_cargo_toml(ct), "0.25.9"
+            )
+
+    def test_no_version(self):
+        with tempfile.TemporaryDirectory() as td:
+            ct = Path(td) / "Cargo.toml"
+            ct.write_text(
+                '[package]\n'
+                'name = "mylib"\n'
+            )
+            self.assertIsNone(parse_cargo_toml(ct))
+
+    def test_unreadable(self):
+        self.assertIsNone(
+            parse_cargo_toml(
+                Path("/nonexistent/Cargo.toml")
+            )
+        )
+
+
+# ── Strategy 3e: pom.xml ───────────────────────
+
+
+class TestParsePomXml(unittest.TestCase):
+    """Strategy 3e: pom.xml (Java/Maven)."""
+
+    def test_simple_pom(self):
+        with tempfile.TemporaryDirectory() as td:
+            pom = Path(td) / "pom.xml"
+            pom.write_text(
+                '<project>\n'
+                '  <version>1.8.3</version>\n'
+                '</project>\n'
+            )
+            self.assertEqual(
+                parse_pom_xml(pom), "1.8.3"
+            )
+
+    def test_pom_skips_parent_version(self):
+        """Should use project version, not parent."""
+        with tempfile.TemporaryDirectory() as td:
+            pom = Path(td) / "pom.xml"
+            pom.write_text(
+                '<project>\n'
+                '  <parent>\n'
+                '    <version>2.0.0</version>\n'
+                '  </parent>\n'
+                '  <version>1.8.3</version>\n'
+                '</project>\n'
+            )
+            self.assertEqual(
+                parse_pom_xml(pom), "1.8.3"
+            )
+
+    def test_snapshot_version(self):
+        """SNAPSHOT versions: extract numeric part."""
+        with tempfile.TemporaryDirectory() as td:
+            pom = Path(td) / "pom.xml"
+            pom.write_text(
+                '<project>\n'
+                '  <version>3.0.0-SNAPSHOT</version>\n'
+                '</project>\n'
+            )
+            self.assertEqual(
+                parse_pom_xml(pom), "3.0.0"
+            )
+
+    def test_no_version(self):
+        with tempfile.TemporaryDirectory() as td:
+            pom = Path(td) / "pom.xml"
+            pom.write_text(
+                '<project>\n'
+                '  <artifactId>mylib</artifactId>\n'
+                '</project>\n'
+            )
+            self.assertIsNone(parse_pom_xml(pom))
+
+    def test_unreadable(self):
+        self.assertIsNone(
+            parse_pom_xml(
+                Path("/nonexistent/pom.xml")
+            )
+        )
+
+
+# ── Git tag version extraction ─────────────────
+
+
+class TestVersionFromTag(unittest.TestCase):
+    """Tests for _version_from_tag()."""
+
+    def test_v_prefix(self):
+        self.assertEqual(
+            _version_from_tag("v0.25.9"), "0.25.9"
+        )
+
+    def test_no_prefix(self):
+        self.assertEqual(
+            _version_from_tag("7.2.4"), "7.2.4"
+        )
+
+    def test_release_prefix(self):
+        self.assertEqual(
+            _version_from_tag("release-1.2.3"),
+            "1.2.3",
+        )
+
+    def test_two_part(self):
+        self.assertEqual(
+            _version_from_tag("v8.0"), "8.0"
+        )
+
+    def test_four_part(self):
+        self.assertEqual(
+            _version_from_tag("v1.2.3.4"), "1.2.3.4"
+        )
+
+    def test_main_branch(self):
+        self.assertIsNone(
+            _version_from_tag("main")
+        )
+
+    def test_master_branch(self):
+        self.assertIsNone(
+            _version_from_tag("master")
+        )
+
+    def test_develop_branch(self):
+        self.assertIsNone(
+            _version_from_tag("develop")
+        )
+
+    def test_none_input(self):
+        self.assertIsNone(
+            _version_from_tag(None)
+        )
+
+    def test_empty_string(self):
+        self.assertIsNone(
+            _version_from_tag("")
+        )
+
+
+class TestDetectRepoVersionWithTag(unittest.TestCase):
+    """Tests for _detect_repo_version with
+    config_branch."""
+
+    def test_config_branch_takes_priority(self):
+        """Config tag is used even when files exist."""
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td) / "myrepo"
+            repo.mkdir()
+            vf = repo / "VERSION"
+            vf.write_text("1.0.0\n")
+            ver = _detect_repo_version(
+                "myrepo", td,
+                config_branch="v2.5.0",
+            )
+            self.assertEqual(ver, "2.5.0")
+
+    def test_falls_back_to_file(self):
+        """When config_branch has no version,
+        fall back to file detection."""
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td) / "myrepo"
+            repo.mkdir()
+            vf = repo / "VERSION"
+            vf.write_text("1.0.0\n")
+            ver = _detect_repo_version(
+                "myrepo", td,
+                config_branch="main",
+            )
+            self.assertEqual(ver, "1.0.0")
+
+    def test_no_branch_no_files(self):
+        """Returns None when no version source."""
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td) / "myrepo"
+            repo.mkdir()
+            (repo / "README.md").write_text("hi")
+            ver = _detect_repo_version(
+                "myrepo", td,
+            )
+            self.assertIsNone(ver)
+
+    def test_cargo_toml_fallback(self):
+        """Rust: Cargo.toml version via fallback."""
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td) / "oxipng"
+            repo.mkdir()
+            ct = repo / "Cargo.toml"
+            ct.write_text(
+                '[package]\n'
+                'name = "oxipng"\n'
+                'version = "10.1.0"\n'
+            )
+            ver = _detect_repo_version(
+                "oxipng", td,
+            )
+            self.assertEqual(ver, "10.1.0")
+
+    def test_pom_xml_fallback(self):
+        """Java: pom.xml version via fallback."""
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td) / "mylib"
+            repo.mkdir()
+            pom = repo / "pom.xml"
+            pom.write_text(
+                '<project>\n'
+                '  <version>1.8.3</version>\n'
+                '</project>\n'
+            )
+            ver = _detect_repo_version(
+                "mylib", td,
+            )
+            self.assertEqual(ver, "1.8.3")
 
 
 if __name__ == "__main__":
