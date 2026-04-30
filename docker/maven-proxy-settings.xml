@@ -1,0 +1,20 @@
+<settings>
+  <proxies>
+    <proxy>
+      <id>cisco-proxy-https</id>
+      <active>true</active>
+      <protocol>https</protocol>
+      <host>proxy-wsa.esl.cisco.com</host>
+      <port>80</port>
+      <nonProxyHosts>localhost|*.cisco.com</nonProxyHosts>
+    </proxy>
+    <proxy>
+      <id>cisco-proxy-http</id>
+      <active>true</active>
+      <protocol>http</protocol>
+      <host>proxy-wsa.esl.cisco.com</host>
+      <port>80</port>
+      <nonProxyHosts>localhost|*.cisco.com</nonProxyHosts>
+    </proxy>
+  </proxies>
+</settings>

@@ -117,11 +117,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 # Default to JDK 21 for newer projects like checkstyle
 ENV JAVA_HOME="/usr/lib/jvm/java-21-openjdk-amd64"
-ENV MAVEN_VERSION=3.9.14
+ENV MAVEN_VERSION=3.9.15
 RUN wget -q "https://dlcdn.apache.org/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz" -O /tmp/maven.tar.gz && \
     tar -C /opt -xzf /tmp/maven.tar.gz && \
     rm /tmp/maven.tar.gz
-# Symlink mvn3.9 for explicit version selection; default mvn uses 3.9.14
+# Symlink mvn3.9 for explicit version selection; default mvn uses 3.9.15
 RUN ln -sf /opt/apache-maven-${MAVEN_VERSION}/bin/mvn /usr/local/bin/mvn && \
     ln -s /opt/apache-maven-${MAVEN_VERSION}/bin/mvn /usr/local/bin/mvn3.9 && \
     ln -s /usr/share/maven/bin/mvn /usr/local/bin/mvn3.6

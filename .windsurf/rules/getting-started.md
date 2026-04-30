@@ -71,3 +71,14 @@ For Cisco employees, the recommended path is AWS EC2 with Terraform:
 - Infrastructure profile template: `.windsurf/rules/infrastructure/templates/aws-ec2.md`
 
 The project is designed to work with any Linux x86_64 host — Docker handles the environment.
+
+### Cisco Lab / Datacenter Hosts (behind WSA proxy)
+
+If your build host is in a Cisco lab or datacenter behind `proxy-wsa.esl.cisco.com`
+(e.g., any `coronaXXX.cisco.com` host), Docker and Maven need special proxy
+configuration. This applies to any on-prem host that routes external traffic
+through the Cisco WSA proxy — not just a specific machine.
+
+- Run **`/cisco-lab-proxy`** in Windsurf to configure automatically
+- Full reference guide: `docs/guides/cisco-lab-proxy.md`
+- On a host where docs are installed: `bash /usr/share/doc/cisco-lab-proxy/setup.sh --check`
