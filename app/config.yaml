@@ -257,6 +257,16 @@ repos:
     description: Static analysis tool (14 direct, 12 transitive - antlr, guava, picocli, commons-beanutils)
     output_binaries:
     - '**/target/*.jar'
+  geoserver:
+    url: https://github.com/geoserver/geoserver.git
+    branch: '2.28.2'
+    language: java
+    build_steps:
+    - mvn package -DskipTests -q -f src/pom.xml
+    clean_cmd: mvn clean -q -f src/pom.xml
+    description: Open source geospatial data server (OGC WFS/WMS/WCS reference implementation, large Maven multi-module from src/)
+    output_binaries:
+    - '**/target/*.jar'
   crawler4j:
     url: https://github.com/yasserg/crawler4j.git
     branch: crawler4j-4.4.0
