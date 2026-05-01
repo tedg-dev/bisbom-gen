@@ -621,7 +621,7 @@ strategy across all five supported languages.
 
 | Phase | Timeframe | Deliverables |
 |-------|-----------|-------------|
-| **Phase 1** | Near-term | Go `-toolexec` wrapper, Rust `RUSTC_WRAPPER` — both are compiled tools (~500 lines each) reusing `bomsh_hook2.py` parsing logic |
+| **Phase 1** | Near-term | Go `-toolexec` wrapper (written in Go), Rust `RUSTC_WRAPPER` (written in Rust) — ~500 lines each with argument parsing ported natively (not calling `bomsh_hook2.py`) |
 | **Phase 2** | Near-term | C/C++ Strategies 1+2 from [main proposal](omnibor-performance-optimization-proposal.md) |
 | **Phase 3** | Medium-term | Hash Daemon + Central Hash Store for all languages |
 | **Phase 4** | Medium-term | Python SBOM support (pip metadata, optional strace) |
