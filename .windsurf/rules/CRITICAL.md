@@ -90,6 +90,12 @@ Violating any rule marked NEVER is a critical failure.
 - [ ] **NEVER** use `git push --force` or `git push -f`.
 - [ ] **ALWAYS** use conventional branch prefixes: `fix/`, `feat/`,
   `chore/`, `docs/`, `test/`.
+- [ ] **NEVER** leave stashed work behind. If you `git stash`, you MUST
+  `git stash pop` in the same turn — stash, operate, switch back, pop.
+- [ ] **NEVER** assume the working tree belongs to Cascade. Other AI
+  conversations or the user may have uncommitted changes at any time.
+- [ ] **ALWAYS** prefer `git fetch` without switching branches over
+  `git checkout` + stash when you only need to read remote state.
 
 ---
 
