@@ -1,0 +1,43 @@
+<mxfile host="Electron" agent="Cascade AI">
+  <diagram id="strategy-pattern" name="Interception Strategy Pattern">
+    <mxGraphModel dx="1034" dy="588" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="800" pageHeight="560" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="pipeline" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=11;fontStyle=1;verticalAlign=middle;fontColor=#333333;" value="Pipeline (config.yaml)&#xa;&#xa;mode: standalone | sidecar&#xa;per-repo interception override" vertex="1">
+          <mxGeometry height="80" width="280" x="240" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="abc" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;fontStyle=1;verticalAlign=middle;" value="InterceptionStrategy (ABC)&#xa;&#xa;+ instrument_command() → (cmd, env)&#xa;+ generate_adg() → bool" vertex="1">
+          <mxGeometry height="90" width="320" x="220" y="150" as="geometry" />
+        </mxCell>
+        <mxCell id="e0" edge="1" parent="1" source="pipeline" style="edgeStyle=orthogonalEdgeStyle;endArrow=open;endFill=0;endSize=10;fontSize=10;fontStyle=2;" target="abc" value="selects">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ptrace" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;verticalAlign=middle;" value="PtraceStrategy&#xa;(standalone)&#xa;&#xa;C/C++: bomtrace3&#xa;Go: bomtrace2 + conf&#xa;Rust: bomtrace2" vertex="1">
+          <mxGeometry height="120" width="150" x="96" y="310" as="geometry" />
+        </mxCell>
+        <mxCell id="wrapper" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;verticalAlign=middle;" value="WrapperStrategy&#xa;(sidecar)&#xa;&#xa;C/C++: CC= / CXX=&#xa;Go: -toolexec&#xa;Rust: RUSTC_WRAPPER" vertex="1">
+          <mxGeometry height="120" width="160" x="300" y="310" as="geometry" />
+        </mxCell>
+        <mxCell id="metadata" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;verticalAlign=middle;" value="MetadataStrategy&#xa;(both modes)&#xa;&#xa;Java: strace / dep:tree&#xa;Python: pip metadata" vertex="1">
+          <mxGeometry height="120" width="160" x="510" y="310" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" edge="1" parent="1" source="abc" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;endSize=10;fontSize=9;fontStyle=2;dashed=1;exitX=0.25;exitY=1;exitDx=0;exitDy=0;" target="ptrace" value="implements">
+          <mxGeometry relative="1" x="-0.2725" y="-15" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e2" edge="1" parent="1" source="abc" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;endSize=10;fontSize=9;fontStyle=2;dashed=1;" target="wrapper" value="implements">
+          <mxGeometry relative="1" x="0.2229" y="-30" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e3" edge="1" parent="1" source="abc" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;endSize=10;fontSize=9;fontStyle=2;dashed=1;exitX=0.75;exitY=1;exitDx=0;exitDy=0;" target="metadata" value="implements">
+          <mxGeometry relative="1" x="0.1002" y="15" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
