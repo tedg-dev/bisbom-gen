@@ -85,6 +85,11 @@ RUN pip3 install --no-cache-dir -r /tmp/requirements.txt && \
 RUN curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /usr/local/bin
 
 # ============================================================
+# Install Grype (vulnerability scanner for SPDX SBOMs)
+# ============================================================
+RUN curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sh -s -- -b /usr/local/bin
+
+# ============================================================
 # Install Go SDK (for building Go target repositories)
 # ============================================================
 # Go versions:

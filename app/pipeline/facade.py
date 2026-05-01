@@ -11,6 +11,7 @@ from app.pipeline.builder import BomtraceBuilder
 from app.pipeline.spdx_generator import SpdxGenerator
 from app.pipeline.spdx_validator import SpdxValidator
 from app.pipeline.syft import SyftGenerator
+from app.pipeline.grype import GrypeScanner
 from app.pipeline.metadata_collector import MetadataCollector
 from app.pipeline.adg_spdx import AdgSpdxStep
 from app.pipeline.binary_collector import BinaryCollector
@@ -23,7 +24,7 @@ class AnalysisPipeline:
     Composes CommandRunner, RepoCloner,
     BomtraceBuilder, SpdxGenerator, MetadataCollector,
     AdgSpdxStep, SpdxValidator, SyftGenerator,
-    BinaryCollector, and DocWriter.
+    GrypeScanner, BinaryCollector, and DocWriter.
     """
 
     def __init__(
@@ -37,6 +38,7 @@ class AnalysisPipeline:
         adg_spdx=None,
         spdx_validator=None,
         syft_gen=None,
+        grype_scanner=None,
         binary_collector=None,
         doc_writer=None,
     ):
@@ -66,6 +68,10 @@ class AnalysisPipeline:
         )
         self.syft_gen = syft_gen or SyftGenerator(
             self.runner
+        )
+        self.grype_scanner = (
+            grype_scanner
+            or GrypeScanner(self.runner)
         )
         self.binary_collector = (
             binary_collector or BinaryCollector()

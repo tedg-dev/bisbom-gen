@@ -51,6 +51,14 @@ def main():
             "syft_enabled config."
         ),
     )
+    parser.add_argument(
+        "--grype-scan", action="store_true",
+        help=(
+            "Run Grype CVE scan on _build SPDX "
+            "files. Overrides pipeline."
+            "grype_enabled config."
+        ),
+    )
     args = parser.parse_args()
 
     config = load_config()
@@ -174,6 +182,16 @@ def main():
         _validate_syft_spdx(
             pipeline, args.repo, repo_cfg,
             paths_cfg, run_ts,
+        )
+
+    # Step 7c: Grype CVE scan (optional)
+    grype_enabled = config.get(
+        "pipeline", {}
+    ).get("grype_enabled", False) or args.grype_scan
+    if grype_enabled and success:
+        pipeline.grype_scanner.scan_repo(
+            args.repo, repo_cfg, paths_cfg,
+            run_ts=run_ts,
         )
 
     # Step 8: Write docs (all languages)
