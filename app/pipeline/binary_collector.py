@@ -123,6 +123,12 @@ class BinaryCollector:
                         f"[WARN] Binary not found: {src}"
                     )
                     continue
+                if not src.is_file():
+                    print(
+                        f"[WARN] Not a file (directory?): "
+                        f"{src}"
+                    )
+                    continue
                 shutil.copy2(str(src), str(dst))
                 size = dst.stat().st_size
                 print(

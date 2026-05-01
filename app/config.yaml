@@ -192,11 +192,11 @@ repos:
     branch: v0.13.1
     language: go
     build_steps:
-    - 'go build -a -trimpath -ldflags="-s -w" -o dive .'
-    clean_cmd: rm -f dive
+    - 'go build -a -trimpath -ldflags="-s -w" -o dive_bin .'
+    clean_cmd: rm -f dive_bin
     description: Docker image layer explorer (~15-20 direct + 25 indirect Go deps)
     output_binaries:
-    - dive
+    - dive_bin
   gdu:
     url: https://github.com/dundee/gdu.git
     branch: v5.34.1
@@ -277,16 +277,6 @@ repos:
     description: OWASP dependency-check CLI (6 modules - utils, core, cli, ant, maven, archetype)
     output_binaries:
     - '**/target/*.jar'
-  datahub:
-    url: https://github.com/datahub-project/datahub.git
-    branch: v1.5.0.1
-    language: java
-    build_steps:
-    - ./gradlew build -x test -x check --no-daemon -q
-    clean_cmd: ./gradlew clean --no-daemon -q
-    description: DataHub metadata platform (Gradle multi-module, Java primary with Python/TS components)
-    output_binaries:
-    - '**/build/libs/*.jar'
   logging-log4j2:
     url: https://github.com/apache/logging-log4j2.git
     branch: rel/2.24.3

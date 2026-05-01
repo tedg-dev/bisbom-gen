@@ -14,7 +14,7 @@ description: Active infrastructure profile — tedg's AWS EC2 instance
 | **IP** | `54.215.15.253` (Elastic IP) |
 | **Instance ID** | `i-02ef4bf118d6bae90` |
 | **Region** | `us-west-1` |
-| **Instance Type** | `c6i.4xlarge` (16 vCPU, 32 GB RAM) |
+| **Instance Type** | `c6i.xlarge` (4 vCPU, 8 GB RAM) |
 | **OS** | Ubuntu 22.04 x86_64 |
 | **AMI** | `ami-02ff48e800d3550ab` |
 | **EBS** | 50 GB gp3 (3000 IOPS) |
