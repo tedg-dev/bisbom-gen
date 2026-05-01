@@ -126,6 +126,67 @@ node.filter(d => d.fileCount > 0)
   .attr('fill', '#fff')
   .text(d => d.fileCount);
 
+// CVE indicator: red diamond on nodes with vulnerabilities
+const cveSeverityColor = {
+  'Critical': '#dc2626',
+  'High': '#ea580c',
+  'Medium': '#d97706',
+  'Low': '#2563eb',
+  'Negligible': '#6b7280',
+  'Unknown': '#6b7280',
+};
+function worstSeverity(cves) {
+  const order = ['Critical','High','Medium','Low','Negligible','Unknown'];
+  let best = 99;
+  cves.forEach(c => {
+    const idx = order.indexOf(c.severity);
+    if (idx >= 0 && idx < best) best = idx;
+  });
+  return order[best] || 'Unknown';
+}
+const cveNodes = node.filter(d => d.cves && d.cves.length > 0);
+cveNodes.append('path')
+  .attr('d', d3.symbol().type(d3.symbolDiamond).size(120))
+  .attr('transform', d => {
+    const r = d.group === 'root' ? 24 : (d.fileCount > 50 ? 18 : (d.fileCount > 10 ? 14 : 12));
+    return 'translate(' + (r + 4) + ',' + (-r + 2) + ')';
+  })
+  .attr('fill', d => cveSeverityColor[worstSeverity(d.cves)] || '#dc2626')
+  .attr('stroke', '#fff')
+  .attr('stroke-width', 1)
+  .attr('class', 'cve-indicator')
+  .style('cursor', 'pointer');
+
+// CVE tooltip (separate from package tooltip)
+const cveTip = d3.select('#cve-tooltip');
+cveNodes.selectAll('.cve-indicator')
+  .on('mouseover', (event, d) => {
+    const sev = worstSeverity(d.cves);
+    const lines = d.cves.map(c =>
+      '<div class="cve-row">'
+      + '<span class="cve-sev cve-sev-' + c.severity.toLowerCase() + '">'
+      + c.severity + '</span> '
+      + '<span class="cve-id">' + c.id + '</span>'
+      + '</div>'
+    );
+    cveTip.select('.cve-title').text(
+      d.cves.length + ' CVE' + (d.cves.length > 1 ? 's' : '')
+      + ' — ' + d.name + ' ' + (d.version || '')
+    );
+    cveTip.select('.cve-list').html(lines.join(''));
+    cveTip.style('opacity', 1)
+      .style('left', (event.clientX + 16) + 'px')
+      .style('top', (event.clientY - 10) + 'px');
+    event.stopPropagation();
+  })
+  .on('mousemove', (event) => {
+    cveTip.style('left', (event.clientX + 16) + 'px')
+      .style('top', (event.clientY - 10) + 'px');
+  })
+  .on('mouseout', () => {
+    cveTip.style('opacity', 0);
+  });
+
 // Tooltip
 const tooltip = d3.select('#tooltip');
 
@@ -153,6 +214,9 @@ node.on('mouseover', (event, d) => {
   if (td !== undefined) rows.push('<div class="tt-row">Tree depth: <span>' + td + '</span></div>');
   if (d.fileCount) rows.push('<div class="tt-row">Source files: <span>' + d.fileCount + '</span></div>');
   if (d.vendored) rows.push('<div class="tt-row" style="color:#ff8c00;font-weight:600">\u26a0 Vendored dependency</div>');
+  if (d.cves && d.cves.length > 0) {
+    rows.push('<div class="tt-row" style="color:#ef4444;font-weight:600">\u26a0 ' + d.cves.length + ' CVE' + (d.cves.length > 1 ? 's' : '') + ' found</div>');
+  }
   if (d.comment) rows.push('<div class="tt-row" style="margin-top:6px;font-size:11px;color:#777">' + d.comment + '</div>');
 
   tooltip.select('.tt-name').text(d.name);

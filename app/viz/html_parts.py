@@ -23,6 +23,7 @@ def get_legend_html(
     type_counts, grp_counts,
     vendored_count,
     build_deep_legend, go_legend,
+    cve_node_count=0,
 ):
     """Return the legend panel HTML."""
     from collections import Counter
@@ -92,6 +93,14 @@ def get_legend_html(
     <span>Depth 5+: {grp_counts.get('depth-5', 0)}</span>
   </div>
 
+  <h3 style="margin-top:14px">Security</h3>
+  <div class="legend-item">
+    <svg width="14" height="14" viewBox="-7 -7 14 14">
+      <path d="M0,-5.5L4,0L0,5.5L-4,0Z" fill="#dc2626" stroke="#fff" stroke-width="1"/>
+    </svg>
+    <span>CVE found ({cve_node_count} pkg{'' if cve_node_count == 1 else 's'})</span>
+  </div>
+
   <h3 style="margin-top:14px">Relationships</h3>
   <div class="legend-item">
     <div class="legend-line" style="background:#4ecdc4"></div>
@@ -120,6 +129,11 @@ def get_ui_html():
     return """<div id="tooltip">
   <div class="tt-name"></div>
   <div class="tt-details"></div>
+</div>
+
+<div id="cve-tooltip">
+  <div class="cve-title"></div>
+  <div class="cve-list"></div>
 </div>
 
 <div id="search-box">

@@ -18,7 +18,10 @@ import json
 from collections import Counter
 from pathlib import Path
 
-from app.viz.extract import extract_graph  # noqa: F401
+from app.viz.extract import (
+    extract_graph,  # noqa: F401
+    merge_grype_cves,
+)
 from app.viz.html_parts import (
     get_header_html,
     get_legend_html,
@@ -76,9 +79,19 @@ def _build_conditional_legends(type_counts):
     return build_deep_legend, go_legend
 
 
-def generate_html(doc, output_path):
-    """Generate standalone HTML visualization."""
+def generate_html(doc, output_path, grype_data=None):
+    """Generate standalone HTML visualization.
+
+    Args:
+        doc: parsed SPDX 2.3 JSON document.
+        output_path: where to write the HTML file.
+        grype_data: optional parsed Grype JSON output.
+            When provided, nodes with matching CVEs get
+            a red diamond indicator and hoverable CVE
+            tooltip.
+    """
     nodes, edges = extract_graph(doc)
+    cve_node_count = merge_grype_cves(nodes, grype_data)
 
     doc_name = doc.get("name", "SPDX Document")
     created = doc.get(
@@ -129,6 +142,7 @@ def generate_html(doc, output_path):
             type_counts, grp_counts,
             vendored_count,
             build_deep_legend, go_legend,
+            cve_node_count=cve_node_count,
         ),
         "",
         get_ui_html(),

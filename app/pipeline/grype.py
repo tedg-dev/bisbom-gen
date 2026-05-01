@@ -70,6 +70,9 @@ class GrypeScanner:
         summary = self._summarize(grype_output)
         self._print_summary(spdx_path.name, summary)
 
+        # Re-generate HTML with CVE overlay
+        self.annotate_html(spdx_path, grype_output)
+
         return str(grype_output)
 
     def scan_directory(self, spdx_dir, pattern="*_build.spdx.json"):
@@ -133,6 +136,47 @@ class GrypeScanner:
             spdx_dir = spdx_dir / run_ts
 
         return self.scan_directory(spdx_dir, pattern)
+
+    @staticmethod
+    def annotate_html(spdx_path, grype_output_path):
+        """Re-generate HTML visualization with CVE overlay.
+
+        Reads an existing SPDX JSON and its Grype results,
+        then produces (or overwrites) the companion HTML
+        with CVE diamond indicators on affected packages.
+
+        Args:
+            spdx_path: path to the SPDX JSON file.
+            grype_output_path: path to the Grype JSON output.
+
+        Returns:
+            str: path to the annotated HTML file, or None.
+        """
+        spdx_path = Path(spdx_path)
+        grype_path = Path(grype_output_path)
+        if not spdx_path.exists() or not grype_path.exists():
+            return None
+
+        try:
+            spdx_doc = json.loads(spdx_path.read_text())
+            grype_data = json.loads(grype_path.read_text())
+        except (json.JSONDecodeError, OSError) as e:
+            print(
+                f"[WARN] CVE annotation failed: {e}"
+            )
+            return None
+
+        from app.spdx_visualize import generate_html
+        html_path = str(spdx_path.with_suffix(".html"))
+        generate_html(
+            spdx_doc, html_path,
+            grype_data=grype_data,
+        )
+        print(
+            f"[OK] CVE-annotated HTML: "
+            f"{Path(html_path).name}"
+        )
+        return html_path
 
     @staticmethod
     def _summarize(grype_output_path):

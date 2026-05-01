@@ -129,6 +129,55 @@ def get_css():
     padding-left: 4px;
   }
 
+  /* CVE tooltip */
+  #cve-tooltip {
+    position: fixed;
+    background: rgba(30, 10, 10, 0.97);
+    border: 1px solid #dc2626;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 13px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+    z-index: 210;
+    max-width: 400px;
+    max-height: 300px;
+    overflow-y: auto;
+    box-shadow: 0 4px 20px rgba(220,38,38,0.3);
+  }
+  #cve-tooltip .cve-title {
+    font-weight: 600;
+    font-size: 13px;
+    color: #fca5a5;
+    margin-bottom: 6px;
+  }
+  .cve-row {
+    margin-top: 3px;
+    font-size: 12px;
+  }
+  .cve-id { color: #e0e0e0; }
+  .cve-sev {
+    display: inline-block;
+    min-width: 64px;
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-size: 10px;
+    font-weight: 600;
+    text-align: center;
+  }
+  .cve-sev-critical { background: #dc2626; color: #fff; }
+  .cve-sev-high { background: #ea580c; color: #fff; }
+  .cve-sev-medium { background: #d97706; color: #fff; }
+  .cve-sev-low { background: #2563eb; color: #fff; }
+  .cve-sev-negligible { background: #4b5563; color: #d1d5db; }
+  .cve-sev-unknown { background: #4b5563; color: #d1d5db; }
+
+  /* CVE diamond indicator */
+  .cve-indicator {
+    filter: drop-shadow(0 0 3px rgba(220,38,38,0.6));
+  }
+
   /* Group labels (unused, kept for potential future use) */
   .group-label {
     font-size: 14px;

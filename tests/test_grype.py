@@ -6,6 +6,7 @@ from pathlib import Path
 from unittest.mock import MagicMock, patch, call
 
 from app.pipeline.grype import GrypeScanner
+from app.viz.extract import merge_grype_cves
 
 
 # ============================================================
@@ -292,6 +293,196 @@ class TestScanRepo:
 # ============================================================
 # Facade integration
 # ============================================================
+
+# ============================================================
+# merge_grype_cves
+# ============================================================
+
+class TestMergeGrypeCves:
+    """Tests for merge_grype_cves."""
+
+    def test_merge_matches_by_name_version(self):
+        nodes = [
+            {"name": "commons-collections", "version": "3.2.2"},
+            {"name": "log4j-core", "version": "2.14.1"},
+            {"name": "clean-lib", "version": "1.0"},
+        ]
+        count = merge_grype_cves(nodes, SAMPLE_GRYPE_OUTPUT)
+        assert count == 2
+        assert len(nodes[0]["cves"]) == 1
+        assert nodes[0]["cves"][0]["id"] == "CVE-2023-1234"
+        assert len(nodes[1]["cves"]) == 1
+        assert nodes[1]["cves"][0]["id"] == "CVE-2023-5678"
+        assert nodes[2]["cves"] == []
+
+    def test_merge_no_grype_data(self):
+        nodes = [{"name": "x", "version": "1"}]
+        count = merge_grype_cves(nodes, None)
+        assert count == 0
+
+    def test_merge_empty_matches(self):
+        nodes = [{"name": "x", "version": "1"}]
+        count = merge_grype_cves(nodes, EMPTY_GRYPE_OUTPUT)
+        assert count == 0
+        assert nodes[0]["cves"] == []
+
+    def test_merge_deduplicates_cves(self):
+        """Same CVE on multiple artifacts with same name/version."""
+        grype = {
+            "matches": [
+                {"vulnerability": {"id": "CVE-1", "severity": "High"},
+                 "artifact": {"name": "foo", "version": "1.0"}},
+                {"vulnerability": {"id": "CVE-1", "severity": "High"},
+                 "artifact": {"name": "foo", "version": "1.0"}},
+            ]
+        }
+        nodes = [{"name": "foo", "version": "1.0"}]
+        merge_grype_cves(nodes, grype)
+        assert len(nodes[0]["cves"]) == 1
+
+    def test_merge_case_insensitive(self):
+        grype = {
+            "matches": [
+                {"vulnerability": {"id": "CVE-9", "severity": "Low"},
+                 "artifact": {"name": "MyLib", "version": "2.0"}},
+            ]
+        }
+        nodes = [{"name": "mylib", "version": "2.0"}]
+        merge_grype_cves(nodes, grype)
+        assert len(nodes[0]["cves"]) == 1
+
+
+# ============================================================
+# annotate_html
+# ============================================================
+
+class TestAnnotateHtml:
+    """Tests for GrypeScanner.annotate_html."""
+
+    def test_annotate_html_produces_file(self, tmp_path):
+        spdx_file = tmp_path / "test_build.spdx.json"
+        spdx_file.write_text(json.dumps({
+            "name": "test",
+            "creationInfo": {"created": "2026-01-01"},
+            "packages": [
+                {
+                    "SPDXID": "SPDXRef-Root",
+                    "name": "myapp",
+                    "versionInfo": "1.0",
+                    "primaryPackagePurpose": "APPLICATION",
+                },
+                {
+                    "SPDXID": "SPDXRef-Dep-0",
+                    "name": "commons-collections",
+                    "versionInfo": "3.2.2",
+                    "primaryPackagePurpose": "LIBRARY",
+                },
+            ],
+            "relationships": [
+                {
+                    "spdxElementId": "SPDXRef-DOCUMENT",
+                    "relationshipType": "DESCRIBES",
+                    "relatedSpdxElement": "SPDXRef-Root",
+                },
+                {
+                    "spdxElementId": "SPDXRef-Root",
+                    "relationshipType": "DEPENDS_ON",
+                    "relatedSpdxElement": "SPDXRef-Dep-0",
+                },
+            ],
+        }))
+        grype_file = tmp_path / "test_build_grype.json"
+        grype_file.write_text(json.dumps(SAMPLE_GRYPE_OUTPUT))
+
+        result = GrypeScanner.annotate_html(
+            spdx_file, grype_file
+        )
+        assert result is not None
+        html_path = Path(result)
+        assert html_path.exists()
+        content = html_path.read_text()
+        assert "cve-indicator" in content
+        assert "cve-tooltip" in content
+        assert "CVE found" in content
+
+    def test_annotate_html_missing_files(self, tmp_path):
+        result = GrypeScanner.annotate_html(
+            tmp_path / "no.spdx.json",
+            tmp_path / "no_grype.json",
+        )
+        assert result is None
+
+
+# ============================================================
+# generate_html with grype_data
+# ============================================================
+
+class TestGenerateHtmlWithCves:
+    """Tests for generate_html with CVE overlay."""
+
+    def test_html_without_grype(self, tmp_path):
+        from app.spdx_visualize import generate_html
+        doc = {
+            "name": "test",
+            "creationInfo": {"created": "2026"},
+            "packages": [{
+                "SPDXID": "SPDXRef-Root",
+                "name": "myapp",
+                "versionInfo": "1.0",
+                "primaryPackagePurpose": "APPLICATION",
+            }],
+            "relationships": [{
+                "spdxElementId": "SPDXRef-DOCUMENT",
+                "relationshipType": "DESCRIBES",
+                "relatedSpdxElement": "SPDXRef-Root",
+            }],
+        }
+        out = tmp_path / "out.html"
+        generate_html(doc, str(out))
+        content = out.read_text()
+        assert "CVE found (0 pkgs)" in content
+
+    def test_html_with_grype(self, tmp_path):
+        from app.spdx_visualize import generate_html
+        doc = {
+            "name": "test",
+            "creationInfo": {"created": "2026"},
+            "packages": [
+                {
+                    "SPDXID": "SPDXRef-Root",
+                    "name": "myapp",
+                    "versionInfo": "1.0",
+                    "primaryPackagePurpose": "APPLICATION",
+                },
+                {
+                    "SPDXID": "SPDXRef-D0",
+                    "name": "commons-collections",
+                    "versionInfo": "3.2.2",
+                    "primaryPackagePurpose": "LIBRARY",
+                },
+            ],
+            "relationships": [
+                {
+                    "spdxElementId": "SPDXRef-DOCUMENT",
+                    "relationshipType": "DESCRIBES",
+                    "relatedSpdxElement": "SPDXRef-Root",
+                },
+                {
+                    "spdxElementId": "SPDXRef-Root",
+                    "relationshipType": "DEPENDS_ON",
+                    "relatedSpdxElement": "SPDXRef-D0",
+                },
+            ],
+        }
+        out = tmp_path / "out.html"
+        generate_html(
+            doc, str(out),
+            grype_data=SAMPLE_GRYPE_OUTPUT,
+        )
+        content = out.read_text()
+        assert "CVE found (1 pkg)" in content
+        assert "CVE-2023-1234" in content
+
 
 class TestFacadeIntegration:
     """Verify GrypeScanner is wired into the facade."""

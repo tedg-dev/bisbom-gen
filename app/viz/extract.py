@@ -6,6 +6,69 @@ BFS depth from the root package.
 """
 
 
+def merge_grype_cves(nodes, grype_data):
+    """Annotate graph nodes with CVE data from Grype output.
+
+    Matches Grype vulnerability matches to nodes by package
+    name and version.  Each matched node gets a ``cves`` list
+    of ``{id, severity}`` dicts.
+
+    Args:
+        nodes: list of node dicts (mutated in place).
+        grype_data: parsed Grype JSON output dict, or None.
+
+    Returns:
+        int: number of nodes annotated with at least one CVE.
+    """
+    if not grype_data:
+        return 0
+
+    matches = grype_data.get("matches", [])
+    if not matches:
+        for node in nodes:
+            node["cves"] = []
+        return 0
+
+    # Build lookup: (name, version) -> [{id, severity}]
+    cve_lookup = {}
+    for match in matches:
+        vuln = match.get("vulnerability", {})
+        artifact = match.get("artifact", {})
+        key = (
+            artifact.get("name", "").lower(),
+            artifact.get("version", ""),
+        )
+        entry = {
+            "id": vuln.get("id", ""),
+            "severity": vuln.get("severity", "Unknown"),
+        }
+        cve_lookup.setdefault(key, []).append(entry)
+
+    # Deduplicate CVEs per key (same CVE can match
+    # multiple locations in the same artifact)
+    for key in cve_lookup:
+        seen = set()
+        deduped = []
+        for entry in cve_lookup[key]:
+            if entry["id"] not in seen:
+                seen.add(entry["id"])
+                deduped.append(entry)
+        cve_lookup[key] = deduped
+
+    annotated = 0
+    for node in nodes:
+        key = (
+            node["name"].lower(),
+            node.get("version", ""),
+        )
+        cves = cve_lookup.get(key, [])
+        node["cves"] = cves
+        if cves:
+            annotated += 1
+
+    return annotated
+
+
 def extract_graph(doc):
     """Extract nodes and edges from SPDX document.
 
