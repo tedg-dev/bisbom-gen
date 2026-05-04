@@ -37,7 +37,11 @@ def get_legend_html(
     )
 
     return f"""<div id="legend">
-  <h3>Packages ({len(nodes)} total)</h3>
+  <div id="legend-header">
+    <h3 id="legend-title">Packages ({len(nodes)} total)</h3>
+    <button id="legend-toggle" title="Minimize legend">&#x25BC;</button>
+  </div>
+  <div id="legend-body">
   <div class="legend-item">
     <div class="legend-dot" style="background:#7c5cfc"></div>
     <span>Root binary ({grp_counts.get('root', 0)})</span>
@@ -94,11 +98,18 @@ def get_legend_html(
   </div>
 
   <h3 style="margin-top:14px">Security</h3>
+  <div class="legend-item" style="margin-top:4px">
+    <label class="cve-toggle">
+      <input type="checkbox" id="cve-toggle-input" checked>
+      <span class="cve-toggle-slider"></span>
+    </label>
+    <span style="font-size:11px">Show CVE overlay</span>
+  </div>
   <div class="legend-item">
     <svg width="14" height="14" viewBox="-7 -7 14 14">
       <path d="M0,-5.5L4,0L0,5.5L-4,0Z" fill="#dc2626" stroke="#fff" stroke-width="1"/>
     </svg>
-    <span>CVE found ({cve_node_count} pkg{'' if cve_node_count == 1 else 's'})</span>
+    <span>CVE count ({cve_node_count} pkg{'' if cve_node_count == 1 else 's'})</span>
   </div>
 
   <h3 style="margin-top:14px">Relationships</h3>
@@ -120,6 +131,7 @@ def get_legend_html(
   </div>
   <div class="legend-item" style="margin-top:4px;color:#666;font-size:11px">
     <span>+ {contains_count} CONTAINS (source files)</span>
+  </div>
   </div>
 </div>"""
 

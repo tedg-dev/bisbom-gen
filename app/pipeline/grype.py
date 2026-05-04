@@ -70,8 +70,16 @@ class GrypeScanner:
         summary = self._summarize(grype_output)
         self._print_summary(spdx_path.name, summary)
 
-        # Re-generate HTML with CVE overlay
-        self.annotate_html(spdx_path, grype_output)
+        # Re-generate HTML with CVE overlay (if enabled)
+        from app.config import load_config
+        cfg = load_config()
+        overlay = cfg.get("pipeline", {}).get(
+            "grype_overlay", False
+        )
+        self.annotate_html(
+            spdx_path, grype_output,
+            overlay_enabled=overlay,
+        )
 
         return str(grype_output)
 
@@ -138,7 +146,10 @@ class GrypeScanner:
         return self.scan_directory(spdx_dir, pattern)
 
     @staticmethod
-    def annotate_html(spdx_path, grype_output_path):
+    def annotate_html(
+        spdx_path, grype_output_path,
+        overlay_enabled=True,
+    ):
         """Re-generate HTML visualization with CVE overlay.
 
         Reads an existing SPDX JSON and its Grype results,
@@ -148,10 +159,13 @@ class GrypeScanner:
         Args:
             spdx_path: path to the SPDX JSON file.
             grype_output_path: path to the Grype JSON output.
+            overlay_enabled: if False, skip CVE overlay.
 
         Returns:
             str: path to the annotated HTML file, or None.
         """
+        if not overlay_enabled:
+            return None
         spdx_path = Path(spdx_path)
         grype_path = Path(grype_output_path)
         if not spdx_path.exists() or not grype_path.exists():

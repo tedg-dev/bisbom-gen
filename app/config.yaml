@@ -361,6 +361,9 @@ pipeline:
   # Grype CVE scanning of _build SPDX files.  Disabled by default.
   # Enable with config or --grype-scan CLI flag.
   grype_enabled: false
+  # Include CVE overlay in HTML visualizations when Grype data
+  # is available.  Requires grype_enabled or manual Grype scan.
+  grype_overlay: true
 docs:
   timestamp_format: '%Y-%m-%d_%H%M'
   types:

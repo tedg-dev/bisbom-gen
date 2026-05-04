@@ -213,7 +213,7 @@ function nvdUrl(id) {
   return 'https://github.com/advisories/' + id;
 }
 
-function openCvePanel(d) {
+function openCvePanel(d, scrollToCveId) {
   cveTip.style('opacity', 0);
   cvePanelTitle.textContent =
     d.cves.length + ' CVE' + (d.cves.length > 1 ? 's' : '')
@@ -241,6 +241,7 @@ function openCvePanel(d) {
       + '<label>Disposition: </label>'
       + '<select class="cve-disp-select' + (disp ? ' disp-' + disp : '')
       + '" data-dk="' + dk + '">'
+
       + '<option value=""' + (!disp ? ' selected' : '') + '>\u2014</option>'
       + '<option value="affected"'
       + (disp === 'affected' ? ' selected' : '')
@@ -254,11 +255,39 @@ function openCvePanel(d) {
       + '<option value="under_investigation"'
       + (disp === 'under_investigation' ? ' selected' : '')
       + '>Under Investigation</option>'
-      + '</select></div>'
-      + '<input class="cve-disp-justification ' + justVisible
+      + '</select>'
+      + '<button class="cve-disp-delete' + (disp ? ' visible' : '')
+      + '" data-dk="' + dk + '" title="Remove disposition">'
+      + '\u00d7</button>'
+      + '</div>'
+      + '<select class="cve-disp-justification-select'
+      + (disp === 'not_affected' ? ' visible' : '')
+      + '" data-dk="' + dk + '">'
+      + '<option value=""' + (!just ? ' selected' : '')
+      + '>Select justification\u2026</option>'
+      + '<option value="vulnerable_code_not_present"'
+      + (just === 'vulnerable_code_not_present' ? ' selected' : '')
+      + '>Vulnerable Code Not Present</option>'
+      + '<option value="vulnerable_code_cannot_be_controlled_by_adversary"'
+      + (just === 'vulnerable_code_cannot_be_controlled_by_adversary'
+         ? ' selected' : '')
+      + '>Vulnerable Code Cannot Be Controlled By Adversary</option>'
+      + '<option value="vulnerable_code_not_in_execute_path"'
+      + (just === 'vulnerable_code_not_in_execute_path'
+         ? ' selected' : '')
+      + '>Vulnerable Code Not In Execution Path</option>'
+      + '<option value="inline_mitigations_already_exist"'
+      + (just === 'inline_mitigations_already_exist'
+         ? ' selected' : '')
+      + '>Inline Mitigations Already Exist</option>'
+      + '</select>'
+      + '<input class="cve-disp-justification '
+      + (disp && disp !== 'affected' && disp !== 'not_affected'
+         ? 'visible' : '')
       + '" data-dk="' + dk
       + '" placeholder="Justification (optional)" value="'
-      + just.replace(/"/g, '&quot;') + '"/>'
+      + (disp !== 'not_affected'
+         ? just.replace(/"/g, '&quot;') : '') + '"/>'
       + '</div>';
   }).join('');
 
@@ -272,15 +301,32 @@ function openCvePanel(d) {
       const val = e.target.value;
       sel.className = 'cve-disp-select' + (val ? ' disp-' + val : '');
       const row = e.target.closest('.cve-panel-row');
+      const delBtn = row.querySelector('.cve-disp-delete');
+      if (val) { delBtn.classList.add('visible'); }
+      else { delBtn.classList.remove('visible'); }
+      const justSelect = row.querySelector('.cve-disp-justification-select');
       const justInput = row.querySelector('.cve-disp-justification');
-      if (val && val !== 'affected') {
+      // Not Affected → show dropdown, hide free-text
+      // Fixed/Under Investigation → hide dropdown, show free-text
+      // Affected/blank → hide both
+      if (val === 'not_affected') {
+        justSelect.classList.add('visible');
+        justInput.classList.remove('visible');
+        justInput.value = '';
+      } else if (val && val !== 'affected') {
+        justSelect.classList.remove('visible');
+        justSelect.value = '';
         justInput.classList.add('visible');
       } else {
+        justSelect.classList.remove('visible');
+        justSelect.value = '';
         justInput.classList.remove('visible');
+        justInput.value = '';
       }
       if (val) {
         dispositions[dk] = dispositions[dk] || {};
         dispositions[dk].status = val;
+        dispositions[dk].justification = '';
       } else {
         delete dispositions[dk];
       }
@@ -289,6 +335,17 @@ function openCvePanel(d) {
       updateDiamondVisuals();
     });
   });
+
+  cvePanelBody.querySelectorAll('.cve-disp-justification-select')
+    .forEach(sel => {
+      sel.addEventListener('change', (e) => {
+        const dk = e.target.dataset.dk;
+        if (dispositions[dk]) {
+          dispositions[dk].justification = e.target.value;
+          saveDispositions(dispositions);
+        }
+      });
+    });
 
   cvePanelBody.querySelectorAll('.cve-disp-justification').forEach(inp => {
     inp.addEventListener('input', (e) => {
@@ -299,6 +356,40 @@ function openCvePanel(d) {
       }
     });
   });
+
+  // Delete disposition button
+  cvePanelBody.querySelectorAll('.cve-disp-delete').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const dk = e.target.dataset.dk;
+      delete dispositions[dk];
+      saveDispositions(dispositions);
+      const row = e.target.closest('.cve-panel-row');
+      const sel = row.querySelector('.cve-disp-select');
+      sel.value = '';
+      sel.className = 'cve-disp-select';
+      row.querySelector('.cve-disp-justification-select')
+        .classList.remove('visible');
+      row.querySelector('.cve-disp-justification')
+        .classList.remove('visible');
+      row.querySelector('.cve-disp-justification').value = '';
+      row.querySelector('.cve-disp-justification-select').value = '';
+      e.target.classList.remove('visible');
+      updatePanelStatus();
+      updateDiamondVisuals();
+    });
+  });
+
+  // Scroll to specific CVE if requested
+  if (scrollToCveId) {
+    const target = cvePanelBody.querySelector(
+      '[data-key="' + pkgKey + '/' + scrollToCveId + '"]'
+    );
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      target.style.background = 'rgba(99,102,241,0.15)';
+      setTimeout(() => { target.style.background = ''; }, 2000);
+    }
+  }
 }
 
 function updatePanelStatus() {
@@ -393,6 +484,11 @@ document.getElementById('cve-review-btn')
         + ' (' + items.length + ')</h4>';
       items.forEach(it => {
         html += '<div class="cve-review-entry">'
+          + '<button class="cve-review-edit" data-pkg="'
+          + it.name + '@' + it.version
+          + '" data-cve="' + it.cveId
+          + '" title="Edit disposition">'
+          + '\u270e</button>'
           + '<span class="disp-badge db-' + st + '">'
           + (statusLabels[st] || st) + '</span>'
           + '<a href="' + nvdUrl(it.cveId)
@@ -415,6 +511,24 @@ document.getElementById('cve-review-btn')
     cvePanelBody.innerHTML = html;
     updatePanelStatus();
     cvePanel.classList.add('open');
+
+    // Bind edit buttons
+    cvePanelBody.querySelectorAll('.cve-review-edit').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const pkgKey = e.target.dataset.pkg;
+        const cveId = e.target.dataset.cve;
+        const [name, version] = pkgKey.split('@');
+        // Find matching node in graph data
+        const matchNode = data.nodes.find(n =>
+          n.name === name
+          && (n.version || '') === version
+          && n.cves && n.cves.length > 0
+        );
+        if (matchNode) {
+          openCvePanel(matchNode, cveId);
+        }
+      });
+    });
   });
 
 // Export VEX JSON
@@ -671,4 +785,30 @@ searchInput.addEventListener('input', () => {
       .call(zoom.transform, t);
   }
 });
+
+// --- CVE overlay toggle ---
+const cveToggle = document.getElementById('cve-toggle-input');
+if (cveToggle) {
+  cveToggle.addEventListener('change', () => {
+    if (cveToggle.checked) {
+      document.body.classList.remove('cve-hidden');
+    } else {
+      document.body.classList.add('cve-hidden');
+      // Close panel if open
+      const p = document.getElementById('cve-panel');
+      if (p) p.classList.remove('open');
+    }
+  });
+}
+
+// --- Legend minimize/expand toggle ---
+const legendToggle = document.getElementById('legend-toggle');
+if (legendToggle) {
+  legendToggle.addEventListener('click', () => {
+    const legend = document.getElementById('legend');
+    legend.classList.toggle('collapsed');
+    legendToggle.title = legend.classList.contains('collapsed')
+      ? 'Expand legend' : 'Minimize legend';
+  });
+}
 """
