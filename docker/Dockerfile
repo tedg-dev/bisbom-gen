@@ -1,7 +1,44 @@
-FROM ubuntu:22.04
+# ============================================================
+# Multi-stage Dockerfile for OmniBOR Analysis
+#
+# Targets:
+#   standalone — full image with toolchains + bomtrace (default)
+#   sidecar    — minimal image with analysis pipeline only
+#
+# Build:
+#   docker build --target standalone -t omnibor-env:standalone .
+#   docker build --target sidecar    -t omnibor-env:sidecar .
+# ============================================================
+
+# ============================================================
+# Stage: base — common OS, Python, utilities
+# ============================================================
+FROM ubuntu:22.04 AS base
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=UTC
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git \
+    wget \
+    curl \
+    ca-certificates \
+    python3 \
+    python3-pip \
+    && rm -rf /var/lib/apt/lists/*
+
+# Python runtime dependencies for app scripts
+COPY requirements.txt /tmp/requirements.txt
+RUN pip3 install --no-cache-dir -r /tmp/requirements.txt && \
+    rm /tmp/requirements.txt
+
+WORKDIR /workspace
+
+
+# ============================================================
+# Stage: standalone — full image with all toolchains + bomtrace
+# ============================================================
+FROM base AS standalone
 
 # ============================================================
 # Base build tools and libraries (C/C++)
@@ -23,12 +60,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     automake \
     libtool \
     pkg-config \
-    git \
-    wget \
-    curl \
-    ca-certificates \
-    python3 \
-    python3-pip \
     strace \
     # Utilities needed by bomsh scripts
     xxd \
@@ -66,18 +97,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     flex \
     bison \
     && rm -rf /var/lib/apt/lists/*
-
-# ============================================================
-# Python runtime dependencies for app scripts
-# ============================================================
-# WHY: analyze.py, compare.py, and add_repo.py all import pyyaml.
-# requirements.txt is the single source of truth for Python deps,
-# shared between local development (.venv) and this container.
-# If a new Python dependency is added, update requirements.txt —
-# do NOT add ad-hoc pip install commands here.
-COPY requirements.txt /tmp/requirements.txt
-RUN pip3 install --no-cache-dir -r /tmp/requirements.txt && \
-    rm /tmp/requirements.txt
 
 # ============================================================
 # Install Syft (manifest-based SBOM generation)
@@ -260,5 +279,41 @@ COPY docker/bomtrace_go.conf /opt/bomsh/bin/bomtrace_go.conf
 # Working directory — repos are mounted here
 # ============================================================
 WORKDIR /workspace
+
+CMD ["/bin/bash"]
+
+
+# ============================================================
+# Stage: sidecar — minimal analysis image (no toolchains)
+# ============================================================
+# Use this when the build happens in a separate CI container
+# and this image only runs dep:tree + SPDX generation.
+# No SYS_PTRACE capability required.
+# ============================================================
+FROM base AS sidecar
+
+ENV OMNIBOR_MODE=sidecar
+
+# Only need bomsh scripts (no bomtrace binaries)
+RUN git clone --depth 1 \
+    https://github.com/omnibor/bomsh.git \
+    /opt/bomsh
+
+# Patch bomsh_create_bom_java.py (same as standalone)
+COPY docker/patches/bomsh_java_sourcefile.patch \
+    /tmp/bomsh_java.patch
+RUN cd /opt/bomsh && \
+    patch -p1 < /tmp/bomsh_java.patch && \
+    rm /tmp/bomsh_java.patch
+
+# Fast Java class reader (same as standalone)
+COPY docker/patches/bomsh_java_fast_classreader.py \
+    /opt/bomsh/scripts/bomsh_java_fast_classreader.py
+COPY docker/patches/apply_fast_javap.py \
+    /tmp/apply_fast_javap.py
+RUN python3 /tmp/apply_fast_javap.py && \
+    rm /tmp/apply_fast_javap.py
+
+ENV PATH="/opt/bomsh/bin:/opt/bomsh/scripts:${PATH}"
 
 CMD ["/bin/bash"]
