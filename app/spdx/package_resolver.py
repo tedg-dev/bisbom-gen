@@ -14,9 +14,12 @@ to select the correct implementation at runtime.
 Design reference: sidecar-implementation-design.md Section 4.3
 """
 
+import logging
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from typing import Optional
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -221,19 +224,35 @@ def auto_detect_resolver() -> PackageResolver:
             corresponding resolver is not yet implemented.
     """
     distro_id = detect_distro_id()
+    distro_ver = detect_distro_version()
     family = _DISTRO_FAMILIES.get(distro_id)
 
     if family == "deb":
         from app.spdx.dpkg_resolver import DpkgResolver
-        return DpkgResolver()
+        resolver = DpkgResolver()
+        logger.info(
+            "Detected distro: %s %s → DpkgResolver",
+            distro_id, distro_ver,
+        )
+        return resolver
 
     if family == "rpm":
         from app.spdx.rpm_resolver import RpmResolver
-        return RpmResolver()
+        resolver = RpmResolver()
+        logger.info(
+            "Detected distro: %s %s → RpmResolver",
+            distro_id, distro_ver,
+        )
+        return resolver
 
     if family == "apk":
         from app.spdx.apk_resolver import ApkResolver
-        return ApkResolver()
+        resolver = ApkResolver()
+        logger.info(
+            "Detected distro: %s %s → ApkResolver",
+            distro_id, distro_ver,
+        )
+        return resolver
 
     raise RuntimeError(
         f"Unsupported distro '{distro_id}'. "

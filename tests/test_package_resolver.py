@@ -330,3 +330,17 @@ class TestAutoDetectResolver:
             from app.spdx.apk_resolver import ApkResolver
             resolver = auto_detect_resolver()
             assert isinstance(resolver, ApkResolver)
+
+    def test_logs_detected_distro(self, caplog):
+        import logging
+        with patch(
+            "app.spdx.package_resolver.detect_distro_id",
+            return_value="ubuntu",
+        ), patch(
+            "app.spdx.package_resolver.detect_distro_version",
+            return_value="22.04",
+        ):
+            with caplog.at_level(logging.INFO):
+                auto_detect_resolver()
+            assert "Detected distro: ubuntu 22.04" in caplog.text
+            assert "DpkgResolver" in caplog.text
