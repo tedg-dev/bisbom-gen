@@ -26,9 +26,16 @@ class BomtraceBuilder:
     def build(
         self, repo_name, repo_cfg,
         paths_cfg, omnibor_cfg,
-        run_ts=None,
+        run_ts=None, strategy=None,
     ):
         """Run pre-build steps, instrumented build, and ADG generation.
+
+        Args:
+            strategy: Optional ``InterceptionStrategy``.
+                When provided, delegates command
+                transformation and ADG generation to
+                the strategy.  When ``None``, uses
+                legacy hardcoded bomtrace behavior.
 
         Returns True on success, False on failure.
         """
@@ -77,33 +84,60 @@ class BomtraceBuilder:
                 )
                 return False
 
-        # Final build step with bomtrace3
+        # Final build step — delegate to strategy
+        # or fall back to legacy bomtrace prefix.
         make_cmd = build_steps[-1]
-        instrumented = f"{tracer} {make_cmd}"
+        if strategy:
+            instrumented, env = (
+                strategy.instrument_command(
+                    make_cmd, str(repo_dir),
+                )
+            )
+        else:
+            instrumented = f"{tracer} {make_cmd}"
+            env = None
+
         rc = self.runner.run(
             instrumented, cwd=str(repo_dir),
+            env=env,
             description=(
                 f"Instrumented build: "
-                f"{tracer} {make_cmd[:40]}"
+                f"{instrumented[:60]}"
             ),
         )
         if rc != 0:
             print("[ERROR] Instrumented build failed")
             return False
 
-        # Generate OmniBOR ADG documents
-        create_bom = omnibor_cfg["create_bom_script"]
-        rc = self.runner.run(
-            f"{create_bom} -r {raw_logfile} "
-            f"-b {bom_dir}",
-            cwd=str(repo_dir),
-            description=(
-                "Generating OmniBOR ADG documents"
-            ),
-        )
-        if rc != 0:
-            print("[ERROR] ADG generation failed")
-            return False
+        # Generate OmniBOR ADG documents — delegate
+        # to strategy or fall back to legacy.
+        if strategy:
+            ok = strategy.generate_adg(
+                str(repo_dir), str(bom_dir),
+                omnibor_cfg,
+            )
+            if not ok:
+                print(
+                    "[ERROR] ADG generation failed"
+                )
+                return False
+        else:
+            create_bom = (
+                omnibor_cfg["create_bom_script"]
+            )
+            rc = self.runner.run(
+                f"{create_bom} -r {raw_logfile} "
+                f"-b {bom_dir}",
+                cwd=str(repo_dir),
+                description=(
+                    "Generating OmniBOR ADG documents"
+                ),
+            )
+            if rc != 0:
+                print(
+                    "[ERROR] ADG generation failed"
+                )
+                return False
 
         print(
             "[OK] OmniBOR ADG documents "

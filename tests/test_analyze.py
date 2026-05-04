@@ -472,6 +472,85 @@ class TestBomtraceBuilder(unittest.TestCase):
             "bomtrace3", instrumented_call[0][0]
         )
 
+    def test_strategy_instrument_command(self):
+        runner = MagicMock()
+        runner.run.return_value = 0
+        strategy = MagicMock()
+        strategy.instrument_command.return_value = (
+            "wrapped make -j4", {"CC": "/w/cc"},
+        )
+        strategy.generate_adg.return_value = True
+        builder = BomtraceBuilder(runner)
+        repo_cfg, paths, omnibor = self._cfg()
+
+        with patch("builtins.print"):
+            result = builder.build(
+                "curl", repo_cfg, paths, omnibor,
+                strategy=strategy,
+            )
+        self.assertTrue(result)
+        strategy.instrument_command.assert_called_once()
+        # Verify env was passed to runner.run
+        build_call = runner.run.call_args_list[3]
+        self.assertEqual(
+            build_call[1].get("env"),
+            {"CC": "/w/cc"},
+        )
+
+    def test_strategy_generate_adg_called(self):
+        runner = MagicMock()
+        runner.run.return_value = 0
+        strategy = MagicMock()
+        strategy.instrument_command.return_value = (
+            "make -j4", {},
+        )
+        strategy.generate_adg.return_value = True
+        builder = BomtraceBuilder(runner)
+        repo_cfg, paths, omnibor = self._cfg()
+
+        with patch("builtins.print"):
+            builder.build(
+                "curl", repo_cfg, paths, omnibor,
+                strategy=strategy,
+            )
+        strategy.generate_adg.assert_called_once()
+
+    def test_strategy_adg_failure(self):
+        runner = MagicMock()
+        runner.run.return_value = 0
+        strategy = MagicMock()
+        strategy.instrument_command.return_value = (
+            "make -j4", {},
+        )
+        strategy.generate_adg.return_value = False
+        builder = BomtraceBuilder(runner)
+        repo_cfg, paths, omnibor = self._cfg()
+
+        with patch("builtins.print"):
+            result = builder.build(
+                "curl", repo_cfg, paths, omnibor,
+                strategy=strategy,
+            )
+        self.assertFalse(result)
+
+    def test_no_strategy_uses_legacy(self):
+        runner = MagicMock()
+        runner.run.return_value = 0
+        builder = BomtraceBuilder(runner)
+        repo_cfg, paths, omnibor = self._cfg()
+
+        with patch("builtins.print"):
+            builder.build(
+                "curl", repo_cfg, paths, omnibor,
+            )
+        # Legacy: clean + 2 pre + instrumented + ADG = 5
+        self.assertEqual(runner.run.call_count, 5)
+        # Legacy: bomtrace3 in instrumented cmd
+        build_call = runner.run.call_args_list[3]
+        self.assertIn(
+            "bomtrace3", build_call[0][0],
+        )
+
 
 class TestBomtraceBuilderJava(unittest.TestCase):
     """Tests for BomtraceBuilder.build_java()."""
