@@ -25,6 +25,7 @@ from analyze import (
     _run_rust_pipeline,
     _validate_syft_spdx,
 )
+from app.spdx.package_resolver import PackageResolver
 
 
 # ============================================================
@@ -135,40 +136,60 @@ class TestCommandRunner(unittest.TestCase):
 # DependencyValidator
 # ============================================================
 
+class _FakeValidatorResolver(PackageResolver):
+    """Stub resolver for DependencyValidator tests."""
+
+    def __init__(self, installed=None):
+        self._installed = set(installed or [])
+
+    def resolve(self, file_path):
+        return None
+
+    def purl_scheme(self):
+        return "pkg:deb/ubuntu"
+
+    def is_package_installed(self, pkg_name):
+        return pkg_name in self._installed
+
+    def install_hint(self, packages):
+        pkgs = " ".join(packages)
+        return f"apt-get install -y {pkgs}"
+
+
 class TestDependencyValidator(unittest.TestCase):
     """Tests for DependencyValidator."""
 
     def test_no_apt_deps(self):
-        runner = MagicMock()
-        v = DependencyValidator(runner)
+        resolver = _FakeValidatorResolver()
+        v = DependencyValidator(resolver=resolver)
         ok, missing = v.validate({})
         self.assertTrue(ok)
         self.assertEqual(missing, [])
-        runner.run.assert_not_called()
 
     def test_empty_apt_deps(self):
-        runner = MagicMock()
-        v = DependencyValidator(runner)
+        resolver = _FakeValidatorResolver()
+        v = DependencyValidator(resolver=resolver)
         ok, missing = v.validate({"apt_deps": []})
         self.assertTrue(ok)
         self.assertEqual(missing, [])
 
     def test_all_installed(self):
-        runner = MagicMock()
-        runner.run.return_value = 0
-        v = DependencyValidator(runner)
+        resolver = _FakeValidatorResolver(
+            installed=["libssl-dev", "zlib1g-dev"]
+        )
+        v = DependencyValidator(resolver=resolver)
         with patch("builtins.print"):
             ok, missing = v.validate(
                 {"apt_deps": ["libssl-dev", "zlib1g-dev"]}
             )
         self.assertTrue(ok)
         self.assertEqual(missing, [])
-        self.assertEqual(runner.run.call_count, 2)
 
     def test_some_missing(self):
-        runner = MagicMock()
-        runner.run.side_effect = [0, 1, 0]
-        v = DependencyValidator(runner)
+        resolver = _FakeValidatorResolver(
+            installed=["libssl-dev", "zlib1g-dev"]
+        )
+        v = DependencyValidator(resolver=resolver)
         with patch("builtins.print"):
             ok, missing = v.validate(
                 {"apt_deps": [
@@ -180,9 +201,8 @@ class TestDependencyValidator(unittest.TestCase):
         self.assertEqual(missing, ["libpsl-dev"])
 
     def test_all_missing(self):
-        runner = MagicMock()
-        runner.run.return_value = 1
-        v = DependencyValidator(runner)
+        resolver = _FakeValidatorResolver()
+        v = DependencyValidator(resolver=resolver)
         with patch("builtins.print"):
             ok, missing = v.validate(
                 {"apt_deps": ["a", "b"]}
@@ -191,9 +211,8 @@ class TestDependencyValidator(unittest.TestCase):
         self.assertEqual(missing, ["a", "b"])
 
     def test_prints_install_hint(self):
-        runner = MagicMock()
-        runner.run.return_value = 1
-        v = DependencyValidator(runner)
+        resolver = _FakeValidatorResolver()
+        v = DependencyValidator(resolver=resolver)
         printed = []
         with patch(
             "builtins.print",
@@ -2374,6 +2393,15 @@ class TestClassifyReleaseBuild(unittest.TestCase):
 
 class TestAnalysisPipeline(unittest.TestCase):
     """Tests for AnalysisPipeline facade."""
+
+    def setUp(self):
+        patcher = patch(
+            "app.spdx.package_resolver"
+            ".auto_detect_resolver",
+            return_value=_FakeValidatorResolver(),
+        )
+        self._mock_resolver = patcher.start()
+        self.addCleanup(patcher.stop)
 
     def test_default_construction(self):
         p = AnalysisPipeline()
