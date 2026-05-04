@@ -304,16 +304,14 @@ class TestAutoDetectResolver:
             with pytest.raises(RuntimeError, match="Unsupported"):
                 auto_detect_resolver()
 
-    def test_deb_family_imports_dpkg(self):
+    def test_deb_family_returns_dpkg_resolver(self):
         with patch(
             "app.spdx.package_resolver.detect_distro_id",
             return_value="ubuntu",
         ):
-            with pytest.raises(
-                (ImportError, ModuleNotFoundError),
-            ):
-                # DpkgResolver module doesn't exist yet (#96)
-                auto_detect_resolver()
+            from app.spdx.dpkg_resolver import DpkgResolver
+            resolver = auto_detect_resolver()
+            assert isinstance(resolver, DpkgResolver)
 
     def test_rpm_family_imports_rpm(self):
         with patch(
