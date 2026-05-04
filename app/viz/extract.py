@@ -6,6 +6,38 @@ BFS depth from the root package.
 """
 
 
+import re
+
+_CVE_RE = re.compile(r"(CVE-\d{4}-\d+)")
+
+
+def _resolve_cve_id(vuln, fallback_id):
+    """Return a CVE-* ID if available, else the original ID.
+
+    Grype often uses GHSA IDs as the primary identifier.
+    The corresponding CVE ID can be found in:
+      1. relatedVulnerabilities[].id
+      2. urls[] containing nvd.nist.gov or cve.org paths
+    Falls back to the original GHSA ID if no CVE is found.
+    """
+    if fallback_id.startswith("CVE-"):
+        return fallback_id
+
+    # Check relatedVulnerabilities
+    for rv in vuln.get("relatedVulnerabilities", []):
+        rid = rv.get("id", "")
+        if rid.startswith("CVE-"):
+            return rid
+
+    # Check URLs for CVE references
+    for url in vuln.get("urls", []):
+        m = _CVE_RE.search(url)
+        if m:
+            return m.group(1)
+
+    return fallback_id
+
+
 def merge_grype_cves(nodes, grype_data):
     """Annotate graph nodes with CVE data from Grype output.
 
@@ -38,8 +70,12 @@ def merge_grype_cves(nodes, grype_data):
             artifact.get("name", "").lower(),
             artifact.get("version", ""),
         )
+        vuln_id = vuln.get("id", "")
+        # Prefer CVE ID over GHSA — extract from
+        # relatedVulnerabilities or URLs
+        cve_id = _resolve_cve_id(vuln, vuln_id)
         entry = {
-            "id": vuln.get("id", ""),
+            "id": cve_id,
             "severity": vuln.get("severity", "Unknown"),
         }
         cve_lookup.setdefault(key, []).append(entry)

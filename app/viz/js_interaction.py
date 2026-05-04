@@ -127,10 +127,13 @@ node.filter(d => d.fileCount > 0)
   .text(d => d.fileCount);
 
 // CVE indicator: red diamond on nodes with vulnerabilities
+// Diamond color = worst severity found on node:
+//   Critical → red, High → orange, Medium → yellow,
+//   Low → blue, Negligible/Unknown → gray
 const cveSeverityColor = {
   'Critical': '#dc2626',
   'High': '#ea580c',
-  'Medium': '#d97706',
+  'Medium': '#eab308',
   'Low': '#2563eb',
   'Negligible': '#6b7280',
   'Unknown': '#6b7280',
@@ -157,11 +160,10 @@ cveNodes.append('path')
   .attr('class', 'cve-indicator')
   .style('cursor', 'pointer');
 
-// CVE tooltip (separate from package tooltip)
+// CVE tooltip (hover) — quick summary on mouseover
 const cveTip = d3.select('#cve-tooltip');
 cveNodes.selectAll('.cve-indicator')
   .on('mouseover', (event, d) => {
-    const sev = worstSeverity(d.cves);
     const lines = d.cves.map(c =>
       '<div class="cve-row">'
       + '<span class="cve-sev cve-sev-' + c.severity.toLowerCase() + '">'
@@ -171,13 +173,12 @@ cveNodes.selectAll('.cve-indicator')
     );
     cveTip.select('.cve-title').text(
       d.cves.length + ' CVE' + (d.cves.length > 1 ? 's' : '')
-      + ' — ' + d.name + ' ' + (d.version || '')
+      + ' \u2014 ' + d.name + ' ' + (d.version || '')
     );
     cveTip.select('.cve-list').html(lines.join(''));
     cveTip.style('opacity', 1)
       .style('left', (event.clientX + 16) + 'px')
       .style('top', (event.clientY - 10) + 'px');
-    event.stopPropagation();
   })
   .on('mousemove', (event) => {
     cveTip.style('left', (event.clientX + 16) + 'px')
@@ -185,6 +186,272 @@ cveNodes.selectAll('.cve-indicator')
   })
   .on('mouseout', () => {
     cveTip.style('opacity', 0);
+  });
+
+// ── CVE disposition panel ─────────────────────────────
+// localStorage key derived from document title
+const lsKey = 'cve-disp-' + (document.title || 'spdx');
+
+function loadDispositions() {
+  try {
+    return JSON.parse(localStorage.getItem(lsKey)) || {};
+  } catch(e) { return {}; }
+}
+function saveDispositions(d) {
+  localStorage.setItem(lsKey, JSON.stringify(d));
+}
+let dispositions = loadDispositions();
+
+const cvePanel = document.getElementById('cve-panel');
+const cvePanelTitle = document.getElementById('cve-panel-title');
+const cvePanelBody = document.getElementById('cve-panel-body');
+const cvePanelStatus = document.getElementById('cve-panel-status');
+
+function nvdUrl(id) {
+  if (id.startsWith('CVE-'))
+    return 'https://nvd.nist.gov/vuln/detail/' + id;
+  return 'https://github.com/advisories/' + id;
+}
+
+function openCvePanel(d) {
+  cveTip.style('opacity', 0);
+  cvePanelTitle.textContent =
+    d.cves.length + ' CVE' + (d.cves.length > 1 ? 's' : '')
+    + ' \u2014 ' + d.name + ' ' + (d.version || '');
+
+  const pkgKey = d.name + '@' + (d.version || '');
+  const sorted = [...d.cves].sort((a,b) => {
+    const order = ['Critical','High','Medium','Low','Negligible','Unknown'];
+    return order.indexOf(a.severity) - order.indexOf(b.severity);
+  });
+
+  cvePanelBody.innerHTML = sorted.map(c => {
+    const dk = pkgKey + '/' + c.id;
+    const saved = dispositions[dk] || {};
+    const disp = saved.status || '';
+    const just = saved.justification || '';
+    const justVisible = disp && disp !== 'affected' ? 'visible' : '';
+    return '<div class="cve-panel-row" data-key="' + dk + '">'
+      + '<div class="cve-panel-id">'
+      + '<span class="cve-sev cve-sev-' + c.severity.toLowerCase() + '">'
+      + c.severity + '</span> '
+      + '<a href="' + nvdUrl(c.id) + '" target="_blank" rel="noopener">'
+      + c.id + '</a></div>'
+      + '<div class="cve-panel-meta">'
+      + '<label>Disposition: </label>'
+      + '<select class="cve-disp-select' + (disp ? ' disp-' + disp : '')
+      + '" data-dk="' + dk + '">'
+      + '<option value=""' + (!disp ? ' selected' : '') + '>\u2014</option>'
+      + '<option value="affected"'
+      + (disp === 'affected' ? ' selected' : '')
+      + '>Affected</option>'
+      + '<option value="not_affected"'
+      + (disp === 'not_affected' ? ' selected' : '')
+      + '>Not Affected</option>'
+      + '<option value="fixed"'
+      + (disp === 'fixed' ? ' selected' : '')
+      + '>Fixed</option>'
+      + '<option value="under_investigation"'
+      + (disp === 'under_investigation' ? ' selected' : '')
+      + '>Under Investigation</option>'
+      + '</select></div>'
+      + '<input class="cve-disp-justification ' + justVisible
+      + '" data-dk="' + dk
+      + '" placeholder="Justification (optional)" value="'
+      + just.replace(/"/g, '&quot;') + '"/>'
+      + '</div>';
+  }).join('');
+
+  updatePanelStatus();
+  cvePanel.classList.add('open');
+
+  // Bind change events
+  cvePanelBody.querySelectorAll('.cve-disp-select').forEach(sel => {
+    sel.addEventListener('change', (e) => {
+      const dk = e.target.dataset.dk;
+      const val = e.target.value;
+      sel.className = 'cve-disp-select' + (val ? ' disp-' + val : '');
+      const row = e.target.closest('.cve-panel-row');
+      const justInput = row.querySelector('.cve-disp-justification');
+      if (val && val !== 'affected') {
+        justInput.classList.add('visible');
+      } else {
+        justInput.classList.remove('visible');
+      }
+      if (val) {
+        dispositions[dk] = dispositions[dk] || {};
+        dispositions[dk].status = val;
+      } else {
+        delete dispositions[dk];
+      }
+      saveDispositions(dispositions);
+      updatePanelStatus();
+      updateDiamondVisuals();
+    });
+  });
+
+  cvePanelBody.querySelectorAll('.cve-disp-justification').forEach(inp => {
+    inp.addEventListener('input', (e) => {
+      const dk = e.target.dataset.dk;
+      if (dispositions[dk]) {
+        dispositions[dk].justification = e.target.value;
+        saveDispositions(dispositions);
+      }
+    });
+  });
+}
+
+function updatePanelStatus() {
+  const total = Object.keys(dispositions).length;
+  cvePanelStatus.textContent = total
+    ? total + ' disposition' + (total > 1 ? 's' : '') + ' saved'
+    : '';
+}
+
+// Update diamond appearance when dispositions change
+function updateDiamondVisuals() {
+  cveNodes.selectAll('.cve-indicator')
+    .attr('stroke', d => {
+      const pkgKey = d.name + '@' + (d.version || '');
+      const allSet = d.cves.every(c =>
+        dispositions[pkgKey + '/' + c.id]
+        && dispositions[pkgKey + '/' + c.id].status
+      );
+      return allSet ? '#22c55e' : '#fff';
+    })
+    .attr('stroke-width', d => {
+      const pkgKey = d.name + '@' + (d.version || '');
+      const allSet = d.cves.every(c =>
+        dispositions[pkgKey + '/' + c.id]
+        && dispositions[pkgKey + '/' + c.id].status
+      );
+      return allSet ? 2 : 1;
+    });
+}
+updateDiamondVisuals();
+
+// Click diamond → open panel
+cveNodes.selectAll('.cve-indicator')
+  .on('click', (event, d) => {
+    event.stopPropagation();
+    openCvePanel(d);
+  });
+
+// Close panel
+document.getElementById('cve-panel-close')
+  .addEventListener('click', () => {
+    cvePanel.classList.remove('open');
+  });
+
+// Review All — show summary of all dispositions
+document.getElementById('cve-review-btn')
+  .addEventListener('click', () => {
+    const keys = Object.keys(dispositions);
+    if (!keys.length) {
+      cvePanelTitle.textContent = 'VEX Review — No Dispositions';
+      cvePanelBody.innerHTML =
+        '<div class="cve-review-none">'
+        + 'No dispositions set yet.<br>'
+        + 'Click a CVE diamond to start triaging.'
+        + '</div>';
+      updatePanelStatus();
+      cvePanel.classList.add('open');
+      return;
+    }
+    // Group by status
+    const groups = {};
+    keys.forEach(dk => {
+      const d = dispositions[dk];
+      const st = d.status || 'unknown';
+      if (!groups[st]) groups[st] = [];
+      const parts = dk.split('/');
+      const cveId = parts.pop();
+      const pkgKey = parts.join('/');
+      const [name, version] = pkgKey.split('@');
+      groups[st].push({
+        cveId: cveId, name: name,
+        version: version || '',
+        justification: d.justification || '',
+      });
+    });
+    const statusLabels = {
+      'affected': 'Affected',
+      'not_affected': 'Not Affected',
+      'fixed': 'Fixed',
+      'under_investigation': 'Under Investigation',
+    };
+    const statusOrder = [
+      'affected', 'under_investigation',
+      'not_affected', 'fixed',
+    ];
+    let html = '';
+    statusOrder.forEach(st => {
+      const items = groups[st];
+      if (!items || !items.length) return;
+      html += '<div class="cve-review-section">'
+        + '<h4>' + (statusLabels[st] || st)
+        + ' (' + items.length + ')</h4>';
+      items.forEach(it => {
+        html += '<div class="cve-review-entry">'
+          + '<span class="disp-badge db-' + st + '">'
+          + (statusLabels[st] || st) + '</span>'
+          + '<a href="' + nvdUrl(it.cveId)
+          + '" target="_blank" rel="noopener"'
+          + ' style="color:#93c5fd;text-decoration:none">'
+          + it.cveId + '</a>'
+          + '<span style="color:#888">' + it.name
+          + (it.version ? '@' + it.version : '') + '</span>';
+        if (it.justification) {
+          html += '<span style="color:#6b7280;font-style:italic">'
+            + '\u2014 ' + it.justification + '</span>';
+        }
+        html += '</div>';
+      });
+      html += '</div>';
+    });
+    cvePanelTitle.textContent = 'VEX Review — '
+      + keys.length + ' disposition'
+      + (keys.length > 1 ? 's' : '');
+    cvePanelBody.innerHTML = html;
+    updatePanelStatus();
+    cvePanel.classList.add('open');
+  });
+
+// Export VEX JSON
+document.getElementById('cve-export-btn')
+  .addEventListener('click', () => {
+    const entries = [];
+    Object.keys(dispositions).forEach(dk => {
+      const parts = dk.split('/');
+      const cveId = parts.pop();
+      const pkgKey = parts.join('/');
+      const [name, version] = pkgKey.split('@');
+      const d = dispositions[dk];
+      entries.push({
+        package: { name: name, version: version || '' },
+        vulnerability: cveId,
+        status: d.status,
+        justification: d.justification || '',
+        timestamp: new Date().toISOString(),
+      });
+    });
+    const vex = {
+      type: 'vex-dispositions',
+      version: '1.0',
+      generated: new Date().toISOString(),
+      dispositions: entries,
+    };
+    const blob = new Blob(
+      [JSON.stringify(vex, null, 2)],
+      { type: 'application/json' }
+    );
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'vex-dispositions.json';
+    a.click();
+    URL.revokeObjectURL(a.href);
+    cvePanelStatus.textContent = 'Exported ' + entries.length
+      + ' disposition' + (entries.length > 1 ? 's' : '');
   });
 
 // Tooltip

@@ -136,6 +136,19 @@ def get_ui_html():
   <div class="cve-list"></div>
 </div>
 
+<div id="cve-panel">
+  <div id="cve-panel-header">
+    <span id="cve-panel-title"></span>
+    <button id="cve-panel-close">&times;</button>
+  </div>
+  <div id="cve-panel-body"></div>
+  <div id="cve-panel-footer">
+    <button id="cve-review-btn">Review All</button>
+    <button id="cve-export-btn">Export VEX JSON</button>
+    <span id="cve-panel-status"></span>
+  </div>
+</div>
+
 <div id="search-box">
   <input type="text" id="search" placeholder="Search packages...">
   <div id="search-hint">Click node to highlight connections</div>

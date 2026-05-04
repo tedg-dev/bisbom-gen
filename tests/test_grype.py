@@ -6,7 +6,7 @@ from pathlib import Path
 from unittest.mock import MagicMock, patch, call
 
 from app.pipeline.grype import GrypeScanner
-from app.viz.extract import merge_grype_cves
+from app.viz.extract import merge_grype_cves, _resolve_cve_id
 
 
 # ============================================================
@@ -297,6 +297,42 @@ class TestScanRepo:
 # ============================================================
 # merge_grype_cves
 # ============================================================
+
+class TestResolveCveId:
+    """Tests for _resolve_cve_id."""
+
+    def test_already_cve(self):
+        vuln = {"id": "CVE-2024-1234"}
+        assert _resolve_cve_id(vuln, "CVE-2024-1234") == "CVE-2024-1234"
+
+    def test_ghsa_with_related_cve(self):
+        vuln = {
+            "id": "GHSA-xxxx-yyyy-zzzz",
+            "relatedVulnerabilities": [
+                {"id": "CVE-2024-9999"},
+            ],
+        }
+        assert _resolve_cve_id(vuln, "GHSA-xxxx-yyyy-zzzz") == "CVE-2024-9999"
+
+    def test_ghsa_with_cve_in_url(self):
+        vuln = {
+            "id": "GHSA-xxxx-yyyy-zzzz",
+            "relatedVulnerabilities": [],
+            "urls": [
+                "https://nvd.nist.gov/vuln/detail/CVE-2024-38816",
+                "https://spring.io/security/cve-2024-38816",
+            ],
+        }
+        assert _resolve_cve_id(vuln, "GHSA-xxxx-yyyy-zzzz") == "CVE-2024-38816"
+
+    def test_ghsa_no_cve_available(self):
+        vuln = {
+            "id": "GHSA-xxxx-yyyy-zzzz",
+            "relatedVulnerabilities": [],
+            "urls": ["https://github.com/advisories/GHSA-xxxx-yyyy-zzzz"],
+        }
+        assert _resolve_cve_id(vuln, "GHSA-xxxx-yyyy-zzzz") == "GHSA-xxxx-yyyy-zzzz"
+
 
 class TestMergeGrypeCves:
     """Tests for merge_grype_cves."""
