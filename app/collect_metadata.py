@@ -1,9 +1,12 @@
-"""Collect dpkg metadata for all system files in the bomsh treedb.
+"""Collect OS package metadata for system files in the bomsh treedb.
 
 Runs inside the build container to resolve every system file
-(libraries, headers, CRT objects) to its dpkg package and extract
+(libraries, headers, CRT objects) to its OS package and extract
 rich metadata: name, version, source, maintainer, homepage,
 architecture, section.
+
+Supports Debian/Ubuntu (dpkg), RHEL/CentOS/Fedora (rpm), and
+Alpine (apk) via the ``PackageResolver`` abstraction.
 
 Outputs component_metadata.json alongside the treedb.
 """
@@ -85,7 +88,14 @@ def _detect_repo_version(
 def main(
     treedb_path, repos_dir, out_dir,
     repo_name=None, config_branch=None,
+    resolver=None,
 ):
+    if resolver is None:
+        from app.spdx.package_resolver import (
+            auto_detect_resolver,
+        )
+        resolver = auto_detect_resolver()
+
     treedb = json.load(open(treedb_path))
 
     # Collect all system file paths (not under repos)
@@ -103,54 +113,51 @@ def main(
         real = os.path.realpath(fp)
         canonical[fp] = real
 
-    # dpkg -S for each unique real path
+    # Resolve each unique real path to its OS package
     unique_reals = set(canonical.values())
     file_to_pkg = {}
     failed = []
 
     for real_path in sorted(unique_reals):
-        try:
-            out = subprocess.check_output(
-                ["dpkg", "-S", real_path],
-                text=True, stderr=subprocess.DEVNULL,
-            ).strip()
-            # Format: "pkg1, pkg2: /path"
-            pkg_part = out.split(":")[0]
-            pkg = pkg_part.split(",")[0].strip()
-            file_to_pkg[real_path] = pkg
-        except subprocess.CalledProcessError:
+        result = resolver.resolve(real_path)
+        if result:
+            file_to_pkg[real_path] = result.name
+        else:
             failed.append(real_path)
 
-    print(f"Resolved to dpkg packages: {len(file_to_pkg)}")
+    print(f"Resolved to packages: {len(file_to_pkg)}")
     print(f"Failed to resolve: {len(failed)}")
     for f in failed[:10]:
         print(f"  unresolved: {f}")
 
-    # Query full metadata for each unique package
+    # Collect metadata for each unique package
+    # The resolver caches metadata, so re-resolving is cheap
     unique_pkgs = sorted(set(file_to_pkg.values()))
-    print(f"Unique dpkg packages: {len(unique_pkgs)}")
-
-    fields = [
-        "Package", "Version", "Source", "Maintainer",
-        "Homepage", "Architecture", "Section", "Priority",
-    ]
-    fmt = "|".join(["${" + f + "}" for f in fields])
+    print(f"Unique packages: {len(unique_pkgs)}")
 
     pkg_metadata = {}
-    for pkg in unique_pkgs:
-        try:
-            out = subprocess.check_output(
-                ["dpkg-query", "-W", "-f", fmt, pkg],
-                text=True, stderr=subprocess.DEVNULL,
-            )
-            parts = out.split("|")
-            meta = {}
-            for i, f in enumerate(fields):
-                if i < len(parts) and parts[i]:
-                    meta[f] = parts[i]
-            pkg_metadata[pkg] = meta
-        except Exception:
-            pass
+    for real_path, pkg_name in file_to_pkg.items():
+        if pkg_name in pkg_metadata:
+            continue
+        result = resolver.resolve(real_path)
+        if result:
+            meta = {
+                "Package": result.name,
+                "Version": result.version,
+            }
+            if result.source:
+                meta["Source"] = result.source
+            if result.maintainer:
+                meta["Maintainer"] = result.maintainer
+            if result.homepage:
+                meta["Homepage"] = result.homepage
+            if result.architecture:
+                meta["Architecture"] = result.architecture
+            if result.section:
+                meta["Section"] = result.section
+            for k, v in result.extra.items():
+                meta[k] = v
+            pkg_metadata[pkg_name] = meta
 
     # Map original treedb paths to packages
     treedb_path_to_pkg = {}
@@ -216,7 +223,7 @@ def main(
 if __name__ == "__main__":
     import argparse
     ap = argparse.ArgumentParser(
-        description="Collect dpkg metadata for treedb system files",
+        description="Collect OS package metadata for treedb system files",
     )
     ap.add_argument("treedb", help="Path to bomsh_omnibor_treedb")
     ap.add_argument("repos_dir", help="Path to repos directory")
