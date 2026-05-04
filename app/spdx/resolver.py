@@ -15,11 +15,17 @@ class ComponentResolver:
     to identify runtime dependencies with full metadata.
     """
 
-    def __init__(self, metadata_path):
+    def __init__(self, metadata_path, resolver=None):
         self.metadata = json.loads(
             Path(metadata_path).read_text()
         )
         self._dynamic_libs = None
+        if resolver is None:
+            from app.spdx.package_resolver import (
+                auto_detect_resolver,
+            )
+            resolver = auto_detect_resolver()
+        self._resolver = resolver
 
     @property
     def distro(self):
@@ -27,12 +33,19 @@ class ComponentResolver:
 
     @property
     def distro_codename(self):
-        """Extract distro version for PURL qualifier."""
+        """Extract distro version for PURL qualifier.
+
+        Delegates to the resolver's ``distro_version_qualifier``
+        when available, falls back to parsing the distro string.
+        """
+        qualifier = getattr(
+            self._resolver, "distro_version_qualifier", None
+        )
+        if qualifier:
+            return qualifier
         d = self.distro.lower()
-        # "Ubuntu 22.04.5 LTS" -> "ubuntu-22.04"
         m = re.search(r"ubuntu\s+([\d.]+)", d)
         if m:
-            # Use major.minor only
             parts = m.group(1).split(".")
             ver = ".".join(parts[:2])
             return f"ubuntu-{ver}"
@@ -162,26 +175,40 @@ class ComponentResolver:
         return components
 
     def _clean_version(self, version):
-        """Strip epoch, dfsg, ubuntu suffixes for CPE."""
+        """Strip distro-specific suffixes for CPE.
+
+        Handles:
+        - Epoch prefix (``1:1.2.11`` → ``1.2.11``)
+        - Debian/Ubuntu: dfsg, ubuntu, build suffixes
+        - RPM: release suffix (``3.0.7-24.el9`` → ``3.0.7``)
+        - Alpine: ``-rN`` suffix (``3.1.4-r2`` → ``3.1.4``)
+        """
         v = version
         # Remove epoch (e.g. "1:1.2.11...")
         if ":" in v:
             v = v.split(":", 1)[1]
-        # Remove dfsg suffix
+        # Remove dfsg suffix (Debian)
         v = re.sub(r"[.+]dfsg.*", "", v)
-        # Remove ubuntu/build suffix
+        # Remove ubuntu/build suffix (Ubuntu)
         v = re.sub(r"-\d+ubuntu.*", "", v)
         v = re.sub(r"-\d+build.*", "", v)
+        # Remove RPM release (e.g. -24.el9, -1.fc39)
+        v = re.sub(r"-\d+\.el\d+.*", "", v)
+        v = re.sub(r"-\d+\.fc\d+.*", "", v)
+        v = re.sub(r"-\d+\.amzn\d+.*", "", v)
+        # Remove Alpine -rN suffix
+        v = re.sub(r"-r\d+$", "", v)
+        # Generic trailing release number
         v = re.sub(r"-\d+$", "", v)
         return v
 
-    def _make_purl(self, dpkg_pkg, version, arch):
-        """Generate Package URL."""
+    def _make_purl(self, pkg_name, version, arch):
+        """Generate Package URL using the resolver's scheme."""
         distro = self.distro_codename
-        return (
-            f"pkg:deb/ubuntu/{dpkg_pkg}"
-            f"@{version}"
-            f"?arch={arch}&distro={distro}"
+        return self._resolver.make_purl(
+            pkg_name, version,
+            arch=arch,
+            distro_version=distro,
         )
 
     def _make_cpe(self, source, version):

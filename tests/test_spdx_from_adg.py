@@ -34,6 +34,27 @@ from app.version_detection.strategies import (
 from app.version_detection.patterns import (
     name_prefixes,
 )
+from app.spdx.package_resolver import (
+    PackageResolver,
+)
+
+
+class _FakeDpkgResolver(PackageResolver):
+    """Stub resolver for testing ComponentResolver on macOS."""
+
+    def resolve(self, file_path):
+        return None
+
+    def purl_scheme(self):
+        return "pkg:deb/ubuntu"
+
+    @property
+    def distro_version_qualifier(self):
+        return "ubuntu-22.04"
+
+
+def _fake_dpkg_resolver():
+    return _FakeDpkgResolver()
 
 
 class TestAdgParser(unittest.TestCase):
@@ -569,7 +590,7 @@ class TestComponentResolver(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             meta = self._base_metadata()
             path = self._write_metadata(td, meta)
-            resolver = ComponentResolver(path)
+            resolver = ComponentResolver(path, resolver=_fake_dpkg_resolver())
 
             dynlib_path = Path(td) / "dynamic_libs.json"
             dynlib_path.write_text(
@@ -588,7 +609,7 @@ class TestComponentResolver(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             meta = self._base_metadata()
             path = self._write_metadata(td, meta)
-            resolver = ComponentResolver(path)
+            resolver = ComponentResolver(path, resolver=_fake_dpkg_resolver())
 
             dynlib_path = Path(td) / "dynamic_libs.json"
             dynlib_path.write_text(
@@ -608,7 +629,7 @@ class TestComponentResolver(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             meta = self._base_metadata()
             path = self._write_metadata(td, meta)
-            resolver = ComponentResolver(path)
+            resolver = ComponentResolver(path, resolver=_fake_dpkg_resolver())
 
             dynlib_path = Path(td) / "dynamic_libs.json"
             dynlib_path.write_text(
@@ -627,7 +648,7 @@ class TestComponentResolver(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             meta = self._base_metadata()
             path = self._write_metadata(td, meta)
-            resolver = ComponentResolver(path)
+            resolver = ComponentResolver(path, resolver=_fake_dpkg_resolver())
 
             dynlib_path = Path(td) / "dynamic_libs.json"
             dynlib_path.write_text(
@@ -646,7 +667,7 @@ class TestComponentResolver(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             meta = self._base_metadata()
             path = self._write_metadata(td, meta)
-            resolver = ComponentResolver(path)
+            resolver = ComponentResolver(path, resolver=_fake_dpkg_resolver())
 
             dynlib_path = Path(td) / "dynamic_libs.json"
             dynlib_path.write_text(
@@ -668,7 +689,7 @@ class TestComponentResolver(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             meta = self._base_metadata()
             path = self._write_metadata(td, meta)
-            resolver = ComponentResolver(path)
+            resolver = ComponentResolver(path, resolver=_fake_dpkg_resolver())
 
             # Epoch removal
             self.assertEqual(
@@ -694,7 +715,7 @@ class TestComponentResolver(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             meta = self._base_metadata()
             path = self._write_metadata(td, meta)
-            resolver = ComponentResolver(path)
+            resolver = ComponentResolver(path, resolver=_fake_dpkg_resolver())
             self.assertEqual(
                 resolver.distro_codename,
                 "ubuntu-22.04",
@@ -704,7 +725,7 @@ class TestComponentResolver(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             meta = self._base_metadata()
             path = self._write_metadata(td, meta)
-            resolver = ComponentResolver(path)
+            resolver = ComponentResolver(path, resolver=_fake_dpkg_resolver())
             # Don't load dynamic libs
             components = (
                 resolver.resolve_dynamic_components()
@@ -715,7 +736,7 @@ class TestComponentResolver(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             meta = self._base_metadata()
             path = self._write_metadata(td, meta)
-            resolver = ComponentResolver(path)
+            resolver = ComponentResolver(path, resolver=_fake_dpkg_resolver())
 
             dynlibs = {
                 "binary": "/curl",
@@ -1965,6 +1986,16 @@ class TestComponentResolverEdgeCases(
     """Edge-case tests for ComponentResolver."""
 
     def test_non_ubuntu_distro_fallback(self):
+        """When resolver has no qualifier and distro
+        is not Ubuntu, falls back to 'linux'."""
+
+        class _NoQualResolver(PackageResolver):
+            def resolve(self, file_path):
+                return None
+
+            def purl_scheme(self):
+                return "pkg:deb/debian"
+
         with tempfile.TemporaryDirectory() as td:
             meta = {
                 "distro": "Debian GNU/Linux 12",
@@ -1976,7 +2007,10 @@ class TestComponentResolverEdgeCases(
             }
             path = Path(td) / "meta.json"
             path.write_text(json.dumps(meta))
-            resolver = ComponentResolver(str(path))
+            resolver = ComponentResolver(
+                str(path),
+                resolver=_NoQualResolver(),
+            )
             self.assertEqual(
                 resolver.distro_codename, "linux"
             )
@@ -1984,6 +2018,14 @@ class TestComponentResolverEdgeCases(
 
 class TestAdgSpdxGenerator(unittest.TestCase):
     """Tests for AdgSpdxGenerator facade."""
+
+    def setUp(self):
+        patcher = patch(
+            "app.spdx.package_resolver.auto_detect_resolver",
+            return_value=_fake_dpkg_resolver(),
+        )
+        self._mock_resolver = patcher.start()
+        self.addCleanup(patcher.stop)
 
     def _setup_full(self, td):
         """Create a complete test environment."""
@@ -2172,6 +2214,14 @@ class TestAdgSpdxGenerator(unittest.TestCase):
 class TestCli(unittest.TestCase):
     """Tests for CLI main() function."""
 
+    def setUp(self):
+        patcher = patch(
+            "app.spdx.package_resolver.auto_detect_resolver",
+            return_value=_fake_dpkg_resolver(),
+        )
+        self._mock_resolver = patcher.start()
+        self.addCleanup(patcher.stop)
+
     def test_main_success(self):
         from spdx_from_adg import main
         with tempfile.TemporaryDirectory() as td:
@@ -2289,7 +2339,7 @@ class TestProjectBuiltLibs(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             meta = self._base_metadata()
             path = self._write_metadata(td, meta)
-            resolver = ComponentResolver(path)
+            resolver = ComponentResolver(path, resolver=_fake_dpkg_resolver())
 
             dynlibs = {
                 "binary": "/repos/ffmpeg/ffmpeg",
@@ -2620,6 +2670,14 @@ class TestGenerateMissingDynlibs(unittest.TestCase):
     """Test generate() when dynamic_libs.json is
     missing (lines 1312-1317)."""
 
+    def setUp(self):
+        patcher = patch(
+            "app.spdx.package_resolver.auto_detect_resolver",
+            return_value=_fake_dpkg_resolver(),
+        )
+        self._mock_resolver = patcher.start()
+        self.addCleanup(patcher.stop)
+
     def test_missing_dynlib_returns_none(self):
         """generate() returns None if dynlib not found."""
         with tempfile.TemporaryDirectory() as td:
@@ -2671,6 +2729,14 @@ class TestGenerateMissingDynlibs(unittest.TestCase):
 class TestVisualizationFailure(unittest.TestCase):
     """Test HTML visualization failure handling
     (lines 1384-1385)."""
+
+    def setUp(self):
+        patcher = patch(
+            "app.spdx.package_resolver.auto_detect_resolver",
+            return_value=_fake_dpkg_resolver(),
+        )
+        self._mock_resolver = patcher.start()
+        self.addCleanup(patcher.stop)
 
     def test_visualization_exception_caught(self):
         """generate() succeeds even when visualization
