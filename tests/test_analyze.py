@@ -2672,6 +2672,49 @@ class TestMainUnknownRepo(unittest.TestCase):
             self.assertEqual(cm.exception.code, 1)
 
 
+class TestMainModeFlag(unittest.TestCase):
+    """Tests for --mode CLI flag."""
+
+    @patch("app.pipeline.runners.load_config")
+    @patch("app.pipeline.runners.AnalysisPipeline")
+    @patch(
+        "sys.argv",
+        ["analyze.py", "--list", "--mode", "sidecar"],
+    )
+    def test_mode_sidecar_overrides_config(
+        self, mock_cls, mock_load,
+    ):
+        mock_load.return_value = {
+            "repos": {},
+            "paths": {},
+            "omnibor": {"tracer": "bomtrace3"},
+        }
+        p = MagicMock()
+        mock_cls.return_value = p
+        with patch("builtins.print"):
+            analyze.main()
+        config = mock_load.return_value
+        self.assertEqual(config["mode"], "sidecar")
+
+    @patch("app.pipeline.runners.load_config")
+    @patch("app.pipeline.runners.AnalysisPipeline")
+    @patch("sys.argv", ["analyze.py", "--list"])
+    def test_no_mode_keeps_config_default(
+        self, mock_cls, mock_load,
+    ):
+        mock_load.return_value = {
+            "repos": {},
+            "paths": {},
+            "omnibor": {"tracer": "bomtrace3"},
+        }
+        p = MagicMock()
+        mock_cls.return_value = p
+        with patch("builtins.print"):
+            analyze.main()
+        config = mock_load.return_value
+        self.assertNotIn("mode", config)
+
+
 class TestMainFullRun(unittest.TestCase):
     """Tests for main() full analysis run."""
 
