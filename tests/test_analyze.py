@@ -131,6 +131,63 @@ class TestCommandRunner(unittest.TestCase):
         output = "\n".join(printed)
         self.assertIn("42", output)
 
+    @patch("analyze.subprocess.run")
+    def test_env_none_inherits_default(
+        self, mock_run,
+    ):
+        mock_run.return_value = MagicMock(
+            returncode=0, stdout="",
+        )
+        runner = CommandRunner()
+        with patch("builtins.print"):
+            runner.run("echo", description="env")
+        call_kw = mock_run.call_args[1]
+        self.assertIsNone(call_kw.get("env"))
+
+    @patch("analyze.subprocess.run")
+    @patch("analyze.os.environ", {"PATH": "/usr/bin"})
+    def test_env_merged(self, mock_run):
+        mock_run.return_value = MagicMock(
+            returncode=0, stdout="",
+        )
+        runner = CommandRunner()
+        with patch("builtins.print"):
+            runner.run(
+                "echo", description="env",
+                env={"CC": "/usr/bin/gcc"},
+            )
+        call_kw = mock_run.call_args[1]
+        run_env = call_kw.get("env")
+        self.assertIsNotNone(run_env)
+        self.assertEqual(
+            run_env["CC"], "/usr/bin/gcc",
+        )
+        self.assertEqual(
+            run_env["PATH"], "/usr/bin",
+        )
+
+    @patch("analyze.subprocess.run")
+    def test_env_printed_in_header(self, mock_run):
+        mock_run.return_value = MagicMock(
+            returncode=0, stdout="",
+        )
+        runner = CommandRunner()
+        printed = []
+        with patch(
+            "builtins.print",
+            side_effect=lambda *a, **kw: (
+                printed.append(
+                    " ".join(str(x) for x in a)
+                )
+            ),
+        ):
+            runner.run(
+                "echo", description="env",
+                env={"MY_VAR": "1"},
+            )
+        output = "\n".join(printed)
+        self.assertIn("MY_VAR", output)
+
 
 # ============================================================
 # DependencyValidator
