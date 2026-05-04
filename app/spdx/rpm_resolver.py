@@ -167,6 +167,23 @@ class RpmResolver(PackageResolver):
         self._meta_cache[pkg_name] = result
         return result
 
+    def is_package_installed(self, pkg_name: str) -> bool:
+        """Check via ``rpm -q`` whether a package is installed."""
+        try:
+            subprocess.check_output(
+                ["rpm", "-q", pkg_name],
+                text=True,
+                stderr=subprocess.DEVNULL,
+            )
+            return True
+        except (subprocess.CalledProcessError, OSError):
+            return False
+
+    def install_hint(self, packages: list) -> str:
+        """Return a ``dnf install`` command."""
+        pkgs = " ".join(packages)
+        return f"dnf install -y {pkgs}"
+
     @property
     def distro_version_qualifier(self) -> str:
         """Return distro version string for PURL qualifiers.

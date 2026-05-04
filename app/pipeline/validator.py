@@ -1,22 +1,28 @@
 """
 Dependency validation for OmniBOR Analysis.
 
-Checks that required apt packages are installed before
-attempting an instrumented build.
+Checks that required system packages are installed before
+attempting an instrumented build.  Uses the ``PackageResolver``
+abstraction so the check works on Debian/Ubuntu, RHEL/Fedora,
+and Alpine.
 """
-
-from app.runner import CommandRunner
 
 
 class DependencyValidator:
-    """Checks that required apt packages are installed before build.
+    """Checks that required packages are installed before build.
 
-    Reads the apt_deps list from a repo's config entry and
-    verifies each package is installed via dpkg-query.
+    Reads the ``apt_deps`` list from a repo's config entry and
+    verifies each package is installed using the injected
+    ``PackageResolver``.
     """
 
-    def __init__(self, runner=None):
-        self.runner = runner or CommandRunner()
+    def __init__(self, resolver=None):
+        if resolver is None:
+            from app.spdx.package_resolver import (
+                auto_detect_resolver,
+            )
+            resolver = auto_detect_resolver()
+        self._resolver = resolver
 
     def validate(self, repo_cfg):
         """Check all apt_deps are installed.
@@ -31,18 +37,11 @@ class DependencyValidator:
 
         missing = []
         for pkg in apt_deps:
-            rc = self.runner.run(
-                f"dpkg-query -W -f='${{Status}}' "
-                f"{pkg} 2>/dev/null "
-                "| grep -q 'install ok installed'",
-                description=(
-                    f"Checking dependency: {pkg}"
-                ),
-            )
-            if rc != 0:
+            if not self._resolver.is_package_installed(pkg):
                 missing.append(pkg)
 
         if missing:
+            hint = self._resolver.install_hint(missing)
             print(
                 f"\n[ERROR] Missing {len(missing)} "
                 "required package(s):"
@@ -50,17 +49,15 @@ class DependencyValidator:
             for pkg in missing:
                 print(f"  - {pkg}")
             print(
-                "\nInstall them with:\n"
-                f"  apt-get install -y "
-                f"{' '.join(missing)}\n"
-                "\nOr add them to the Dockerfile's "
-                "apt-get install list and rebuild "
-                "the image.\n"
+                f"\nInstall them with:\n"
+                f"  {hint}\n"
+                "\nOr add them to the Dockerfile and "
+                "rebuild the image.\n"
             )
             return False, missing
 
         print(
             f"[OK] All {len(apt_deps)} "
-            "apt dependencies verified"
+            "system dependencies verified"
         )
         return True, []

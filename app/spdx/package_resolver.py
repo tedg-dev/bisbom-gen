@@ -51,12 +51,19 @@ class PackageResolver(ABC):
     """Resolves file paths to OS package metadata.
 
     Implementations must provide distro-specific mechanisms
-    for two operations:
+    for two core operations:
 
     1. ``resolve(file_path)`` — given an absolute file path,
        return the owning package's metadata or ``None``.
     2. ``purl_scheme()`` — return the PURL type and namespace
        prefix for this distro (e.g. ``pkg:deb/ubuntu``).
+
+    Optional operations (concrete defaults provided):
+
+    3. ``is_package_installed(pkg_name)`` — check whether a
+       named package is installed (for pre-build validation).
+    4. ``install_hint(packages)`` — return a distro-appropriate
+       install command string for missing packages.
 
     The interface is deliberately minimal (P4: Interface
     Segregation) so that adding a new distro requires only
@@ -88,6 +95,33 @@ class PackageResolver(ABC):
         The caller appends ``/{name}@{version}?qualifiers``
         to build the full PURL string.
         """
+
+    def is_package_installed(self, pkg_name: str) -> bool:
+        """Check whether a named package is installed.
+
+        Subclasses should override with the distro-appropriate
+        package query. The default returns ``True`` (assume
+        installed) so that callers degrade gracefully on
+        unsupported platforms.
+
+        Args:
+            pkg_name: Package name to check.
+
+        Returns:
+            True if installed, False otherwise.
+        """
+        return True
+
+    def install_hint(self, packages: list) -> str:
+        """Return a distro-appropriate install command hint.
+
+        Args:
+            packages: List of package names to install.
+
+        Returns:
+            A shell command string the user can run.
+        """
+        return "Install the missing packages manually."
 
     def make_purl(
         self, pkg_name: str, version: str,
