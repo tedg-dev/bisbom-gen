@@ -128,3 +128,66 @@ class MavenDepTreeStrategy(InterceptionStrategy):
             f"{len(deps)} dependencies → {out_file}"
         )
         return True
+
+
+class GradleDepTreeStrategy(InterceptionStrategy):
+    """Java Gradle: ``./gradlew dependencies`` instead of strace.
+
+    Like ``MavenDepTreeStrategy``, this avoids ``SYS_PTRACE``
+    for Gradle-based Java builds:
+
+    1. Runs the build command unmodified.
+    2. Runs ``./gradlew dependencies`` per subproject.
+    3. Parses the indented tree output into structured data.
+
+    Handles multi-project builds by iterating subprojects
+    discovered from ``settings.gradle``.
+    """
+
+    def __init__(self, runner=None):
+        from app.runner import CommandRunner
+        self._runner = runner or CommandRunner()
+
+    def instrument_command(self, build_cmd, repo_dir):
+        """Return the build command unmodified — no strace.
+
+        Returns:
+            ``(build_cmd, {})`` — no env vars needed.
+        """
+        return build_cmd, {}
+
+    def generate_adg(self, repo_dir, bom_dir, omnibor_cfg):
+        """Run ``./gradlew dependencies`` and parse output.
+
+        Writes parsed dependency data to
+        ``{bom_dir}/gradle_deps.json``.
+
+        Returns:
+            True on success, False on failure.
+        """
+        import json
+        from pathlib import Path
+
+        from app.pipeline.gradle_dep_tree_parser import (
+            get_all_gradle_deps,
+        )
+
+        bom_path = Path(bom_dir)
+        bom_path.mkdir(parents=True, exist_ok=True)
+
+        deps = get_all_gradle_deps(repo_dir)
+        if not deps:
+            print(
+                "[WARN] No dependencies found in "
+                "Gradle dependency tree"
+            )
+
+        out_file = bom_path / "gradle_deps.json"
+        with open(out_file, "w", encoding="utf-8") as f:
+            json.dump(deps, f, indent=2)
+
+        print(
+            f"[OK] Gradle dep:tree: "
+            f"{len(deps)} dependencies → {out_file}"
+        )
+        return True
