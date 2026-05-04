@@ -1,21 +1,34 @@
 """Tests for collect_dynamic_libs.py.
 
 Focuses on the project_bins logic that identifies
-project-built .so files even when a system dpkg
-package provides the same soname.
+project-built .so files even when a system package
+provides the same soname.
 """
 import json
 import tempfile
 import unittest
 from pathlib import Path
+from typing import Optional
 from unittest.mock import patch
 
-import sys
-sys.path.insert(
-    0, str(Path(__file__).resolve().parent.parent / "app")
+from app.collect_dynamic_libs import main
+from app.spdx.package_resolver import (
+    PackageResolver,
+    ResolvedPackage,
 )
 
-from collect_dynamic_libs import main  # noqa: E402
+
+class FakeResolver(PackageResolver):
+    """A test resolver that returns canned results."""
+
+    def __init__(self, path_map=None):
+        self._path_map = path_map or {}
+
+    def resolve(self, file_path: str) -> Optional[ResolvedPackage]:
+        return self._path_map.get(file_path)
+
+    def purl_scheme(self) -> str:
+        return "pkg:deb/ubuntu"
 
 
 class TestProjectBuiltDetection(unittest.TestCase):
@@ -51,38 +64,14 @@ class TestProjectBuiltDetection(unittest.TestCase):
             )
         return "\n".join(lines) + "\n"
 
-    def _mock_dpkg_s(self, path_to_pkg):
-        """Return a side_effect for dpkg -S calls."""
-        def side_effect(cmd, **kwargs):
-            if cmd[0] == "dpkg" and cmd[1] == "-S":
-                path = cmd[2]
-                if path in path_to_pkg:
-                    return path_to_pkg[path]
-                raise Exception("not found")
-            raise Exception("unexpected cmd")
-        return side_effect
-
-    def _mock_dpkg_query(self, pkg_to_meta):
-        """Return a side_effect for dpkg-query calls."""
-        def side_effect(cmd, **kwargs):
-            if cmd[0] == "dpkg-query":
-                pkg = cmd[4]
-                if pkg in pkg_to_meta:
-                    return pkg_to_meta[pkg]
-                raise Exception("not found")
-            raise Exception("unexpected cmd")
-        return side_effect
-
-    @patch("collect_dynamic_libs.subprocess.check_output")
-    @patch("collect_dynamic_libs.os.path.realpath")
-    def test_project_bins_overrides_dpkg(
+    @patch("app.collect_dynamic_libs.subprocess.check_output")
+    @patch("app.collect_dynamic_libs.os.path.realpath")
+    def test_project_bins_overrides_system_pkg(
         self, mock_realpath, mock_subproc,
     ):
         """When project_bins contains a .so, matching
         sonames should be moved to project_built_libs
         instead of dynamic_libs."""
-        # Simulate curl scenario: libcurl.so.4 resolves
-        # to system dpkg libcurl4 7.81.0
         needed = ["libcurl.so.4", "libc.so.6"]
         ldd_out = self._mock_ldd({
             "libcurl.so.4": "/lib/x86_64-linux-gnu/"
@@ -91,8 +80,6 @@ class TestProjectBuiltDetection(unittest.TestCase):
                          "libc.so.6",
         })
         readelf_out = self._mock_readelf(needed)
-
-        # realpath returns itself for simplicity
         mock_realpath.side_effect = lambda p: p
 
         def subproc_side_effect(cmd, **kwargs):
@@ -100,32 +87,31 @@ class TestProjectBuiltDetection(unittest.TestCase):
                 return ldd_out
             if cmd[0] == "readelf":
                 return readelf_out
-            if cmd[0] == "dpkg" and cmd[1] == "-S":
-                path = cmd[2]
-                if "libcurl" in path:
-                    return "libcurl4: " + path
-                if "libc" in path:
-                    return "libc6: " + path
-                raise Exception("not found")
-            if cmd[0] == "dpkg-query":
-                pkg = cmd[4]
-                if pkg == "libcurl4":
-                    return (
-                        "libcurl4|7.81.0-1ubuntu1.23"
-                        "|curl|Ubuntu Dev|"
-                        "https://curl.haxx.se|amd64"
-                    )
-                if pkg == "libc6":
-                    return (
-                        "libc6|2.35-0ubuntu3|glibc"
-                        "|Ubuntu Dev|"
-                        "https://www.gnu.org/software"
-                        "/libc/libc.html|amd64"
-                    )
-                raise Exception("not found")
             raise Exception(f"unexpected: {cmd}")
 
         mock_subproc.side_effect = subproc_side_effect
+
+        resolver = FakeResolver({
+            "/lib/x86_64-linux-gnu/libcurl.so.4":
+                ResolvedPackage(
+                    name="libcurl4",
+                    version="7.81.0-1ubuntu1.23",
+                    source="curl",
+                    maintainer="Ubuntu Dev",
+                    homepage="https://curl.haxx.se",
+                    architecture="amd64",
+                ),
+            "/lib/x86_64-linux-gnu/libc.so.6":
+                ResolvedPackage(
+                    name="libc6",
+                    version="2.35-0ubuntu3",
+                    source="glibc",
+                    maintainer="Ubuntu Dev",
+                    homepage="https://www.gnu.org/"
+                             "software/libc/libc.html",
+                    architecture="amd64",
+                ),
+        })
 
         with tempfile.TemporaryDirectory() as td:
             with patch("builtins.print"):
@@ -135,6 +121,7 @@ class TestProjectBuiltDetection(unittest.TestCase):
                         "src/.libs/curl",
                         "lib/.libs/libcurl.so",
                     ],
+                    resolver=resolver,
                 )
 
             out = json.loads(
@@ -165,9 +152,9 @@ class TestProjectBuiltDetection(unittest.TestCase):
                 "libc.so.6", out["dynamic_libs"],
             )
 
-    @patch("collect_dynamic_libs.subprocess.check_output")
-    @patch("collect_dynamic_libs.os.path.realpath")
-    def test_no_project_bins_keeps_dpkg(
+    @patch("app.collect_dynamic_libs.subprocess.check_output")
+    @patch("app.collect_dynamic_libs.os.path.realpath")
+    def test_no_project_bins_keeps_resolved(
         self, mock_realpath, mock_subproc,
     ):
         """Without project_bins, all libs stay in
@@ -185,28 +172,34 @@ class TestProjectBuiltDetection(unittest.TestCase):
                 return ldd_out
             if cmd[0] == "readelf":
                 return readelf_out
-            if cmd[0] == "dpkg" and cmd[1] == "-S":
-                return "libcurl4: " + cmd[2]
-            if cmd[0] == "dpkg-query":
-                return (
-                    "libcurl4|7.81.0|curl|Dev|"
-                    "https://curl.haxx.se|amd64"
-                )
             raise Exception(f"unexpected: {cmd}")
 
         mock_subproc.side_effect = subproc_side_effect
 
+        resolver = FakeResolver({
+            "/lib/x86_64-linux-gnu/libcurl.so.4":
+                ResolvedPackage(
+                    name="libcurl4",
+                    version="7.81.0",
+                    source="curl",
+                    maintainer="Dev",
+                    homepage="https://curl.haxx.se",
+                    architecture="amd64",
+                ),
+        })
+
         with tempfile.TemporaryDirectory() as td:
             with patch("builtins.print"):
-                main("/fake/curl", td)
+                main(
+                    "/fake/curl", td,
+                    resolver=resolver,
+                )
 
             out = json.loads(
                 (Path(td) / "dynamic_libs.json")
                 .read_text()
             )
 
-            # Without project_bins, libcurl stays in
-            # dynamic_libs
             self.assertIn(
                 "libcurl.so.4", out["dynamic_libs"],
             )
@@ -214,8 +207,8 @@ class TestProjectBuiltDetection(unittest.TestCase):
                 out["project_built_libs"], {},
             )
 
-    @patch("collect_dynamic_libs.subprocess.check_output")
-    @patch("collect_dynamic_libs.os.path.realpath")
+    @patch("app.collect_dynamic_libs.subprocess.check_output")
+    @patch("app.collect_dynamic_libs.os.path.realpath")
     def test_not_found_still_project_built(
         self, mock_realpath, mock_subproc,
     ):
@@ -237,18 +230,21 @@ class TestProjectBuiltDetection(unittest.TestCase):
                 return ldd_out
             if cmd[0] == "readelf":
                 return readelf_out
-            if cmd[0] == "dpkg" and cmd[1] == "-S":
-                if "libc" in cmd[2]:
-                    return "libc6: " + cmd[2]
-                raise Exception("not found")
-            if cmd[0] == "dpkg-query":
-                return (
-                    "libc6|2.35|glibc|Dev|"
-                    "https://gnu.org|amd64"
-                )
             raise Exception(f"unexpected: {cmd}")
 
         mock_subproc.side_effect = subproc_side_effect
+
+        resolver = FakeResolver({
+            "/lib/x86_64-linux-gnu/libc.so.6":
+                ResolvedPackage(
+                    name="libc6",
+                    version="2.35",
+                    source="glibc",
+                    maintainer="Dev",
+                    homepage="https://gnu.org",
+                    architecture="amd64",
+                ),
+        })
 
         with tempfile.TemporaryDirectory() as td:
             with patch("builtins.print"):
@@ -258,6 +254,7 @@ class TestProjectBuiltDetection(unittest.TestCase):
                         "ffmpeg",
                         "libavcodec/libavcodec.so",
                     ],
+                    resolver=resolver,
                 )
 
             out = json.loads(
@@ -265,7 +262,6 @@ class TestProjectBuiltDetection(unittest.TestCase):
                 .read_text()
             )
 
-            # not-found lib is project_built
             self.assertIn(
                 "libavcodec.so.62",
                 out["project_built_libs"],
@@ -276,8 +272,8 @@ class TestProjectBuiltDetection(unittest.TestCase):
             self.assertEqual(pb["name"], "libavcodec")
             self.assertTrue(pb["project_built"])
 
-    @patch("collect_dynamic_libs.subprocess.check_output")
-    @patch("collect_dynamic_libs.os.path.realpath")
+    @patch("app.collect_dynamic_libs.subprocess.check_output")
+    @patch("app.collect_dynamic_libs.os.path.realpath")
     def test_non_so_project_bins_ignored(
         self, mock_realpath, mock_subproc,
     ):
@@ -296,16 +292,21 @@ class TestProjectBuiltDetection(unittest.TestCase):
                 return ldd_out
             if cmd[0] == "readelf":
                 return readelf_out
-            if cmd[0] == "dpkg" and cmd[1] == "-S":
-                return "libc6: " + cmd[2]
-            if cmd[0] == "dpkg-query":
-                return (
-                    "libc6|2.35|glibc|Dev|"
-                    "https://gnu.org|amd64"
-                )
             raise Exception(f"unexpected: {cmd}")
 
         mock_subproc.side_effect = subproc_side_effect
+
+        resolver = FakeResolver({
+            "/lib/x86_64-linux-gnu/libc.so.6":
+                ResolvedPackage(
+                    name="libc6",
+                    version="2.35",
+                    source="glibc",
+                    maintainer="Dev",
+                    homepage="https://gnu.org",
+                    architecture="amd64",
+                ),
+        })
 
         with tempfile.TemporaryDirectory() as td:
             with patch("builtins.print"):
@@ -315,6 +316,7 @@ class TestProjectBuiltDetection(unittest.TestCase):
                         "src/redis-server",
                         "src/redis-cli",
                     ],
+                    resolver=resolver,
                 )
 
             out = json.loads(
@@ -322,7 +324,6 @@ class TestProjectBuiltDetection(unittest.TestCase):
                 .read_text()
             )
 
-            # No .so in project_bins, so no overrides
             self.assertIn(
                 "libc.so.6", out["dynamic_libs"],
             )

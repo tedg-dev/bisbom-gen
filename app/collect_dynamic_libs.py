@@ -2,8 +2,11 @@
 
 Runs inside the build container. Uses ldd and readelf to identify
 all dynamically linked libraries, distinguishes direct (NEEDED)
-from transitive, and resolves each to its dpkg package with
-full metadata.
+from transitive, and resolves each to its OS package with
+full metadata via the ``PackageResolver`` abstraction.
+
+Supports Debian/Ubuntu (dpkg), RHEL/CentOS/Fedora (rpm), and
+Alpine (apk).
 
 Outputs dynamic_libs.json alongside the treedb.
 """
@@ -13,7 +16,16 @@ import re
 import subprocess
 
 
-def main(binary_path, out_dir, project_bins=None):
+def main(
+    binary_path, out_dir,
+    project_bins=None, resolver=None,
+):
+    if resolver is None:
+        from app.spdx.package_resolver import (
+            auto_detect_resolver,
+        )
+        resolver = auto_detect_resolver()
+
     # Get ldd output
     ldd_out = subprocess.check_output(
         ["ldd", binary_path], text=True
@@ -66,50 +78,30 @@ def main(binary_path, out_dir, project_bins=None):
         f"transitive: {trans_count})"
     )
 
-    # Resolve each to dpkg package
-    fields = [
-        "Package", "Version", "Source",
-        "Maintainer", "Homepage", "Architecture",
-    ]
-    fmt = "|".join(
-        ["${" + f + "}" for f in fields]
-    )
-
+    # Resolve each library to its OS package
     results = {}
     for soname, info in sorted(libs.items()):
         real_path = os.path.realpath(info["path"])
-        pkg = None
+        result = None
         # Try real path first, then original path
         for try_path in [real_path, info["path"]]:
-            try:
-                dpkg_out = subprocess.check_output(
-                    ["dpkg", "-S", try_path],
-                    text=True,
-                    stderr=subprocess.DEVNULL,
-                ).strip()
-                pkg = (
-                    dpkg_out.split(":")[0]
-                    .split(",")[0].strip()
-                )
-                if pkg:
-                    break
-            except Exception:
-                continue
+            result = resolver.resolve(try_path)
+            if result:
+                break
 
+        pkg = result.name if result else None
         meta = {}
-        if pkg:
-            try:
-                out = subprocess.check_output(
-                    ["dpkg-query", "-W", "-f", fmt, pkg],
-                    text=True,
-                    stderr=subprocess.DEVNULL,
-                )
-                parts = out.split("|")
-                for i, f in enumerate(fields):
-                    if i < len(parts) and parts[i]:
-                        meta[f] = parts[i]
-            except Exception:
-                pass
+        if result:
+            meta["Package"] = result.name
+            meta["Version"] = result.version
+            if result.source:
+                meta["Source"] = result.source
+            if result.maintainer:
+                meta["Maintainer"] = result.maintainer
+            if result.homepage:
+                meta["Homepage"] = result.homepage
+            if result.architecture:
+                meta["Architecture"] = result.architecture
 
         source = meta.get("Source", pkg or soname)
         results[soname] = {
@@ -130,9 +122,9 @@ def main(binary_path, out_dir, project_bins=None):
     #    (e.g. libavcodec.so.62 from FFmpeg)
     # 2. NEEDED entries that match an output
     #    binary from the same repo, even when a
-    #    system dpkg package also provides the
-    #    soname (e.g. libcurl.so.4 when system
-    #    libcurl4 is installed)
+    #    system package also provides the soname
+    #    (e.g. libcurl.so.4 when system libcurl4
+    #    is installed)
     #
     # Build set of project .so base names from
     # output_binaries (e.g. "libcurl.so").
@@ -178,10 +170,10 @@ def main(binary_path, out_dir, project_bins=None):
             print(
                 f"  {soname:40s} {tag:12s} "
                 f"{name} (project-built, "
-                f"overriding dpkg)"
+                f"overriding system pkg)"
             )
 
-    # Remove project-built libs from dpkg results
+    # Remove project-built libs from system results
     for soname in proj_matched:
         del results[soname]
 
