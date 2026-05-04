@@ -27,8 +27,12 @@ class SpdxGenerator:
     # Bomsh install dir — used to detect git commit
     BOMSH_DIR = "/opt/bomsh"
 
-    def __init__(self, runner=None):
+    def __init__(self, runner=None, bomsh_dir=None):
         self.runner = runner or CommandRunner()
+        if bomsh_dir:
+            self.bomsh_dir = bomsh_dir
+        else:
+            self.bomsh_dir = self.BOMSH_DIR
 
     # --------------------------------------------------
     # Version helpers

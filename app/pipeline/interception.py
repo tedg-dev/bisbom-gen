@@ -57,6 +57,164 @@ class InterceptionStrategy(ABC):
         """
 
 
+class PtraceStrategy(InterceptionStrategy):
+    """Standalone mode: bomtrace3/bomtrace2 prefix.
+
+    Encapsulates the current default behavior where the
+    build command is prefixed with the tracer binary
+    (e.g. ``bomtrace3 make -j4``).  The tracer uses
+    ptrace to intercept compiler/linker invocations.
+
+    This is the only strategy that requires ``SYS_PTRACE``
+    capability in Docker.
+    """
+
+    def __init__(self, tracer="bomtrace3"):
+        self._tracer = tracer
+
+    def instrument_command(self, build_cmd, repo_dir):
+        """Prepend the tracer to the build command.
+
+        Returns:
+            ``("{tracer} {build_cmd}", {})``
+        """
+        return f"{self._tracer} {build_cmd}", {}
+
+    def generate_adg(self, repo_dir, bom_dir, omnibor_cfg):
+        """Run ``bomsh_create_bom.py`` on tracer output.
+
+        The tracer writes a raw logfile during the build.
+        ``bomsh_create_bom.py`` reads it to produce the
+        OmniBOR treedb and ADG documents.
+
+        Returns:
+            True on success, False on failure.
+        """
+        from app.runner import CommandRunner
+
+        runner = CommandRunner()
+        create_bom = omnibor_cfg.get(
+            "create_bom_script", "bomsh_create_bom.py",
+        )
+        raw_logfile = omnibor_cfg.get(
+            "raw_logfile",
+            "/tmp/bomsh_hook_raw_logfile.sha1",
+        )
+        rc = runner.run(
+            f"{create_bom} -r {raw_logfile} "
+            f"-b {bom_dir}",
+            cwd=str(repo_dir),
+            description=(
+                "Generating OmniBOR ADG documents"
+            ),
+        )
+        return rc == 0
+
+
+class CcWrapperStrategy(InterceptionStrategy):
+    """Sidecar C/C++: CC=/CXX=/AR=/LD= environment variables.
+
+    Instead of ptrace, sets compiler environment variables
+    to point at OmniBOR wrapper scripts that intercept
+    compilation without ``SYS_PTRACE``.
+    """
+
+    def __init__(self, wrapper_dir="/opt/bomsh/bin"):
+        self._wrapper_dir = wrapper_dir
+
+    def instrument_command(self, build_cmd, repo_dir):
+        """Return the build command with CC/CXX wrappers.
+
+        Returns:
+            ``(build_cmd, {"CC": ..., "CXX": ..., ...})``
+        """
+        d = self._wrapper_dir
+        env = {
+            "CC": f"{d}/bomsh_cc_wrapper.sh",
+            "CXX": f"{d}/bomsh_cxx_wrapper.sh",
+            "AR": f"{d}/bomsh_ar_wrapper.sh",
+            "LD": f"{d}/bomsh_ld_wrapper.sh",
+        }
+        return build_cmd, env
+
+    def generate_adg(self, repo_dir, bom_dir, omnibor_cfg):
+        """Run ``bomsh_create_bom.py`` on wrapper output.
+
+        Same as ``PtraceStrategy`` — both produce the same
+        raw logfile format.
+        """
+        strategy = PtraceStrategy()
+        return strategy.generate_adg(
+            repo_dir, bom_dir, omnibor_cfg,
+        )
+
+
+class GoToolexecStrategy(InterceptionStrategy):
+    """Sidecar Go: ``-toolexec`` flag injection.
+
+    Go's ``-toolexec`` flag runs each tool invocation
+    through a wrapper, avoiding ptrace entirely.
+    """
+
+    def __init__(
+        self, wrapper="/opt/bomsh/bin/bomsh_hook.sh",
+    ):
+        self._wrapper = wrapper
+
+    def instrument_command(self, build_cmd, repo_dir):
+        """Insert ``-toolexec`` into the go build command.
+
+        Replaces ``go build`` with
+        ``go build -toolexec={wrapper}``.
+
+        Returns:
+            ``(modified_cmd, {})``
+        """
+        cmd = build_cmd.replace(
+            "go build",
+            f"go build -toolexec={self._wrapper}",
+            1,
+        )
+        return cmd, {}
+
+    def generate_adg(self, repo_dir, bom_dir, omnibor_cfg):
+        """Run ``bomsh_create_bom.py`` on wrapper output."""
+        strategy = PtraceStrategy()
+        return strategy.generate_adg(
+            repo_dir, bom_dir, omnibor_cfg,
+        )
+
+
+class RustcWrapperStrategy(InterceptionStrategy):
+    """Sidecar Rust: ``RUSTC_WRAPPER`` environment variable.
+
+    Rust's ``RUSTC_WRAPPER`` runs each ``rustc`` invocation
+    through a wrapper binary, avoiding ptrace.
+    """
+
+    def __init__(
+        self, wrapper="/opt/bomsh/bin/bomsh_hook.sh",
+    ):
+        self._wrapper = wrapper
+
+    def instrument_command(self, build_cmd, repo_dir):
+        """Set ``RUSTC_WRAPPER`` for cargo build.
+
+        Returns:
+            ``(build_cmd, {"RUSTC_WRAPPER": ...})``
+        """
+        return build_cmd, {
+            "RUSTC_WRAPPER": self._wrapper,
+        }
+
+    def generate_adg(self, repo_dir, bom_dir, omnibor_cfg):
+        """Run ``bomsh_create_bom.py`` on wrapper output."""
+        strategy = PtraceStrategy()
+        return strategy.generate_adg(
+            repo_dir, bom_dir, omnibor_cfg,
+        )
+
+
 class MavenDepTreeStrategy(InterceptionStrategy):
     """Java Maven: ``mvn dependency:tree`` instead of strace.
 
