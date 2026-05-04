@@ -167,9 +167,11 @@ def main():
             paths_cfg, omnibor_cfg, run_ts,
         )
     elif lang == "java":
+        mode = config.get("mode", DEFAULT_MODE)
         success, duration = run_java_pipeline(
             pipeline, args.repo, repo_cfg,
             paths_cfg, omnibor_cfg, run_ts,
+            mode=mode,
         )
     else:
         success, duration = run_go_pipeline(

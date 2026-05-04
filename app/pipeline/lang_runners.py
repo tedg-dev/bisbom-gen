@@ -164,31 +164,70 @@ def run_rust_pipeline(
 # Java pipeline
 # ============================================================
 
+def _select_java_strategy(
+    repo_name, repo_cfg, paths_cfg, mode,
+):
+    """Select interception strategy for Java builds.
+
+    In sidecar mode, uses dep:tree strategies that avoid
+    strace entirely.  Detects Maven vs Gradle from the
+    repo's build configuration.
+
+    In standalone mode, returns None (legacy strace path).
+    """
+    if mode != "sidecar":
+        return None
+
+    from app.spdx.gradle_parser import is_gradle_project
+
+    repo_dir = (
+        Path(paths_cfg["repos_dir"]) / repo_name
+    )
+    if is_gradle_project(str(repo_dir)):
+        from app.pipeline.interception import (
+            GradleDepTreeStrategy,
+        )
+        return GradleDepTreeStrategy()
+
+    from app.pipeline.interception import (
+        MavenDepTreeStrategy,
+    )
+    return MavenDepTreeStrategy()
+
+
 def run_java_pipeline(
     pipeline, repo_name, repo_cfg,
     paths_cfg, omnibor_java_cfg, run_ts,
+    mode="standalone",
 ):
-    """Java pipeline: strace-instrumented Maven build,
-    bomsh_create_bom_java.py for OmniBOR ADG, SPDX generation,
-    metadata, ADG SPDX, validation, JAR collection.
+    """Java pipeline: build + SPDX generation.
 
-    Java uses a different approach than C/C++/Rust/Go:
-    1. Build with strace to capture file I/O
-    2. Run bomsh_create_bom_java.py with strace log
-       to create the OmniBOR treedb
-
-    See: https://github.com/omnibor/bomsh
-    #software-vulnerability-cve-search-for-java-packages
+    In standalone mode (default): strace + bomsh_create_bom_java.py.
+    In sidecar mode: dep:tree strategy (no strace needed).
 
     Returns (success, duration_sec).
     """
-    # Step 4: Instrumented build (strace + Maven)
-    start = time.time()
-    success = pipeline.builder.build_java(
-        repo_name, repo_cfg,
-        paths_cfg, omnibor_java_cfg,
-        run_ts=run_ts,
+    strategy = _select_java_strategy(
+        repo_name, repo_cfg, paths_cfg, mode,
     )
+
+    # Step 4: Build (strace or sidecar)
+    start = time.time()
+    if strategy:
+        # Sidecar: use builder.build() with strategy
+        success = pipeline.builder.build(
+            repo_name, repo_cfg,
+            paths_cfg, omnibor_java_cfg,
+            run_ts=run_ts,
+            strategy=strategy,
+        )
+    else:
+        # Standalone: legacy strace path
+        success = pipeline.builder.build_java(
+            repo_name, repo_cfg,
+            paths_cfg, omnibor_java_cfg,
+            run_ts=run_ts,
+        )
     duration = time.time() - start
 
     # Step 5a: Generate SPDX from OmniBOR
