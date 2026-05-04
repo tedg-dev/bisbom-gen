@@ -4,8 +4,11 @@ Tests for app/config.py — mode selection and config resolution.
 
 import unittest
 
+from unittest.mock import patch
+
 from app.config import (
     resolve_omnibor_cfg,
+    resolve_paths,
     _is_nested_format,
     VALID_MODES,
     DEFAULT_MODE,
@@ -196,6 +199,87 @@ class TestConstants(unittest.TestCase):
         self.assertIn("go", _LANG_OMNIBOR_KEYS)
         self.assertIn("rust", _LANG_OMNIBOR_KEYS)
         self.assertIn("java", _LANG_OMNIBOR_KEYS)
+
+
+class TestResolvePaths(unittest.TestCase):
+    """Tests for resolve_paths()."""
+
+    def test_defaults_populated(self):
+        paths = resolve_paths({})
+        self.assertIn("go_root", paths)
+        self.assertIn("cargo_home", paths)
+        self.assertIn("java_home", paths)
+        self.assertIn("bomsh_dir", paths)
+
+    def test_config_takes_precedence(self):
+        config = {
+            "paths": {
+                "go_root": "/custom/go",
+            },
+        }
+        paths = resolve_paths(config)
+        self.assertEqual(paths["go_root"], "/custom/go")
+
+    @patch.dict(
+        "os.environ",
+        {"GOROOT": "/env/go"},
+        clear=False,
+    )
+    def test_env_var_used(self):
+        paths = resolve_paths({})
+        self.assertEqual(paths["go_root"], "/env/go")
+
+    @patch.dict(
+        "os.environ",
+        {"GOROOT": "/env/go"},
+        clear=False,
+    )
+    def test_config_beats_env(self):
+        config = {
+            "paths": {
+                "go_root": "/cfg/go",
+            },
+        }
+        paths = resolve_paths(config)
+        self.assertEqual(
+            paths["go_root"], "/cfg/go",
+        )
+
+    def test_tilde_expanded(self):
+        config = {
+            "paths": {
+                "cargo_home": "~/my_cargo",
+            },
+        }
+        paths = resolve_paths(config)
+        self.assertNotIn("~", paths["cargo_home"])
+
+    def test_existing_paths_preserved(self):
+        config = {
+            "paths": {
+                "repos_dir": "/workspace/repos",
+                "output_dir": "/workspace/output",
+            },
+        }
+        paths = resolve_paths(config)
+        self.assertEqual(
+            paths["repos_dir"], "/workspace/repos",
+        )
+        self.assertEqual(
+            paths["output_dir"], "/workspace/output",
+        )
+
+    def test_default_go_root(self):
+        paths = resolve_paths({})
+        self.assertEqual(
+            paths["go_root"], "/usr/local/go",
+        )
+
+    def test_default_bomsh_dir(self):
+        paths = resolve_paths({})
+        self.assertEqual(
+            paths["bomsh_dir"], "/opt/bomsh",
+        )
 
 
 if __name__ == "__main__":

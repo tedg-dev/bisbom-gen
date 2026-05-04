@@ -115,6 +115,51 @@ def resolve_omnibor_cfg(config, language):
     return section
 
 
+def resolve_paths(config):
+    """Resolve all paths from config, env vars, and defaults.
+
+    Priority: config.yaml → environment variable → default.
+
+    Extends the ``paths`` section with tool-specific paths
+    that can be auto-detected from environment variables.
+
+    Args:
+        config: The full parsed config dict.
+
+    Returns:
+        A dict of resolved paths with all keys populated.
+    """
+    import os
+
+    paths = dict(config.get("paths", {}))
+
+    # Tool-specific paths: config → env → default
+    _TOOL_PATHS = {
+        "go_root": ("GOROOT", "/usr/local/go"),
+        "cargo_home": ("CARGO_HOME", "~/.cargo"),
+        "java_home": (
+            "JAVA_HOME",
+            "/usr/lib/jvm/java-17-openjdk-amd64",
+        ),
+        "bomsh_dir": ("BOMSH_DIR", "/opt/bomsh"),
+    }
+
+    for key, (env_var, default) in _TOOL_PATHS.items():
+        if key not in paths:
+            env_val = os.environ.get(env_var)
+            if env_val:
+                paths[key] = env_val
+            else:
+                paths[key] = default
+
+    # Expand ~ in paths
+    for key, val in paths.items():
+        if isinstance(val, str) and "~" in val:
+            paths[key] = os.path.expanduser(val)
+
+    return paths
+
+
 def _is_nested_format(section):
     """Check if a config section uses the nested mode format.
 
