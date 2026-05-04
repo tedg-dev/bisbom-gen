@@ -313,16 +313,14 @@ class TestAutoDetectResolver:
             resolver = auto_detect_resolver()
             assert isinstance(resolver, DpkgResolver)
 
-    def test_rpm_family_imports_rpm(self):
+    def test_rpm_family_returns_rpm_resolver(self):
         with patch(
             "app.spdx.package_resolver.detect_distro_id",
             return_value="rhel",
         ):
-            with pytest.raises(
-                (ImportError, ModuleNotFoundError),
-            ):
-                # RpmResolver module doesn't exist yet (#97)
-                auto_detect_resolver()
+            from app.spdx.rpm_resolver import RpmResolver
+            resolver = auto_detect_resolver()
+            assert isinstance(resolver, RpmResolver)
 
     def test_apk_family_imports_apk(self):
         with patch(
