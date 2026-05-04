@@ -322,13 +322,11 @@ class TestAutoDetectResolver:
             resolver = auto_detect_resolver()
             assert isinstance(resolver, RpmResolver)
 
-    def test_apk_family_imports_apk(self):
+    def test_apk_family_returns_apk_resolver(self):
         with patch(
             "app.spdx.package_resolver.detect_distro_id",
             return_value="alpine",
         ):
-            with pytest.raises(
-                (ImportError, ModuleNotFoundError),
-            ):
-                # ApkResolver module doesn't exist yet (#98)
-                auto_detect_resolver()
+            from app.spdx.apk_resolver import ApkResolver
+            resolver = auto_detect_resolver()
+            assert isinstance(resolver, ApkResolver)
