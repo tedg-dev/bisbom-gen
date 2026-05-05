@@ -308,14 +308,14 @@ class TestRepoCloner(unittest.TestCase):
             self.assertIsNone(sha)
 
     def test_build_vcs_uri(self):
-        """build_vcs_uri formats git+<url>@<sha>."""
+        """build_vcs_uri formats commit URL."""
         uri = RepoCloner.build_vcs_uri(
             "https://github.com/x/y.git",
             "a" * 40,
         )
         self.assertEqual(
             uri,
-            "git+https://github.com/x/y.git@"
+            "https://github.com/x/y/commit/"
             + "a" * 40,
         )
 

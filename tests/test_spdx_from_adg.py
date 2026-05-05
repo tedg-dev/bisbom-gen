@@ -803,7 +803,7 @@ class TestSpdxEmitter(unittest.TestCase):
     def test_emit_vcs_uri_on_root_package(self):
         """vcs_uri sets downloadLocation on root pkg."""
         vcs = (
-            "git+https://github.com/curl/curl.git@"
+            "https://github.com/curl/curl/commit/"
             + "a" * 40
         )
         emitter = SpdxEmitter(

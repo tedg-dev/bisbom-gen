@@ -79,19 +79,23 @@ class RepoCloner:
 
     @staticmethod
     def build_vcs_uri(repo_url, commit_sha):
-        """Build a VCS download URI for SPDX downloadLocation.
+        """Build a commit URL for SPDX downloadLocation.
 
-        Follows the SPDX 2.3 Annex E VCS URI format:
-            git+<url>@<commit_sha>
+        Produces a browsable commit URL:
+            <repo_url>/commit/<commit_sha>
+
+        The .git suffix is stripped from the URL so the
+        result is a valid browser link on GitHub/GitLab.
 
         Args:
             repo_url: the repository clone URL.
             commit_sha: the 40-char commit SHA.
 
         Returns:
-            str: VCS URI, or "NOASSERTION" if inputs
+            str: commit URL, or "NOASSERTION" if inputs
             are missing.
         """
         if not repo_url or not commit_sha:
             return "NOASSERTION"
-        return f"git+{repo_url}@{commit_sha}"
+        base = repo_url.removesuffix(".git")
+        return f"{base}/commit/{commit_sha}"
