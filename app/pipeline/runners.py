@@ -126,6 +126,25 @@ def main():
             args.repo, repo_cfg, paths_cfg
         )
 
+    # Resolve commit SHA for SPDX downloadLocation
+    from app.pipeline.cloner import RepoCloner
+    repo_dir = (
+        Path(paths_cfg["repos_dir"]) / args.repo
+    )
+    commit_sha = RepoCloner.get_commit_sha(repo_dir)
+    vcs_uri = RepoCloner.build_vcs_uri(
+        repo_cfg.get("url"), commit_sha,
+    )
+    if commit_sha:
+        print(
+            f"[OK] Commit SHA: {commit_sha[:12]}..."
+        )
+        print(f"[OK] VCS URI: {vcs_uri}")
+    else:
+        print(
+            "[WARN] Could not resolve commit SHA"
+        )
+
     # Step 2: Syft SBOM (manifest-based — optional,
     # disabled by default in config.yaml).
     # --syft-only CLI flag overrides config.
@@ -152,21 +171,25 @@ def main():
         success, duration = run_c_cpp_pipeline(
             pipeline, args.repo, repo_cfg,
             paths_cfg, omnibor_cfg, run_ts,
+            vcs_uri=vcs_uri,
         )
     elif lang == "rust":
         success, duration = run_rust_pipeline(
             pipeline, args.repo, repo_cfg,
             paths_cfg, omnibor_cfg, run_ts,
+            vcs_uri=vcs_uri,
         )
     elif lang == "java":
         success, duration = run_java_pipeline(
             pipeline, args.repo, repo_cfg,
             paths_cfg, omnibor_cfg, run_ts,
+            vcs_uri=vcs_uri,
         )
     else:
         success, duration = run_go_pipeline(
             pipeline, args.repo, repo_cfg,
             paths_cfg, omnibor_cfg, run_ts,
+            vcs_uri=vcs_uri,
         )
 
     # Step 7b: Validate Syft SPDX (if enabled)
@@ -184,6 +207,7 @@ def main():
         success, duration,
         run_ts=run_ts, tracer=tracer,
         raw_logfile=raw_logfile,
+        commit_sha=commit_sha,
     )
     pipeline.docs.write_runtime_doc(
         args.repo, repo_cfg, paths_cfg,

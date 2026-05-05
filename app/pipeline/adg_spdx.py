@@ -21,7 +21,7 @@ class AdgSpdxStep:
 
     @staticmethod
     def generate(repo_name, repo_cfg, paths_cfg,
-                 run_ts=None):
+                 run_ts=None, vcs_uri="NOASSERTION"):
         """Generate ADG SPDX for each output binary.
 
         Returns list of output file paths.
@@ -56,6 +56,7 @@ class AdgSpdxStep:
             vendored_dirs=repo_cfg.get(
                 "vendored_dirs"
             ),
+            vcs_uri=vcs_uri,
         )
 
         # Expand glob patterns to actual file paths

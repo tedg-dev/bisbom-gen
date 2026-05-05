@@ -94,6 +94,7 @@ class DocWriter:
         paths_cfg, success, duration_sec,
         run_ts=None, tracer=None,
         raw_logfile=None,
+        commit_sha=None,
     ):
         """Write build log to output/build-logs/<lang>/<repo>/<ts>/."""
         ts = run_ts or timestamp()
@@ -116,6 +117,8 @@ class DocWriter:
             f"- **URL:** {repo_cfg['url']}\n"
             f"- **Branch:** "
             f"{repo_cfg.get('branch', 'master')}\n"
+            f"- **Commit:** "
+            f"{commit_sha or 'unknown'}\n"
             f"- **Description:** "
             f"{repo_cfg.get('description', 'N/A')}"
             "\n\n"

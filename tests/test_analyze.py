@@ -5,6 +5,7 @@ Tests for app/analyze.py — class-based analysis pipeline.
 Uses unittest.mock to avoid real subprocess calls.
 """
 
+import os
 import sys
 import tempfile
 import unittest
@@ -271,6 +272,63 @@ class TestRepoCloner(unittest.TestCase):
             cloner.clone("repo", cfg, paths)
             call_args = runner.run.call_args
             self.assertIn("master", call_args[0][0])
+
+    def test_get_commit_sha_valid_repo(self):
+        """get_commit_sha returns 40-char SHA for a real git repo."""
+        with tempfile.TemporaryDirectory() as td:
+            import subprocess
+            subprocess.run(
+                ["git", "init"], cwd=td,
+                capture_output=True,
+            )
+            subprocess.run(
+                ["git", "commit", "--allow-empty",
+                 "-m", "init"],
+                cwd=td, capture_output=True,
+                env={
+                    **os.environ,
+                    "GIT_AUTHOR_NAME": "test",
+                    "GIT_AUTHOR_EMAIL": "t@t",
+                    "GIT_COMMITTER_NAME": "test",
+                    "GIT_COMMITTER_EMAIL": "t@t",
+                },
+            )
+            sha = RepoCloner.get_commit_sha(td)
+            self.assertIsNotNone(sha)
+            self.assertEqual(len(sha), 40)
+            self.assertTrue(
+                all(c in "0123456789abcdef"
+                    for c in sha)
+            )
+
+    def test_get_commit_sha_not_a_repo(self):
+        """get_commit_sha returns None for non-git dir."""
+        with tempfile.TemporaryDirectory() as td:
+            sha = RepoCloner.get_commit_sha(td)
+            self.assertIsNone(sha)
+
+    def test_build_vcs_uri(self):
+        """build_vcs_uri formats git+<url>@<sha>."""
+        uri = RepoCloner.build_vcs_uri(
+            "https://github.com/x/y.git",
+            "a" * 40,
+        )
+        self.assertEqual(
+            uri,
+            "git+https://github.com/x/y.git@"
+            + "a" * 40,
+        )
+
+    def test_build_vcs_uri_missing_inputs(self):
+        """build_vcs_uri returns NOASSERTION on None."""
+        self.assertEqual(
+            RepoCloner.build_vcs_uri(None, "abc"),
+            "NOASSERTION",
+        )
+        self.assertEqual(
+            RepoCloner.build_vcs_uri("url", None),
+            "NOASSERTION",
+        )
 
 
 # ============================================================
@@ -1009,7 +1067,8 @@ class TestSpdxGeneratorMetadata(unittest.TestCase):
                 / "2026-02-12_1300"
             )
             mock_patch.assert_called_once_with(
-                result, bom_dir
+                result, bom_dir,
+                vcs_uri=None,
             )
 
     def test_generate_no_patch_when_no_output(self):

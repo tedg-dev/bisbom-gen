@@ -20,6 +20,7 @@ from app.config import lang_subdir
 def run_c_cpp_pipeline(
     pipeline, repo_name, repo_cfg,
     paths_cfg, omnibor_cfg, run_ts,
+    vcs_uri="NOASSERTION",
 ):
     """C/C++ pipeline: apt validation, bomtrace3 build,
     OmniBOR SPDX, metadata, ADG SPDX, validation,
@@ -56,6 +57,7 @@ def run_c_cpp_pipeline(
             repo_name, repo_cfg,
             paths_cfg, omnibor_cfg,
             run_ts=run_ts,
+            vcs_uri=vcs_uri,
         )
 
     # Step 5b: Collect component metadata + dynamic libs
@@ -71,6 +73,7 @@ def run_c_cpp_pipeline(
         adg_files = pipeline.adg_spdx.generate(
             repo_name, repo_cfg, paths_cfg,
             run_ts=run_ts,
+            vcs_uri=vcs_uri,
         )
 
     # Step 6: Validate SPDX documents
@@ -96,6 +99,7 @@ def run_c_cpp_pipeline(
 def run_rust_pipeline(
     pipeline, repo_name, repo_cfg,
     paths_cfg, omnibor_rust_cfg, run_ts,
+    vcs_uri="NOASSERTION",
 ):
     """Rust pipeline: bomtrace2 instrumented build,
     OmniBOR ADG, SPDX generation, metadata, ADG SPDX,
@@ -127,6 +131,7 @@ def run_rust_pipeline(
             repo_name, repo_cfg,
             paths_cfg, omnibor_rust_cfg,
             run_ts=run_ts,
+            vcs_uri=vcs_uri,
         )
 
     # Step 5b: Collect component metadata
@@ -142,6 +147,7 @@ def run_rust_pipeline(
         adg_files = pipeline.adg_spdx.generate(
             repo_name, repo_cfg, paths_cfg,
             run_ts=run_ts,
+            vcs_uri=vcs_uri,
         )
 
     # Step 6: Validate SPDX documents
@@ -167,6 +173,7 @@ def run_rust_pipeline(
 def run_java_pipeline(
     pipeline, repo_name, repo_cfg,
     paths_cfg, omnibor_java_cfg, run_ts,
+    vcs_uri="NOASSERTION",
 ):
     """Java pipeline: strace-instrumented Maven build,
     bomsh_create_bom_java.py for OmniBOR ADG, SPDX generation,
@@ -213,6 +220,7 @@ def run_java_pipeline(
     if success:
         adg_files = generate_java_adg_spdx(
             repo_name, repo_cfg, paths_cfg, run_ts,
+            vcs_uri=vcs_uri,
         )
 
     # Step 6: Validate SPDX documents
@@ -233,6 +241,7 @@ def run_java_pipeline(
 
 def generate_java_adg_spdx(
     repo_name, repo_cfg, paths_cfg, run_ts,
+    vcs_uri="NOASSERTION",
 ):
     """Generate per-binary Java SPDX.
 
@@ -315,6 +324,7 @@ def generate_java_adg_spdx(
         repos_dir=repos_dir,
         repo_name=repo_name,
         strace_accessed=strace_accessed,
+        vcs_uri=vcs_uri,
     )
 
     results = []
@@ -394,6 +404,7 @@ def generate_java_adg_spdx(
 def run_go_pipeline(
     pipeline, repo_name, repo_cfg,
     paths_cfg, omnibor_go_cfg, run_ts,
+    vcs_uri="NOASSERTION",
 ):
     """Go pipeline: bomtrace2 instrumented build,
     OmniBOR ADG, SPDX generation, metadata, ADG SPDX,
@@ -426,6 +437,7 @@ def run_go_pipeline(
             repo_name, repo_cfg,
             paths_cfg, omnibor_go_cfg,
             run_ts=run_ts,
+            vcs_uri=vcs_uri,
         )
 
     # Step 5b: Collect component metadata
@@ -441,6 +453,7 @@ def run_go_pipeline(
         adg_files = pipeline.adg_spdx.generate(
             repo_name, repo_cfg, paths_cfg,
             run_ts=run_ts,
+            vcs_uri=vcs_uri,
         )
 
     # Step 6: Validate SPDX documents
