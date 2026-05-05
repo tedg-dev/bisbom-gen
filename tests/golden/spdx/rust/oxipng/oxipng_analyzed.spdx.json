@@ -3,9 +3,9 @@
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
   "name": "oxipng",
-  "documentNamespace": "https://omnibor.io/omnibor-analysis/oxipng-f15af378-8e5c-46e8-9a88-c8b0a33da6b7",
+  "documentNamespace": "https://omnibor.io/omnibor-analysis/oxipng-1e7b9ce9-e317-4946-8ba9-8b0efeef613b",
   "creationInfo": {
-    "created": "2026-03-12T22:32:03Z",
+    "created": "2026-05-05T16:33:12Z",
     "creators": [
       "Tool: bomtrace3-unknown",
       "Tool: bomsh-unknown",
@@ -20,11 +20,11 @@
       "downloadLocation": "NOASSERTION",
       "filesAnalyzed": true,
       "primaryPackagePurpose": "APPLICATION",
-      "builtDate": "2026-03-12T22:32:03Z",
+      "builtDate": "2026-05-05T16:33:12Z",
       "externalRefs": [],
       "checksums": [],
       "comment": "Built on Ubuntu 22.04.5 LTS with gcc (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0",
-      "versionInfo": "8.19.0-DEV"
+      "versionInfo": "10.1.0"
     },
     {
       "SPDXID": "SPDXRef-anstream-2",
@@ -189,12 +189,12 @@
         {
           "referenceCategory": "PACKAGE-MANAGER",
           "referenceType": "purl",
-          "referenceLocator": "pkg:cargo/clap@4.5.60"
+          "referenceLocator": "pkg:cargo/clap@4.5.54"
         }
       ],
       "comment": "Rust crate (direct, statically linked). 1 source files compiled into oxipng",
       "packageSourceInfo": "Downloaded from crates.io registry. Source at ~/.cargo/registry/src/.",
-      "versionInfo": "4.5.60"
+      "versionInfo": "4.5.54"
     },
     {
       "SPDXID": "SPDXRef-clap-builder-12",
@@ -206,12 +206,12 @@
         {
           "referenceCategory": "PACKAGE-MANAGER",
           "referenceType": "purl",
-          "referenceLocator": "pkg:cargo/clap_builder@4.5.60"
+          "referenceLocator": "pkg:cargo/clap_builder@4.5.54"
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 1 source files compiled into oxipng",
       "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
-      "versionInfo": "4.5.60"
+      "versionInfo": "4.5.54"
     },
     {
       "SPDXID": "SPDXRef-clap-lex-13",
@@ -223,12 +223,12 @@
         {
           "referenceCategory": "PACKAGE-MANAGER",
           "referenceType": "purl",
-          "referenceLocator": "pkg:cargo/clap_lex@1.0.0"
+          "referenceLocator": "pkg:cargo/clap_lex@0.7.5"
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 1 source files compiled into oxipng",
       "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
-      "versionInfo": "1.0.0"
+      "versionInfo": "0.7.5"
     },
     {
       "SPDXID": "SPDXRef-colorchoice-14",
@@ -248,7 +248,24 @@
       "versionInfo": "1.0.4"
     },
     {
-      "SPDXID": "SPDXRef-crossbeam-deque-15",
+      "SPDXID": "SPDXRef-crossbeam-channel-15",
+      "name": "crossbeam-channel",
+      "downloadLocation": "https://crates.io/crates/crossbeam-channel",
+      "filesAnalyzed": true,
+      "primaryPackagePurpose": "LIBRARY",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:cargo/crossbeam-channel@0.5.15"
+        }
+      ],
+      "comment": "Rust crate (direct, statically linked). 1 source files compiled into oxipng",
+      "packageSourceInfo": "Downloaded from crates.io registry. Source at ~/.cargo/registry/src/.",
+      "versionInfo": "0.5.15"
+    },
+    {
+      "SPDXID": "SPDXRef-crossbeam-deque-16",
       "name": "crossbeam-deque",
       "downloadLocation": "https://crates.io/crates/crossbeam-deque",
       "filesAnalyzed": true,
@@ -265,7 +282,7 @@
       "versionInfo": "0.8.6"
     },
     {
-      "SPDXID": "SPDXRef-crossbeam-epoch-16",
+      "SPDXID": "SPDXRef-crossbeam-epoch-17",
       "name": "crossbeam-epoch",
       "downloadLocation": "https://crates.io/crates/crossbeam-epoch",
       "filesAnalyzed": true,
@@ -282,7 +299,7 @@
       "versionInfo": "0.9.18"
     },
     {
-      "SPDXID": "SPDXRef-crossbeam-utils-17",
+      "SPDXID": "SPDXRef-crossbeam-utils-18",
       "name": "crossbeam-utils",
       "downloadLocation": "https://crates.io/crates/crossbeam-utils",
       "filesAnalyzed": true,
@@ -299,7 +316,7 @@
       "versionInfo": "0.8.21"
     },
     {
-      "SPDXID": "SPDXRef-either-18",
+      "SPDXID": "SPDXRef-either-19",
       "name": "either",
       "downloadLocation": "https://crates.io/crates/either",
       "filesAnalyzed": true,
@@ -316,7 +333,7 @@
       "versionInfo": "1.15.0"
     },
     {
-      "SPDXID": "SPDXRef-env-filter-19",
+      "SPDXID": "SPDXRef-env-filter-20",
       "name": "env_filter",
       "downloadLocation": "https://crates.io/crates/env_filter",
       "filesAnalyzed": true,
@@ -325,15 +342,15 @@
         {
           "referenceCategory": "PACKAGE-MANAGER",
           "referenceType": "purl",
-          "referenceLocator": "pkg:cargo/env_filter@1.0.0"
+          "referenceLocator": "pkg:cargo/env_filter@0.1.3"
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 1 source files compiled into oxipng",
       "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
-      "versionInfo": "1.0.0"
+      "versionInfo": "0.1.3"
     },
     {
-      "SPDXID": "SPDXRef-env-logger-20",
+      "SPDXID": "SPDXRef-env-logger-21",
       "name": "env_logger",
       "downloadLocation": "https://crates.io/crates/env_logger",
       "filesAnalyzed": true,
@@ -342,15 +359,15 @@
         {
           "referenceCategory": "PACKAGE-MANAGER",
           "referenceType": "purl",
-          "referenceLocator": "pkg:cargo/env_logger@0.11.9"
+          "referenceLocator": "pkg:cargo/env_logger@0.11.8"
         }
       ],
       "comment": "Rust crate (direct, statically linked). 1 source files compiled into oxipng",
       "packageSourceInfo": "Downloaded from crates.io registry. Source at ~/.cargo/registry/src/.",
-      "versionInfo": "0.11.9"
+      "versionInfo": "0.11.8"
     },
     {
-      "SPDXID": "SPDXRef-equivalent-21",
+      "SPDXID": "SPDXRef-equivalent-22",
       "name": "equivalent",
       "downloadLocation": "https://crates.io/crates/equivalent",
       "filesAnalyzed": true,
@@ -367,7 +384,7 @@
       "versionInfo": "1.0.2"
     },
     {
-      "SPDXID": "SPDXRef-find-msvc-tools-22",
+      "SPDXID": "SPDXRef-find-msvc-tools-23",
       "name": "find-msvc-tools",
       "downloadLocation": "https://crates.io/crates/find-msvc-tools",
       "filesAnalyzed": true,
@@ -384,7 +401,7 @@
       "versionInfo": "0.1.2"
     },
     {
-      "SPDXID": "SPDXRef-funty-23",
+      "SPDXID": "SPDXRef-funty-24",
       "name": "funty",
       "downloadLocation": "https://crates.io/crates/funty",
       "filesAnalyzed": true,
@@ -401,7 +418,7 @@
       "versionInfo": "2.0.0"
     },
     {
-      "SPDXID": "SPDXRef-hashbrown-24",
+      "SPDXID": "SPDXRef-hashbrown-25",
       "name": "hashbrown",
       "downloadLocation": "https://crates.io/crates/hashbrown",
       "filesAnalyzed": true,
@@ -418,7 +435,7 @@
       "versionInfo": "0.16.1"
     },
     {
-      "SPDXID": "SPDXRef-indexmap-25",
+      "SPDXID": "SPDXRef-indexmap-26",
       "name": "indexmap",
       "downloadLocation": "https://crates.io/crates/indexmap",
       "filesAnalyzed": true,
@@ -435,7 +452,7 @@
       "versionInfo": "2.13.0"
     },
     {
-      "SPDXID": "SPDXRef-is-terminal-polyfill-26",
+      "SPDXID": "SPDXRef-is-terminal-polyfill-27",
       "name": "is_terminal_polyfill",
       "downloadLocation": "https://crates.io/crates/is_terminal_polyfill",
       "filesAnalyzed": true,
@@ -452,167 +469,7 @@
       "versionInfo": "1.70.1"
     },
     {
-      "SPDXID": "SPDXRef-libanstream-af8c0c8b7745f81c.rlib-27",
-      "name": "libanstream-af8c0c8b7745f81c.rlib",
-      "downloadLocation": "NOASSERTION",
-      "filesAnalyzed": true,
-      "primaryPackagePurpose": "LIBRARY",
-      "externalRefs": [],
-      "comment": "Vendored source compiled into oxipng. 0 source files.",
-      "packageSourceInfo": "Vendored from oxipng/deps/libanstream-af8c0c8b7745f81c.rlib/. Source compiled into static archive and linked."
-    },
-    {
-      "SPDXID": "SPDXRef-libanstyle-a0a0ad7ff8b9c5a1.rlib-28",
-      "name": "libanstyle-a0a0ad7ff8b9c5a1.rlib",
-      "downloadLocation": "NOASSERTION",
-      "filesAnalyzed": true,
-      "primaryPackagePurpose": "LIBRARY",
-      "externalRefs": [],
-      "comment": "Vendored source compiled into oxipng. 0 source files.",
-      "packageSourceInfo": "Vendored from oxipng/deps/libanstyle-a0a0ad7ff8b9c5a1.rlib/. Source compiled into static archive and linked."
-    },
-    {
-      "SPDXID": "SPDXRef-libanstyle-parse-7aaeee641d2da150.rlib-29",
-      "name": "libanstyle_parse-7aaeee641d2da150.rlib",
-      "downloadLocation": "NOASSERTION",
-      "filesAnalyzed": true,
-      "primaryPackagePurpose": "LIBRARY",
-      "externalRefs": [],
-      "comment": "Vendored source compiled into oxipng. 0 source files.",
-      "packageSourceInfo": "Vendored from oxipng/deps/libanstyle_parse-7aaeee641d2da150.rlib/. Source compiled into static archive and linked."
-    },
-    {
-      "SPDXID": "SPDXRef-libanstyle-query-24c9d1b4892ed6c3.rlib-30",
-      "name": "libanstyle_query-24c9d1b4892ed6c3.rlib",
-      "downloadLocation": "NOASSERTION",
-      "filesAnalyzed": true,
-      "primaryPackagePurpose": "LIBRARY",
-      "externalRefs": [],
-      "comment": "Vendored source compiled into oxipng. 0 source files.",
-      "packageSourceInfo": "Vendored from oxipng/deps/libanstyle_query-24c9d1b4892ed6c3.rlib/. Source compiled into static archive and linked."
-    },
-    {
-      "SPDXID": "SPDXRef-libbitflags-1280f28be8e10639.rlib-31",
-      "name": "libbitflags-1280f28be8e10639.rlib",
-      "downloadLocation": "NOASSERTION",
-      "filesAnalyzed": true,
-      "primaryPackagePurpose": "LIBRARY",
-      "externalRefs": [],
-      "comment": "Vendored source compiled into oxipng. 0 source files.",
-      "packageSourceInfo": "Vendored from oxipng/deps/libbitflags-1280f28be8e10639.rlib/. Source compiled into static archive and linked."
-    },
-    {
-      "SPDXID": "SPDXRef-libbitvec-e8365d6a02442b17.rlib-32",
-      "name": "libbitvec-e8365d6a02442b17.rlib",
-      "downloadLocation": "NOASSERTION",
-      "filesAnalyzed": true,
-      "primaryPackagePurpose": "LIBRARY",
-      "externalRefs": [],
-      "comment": "Vendored source compiled into oxipng. 0 source files.",
-      "packageSourceInfo": "Vendored from oxipng/deps/libbitvec-e8365d6a02442b17.rlib/. Source compiled into static archive and linked."
-    },
-    {
-      "SPDXID": "SPDXRef-libbumpalo-b931f9f29ef28c54.rlib-33",
-      "name": "libbumpalo-b931f9f29ef28c54.rlib",
-      "downloadLocation": "NOASSERTION",
-      "filesAnalyzed": true,
-      "primaryPackagePurpose": "LIBRARY",
-      "externalRefs": [],
-      "comment": "Vendored source compiled into oxipng. 0 source files.",
-      "packageSourceInfo": "Vendored from oxipng/deps/libbumpalo-b931f9f29ef28c54.rlib/. Source compiled into static archive and linked."
-    },
-    {
-      "SPDXID": "SPDXRef-libbytemuck-554fa33dc3a4a114.rlib-34",
-      "name": "libbytemuck-554fa33dc3a4a114.rlib",
-      "downloadLocation": "NOASSERTION",
-      "filesAnalyzed": true,
-      "primaryPackagePurpose": "LIBRARY",
-      "externalRefs": [],
-      "comment": "Vendored source compiled into oxipng. 0 source files.",
-      "packageSourceInfo": "Vendored from oxipng/deps/libbytemuck-554fa33dc3a4a114.rlib/. Source compiled into static archive and linked."
-    },
-    {
-      "SPDXID": "SPDXRef-libcc-6022fe8bec44565b.rlib-35",
-      "name": "libcc-6022fe8bec44565b.rlib",
-      "downloadLocation": "NOASSERTION",
-      "filesAnalyzed": true,
-      "primaryPackagePurpose": "LIBRARY",
-      "externalRefs": [],
-      "comment": "Vendored source compiled into oxipng. 0 source files.",
-      "packageSourceInfo": "Vendored from oxipng/deps/libcc-6022fe8bec44565b.rlib/. Source compiled into static archive and linked."
-    },
-    {
-      "SPDXID": "SPDXRef-libclap-ba3cd817b4d126e9.rlib-36",
-      "name": "libclap-ba3cd817b4d126e9.rlib",
-      "downloadLocation": "NOASSERTION",
-      "filesAnalyzed": true,
-      "primaryPackagePurpose": "LIBRARY",
-      "externalRefs": [],
-      "comment": "Vendored source compiled into oxipng. 0 source files.",
-      "packageSourceInfo": "Vendored from oxipng/deps/libclap-ba3cd817b4d126e9.rlib/. Source compiled into static archive and linked."
-    },
-    {
-      "SPDXID": "SPDXRef-libclap-builder-b1a4cc9d08676f8c.rlib-37",
-      "name": "libclap_builder-b1a4cc9d08676f8c.rlib",
-      "downloadLocation": "NOASSERTION",
-      "filesAnalyzed": true,
-      "primaryPackagePurpose": "LIBRARY",
-      "externalRefs": [],
-      "comment": "Vendored source compiled into oxipng. 0 source files.",
-      "packageSourceInfo": "Vendored from oxipng/deps/libclap_builder-b1a4cc9d08676f8c.rlib/. Source compiled into static archive and linked."
-    },
-    {
-      "SPDXID": "SPDXRef-libclap-lex-da436b52c838ef3a.rlib-38",
-      "name": "libclap_lex-da436b52c838ef3a.rlib",
-      "downloadLocation": "NOASSERTION",
-      "filesAnalyzed": true,
-      "primaryPackagePurpose": "LIBRARY",
-      "externalRefs": [],
-      "comment": "Vendored source compiled into oxipng. 0 source files.",
-      "packageSourceInfo": "Vendored from oxipng/deps/libclap_lex-da436b52c838ef3a.rlib/. Source compiled into static archive and linked."
-    },
-    {
-      "SPDXID": "SPDXRef-libcolorchoice-0db96e0fc98929ef.rlib-39",
-      "name": "libcolorchoice-0db96e0fc98929ef.rlib",
-      "downloadLocation": "NOASSERTION",
-      "filesAnalyzed": true,
-      "primaryPackagePurpose": "LIBRARY",
-      "externalRefs": [],
-      "comment": "Vendored source compiled into oxipng. 0 source files.",
-      "packageSourceInfo": "Vendored from oxipng/deps/libcolorchoice-0db96e0fc98929ef.rlib/. Source compiled into static archive and linked."
-    },
-    {
-      "SPDXID": "SPDXRef-libcrossbeam-deque-981e4e7399a46153.rlib-40",
-      "name": "libcrossbeam_deque-981e4e7399a46153.rlib",
-      "downloadLocation": "NOASSERTION",
-      "filesAnalyzed": true,
-      "primaryPackagePurpose": "LIBRARY",
-      "externalRefs": [],
-      "comment": "Vendored source compiled into oxipng. 0 source files.",
-      "packageSourceInfo": "Vendored from oxipng/deps/libcrossbeam_deque-981e4e7399a46153.rlib/. Source compiled into static archive and linked."
-    },
-    {
-      "SPDXID": "SPDXRef-libcrossbeam-epoch-2345908434fb69df.rlib-41",
-      "name": "libcrossbeam_epoch-2345908434fb69df.rlib",
-      "downloadLocation": "NOASSERTION",
-      "filesAnalyzed": true,
-      "primaryPackagePurpose": "LIBRARY",
-      "externalRefs": [],
-      "comment": "Vendored source compiled into oxipng. 0 source files.",
-      "packageSourceInfo": "Vendored from oxipng/deps/libcrossbeam_epoch-2345908434fb69df.rlib/. Source compiled into static archive and linked."
-    },
-    {
-      "SPDXID": "SPDXRef-libcrossbeam-utils-6aec20481488f580.rlib-42",
-      "name": "libcrossbeam_utils-6aec20481488f580.rlib",
-      "downloadLocation": "NOASSERTION",
-      "filesAnalyzed": true,
-      "primaryPackagePurpose": "LIBRARY",
-      "externalRefs": [],
-      "comment": "Vendored source compiled into oxipng. 0 source files.",
-      "packageSourceInfo": "Vendored from oxipng/deps/libcrossbeam_utils-6aec20481488f580.rlib/. Source compiled into static archive and linked."
-    },
-    {
-      "SPDXID": "SPDXRef-libdeflate-sys-43",
+      "SPDXID": "SPDXRef-libdeflate-sys-28",
       "name": "libdeflate-sys",
       "downloadLocation": "https://crates.io/crates/libdeflate-sys",
       "filesAnalyzed": true,
@@ -621,15 +478,15 @@
         {
           "referenceCategory": "PACKAGE-MANAGER",
           "referenceType": "purl",
-          "referenceLocator": "pkg:cargo/libdeflate-sys@1.25.2"
+          "referenceLocator": "pkg:cargo/libdeflate-sys@1.25.0"
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 2 source files compiled into oxipng",
       "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
-      "versionInfo": "1.25.2"
+      "versionInfo": "1.25.0"
     },
     {
-      "SPDXID": "SPDXRef-libdeflater-44",
+      "SPDXID": "SPDXRef-libdeflater-29",
       "name": "libdeflater",
       "downloadLocation": "https://crates.io/crates/libdeflater",
       "filesAnalyzed": true,
@@ -638,305 +495,15 @@
         {
           "referenceCategory": "PACKAGE-MANAGER",
           "referenceType": "purl",
-          "referenceLocator": "pkg:cargo/libdeflater@1.25.2"
+          "referenceLocator": "pkg:cargo/libdeflater@1.25.0"
         }
       ],
       "comment": "Rust crate (direct, statically linked). 1 source files compiled into oxipng",
       "packageSourceInfo": "Downloaded from crates.io registry. Source at ~/.cargo/registry/src/.",
-      "versionInfo": "1.25.2"
+      "versionInfo": "1.25.0"
     },
     {
-      "SPDXID": "SPDXRef-libeither-293bc8bebd4fea10.rlib-45",
-      "name": "libeither-293bc8bebd4fea10.rlib",
-      "downloadLocation": "NOASSERTION",
-      "filesAnalyzed": true,
-      "primaryPackagePurpose": "LIBRARY",
-      "externalRefs": [],
-      "comment": "Vendored source compiled into oxipng. 0 source files.",
-      "packageSourceInfo": "Vendored from oxipng/deps/libeither-293bc8bebd4fea10.rlib/. Source compiled into static archive and linked."
-    },
-    {
-      "SPDXID": "SPDXRef-libenv-filter-6442a55f21f4f1e1.rlib-46",
-      "name": "libenv_filter-6442a55f21f4f1e1.rlib",
-      "downloadLocation": "NOASSERTION",
-      "filesAnalyzed": true,
-      "primaryPackagePurpose": "LIBRARY",
-      "externalRefs": [],
-      "comment": "Vendored source compiled into oxipng. 0 source files.",
-      "packageSourceInfo": "Vendored from oxipng/deps/libenv_filter-6442a55f21f4f1e1.rlib/. Source compiled into static archive and linked."
-    },
-    {
-      "SPDXID": "SPDXRef-libenv-logger-060457492833bd93.rlib-47",
-      "name": "libenv_logger-060457492833bd93.rlib",
-      "downloadLocation": "NOASSERTION",
-      "filesAnalyzed": true,
-      "primaryPackagePurpose": "LIBRARY",
-      "externalRefs": [],
-      "comment": "Vendored source compiled into oxipng. 0 source files.",
-      "packageSourceInfo": "Vendored from oxipng/deps/libenv_logger-060457492833bd93.rlib/. Source compiled into static archive and linked."
-    },
-    {
-      "SPDXID": "SPDXRef-libequivalent-de15a8ed2be8fbaa.rlib-48",
-      "name": "libequivalent-de15a8ed2be8fbaa.rlib",
-      "downloadLocation": "NOASSERTION",
-      "filesAnalyzed": true,
-      "primaryPackagePurpose": "LIBRARY",
-      "externalRefs": [],
-      "comment": "Vendored source compiled into oxipng. 0 source files.",
-      "packageSourceInfo": "Vendored from oxipng/deps/libequivalent-de15a8ed2be8fbaa.rlib/. Source compiled into static archive and linked."
-    },
-    {
-      "SPDXID": "SPDXRef-libfind-msvc-tools-c62d9445dcf587b3.rlib-49",
-      "name": "libfind_msvc_tools-c62d9445dcf587b3.rlib",
-      "downloadLocation": "NOASSERTION",
-      "filesAnalyzed": true,
-      "primaryPackagePurpose": "LIBRARY",
-      "externalRefs": [],
-      "comment": "Vendored source compiled into oxipng. 0 source files.",
-      "packageSourceInfo": "Vendored from oxipng/deps/libfind_msvc_tools-c62d9445dcf587b3.rlib/. Source compiled into static archive and linked."
-    },
-    {
-      "SPDXID": "SPDXRef-libfunty-bdb6172d22b9a442.rlib-50",
-      "name": "libfunty-bdb6172d22b9a442.rlib",
-      "downloadLocation": "NOASSERTION",
-      "filesAnalyzed": true,
-      "primaryPackagePurpose": "LIBRARY",
-      "externalRefs": [],
-      "comment": "Vendored source compiled into oxipng. 0 source files.",
-      "packageSourceInfo": "Vendored from oxipng/deps/libfunty-bdb6172d22b9a442.rlib/. Source compiled into static archive and linked."
-    },
-    {
-      "SPDXID": "SPDXRef-libhashbrown-f47a2216fbc1d1da.rlib-51",
-      "name": "libhashbrown-f47a2216fbc1d1da.rlib",
-      "downloadLocation": "NOASSERTION",
-      "filesAnalyzed": true,
-      "primaryPackagePurpose": "LIBRARY",
-      "externalRefs": [],
-      "comment": "Vendored source compiled into oxipng. 0 source files.",
-      "packageSourceInfo": "Vendored from oxipng/deps/libhashbrown-f47a2216fbc1d1da.rlib/. Source compiled into static archive and linked."
-    },
-    {
-      "SPDXID": "SPDXRef-libindexmap-e2aa6b12af0df1da.rlib-52",
-      "name": "libindexmap-e2aa6b12af0df1da.rlib",
-      "downloadLocation": "NOASSERTION",
-      "filesAnalyzed": true,
-      "primaryPackagePurpose": "LIBRARY",
-      "externalRefs": [],
-      "comment": "Vendored source compiled into oxipng. 0 source files.",
-      "packageSourceInfo": "Vendored from oxipng/deps/libindexmap-e2aa6b12af0df1da.rlib/. Source compiled into static archive and linked."
-    },
-    {
-      "SPDXID": "SPDXRef-libis-terminal-polyfill-2b547f002f59b182.rlib-53",
-      "name": "libis_terminal_polyfill-2b547f002f59b182.rlib",
-      "downloadLocation": "NOASSERTION",
-      "filesAnalyzed": true,
-      "primaryPackagePurpose": "LIBRARY",
-      "externalRefs": [],
-      "comment": "Vendored source compiled into oxipng. 0 source files.",
-      "packageSourceInfo": "Vendored from oxipng/deps/libis_terminal_polyfill-2b547f002f59b182.rlib/. Source compiled into static archive and linked."
-    },
-    {
-      "SPDXID": "SPDXRef-liblibdeflate-sys-8015b60baf6cbe73.rlib-54",
-      "name": "liblibdeflate_sys-8015b60baf6cbe73.rlib",
-      "downloadLocation": "NOASSERTION",
-      "filesAnalyzed": true,
-      "primaryPackagePurpose": "LIBRARY",
-      "externalRefs": [],
-      "comment": "Vendored source compiled into oxipng. 0 source files.",
-      "packageSourceInfo": "Vendored from oxipng/deps/liblibdeflate_sys-8015b60baf6cbe73.rlib/. Source compiled into static archive and linked."
-    },
-    {
-      "SPDXID": "SPDXRef-liblibdeflater-ee8c0839617ecdd2.rlib-55",
-      "name": "liblibdeflater-ee8c0839617ecdd2.rlib",
-      "downloadLocation": "NOASSERTION",
-      "filesAnalyzed": true,
-      "primaryPackagePurpose": "LIBRARY",
-      "externalRefs": [],
-      "comment": "Vendored source compiled into oxipng. 0 source files.",
-      "packageSourceInfo": "Vendored from oxipng/deps/liblibdeflater-ee8c0839617ecdd2.rlib/. Source compiled into static archive and linked."
-    },
-    {
-      "SPDXID": "SPDXRef-liblinux-raw-sys-f7fcb1738333da4b.rlib-56",
-      "name": "liblinux_raw_sys-f7fcb1738333da4b.rlib",
-      "downloadLocation": "NOASSERTION",
-      "filesAnalyzed": true,
-      "primaryPackagePurpose": "LIBRARY",
-      "externalRefs": [],
-      "comment": "Vendored source compiled into oxipng. 0 source files.",
-      "packageSourceInfo": "Vendored from oxipng/deps/liblinux_raw_sys-f7fcb1738333da4b.rlib/. Source compiled into static archive and linked."
-    },
-    {
-      "SPDXID": "SPDXRef-liblog-9ce69ee427be56af.rlib-57",
-      "name": "liblog-9ce69ee427be56af.rlib",
-      "downloadLocation": "NOASSERTION",
-      "filesAnalyzed": true,
-      "primaryPackagePurpose": "LIBRARY",
-      "externalRefs": [],
-      "comment": "Vendored source compiled into oxipng. 0 source files.",
-      "packageSourceInfo": "Vendored from oxipng/deps/liblog-9ce69ee427be56af.rlib/. Source compiled into static archive and linked."
-    },
-    {
-      "SPDXID": "SPDXRef-liboxipng-fdba2b3e9d33ac60.rlib-58",
-      "name": "liboxipng-fdba2b3e9d33ac60.rlib",
-      "downloadLocation": "NOASSERTION",
-      "filesAnalyzed": true,
-      "primaryPackagePurpose": "LIBRARY",
-      "externalRefs": [],
-      "comment": "Vendored source compiled into oxipng. 0 source files.",
-      "packageSourceInfo": "Vendored from oxipng/deps/liboxipng-fdba2b3e9d33ac60.rlib/. Source compiled into static archive and linked."
-    },
-    {
-      "SPDXID": "SPDXRef-libparse-size-deb3060eda4b6ee6.rlib-59",
-      "name": "libparse_size-deb3060eda4b6ee6.rlib",
-      "downloadLocation": "NOASSERTION",
-      "filesAnalyzed": true,
-      "primaryPackagePurpose": "LIBRARY",
-      "externalRefs": [],
-      "comment": "Vendored source compiled into oxipng. 0 source files.",
-      "packageSourceInfo": "Vendored from oxipng/deps/libparse_size-deb3060eda4b6ee6.rlib/. Source compiled into static archive and linked."
-    },
-    {
-      "SPDXID": "SPDXRef-libradium-48b1afdaab91e229.rlib-60",
-      "name": "libradium-48b1afdaab91e229.rlib",
-      "downloadLocation": "NOASSERTION",
-      "filesAnalyzed": true,
-      "primaryPackagePurpose": "LIBRARY",
-      "externalRefs": [],
-      "comment": "Vendored source compiled into oxipng. 0 source files.",
-      "packageSourceInfo": "Vendored from oxipng/deps/libradium-48b1afdaab91e229.rlib/. Source compiled into static archive and linked."
-    },
-    {
-      "SPDXID": "SPDXRef-librayon-bac265390ff2804d.rlib-61",
-      "name": "librayon-bac265390ff2804d.rlib",
-      "downloadLocation": "NOASSERTION",
-      "filesAnalyzed": true,
-      "primaryPackagePurpose": "LIBRARY",
-      "externalRefs": [],
-      "comment": "Vendored source compiled into oxipng. 0 source files.",
-      "packageSourceInfo": "Vendored from oxipng/deps/librayon-bac265390ff2804d.rlib/. Source compiled into static archive and linked."
-    },
-    {
-      "SPDXID": "SPDXRef-librayon-core-e84357bde9e25850.rlib-62",
-      "name": "librayon_core-e84357bde9e25850.rlib",
-      "downloadLocation": "NOASSERTION",
-      "filesAnalyzed": true,
-      "primaryPackagePurpose": "LIBRARY",
-      "externalRefs": [],
-      "comment": "Vendored source compiled into oxipng. 0 source files.",
-      "packageSourceInfo": "Vendored from oxipng/deps/librayon_core-e84357bde9e25850.rlib/. Source compiled into static archive and linked."
-    },
-    {
-      "SPDXID": "SPDXRef-librgb-eebcd6abc98a5aa6.rlib-63",
-      "name": "librgb-eebcd6abc98a5aa6.rlib",
-      "downloadLocation": "NOASSERTION",
-      "filesAnalyzed": true,
-      "primaryPackagePurpose": "LIBRARY",
-      "externalRefs": [],
-      "comment": "Vendored source compiled into oxipng. 0 source files.",
-      "packageSourceInfo": "Vendored from oxipng/deps/librgb-eebcd6abc98a5aa6.rlib/. Source compiled into static archive and linked."
-    },
-    {
-      "SPDXID": "SPDXRef-librustc-hash-d83abfe4c6f7957d.rlib-64",
-      "name": "librustc_hash-d83abfe4c6f7957d.rlib",
-      "downloadLocation": "NOASSERTION",
-      "filesAnalyzed": true,
-      "primaryPackagePurpose": "LIBRARY",
-      "externalRefs": [],
-      "comment": "Vendored source compiled into oxipng. 0 source files.",
-      "packageSourceInfo": "Vendored from oxipng/deps/librustc_hash-d83abfe4c6f7957d.rlib/. Source compiled into static archive and linked."
-    },
-    {
-      "SPDXID": "SPDXRef-librustix-14a819ab0f7085b5.rlib-65",
-      "name": "librustix-14a819ab0f7085b5.rlib",
-      "downloadLocation": "NOASSERTION",
-      "filesAnalyzed": true,
-      "primaryPackagePurpose": "LIBRARY",
-      "externalRefs": [],
-      "comment": "Vendored source compiled into oxipng. 0 source files.",
-      "packageSourceInfo": "Vendored from oxipng/deps/librustix-14a819ab0f7085b5.rlib/. Source compiled into static archive and linked."
-    },
-    {
-      "SPDXID": "SPDXRef-libshlex-83f5f3b3166a68cf.rlib-66",
-      "name": "libshlex-83f5f3b3166a68cf.rlib",
-      "downloadLocation": "NOASSERTION",
-      "filesAnalyzed": true,
-      "primaryPackagePurpose": "LIBRARY",
-      "externalRefs": [],
-      "comment": "Vendored source compiled into oxipng. 0 source files.",
-      "packageSourceInfo": "Vendored from oxipng/deps/libshlex-83f5f3b3166a68cf.rlib/. Source compiled into static archive and linked."
-    },
-    {
-      "SPDXID": "SPDXRef-libsimd-adler32-cc8fcc5583e774f1.rlib-67",
-      "name": "libsimd_adler32-cc8fcc5583e774f1.rlib",
-      "downloadLocation": "NOASSERTION",
-      "filesAnalyzed": true,
-      "primaryPackagePurpose": "LIBRARY",
-      "externalRefs": [],
-      "comment": "Vendored source compiled into oxipng. 0 source files.",
-      "packageSourceInfo": "Vendored from oxipng/deps/libsimd_adler32-cc8fcc5583e774f1.rlib/. Source compiled into static archive and linked."
-    },
-    {
-      "SPDXID": "SPDXRef-libstrsim-42bcc59cdc10da44.rlib-68",
-      "name": "libstrsim-42bcc59cdc10da44.rlib",
-      "downloadLocation": "NOASSERTION",
-      "filesAnalyzed": true,
-      "primaryPackagePurpose": "LIBRARY",
-      "externalRefs": [],
-      "comment": "Vendored source compiled into oxipng. 0 source files.",
-      "packageSourceInfo": "Vendored from oxipng/deps/libstrsim-42bcc59cdc10da44.rlib/. Source compiled into static archive and linked."
-    },
-    {
-      "SPDXID": "SPDXRef-libtap-195521f7f7a3d762.rlib-69",
-      "name": "libtap-195521f7f7a3d762.rlib",
-      "downloadLocation": "NOASSERTION",
-      "filesAnalyzed": true,
-      "primaryPackagePurpose": "LIBRARY",
-      "externalRefs": [],
-      "comment": "Vendored source compiled into oxipng. 0 source files.",
-      "packageSourceInfo": "Vendored from oxipng/deps/libtap-195521f7f7a3d762.rlib/. Source compiled into static archive and linked."
-    },
-    {
-      "SPDXID": "SPDXRef-libterminal-size-9ecd0743482c5010.rlib-70",
-      "name": "libterminal_size-9ecd0743482c5010.rlib",
-      "downloadLocation": "NOASSERTION",
-      "filesAnalyzed": true,
-      "primaryPackagePurpose": "LIBRARY",
-      "externalRefs": [],
-      "comment": "Vendored source compiled into oxipng. 0 source files.",
-      "packageSourceInfo": "Vendored from oxipng/deps/libterminal_size-9ecd0743482c5010.rlib/. Source compiled into static archive and linked."
-    },
-    {
-      "SPDXID": "SPDXRef-libutf8parse-6973cc3038d6458e.rlib-71",
-      "name": "libutf8parse-6973cc3038d6458e.rlib",
-      "downloadLocation": "NOASSERTION",
-      "filesAnalyzed": true,
-      "primaryPackagePurpose": "LIBRARY",
-      "externalRefs": [],
-      "comment": "Vendored source compiled into oxipng. 0 source files.",
-      "packageSourceInfo": "Vendored from oxipng/deps/libutf8parse-6973cc3038d6458e.rlib/. Source compiled into static archive and linked."
-    },
-    {
-      "SPDXID": "SPDXRef-libwyz-fa9d8f34112b5d93.rlib-72",
-      "name": "libwyz-fa9d8f34112b5d93.rlib",
-      "downloadLocation": "NOASSERTION",
-      "filesAnalyzed": true,
-      "primaryPackagePurpose": "LIBRARY",
-      "externalRefs": [],
-      "comment": "Vendored source compiled into oxipng. 0 source files.",
-      "packageSourceInfo": "Vendored from oxipng/deps/libwyz-fa9d8f34112b5d93.rlib/. Source compiled into static archive and linked."
-    },
-    {
-      "SPDXID": "SPDXRef-libzopfli-45a56469d617d29e.rlib-73",
-      "name": "libzopfli-45a56469d617d29e.rlib",
-      "downloadLocation": "NOASSERTION",
-      "filesAnalyzed": true,
-      "primaryPackagePurpose": "LIBRARY",
-      "externalRefs": [],
-      "comment": "Vendored source compiled into oxipng. 0 source files.",
-      "packageSourceInfo": "Vendored from oxipng/deps/libzopfli-45a56469d617d29e.rlib/. Source compiled into static archive and linked."
-    },
-    {
-      "SPDXID": "SPDXRef-linux-raw-sys-74",
+      "SPDXID": "SPDXRef-linux-raw-sys-30",
       "name": "linux-raw-sys",
       "downloadLocation": "https://crates.io/crates/linux-raw-sys",
       "filesAnalyzed": true,
@@ -953,7 +520,7 @@
       "versionInfo": "0.11.0"
     },
     {
-      "SPDXID": "SPDXRef-log-75",
+      "SPDXID": "SPDXRef-log-31",
       "name": "log",
       "downloadLocation": "https://crates.io/crates/log",
       "filesAnalyzed": true,
@@ -970,17 +537,7 @@
       "versionInfo": "0.4.29"
     },
     {
-      "SPDXID": "SPDXRef-oxipng-0e7d4c98f7c577c1-76",
-      "name": "oxipng-0e7d4c98f7c577c1",
-      "downloadLocation": "NOASSERTION",
-      "filesAnalyzed": true,
-      "primaryPackagePurpose": "LIBRARY",
-      "externalRefs": [],
-      "comment": "Vendored source compiled into oxipng. 0 source files.",
-      "packageSourceInfo": "Vendored from oxipng/deps/oxipng-0e7d4c98f7c577c1/. Source compiled into static archive and linked."
-    },
-    {
-      "SPDXID": "SPDXRef-parse-size-77",
+      "SPDXID": "SPDXRef-parse-size-32",
       "name": "parse-size",
       "downloadLocation": "https://crates.io/crates/parse-size",
       "filesAnalyzed": true,
@@ -997,7 +554,7 @@
       "versionInfo": "1.1.0"
     },
     {
-      "SPDXID": "SPDXRef-radium-78",
+      "SPDXID": "SPDXRef-radium-33",
       "name": "radium",
       "downloadLocation": "https://crates.io/crates/radium",
       "filesAnalyzed": true,
@@ -1014,7 +571,7 @@
       "versionInfo": "0.7.0"
     },
     {
-      "SPDXID": "SPDXRef-rayon-79",
+      "SPDXID": "SPDXRef-rayon-34",
       "name": "rayon",
       "downloadLocation": "https://crates.io/crates/rayon",
       "filesAnalyzed": true,
@@ -1031,7 +588,7 @@
       "versionInfo": "1.11.0"
     },
     {
-      "SPDXID": "SPDXRef-rayon-core-80",
+      "SPDXID": "SPDXRef-rayon-core-35",
       "name": "rayon-core",
       "downloadLocation": "https://crates.io/crates/rayon-core",
       "filesAnalyzed": true,
@@ -1048,7 +605,7 @@
       "versionInfo": "1.13.0"
     },
     {
-      "SPDXID": "SPDXRef-rgb-81",
+      "SPDXID": "SPDXRef-rgb-36",
       "name": "rgb",
       "downloadLocation": "https://crates.io/crates/rgb",
       "filesAnalyzed": true,
@@ -1057,15 +614,15 @@
         {
           "referenceCategory": "PACKAGE-MANAGER",
           "referenceType": "purl",
-          "referenceLocator": "pkg:cargo/rgb@0.8.53"
+          "referenceLocator": "pkg:cargo/rgb@0.8.52"
         }
       ],
       "comment": "Rust crate (direct, statically linked). 1 source files compiled into oxipng",
       "packageSourceInfo": "Downloaded from crates.io registry. Source at ~/.cargo/registry/src/.",
-      "versionInfo": "0.8.53"
+      "versionInfo": "0.8.52"
     },
     {
-      "SPDXID": "SPDXRef-rustc-hash-82",
+      "SPDXID": "SPDXRef-rustc-hash-37",
       "name": "rustc-hash",
       "downloadLocation": "https://crates.io/crates/rustc-hash",
       "filesAnalyzed": true,
@@ -1082,7 +639,7 @@
       "versionInfo": "2.1.1"
     },
     {
-      "SPDXID": "SPDXRef-rustix-83",
+      "SPDXID": "SPDXRef-rustix-38",
       "name": "rustix",
       "downloadLocation": "https://crates.io/crates/rustix",
       "filesAnalyzed": true,
@@ -1099,7 +656,7 @@
       "versionInfo": "1.1.2"
     },
     {
-      "SPDXID": "SPDXRef-shlex-84",
+      "SPDXID": "SPDXRef-shlex-39",
       "name": "shlex",
       "downloadLocation": "https://crates.io/crates/shlex",
       "filesAnalyzed": true,
@@ -1116,7 +673,7 @@
       "versionInfo": "1.3.0"
     },
     {
-      "SPDXID": "SPDXRef-simd-adler32-85",
+      "SPDXID": "SPDXRef-simd-adler32-40",
       "name": "simd-adler32",
       "downloadLocation": "https://crates.io/crates/simd-adler32",
       "filesAnalyzed": true,
@@ -1133,7 +690,7 @@
       "versionInfo": "0.3.7"
     },
     {
-      "SPDXID": "SPDXRef-strsim-86",
+      "SPDXID": "SPDXRef-strsim-41",
       "name": "strsim",
       "downloadLocation": "https://crates.io/crates/strsim",
       "filesAnalyzed": true,
@@ -1150,7 +707,7 @@
       "versionInfo": "0.11.1"
     },
     {
-      "SPDXID": "SPDXRef-tap-87",
+      "SPDXID": "SPDXRef-tap-42",
       "name": "tap",
       "downloadLocation": "https://crates.io/crates/tap",
       "filesAnalyzed": true,
@@ -1167,7 +724,7 @@
       "versionInfo": "1.0.1"
     },
     {
-      "SPDXID": "SPDXRef-terminal-size-88",
+      "SPDXID": "SPDXRef-terminal-size-43",
       "name": "terminal_size",
       "downloadLocation": "https://crates.io/crates/terminal_size",
       "filesAnalyzed": true,
@@ -1184,7 +741,7 @@
       "versionInfo": "0.4.3"
     },
     {
-      "SPDXID": "SPDXRef-utf8parse-89",
+      "SPDXID": "SPDXRef-utf8parse-44",
       "name": "utf8parse",
       "downloadLocation": "https://crates.io/crates/utf8parse",
       "filesAnalyzed": true,
@@ -1201,7 +758,7 @@
       "versionInfo": "0.2.2"
     },
     {
-      "SPDXID": "SPDXRef-wyz-90",
+      "SPDXID": "SPDXRef-wyz-45",
       "name": "wyz",
       "downloadLocation": "https://crates.io/crates/wyz",
       "filesAnalyzed": true,
@@ -1218,7 +775,7 @@
       "versionInfo": "0.5.1"
     },
     {
-      "SPDXID": "SPDXRef-zopfli-91",
+      "SPDXID": "SPDXRef-zopfli-46",
       "name": "zopfli",
       "downloadLocation": "https://crates.io/crates/zopfli",
       "filesAnalyzed": true,
@@ -1237,7 +794,7 @@
   ],
   "files": [
     {
-      "SPDXID": "SPDXRef-File-main.rs-92",
+      "SPDXID": "SPDXRef-File-main.rs-47",
       "fileName": "repos/oxipng/src/main.rs",
       "checksums": [
         {
@@ -1247,7 +804,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-lib.rs-93",
+      "SPDXID": "SPDXRef-File-lib.rs-48",
       "fileName": "repos/oxipng/src/lib.rs",
       "checksums": [
         {
@@ -1257,7 +814,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-lib.rs-94",
+      "SPDXID": "SPDXRef-File-lib.rs-49",
       "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/radium-0.7.0/src/lib.rs",
       "checksums": [
         {
@@ -1267,7 +824,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-build.rs-95",
+      "SPDXID": "SPDXRef-File-build.rs-50",
       "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/radium-0.7.0/build.rs",
       "checksums": [
         {
@@ -1277,7 +834,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-lib.rs-96",
+      "SPDXID": "SPDXRef-File-lib.rs-51",
       "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rustc-hash-2.1.1/src/lib.rs",
       "checksums": [
         {
@@ -1287,7 +844,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-lib.rs-97",
+      "SPDXID": "SPDXRef-File-lib.rs-52",
       "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/utf8parse-0.2.2/src/lib.rs",
       "checksums": [
         {
@@ -1297,7 +854,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-lib.rs-98",
+      "SPDXID": "SPDXRef-File-lib.rs-53",
       "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/equivalent-1.0.2/src/lib.rs",
       "checksums": [
         {
@@ -1307,7 +864,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-lib.rs-99",
+      "SPDXID": "SPDXRef-File-lib.rs-54",
       "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/log-0.4.29/src/lib.rs",
       "checksums": [
         {
@@ -1317,17 +874,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-lib.rs-100",
-      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/env_filter-1.0.0/src/lib.rs",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "0b350882a7b9b47bf523a1911c5c9a05f81d8691"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-lib.rs-101",
+      "SPDXID": "SPDXRef-File-lib.rs-55",
       "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/crossbeam-deque-0.8.6/src/lib.rs",
       "checksums": [
         {
@@ -1337,8 +884,8 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-zlib-compress.c-102",
-      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libdeflate-sys-1.25.2/libdeflate/lib/zlib_compress.c",
+      "SPDXID": "SPDXRef-File-zlib-compress.c-56",
+      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libdeflate-sys-1.25.0/libdeflate/lib/zlib_compress.c",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1347,8 +894,8 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-adler32-template.h-103",
-      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libdeflate-sys-1.25.2/libdeflate/lib/x86/adler32_template.h",
+      "SPDXID": "SPDXRef-File-adler32-template.h-57",
+      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libdeflate-sys-1.25.0/libdeflate/lib/x86/adler32_template.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1357,8 +904,8 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-gzip-constants.h-104",
-      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libdeflate-sys-1.25.2/libdeflate/lib/gzip_constants.h",
+      "SPDXID": "SPDXRef-File-gzip-constants.h-58",
+      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libdeflate-sys-1.25.0/libdeflate/lib/gzip_constants.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1367,8 +914,8 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-matchfinder-impl.h-105",
-      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libdeflate-sys-1.25.2/libdeflate/lib/x86/matchfinder_impl.h",
+      "SPDXID": "SPDXRef-File-matchfinder-impl.h-59",
+      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libdeflate-sys-1.25.0/libdeflate/lib/x86/matchfinder_impl.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1377,8 +924,8 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-cpu-features.c-106",
-      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libdeflate-sys-1.25.2/libdeflate/lib/arm/cpu_features.c",
+      "SPDXID": "SPDXRef-File-cpu-features.c-60",
+      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libdeflate-sys-1.25.0/libdeflate/lib/arm/cpu_features.c",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1387,8 +934,8 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-deflate-compress.c-107",
-      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libdeflate-sys-1.25.2/libdeflate/lib/deflate_compress.c",
+      "SPDXID": "SPDXRef-File-deflate-compress.c-61",
+      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libdeflate-sys-1.25.0/libdeflate/lib/deflate_compress.c",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1397,8 +944,8 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-crc32-impl.h-108",
-      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libdeflate-sys-1.25.2/libdeflate/lib/x86/crc32_impl.h",
+      "SPDXID": "SPDXRef-File-crc32-impl.h-62",
+      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libdeflate-sys-1.25.0/libdeflate/lib/x86/crc32_impl.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1407,8 +954,8 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-utils.c-109",
-      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libdeflate-sys-1.25.2/libdeflate/lib/utils.c",
+      "SPDXID": "SPDXRef-File-utils.c-63",
+      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libdeflate-sys-1.25.0/libdeflate/lib/utils.c",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1417,8 +964,8 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-deflate-decompress.c-110",
-      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libdeflate-sys-1.25.2/libdeflate/lib/deflate_decompress.c",
+      "SPDXID": "SPDXRef-File-deflate-decompress.c-64",
+      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libdeflate-sys-1.25.0/libdeflate/lib/deflate_decompress.c",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1427,8 +974,8 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-ht-matchfinder.h-111",
-      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libdeflate-sys-1.25.2/libdeflate/lib/ht_matchfinder.h",
+      "SPDXID": "SPDXRef-File-ht-matchfinder.h-65",
+      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libdeflate-sys-1.25.0/libdeflate/lib/ht_matchfinder.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1437,8 +984,8 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-adler32-impl.h-112",
-      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libdeflate-sys-1.25.2/libdeflate/lib/x86/adler32_impl.h",
+      "SPDXID": "SPDXRef-File-adler32-impl.h-66",
+      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libdeflate-sys-1.25.0/libdeflate/lib/x86/adler32_impl.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1447,8 +994,8 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-gzip-decompress.c-113",
-      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libdeflate-sys-1.25.2/libdeflate/lib/gzip_decompress.c",
+      "SPDXID": "SPDXRef-File-gzip-decompress.c-67",
+      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libdeflate-sys-1.25.0/libdeflate/lib/gzip_decompress.c",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1457,8 +1004,8 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-crc32-pclmul-template.h-114",
-      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libdeflate-sys-1.25.2/libdeflate/lib/x86/crc32_pclmul_template.h",
+      "SPDXID": "SPDXRef-File-crc32-pclmul-template.h-68",
+      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libdeflate-sys-1.25.0/libdeflate/lib/x86/crc32_pclmul_template.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1467,8 +1014,8 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-decompress-template.h-115",
-      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libdeflate-sys-1.25.2/libdeflate/lib/decompress_template.h",
+      "SPDXID": "SPDXRef-File-decompress-template.h-69",
+      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libdeflate-sys-1.25.0/libdeflate/lib/decompress_template.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1477,8 +1024,8 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-deflate-compress.h-116",
-      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libdeflate-sys-1.25.2/libdeflate/lib/deflate_compress.h",
+      "SPDXID": "SPDXRef-File-deflate-compress.h-70",
+      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libdeflate-sys-1.25.0/libdeflate/lib/deflate_compress.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1487,8 +1034,8 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-deflate-constants.h-117",
-      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libdeflate-sys-1.25.2/libdeflate/lib/deflate_constants.h",
+      "SPDXID": "SPDXRef-File-deflate-constants.h-71",
+      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libdeflate-sys-1.25.0/libdeflate/lib/deflate_constants.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1497,8 +1044,8 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-matchfinder-common.h-118",
-      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libdeflate-sys-1.25.2/libdeflate/lib/matchfinder_common.h",
+      "SPDXID": "SPDXRef-File-matchfinder-common.h-72",
+      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libdeflate-sys-1.25.0/libdeflate/lib/matchfinder_common.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1507,8 +1054,8 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-crc32-multipliers.h-119",
-      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libdeflate-sys-1.25.2/libdeflate/lib/crc32_multipliers.h",
+      "SPDXID": "SPDXRef-File-crc32-multipliers.h-73",
+      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libdeflate-sys-1.25.0/libdeflate/lib/crc32_multipliers.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1517,8 +1064,8 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-common-defs.h-120",
-      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libdeflate-sys-1.25.2/libdeflate/common_defs.h",
+      "SPDXID": "SPDXRef-File-common-defs.h-74",
+      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libdeflate-sys-1.25.0/libdeflate/common_defs.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1527,8 +1074,8 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-hc-matchfinder.h-121",
-      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libdeflate-sys-1.25.2/libdeflate/lib/hc_matchfinder.h",
+      "SPDXID": "SPDXRef-File-hc-matchfinder.h-75",
+      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libdeflate-sys-1.25.0/libdeflate/lib/hc_matchfinder.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1537,8 +1084,8 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-crc32.c-122",
-      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libdeflate-sys-1.25.2/libdeflate/lib/crc32.c",
+      "SPDXID": "SPDXRef-File-crc32.c-76",
+      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libdeflate-sys-1.25.0/libdeflate/lib/crc32.c",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1547,8 +1094,8 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-cpu-features.c-123",
-      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libdeflate-sys-1.25.2/libdeflate/lib/x86/cpu_features.c",
+      "SPDXID": "SPDXRef-File-cpu-features.c-77",
+      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libdeflate-sys-1.25.0/libdeflate/lib/x86/cpu_features.c",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1557,8 +1104,8 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-build.rs-124",
-      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libdeflate-sys-1.25.2/build.rs",
+      "SPDXID": "SPDXRef-File-build.rs-78",
+      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libdeflate-sys-1.25.0/build.rs",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1567,8 +1114,8 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-bt-matchfinder.h-125",
-      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libdeflate-sys-1.25.2/libdeflate/lib/bt_matchfinder.h",
+      "SPDXID": "SPDXRef-File-bt-matchfinder.h-79",
+      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libdeflate-sys-1.25.0/libdeflate/lib/bt_matchfinder.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1577,8 +1124,8 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-gzip-compress.c-126",
-      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libdeflate-sys-1.25.2/libdeflate/lib/gzip_compress.c",
+      "SPDXID": "SPDXRef-File-gzip-compress.c-80",
+      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libdeflate-sys-1.25.0/libdeflate/lib/gzip_compress.c",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1587,8 +1134,8 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-lib.rs-127",
-      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libdeflate-sys-1.25.2/src/lib.rs",
+      "SPDXID": "SPDXRef-File-lib.rs-81",
+      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libdeflate-sys-1.25.0/src/lib.rs",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1597,8 +1144,8 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-cpu-features.h-128",
-      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libdeflate-sys-1.25.2/libdeflate/lib/x86/cpu_features.h",
+      "SPDXID": "SPDXRef-File-cpu-features.h-82",
+      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libdeflate-sys-1.25.0/libdeflate/lib/x86/cpu_features.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1607,8 +1154,8 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-cpu-features-common.h-129",
-      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libdeflate-sys-1.25.2/libdeflate/lib/cpu_features_common.h",
+      "SPDXID": "SPDXRef-File-cpu-features-common.h-83",
+      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libdeflate-sys-1.25.0/libdeflate/lib/cpu_features_common.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1617,8 +1164,8 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-adler32.c-130",
-      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libdeflate-sys-1.25.2/libdeflate/lib/adler32.c",
+      "SPDXID": "SPDXRef-File-adler32.c-84",
+      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libdeflate-sys-1.25.0/libdeflate/lib/adler32.c",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1627,8 +1174,8 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-crc32-tables.h-131",
-      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libdeflate-sys-1.25.2/libdeflate/lib/crc32_tables.h",
+      "SPDXID": "SPDXRef-File-crc32-tables.h-85",
+      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libdeflate-sys-1.25.0/libdeflate/lib/crc32_tables.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1637,8 +1184,8 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-libdeflate.h-132",
-      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libdeflate-sys-1.25.2/libdeflate/libdeflate.h",
+      "SPDXID": "SPDXRef-File-libdeflate.h-86",
+      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libdeflate-sys-1.25.0/libdeflate/libdeflate.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1647,8 +1194,8 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-decompress-impl.h-133",
-      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libdeflate-sys-1.25.2/libdeflate/lib/x86/decompress_impl.h",
+      "SPDXID": "SPDXRef-File-decompress-impl.h-87",
+      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libdeflate-sys-1.25.0/libdeflate/lib/x86/decompress_impl.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1657,8 +1204,8 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-cpu-features.h-134",
-      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libdeflate-sys-1.25.2/libdeflate/lib/arm/cpu_features.h",
+      "SPDXID": "SPDXRef-File-cpu-features.h-88",
+      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libdeflate-sys-1.25.0/libdeflate/lib/arm/cpu_features.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1667,8 +1214,8 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-zlib-constants.h-135",
-      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libdeflate-sys-1.25.2/libdeflate/lib/zlib_constants.h",
+      "SPDXID": "SPDXRef-File-zlib-constants.h-89",
+      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libdeflate-sys-1.25.0/libdeflate/lib/zlib_constants.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1677,8 +1224,8 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-zlib-decompress.c-136",
-      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libdeflate-sys-1.25.2/libdeflate/lib/zlib_decompress.c",
+      "SPDXID": "SPDXRef-File-zlib-decompress.c-90",
+      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libdeflate-sys-1.25.0/libdeflate/lib/zlib_decompress.c",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1687,8 +1234,8 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-lib-common.h-137",
-      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libdeflate-sys-1.25.2/libdeflate/lib/lib_common.h",
+      "SPDXID": "SPDXRef-File-lib-common.h-91",
+      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libdeflate-sys-1.25.0/libdeflate/lib/lib_common.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1697,17 +1244,17 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-lib.rs-138",
-      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rgb-0.8.53/src/lib.rs",
+      "SPDXID": "SPDXRef-File-lib.rs-92",
+      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/clap-4.5.54/src/lib.rs",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "139ace5698e594e1b14b0ebed28c7a5a5ca89629"
+          "checksumValue": "142b6759152f0f8d0d45d53c89ebda6a6a363f34"
         }
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-build.rs-139",
+      "SPDXID": "SPDXRef-File-build.rs-93",
       "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rustix-1.1.2/build.rs",
       "checksums": [
         {
@@ -1717,7 +1264,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-lib.rs-140",
+      "SPDXID": "SPDXRef-File-lib.rs-94",
       "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rustix-1.1.2/src/lib.rs",
       "checksums": [
         {
@@ -1727,7 +1274,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-lib.rs-141",
+      "SPDXID": "SPDXRef-File-lib.rs-95",
       "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/linux-raw-sys-0.11.0/src/lib.rs",
       "checksums": [
         {
@@ -1737,7 +1284,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-lib.rs-142",
+      "SPDXID": "SPDXRef-File-lib.rs-96",
       "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/bitflags-2.9.4/src/lib.rs",
       "checksums": [
         {
@@ -1747,17 +1294,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-lib.rs-143",
-      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/clap-4.5.60/src/lib.rs",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "1db8efd0e341e6a6f13dad67d350faeb4b32ad25"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-lib.rs-144",
+      "SPDXID": "SPDXRef-File-lib.rs-97",
       "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/anstyle-parse-0.2.7/src/lib.rs",
       "checksums": [
         {
@@ -1767,7 +1304,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-lib.rs-145",
+      "SPDXID": "SPDXRef-File-lib.rs-98",
       "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rayon-core-1.13.0/src/lib.rs",
       "checksums": [
         {
@@ -1777,7 +1314,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-build.rs-146",
+      "SPDXID": "SPDXRef-File-build.rs-99",
       "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rayon-core-1.13.0/build.rs",
       "checksums": [
         {
@@ -1787,7 +1324,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-lib.rs-147",
+      "SPDXID": "SPDXRef-File-lib.rs-100",
       "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/bitvec-1.0.1/src/lib.rs",
       "checksums": [
         {
@@ -1797,7 +1334,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-lib.rs-148",
+      "SPDXID": "SPDXRef-File-lib.rs-101",
       "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rayon-1.11.0/src/lib.rs",
       "checksums": [
         {
@@ -1807,17 +1344,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-lib.rs-149",
-      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libdeflater-1.25.2/src/lib.rs",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "5601ad31f360d2560528c2bd451d062a1cab44fe"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-lib.rs-150",
+      "SPDXID": "SPDXRef-File-lib.rs-102",
       "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/zopfli-0.8.3/src/lib.rs",
       "checksums": [
         {
@@ -1827,7 +1354,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-lib.rs-151",
+      "SPDXID": "SPDXRef-File-lib.rs-103",
       "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/bytemuck-1.23.2/src/lib.rs",
       "checksums": [
         {
@@ -1837,7 +1364,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-lib.rs-152",
+      "SPDXID": "SPDXRef-File-lib.rs-104",
       "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/strsim-0.11.1/src/lib.rs",
       "checksums": [
         {
@@ -1847,17 +1374,17 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-lib.rs-153",
-      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/clap_lex-1.0.0/src/lib.rs",
+      "SPDXID": "SPDXRef-File-lib.rs-105",
+      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/clap_lex-0.7.5/src/lib.rs",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "6ba028a6d7a665114059de6e71bbfa9b594940d6"
+          "checksumValue": "6b7621f51e47c1fc35ddba79573029f408ba9c4c"
         }
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-lib.rs-154",
+      "SPDXID": "SPDXRef-File-lib.rs-106",
       "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/indexmap-2.13.0/src/lib.rs",
       "checksums": [
         {
@@ -1867,7 +1394,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-lib.rs-155",
+      "SPDXID": "SPDXRef-File-lib.rs-107",
       "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/crossbeam-utils-0.8.21/src/lib.rs",
       "checksums": [
         {
@@ -1877,7 +1404,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-build.rs-156",
+      "SPDXID": "SPDXRef-File-build.rs-108",
       "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/crossbeam-utils-0.8.21/build.rs",
       "checksums": [
         {
@@ -1887,17 +1414,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-lib.rs-157",
-      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/env_logger-0.11.9/src/lib.rs",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "7770bf1c4a3f02ccab0564c267d783acd381227d"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-lib.rs-158",
+      "SPDXID": "SPDXRef-File-lib.rs-109",
       "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/cc-1.2.38/src/lib.rs",
       "checksums": [
         {
@@ -1907,7 +1424,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-lib.rs-159",
+      "SPDXID": "SPDXRef-File-lib.rs-110",
       "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/anstream-0.6.20/src/lib.rs",
       "checksums": [
         {
@@ -1917,7 +1434,17 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-lib.rs-160",
+      "SPDXID": "SPDXRef-File-lib.rs-111",
+      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/crossbeam-channel-0.5.15/src/lib.rs",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "93e190b2eb62e41a46fb6ab31629f82cd95ba236"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-lib.rs-112",
       "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/terminal_size-0.4.3/src/lib.rs",
       "checksums": [
         {
@@ -1927,8 +1454,8 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-lib.rs-161",
-      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/clap_builder-4.5.60/src/lib.rs",
+      "SPDXID": "SPDXRef-File-lib.rs-113",
+      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/clap_builder-4.5.54/src/lib.rs",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1937,7 +1464,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-lib.rs-162",
+      "SPDXID": "SPDXRef-File-lib.rs-114",
       "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/anstyle-1.0.11/src/lib.rs",
       "checksums": [
         {
@@ -1947,7 +1474,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-lib.rs-163",
+      "SPDXID": "SPDXRef-File-lib.rs-115",
       "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/shlex-1.3.0/src/lib.rs",
       "checksums": [
         {
@@ -1957,7 +1484,17 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-lib.rs-164",
+      "SPDXID": "SPDXRef-File-lib.rs-116",
+      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libdeflater-1.25.0/src/lib.rs",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "aec1dfa52ab1cdf56c20cc59564e972df96645f4"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-lib.rs-117",
       "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/colorchoice-1.0.4/src/lib.rs",
       "checksums": [
         {
@@ -1967,7 +1504,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-lib.rs-165",
+      "SPDXID": "SPDXRef-File-lib.rs-118",
       "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/hashbrown-0.16.1/src/lib.rs",
       "checksums": [
         {
@@ -1977,7 +1514,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-lib.rs-166",
+      "SPDXID": "SPDXRef-File-lib.rs-119",
       "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/anstyle-query-1.1.4/src/lib.rs",
       "checksums": [
         {
@@ -1987,7 +1524,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-lib.rs-167",
+      "SPDXID": "SPDXRef-File-lib.rs-120",
       "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/parse-size-1.1.0/src/lib.rs",
       "checksums": [
         {
@@ -1997,7 +1534,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-lib.rs-168",
+      "SPDXID": "SPDXRef-File-lib.rs-121",
       "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/funty-2.0.0/src/lib.rs",
       "checksums": [
         {
@@ -2007,7 +1544,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-lib.rs-169",
+      "SPDXID": "SPDXRef-File-lib.rs-122",
       "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/is_terminal_polyfill-1.70.1/src/lib.rs",
       "checksums": [
         {
@@ -2017,7 +1554,17 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-lib.rs-170",
+      "SPDXID": "SPDXRef-File-lib.rs-123",
+      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/env_logger-0.11.8/src/lib.rs",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "e0afd1c2e397d9855b979f0e514e92965e532460"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-lib.rs-124",
       "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/either-1.15.0/src/lib.rs",
       "checksums": [
         {
@@ -2027,7 +1574,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-lib.rs-171",
+      "SPDXID": "SPDXRef-File-lib.rs-125",
       "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/simd-adler32-0.3.7/src/lib.rs",
       "checksums": [
         {
@@ -2037,7 +1584,17 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-lib.rs-172",
+      "SPDXID": "SPDXRef-File-lib.rs-126",
+      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rgb-0.8.52/src/lib.rs",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "e677762e26673cf93cebe04f9bedfa432577c03f"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-lib.rs-127",
       "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tap-1.0.1/src/lib.rs",
       "checksums": [
         {
@@ -2047,7 +1604,17 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-lib.rs-173",
+      "SPDXID": "SPDXRef-File-lib.rs-128",
+      "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/env_filter-0.1.3/src/lib.rs",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "e9f42d1fabe245234ecc3e6ce2bc9491eef56a4a"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-lib.rs-129",
       "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/bumpalo-3.19.0/src/lib.rs",
       "checksums": [
         {
@@ -2057,7 +1624,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-lib.rs-174",
+      "SPDXID": "SPDXRef-File-lib.rs-130",
       "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wyz-0.5.1/src/lib.rs",
       "checksums": [
         {
@@ -2067,7 +1634,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-lib.rs-175",
+      "SPDXID": "SPDXRef-File-lib.rs-131",
       "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/find-msvc-tools-0.1.2/src/lib.rs",
       "checksums": [
         {
@@ -2077,7 +1644,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-lib.rs-176",
+      "SPDXID": "SPDXRef-File-lib.rs-132",
       "fileName": ".cargo/registry/src/index.crates.io-1949cf8c6b5b557f/crossbeam-epoch-0.9.18/src/lib.rs",
       "checksums": [
         {
@@ -2095,27 +1662,27 @@
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
-      "relationshipType": "DEPENDS_ON",
+      "relationshipType": "STATIC_LINK",
       "relatedSpdxElement": "SPDXRef-anstream-2"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
-      "relationshipType": "DEPENDS_ON",
+      "relationshipType": "STATIC_LINK",
       "relatedSpdxElement": "SPDXRef-anstyle-3"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
-      "relationshipType": "DEPENDS_ON",
+      "relationshipType": "STATIC_LINK",
       "relatedSpdxElement": "SPDXRef-anstyle-parse-4"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
-      "relationshipType": "DEPENDS_ON",
+      "relationshipType": "STATIC_LINK",
       "relatedSpdxElement": "SPDXRef-anstyle-query-5"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
-      "relationshipType": "DEPENDS_ON",
+      "relationshipType": "STATIC_LINK",
       "relatedSpdxElement": "SPDXRef-bitflags-6"
     },
     {
@@ -2125,17 +1692,17 @@
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
-      "relationshipType": "DEPENDS_ON",
+      "relationshipType": "STATIC_LINK",
       "relatedSpdxElement": "SPDXRef-bumpalo-8"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
-      "relationshipType": "DEPENDS_ON",
+      "relationshipType": "STATIC_LINK",
       "relatedSpdxElement": "SPDXRef-bytemuck-9"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
-      "relationshipType": "DEPENDS_ON",
+      "relationshipType": "STATIC_LINK",
       "relatedSpdxElement": "SPDXRef-cc-10"
     },
     {
@@ -2145,828 +1712,608 @@
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
-      "relationshipType": "DEPENDS_ON",
+      "relationshipType": "STATIC_LINK",
       "relatedSpdxElement": "SPDXRef-clap-builder-12"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
-      "relationshipType": "DEPENDS_ON",
+      "relationshipType": "STATIC_LINK",
       "relatedSpdxElement": "SPDXRef-clap-lex-13"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
-      "relationshipType": "DEPENDS_ON",
+      "relationshipType": "STATIC_LINK",
       "relatedSpdxElement": "SPDXRef-colorchoice-14"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
-      "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-crossbeam-deque-15"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-root",
-      "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-crossbeam-epoch-16"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-root",
-      "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-crossbeam-utils-17"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-root",
-      "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-either-18"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-root",
-      "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-env-filter-19"
+      "relationshipType": "STATIC_LINK",
+      "relatedSpdxElement": "SPDXRef-crossbeam-channel-15"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "STATIC_LINK",
-      "relatedSpdxElement": "SPDXRef-env-logger-20"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-root",
-      "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-equivalent-21"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-root",
-      "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-find-msvc-tools-22"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-root",
-      "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-funty-23"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-root",
-      "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-hashbrown-24"
+      "relatedSpdxElement": "SPDXRef-crossbeam-deque-16"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "STATIC_LINK",
-      "relatedSpdxElement": "SPDXRef-indexmap-25"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-root",
-      "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-is-terminal-polyfill-26"
+      "relatedSpdxElement": "SPDXRef-crossbeam-epoch-17"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "STATIC_LINK",
-      "relatedSpdxElement": "SPDXRef-libanstream-af8c0c8b7745f81c.rlib-27"
+      "relatedSpdxElement": "SPDXRef-crossbeam-utils-18"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "STATIC_LINK",
-      "relatedSpdxElement": "SPDXRef-libanstyle-a0a0ad7ff8b9c5a1.rlib-28"
+      "relatedSpdxElement": "SPDXRef-either-19"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "STATIC_LINK",
-      "relatedSpdxElement": "SPDXRef-libanstyle-parse-7aaeee641d2da150.rlib-29"
+      "relatedSpdxElement": "SPDXRef-env-filter-20"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "STATIC_LINK",
-      "relatedSpdxElement": "SPDXRef-libanstyle-query-24c9d1b4892ed6c3.rlib-30"
+      "relatedSpdxElement": "SPDXRef-env-logger-21"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "STATIC_LINK",
-      "relatedSpdxElement": "SPDXRef-libbitflags-1280f28be8e10639.rlib-31"
+      "relatedSpdxElement": "SPDXRef-equivalent-22"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "STATIC_LINK",
-      "relatedSpdxElement": "SPDXRef-libbitvec-e8365d6a02442b17.rlib-32"
+      "relatedSpdxElement": "SPDXRef-find-msvc-tools-23"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "STATIC_LINK",
-      "relatedSpdxElement": "SPDXRef-libbumpalo-b931f9f29ef28c54.rlib-33"
+      "relatedSpdxElement": "SPDXRef-funty-24"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "STATIC_LINK",
-      "relatedSpdxElement": "SPDXRef-libbytemuck-554fa33dc3a4a114.rlib-34"
+      "relatedSpdxElement": "SPDXRef-hashbrown-25"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "STATIC_LINK",
-      "relatedSpdxElement": "SPDXRef-libcc-6022fe8bec44565b.rlib-35"
+      "relatedSpdxElement": "SPDXRef-indexmap-26"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "STATIC_LINK",
-      "relatedSpdxElement": "SPDXRef-libclap-ba3cd817b4d126e9.rlib-36"
+      "relatedSpdxElement": "SPDXRef-is-terminal-polyfill-27"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "STATIC_LINK",
-      "relatedSpdxElement": "SPDXRef-libclap-builder-b1a4cc9d08676f8c.rlib-37"
+      "relatedSpdxElement": "SPDXRef-libdeflate-sys-28"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "STATIC_LINK",
-      "relatedSpdxElement": "SPDXRef-libclap-lex-da436b52c838ef3a.rlib-38"
+      "relatedSpdxElement": "SPDXRef-libdeflater-29"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "STATIC_LINK",
-      "relatedSpdxElement": "SPDXRef-libcolorchoice-0db96e0fc98929ef.rlib-39"
+      "relatedSpdxElement": "SPDXRef-linux-raw-sys-30"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "STATIC_LINK",
-      "relatedSpdxElement": "SPDXRef-libcrossbeam-deque-981e4e7399a46153.rlib-40"
+      "relatedSpdxElement": "SPDXRef-log-31"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "STATIC_LINK",
-      "relatedSpdxElement": "SPDXRef-libcrossbeam-epoch-2345908434fb69df.rlib-41"
+      "relatedSpdxElement": "SPDXRef-parse-size-32"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "STATIC_LINK",
-      "relatedSpdxElement": "SPDXRef-libcrossbeam-utils-6aec20481488f580.rlib-42"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-root",
-      "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-libdeflate-sys-43"
+      "relatedSpdxElement": "SPDXRef-radium-33"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "STATIC_LINK",
-      "relatedSpdxElement": "SPDXRef-libdeflater-44"
+      "relatedSpdxElement": "SPDXRef-rayon-34"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "STATIC_LINK",
-      "relatedSpdxElement": "SPDXRef-libeither-293bc8bebd4fea10.rlib-45"
+      "relatedSpdxElement": "SPDXRef-rayon-core-35"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "STATIC_LINK",
-      "relatedSpdxElement": "SPDXRef-libenv-filter-6442a55f21f4f1e1.rlib-46"
+      "relatedSpdxElement": "SPDXRef-rgb-36"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "STATIC_LINK",
-      "relatedSpdxElement": "SPDXRef-libenv-logger-060457492833bd93.rlib-47"
+      "relatedSpdxElement": "SPDXRef-rustc-hash-37"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "STATIC_LINK",
-      "relatedSpdxElement": "SPDXRef-libequivalent-de15a8ed2be8fbaa.rlib-48"
+      "relatedSpdxElement": "SPDXRef-rustix-38"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "STATIC_LINK",
-      "relatedSpdxElement": "SPDXRef-libfind-msvc-tools-c62d9445dcf587b3.rlib-49"
+      "relatedSpdxElement": "SPDXRef-shlex-39"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "STATIC_LINK",
-      "relatedSpdxElement": "SPDXRef-libfunty-bdb6172d22b9a442.rlib-50"
+      "relatedSpdxElement": "SPDXRef-simd-adler32-40"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "STATIC_LINK",
-      "relatedSpdxElement": "SPDXRef-libhashbrown-f47a2216fbc1d1da.rlib-51"
+      "relatedSpdxElement": "SPDXRef-strsim-41"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "STATIC_LINK",
-      "relatedSpdxElement": "SPDXRef-libindexmap-e2aa6b12af0df1da.rlib-52"
+      "relatedSpdxElement": "SPDXRef-tap-42"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "STATIC_LINK",
-      "relatedSpdxElement": "SPDXRef-libis-terminal-polyfill-2b547f002f59b182.rlib-53"
+      "relatedSpdxElement": "SPDXRef-terminal-size-43"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "STATIC_LINK",
-      "relatedSpdxElement": "SPDXRef-liblibdeflate-sys-8015b60baf6cbe73.rlib-54"
+      "relatedSpdxElement": "SPDXRef-utf8parse-44"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "STATIC_LINK",
-      "relatedSpdxElement": "SPDXRef-liblibdeflater-ee8c0839617ecdd2.rlib-55"
+      "relatedSpdxElement": "SPDXRef-wyz-45"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "STATIC_LINK",
-      "relatedSpdxElement": "SPDXRef-liblinux-raw-sys-f7fcb1738333da4b.rlib-56"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-root",
-      "relationshipType": "STATIC_LINK",
-      "relatedSpdxElement": "SPDXRef-liblog-9ce69ee427be56af.rlib-57"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-root",
-      "relationshipType": "STATIC_LINK",
-      "relatedSpdxElement": "SPDXRef-liboxipng-fdba2b3e9d33ac60.rlib-58"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-root",
-      "relationshipType": "STATIC_LINK",
-      "relatedSpdxElement": "SPDXRef-libparse-size-deb3060eda4b6ee6.rlib-59"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-root",
-      "relationshipType": "STATIC_LINK",
-      "relatedSpdxElement": "SPDXRef-libradium-48b1afdaab91e229.rlib-60"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-root",
-      "relationshipType": "STATIC_LINK",
-      "relatedSpdxElement": "SPDXRef-librayon-bac265390ff2804d.rlib-61"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-root",
-      "relationshipType": "STATIC_LINK",
-      "relatedSpdxElement": "SPDXRef-librayon-core-e84357bde9e25850.rlib-62"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-root",
-      "relationshipType": "STATIC_LINK",
-      "relatedSpdxElement": "SPDXRef-librgb-eebcd6abc98a5aa6.rlib-63"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-root",
-      "relationshipType": "STATIC_LINK",
-      "relatedSpdxElement": "SPDXRef-librustc-hash-d83abfe4c6f7957d.rlib-64"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-root",
-      "relationshipType": "STATIC_LINK",
-      "relatedSpdxElement": "SPDXRef-librustix-14a819ab0f7085b5.rlib-65"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-root",
-      "relationshipType": "STATIC_LINK",
-      "relatedSpdxElement": "SPDXRef-libshlex-83f5f3b3166a68cf.rlib-66"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-root",
-      "relationshipType": "STATIC_LINK",
-      "relatedSpdxElement": "SPDXRef-libsimd-adler32-cc8fcc5583e774f1.rlib-67"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-root",
-      "relationshipType": "STATIC_LINK",
-      "relatedSpdxElement": "SPDXRef-libstrsim-42bcc59cdc10da44.rlib-68"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-root",
-      "relationshipType": "STATIC_LINK",
-      "relatedSpdxElement": "SPDXRef-libtap-195521f7f7a3d762.rlib-69"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-root",
-      "relationshipType": "STATIC_LINK",
-      "relatedSpdxElement": "SPDXRef-libterminal-size-9ecd0743482c5010.rlib-70"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-root",
-      "relationshipType": "STATIC_LINK",
-      "relatedSpdxElement": "SPDXRef-libutf8parse-6973cc3038d6458e.rlib-71"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-root",
-      "relationshipType": "STATIC_LINK",
-      "relatedSpdxElement": "SPDXRef-libwyz-fa9d8f34112b5d93.rlib-72"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-root",
-      "relationshipType": "STATIC_LINK",
-      "relatedSpdxElement": "SPDXRef-libzopfli-45a56469d617d29e.rlib-73"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-root",
-      "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-linux-raw-sys-74"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-root",
-      "relationshipType": "STATIC_LINK",
-      "relatedSpdxElement": "SPDXRef-log-75"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-root",
-      "relationshipType": "STATIC_LINK",
-      "relatedSpdxElement": "SPDXRef-oxipng-0e7d4c98f7c577c1-76"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-root",
-      "relationshipType": "STATIC_LINK",
-      "relatedSpdxElement": "SPDXRef-parse-size-77"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-root",
-      "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-radium-78"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-root",
-      "relationshipType": "STATIC_LINK",
-      "relatedSpdxElement": "SPDXRef-rayon-79"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-root",
-      "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-rayon-core-80"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-root",
-      "relationshipType": "STATIC_LINK",
-      "relatedSpdxElement": "SPDXRef-rgb-81"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-root",
-      "relationshipType": "STATIC_LINK",
-      "relatedSpdxElement": "SPDXRef-rustc-hash-82"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-root",
-      "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-rustix-83"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-root",
-      "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-shlex-84"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-root",
-      "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-simd-adler32-85"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-root",
-      "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-strsim-86"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-root",
-      "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-tap-87"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-root",
-      "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-terminal-size-88"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-root",
-      "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-utf8parse-89"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-root",
-      "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-wyz-90"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-root",
-      "relationshipType": "STATIC_LINK",
-      "relatedSpdxElement": "SPDXRef-zopfli-91"
+      "relatedSpdxElement": "SPDXRef-zopfli-46"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-main.rs-92"
+      "relatedSpdxElement": "SPDXRef-File-main.rs-47"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-lib.rs-93"
+      "relatedSpdxElement": "SPDXRef-File-lib.rs-48"
     },
     {
-      "spdxElementId": "SPDXRef-radium-78",
+      "spdxElementId": "SPDXRef-radium-33",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-lib.rs-94"
+      "relatedSpdxElement": "SPDXRef-File-lib.rs-49"
     },
     {
-      "spdxElementId": "SPDXRef-radium-78",
+      "spdxElementId": "SPDXRef-radium-33",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-build.rs-95"
+      "relatedSpdxElement": "SPDXRef-File-build.rs-50"
     },
     {
-      "spdxElementId": "SPDXRef-rustc-hash-82",
+      "spdxElementId": "SPDXRef-rustc-hash-37",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-lib.rs-96"
+      "relatedSpdxElement": "SPDXRef-File-lib.rs-51"
     },
     {
-      "spdxElementId": "SPDXRef-utf8parse-89",
+      "spdxElementId": "SPDXRef-utf8parse-44",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-lib.rs-97"
+      "relatedSpdxElement": "SPDXRef-File-lib.rs-52"
     },
     {
-      "spdxElementId": "SPDXRef-equivalent-21",
+      "spdxElementId": "SPDXRef-equivalent-22",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-lib.rs-98"
+      "relatedSpdxElement": "SPDXRef-File-lib.rs-53"
     },
     {
-      "spdxElementId": "SPDXRef-log-75",
+      "spdxElementId": "SPDXRef-log-31",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-lib.rs-99"
+      "relatedSpdxElement": "SPDXRef-File-lib.rs-54"
     },
     {
-      "spdxElementId": "SPDXRef-env-filter-19",
+      "spdxElementId": "SPDXRef-crossbeam-deque-16",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-lib.rs-100"
+      "relatedSpdxElement": "SPDXRef-File-lib.rs-55"
     },
     {
-      "spdxElementId": "SPDXRef-crossbeam-deque-15",
+      "spdxElementId": "SPDXRef-libdeflate-sys-28",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-lib.rs-101"
+      "relatedSpdxElement": "SPDXRef-File-zlib-compress.c-56"
     },
     {
-      "spdxElementId": "SPDXRef-libdeflate-sys-43",
+      "spdxElementId": "SPDXRef-libdeflate-sys-28",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-zlib-compress.c-102"
+      "relatedSpdxElement": "SPDXRef-File-adler32-template.h-57"
     },
     {
-      "spdxElementId": "SPDXRef-libdeflate-sys-43",
+      "spdxElementId": "SPDXRef-libdeflate-sys-28",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-adler32-template.h-103"
+      "relatedSpdxElement": "SPDXRef-File-gzip-constants.h-58"
     },
     {
-      "spdxElementId": "SPDXRef-libdeflate-sys-43",
+      "spdxElementId": "SPDXRef-libdeflate-sys-28",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-gzip-constants.h-104"
+      "relatedSpdxElement": "SPDXRef-File-matchfinder-impl.h-59"
     },
     {
-      "spdxElementId": "SPDXRef-libdeflate-sys-43",
+      "spdxElementId": "SPDXRef-libdeflate-sys-28",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-matchfinder-impl.h-105"
+      "relatedSpdxElement": "SPDXRef-File-cpu-features.c-60"
     },
     {
-      "spdxElementId": "SPDXRef-libdeflate-sys-43",
+      "spdxElementId": "SPDXRef-libdeflate-sys-28",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-cpu-features.c-106"
+      "relatedSpdxElement": "SPDXRef-File-deflate-compress.c-61"
     },
     {
-      "spdxElementId": "SPDXRef-libdeflate-sys-43",
+      "spdxElementId": "SPDXRef-libdeflate-sys-28",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-deflate-compress.c-107"
+      "relatedSpdxElement": "SPDXRef-File-crc32-impl.h-62"
     },
     {
-      "spdxElementId": "SPDXRef-libdeflate-sys-43",
+      "spdxElementId": "SPDXRef-libdeflate-sys-28",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-crc32-impl.h-108"
+      "relatedSpdxElement": "SPDXRef-File-utils.c-63"
     },
     {
-      "spdxElementId": "SPDXRef-libdeflate-sys-43",
+      "spdxElementId": "SPDXRef-libdeflate-sys-28",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-utils.c-109"
+      "relatedSpdxElement": "SPDXRef-File-deflate-decompress.c-64"
     },
     {
-      "spdxElementId": "SPDXRef-libdeflate-sys-43",
+      "spdxElementId": "SPDXRef-libdeflate-sys-28",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-deflate-decompress.c-110"
+      "relatedSpdxElement": "SPDXRef-File-ht-matchfinder.h-65"
     },
     {
-      "spdxElementId": "SPDXRef-libdeflate-sys-43",
+      "spdxElementId": "SPDXRef-libdeflate-sys-28",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-ht-matchfinder.h-111"
+      "relatedSpdxElement": "SPDXRef-File-adler32-impl.h-66"
     },
     {
-      "spdxElementId": "SPDXRef-libdeflate-sys-43",
+      "spdxElementId": "SPDXRef-libdeflate-sys-28",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-adler32-impl.h-112"
+      "relatedSpdxElement": "SPDXRef-File-gzip-decompress.c-67"
     },
     {
-      "spdxElementId": "SPDXRef-libdeflate-sys-43",
+      "spdxElementId": "SPDXRef-libdeflate-sys-28",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-gzip-decompress.c-113"
+      "relatedSpdxElement": "SPDXRef-File-crc32-pclmul-template.h-68"
     },
     {
-      "spdxElementId": "SPDXRef-libdeflate-sys-43",
+      "spdxElementId": "SPDXRef-libdeflate-sys-28",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-crc32-pclmul-template.h-114"
+      "relatedSpdxElement": "SPDXRef-File-decompress-template.h-69"
     },
     {
-      "spdxElementId": "SPDXRef-libdeflate-sys-43",
+      "spdxElementId": "SPDXRef-libdeflate-sys-28",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-decompress-template.h-115"
+      "relatedSpdxElement": "SPDXRef-File-deflate-compress.h-70"
     },
     {
-      "spdxElementId": "SPDXRef-libdeflate-sys-43",
+      "spdxElementId": "SPDXRef-libdeflate-sys-28",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-deflate-compress.h-116"
+      "relatedSpdxElement": "SPDXRef-File-deflate-constants.h-71"
     },
     {
-      "spdxElementId": "SPDXRef-libdeflate-sys-43",
+      "spdxElementId": "SPDXRef-libdeflate-sys-28",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-deflate-constants.h-117"
+      "relatedSpdxElement": "SPDXRef-File-matchfinder-common.h-72"
     },
     {
-      "spdxElementId": "SPDXRef-libdeflate-sys-43",
+      "spdxElementId": "SPDXRef-libdeflate-sys-28",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-matchfinder-common.h-118"
+      "relatedSpdxElement": "SPDXRef-File-crc32-multipliers.h-73"
     },
     {
-      "spdxElementId": "SPDXRef-libdeflate-sys-43",
+      "spdxElementId": "SPDXRef-libdeflate-sys-28",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-crc32-multipliers.h-119"
+      "relatedSpdxElement": "SPDXRef-File-common-defs.h-74"
     },
     {
-      "spdxElementId": "SPDXRef-libdeflate-sys-43",
+      "spdxElementId": "SPDXRef-libdeflate-sys-28",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-common-defs.h-120"
+      "relatedSpdxElement": "SPDXRef-File-hc-matchfinder.h-75"
     },
     {
-      "spdxElementId": "SPDXRef-libdeflate-sys-43",
+      "spdxElementId": "SPDXRef-libdeflate-sys-28",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-hc-matchfinder.h-121"
+      "relatedSpdxElement": "SPDXRef-File-crc32.c-76"
     },
     {
-      "spdxElementId": "SPDXRef-libdeflate-sys-43",
+      "spdxElementId": "SPDXRef-libdeflate-sys-28",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-crc32.c-122"
+      "relatedSpdxElement": "SPDXRef-File-cpu-features.c-77"
     },
     {
-      "spdxElementId": "SPDXRef-libdeflate-sys-43",
+      "spdxElementId": "SPDXRef-libdeflate-sys-28",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-cpu-features.c-123"
+      "relatedSpdxElement": "SPDXRef-File-build.rs-78"
     },
     {
-      "spdxElementId": "SPDXRef-libdeflate-sys-43",
+      "spdxElementId": "SPDXRef-libdeflate-sys-28",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-build.rs-124"
+      "relatedSpdxElement": "SPDXRef-File-bt-matchfinder.h-79"
     },
     {
-      "spdxElementId": "SPDXRef-libdeflate-sys-43",
+      "spdxElementId": "SPDXRef-libdeflate-sys-28",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-bt-matchfinder.h-125"
+      "relatedSpdxElement": "SPDXRef-File-gzip-compress.c-80"
     },
     {
-      "spdxElementId": "SPDXRef-libdeflate-sys-43",
+      "spdxElementId": "SPDXRef-libdeflate-sys-28",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-gzip-compress.c-126"
+      "relatedSpdxElement": "SPDXRef-File-lib.rs-81"
     },
     {
-      "spdxElementId": "SPDXRef-libdeflate-sys-43",
+      "spdxElementId": "SPDXRef-libdeflate-sys-28",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-lib.rs-127"
+      "relatedSpdxElement": "SPDXRef-File-cpu-features.h-82"
     },
     {
-      "spdxElementId": "SPDXRef-libdeflate-sys-43",
+      "spdxElementId": "SPDXRef-libdeflate-sys-28",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-cpu-features.h-128"
+      "relatedSpdxElement": "SPDXRef-File-cpu-features-common.h-83"
     },
     {
-      "spdxElementId": "SPDXRef-libdeflate-sys-43",
+      "spdxElementId": "SPDXRef-libdeflate-sys-28",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-cpu-features-common.h-129"
+      "relatedSpdxElement": "SPDXRef-File-adler32.c-84"
     },
     {
-      "spdxElementId": "SPDXRef-libdeflate-sys-43",
+      "spdxElementId": "SPDXRef-libdeflate-sys-28",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-adler32.c-130"
+      "relatedSpdxElement": "SPDXRef-File-crc32-tables.h-85"
     },
     {
-      "spdxElementId": "SPDXRef-libdeflate-sys-43",
+      "spdxElementId": "SPDXRef-libdeflate-sys-28",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-crc32-tables.h-131"
+      "relatedSpdxElement": "SPDXRef-File-libdeflate.h-86"
     },
     {
-      "spdxElementId": "SPDXRef-libdeflate-sys-43",
+      "spdxElementId": "SPDXRef-libdeflate-sys-28",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-libdeflate.h-132"
+      "relatedSpdxElement": "SPDXRef-File-decompress-impl.h-87"
     },
     {
-      "spdxElementId": "SPDXRef-libdeflate-sys-43",
+      "spdxElementId": "SPDXRef-libdeflate-sys-28",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-decompress-impl.h-133"
+      "relatedSpdxElement": "SPDXRef-File-cpu-features.h-88"
     },
     {
-      "spdxElementId": "SPDXRef-libdeflate-sys-43",
+      "spdxElementId": "SPDXRef-libdeflate-sys-28",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-cpu-features.h-134"
+      "relatedSpdxElement": "SPDXRef-File-zlib-constants.h-89"
     },
     {
-      "spdxElementId": "SPDXRef-libdeflate-sys-43",
+      "spdxElementId": "SPDXRef-libdeflate-sys-28",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-zlib-constants.h-135"
+      "relatedSpdxElement": "SPDXRef-File-zlib-decompress.c-90"
     },
     {
-      "spdxElementId": "SPDXRef-libdeflate-sys-43",
+      "spdxElementId": "SPDXRef-libdeflate-sys-28",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-zlib-decompress.c-136"
-    },
-    {
-      "spdxElementId": "SPDXRef-libdeflate-sys-43",
-      "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-lib-common.h-137"
-    },
-    {
-      "spdxElementId": "SPDXRef-rgb-81",
-      "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-lib.rs-138"
-    },
-    {
-      "spdxElementId": "SPDXRef-rustix-83",
-      "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-build.rs-139"
-    },
-    {
-      "spdxElementId": "SPDXRef-rustix-83",
-      "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-lib.rs-140"
-    },
-    {
-      "spdxElementId": "SPDXRef-linux-raw-sys-74",
-      "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-lib.rs-141"
-    },
-    {
-      "spdxElementId": "SPDXRef-bitflags-6",
-      "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-lib.rs-142"
+      "relatedSpdxElement": "SPDXRef-File-lib-common.h-91"
     },
     {
       "spdxElementId": "SPDXRef-clap-11",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-lib.rs-143"
+      "relatedSpdxElement": "SPDXRef-File-lib.rs-92"
+    },
+    {
+      "spdxElementId": "SPDXRef-rustix-38",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-build.rs-93"
+    },
+    {
+      "spdxElementId": "SPDXRef-rustix-38",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-lib.rs-94"
+    },
+    {
+      "spdxElementId": "SPDXRef-linux-raw-sys-30",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-lib.rs-95"
+    },
+    {
+      "spdxElementId": "SPDXRef-bitflags-6",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-lib.rs-96"
     },
     {
       "spdxElementId": "SPDXRef-anstyle-parse-4",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-lib.rs-144"
+      "relatedSpdxElement": "SPDXRef-File-lib.rs-97"
     },
     {
-      "spdxElementId": "SPDXRef-rayon-core-80",
+      "spdxElementId": "SPDXRef-rayon-core-35",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-lib.rs-145"
+      "relatedSpdxElement": "SPDXRef-File-lib.rs-98"
     },
     {
-      "spdxElementId": "SPDXRef-rayon-core-80",
+      "spdxElementId": "SPDXRef-rayon-core-35",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-build.rs-146"
+      "relatedSpdxElement": "SPDXRef-File-build.rs-99"
     },
     {
       "spdxElementId": "SPDXRef-bitvec-7",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-lib.rs-147"
+      "relatedSpdxElement": "SPDXRef-File-lib.rs-100"
     },
     {
-      "spdxElementId": "SPDXRef-rayon-79",
+      "spdxElementId": "SPDXRef-rayon-34",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-lib.rs-148"
+      "relatedSpdxElement": "SPDXRef-File-lib.rs-101"
     },
     {
-      "spdxElementId": "SPDXRef-libdeflater-44",
+      "spdxElementId": "SPDXRef-zopfli-46",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-lib.rs-149"
-    },
-    {
-      "spdxElementId": "SPDXRef-zopfli-91",
-      "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-lib.rs-150"
+      "relatedSpdxElement": "SPDXRef-File-lib.rs-102"
     },
     {
       "spdxElementId": "SPDXRef-bytemuck-9",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-lib.rs-151"
+      "relatedSpdxElement": "SPDXRef-File-lib.rs-103"
     },
     {
-      "spdxElementId": "SPDXRef-strsim-86",
+      "spdxElementId": "SPDXRef-strsim-41",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-lib.rs-152"
+      "relatedSpdxElement": "SPDXRef-File-lib.rs-104"
     },
     {
       "spdxElementId": "SPDXRef-clap-lex-13",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-lib.rs-153"
+      "relatedSpdxElement": "SPDXRef-File-lib.rs-105"
     },
     {
-      "spdxElementId": "SPDXRef-indexmap-25",
+      "spdxElementId": "SPDXRef-indexmap-26",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-lib.rs-154"
+      "relatedSpdxElement": "SPDXRef-File-lib.rs-106"
     },
     {
-      "spdxElementId": "SPDXRef-crossbeam-utils-17",
+      "spdxElementId": "SPDXRef-crossbeam-utils-18",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-lib.rs-155"
+      "relatedSpdxElement": "SPDXRef-File-lib.rs-107"
     },
     {
-      "spdxElementId": "SPDXRef-crossbeam-utils-17",
+      "spdxElementId": "SPDXRef-crossbeam-utils-18",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-build.rs-156"
-    },
-    {
-      "spdxElementId": "SPDXRef-env-logger-20",
-      "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-lib.rs-157"
+      "relatedSpdxElement": "SPDXRef-File-build.rs-108"
     },
     {
       "spdxElementId": "SPDXRef-cc-10",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-lib.rs-158"
+      "relatedSpdxElement": "SPDXRef-File-lib.rs-109"
     },
     {
       "spdxElementId": "SPDXRef-anstream-2",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-lib.rs-159"
+      "relatedSpdxElement": "SPDXRef-File-lib.rs-110"
     },
     {
-      "spdxElementId": "SPDXRef-terminal-size-88",
+      "spdxElementId": "SPDXRef-crossbeam-channel-15",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-lib.rs-160"
+      "relatedSpdxElement": "SPDXRef-File-lib.rs-111"
+    },
+    {
+      "spdxElementId": "SPDXRef-terminal-size-43",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-lib.rs-112"
     },
     {
       "spdxElementId": "SPDXRef-clap-builder-12",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-lib.rs-161"
+      "relatedSpdxElement": "SPDXRef-File-lib.rs-113"
     },
     {
       "spdxElementId": "SPDXRef-anstyle-3",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-lib.rs-162"
+      "relatedSpdxElement": "SPDXRef-File-lib.rs-114"
     },
     {
-      "spdxElementId": "SPDXRef-shlex-84",
+      "spdxElementId": "SPDXRef-shlex-39",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-lib.rs-163"
+      "relatedSpdxElement": "SPDXRef-File-lib.rs-115"
+    },
+    {
+      "spdxElementId": "SPDXRef-libdeflater-29",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-lib.rs-116"
     },
     {
       "spdxElementId": "SPDXRef-colorchoice-14",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-lib.rs-164"
+      "relatedSpdxElement": "SPDXRef-File-lib.rs-117"
     },
     {
-      "spdxElementId": "SPDXRef-hashbrown-24",
+      "spdxElementId": "SPDXRef-hashbrown-25",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-lib.rs-165"
+      "relatedSpdxElement": "SPDXRef-File-lib.rs-118"
     },
     {
       "spdxElementId": "SPDXRef-anstyle-query-5",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-lib.rs-166"
+      "relatedSpdxElement": "SPDXRef-File-lib.rs-119"
     },
     {
-      "spdxElementId": "SPDXRef-parse-size-77",
+      "spdxElementId": "SPDXRef-parse-size-32",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-lib.rs-167"
+      "relatedSpdxElement": "SPDXRef-File-lib.rs-120"
     },
     {
-      "spdxElementId": "SPDXRef-funty-23",
+      "spdxElementId": "SPDXRef-funty-24",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-lib.rs-168"
+      "relatedSpdxElement": "SPDXRef-File-lib.rs-121"
     },
     {
-      "spdxElementId": "SPDXRef-is-terminal-polyfill-26",
+      "spdxElementId": "SPDXRef-is-terminal-polyfill-27",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-lib.rs-169"
+      "relatedSpdxElement": "SPDXRef-File-lib.rs-122"
     },
     {
-      "spdxElementId": "SPDXRef-either-18",
+      "spdxElementId": "SPDXRef-env-logger-21",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-lib.rs-170"
+      "relatedSpdxElement": "SPDXRef-File-lib.rs-123"
     },
     {
-      "spdxElementId": "SPDXRef-simd-adler32-85",
+      "spdxElementId": "SPDXRef-either-19",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-lib.rs-171"
+      "relatedSpdxElement": "SPDXRef-File-lib.rs-124"
     },
     {
-      "spdxElementId": "SPDXRef-tap-87",
+      "spdxElementId": "SPDXRef-simd-adler32-40",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-lib.rs-172"
+      "relatedSpdxElement": "SPDXRef-File-lib.rs-125"
+    },
+    {
+      "spdxElementId": "SPDXRef-rgb-36",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-lib.rs-126"
+    },
+    {
+      "spdxElementId": "SPDXRef-tap-42",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-lib.rs-127"
+    },
+    {
+      "spdxElementId": "SPDXRef-env-filter-20",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-lib.rs-128"
     },
     {
       "spdxElementId": "SPDXRef-bumpalo-8",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-lib.rs-173"
+      "relatedSpdxElement": "SPDXRef-File-lib.rs-129"
     },
     {
-      "spdxElementId": "SPDXRef-wyz-90",
+      "spdxElementId": "SPDXRef-wyz-45",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-lib.rs-174"
+      "relatedSpdxElement": "SPDXRef-File-lib.rs-130"
     },
     {
-      "spdxElementId": "SPDXRef-find-msvc-tools-22",
+      "spdxElementId": "SPDXRef-find-msvc-tools-23",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-lib.rs-175"
+      "relatedSpdxElement": "SPDXRef-File-lib.rs-131"
     },
     {
-      "spdxElementId": "SPDXRef-crossbeam-epoch-16",
+      "spdxElementId": "SPDXRef-crossbeam-epoch-17",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-lib.rs-176"
+      "relatedSpdxElement": "SPDXRef-File-lib.rs-132"
     }
   ]
 }
