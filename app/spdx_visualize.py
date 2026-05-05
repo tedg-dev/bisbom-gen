@@ -53,26 +53,6 @@ def _build_conditional_legends(type_counts):
             "</span>\n"
             "  </div>\n"
         )
-    if type_counts.get("go_direct", 0):
-        go_legend += (
-            '  <div class="legend-item">\n'
-            '    <div class="legend-dot" '
-            'style="background:#34d399"></div>\n'
-            "    <span>Go direct "
-            f"({type_counts['go_direct']})"
-            "</span>\n"
-            "  </div>\n"
-        )
-    if type_counts.get("go_indirect", 0):
-        go_legend += (
-            '  <div class="legend-item">\n'
-            '    <div class="legend-dot" '
-            'style="background:#fb7185"></div>\n'
-            "    <span>Go indirect "
-            f"({type_counts['go_indirect']})"
-            "</span>\n"
-            "  </div>\n"
-        )
     return build_deep_legend, go_legend
 
 

@@ -485,10 +485,15 @@ class SpdxEmitter:
                     ),
                 }],
                 "comment": (
-                    f"Go standard library. "
+                    f"Go standard library "
+                    f"(bundled with Go {go_ver}). "
+                    f"Provides core packages "
+                    f"(fmt, os, net, etc.) that "
+                    f"are statically compiled "
+                    f"into every Go binary. "
                     f"{stdlib_count} .go files "
                     f"compiled into "
-                    f"{self.binary_name}"
+                    f"{self.binary_name}."
                 ),
                 "packageSourceInfo": (
                     f"Bundled with Go toolchain "
@@ -620,10 +625,6 @@ class SpdxEmitter:
                 is_indirect = (
                     lib_name in go_mod_indirect
                 )
-                dep_kind = (
-                    "indirect" if is_indirect
-                    else "direct"
-                )
                 src_info = (
                     "Indirect dependency "
                     "vendored via go mod vendor."
@@ -632,6 +633,26 @@ class SpdxEmitter:
                     "Vendored via go mod vendor. "
                     f"Source at vendor/{lib_name}/."
                 )
+                if is_indirect:
+                    dep_detail = (
+                        "Go module (indirect). "
+                        "Transitive dependency — "
+                        "not listed directly in "
+                        "go.mod; pulled in by a "
+                        "direct dependency. "
+                        "Identified by '// indirect'"
+                        " comment in go.mod require "
+                        "block."
+                    )
+                else:
+                    dep_detail = (
+                        "Go module (direct). "
+                        "Explicitly listed in "
+                        "go.mod require block "
+                        "without '// indirect' "
+                        "comment — this project "
+                        "imports it directly."
+                    )
                 pkg = {
                     "SPDXID": pkg_id,
                     "name": lib_name,
@@ -641,10 +662,10 @@ class SpdxEmitter:
                         "LIBRARY",
                     "externalRefs": [],
                     "comment": (
-                        f"Go module ({dep_kind}). "
+                        f"{dep_detail} "
                         f"{src_count} source files "
                         f"compiled into "
-                        f"{self.binary_name}"
+                        f"{self.binary_name}."
                     ),
                     "packageSourceInfo": src_info,
                 }

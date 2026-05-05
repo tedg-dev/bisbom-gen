@@ -141,9 +141,7 @@ node.on('mouseover', (event, d) => {
     'build_deep': 'Build tool (transitive)',
     'direct_dep': 'Direct dependency',
     'transitive_dep': 'Transitive dependency',
-    'go_stdlib': 'Go standard library (compiled in)',
-    'go_direct': 'Direct Go module (compiled in)',
-    'go_indirect': 'Indirect Go module (compiled in)',
+    'go_stdlib': 'Go standard library — core packages (fmt, os, net, etc.) bundled with the Go toolchain and statically compiled into the binary',
     'vendored': 'Vendored (compiled in)',
     'other': 'Other',
   };

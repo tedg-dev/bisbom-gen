@@ -385,34 +385,42 @@ class TestConditionalLegends(unittest.TestCase):
         self.assertIn("Go stdlib", gl)
         self.assertIn("(5)", gl)
 
-    def test_go_direct_legend(self):
+    def test_go_direct_not_in_legend(self):
+        """Go direct uses unified direct_dep — no Go-specific legend."""
         from spdx_visualize import _build_conditional_legends
         bl, gl = _build_conditional_legends(
-            {"go_direct": 2}
+            {"direct_dep": 2}
         )
-        self.assertIn("Go direct", gl)
+        self.assertNotIn("Go direct", gl)
 
-    def test_go_indirect_legend(self):
+    def test_go_indirect_not_in_legend(self):
+        """Go indirect uses unified transitive_dep — no Go-specific legend."""
         from spdx_visualize import _build_conditional_legends
         bl, gl = _build_conditional_legends(
-            {"go_indirect": 7}
+            {"transitive_dep": 7}
         )
-        self.assertIn("Go indirect", gl)
+        self.assertNotIn("Go indirect", gl)
 
-    def test_all_go_legends(self):
+    def test_only_go_stdlib_in_go_legend(self):
+        """Only go_stdlib has a Go-specific legend entry."""
         from spdx_visualize import _build_conditional_legends
         bl, gl = _build_conditional_legends({
             "go_stdlib": 1,
-            "go_direct": 2,
-            "go_indirect": 3,
+            "direct_dep": 2,
+            "transitive_dep": 3,
         })
         self.assertIn("Go stdlib", gl)
-        self.assertIn("Go direct", gl)
-        self.assertIn("Go indirect", gl)
+        self.assertNotIn("Go direct", gl)
+        self.assertNotIn("Go indirect", gl)
 
 
 class TestExtractGraphGo(unittest.TestCase):
-    """Cover Go module type detection in extract.py."""
+    """Cover Go module type detection in extract.py.
+
+    Go direct/indirect modules map to the universal
+    direct_dep/transitive_dep types.  Only go_stdlib
+    remains a Go-specific node type.
+    """
 
     def test_go_node_types(self):
         pkgs = [
@@ -459,10 +467,11 @@ class TestExtractGraphGo(unittest.TestCase):
             types["SPDXRef-Stdlib"], "go_stdlib"
         )
         self.assertEqual(
-            types["SPDXRef-Direct"], "go_direct"
+            types["SPDXRef-Direct"], "direct_dep"
         )
         self.assertEqual(
-            types["SPDXRef-Indirect"], "go_indirect"
+            types["SPDXRef-Indirect"],
+            "transitive_dep"
         )
 
 
