@@ -4,57 +4,52 @@ description: Merge a feature branch into main (execute after user approves the P
 
 # Merge PR Workflow
 
-Once the user explicitly approves merging a feature branch, execute **all** of the
+Once the user explicitly approves merging a PR, execute **all** of the
 following steps in sequence without pausing for confirmation between them.
 
 ## Prerequisites
 
 - The user has explicitly approved the merge
-- You are currently on the feature branch with all changes committed and pushed
+- A PR exists on GitHub (required by Ruleset A — no direct push to main)
+- All pre-commit gates have passed (tests, lint, coverage)
 
 ## Steps (execute all in one go)
 
 // turbo
-1. Switch to main and pull latest:
+1. Merge via GitHub PR (squash merge, admin bypass for review requirement):
 ```bash
-git checkout main && git pull origin main
+gh pr merge <PR_NUMBER> --squash --delete-branch --admin
+```
+
+The `--admin` flag bypasses the code review requirement (legacy branch
+protection with `enforce_admins: false`). Ruleset A still enforces the
+PR requirement — this does NOT allow direct pushes to main.
+
+The `--delete-branch` flag removes the remote branch. GitHub's
+`delete_branch_on_merge: true` setting also handles this automatically.
+
+// turbo
+2. Verify local main is up to date:
+```bash
+git pull origin main
 ```
 
 // turbo
-2. Merge the feature branch with a no-fast-forward merge:
-```bash
-git merge --no-ff <BRANCH_NAME> -m "<COMMIT_MESSAGE>"
-```
-
-Use the same commit message as the feature branch commit (conventional commit format).
-
-// turbo
-3. Push main to origin:
-```bash
-git push origin main
-```
-
-// turbo
-4. Delete the feature branch locally:
-```bash
-git branch -d <BRANCH_NAME>
-```
-
-// turbo
-5. Delete the feature branch on the remote:
-```bash
-git push origin --delete <BRANCH_NAME>
-```
-
-// turbo
-6. Verify:
+3. Verify merge:
 ```bash
 git log --oneline -3
-git branch -a
 ```
 
 ## Important
 
-- **Do NOT pause between steps** — once the user approves, run all commands sequentially
-- If any step fails, stop and report the error to the user
-- The merge commit message should use conventional commit format matching the branch work
+- **NEVER** merge without a PR — Ruleset A rejects direct pushes to main
+- **NEVER** use `git merge` locally and push — this bypasses the PR requirement
+- **NEVER** use `git push --force` — Ruleset A rejects force pushes
+- If `gh pr merge` fails, check: is there a PR? Are tests passing?
+- The `--admin` flag is ONLY for the repo owner (tedg-dev). Contributors
+  must get 1 approving review before their PR is mergeable.
+
+## Reference
+
+See `.windsurf/rules/infrastructure/github-rulesets.md` for the full
+branch protection configuration and rationale.
