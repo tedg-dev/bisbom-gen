@@ -142,6 +142,26 @@ class DpkgResolver(PackageResolver):
         self._meta_cache[pkg_name] = result
         return result
 
+    def is_package_installed(self, pkg_name: str) -> bool:
+        """Check via ``dpkg-query`` whether a package is installed."""
+        try:
+            out = subprocess.check_output(
+                [
+                    "dpkg-query", "-W",
+                    "-f=${Status}", pkg_name,
+                ],
+                text=True,
+                stderr=subprocess.DEVNULL,
+            )
+            return "install ok installed" in out
+        except (subprocess.CalledProcessError, OSError):
+            return False
+
+    def install_hint(self, packages: list) -> str:
+        """Return an ``apt-get install`` command."""
+        pkgs = " ".join(packages)
+        return f"apt-get install -y {pkgs}"
+
     @property
     def distro_version_qualifier(self) -> str:
         """Return distro version string for PURL qualifiers.

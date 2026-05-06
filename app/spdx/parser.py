@@ -18,9 +18,14 @@ class AdgParser:
       - crt_object: C runtime objects (crt*.o)
     """
 
-    def __init__(self, bom_dir, repos_dir):
+    def __init__(
+        self, bom_dir, repos_dir,
+        go_root=None, cargo_home=None,
+    ):
         self.bom_dir = Path(bom_dir)
         self.repos_dir = Path(repos_dir)
+        self.go_root = go_root or "/usr/local/go"
+        self.cargo_home = cargo_home or "~/.cargo"
         self.meta_dir = (
             self.bom_dir / "metadata" / "bomsh"
         )
@@ -48,7 +53,7 @@ class AdgParser:
             "go_stdlib": [],
         }
 
-        go_stdlib_prefix = "/usr/local/go/src/"
+        go_stdlib_prefix = f"{self.go_root}/src/"
 
         for sha1, entry in treedb.items():
             fp = entry.get("file_path", "")
@@ -96,7 +101,10 @@ class AdgParser:
                     classified[
                         "project_source"
                     ].append(item)
-            elif "/.cargo/registry/src/" in fp:
+            elif (
+                "/.cargo/registry/src/" in fp
+                or f"{self.cargo_home}/registry/" in fp
+            ):
                 # Rust crate sources from Cargo registry
                 classified[
                     "project_source"

@@ -2983,12 +2983,16 @@ class TestDetectGoVersion(unittest.TestCase):
                 "/usr/local/go/src/fmt/print.go"
             ),
         }]
-        # No build_cmd, no VERSION file on macOS
-        ver = SpdxEmitter._detect_go_version(stdlib)
+        # No build_cmd, non-existent go_root
+        ver = SpdxEmitter._detect_go_version(
+            stdlib, go_root="/nonexistent/go",
+        )
         self.assertEqual(ver, "unknown")
 
     def test_empty_stdlib(self):
-        ver = SpdxEmitter._detect_go_version([])
+        ver = SpdxEmitter._detect_go_version(
+            [], go_root="/nonexistent/go",
+        )
         self.assertEqual(ver, "unknown")
 
 

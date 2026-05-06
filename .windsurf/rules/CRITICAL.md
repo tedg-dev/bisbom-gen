@@ -60,11 +60,16 @@ Violating any rule marked NEVER is a critical failure.
 ## Before Every Golden File Comparison
 
 - [ ] **NEVER** update golden files without explicit user approval.
+- [ ] **NEVER** suggest updating golden files — no reason is valid.
+  The user reviews diffs and decides. Period.
 - [ ] **NEVER** dismiss differences with "likely upstream" or "within
   tolerance" — report EVERY difference.
 - [ ] **ALWAYS** report: exact counts (old → new), added/removed entries,
   version changes, structural changes.
 - [ ] **ALWAYS** stop and wait for user approval if any diffs exist.
+- [ ] **ALWAYS** clean bomtrace3 treedb between sequential repo runs
+  (`rm -f /tmp/bomsh_hook_raw_logfile* /tmp/bomsh_createbom* /tmp/treedb_*`
+  but PRESERVE `/tmp/bomsh_hook2.py`).
 
 ---
 

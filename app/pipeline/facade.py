@@ -43,7 +43,7 @@ class AnalysisPipeline:
         self.runner = runner or CommandRunner()
         self.validator = (
             validator
-            or DependencyValidator(self.runner)
+            or DependencyValidator()
         )
         self.cloner = cloner or RepoCloner(
             self.runner

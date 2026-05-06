@@ -26,6 +26,7 @@ from analyze import (
     _run_rust_pipeline,
     _validate_syft_spdx,
 )
+from app.spdx.package_resolver import PackageResolver
 
 
 # ============================================================
@@ -131,45 +132,122 @@ class TestCommandRunner(unittest.TestCase):
         output = "\n".join(printed)
         self.assertIn("42", output)
 
+    @patch("analyze.subprocess.run")
+    def test_env_none_inherits_default(
+        self, mock_run,
+    ):
+        mock_run.return_value = MagicMock(
+            returncode=0, stdout="",
+        )
+        runner = CommandRunner()
+        with patch("builtins.print"):
+            runner.run("echo", description="env")
+        call_kw = mock_run.call_args[1]
+        self.assertIsNone(call_kw.get("env"))
+
+    @patch("analyze.subprocess.run")
+    @patch("analyze.os.environ", {"PATH": "/usr/bin"})
+    def test_env_merged(self, mock_run):
+        mock_run.return_value = MagicMock(
+            returncode=0, stdout="",
+        )
+        runner = CommandRunner()
+        with patch("builtins.print"):
+            runner.run(
+                "echo", description="env",
+                env={"CC": "/usr/bin/gcc"},
+            )
+        call_kw = mock_run.call_args[1]
+        run_env = call_kw.get("env")
+        self.assertIsNotNone(run_env)
+        self.assertEqual(
+            run_env["CC"], "/usr/bin/gcc",
+        )
+        self.assertEqual(
+            run_env["PATH"], "/usr/bin",
+        )
+
+    @patch("analyze.subprocess.run")
+    def test_env_printed_in_header(self, mock_run):
+        mock_run.return_value = MagicMock(
+            returncode=0, stdout="",
+        )
+        runner = CommandRunner()
+        printed = []
+        with patch(
+            "builtins.print",
+            side_effect=lambda *a, **kw: (
+                printed.append(
+                    " ".join(str(x) for x in a)
+                )
+            ),
+        ):
+            runner.run(
+                "echo", description="env",
+                env={"MY_VAR": "1"},
+            )
+        output = "\n".join(printed)
+        self.assertIn("MY_VAR", output)
+
 
 # ============================================================
 # DependencyValidator
 # ============================================================
 
+class _FakeValidatorResolver(PackageResolver):
+    """Stub resolver for DependencyValidator tests."""
+
+    def __init__(self, installed=None):
+        self._installed = set(installed or [])
+
+    def resolve(self, file_path):
+        return None
+
+    def purl_scheme(self):
+        return "pkg:deb/ubuntu"
+
+    def is_package_installed(self, pkg_name):
+        return pkg_name in self._installed
+
+    def install_hint(self, packages):
+        pkgs = " ".join(packages)
+        return f"apt-get install -y {pkgs}"
+
+
 class TestDependencyValidator(unittest.TestCase):
     """Tests for DependencyValidator."""
 
     def test_no_apt_deps(self):
-        runner = MagicMock()
-        v = DependencyValidator(runner)
+        resolver = _FakeValidatorResolver()
+        v = DependencyValidator(resolver=resolver)
         ok, missing = v.validate({})
         self.assertTrue(ok)
         self.assertEqual(missing, [])
-        runner.run.assert_not_called()
 
     def test_empty_apt_deps(self):
-        runner = MagicMock()
-        v = DependencyValidator(runner)
+        resolver = _FakeValidatorResolver()
+        v = DependencyValidator(resolver=resolver)
         ok, missing = v.validate({"apt_deps": []})
         self.assertTrue(ok)
         self.assertEqual(missing, [])
 
     def test_all_installed(self):
-        runner = MagicMock()
-        runner.run.return_value = 0
-        v = DependencyValidator(runner)
+        resolver = _FakeValidatorResolver(
+            installed=["libssl-dev", "zlib1g-dev"]
+        )
+        v = DependencyValidator(resolver=resolver)
         with patch("builtins.print"):
             ok, missing = v.validate(
                 {"apt_deps": ["libssl-dev", "zlib1g-dev"]}
             )
         self.assertTrue(ok)
         self.assertEqual(missing, [])
-        self.assertEqual(runner.run.call_count, 2)
 
     def test_some_missing(self):
-        runner = MagicMock()
-        runner.run.side_effect = [0, 1, 0]
-        v = DependencyValidator(runner)
+        resolver = _FakeValidatorResolver(
+            installed=["libssl-dev", "zlib1g-dev"]
+        )
+        v = DependencyValidator(resolver=resolver)
         with patch("builtins.print"):
             ok, missing = v.validate(
                 {"apt_deps": [
@@ -181,9 +259,8 @@ class TestDependencyValidator(unittest.TestCase):
         self.assertEqual(missing, ["libpsl-dev"])
 
     def test_all_missing(self):
-        runner = MagicMock()
-        runner.run.return_value = 1
-        v = DependencyValidator(runner)
+        resolver = _FakeValidatorResolver()
+        v = DependencyValidator(resolver=resolver)
         with patch("builtins.print"):
             ok, missing = v.validate(
                 {"apt_deps": ["a", "b"]}
@@ -192,9 +269,8 @@ class TestDependencyValidator(unittest.TestCase):
         self.assertEqual(missing, ["a", "b"])
 
     def test_prints_install_hint(self):
-        runner = MagicMock()
-        runner.run.return_value = 1
-        v = DependencyValidator(runner)
+        resolver = _FakeValidatorResolver()
+        v = DependencyValidator(resolver=resolver)
         printed = []
         with patch(
             "builtins.print",
@@ -452,6 +528,85 @@ class TestBomtraceBuilder(unittest.TestCase):
         instrumented_call = runner.run.call_args_list[3]
         self.assertIn(
             "bomtrace3", instrumented_call[0][0]
+        )
+
+    def test_strategy_instrument_command(self):
+        runner = MagicMock()
+        runner.run.return_value = 0
+        strategy = MagicMock()
+        strategy.instrument_command.return_value = (
+            "wrapped make -j4", {"CC": "/w/cc"},
+        )
+        strategy.generate_adg.return_value = True
+        builder = BomtraceBuilder(runner)
+        repo_cfg, paths, omnibor = self._cfg()
+
+        with patch("builtins.print"):
+            result = builder.build(
+                "curl", repo_cfg, paths, omnibor,
+                strategy=strategy,
+            )
+        self.assertTrue(result)
+        strategy.instrument_command.assert_called_once()
+        # Verify env was passed to runner.run
+        build_call = runner.run.call_args_list[3]
+        self.assertEqual(
+            build_call[1].get("env"),
+            {"CC": "/w/cc"},
+        )
+
+    def test_strategy_generate_adg_called(self):
+        runner = MagicMock()
+        runner.run.return_value = 0
+        strategy = MagicMock()
+        strategy.instrument_command.return_value = (
+            "make -j4", {},
+        )
+        strategy.generate_adg.return_value = True
+        builder = BomtraceBuilder(runner)
+        repo_cfg, paths, omnibor = self._cfg()
+
+        with patch("builtins.print"):
+            builder.build(
+                "curl", repo_cfg, paths, omnibor,
+                strategy=strategy,
+            )
+        strategy.generate_adg.assert_called_once()
+
+    def test_strategy_adg_failure(self):
+        runner = MagicMock()
+        runner.run.return_value = 0
+        strategy = MagicMock()
+        strategy.instrument_command.return_value = (
+            "make -j4", {},
+        )
+        strategy.generate_adg.return_value = False
+        builder = BomtraceBuilder(runner)
+        repo_cfg, paths, omnibor = self._cfg()
+
+        with patch("builtins.print"):
+            result = builder.build(
+                "curl", repo_cfg, paths, omnibor,
+                strategy=strategy,
+            )
+        self.assertFalse(result)
+
+    def test_no_strategy_uses_legacy(self):
+        runner = MagicMock()
+        runner.run.return_value = 0
+        builder = BomtraceBuilder(runner)
+        repo_cfg, paths, omnibor = self._cfg()
+
+        with patch("builtins.print"):
+            builder.build(
+                "curl", repo_cfg, paths, omnibor,
+            )
+        # Legacy: clean + 2 pre + instrumented + ADG = 5
+        self.assertEqual(runner.run.call_count, 5)
+        # Legacy: bomtrace3 in instrumented cmd
+        build_call = runner.run.call_args_list[3]
+        self.assertIn(
+            "bomtrace3", build_call[0][0],
         )
 
 
@@ -2434,6 +2589,15 @@ class TestClassifyReleaseBuild(unittest.TestCase):
 class TestAnalysisPipeline(unittest.TestCase):
     """Tests for AnalysisPipeline facade."""
 
+    def setUp(self):
+        patcher = patch(
+            "app.spdx.package_resolver"
+            ".auto_detect_resolver",
+            return_value=_FakeValidatorResolver(),
+        )
+        self._mock_resolver = patcher.start()
+        self.addCleanup(patcher.stop)
+
     def test_default_construction(self):
         p = AnalysisPipeline()
         self.assertIsInstance(p.runner, CommandRunner)
@@ -2565,6 +2729,49 @@ class TestMainUnknownRepo(unittest.TestCase):
             ) as cm:
                 analyze.main()
             self.assertEqual(cm.exception.code, 1)
+
+
+class TestMainModeFlag(unittest.TestCase):
+    """Tests for --mode CLI flag."""
+
+    @patch("app.pipeline.runners.load_config")
+    @patch("app.pipeline.runners.AnalysisPipeline")
+    @patch(
+        "sys.argv",
+        ["analyze.py", "--list", "--mode", "sidecar"],
+    )
+    def test_mode_sidecar_overrides_config(
+        self, mock_cls, mock_load,
+    ):
+        mock_load.return_value = {
+            "repos": {},
+            "paths": {},
+            "omnibor": {"tracer": "bomtrace3"},
+        }
+        p = MagicMock()
+        mock_cls.return_value = p
+        with patch("builtins.print"):
+            analyze.main()
+        config = mock_load.return_value
+        self.assertEqual(config["mode"], "sidecar")
+
+    @patch("app.pipeline.runners.load_config")
+    @patch("app.pipeline.runners.AnalysisPipeline")
+    @patch("sys.argv", ["analyze.py", "--list"])
+    def test_no_mode_keeps_config_default(
+        self, mock_cls, mock_load,
+    ):
+        mock_load.return_value = {
+            "repos": {},
+            "paths": {},
+            "omnibor": {"tracer": "bomtrace3"},
+        }
+        p = MagicMock()
+        mock_cls.return_value = p
+        with patch("builtins.print"):
+            analyze.main()
+        config = mock_load.return_value
+        self.assertNotIn("mode", config)
 
 
 class TestMainFullRun(unittest.TestCase):

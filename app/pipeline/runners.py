@@ -9,7 +9,10 @@ import argparse
 import sys
 from pathlib import Path
 
-from app.config import load_config, timestamp, lang_subdir
+from app.config import (
+    lang_subdir, load_config, resolve_omnibor_cfg,
+    timestamp, VALID_MODES, DEFAULT_MODE,
+)
 from app.pipeline.facade import AnalysisPipeline
 from app.pipeline.lang_runners import (
     run_c_cpp_pipeline,
@@ -51,9 +54,23 @@ def main():
             "syft_enabled config."
         ),
     )
+    parser.add_argument(
+        "--mode",
+        choices=VALID_MODES,
+        default=None,
+        help=(
+            "Pipeline mode: standalone (ptrace) "
+            "or sidecar (wrappers/dep-tree). "
+            "Overrides config.yaml 'mode' key. "
+            f"Default: {DEFAULT_MODE}"
+        ),
+    )
     args = parser.parse_args()
 
     config = load_config()
+    # CLI --mode overrides config file
+    if args.mode:
+        config["mode"] = args.mode
     pipeline = AnalysisPipeline()
 
     if args.list:
@@ -78,17 +95,8 @@ def main():
     paths_cfg = config["paths"]
 
     # Language-aware omnibor config lookup
-    lang_omnibor_keys = {
-        "c-cpp": "omnibor",
-        "rust": "omnibor_rust",
-        "java": "omnibor_java",
-        "go": "omnibor_go",
-    }
     lang = lang_subdir(repo_cfg)
-    omnibor_key = lang_omnibor_keys.get(
-        lang, "omnibor_go"
-    )
-    omnibor_cfg = config[omnibor_key]
+    omnibor_cfg = resolve_omnibor_cfg(config, lang)
 
     # Single timestamp for the entire run — all
     # output folders use this consistently:
@@ -180,10 +188,12 @@ def main():
             vcs_uri=vcs_uri,
         )
     elif lang == "java":
+        mode = config.get("mode", DEFAULT_MODE)
         success, duration = run_java_pipeline(
             pipeline, args.repo, repo_cfg,
             paths_cfg, omnibor_cfg, run_ts,
             vcs_uri=vcs_uri,
+            mode=mode,
         )
     else:
         success, duration = run_go_pipeline(

@@ -202,6 +202,23 @@ class ApkResolver(PackageResolver):
         self._meta_cache[pkg_name] = result
         return result
 
+    def is_package_installed(self, pkg_name: str) -> bool:
+        """Check via ``apk info -e`` whether a package is installed."""
+        try:
+            subprocess.check_output(
+                ["apk", "info", "-e", pkg_name],
+                text=True,
+                stderr=subprocess.DEVNULL,
+            )
+            return True
+        except (subprocess.CalledProcessError, OSError):
+            return False
+
+    def install_hint(self, packages: list) -> str:
+        """Return an ``apk add`` command."""
+        pkgs = " ".join(packages)
+        return f"apk add {pkgs}"
+
     @property
     def distro_version_qualifier(self) -> str:
         """Return distro version string for PURL qualifiers.
