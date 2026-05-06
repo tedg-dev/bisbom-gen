@@ -800,6 +800,50 @@ class TestSpdxEmitter(unittest.TestCase):
             len(doc["relationships"]), 2
         )
 
+    def test_emit_vcs_uri_on_root_package(self):
+        """vcs_uri sets downloadLocation on root pkg."""
+        vcs = (
+            "https://github.com/curl/curl/commit/"
+            + "a" * 40
+        )
+        emitter = SpdxEmitter(
+            repo_name="curl",
+            repo_version="8.19.0",
+            distro="Ubuntu 22.04",
+            gcc_version="gcc 11.4.0",
+            vcs_uri=vcs,
+        )
+        doc = emitter.emit(
+            components=[],
+            project_files=[],
+            doc_mapping={},
+            logfile_hashes={},
+        )
+        root_pkg = doc["packages"][0]
+        self.assertEqual(
+            root_pkg["downloadLocation"], vcs,
+        )
+
+    def test_emit_default_download_location(self):
+        """Default downloadLocation is NOASSERTION."""
+        emitter = SpdxEmitter(
+            repo_name="curl",
+            repo_version="8.19.0",
+            distro="Ubuntu 22.04",
+            gcc_version="gcc 11.4.0",
+        )
+        doc = emitter.emit(
+            components=[],
+            project_files=[],
+            doc_mapping={},
+            logfile_hashes={},
+        )
+        root_pkg = doc["packages"][0]
+        self.assertEqual(
+            root_pkg["downloadLocation"],
+            "NOASSERTION",
+        )
+
     def test_emit_with_components(self):
         emitter = SpdxEmitter(
             repo_name="curl",

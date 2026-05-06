@@ -52,11 +52,13 @@ class JavaSpdxGenerator:
     def __init__(
         self, bom_dir, repos_dir, repo_name,
         strace_accessed=None,
+        vcs_uri="NOASSERTION",
     ):
         self.bom_dir = Path(bom_dir)
         self.repos_dir = Path(repos_dir)
         self.repo_name = repo_name
         self.repo_dir = self.repos_dir / repo_name
+        self.vcs_uri = vcs_uri
         # Set of absolute file paths opened during
         # the build (from strace openat log).  Used
         # to filter workspace-scan results to only
@@ -380,7 +382,7 @@ class JavaSpdxGenerator:
             "versionInfo": self._get_version(
                 artifact_path=bin_name,
             ),
-            "downloadLocation": "NOASSERTION",
+            "downloadLocation": self.vcs_uri,
             "filesAnalyzed": True,
             "primaryPackagePurpose": "APPLICATION",
             "supplier": "NOASSERTION",

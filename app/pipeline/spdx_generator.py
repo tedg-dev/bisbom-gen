@@ -117,7 +117,10 @@ class SpdxGenerator:
     )
 
     @staticmethod
-    def patch_spdx_metadata(spdx_path, bom_dir=None):
+    def patch_spdx_metadata(
+        spdx_path, bom_dir=None,
+        vcs_uri=None,
+    ):
         """Patch SPDX metadata to credit OmniBOR tools.
 
         1. Replaces ``documentNamespace`` with an
@@ -182,6 +185,17 @@ class SpdxGenerator:
                 creators.append(entry)
 
         ci["creators"] = creators
+
+        # --- downloadLocation (VCS URI) ---
+        if vcs_uri:
+            for pkg in doc.get("packages", []):
+                if pkg.get(
+                    "downloadLocation"
+                ) == "NOASSERTION":
+                    pkg["downloadLocation"] = (
+                        vcs_uri
+                    )
+                    break
 
         # --- OmniBOR ExternalRefs ---
         if bom_dir:
@@ -301,6 +315,7 @@ class SpdxGenerator:
         self, repo_name, repo_cfg,
         paths_cfg, omnibor_cfg,
         run_ts=None,
+        vcs_uri=None,
     ):
         """Generate SPDX SBOM. Returns output file path.
 
@@ -392,7 +407,8 @@ class SpdxGenerator:
         )
         primary.rename(spdx_file)
         self.patch_spdx_metadata(
-            str(spdx_file), str(bom_dir)
+            str(spdx_file), str(bom_dir),
+            vcs_uri=vcs_uri,
         )
         print(
             f"[OK] SPDX SBOM: {spdx_file.name}"

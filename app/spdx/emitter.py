@@ -56,6 +56,7 @@ class SpdxEmitter:
         binary_name=None,
         vendored_dirs=None,
         repos_dir=None,
+        vcs_uri="NOASSERTION",
     ):
         self.repo_name = repo_name
         self.repo_version = repo_version
@@ -67,6 +68,7 @@ class SpdxEmitter:
             binary_name or repo_name
         )
         self.repos_dir = repos_dir
+        self.vcs_uri = vcs_uri
         self._spdx_id_counter = 0
         self._sub_versions = {}
         if vendored_dirs is not None:
@@ -220,7 +222,7 @@ class SpdxEmitter:
         root_pkg = {
             "SPDXID": root_id,
             "name": self.binary_name,
-            "downloadLocation": "NOASSERTION",
+            "downloadLocation": self.vcs_uri,
             "filesAnalyzed": True,
             "primaryPackagePurpose": root_purpose,
             "builtDate": now,

@@ -4,6 +4,7 @@ Repository cloning for OmniBOR Analysis.
 Handles shallow cloning of target repositories.
 """
 
+import subprocess
 from pathlib import Path
 
 from app.runner import CommandRunner
@@ -51,3 +52,50 @@ class RepoCloner:
             ),
         )
         return str(repo_dir)
+
+    @staticmethod
+    def get_commit_sha(repo_dir):
+        """Return the HEAD commit SHA for a repo directory.
+
+        Returns the full 40-character hex SHA, or None
+        if the directory is not a git repository or
+        git is unavailable.
+        """
+        try:
+            result = subprocess.run(
+                ["git", "rev-parse", "HEAD"],
+                cwd=str(repo_dir),
+                capture_output=True,
+                text=True,
+                timeout=10,
+            )
+            if result.returncode == 0:
+                sha = result.stdout.strip()
+                if len(sha) == 40:
+                    return sha
+        except Exception:
+            pass
+        return None
+
+    @staticmethod
+    def build_vcs_uri(repo_url, commit_sha):
+        """Build a commit URL for SPDX downloadLocation.
+
+        Produces a browsable commit URL:
+            <repo_url>/commit/<commit_sha>
+
+        The .git suffix is stripped from the URL so the
+        result is a valid browser link on GitHub/GitLab.
+
+        Args:
+            repo_url: the repository clone URL.
+            commit_sha: the 40-char commit SHA.
+
+        Returns:
+            str: commit URL, or "NOASSERTION" if inputs
+            are missing.
+        """
+        if not repo_url or not commit_sha:
+            return "NOASSERTION"
+        base = repo_url.removesuffix(".git")
+        return f"{base}/commit/{commit_sha}"
