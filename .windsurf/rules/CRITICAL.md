@@ -91,8 +91,10 @@ Violating any rule marked NEVER is a critical failure.
 ## Before Every Git Operation
 
 - [ ] **NEVER** commit directly to `main`. Always use feature branches.
+  GitHub Rulesets enforce this server-side — direct push is rejected.
 - [ ] **NEVER** create a PR or merge without explicit user approval.
 - [ ] **NEVER** use `git push --force` or `git push -f`.
+  Server-side rejected via Ruleset A (`non_fast_forward` rule).
 - [ ] **ALWAYS** use conventional branch prefixes: `fix/`, `feat/`,
   `chore/`, `docs/`, `test/`.
 - [ ] **NEVER** leave stashed work behind. If you `git stash`, you MUST
@@ -101,6 +103,8 @@ Violating any rule marked NEVER is a critical failure.
   conversations or the user may have uncommitted changes at any time.
 - [ ] **ALWAYS** prefer `git fetch` without switching branches over
   `git checkout` + stash when you only need to read remote state.
+- [ ] **Reference**: See `infrastructure/github-rulesets.md` for full
+  ruleset configuration. Owner merges without review; contributors need 1.
 
 ---
 
