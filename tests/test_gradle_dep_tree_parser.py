@@ -22,17 +22,27 @@ from app.pipeline.gradle_dep_tree_parser import (
 # Fixture: single-project Gradle output
 # ============================================================
 
-_SINGLE_PROJECT_OUTPUT = """\
-runtimeClasspath - Runtime classpath of source set 'main'.
-+--- org.slf4j:slf4j-api:2.0.7
-+--- com.google.guava:guava:32.1.3-jre
-|    +--- com.google.guava:failureaccess:1.0.1
-|    \\--- com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava
-+--- org.apache.commons:commons-lang3:3.14.0
-\\--- com.fasterxml.jackson.core:jackson-databind:2.16.0
-     +--- com.fasterxml.jackson.core:jackson-core:2.16.0
-     \\--- com.fasterxml.jackson.core:jackson-annotations:2.16.0
-"""
+_SINGLE_PROJECT_OUTPUT = (
+    'runtimeClasspath - Runtime classpath'
+    " of source set 'main'.\n"
+    '+--- org.slf4j:slf4j-api:2.0.7\n'
+    '+--- com.google.guava'
+    ':guava:32.1.3-jre\n'
+    '|    +--- com.google.guava'
+    ':failureaccess:1.0.1\n'
+    '|    \\--- com.google.guava'
+    ':listenablefuture'
+    ':9999.0-empty-to-avoid'
+    '-conflict-with-guava\n'
+    '+--- org.apache.commons'
+    ':commons-lang3:3.14.0\n'
+    '\\--- com.fasterxml.jackson.core'
+    ':jackson-databind:2.16.0\n'
+    '     +--- com.fasterxml.jackson.core'
+    ':jackson-core:2.16.0\n'
+    '     \\--- com.fasterxml.jackson.core'
+    ':jackson-annotations:2.16.0\n'
+)
 
 # ============================================================
 # Fixture: version conflict
@@ -297,7 +307,11 @@ class TestGradleDepTreeStrategy(unittest.TestCase):
         )
         mock_subs.return_value = []
         mock_run.return_value = _SINGLE_PROJECT_OUTPUT
-        strategy = GradleDepTreeStrategy()
+        mock_runner = MagicMock()
+        mock_runner.run.return_value = 0
+        strategy = GradleDepTreeStrategy(
+            runner=mock_runner,
+        )
         with tempfile.TemporaryDirectory() as td:
             bom_dir = Path(td) / "bom"
             with patch("builtins.print"):
@@ -308,6 +322,7 @@ class TestGradleDepTreeStrategy(unittest.TestCase):
             self.assertTrue(
                 (bom_dir / "gradle_deps.json").exists()
             )
+            mock_runner.run.assert_called_once()
 
     @patch(
         "app.pipeline.gradle_dep_tree_parser"
@@ -325,7 +340,11 @@ class TestGradleDepTreeStrategy(unittest.TestCase):
         )
         mock_subs.return_value = []
         mock_run.return_value = None
-        strategy = GradleDepTreeStrategy()
+        mock_runner = MagicMock()
+        mock_runner.run.return_value = 0
+        strategy = GradleDepTreeStrategy(
+            runner=mock_runner,
+        )
         with tempfile.TemporaryDirectory() as td:
             bom_dir = Path(td) / "bom"
             with patch("builtins.print"):
@@ -333,6 +352,23 @@ class TestGradleDepTreeStrategy(unittest.TestCase):
                     "/repo", str(bom_dir), {},
                 )
             self.assertTrue(ok)
+
+    def test_generate_adg_treedb_failure(self):
+        from app.pipeline.interception import (
+            GradleDepTreeStrategy,
+        )
+        mock_runner = MagicMock()
+        mock_runner.run.return_value = 1
+        strategy = GradleDepTreeStrategy(
+            runner=mock_runner,
+        )
+        with tempfile.TemporaryDirectory() as td:
+            ok = strategy.generate_adg(
+                "/repo",
+                str(Path(td) / "bom"),
+                {},
+            )
+            self.assertFalse(ok)
 
 
 if __name__ == "__main__":

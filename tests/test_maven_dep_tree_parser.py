@@ -25,42 +25,97 @@ from app.pipeline.maven_dep_tree_parser import (
 # ============================================================
 
 # Simplified output from dependency-check-core
-_SINGLE_MODULE_DOT = """\
-[INFO] --- dependency:3.6.1:tree (default-cli) @ dependency-check-core ---
-[INFO] digraph "org.owasp:dependency-check-core:jar:9.0.9" {
-[INFO]    "org.owasp:dependency-check-core:jar:9.0.9" -> "org.slf4j:slf4j-api:jar:2.0.7:compile" ;
-[INFO]    "org.owasp:dependency-check-core:jar:9.0.9" -> "commons-io:commons-io:jar:2.15.1:compile" ;
-[INFO]    "org.owasp:dependency-check-core:jar:9.0.9" -> "org.apache.commons:commons-lang3:jar:3.14.0:compile" ;
-[INFO]    "org.owasp:dependency-check-core:jar:9.0.9" -> "org.junit.jupiter:junit-jupiter:jar:5.10.1:test" ;
-[INFO]    "org.apache.commons:commons-lang3:jar:3.14.0:compile" -> "org.apache.commons:commons-text:jar:1.11.0:compile" ;
-[INFO]    "org.junit.jupiter:junit-jupiter:jar:5.10.1:test" -> "org.junit.jupiter:junit-jupiter-api:jar:5.10.1:test" ;
-[INFO]    "org.junit.jupiter:junit-jupiter-api:jar:5.10.1:test" -> "org.opentest4j:opentest4j:jar:1.3.0:test" ;
-[INFO] }
-"""
+_SINGLE_MODULE_DOT = (
+    '[INFO] --- dependency:3.6.1:tree'
+    ' (default-cli) @'
+    ' dependency-check-core ---\n'
+    '[INFO] digraph'
+    ' "org.owasp:dependency-check-core'
+    ':jar:9.0.9" {\n'
+    '[INFO]    "org.owasp:dependency-check'
+    '-core:jar:9.0.9" ->'
+    ' "org.slf4j:slf4j-api'
+    ':jar:2.0.7:compile" ;\n'
+    '[INFO]    "org.owasp:dependency-check'
+    '-core:jar:9.0.9" ->'
+    ' "commons-io:commons-io'
+    ':jar:2.15.1:compile" ;\n'
+    '[INFO]    "org.owasp:dependency-check'
+    '-core:jar:9.0.9" ->'
+    ' "org.apache.commons:commons-lang3'
+    ':jar:3.14.0:compile" ;\n'
+    '[INFO]    "org.owasp:dependency-check'
+    '-core:jar:9.0.9" ->'
+    ' "org.junit.jupiter:junit-jupiter'
+    ':jar:5.10.1:test" ;\n'
+    '[INFO]    "org.apache.commons'
+    ':commons-lang3:jar:3.14.0:compile"'
+    ' -> "org.apache.commons'
+    ':commons-text:jar:1.11.0:compile"'
+    ' ;\n'
+    '[INFO]    "org.junit.jupiter'
+    ':junit-jupiter:jar:5.10.1:test"'
+    ' -> "org.junit.jupiter'
+    ':junit-jupiter-api'
+    ':jar:5.10.1:test" ;\n'
+    '[INFO]    "org.junit.jupiter'
+    ':junit-jupiter-api'
+    ':jar:5.10.1:test" ->'
+    ' "org.opentest4j:opentest4j'
+    ':jar:1.3.0:test" ;\n'
+    '[INFO] }\n'
+)
 
 # ============================================================
 # Fixture: multi-module project DOT output
 # ============================================================
 
-_MULTI_MODULE_DOT = """\
-[INFO] --- dependency:3.6.1:tree (default-cli) @ parent ---
-[INFO] digraph "com.example:parent:pom:1.0.0" {
-[INFO] }
-[INFO]
-[INFO] --- dependency:3.6.1:tree (default-cli) @ core ---
-[INFO] digraph "com.example:core:jar:1.0.0" {
-[INFO]    "com.example:core:jar:1.0.0" -> "org.slf4j:slf4j-api:jar:2.0.7:compile" ;
-[INFO]    "com.example:core:jar:1.0.0" -> "com.google.guava:guava:jar:32.1.3-jre:compile" ;
-[INFO] }
-[INFO]
-[INFO] --- dependency:3.6.1:tree (default-cli) @ web ---
-[INFO] digraph "com.example:web:war:1.0.0" {
-[INFO]    "com.example:web:war:1.0.0" -> "com.example:core:jar:1.0.0:compile" ;
-[INFO]    "com.example:web:war:1.0.0" -> "javax.servlet:javax.servlet-api:jar:4.0.1:provided" ;
-[INFO]    "com.example:web:war:1.0.0" -> "org.mockito:mockito-core:jar:5.8.0:test" ;
-[INFO]    "org.mockito:mockito-core:jar:5.8.0:test" -> "net.bytebuddy:byte-buddy:jar:1.14.10:test" ;
-[INFO] }
-"""
+_MULTI_MODULE_DOT = (
+    '[INFO] --- dependency:3.6.1:tree'
+    ' (default-cli) @ parent ---\n'
+    '[INFO] digraph'
+    ' "com.example:parent:pom:1.0.0"'
+    ' {\n'
+    '[INFO] }\n'
+    '[INFO]\n'
+    '[INFO] --- dependency:3.6.1:tree'
+    ' (default-cli) @ core ---\n'
+    '[INFO] digraph'
+    ' "com.example:core:jar:1.0.0"'
+    ' {\n'
+    '[INFO]    "com.example:core'
+    ':jar:1.0.0" ->'
+    ' "org.slf4j:slf4j-api'
+    ':jar:2.0.7:compile" ;\n'
+    '[INFO]    "com.example:core'
+    ':jar:1.0.0" ->'
+    ' "com.google.guava:guava'
+    ':jar:32.1.3-jre:compile" ;\n'
+    '[INFO] }\n'
+    '[INFO]\n'
+    '[INFO] --- dependency:3.6.1:tree'
+    ' (default-cli) @ web ---\n'
+    '[INFO] digraph'
+    ' "com.example:web:war:1.0.0"'
+    ' {\n'
+    '[INFO]    "com.example:web'
+    ':war:1.0.0" ->'
+    ' "com.example:core'
+    ':jar:1.0.0:compile" ;\n'
+    '[INFO]    "com.example:web'
+    ':war:1.0.0" ->'
+    ' "javax.servlet:javax.servlet-api'
+    ':jar:4.0.1:provided" ;\n'
+    '[INFO]    "com.example:web'
+    ':war:1.0.0" ->'
+    ' "org.mockito:mockito-core'
+    ':jar:5.8.0:test" ;\n'
+    '[INFO]    "org.mockito:mockito-core'
+    ':jar:5.8.0:test" ->'
+    ' "net.bytebuddy:byte-buddy'
+    ':jar:1.14.10:test" ;\n'
+    '[INFO] }\n'
+)
 
 # ============================================================
 # Fixture: no-scope root node (DOT format edge case)
@@ -75,26 +130,42 @@ digraph "com.example:app:jar:2.0.0" {
 # Fixture: version conflict (managed version wins)
 # ============================================================
 
-_VERSION_CONFLICT_DOT = """\
-digraph "com.example:app:jar:1.0.0" {
-    "com.example:app:jar:1.0.0" -> "org.apache:commons-lang3:jar:3.14.0:compile" ;
-    "com.example:app:jar:1.0.0" -> "com.foo:bar:jar:1.0.0:compile" ;
-    "com.foo:bar:jar:1.0.0:compile" -> "org.apache:commons-lang3:jar:3.12.0:compile" ;
-}
-"""
+_VERSION_CONFLICT_DOT = (
+    'digraph "com.example:app:jar:1.0.0"'
+    ' {\n'
+    '    "com.example:app:jar:1.0.0" ->'
+    ' "org.apache:commons-lang3'
+    ':jar:3.14.0:compile" ;\n'
+    '    "com.example:app:jar:1.0.0" ->'
+    ' "com.foo:bar:jar:1.0.0:compile"'
+    ' ;\n'
+    '    "com.foo:bar:jar:1.0.0:compile"'
+    ' -> "org.apache:commons-lang3'
+    ':jar:3.12.0:compile" ;\n'
+    '}\n'
+)
 
 # ============================================================
 # Fixture: optional and system scope
 # ============================================================
 
-_SCOPES_DOT = """\
-digraph "com.example:app:jar:1.0.0" {
-    "com.example:app:jar:1.0.0" -> "com.oracle:ojdbc8:jar:21.9.0:system" ;
-    "com.example:app:jar:1.0.0" -> "org.slf4j:slf4j-api:jar:2.0.7:runtime" ;
-    "com.example:app:jar:1.0.0" -> "org.projectlombok:lombok:jar:1.18.30:provided" ;
-    "com.example:app:jar:1.0.0" -> "org.junit:junit:jar:4.13.2:test" ;
-}
-"""
+_SCOPES_DOT = (
+    'digraph "com.example:app:jar:1.0.0"'
+    ' {\n'
+    '    "com.example:app:jar:1.0.0" ->'
+    ' "com.oracle:ojdbc8'
+    ':jar:21.9.0:system" ;\n'
+    '    "com.example:app:jar:1.0.0" ->'
+    ' "org.slf4j:slf4j-api'
+    ':jar:2.0.7:runtime" ;\n'
+    '    "com.example:app:jar:1.0.0" ->'
+    ' "org.projectlombok:lombok'
+    ':jar:1.18.30:provided" ;\n'
+    '    "com.example:app:jar:1.0.0" ->'
+    ' "org.junit:junit'
+    ':jar:4.13.2:test" ;\n'
+    '}\n'
+)
 
 
 # ============================================================
@@ -428,7 +499,11 @@ class TestMavenDepTreeStrategy(unittest.TestCase):
             MavenDepTreeStrategy,
         )
         mock_run.return_value = _SINGLE_MODULE_DOT
-        strategy = MavenDepTreeStrategy()
+        mock_runner = MagicMock()
+        mock_runner.run.return_value = 0
+        strategy = MavenDepTreeStrategy(
+            runner=mock_runner,
+        )
         with tempfile.TemporaryDirectory() as td:
             bom_dir = Path(td) / "bom"
             with patch("builtins.print"):
@@ -439,15 +514,37 @@ class TestMavenDepTreeStrategy(unittest.TestCase):
             self.assertTrue(
                 (bom_dir / "maven_deps.json").exists()
             )
+            mock_runner.run.assert_called_once()
 
     @patch("app.pipeline.maven_dep_tree_parser"
            ".run_maven_dep_tree")
-    def test_generate_adg_failure(self, mock_run):
+    def test_generate_adg_dep_tree_failure(
+        self, mock_run,
+    ):
         from app.pipeline.interception import (
             MavenDepTreeStrategy,
         )
         mock_run.return_value = None
-        strategy = MavenDepTreeStrategy()
+        mock_runner = MagicMock()
+        mock_runner.run.return_value = 0
+        strategy = MavenDepTreeStrategy(
+            runner=mock_runner,
+        )
+        with tempfile.TemporaryDirectory() as td:
+            ok = strategy.generate_adg(
+                "/repo", str(Path(td) / "bom"), {},
+            )
+            self.assertFalse(ok)
+
+    def test_generate_adg_treedb_failure(self):
+        from app.pipeline.interception import (
+            MavenDepTreeStrategy,
+        )
+        mock_runner = MagicMock()
+        mock_runner.run.return_value = 1
+        strategy = MavenDepTreeStrategy(
+            runner=mock_runner,
+        )
         with tempfile.TemporaryDirectory() as td:
             ok = strategy.generate_adg(
                 "/repo", str(Path(td) / "bom"), {},

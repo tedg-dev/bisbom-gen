@@ -15,7 +15,6 @@ import xml.etree.ElementTree as ET  # noqa: F401
 from datetime import datetime, timezone
 from pathlib import Path
 
-from app.spdx.parser import AdgParser
 from app.spdx.maven_parser import (
     get_maven_deps,
     get_version,
@@ -193,11 +192,10 @@ class JavaSpdxGenerator:
             sbom_type: 'analyzed' (only what's in the
                 JAR — source files, no deps) or 'build'
                 (full dependency graph).
-            jar_files: optional list of dicts with sha1
+            jar_files: list of dicts with sha1
                 and file_path — per-JAR source files
                 from AdgParser.get_jar_source_files().
-                If None, falls back to all
-                project_source from treedb.
+                Required; None is an error.
             pom_dir: optional directory containing the
                 module's pom.xml for per-module Maven
                 dependency resolution.
@@ -206,22 +204,18 @@ class JavaSpdxGenerator:
         """
         bin_name = binary_name or f"{self.repo_name}.jar"
 
-        # Use per-JAR filtered files if provided,
-        # otherwise fall back to all project_source
-        if jar_files is not None:
-            all_files = jar_files
-        else:
-            parser = AdgParser(
-                self.bom_dir, self.repos_dir
+        # jar_files must be provided by the caller
+        # (per-JAR source files from treedb).  Never
+        # fall back to all project_source — that would
+        # silently include files from other JARs.
+        if jar_files is None:
+            print(
+                f"[ERROR] {bin_name}: jar_files is "
+                f"None — cannot generate SPDX "
+                f"without per-JAR file list"
             )
-            try:
-                classified = parser.parse()
-            except FileNotFoundError as e:
-                print(f"[ERROR] {e}")
-                return None
-            all_files = classified.get(
-                "project_source", []
-            )
+            return None
+        all_files = jar_files
 
         source_files = [
             f for f in all_files

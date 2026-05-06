@@ -48,9 +48,6 @@ class BomtraceBuilder:
             Path(paths_cfg["output_dir"])
             / "omnibor" / lang / repo_name / ts
         )
-        tracer = omnibor_cfg["tracer"]
-        raw_logfile = omnibor_cfg["raw_logfile"]
-
         # Clean stale build artifacts so bomtrace3
         # intercepts a full recompilation.
         # Without this, a prior build leaves object
@@ -94,6 +91,7 @@ class BomtraceBuilder:
                 )
             )
         else:
+            tracer = omnibor_cfg["tracer"]
             instrumented = f"{tracer} {make_cmd}"
             env = None
 
@@ -125,6 +123,7 @@ class BomtraceBuilder:
             create_bom = (
                 omnibor_cfg["create_bom_script"]
             )
+            raw_logfile = omnibor_cfg["raw_logfile"]
             rc = self.runner.run(
                 f"{create_bom} -r {raw_logfile} "
                 f"-b {bom_dir}",
