@@ -16,8 +16,11 @@ Thank you for your interest in contributing. This document outlines the workflow
 
 This project follows a **PR-first workflow**. All changes go through pull requests.
 
-- **Never** commit directly to `main`
+- **Never** commit directly to `main` — this is enforced server-side via GitHub Rulesets
 - Always work on a feature branch and merge via PR
+- Force pushes to `main` are rejected server-side
+- Only squash/rebase merges are allowed (linear history)
+- Merged branches are automatically deleted by GitHub
 - Use conventional branch name prefixes:
 
 | Prefix | Use Case |
@@ -66,6 +69,21 @@ test(spdx): add unit tests for SPDX package extraction
 3. Ensure all tests pass (if applicable)
 4. Push your branch and open a PR
 5. Fill out the PR template completely
+
+### Review Requirements
+
+Code review requirements are enforced by GitHub Rulesets:
+
+| Actor | PR Required | Review Required |
+|-------|-------------|-----------------|
+| **Project architect (tedg-dev)** | Yes | No — can merge own PRs |
+| **All other contributors** | Yes | Yes — 1 approving review |
+
+Additional review policies:
+
+- Stale reviews are dismissed when new commits are pushed
+- The person who pushes last cannot self-approve
+- All review conversation threads must be resolved before merge
 
 ### PR Review Checklist
 
