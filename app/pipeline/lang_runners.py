@@ -371,18 +371,35 @@ def generate_java_adg_spdx(
         jar_name = jar_path.stem  # e.g. jsoup-1.22.1
         bin_name = jar_path.name  # e.g. jsoup-1.22.1.jar
 
-        # Find matching treedb entry by JAR path
+        # Find matching treedb entry by JAR path.
+        # Try exact path first, then fall back to
+        # matching by JAR filename (Gradle maven-publish
+        # puts JARs in build/maven-repository/ while
+        # the output_binaries glob finds build/libs/).
         rel_jar = str(
             jar_path.relative_to(repo_dir)
         )
-        jar_files = jar_map.get(
-            f"{repo_name}/{rel_jar}"
-        )
+        lookup_key = f"{repo_name}/{rel_jar}"
+        jar_files = jar_map.get(lookup_key)
+        if jar_files is None:
+            # Fallback: match by JAR filename
+            for key in jar_map:
+                if key.endswith(f"/{bin_name}"):
+                    jar_files = jar_map[key]
+                    print(
+                        f"[OK] Matched {bin_name} "
+                        f"via filename (treedb path "
+                        f"differs from glob path)"
+                    )
+                    break
         if jar_files is None:
             print(
-                f"[WARN] No treedb entry for "
-                f"{rel_jar}, using all project files"
+                f"[ERROR] No treedb entry for "
+                f"{bin_name} — skipping SPDX "
+                f"generation (looked up: "
+                f"{lookup_key})"
             )
+            continue
 
         # Determine module dir for per-module dependency
         # resolution (Maven: pom.xml, Gradle: build.gradle)

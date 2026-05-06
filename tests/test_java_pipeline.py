@@ -64,7 +64,7 @@ class TestRunJavaPipeline(unittest.TestCase):
             )
             pipeline = self._make_pipeline()
 
-            success, dur = _run_java_pipeline(
+            success, _dur = _run_java_pipeline(
                 pipeline, "myapp", repo_cfg,
                 paths, java_cfg, "ts1",
             )
@@ -93,7 +93,7 @@ class TestRunJavaPipeline(unittest.TestCase):
             pipeline = self._make_pipeline()
             pipeline.builder.build_java.return_value = False
 
-            success, dur = _run_java_pipeline(
+            success, _dur = _run_java_pipeline(
                 pipeline, "myapp", repo_cfg,
                 paths, java_cfg, "ts1",
             )
@@ -117,7 +117,7 @@ class TestRunJavaPipeline(unittest.TestCase):
                 None
             )
 
-            success, dur = _run_java_pipeline(
+            success, _dur = _run_java_pipeline(
                 pipeline, "myapp", repo_cfg,
                 paths, java_cfg, "ts1",
             )
@@ -336,6 +336,140 @@ class TestGenerateJavaAdgSpdx(unittest.TestCase):
                 "cli-1.0.jar",
                 calls[4].kwargs["binary_name"],
             )
+
+
+class TestJarMapFallbackMatching(unittest.TestCase):
+    """Tests for JAR filename-based fallback matching.
+
+    When the treedb JAR path differs from the
+    output_binaries glob path (e.g., Gradle
+    maven-publish puts JARs in build/maven-repository/
+    while glob finds build/libs/), the pipeline must
+    match by filename and never silently fall back to
+    all project files.
+    """
+
+    @patch(
+        "app.spdx.parser.AdgParser"
+    )
+    @patch(
+        "app.spdx.java_generator.JavaSpdxGenerator"
+    )
+    def test_filename_fallback_matches(
+        self, mock_gen_cls, mock_parser_cls,
+    ):
+        """Exact path miss but filename match succeeds."""
+        mock_gen = MagicMock()
+        mock_gen.generate.side_effect = [
+            "/tmp/analyzed.spdx.json",
+            "/tmp/build.spdx.json",
+        ]
+        mock_gen_cls.return_value = mock_gen
+
+        # Treedb has JAR under maven-repository/
+        mock_parser = MagicMock()
+        mock_parser.get_jar_source_files.return_value = {
+            "myapp/build/maven-repo/myapp-1.0.jar": [
+                {"sha1": "a", "file_path": "a.java"},
+            ],
+        }
+        mock_parser.parse_strace_openat_log.return_value = (
+            set()
+        )
+        mock_parser_cls.return_value = mock_parser
+
+        with tempfile.TemporaryDirectory() as td:
+            paths_cfg = {
+                "output_dir": str(
+                    Path(td) / "output"
+                ),
+                "repos_dir": str(
+                    Path(td) / "repos"
+                ),
+            }
+            repo_cfg = {
+                "language": "java",
+                "output_binaries": [
+                    # Glob finds build/libs/
+                    "build/libs/myapp-1.0.jar",
+                ],
+            }
+            jar = (
+                Path(td) / "repos" / "myapp"
+                / "build" / "libs" / "myapp-1.0.jar"
+            )
+            jar.parent.mkdir(parents=True)
+            jar.write_bytes(b"PK")
+
+            result = _generate_java_adg_spdx(
+                "myapp", repo_cfg, paths_cfg, "ts1",
+            )
+
+            self.assertEqual(len(result), 2)
+            # Verify jar_files was passed (not None)
+            calls = mock_gen.generate.call_args_list
+            for call in calls:
+                self.assertIsNotNone(
+                    call.kwargs["jar_files"],
+                )
+                self.assertEqual(
+                    len(call.kwargs["jar_files"]), 1,
+                )
+
+    @patch(
+        "app.spdx.parser.AdgParser"
+    )
+    @patch(
+        "app.spdx.java_generator.JavaSpdxGenerator"
+    )
+    def test_no_match_skips_jar(
+        self, mock_gen_cls, mock_parser_cls,
+    ):
+        """No path or filename match → skip JAR."""
+        mock_gen = MagicMock()
+        mock_gen_cls.return_value = mock_gen
+
+        # Treedb has different JARs entirely
+        mock_parser = MagicMock()
+        mock_parser.get_jar_source_files.return_value = {
+            "myapp/target/other-1.0.jar": [
+                {"sha1": "a", "file_path": "a.java"},
+            ],
+        }
+        mock_parser.parse_strace_openat_log.return_value = (
+            set()
+        )
+        mock_parser_cls.return_value = mock_parser
+
+        with tempfile.TemporaryDirectory() as td:
+            paths_cfg = {
+                "output_dir": str(
+                    Path(td) / "output"
+                ),
+                "repos_dir": str(
+                    Path(td) / "repos"
+                ),
+            }
+            repo_cfg = {
+                "language": "java",
+                "output_binaries": [
+                    "target/myapp-1.0.jar",
+                ],
+            }
+            jar = (
+                Path(td) / "repos" / "myapp"
+                / "target" / "myapp-1.0.jar"
+            )
+            jar.parent.mkdir(parents=True)
+            jar.write_bytes(b"PK")
+
+            result = _generate_java_adg_spdx(
+                "myapp", repo_cfg, paths_cfg, "ts1",
+            )
+
+            # JAR skipped — no SPDX generated
+            self.assertEqual(result, [])
+            mock_gen.generate.assert_not_called()
 
 
 class TestMainJavaDispatch(unittest.TestCase):

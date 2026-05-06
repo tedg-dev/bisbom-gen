@@ -23,6 +23,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     wget \
     curl \
     ca-certificates \
+    patch \
     python3 \
     python3-pip \
     && rm -rf /var/lib/apt/lists/*
@@ -293,6 +294,31 @@ CMD ["/bin/bash"]
 FROM base AS sidecar
 
 ENV OMNIBOR_MODE=sidecar
+
+# Java JDK + Maven — required for Gradle/Maven dep:tree
+# (sidecar doesn't build, but needs JVM to resolve deps)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    openjdk-17-jdk \
+    openjdk-21-jdk \
+    maven \
+    && rm -rf /var/lib/apt/lists/*
+ENV JAVA_HOME="/usr/lib/jvm/java-21-openjdk-amd64"
+ENV MAVEN_VERSION=3.9.15
+RUN wget -q "https://dlcdn.apache.org/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz" -O /tmp/maven.tar.gz && \
+    tar -C /opt -xzf /tmp/maven.tar.gz && \
+    rm /tmp/maven.tar.gz
+RUN ln -sf /opt/apache-maven-${MAVEN_VERSION}/bin/mvn /usr/local/bin/mvn && \
+    ln -s /opt/apache-maven-${MAVEN_VERSION}/bin/mvn /usr/local/bin/mvn3.9 && \
+    ln -s /usr/share/maven/bin/mvn /usr/local/bin/mvn3.6
+# Unblock HTTP Maven repositories (same as standalone)
+RUN for settings in \
+        /opt/apache-maven-${MAVEN_VERSION}/conf/settings.xml \
+        /usr/share/maven/conf/settings.xml; do \
+      if [ -f "$settings" ]; then \
+        sed -i '/<mirror>/,/<\/mirror>/{/maven-default-http-blocker/,/<\/mirror>/d; /<mirror>/d}' "$settings"; \
+      fi; \
+    done
+ENV PATH="${JAVA_HOME}/bin:${PATH}"
 
 # Only need bomsh scripts (no bomtrace binaries)
 RUN git clone --depth 1 \

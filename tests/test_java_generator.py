@@ -1038,10 +1038,7 @@ class TestGenerate(unittest.TestCase):
     """Tests for the generate method."""
 
     @patch.object(JavaSpdxGenerator, "_get_maven_deps")
-    @patch("app.spdx.java_generator.AdgParser")
-    def test_generate_success(
-        self, mock_parser_cls, mock_maven
-    ):
+    def test_generate_success(self, mock_maven):
         with tempfile.TemporaryDirectory() as td:
             repos = Path(td) / "repos"
             repo = repos / "myapp"
@@ -1055,49 +1052,15 @@ class TestGenerate(unittest.TestCase):
             bom.mkdir()
             out = Path(td) / "out" / "test.spdx.json"
 
-            mock_parser = MagicMock()
-            mock_parser.parse.return_value = {
-                "project_source": [
-                    {
-                        "file_path": str(
-                            repo / "src/A.java"
-                        ),
-                        "sha1": "abc",
-                    }
-                ],
-            }
-            mock_parser_cls.return_value = mock_parser
             mock_maven.return_value = []
-
-            gen = JavaSpdxGenerator(
-                bom_dir=str(bom),
-                repos_dir=str(repos),
-                repo_name="myapp",
-            )
-            result = gen.generate(str(out))
-            self.assertIsNotNone(result)
-            self.assertTrue(out.exists())
-            doc = json.loads(out.read_text())
-            self.assertEqual(
-                doc["spdxVersion"], "SPDX-2.3"
-            )
-
-    @patch("app.spdx.java_generator.AdgParser")
-    def test_generate_parser_failure(
-        self, mock_parser_cls
-    ):
-        with tempfile.TemporaryDirectory() as td:
-            repos = Path(td) / "repos"
-            repo = repos / "myapp"
-            repo.mkdir(parents=True)
-            bom = Path(td) / "bom"
-            bom.mkdir()
-
-            mock_parser = MagicMock()
-            mock_parser.parse.side_effect = (
-                FileNotFoundError("treedb not found")
-            )
-            mock_parser_cls.return_value = mock_parser
+            jar_files = [
+                {
+                    "file_path": str(
+                        repo / "src/A.java"
+                    ),
+                    "sha1": "abc",
+                },
+            ]
 
             gen = JavaSpdxGenerator(
                 bom_dir=str(bom),
@@ -1105,14 +1068,38 @@ class TestGenerate(unittest.TestCase):
                 repo_name="myapp",
             )
             result = gen.generate(
-                str(Path(td) / "out.json")
+                str(out), jar_files=jar_files,
+            )
+            self.assertIsNotNone(result)
+            self.assertTrue(out.exists())
+            doc = json.loads(out.read_text())
+            self.assertEqual(
+                doc["spdxVersion"], "SPDX-2.3"
+            )
+
+    def test_generate_none_jar_files_returns_none(self):
+        """jar_files=None is an error, not a fallback."""
+        with tempfile.TemporaryDirectory() as td:
+            repos = Path(td) / "repos"
+            repo = repos / "myapp"
+            repo.mkdir(parents=True)
+            bom = Path(td) / "bom"
+            bom.mkdir()
+
+            gen = JavaSpdxGenerator(
+                bom_dir=str(bom),
+                repos_dir=str(repos),
+                repo_name="myapp",
+            )
+            result = gen.generate(
+                str(Path(td) / "out.json"),
+                jar_files=None,
             )
             self.assertIsNone(result)
 
     @patch.object(JavaSpdxGenerator, "_get_maven_deps")
-    @patch("app.spdx.java_generator.AdgParser")
     def test_generate_default_binary_name(
-        self, mock_parser_cls, mock_maven
+        self, mock_maven
     ):
         with tempfile.TemporaryDirectory() as td:
             repos = Path(td) / "repos"
@@ -1127,11 +1114,6 @@ class TestGenerate(unittest.TestCase):
             bom.mkdir()
             out = Path(td) / "out.spdx.json"
 
-            mock_parser = MagicMock()
-            mock_parser.parse.return_value = {
-                "project_source": [],
-            }
-            mock_parser_cls.return_value = mock_parser
             mock_maven.return_value = []
 
             gen = JavaSpdxGenerator(
@@ -1139,7 +1121,9 @@ class TestGenerate(unittest.TestCase):
                 repos_dir=str(repos),
                 repo_name="myapp",
             )
-            result = gen.generate(str(out))
+            result = gen.generate(
+                str(out), jar_files=[],
+            )
             self.assertIsNotNone(result)
             doc = json.loads(out.read_text())
             # Default name uses repo_name.jar
@@ -1148,9 +1132,8 @@ class TestGenerate(unittest.TestCase):
             )
 
     @patch.object(JavaSpdxGenerator, "_get_maven_deps")
-    @patch("app.spdx.java_generator.AdgParser")
     def test_generate_filters_test_deps(
-        self, mock_parser_cls, mock_maven
+        self, mock_maven
     ):
         with tempfile.TemporaryDirectory() as td:
             repos = Path(td) / "repos"
@@ -1165,11 +1148,6 @@ class TestGenerate(unittest.TestCase):
             bom.mkdir()
             out = Path(td) / "out.spdx.json"
 
-            mock_parser = MagicMock()
-            mock_parser.parse.return_value = {
-                "project_source": [],
-            }
-            mock_parser_cls.return_value = mock_parser
             mock_maven.return_value = [
                 {
                     "groupId": "a",
@@ -1196,7 +1174,10 @@ class TestGenerate(unittest.TestCase):
                 repos_dir=str(repos),
                 repo_name="myapp",
             )
-            result = gen.generate(str(out))
+            result = gen.generate(
+                str(out), jar_files=[],
+            )
+            self.assertIsNotNone(result)
             doc = json.loads(out.read_text())
             # Only root + compile dep, not test dep
             self.assertEqual(len(doc["packages"]), 2)
@@ -1441,9 +1422,8 @@ class TestStraceFiltering(unittest.TestCase):
     @patch.object(
         JavaSpdxGenerator, "_get_maven_deps"
     )
-    @patch("app.spdx.java_generator.AdgParser")
     def test_strace_filters_source_files(
-        self, mock_parser_cls, mock_maven
+        self, mock_maven
     ):
         """Files not in strace log are excluded."""
         with tempfile.TemporaryDirectory() as td:
@@ -1491,6 +1471,7 @@ class TestStraceFiltering(unittest.TestCase):
                 sbom_type="analyzed",
                 jar_files=jar_files,
             )
+            self.assertIsNotNone(result)
             doc = json.loads(out.read_text())
             # Only App.java should be in files
             self.assertEqual(len(doc["files"]), 1)
@@ -1502,9 +1483,8 @@ class TestStraceFiltering(unittest.TestCase):
     @patch.object(
         JavaSpdxGenerator, "_get_maven_deps"
     )
-    @patch("app.spdx.java_generator.AdgParser")
     def test_no_strace_keeps_all_files(
-        self, mock_parser_cls, mock_maven
+        self, mock_maven
     ):
         """Without strace data, all files pass through."""
         with tempfile.TemporaryDirectory() as td:
@@ -1547,6 +1527,7 @@ class TestStraceFiltering(unittest.TestCase):
                 sbom_type="analyzed",
                 jar_files=jar_files,
             )
+            self.assertIsNotNone(result)
             doc = json.loads(out.read_text())
             # Both files kept
             self.assertEqual(len(doc["files"]), 2)

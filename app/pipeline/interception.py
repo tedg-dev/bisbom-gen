@@ -216,20 +216,22 @@ class RustcWrapperStrategy(InterceptionStrategy):
 
 
 class MavenDepTreeStrategy(InterceptionStrategy):
-    """Java Maven: ``mvn dependency:tree`` instead of strace.
+    """Java Maven: sidecar mode without ``SYS_PTRACE``.
 
-    In sidecar mode, Java builds do not need ``SYS_PTRACE``.
-    Instead of intercepting file I/O via strace, this strategy:
+    In sidecar mode, Java builds do not need strace or
+    ptrace.  This strategy:
 
     1. Runs the build command unmodified (no strace prefix).
-    2. Runs ``mvn dependency:tree -DoutputType=dot`` to
+    2. Generates OmniBOR treedb via
+       ``bomsh_create_bom_java.py`` — the same script used
+       in standalone mode.  Without a strace log, it uses
+       the ``SourceFile`` bytecode attribute + path
+       similarity to trace JAR → class → source.
+    3. Runs ``mvn dependency:tree -DoutputType=dot`` to
        capture the declared dependency graph.
-    3. Parses the DOT output into treedb-compatible format.
 
-    Accuracy caveat: ``mvn dependency:tree`` reports the
-    *declared* dependency graph, which may diverge from the
-    *actual* runtime classpath when shade/assembly plugins
-    repackage transitive dependencies.
+    Both data sources feed into the same downstream SPDX
+    pipeline as standalone mode.
     """
 
     def __init__(self, runner=None):
@@ -245,10 +247,17 @@ class MavenDepTreeStrategy(InterceptionStrategy):
         return build_cmd, {}
 
     def generate_adg(self, repo_dir, bom_dir, omnibor_cfg):
-        """Run ``mvn dependency:tree -DoutputType=dot`` and parse.
+        """Generate OmniBOR treedb and Maven dependency graph.
 
-        Writes parsed dependency data to
-        ``{bom_dir}/maven_deps.json``.
+        Two data sources for SPDX generation:
+
+        1. ``bomsh_create_bom_java.py`` scans the build
+           workspace to produce the OmniBOR treedb
+           (JAR → class → source file provenance).
+           Uses the same SourceFile bytecode attribute
+           + path similarity as standalone mode.
+        2. ``mvn dependency:tree`` captures the declared
+           Maven dependency graph.
 
         Returns:
             True on success, False on failure.
@@ -263,7 +272,39 @@ class MavenDepTreeStrategy(InterceptionStrategy):
 
         bom_path = Path(bom_dir)
         bom_path.mkdir(parents=True, exist_ok=True)
+        meta_dir = bom_path / "metadata" / "bomsh"
+        meta_dir.mkdir(parents=True, exist_ok=True)
 
+        # Step 1: Generate OmniBOR treedb via JAR
+        # introspection — same bomsh script as
+        # standalone mode, without strace log.
+        create_bom = omnibor_cfg.get(
+            "create_bom_script",
+            "bomsh_create_bom_java.py",
+        )
+        treedb_file = meta_dir / "bomsh_omnibor_treedb"
+        rc = self._runner.run(
+            f"{create_bom} -r {repo_dir} "
+            f"-j {treedb_file}",
+            cwd=str(repo_dir),
+            description=(
+                "Generating OmniBOR treedb "
+                "for Java workspace"
+            ),
+        )
+        if rc != 0:
+            print(
+                "[ERROR] bomsh_create_bom_java.py "
+                "failed"
+            )
+            return False
+
+        print(
+            f"[OK] OmniBOR treedb written to "
+            f"{treedb_file}"
+        )
+
+        # Step 2: Capture Maven dependency graph
         dot_output = run_maven_dep_tree(
             repo_dir, runner=self._runner,
         )
@@ -289,17 +330,19 @@ class MavenDepTreeStrategy(InterceptionStrategy):
 
 
 class GradleDepTreeStrategy(InterceptionStrategy):
-    """Java Gradle: ``./gradlew dependencies`` instead of strace.
+    """Java Gradle: sidecar mode without ``SYS_PTRACE``.
 
-    Like ``MavenDepTreeStrategy``, this avoids ``SYS_PTRACE``
+    Like ``MavenDepTreeStrategy``, this avoids strace/ptrace
     for Gradle-based Java builds:
 
     1. Runs the build command unmodified.
-    2. Runs ``./gradlew dependencies`` per subproject.
-    3. Parses the indented tree output into structured data.
+    2. Generates OmniBOR treedb via
+       ``bomsh_create_bom_java.py`` (same as standalone).
+    3. Runs ``./gradlew dependencies`` per subproject.
+    4. Parses the indented tree output into structured data.
 
-    Handles multi-project builds by iterating subprojects
-    discovered from ``settings.gradle``.
+    Both data sources feed into the same downstream SPDX
+    pipeline as standalone mode.
     """
 
     def __init__(self, runner=None):
@@ -315,10 +358,15 @@ class GradleDepTreeStrategy(InterceptionStrategy):
         return build_cmd, {}
 
     def generate_adg(self, repo_dir, bom_dir, omnibor_cfg):
-        """Run ``./gradlew dependencies`` and parse output.
+        """Generate OmniBOR treedb and Gradle dependency graph.
 
-        Writes parsed dependency data to
-        ``{bom_dir}/gradle_deps.json``.
+        Two data sources for SPDX generation:
+
+        1. ``bomsh_create_bom_java.py`` scans the build
+           workspace to produce the OmniBOR treedb
+           (JAR → class → source file provenance).
+        2. ``./gradlew dependencies`` captures the declared
+           Gradle dependency graph per subproject.
 
         Returns:
             True on success, False on failure.
@@ -332,7 +380,39 @@ class GradleDepTreeStrategy(InterceptionStrategy):
 
         bom_path = Path(bom_dir)
         bom_path.mkdir(parents=True, exist_ok=True)
+        meta_dir = bom_path / "metadata" / "bomsh"
+        meta_dir.mkdir(parents=True, exist_ok=True)
 
+        # Step 1: Generate OmniBOR treedb via JAR
+        # introspection — same bomsh script as
+        # standalone mode, without strace log.
+        create_bom = omnibor_cfg.get(
+            "create_bom_script",
+            "bomsh_create_bom_java.py",
+        )
+        treedb_file = meta_dir / "bomsh_omnibor_treedb"
+        rc = self._runner.run(
+            f"{create_bom} -r {repo_dir} "
+            f"-j {treedb_file}",
+            cwd=str(repo_dir),
+            description=(
+                "Generating OmniBOR treedb "
+                "for Java workspace"
+            ),
+        )
+        if rc != 0:
+            print(
+                "[ERROR] bomsh_create_bom_java.py "
+                "failed"
+            )
+            return False
+
+        print(
+            f"[OK] OmniBOR treedb written to "
+            f"{treedb_file}"
+        )
+
+        # Step 2: Capture Gradle dependency graph
         deps = get_all_gradle_deps(repo_dir)
         if not deps:
             print(
