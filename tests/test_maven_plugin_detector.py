@@ -388,6 +388,34 @@ class TestDetectionResult(unittest.TestCase):
             r.plugin_ids, ["maven-shade-plugin"],
         )
 
+    def test_spdx_comment_deduplicates(self):
+        """Duplicate warnings from multi-module POMs
+        should not repeat in spdx_comment."""
+        r = DetectionResult(detections=[
+            PluginDetection(
+                plugin_id="maven-shade-plugin",
+                group_id="org.apache.maven.plugins",
+                warning="shade detected",
+                pom_path="/root/pom.xml",
+            ),
+            PluginDetection(
+                plugin_id="maven-shade-plugin",
+                group_id="org.apache.maven.plugins",
+                warning="shade detected",
+                pom_path="/module-a/pom.xml",
+            ),
+            PluginDetection(
+                plugin_id="maven-assembly-plugin",
+                group_id="org.apache.maven.plugins",
+                warning="assembly detected",
+                pom_path="/root/pom.xml",
+            ),
+        ])
+        self.assertEqual(
+            r.spdx_comment,
+            "shade detected; assembly detected",
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

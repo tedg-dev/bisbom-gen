@@ -93,9 +93,12 @@ class DetectionResult:
         """
         if not self.detections:
             return ""
+        seen = set()
         lines = []
         for d in self.detections:
-            lines.append(d.warning)
+            if d.warning not in seen:
+                seen.add(d.warning)
+                lines.append(d.warning)
         return "; ".join(lines)
 
     @property
