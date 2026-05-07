@@ -451,6 +451,69 @@ class TestAdgParser(unittest.TestCase):
                 sources[0]["file_path"],
             )
 
+    def test_get_jar_source_files_excludes_bomjdir(self):
+        """Extraction artifacts in /tmp/bomjdir/ excluded."""
+        with tempfile.TemporaryDirectory() as td:
+            meta = self._setup_bom_dir(td)
+            treedb = {
+                "jar_sha": {
+                    "file_path": (
+                        "/repos/myapp/target/app.jar"
+                    ),
+                    "hash_tree": [
+                        "cls_sha", "mi_sha",
+                    ],
+                },
+                "cls_sha": {
+                    "file_path": (
+                        "/repos/myapp/target/"
+                        "classes/App.class"
+                    ),
+                    "hash_tree": ["src_sha"],
+                },
+                "src_sha": {
+                    "file_path": (
+                        "/repos/myapp/src/main/"
+                        "java/App.java"
+                    ),
+                },
+                "mi_sha": {
+                    "file_path": (
+                        "/tmp/bomjdir/app.jar/"
+                        "META-INF/versions/11/"
+                        "module-info.class"
+                    ),
+                },
+            }
+            (meta / "bomsh_omnibor_treedb").write_text(
+                json.dumps(treedb)
+            )
+            parser = AdgParser(
+                str(Path(td) / "bom"), "/repos"
+            )
+            result = parser.get_jar_source_files()
+            sources = result["myapp/target/app.jar"]
+            paths = [
+                s["file_path"] for s in sources
+            ]
+            # Source and class included
+            self.assertTrue(
+                any("App.java" in p for p in paths)
+            )
+            self.assertTrue(
+                any("App.class" in p for p in paths)
+            )
+            # bomjdir artifact excluded
+            self.assertFalse(
+                any("bomjdir" in p for p in paths)
+            )
+            self.assertFalse(
+                any(
+                    "module-info" in p
+                    for p in paths
+                )
+            )
+
     def test_classify_empty_filepath(self):
         """Entries with empty file_path are skipped."""
         with tempfile.TemporaryDirectory() as td:
@@ -511,6 +574,57 @@ class TestAdgParser(unittest.TestCase):
             result = parser.parse()
             self.assertEqual(
                 len(result["system_header"]), 1
+            )
+
+    def test_classify_tmp_never_reaches_project_source(self):
+        """/tmp/ paths land in catch-all, not project_source."""
+        with tempfile.TemporaryDirectory() as td:
+            meta = self._setup_bom_dir(td)
+            treedb = {
+                "lto": {
+                    "file_path": (
+                        "/tmp/cc3RYFEm.ltrans0.o"
+                    ),
+                },
+                "gobuild": {
+                    "file_path": (
+                        "/tmp/go-build123/main.go"
+                    ),
+                },
+                "bomjdir": {
+                    "file_path": (
+                        "/tmp/bomjdir/app.jar/"
+                        "module-info.class"
+                    ),
+                },
+                "real": {
+                    "file_path": "/repos/myapp/main.c",
+                },
+            }
+            (meta / "bomsh_omnibor_treedb").write_text(
+                json.dumps(treedb)
+            )
+            parser = AdgParser(
+                str(Path(td) / "bom"), "/repos"
+            )
+            result = parser.parse()
+            # Only real file in project_source
+            self.assertEqual(
+                len(result["project_source"]), 1
+            )
+            self.assertEqual(
+                result["project_source"][0][
+                    "file_path"
+                ],
+                "/repos/myapp/main.c",
+            )
+            # /tmp/ paths are in catch-all bucket
+            self.assertEqual(
+                len(result["system_header"]), 3
+            )
+            # Zero in build_intermediate
+            self.assertEqual(
+                len(result["build_intermediate"]), 0
             )
 
 

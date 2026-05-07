@@ -64,12 +64,13 @@ class TestRunJavaPipeline(unittest.TestCase):
             )
             pipeline = self._make_pipeline()
 
-            success, _dur = _run_java_pipeline(
+            success, _dur, tracer = _run_java_pipeline(
                 pipeline, "myapp", repo_cfg,
                 paths, java_cfg, "ts1",
             )
 
             self.assertTrue(success)
+            self.assertEqual(tracer, "strace")
             pipeline.builder.build_java.assert_called_once()
             pipeline.spdx_gen.generate_java.assert_called_once()
             pipeline.metadata_collector.collect.assert_called_once()
@@ -93,7 +94,7 @@ class TestRunJavaPipeline(unittest.TestCase):
             pipeline = self._make_pipeline()
             pipeline.builder.build_java.return_value = False
 
-            success, _dur = _run_java_pipeline(
+            success, _dur, _ = _run_java_pipeline(
                 pipeline, "myapp", repo_cfg,
                 paths, java_cfg, "ts1",
             )
@@ -117,7 +118,7 @@ class TestRunJavaPipeline(unittest.TestCase):
                 None
             )
 
-            success, _dur = _run_java_pipeline(
+            success, _dur, _ = _run_java_pipeline(
                 pipeline, "myapp", repo_cfg,
                 paths, java_cfg, "ts1",
             )
@@ -508,7 +509,7 @@ class TestMainJavaDispatch(unittest.TestCase):
         }
         mock_pipe_inst = MagicMock()
         mock_pipe.return_value = mock_pipe_inst
-        mock_java.return_value = (True, 10.0)
+        mock_java.return_value = (True, 10.0, "strace")
 
         from app.pipeline.runners import main
         with patch(
@@ -553,7 +554,7 @@ class TestMainJavaDispatch(unittest.TestCase):
         }
         mock_pipe_inst = MagicMock()
         mock_pipe.return_value = mock_pipe_inst
-        mock_rust.return_value = (True, 10.0)
+        mock_rust.return_value = (True, 10.0, "bomtrace2")
 
         from app.pipeline.runners import main
         with patch(

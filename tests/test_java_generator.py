@@ -1533,5 +1533,40 @@ class TestStraceFiltering(unittest.TestCase):
             self.assertEqual(len(doc["files"]), 2)
 
 
+class TestIsExtractionArtifact(unittest.TestCase):
+    """Tests for _is_extraction_artifact filter."""
+
+    def test_bomjdir_path_is_artifact(self):
+        self.assertTrue(
+            JavaSpdxGenerator._is_extraction_artifact(
+                "/tmp/bomjdir/jsoup-1.22.1.jar/"
+                "META-INF/versions/11/"
+                "module-info.class"
+            )
+        )
+
+    def test_bomjdir_nested_path(self):
+        self.assertTrue(
+            JavaSpdxGenerator._is_extraction_artifact(
+                "/tmp/bomjdir/foo.jar/Bar.class"
+            )
+        )
+
+    def test_repo_source_not_artifact(self):
+        self.assertFalse(
+            JavaSpdxGenerator._is_extraction_artifact(
+                "/workspace/repos/jsoup/"
+                "src/main/java/org/jsoup/Jsoup.java"
+            )
+        )
+
+    def test_empty_string(self):
+        self.assertFalse(
+            JavaSpdxGenerator._is_extraction_artifact(
+                ""
+            )
+        )
+
+
 if __name__ == "__main__":
     unittest.main()

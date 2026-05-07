@@ -30,6 +30,7 @@ from app.spdx.gradle_parser import (
     is_gradle_project,
 )
 from app.spdx.relationships import (
+    BUILD_TOOL_OF,
     CONTAINED_BY,
     DESCRIBES,
     java_dep_relationship,
@@ -222,6 +223,9 @@ class JavaSpdxGenerator:
         source_files = [
             f for f in all_files
             if not self._is_test_file(
+                f.get("file_path", "")
+            )
+            and not self._is_extraction_artifact(
                 f.get("file_path", "")
             )
         ]
@@ -558,21 +562,33 @@ class JavaSpdxGenerator:
                 else:
                     target = root_pkg_id
 
-            # SPDX 2.3 Table 68: compile, runtime,
-            # and provided scopes all map to DEPENDS_ON.
-            # BUILD_TOOL_OF is reserved for the build
-            # system itself (javac, maven, gradle).
+            # Classify relationship type based on scope
+            # and groupId.  Known build tools (ant, maven
+            # plugins, etc.) get BUILD_TOOL_OF; others
+            # get scope-based type (DEPENDS_ON, etc.).
             # Scope metadata is in the package comment.
             rel_type = java_dep_relationship(
                 dep.get("scope", "compile"),
+                group_id=dep.get("groupId"),
             )
             if rel_type is None:
                 continue
-            doc["relationships"].append({
-                "spdxElementId": target,
-                "relatedSpdxElement": dep_id,
-                "relationshipType": rel_type,
-            })
+
+            # Relationship direction differs by type:
+            #   BUILD_TOOL_OF: tool → target
+            #   DEPENDS_ON:    parent → child
+            if rel_type == BUILD_TOOL_OF:
+                doc["relationships"].append({
+                    "spdxElementId": dep_id,
+                    "relatedSpdxElement": target,
+                    "relationshipType": rel_type,
+                })
+            else:
+                doc["relationships"].append({
+                    "spdxElementId": target,
+                    "relatedSpdxElement": dep_id,
+                    "relationshipType": rel_type,
+                })
 
         return doc
 
@@ -599,6 +615,22 @@ class JavaSpdxGenerator:
         name = version_pattern.sub("", name)
 
         return name
+
+    @staticmethod
+    def _is_extraction_artifact(file_path):
+        """Return True if path is a bomsh extraction artifact.
+
+        ``bomsh_create_bom_java.py`` extracts JARs into
+        ``/tmp/bomjdir/`` for introspection.  These paths
+        appear in the treedb but are not project source
+        files — they are intermediate extraction artifacts
+        (e.g. ``.class`` files from multi-release JARs).
+
+        In standalone mode the strace ``openat`` filter
+        already excludes them.  This filter ensures
+        sidecar mode is consistent.
+        """
+        return "/tmp/bomjdir/" in file_path
 
     @staticmethod
     def _is_test_file(file_path):

@@ -47,15 +47,34 @@ class TestJavaDepRelationship:
         """Unknown scopes default to DEPENDS_ON."""
         assert java_dep_relationship("custom") == DEPENDS_ON
 
-    def test_provided_is_not_build_tool_of(self):
-        """Maven 'provided' scope is DEPENDS_ON, not
-        BUILD_TOOL_OF.  'provided' means the dependency
-        is needed at compile/runtime but supplied by the
-        deployment environment — it is still a dependency,
-        not a build tool."""
+    def test_provided_library_is_depends_on(self):
+        """Maven 'provided' for a regular library is
+        DEPENDS_ON — the dependency is needed at compile
+        time but supplied by the deployment environment."""
         result = java_dep_relationship("provided")
         assert result == DEPENDS_ON
-        assert result != BUILD_TOOL_OF
+
+    def test_provided_build_tool_is_build_tool_of(self):
+        """Maven 'provided' for a known build tool gets
+        BUILD_TOOL_OF — scope does not override identity."""
+        result = java_dep_relationship(
+            "provided", group_id="org.apache.ant",
+        )
+        assert result == BUILD_TOOL_OF
+
+    def test_compile_build_tool_is_build_tool_of(self):
+        """Even compile-scope build tools get BUILD_TOOL_OF."""
+        result = java_dep_relationship(
+            "compile", group_id="org.apache.maven",
+        )
+        assert result == BUILD_TOOL_OF
+
+    def test_test_scope_build_tool_excluded(self):
+        """Test-scope deps excluded even if build tool."""
+        result = java_dep_relationship(
+            "test", group_id="org.apache.ant",
+        )
+        assert result is None
 
 
 class TestIsBuildTool:
@@ -71,8 +90,13 @@ class TestIsBuildTool:
         """Known build system groupIds are build tools."""
         assert is_build_tool(group_id=group_id) is True
 
+    def test_ant_is_build_tool(self):
+        """Apache Ant is a build tool."""
+        assert is_build_tool(
+            group_id="org.apache.ant",
+        ) is True
+
     @pytest.mark.parametrize("group_id", [
-        "org.apache.ant",
         "com.google.guava",
         "org.checkerframework",
         "info.picocli",
@@ -80,9 +104,7 @@ class TestIsBuildTool:
     def test_library_group_ids_not_build_tools(
         self, group_id,
     ):
-        """Library dependencies are NOT build tools, even
-        if they are build systems in other contexts (e.g.
-        ant as a provided dep of checkstyle)."""
+        """Library dependencies are NOT build tools."""
         assert is_build_tool(group_id=group_id) is False
 
     @pytest.mark.parametrize("binary", [

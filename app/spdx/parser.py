@@ -110,7 +110,11 @@ class AdgParser:
                     "project_source"
                 ].append(item)
             else:
-                # Other system files (incl. /tmp/go-build)
+                # Catch-all: anything not positively matched
+                # above (e.g. /tmp/ build intermediates,
+                # /opt/ tool files).  Allowlist above is the
+                # security boundary — nothing reaches
+                # project_source without a prefix match.
                 classified["system_header"].append(
                     item
                 )
@@ -179,10 +183,15 @@ class AdgParser:
                             ),
                         })
 
-                # Also include the class file itself
+                # Also include the class file itself,
+                # but skip bomsh extraction artifacts
+                # (/tmp/bomjdir/) — these are intermediate
+                # paths from JAR introspection, not
+                # project source files.
                 if (
                     cls_path
                     and class_sha not in seen
+                    and "/tmp/bomjdir/" not in cls_path
                 ):
                     seen.add(class_sha)
                     sources.append({

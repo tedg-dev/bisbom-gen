@@ -3032,13 +3032,14 @@ class TestRunGoPipeline(unittest.TestCase):
         paths_cfg = {"output_dir": "/tmp/out"}
 
         with patch("builtins.print"):
-            success, duration = _run_go_pipeline(
+            success, duration, tracer = _run_go_pipeline(
                 p, "fzf", repo_cfg,
                 paths_cfg, self.GO_OMNIBOR_CFG,
                 "2026-03-04_1200",
             )
 
         self.assertTrue(success)
+        self.assertIn("bomtrace2", tracer)
         p.builder.build.assert_called_once_with(
             "fzf", repo_cfg,
             paths_cfg, self.GO_OMNIBOR_CFG,
@@ -3074,7 +3075,7 @@ class TestRunGoPipeline(unittest.TestCase):
         paths_cfg = {"output_dir": "/tmp/out"}
 
         with patch("builtins.print"):
-            success, _ = _run_go_pipeline(
+            success, _, _ = _run_go_pipeline(
                 p, "fzf", repo_cfg,
                 paths_cfg, self.GO_OMNIBOR_CFG,
                 "2026-03-04_1200",
@@ -3143,13 +3144,14 @@ class TestRunRustPipeline(unittest.TestCase):
         paths_cfg = {"output_dir": "/tmp/out"}
 
         with patch("builtins.print"):
-            success, duration = _run_rust_pipeline(
+            success, duration, tracer = _run_rust_pipeline(
                 p, "oxipng", repo_cfg,
                 paths_cfg, self.RUST_OMNIBOR_CFG,
                 "2026-03-05_1200",
             )
 
         self.assertTrue(success)
+        self.assertEqual(tracer, "bomtrace2")
         p.builder.build.assert_called_once_with(
             "oxipng", repo_cfg,
             paths_cfg, self.RUST_OMNIBOR_CFG,
@@ -3183,7 +3185,7 @@ class TestRunRustPipeline(unittest.TestCase):
         paths_cfg = {"output_dir": "/tmp/out"}
 
         with patch("builtins.print"):
-            success, _ = _run_rust_pipeline(
+            success, _, _ = _run_rust_pipeline(
                 p, "oxipng", repo_cfg,
                 paths_cfg, self.RUST_OMNIBOR_CFG,
                 "2026-03-05_1200",

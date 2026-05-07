@@ -28,6 +28,15 @@ class InterceptionStrategy(ABC):
     selects a strategy based on ``config.yaml`` settings.
     """
 
+    @property
+    @abstractmethod
+    def name(self):
+        """Human-readable instrumentation method name.
+
+        Used in build docs and runtime reports to
+        identify the interception technique.
+        """
+
     @abstractmethod
     def instrument_command(self, build_cmd, repo_dir):
         """Modify a build command for OmniBOR tracing.
@@ -71,6 +80,11 @@ class PtraceStrategy(InterceptionStrategy):
 
     def __init__(self, tracer="bomtrace3"):
         self._tracer = tracer
+
+    @property
+    def name(self):
+        """Return the tracer binary name."""
+        return self._tracer
 
     def instrument_command(self, build_cmd, repo_dir):
         """Prepend the tracer to the build command.
@@ -122,6 +136,11 @@ class CcWrapperStrategy(InterceptionStrategy):
     def __init__(self, wrapper_dir="/opt/bomsh/bin"):
         self._wrapper_dir = wrapper_dir
 
+    @property
+    def name(self):
+        """Return the instrumentation method."""
+        return "cc-wrapper"
+
     def instrument_command(self, build_cmd, repo_dir):
         """Return the build command with CC/CXX wrappers.
 
@@ -161,6 +180,11 @@ class GoToolexecStrategy(InterceptionStrategy):
     ):
         self._wrapper = wrapper
 
+    @property
+    def name(self):
+        """Return the instrumentation method."""
+        return "go-toolexec"
+
     def instrument_command(self, build_cmd, repo_dir):
         """Insert ``-toolexec`` into the go build command.
 
@@ -196,6 +220,11 @@ class RustcWrapperStrategy(InterceptionStrategy):
         self, wrapper="/opt/bomsh/bin/bomsh_hook.sh",
     ):
         self._wrapper = wrapper
+
+    @property
+    def name(self):
+        """Return the instrumentation method."""
+        return "rustc-wrapper"
 
     def instrument_command(self, build_cmd, repo_dir):
         """Set ``RUSTC_WRAPPER`` for cargo build.
@@ -237,6 +266,11 @@ class MavenDepTreeStrategy(InterceptionStrategy):
     def __init__(self, runner=None):
         from app.runner import CommandRunner
         self._runner = runner or CommandRunner()
+
+    @property
+    def name(self):
+        """Return the instrumentation method."""
+        return "maven-dep-tree"
 
     def instrument_command(self, build_cmd, repo_dir):
         """Return the build command unmodified — no strace.
@@ -348,6 +382,11 @@ class GradleDepTreeStrategy(InterceptionStrategy):
     def __init__(self, runner=None):
         from app.runner import CommandRunner
         self._runner = runner or CommandRunner()
+
+    @property
+    def name(self):
+        """Return the instrumentation method."""
+        return "gradle-dep-tree"
 
     def instrument_command(self, build_cmd, repo_dir):
         """Return the build command unmodified — no strace.
