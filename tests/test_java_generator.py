@@ -1533,5 +1533,188 @@ class TestStraceFiltering(unittest.TestCase):
             self.assertEqual(len(doc["files"]), 2)
 
 
+# ============================================================
+# Tests: _creation_info and plugin detection annotation
+# ============================================================
+
+class TestCreationInfo(unittest.TestCase):
+    """Tests for _creation_info static method."""
+
+    def test_no_plugin_detection(self):
+        info = JavaSpdxGenerator._creation_info(
+            "2026-01-01T00:00:00Z",
+        )
+        self.assertEqual(info["created"], "2026-01-01T00:00:00Z")
+        self.assertIn(
+            "Tool: omnibor-analysis", info["creators"],
+        )
+        self.assertNotIn("comment", info)
+
+    def test_none_plugin_detection(self):
+        info = JavaSpdxGenerator._creation_info(
+            "2026-01-01T00:00:00Z",
+            plugin_detection=None,
+        )
+        self.assertNotIn("comment", info)
+
+    def test_empty_detection_result(self):
+        from app.pipeline.maven_plugin_detector import (
+            DetectionResult,
+        )
+        result = DetectionResult()
+        info = JavaSpdxGenerator._creation_info(
+            "2026-01-01T00:00:00Z",
+            plugin_detection=result,
+        )
+        self.assertNotIn("comment", info)
+
+    def test_shade_plugin_adds_comment(self):
+        from app.pipeline.maven_plugin_detector import (
+            DetectionResult,
+            PluginDetection,
+        )
+        result = DetectionResult(detections=[
+            PluginDetection(
+                plugin_id="maven-shade-plugin",
+                group_id="org.apache.maven.plugins",
+                warning="maven-shade-plugin detected",
+                pom_path="/tmp/pom.xml",
+            ),
+        ])
+        info = JavaSpdxGenerator._creation_info(
+            "2026-01-01T00:00:00Z",
+            plugin_detection=result,
+        )
+        self.assertIn("comment", info)
+        self.assertIn("shade", info["comment"])
+
+    def test_multiple_plugins_joined(self):
+        from app.pipeline.maven_plugin_detector import (
+            DetectionResult,
+            PluginDetection,
+        )
+        result = DetectionResult(detections=[
+            PluginDetection(
+                plugin_id="maven-shade-plugin",
+                group_id="org.apache.maven.plugins",
+                warning="shade warning",
+                pom_path="/tmp/pom.xml",
+            ),
+            PluginDetection(
+                plugin_id="maven-assembly-plugin",
+                group_id="org.apache.maven.plugins",
+                warning="assembly warning",
+                pom_path="/tmp/pom.xml",
+            ),
+        ])
+        info = JavaSpdxGenerator._creation_info(
+            "2026-01-01T00:00:00Z",
+            plugin_detection=result,
+        )
+        self.assertIn("shade warning", info["comment"])
+        self.assertIn("assembly warning", info["comment"])
+
+
+class TestBuildSpdxPluginAnnotation(unittest.TestCase):
+    """Tests for plugin detection annotation in _build_spdx."""
+
+    def setUp(self):
+        self.gen = JavaSpdxGenerator(
+            bom_dir="/tmp/bom",
+            repos_dir="/tmp/repos",
+            repo_name="myapp",
+        )
+
+    def test_no_detection_no_comment_on_root(self):
+        doc = self.gen._build_spdx("myapp.jar", [], [])
+        root = doc["packages"][0]
+        self.assertNotIn("comment", root)
+
+    def test_shade_detection_adds_root_comment(self):
+        from app.pipeline.maven_plugin_detector import (
+            DetectionResult,
+            PluginDetection,
+        )
+        result = DetectionResult(detections=[
+            PluginDetection(
+                plugin_id="maven-shade-plugin",
+                group_id="org.apache.maven.plugins",
+                warning="maven-shade-plugin detected — uber-JAR",
+                pom_path="/tmp/pom.xml",
+            ),
+        ])
+        doc = self.gen._build_spdx(
+            "myapp.jar", [], [],
+            plugin_detection=result,
+        )
+        root = doc["packages"][0]
+        self.assertIn("comment", root)
+        self.assertIn("shade", root["comment"])
+
+    def test_shade_detection_adds_creation_comment(self):
+        from app.pipeline.maven_plugin_detector import (
+            DetectionResult,
+            PluginDetection,
+        )
+        result = DetectionResult(detections=[
+            PluginDetection(
+                plugin_id="maven-shade-plugin",
+                group_id="org.apache.maven.plugins",
+                warning="maven-shade-plugin detected — uber-JAR",
+                pom_path="/tmp/pom.xml",
+            ),
+        ])
+        doc = self.gen._build_spdx(
+            "myapp.jar", [], [],
+            plugin_detection=result,
+        )
+        self.assertIn(
+            "comment", doc["creationInfo"],
+        )
+        self.assertIn(
+            "shade", doc["creationInfo"]["comment"],
+        )
+
+    def test_analyzed_sbom_still_annotated(self):
+        """Shade annotation appears even in analyzed SBOMs."""
+        from app.pipeline.maven_plugin_detector import (
+            DetectionResult,
+            PluginDetection,
+        )
+        result = DetectionResult(detections=[
+            PluginDetection(
+                plugin_id="maven-shade-plugin",
+                group_id="org.apache.maven.plugins",
+                warning="shade warning",
+                pom_path="/tmp/pom.xml",
+            ),
+        ])
+        doc = self.gen._build_spdx(
+            "myapp.jar", [], [],
+            sbom_type="analyzed",
+            plugin_detection=result,
+        )
+        root = doc["packages"][0]
+        self.assertIn("comment", root)
+        self.assertIn(
+            "comment", doc["creationInfo"],
+        )
+
+    def test_empty_detection_no_annotation(self):
+        from app.pipeline.maven_plugin_detector import (
+            DetectionResult,
+        )
+        result = DetectionResult()
+        doc = self.gen._build_spdx(
+            "myapp.jar", [], [],
+            plugin_detection=result,
+        )
+        root = doc["packages"][0]
+        self.assertNotIn("comment", root)
+        self.assertNotIn(
+            "comment", doc["creationInfo"],
+        )
+
+
 if __name__ == "__main__":
     unittest.main()
