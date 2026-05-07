@@ -552,5 +552,105 @@ class TestMavenDepTreeStrategy(unittest.TestCase):
             self.assertFalse(ok)
 
 
+class TestExtractMavenArgs(unittest.TestCase):
+    """Tests for builder._extract_maven_args."""
+
+    def setUp(self):
+        from app.pipeline.builder import (
+            _extract_maven_args,
+        )
+        self._fn = _extract_maven_args
+
+    def test_no_maven_steps(self):
+        result = self._fn(["./gradlew build"])
+        self.assertEqual(result, [])
+
+    def test_plain_mvn_no_pl(self):
+        result = self._fn(
+            ["mvn package -DskipTests -q"],
+        )
+        self.assertEqual(result, [])
+
+    def test_mvn_with_pl(self):
+        result = self._fn(
+            ["mvn package -DskipTests -q -pl crawler4j"],
+        )
+        self.assertEqual(result, ["-pl", "crawler4j"])
+
+    def test_mvn_with_pl_and_am(self):
+        result = self._fn(
+            ["mvn package -DskipTests -q -pl cli -am"],
+        )
+        self.assertEqual(
+            result, ["-pl", "cli", "-am"],
+        )
+
+    def test_multiple_steps_extracts_from_mvn(self):
+        result = self._fn([
+            "./configure",
+            "mvn install -DskipTests -pl core -am",
+        ])
+        self.assertEqual(
+            result, ["-pl", "core", "-am"],
+        )
+
+    def test_comma_separated_modules(self):
+        result = self._fn([
+            "mvn package -pl mod-a,mod-b -am",
+        ])
+        self.assertEqual(
+            result, ["-pl", "mod-a,mod-b", "-am"],
+        )
+
+    def test_env_prefix_mvn_step(self):
+        result = self._fn([
+            "env JAVA_HOME=/usr/lib/jvm/java-17"
+            " mvn install -DskipTests -q"
+            " -pl log4j-core -am",
+        ])
+        self.assertEqual(
+            result, ["-pl", "log4j-core", "-am"],
+        )
+
+
+class TestRunMavenDepTreeArgs(unittest.TestCase):
+    """Tests that maven_args are passed to subprocess."""
+
+    @patch("app.pipeline.maven_dep_tree_parser"
+           ".subprocess.run")
+    def test_maven_args_appended_to_command(
+        self, mock_run,
+    ):
+        mock_run.return_value = MagicMock(
+            returncode=0, stdout="digraph {}",
+        )
+        with tempfile.TemporaryDirectory() as td:
+            pom = Path(td) / "pom.xml"
+            pom.write_text("<project/>")
+            run_maven_dep_tree(
+                td,
+                maven_args=["-pl", "crawler4j"],
+            )
+        cmd = mock_run.call_args[0][0]
+        self.assertIn("-pl", cmd)
+        self.assertIn("crawler4j", cmd)
+
+    @patch("app.pipeline.maven_dep_tree_parser"
+           ".subprocess.run")
+    def test_no_maven_args_default(self, mock_run):
+        mock_run.return_value = MagicMock(
+            returncode=0, stdout="digraph {}",
+        )
+        with tempfile.TemporaryDirectory() as td:
+            pom = Path(td) / "pom.xml"
+            pom.write_text("<project/>")
+            run_maven_dep_tree(td)
+        cmd = mock_run.call_args[0][0]
+        self.assertEqual(cmd, [
+            "mvn", "dependency:tree",
+            "-DoutputType=dot",
+        ])
+
+
 if __name__ == "__main__":
     unittest.main()

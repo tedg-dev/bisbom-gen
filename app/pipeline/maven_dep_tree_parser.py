@@ -211,7 +211,9 @@ def classify_scopes(deps):
     return result
 
 
-def run_maven_dep_tree(repo_dir, runner=None):
+def run_maven_dep_tree(
+    repo_dir, runner=None, maven_args=None,
+):
     """Run ``mvn dependency:tree -DoutputType=dot``.
 
     Args:
@@ -219,6 +221,9 @@ def run_maven_dep_tree(repo_dir, runner=None):
             contain ``pom.xml``).
         runner: Optional ``CommandRunner`` for logging.
             If None, uses subprocess directly.
+        maven_args: Optional list of extra Maven flags
+            (e.g. ``['-pl', 'cli', '-am']``) for
+            multi-module projects.
 
     Returns:
         The raw stdout string, or None on failure.
@@ -231,12 +236,16 @@ def run_maven_dep_tree(repo_dir, runner=None):
         )
         return None
 
+    cmd = [
+        "mvn", "dependency:tree",
+        "-DoutputType=dot",
+    ]
+    if maven_args:
+        cmd.extend(maven_args)
+
     try:
         result = subprocess.run(
-            [
-                "mvn", "dependency:tree",
-                "-DoutputType=dot",
-            ],
+            cmd,
             cwd=str(repo_path),
             capture_output=True,
             text=True,

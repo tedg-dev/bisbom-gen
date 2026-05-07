@@ -305,8 +305,10 @@ class MavenDepTreeStrategy(InterceptionStrategy):
         )
 
         # Step 2: Capture Maven dependency graph
+        maven_args = omnibor_cfg.get("maven_args")
         dot_output = run_maven_dep_tree(
             repo_dir, runner=self._runner,
+            maven_args=maven_args,
         )
         if dot_output is None:
             return False
