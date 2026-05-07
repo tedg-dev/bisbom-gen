@@ -53,3 +53,37 @@ services:
   omnibor-env:
     extends:
       service: omnibor-standalone
+
+  # --------------------------------------------------------
+  # RHEL 9 (Rocky): integration testing for RpmResolver
+  # Usage: docker compose run --rm omnibor-rhel pytest ...
+  # --------------------------------------------------------
+  omnibor-rhel:
+    platform: linux/amd64
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.rhel
+    image: omnibor-env:rhel9
+    volumes:
+      - ../app:/workspace/app:ro
+      - ../tests:/workspace/tests:ro
+      - ../repos:/workspace/repos
+      - ../output:/workspace/output
+    working_dir: /workspace
+
+  # --------------------------------------------------------
+  # Alpine 3.19: integration testing for ApkResolver
+  # Usage: docker compose run --rm omnibor-alpine pytest ...
+  # --------------------------------------------------------
+  omnibor-alpine:
+    platform: linux/amd64
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.alpine
+    image: omnibor-env:alpine
+    volumes:
+      - ../app:/workspace/app:ro
+      - ../tests:/workspace/tests:ro
+      - ../repos:/workspace/repos
+      - ../output:/workspace/output
+    working_dir: /workspace

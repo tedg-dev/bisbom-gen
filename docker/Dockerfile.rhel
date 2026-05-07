@@ -1,0 +1,42 @@
+# ============================================================
+# RHEL Integration Testing Image (Rocky Linux 9)
+#
+# Minimal image for testing RpmResolver, PURL generation,
+# and package metadata resolution on RPM-based distros.
+#
+# Build:
+#   docker compose -f docker/docker-compose.yml build omnibor-rhel
+# ============================================================
+
+FROM rockylinux:9
+
+# Install Python 3.11+ and common system libraries
+# that our resolver tests need to query against.
+RUN dnf install -y --setopt=install_weak_deps=False \
+    python3.11 \
+    python3.11-pip \
+    # System libraries to test resolver against
+    gcc \
+    gcc-c++ \
+    make \
+    openssl-libs \
+    zlib \
+    glibc \
+    # Java (for #112 Java on RHEL)
+    java-17-openjdk-devel \
+    maven \
+    # Utilities
+    git \
+    wget \
+    which \
+    && dnf clean all
+
+# Symlink python3 to python3.11
+RUN alternatives --set python3 /usr/bin/python3.11
+
+# Python dependencies
+COPY requirements.txt /tmp/requirements.txt
+RUN pip3.11 install --no-cache-dir -r /tmp/requirements.txt \
+    && rm /tmp/requirements.txt
+
+WORKDIR /workspace
