@@ -211,6 +211,42 @@ def classify_scopes(deps):
     return result
 
 
+def extract_maven_module_args(repo_cfg):
+    """Extract Maven ``-pl`` and ``-am`` flags from repo config.
+
+    Multi-module Maven projects use ``-pl <module> -am``
+    to build specific submodules.  ``mvn dependency:tree``
+    needs the same flags to resolve correctly.
+
+    Args:
+        repo_cfg: Repository config dict from
+            ``config.yaml``, or None.
+
+    Returns:
+        List of flag strings (e.g. ``['-pl', 'cli', '-am']``)
+        or an empty list if none found.
+    """
+    if not repo_cfg:
+        return []
+    build_steps = repo_cfg.get("build_steps", [])
+    args = []
+    for step in build_steps:
+        if "mvn " not in step:
+            continue
+        parts = step.split()
+        i = 0
+        while i < len(parts):
+            if parts[i] == "-pl" and i + 1 < len(parts):
+                args.extend(["-pl", parts[i + 1]])
+                i += 2
+            elif parts[i] == "-am":
+                args.append("-am")
+                i += 1
+            else:
+                i += 1
+    return args
+
+
 def run_maven_dep_tree(
     repo_dir, runner=None, maven_args=None,
 ):

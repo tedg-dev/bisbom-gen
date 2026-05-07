@@ -552,62 +552,92 @@ class TestMavenDepTreeStrategy(unittest.TestCase):
             self.assertFalse(ok)
 
 
-class TestExtractMavenArgs(unittest.TestCase):
-    """Tests for builder._extract_maven_args."""
+class TestExtractMavenModuleArgs(unittest.TestCase):
+    """Tests for extract_maven_module_args."""
 
     def setUp(self):
-        from app.pipeline.builder import (
-            _extract_maven_args,
+        from app.pipeline.maven_dep_tree_parser import (
+            extract_maven_module_args,
         )
-        self._fn = _extract_maven_args
+        self._fn = extract_maven_module_args
+
+    def test_none_repo_cfg(self):
+        result = self._fn(None)
+        self.assertEqual(result, [])
+
+    def test_empty_repo_cfg(self):
+        result = self._fn({})
+        self.assertEqual(result, [])
 
     def test_no_maven_steps(self):
-        result = self._fn(["./gradlew build"])
+        cfg = {"build_steps": ["./gradlew build"]}
+        result = self._fn(cfg)
         self.assertEqual(result, [])
 
     def test_plain_mvn_no_pl(self):
-        result = self._fn(
-            ["mvn package -DskipTests -q"],
-        )
+        cfg = {
+            "build_steps": [
+                "mvn package -DskipTests -q",
+            ],
+        }
+        result = self._fn(cfg)
         self.assertEqual(result, [])
 
     def test_mvn_with_pl(self):
-        result = self._fn(
-            ["mvn package -DskipTests -q -pl crawler4j"],
-        )
+        cfg = {
+            "build_steps": [
+                "mvn package -DskipTests -q"
+                " -pl crawler4j",
+            ],
+        }
+        result = self._fn(cfg)
         self.assertEqual(result, ["-pl", "crawler4j"])
 
     def test_mvn_with_pl_and_am(self):
-        result = self._fn(
-            ["mvn package -DskipTests -q -pl cli -am"],
-        )
+        cfg = {
+            "build_steps": [
+                "mvn package -DskipTests -q"
+                " -pl cli -am",
+            ],
+        }
+        result = self._fn(cfg)
         self.assertEqual(
             result, ["-pl", "cli", "-am"],
         )
 
     def test_multiple_steps_extracts_from_mvn(self):
-        result = self._fn([
-            "./configure",
-            "mvn install -DskipTests -pl core -am",
-        ])
+        cfg = {
+            "build_steps": [
+                "./configure",
+                "mvn install -DskipTests"
+                " -pl core -am",
+            ],
+        }
+        result = self._fn(cfg)
         self.assertEqual(
             result, ["-pl", "core", "-am"],
         )
 
     def test_comma_separated_modules(self):
-        result = self._fn([
-            "mvn package -pl mod-a,mod-b -am",
-        ])
+        cfg = {
+            "build_steps": [
+                "mvn package -pl mod-a,mod-b -am",
+            ],
+        }
+        result = self._fn(cfg)
         self.assertEqual(
             result, ["-pl", "mod-a,mod-b", "-am"],
         )
 
     def test_env_prefix_mvn_step(self):
-        result = self._fn([
-            "env JAVA_HOME=/usr/lib/jvm/java-17"
-            " mvn install -DskipTests -q"
-            " -pl log4j-core -am",
-        ])
+        cfg = {
+            "build_steps": [
+                "env JAVA_HOME=/usr/lib/jvm/java-17"
+                " mvn install -DskipTests -q"
+                " -pl log4j-core -am",
+            ],
+        }
+        result = self._fn(cfg)
         self.assertEqual(
             result, ["-pl", "log4j-core", "-am"],
         )

@@ -110,19 +110,10 @@ class BomtraceBuilder:
         # Generate OmniBOR ADG documents — delegate
         # to strategy or fall back to legacy.
         if strategy:
-            # Pass Maven module flags so dep:tree
-            # targets the correct submodule(s).
-            maven_args = _extract_maven_args(
-                build_steps,
-            )
-            if maven_args:
-                omnibor_cfg = {
-                    **omnibor_cfg,
-                    "maven_args": maven_args,
-                }
             ok = strategy.generate_adg(
                 str(repo_dir), str(bom_dir),
                 omnibor_cfg,
+                repo_cfg=repo_cfg,
             )
             if not ok:
                 print(
@@ -262,34 +253,3 @@ class BomtraceBuilder:
             f"{treedb_file}"
         )
         return True
-
-
-# ── Helpers ──────────────────────────────────────────
-
-def _extract_maven_args(build_steps):
-    """Extract Maven ``-pl`` and ``-am`` flags from build steps.
-
-    Multi-module Maven projects use ``-pl <module> -am``
-    to build specific modules.  ``mvn dependency:tree``
-    needs the same flags to resolve correctly.
-
-    Returns:
-        List of flag strings (e.g. ``['-pl', 'cli', '-am']``)
-        or an empty list if none found.
-    """
-    args = []
-    for step in build_steps:
-        if "mvn " not in step:
-            continue
-        parts = step.split()
-        i = 0
-        while i < len(parts):
-            if parts[i] == "-pl" and i + 1 < len(parts):
-                args.extend(["-pl", parts[i + 1]])
-                i += 2
-            elif parts[i] == "-am":
-                args.append("-am")
-                i += 1
-            else:
-                i += 1
-    return args

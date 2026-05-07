@@ -44,13 +44,20 @@ class InterceptionStrategy(ABC):
         """
 
     @abstractmethod
-    def generate_adg(self, repo_dir, bom_dir, omnibor_cfg):
+    def generate_adg(
+        self, repo_dir, bom_dir, omnibor_cfg,
+        repo_cfg=None,
+    ):
         """Generate the OmniBOR Artifact Dependency Graph.
 
         Args:
             repo_dir: Path to the repository root.
             bom_dir: Path to the OmniBOR output directory.
             omnibor_cfg: The ``omnibor`` config section.
+            repo_cfg: The repository config dict from
+                ``config.yaml``.  Strategies may use this
+                to extract build-tool-specific flags
+                (e.g. Maven ``-pl``/``-am``).
 
         Returns:
             True on success, False on failure.
@@ -80,7 +87,10 @@ class PtraceStrategy(InterceptionStrategy):
         """
         return f"{self._tracer} {build_cmd}", {}
 
-    def generate_adg(self, repo_dir, bom_dir, omnibor_cfg):
+    def generate_adg(
+        self, repo_dir, bom_dir, omnibor_cfg,
+        repo_cfg=None,
+    ):
         """Run ``bomsh_create_bom.py`` on tracer output.
 
         The tracer writes a raw logfile during the build.
@@ -137,7 +147,10 @@ class CcWrapperStrategy(InterceptionStrategy):
         }
         return build_cmd, env
 
-    def generate_adg(self, repo_dir, bom_dir, omnibor_cfg):
+    def generate_adg(
+        self, repo_dir, bom_dir, omnibor_cfg,
+        repo_cfg=None,
+    ):
         """Run ``bomsh_create_bom.py`` on wrapper output.
 
         Same as ``PtraceStrategy`` — both produce the same
@@ -177,7 +190,10 @@ class GoToolexecStrategy(InterceptionStrategy):
         )
         return cmd, {}
 
-    def generate_adg(self, repo_dir, bom_dir, omnibor_cfg):
+    def generate_adg(
+        self, repo_dir, bom_dir, omnibor_cfg,
+        repo_cfg=None,
+    ):
         """Run ``bomsh_create_bom.py`` on wrapper output."""
         strategy = PtraceStrategy()
         return strategy.generate_adg(
@@ -207,7 +223,10 @@ class RustcWrapperStrategy(InterceptionStrategy):
             "RUSTC_WRAPPER": self._wrapper,
         }
 
-    def generate_adg(self, repo_dir, bom_dir, omnibor_cfg):
+    def generate_adg(
+        self, repo_dir, bom_dir, omnibor_cfg,
+        repo_cfg=None,
+    ):
         """Run ``bomsh_create_bom.py`` on wrapper output."""
         strategy = PtraceStrategy()
         return strategy.generate_adg(
@@ -246,7 +265,10 @@ class MavenDepTreeStrategy(InterceptionStrategy):
         """
         return build_cmd, {}
 
-    def generate_adg(self, repo_dir, bom_dir, omnibor_cfg):
+    def generate_adg(
+        self, repo_dir, bom_dir, omnibor_cfg,
+        repo_cfg=None,
+    ):
         """Generate OmniBOR treedb and Maven dependency graph.
 
         Two data sources for SPDX generation:
@@ -259,6 +281,11 @@ class MavenDepTreeStrategy(InterceptionStrategy):
         2. ``mvn dependency:tree`` captures the declared
            Maven dependency graph.
 
+        Args:
+            repo_cfg: Used to extract Maven ``-pl``/``-am``
+                flags from ``build_steps`` so dep:tree
+                targets the correct submodule(s).
+
         Returns:
             True on success, False on failure.
         """
@@ -266,6 +293,7 @@ class MavenDepTreeStrategy(InterceptionStrategy):
         from pathlib import Path
 
         from app.pipeline.maven_dep_tree_parser import (
+            extract_maven_module_args,
             parse_dot_output,
             run_maven_dep_tree,
         )
@@ -305,7 +333,9 @@ class MavenDepTreeStrategy(InterceptionStrategy):
         )
 
         # Step 2: Capture Maven dependency graph
-        maven_args = omnibor_cfg.get("maven_args")
+        maven_args = extract_maven_module_args(
+            repo_cfg,
+        )
         dot_output = run_maven_dep_tree(
             repo_dir, runner=self._runner,
             maven_args=maven_args,
@@ -359,7 +389,10 @@ class GradleDepTreeStrategy(InterceptionStrategy):
         """
         return build_cmd, {}
 
-    def generate_adg(self, repo_dir, bom_dir, omnibor_cfg):
+    def generate_adg(
+        self, repo_dir, bom_dir, omnibor_cfg,
+        repo_cfg=None,
+    ):
         """Generate OmniBOR treedb and Gradle dependency graph.
 
         Two data sources for SPDX generation:
