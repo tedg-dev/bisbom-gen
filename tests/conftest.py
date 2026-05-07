@@ -23,6 +23,12 @@ def pytest_configure(config):
         "markers",
         "requires_apk: marks tests that need apk",
     )
+    config.addinivalue_line(
+        "markers",
+        "docker_integration: marks tests that require "
+        "a running Docker daemon and omnibor-env image "
+        "(deselect with '-m \"not docker_integration\"')",
+    )
 
 
 def has_binary(name: str) -> bool:
