@@ -30,6 +30,7 @@ from app.spdx.gradle_parser import (
     is_gradle_project,
 )
 from app.spdx.relationships import (
+    BUILD_TOOL_OF,
     CONTAINED_BY,
     DESCRIBES,
     java_dep_relationship,
@@ -561,21 +562,33 @@ class JavaSpdxGenerator:
                 else:
                     target = root_pkg_id
 
-            # SPDX 2.3 Table 68: compile, runtime,
-            # and provided scopes all map to DEPENDS_ON.
-            # BUILD_TOOL_OF is reserved for the build
-            # system itself (javac, maven, gradle).
+            # Classify relationship type based on scope
+            # and groupId.  Known build tools (ant, maven
+            # plugins, etc.) get BUILD_TOOL_OF; others
+            # get scope-based type (DEPENDS_ON, etc.).
             # Scope metadata is in the package comment.
             rel_type = java_dep_relationship(
                 dep.get("scope", "compile"),
+                group_id=dep.get("groupId"),
             )
             if rel_type is None:
                 continue
-            doc["relationships"].append({
-                "spdxElementId": target,
-                "relatedSpdxElement": dep_id,
-                "relationshipType": rel_type,
-            })
+
+            # Relationship direction differs by type:
+            #   BUILD_TOOL_OF: tool → target
+            #   DEPENDS_ON:    parent → child
+            if rel_type == BUILD_TOOL_OF:
+                doc["relationships"].append({
+                    "spdxElementId": dep_id,
+                    "relatedSpdxElement": target,
+                    "relationshipType": rel_type,
+                })
+            else:
+                doc["relationships"].append({
+                    "spdxElementId": target,
+                    "relatedSpdxElement": dep_id,
+                    "relationshipType": rel_type,
+                })
 
         return doc
 

@@ -9,23 +9,26 @@ https://spdx.github.io/spdx-spec/v2.3/relationships-between-SPDX-elements/
 Key spec guidance (Table 68 examples):
   - compile scope      → DEPENDS_ON
   - runtime scope      → DEPENDS_ON
-  - provided scope     → DEPENDS_ON  (NOT BUILD_TOOL_OF)
+  - provided scope     → DEPENDS_ON (unless build tool)
   - test scope         → TEST_DEPENDENCY_OF
   - devDependencies    → DEV_DEPENDENCY_OF
   - optional           → OPTIONAL_DEPENDENCY_OF
   - compiler / linker  → BUILD_TOOL_OF
   - makefile           → BUILD_TOOL_OF
+  - build tool dep     → BUILD_TOOL_OF
 
-BUILD_TOOL_OF is reserved for the *build system itself*
-(gcc, go, javac, maven, gradle, make) — packages that
-compile/link the software. It is NOT for library
-dependencies in Maven ``provided`` scope.
+BUILD_TOOL_OF applies to packages that compile, link, or
+package the software — gcc, go, javac, maven, gradle,
+make, ant, etc.  When a Maven/Gradle dependency has a
+groupId in ``BUILD_TOOL_GROUP_IDS``, it gets
+BUILD_TOOL_OF regardless of its declared scope.
 
 Maven ``provided`` means "the dependency is required at
 compile time but supplied by the deployment environment
-at runtime".  In SPDX terms this is still DEPENDS_ON;
-the scope is recorded in the package comment field.
-SPDX 3.0 formalises this as ``hasProvidedDependency``.
+at runtime".  For regular libraries this maps to
+DEPENDS_ON; for recognized build tools (e.g. ant) it
+maps to BUILD_TOOL_OF.  Scope is always recorded in the
+package comment field.
 """
 
 # -----------------------------------------------------------
@@ -67,11 +70,14 @@ _JAVA_SCOPE_MAP = {
 _JAVA_EXCLUDED_SCOPES = frozenset({"test"})
 
 
-def java_dep_relationship(scope):
+def java_dep_relationship(scope, group_id=None):
     """Return the SPDX relationship type for a Java dependency.
 
     Args:
         scope: Maven or Gradle dependency scope string.
+        group_id: Maven groupId (optional).  When the
+            groupId matches a known build tool, returns
+            BUILD_TOOL_OF instead of the scope default.
 
     Returns:
         The SPDX 2.3 relationship type string, or *None*
@@ -79,6 +85,8 @@ def java_dep_relationship(scope):
     """
     if scope in _JAVA_EXCLUDED_SCOPES:
         return None
+    if is_build_tool(group_id=group_id):
+        return BUILD_TOOL_OF
     return _JAVA_SCOPE_MAP.get(scope, DEPENDS_ON)
 
 
@@ -86,9 +94,9 @@ def java_dep_relationship(scope):
 # Build-tool classification
 # -----------------------------------------------------------
 # These groupIds identify *build tools* — software used to
-# compile, link, or package the project.  If we ever extract
-# Maven/Gradle plugins as SPDX packages, they should use
-# BUILD_TOOL_OF rather than DEPENDS_ON.
+# compile, link, or package the project.  Dependencies
+# with these groupIds get BUILD_TOOL_OF regardless of
+# their declared Maven/Gradle scope.
 BUILD_TOOL_GROUP_IDS = frozenset({
     # Java build systems
     "org.apache.maven",
@@ -97,6 +105,8 @@ BUILD_TOOL_GROUP_IDS = frozenset({
     "org.gradle",
     # Compilers / code generators
     "org.apache.maven.plugin-tools",
+    # Apache Ant
+    "org.apache.ant",
 })
 
 # Binary names that are build tools (C/C++/Go)
