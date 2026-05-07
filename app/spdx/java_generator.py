@@ -224,6 +224,9 @@ class JavaSpdxGenerator:
             if not self._is_test_file(
                 f.get("file_path", "")
             )
+            and not self._is_extraction_artifact(
+                f.get("file_path", "")
+            )
         ]
         test_files_excluded = (
             len(all_files) - len(source_files)
@@ -599,6 +602,22 @@ class JavaSpdxGenerator:
         name = version_pattern.sub("", name)
 
         return name
+
+    @staticmethod
+    def _is_extraction_artifact(file_path):
+        """Return True if path is a bomsh extraction artifact.
+
+        ``bomsh_create_bom_java.py`` extracts JARs into
+        ``/tmp/bomjdir/`` for introspection.  These paths
+        appear in the treedb but are not project source
+        files — they are intermediate extraction artifacts
+        (e.g. ``.class`` files from multi-release JARs).
+
+        In standalone mode the strace ``openat`` filter
+        already excludes them.  This filter ensures
+        sidecar mode is consistent.
+        """
+        return "/tmp/bomjdir/" in file_path
 
     @staticmethod
     def _is_test_file(file_path):

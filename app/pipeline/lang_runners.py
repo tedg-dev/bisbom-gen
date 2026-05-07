@@ -26,8 +26,10 @@ def run_c_cpp_pipeline(
     OmniBOR SPDX, metadata, ADG SPDX, validation,
     binary collection.
 
-    Returns (success, duration_sec).
+    Returns (success, duration_sec, tracer_name).
     """
+    tracer = omnibor_cfg.get("tracer", "bomtrace3")
+
     # Step 3: Validate apt dependencies
     deps_ok, missing = (
         pipeline.validator.validate(repo_cfg)
@@ -89,7 +91,7 @@ def run_c_cpp_pipeline(
             run_ts=run_ts,
         )
 
-    return success, duration
+    return success, duration, tracer
 
 
 # ============================================================
@@ -113,8 +115,12 @@ def run_rust_pipeline(
     See: https://github.com/omnibor/bomsh
     #software-vulnerability-cve-search-for-rust-packages
 
-    Returns (success, duration_sec).
+    Returns (success, duration_sec, tracer_name).
     """
+    tracer = omnibor_rust_cfg.get(
+        "tracer", "bomtrace2",
+    )
+
     # Step 4: Instrumented build (bomtrace2)
     start = time.time()
     success = pipeline.builder.build(
@@ -163,7 +169,7 @@ def run_rust_pipeline(
             run_ts=run_ts,
         )
 
-    return success, duration
+    return success, duration, tracer
 
 
 # ============================================================
@@ -212,7 +218,7 @@ def run_java_pipeline(
     In standalone mode (default): strace + bomsh_create_bom_java.py.
     In sidecar mode: dep:tree strategy (no strace needed).
 
-    Returns (success, duration_sec).
+    Returns (success, duration_sec, tracer_name).
     """
     strategy = _select_java_strategy(
         repo_name, repo_cfg, paths_cfg, mode,
@@ -275,7 +281,8 @@ def run_java_pipeline(
             run_ts=run_ts,
         )
 
-    return success, duration
+    tracer = strategy.name if strategy else "strace"
+    return success, duration, tracer
 
 
 def generate_java_adg_spdx(
@@ -475,8 +482,12 @@ def run_go_pipeline(
     See: https://github.com/omnibor/bomsh
     #software-vulnerability-cve-search-for-golang-packages
 
-    Returns (success, duration_sec).
+    Returns (success, duration_sec, tracer_name).
     """
+    tracer = omnibor_go_cfg.get(
+        "tracer", "bomtrace2",
+    )
+
     # Step 4: Instrumented build (bomtrace2)
     start = time.time()
     success = pipeline.builder.build(
@@ -525,4 +536,4 @@ def run_go_pipeline(
             run_ts=run_ts,
         )
 
-    return success, duration
+    return success, duration, tracer

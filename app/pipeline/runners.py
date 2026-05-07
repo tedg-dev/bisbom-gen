@@ -174,29 +174,30 @@ def main():
 
     # -------------------------------------------------
     # Language-specific pipeline branch
+    # Each returns (success, duration, tracer_name).
     # -------------------------------------------------
     if lang == "c-cpp":
-        success, duration = run_c_cpp_pipeline(
+        success, duration, tracer = run_c_cpp_pipeline(
             pipeline, args.repo, repo_cfg,
             paths_cfg, omnibor_cfg, run_ts,
             vcs_uri=vcs_uri,
         )
     elif lang == "rust":
-        success, duration = run_rust_pipeline(
+        success, duration, tracer = run_rust_pipeline(
             pipeline, args.repo, repo_cfg,
             paths_cfg, omnibor_cfg, run_ts,
             vcs_uri=vcs_uri,
         )
     elif lang == "java":
         mode = config.get("mode", DEFAULT_MODE)
-        success, duration = run_java_pipeline(
+        success, duration, tracer = run_java_pipeline(
             pipeline, args.repo, repo_cfg,
             paths_cfg, omnibor_cfg, run_ts,
             vcs_uri=vcs_uri,
             mode=mode,
         )
     else:
-        success, duration = run_go_pipeline(
+        success, duration, tracer = run_go_pipeline(
             pipeline, args.repo, repo_cfg,
             paths_cfg, omnibor_cfg, run_ts,
             vcs_uri=vcs_uri,
@@ -210,7 +211,6 @@ def main():
         )
 
     # Step 8: Write docs (all languages)
-    tracer = omnibor_cfg.get("tracer")
     raw_logfile = omnibor_cfg.get("raw_logfile")
     pipeline.docs.write_build_doc(
         args.repo, repo_cfg, paths_cfg,

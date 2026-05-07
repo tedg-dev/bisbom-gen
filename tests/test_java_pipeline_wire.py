@@ -132,13 +132,14 @@ class TestRunJavaPipelineMode(unittest.TestCase):
     def test_standalone_uses_build_java(self, _):
         pipeline = self._setup()
         with patch("builtins.print"):
-            success, dur = run_java_pipeline(
+            success, dur, tracer = run_java_pipeline(
                 pipeline, "jsoup",
                 self._repo_cfg(), self._paths(),
                 self._omnibor(), "2024-01-01",
                 mode="standalone",
             )
         self.assertTrue(success)
+        self.assertEqual(tracer, "strace")
         pipeline.builder.build_java\
             .assert_called_once()
         pipeline.builder.build\
@@ -159,13 +160,14 @@ class TestRunJavaPipelineMode(unittest.TestCase):
     ):
         pipeline = self._setup()
         with patch("builtins.print"):
-            success, dur = run_java_pipeline(
+            success, dur, tracer = run_java_pipeline(
                 pipeline, "jsoup",
                 self._repo_cfg(), self._paths(),
                 self._omnibor(), "2024-01-01",
                 mode="sidecar",
             )
         self.assertTrue(success)
+        self.assertEqual(tracer, "maven-dep-tree")
         pipeline.builder.build\
             .assert_called_once()
         # Verify strategy was passed
@@ -186,11 +188,12 @@ class TestRunJavaPipelineMode(unittest.TestCase):
     def test_default_mode_is_standalone(self, _):
         pipeline = self._setup()
         with patch("builtins.print"):
-            success, dur = run_java_pipeline(
+            success, dur, tracer = run_java_pipeline(
                 pipeline, "jsoup",
                 self._repo_cfg(), self._paths(),
                 self._omnibor(), "2024-01-01",
             )
+        self.assertEqual(tracer, "strace")
         # Default mode=standalone -> build_java
         pipeline.builder.build_java\
             .assert_called_once()

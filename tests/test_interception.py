@@ -16,6 +16,8 @@ from app.pipeline.interception import (
     CcWrapperStrategy,
     GoToolexecStrategy,
     RustcWrapperStrategy,
+    MavenDepTreeStrategy,
+    GradleDepTreeStrategy,
 )
 
 
@@ -25,6 +27,14 @@ from app.pipeline.interception import (
 
 class TestPtraceStrategy(unittest.TestCase):
     """Tests for PtraceStrategy."""
+
+    def test_name_default(self):
+        s = PtraceStrategy()
+        self.assertEqual(s.name, "bomtrace3")
+
+    def test_name_custom_tracer(self):
+        s = PtraceStrategy(tracer="bomtrace2")
+        self.assertEqual(s.name, "bomtrace2")
 
     def test_default_tracer(self):
         s = PtraceStrategy()
@@ -120,6 +130,10 @@ class TestPtraceStrategy(unittest.TestCase):
 class TestCcWrapperStrategy(unittest.TestCase):
     """Tests for CcWrapperStrategy."""
 
+    def test_name(self):
+        s = CcWrapperStrategy()
+        self.assertEqual(s.name, "cc-wrapper")
+
     def test_default_wrappers(self):
         s = CcWrapperStrategy()
         cmd, env = s.instrument_command(
@@ -154,6 +168,10 @@ class TestCcWrapperStrategy(unittest.TestCase):
 
 class TestGoToolexecStrategy(unittest.TestCase):
     """Tests for GoToolexecStrategy."""
+
+    def test_name(self):
+        s = GoToolexecStrategy()
+        self.assertEqual(s.name, "go-toolexec")
 
     def test_default_wrapper(self):
         s = GoToolexecStrategy()
@@ -199,6 +217,10 @@ class TestGoToolexecStrategy(unittest.TestCase):
 class TestRustcWrapperStrategy(unittest.TestCase):
     """Tests for RustcWrapperStrategy."""
 
+    def test_name(self):
+        s = RustcWrapperStrategy()
+        self.assertEqual(s.name, "rustc-wrapper")
+
     def test_default_wrapper(self):
         s = RustcWrapperStrategy()
         cmd, env = s.instrument_command(
@@ -230,6 +252,48 @@ class TestRustcWrapperStrategy(unittest.TestCase):
         self.assertEqual(
             cmd, "cargo build --release",
         )
+
+
+# ============================================================
+# MavenDepTreeStrategy
+# ============================================================
+
+class TestMavenDepTreeStrategy(unittest.TestCase):
+    """Tests for MavenDepTreeStrategy."""
+
+    def test_name(self):
+        s = MavenDepTreeStrategy(runner=MagicMock())
+        self.assertEqual(s.name, "maven-dep-tree")
+
+    def test_command_passthrough(self):
+        s = MavenDepTreeStrategy(runner=MagicMock())
+        cmd, env = s.instrument_command(
+            "mvn package -DskipTests", "/repo",
+        )
+        self.assertEqual(
+            cmd, "mvn package -DskipTests",
+        )
+        self.assertEqual(env, {})
+
+
+# ============================================================
+# GradleDepTreeStrategy
+# ============================================================
+
+class TestGradleDepTreeStrategy(unittest.TestCase):
+    """Tests for GradleDepTreeStrategy."""
+
+    def test_name(self):
+        s = GradleDepTreeStrategy(runner=MagicMock())
+        self.assertEqual(s.name, "gradle-dep-tree")
+
+    def test_command_passthrough(self):
+        s = GradleDepTreeStrategy(runner=MagicMock())
+        cmd, env = s.instrument_command(
+            "./gradlew build", "/repo",
+        )
+        self.assertEqual(cmd, "./gradlew build")
+        self.assertEqual(env, {})
 
 
 # ============================================================
