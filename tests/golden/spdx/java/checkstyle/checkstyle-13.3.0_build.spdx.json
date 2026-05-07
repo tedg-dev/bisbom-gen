@@ -3,9 +3,9 @@
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
   "name": "checkstyle-checkstyle-13.3.0.jar",
-  "documentNamespace": "https://omnibor.io/spdx/checkstyle/5c5ed685-8650-4303-ab99-a4857647aeed",
+  "documentNamespace": "https://omnibor.io/spdx/checkstyle/3f40b502-7deb-46de-bb2e-b691dae053d8",
   "creationInfo": {
-    "created": "2026-05-04T22:26:56Z",
+    "created": "2026-05-07T22:26:11Z",
     "creators": [
       "Tool: omnibor-analysis",
       "Tool: bomsh_create_bom_java.py"
@@ -17,7 +17,7 @@
       "SPDXID": "SPDXRef-Package-checkstyle-13.3.0.jar",
       "name": "checkstyle",
       "versionInfo": "13.3.0",
-      "downloadLocation": "NOASSERTION",
+      "downloadLocation": "https://github.com/checkstyle/checkstyle/commit/cf81ad6eea85c523c43e5adcd2af2304277ceea7",
       "filesAnalyzed": true,
       "primaryPackagePurpose": "APPLICATION",
       "supplier": "NOASSERTION",
@@ -21202,14 +21202,14 @@
       "relationshipType": "DEPENDS_ON"
     },
     {
-      "spdxElementId": "SPDXRef-Package-checkstyle-13.3.0.jar",
-      "relatedSpdxElement": "SPDXRef-Dep-10",
-      "relationshipType": "DEPENDS_ON"
+      "spdxElementId": "SPDXRef-Dep-10",
+      "relatedSpdxElement": "SPDXRef-Package-checkstyle-13.3.0.jar",
+      "relationshipType": "BUILD_TOOL_OF"
     },
     {
-      "spdxElementId": "SPDXRef-Dep-10",
-      "relatedSpdxElement": "SPDXRef-Dep-11",
-      "relationshipType": "DEPENDS_ON"
+      "spdxElementId": "SPDXRef-Dep-11",
+      "relatedSpdxElement": "SPDXRef-Dep-10",
+      "relationshipType": "BUILD_TOOL_OF"
     },
     {
       "spdxElementId": "SPDXRef-Package-checkstyle-13.3.0.jar",
