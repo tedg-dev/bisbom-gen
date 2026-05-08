@@ -1291,8 +1291,7 @@ Corona is the centralized SBOM management system that:
 
 ### Current State: Syft SBOMs Uploaded to Corona
 
-Some CI/CD pipelines already generate Syft-based SPDX SBOMs and
-upload them to Corona out-of-band:
+There may be CI/CD pipelines that generate Syft-based SPDX SBOMs and upload them to Corona out-of-band:
 
 | Step | Where | What |
 |------|-------|------|
@@ -1301,10 +1300,7 @@ upload them to Corona out-of-band:
 | 3. Upload | CI/CD pipeline | Push SPDX JSON to Corona S3 bucket |
 | 4. Ingest | Corona agent/daemon | Reads from S3, processes, stores in PRI model |
 
-This pattern is already proven and operational. The OmniBOR
-build-intercepted SBOM can follow the **exact same upload path**,
-with Corona handling Phase 2 construction instead of the CI/CD
-pipeline.
+The OmniBOR build-intercepted SBOM can follow the **exact same upload path**, with Corona handling Phase 2 construction instead of the CI/CD pipeline.
 
 ### Proposed Architecture: Corona as Phase 2 Executor
 
@@ -1366,50 +1362,6 @@ processing:
 The daemon runs the same `analyze.py --phase spdx --manifest <path>`
 command that the CI/CD integration would use. The code is identical;
 only the execution context differs (Corona server vs. CI runner).
-
-### CI/CD Integration with Corona
-
-**GitHub Actions example:**
-
-```yaml
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Build with OmniBOR interception (Phase 1)
-        run: |
-          docker run --rm \
-            -v ${{ github.workspace }}:/workspace/repos/$REPO \
-            -v ${{ github.workspace }}/omnibor-output:/workspace/output \
-            omnibor-env:sidecar \
-            python3 /workspace/app/analyze.py \
-              --repo $REPO --skip-clone --mode sidecar --phase build
-
-      - name: Upload build metadata to Corona
-        run: |
-          aws s3 cp omnibor-output/omnibor/ \
-            s3://corona-sbom-intake/omnibor/$REPO/${{ github.run_id }}/ \
-            --recursive
-        # Phase 2 happens in Corona — CI/CD is done with SBOM work
-
-  test:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Run tests
-        run: make test
-      # NOT blocked by SPDX generation — Corona handles it async
-
-  deploy:
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-      - name: Deploy
-        run: make deploy
-      # SBOM is being constructed in Corona while deploy runs
-```
 
 ### Advantages Over CI/CD-Based Phase 2
 
