@@ -41,6 +41,12 @@ RUN wget -q "https://dlcdn.apache.org/maven/maven-3/${MAVEN_VERSION}/binaries/ap
        /usr/local/bin/mvn \
     && rm /tmp/maven.tar.gz
 
+# Unblock HTTP Maven repositories (Maven 3.8.1+ blocks HTTP by default).
+# Some repos (e.g. Oracle BerkeleyDB for crawler4j) only serve HTTP.
+# Remove the maven-default-http-blocker mirror entry (same as main Dockerfile).
+RUN sed -i '/<mirror>/,/<\/mirror>/{/maven-default-http-blocker/,/<\/mirror>/d; /<mirror>/d}' \
+    /opt/apache-maven-${MAVEN_VERSION}/conf/settings.xml
+
 # Use python3.11 as default python3
 RUN ln -sf /usr/bin/python3.11 /usr/bin/python3
 

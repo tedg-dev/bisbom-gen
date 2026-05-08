@@ -263,9 +263,10 @@ class MavenDepTreeStrategy(InterceptionStrategy):
     pipeline as standalone mode.
     """
 
-    def __init__(self, runner=None):
+    def __init__(self, runner=None, maven_modules=None):
         from app.runner import CommandRunner
         self._runner = runner or CommandRunner()
+        self._maven_modules = maven_modules
 
     @property
     def name(self):
@@ -341,6 +342,7 @@ class MavenDepTreeStrategy(InterceptionStrategy):
         # Step 2: Capture Maven dependency graph
         dot_output = run_maven_dep_tree(
             repo_dir, runner=self._runner,
+            maven_modules=self._maven_modules,
         )
         if dot_output is None:
             return False

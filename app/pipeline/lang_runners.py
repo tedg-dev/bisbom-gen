@@ -176,6 +176,27 @@ def run_rust_pipeline(
 # Java pipeline
 # ============================================================
 
+def _extract_maven_modules(build_steps):
+    """Extract ``-pl`` value from Maven build steps.
+
+    Scans the build command strings for ``-pl <modules>``
+    to support multi-module projects where dep:tree must
+    target the same module(s) as the build.
+
+    Returns:
+        The modules string (e.g. ``"crawler4j"``) or None.
+    """
+    import shlex
+    for step in (build_steps or []):
+        if not step.startswith("mvn"):
+            continue
+        tokens = shlex.split(step)
+        for i, tok in enumerate(tokens):
+            if tok == "-pl" and i + 1 < len(tokens):
+                return tokens[i + 1]
+    return None
+
+
 def _select_java_strategy(
     repo_name, repo_cfg, paths_cfg, mode,
 ):
@@ -204,7 +225,12 @@ def _select_java_strategy(
     from app.pipeline.interception import (
         MavenDepTreeStrategy,
     )
-    return MavenDepTreeStrategy()
+    maven_modules = _extract_maven_modules(
+        repo_cfg.get("build_steps"),
+    )
+    return MavenDepTreeStrategy(
+        maven_modules=maven_modules,
+    )
 
 
 def run_java_pipeline(
