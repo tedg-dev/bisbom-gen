@@ -3,9 +3,9 @@
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
   "name": "checkstyle-checkstyle-13.3.0.jar",
-  "documentNamespace": "https://omnibor.io/spdx/checkstyle/3f40b502-7deb-46de-bb2e-b691dae053d8",
+  "documentNamespace": "https://omnibor.io/spdx/checkstyle/dcb50f1c-97e5-434d-989c-d8a7b18c7ebb",
   "creationInfo": {
-    "created": "2026-05-07T22:26:11Z",
+    "created": "2026-05-08T20:47:24Z",
     "creators": [
       "Tool: omnibor-analysis",
       "Tool: bomsh_create_bom_java.py"
@@ -28,6 +28,40 @@
           "referenceLocator": "pkg:maven/checkstyle/checkstyle"
         }
       ]
+    },
+    {
+      "SPDXID": "SPDXRef-BuildTool-javac",
+      "name": "javac",
+      "versionInfo": "21.0.10",
+      "supplier": "Organization: Oracle",
+      "downloadLocation": "https://jdk.java.net/",
+      "filesAnalyzed": false,
+      "primaryPackagePurpose": "APPLICATION",
+      "externalRefs": [
+        {
+          "referenceCategory": "SECURITY",
+          "referenceType": "cpe23Type",
+          "referenceLocator": "cpe:2.3:a:oracle:jdk:21.0.10:*:*:*:*:*:*:*"
+        }
+      ],
+      "comment": "Java compiler (JDK 21.0.10) used to compile .java sources into .class bytecode."
+    },
+    {
+      "SPDXID": "SPDXRef-BuildTool-maven",
+      "name": "maven",
+      "versionInfo": "3.9.15",
+      "supplier": "Organization: Apache Software Foundation",
+      "downloadLocation": "https://maven.apache.org/",
+      "filesAnalyzed": false,
+      "primaryPackagePurpose": "APPLICATION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.apache.maven/maven@3.9.15"
+        }
+      ],
+      "comment": "Apache Maven 3.9.15 build system used to orchestrate compilation and packaging."
     },
     {
       "SPDXID": "SPDXRef-Dep-0",
@@ -21152,6 +21186,16 @@
       "relationshipType": "CONTAINED_BY"
     },
     {
+      "spdxElementId": "SPDXRef-BuildTool-javac",
+      "relatedSpdxElement": "SPDXRef-Package-checkstyle-13.3.0.jar",
+      "relationshipType": "BUILD_TOOL_OF"
+    },
+    {
+      "spdxElementId": "SPDXRef-BuildTool-maven",
+      "relatedSpdxElement": "SPDXRef-Package-checkstyle-13.3.0.jar",
+      "relationshipType": "BUILD_TOOL_OF"
+    },
+    {
       "spdxElementId": "SPDXRef-Package-checkstyle-13.3.0.jar",
       "relatedSpdxElement": "SPDXRef-Dep-0",
       "relationshipType": "DEPENDS_ON"
@@ -21202,14 +21246,14 @@
       "relationshipType": "DEPENDS_ON"
     },
     {
-      "spdxElementId": "SPDXRef-Dep-10",
-      "relatedSpdxElement": "SPDXRef-Package-checkstyle-13.3.0.jar",
-      "relationshipType": "BUILD_TOOL_OF"
+      "spdxElementId": "SPDXRef-Package-checkstyle-13.3.0.jar",
+      "relatedSpdxElement": "SPDXRef-Dep-10",
+      "relationshipType": "DEPENDS_ON"
     },
     {
-      "spdxElementId": "SPDXRef-Dep-11",
-      "relatedSpdxElement": "SPDXRef-Dep-10",
-      "relationshipType": "BUILD_TOOL_OF"
+      "spdxElementId": "SPDXRef-Dep-10",
+      "relatedSpdxElement": "SPDXRef-Dep-11",
+      "relationshipType": "DEPENDS_ON"
     },
     {
       "spdxElementId": "SPDXRef-Package-checkstyle-13.3.0.jar",

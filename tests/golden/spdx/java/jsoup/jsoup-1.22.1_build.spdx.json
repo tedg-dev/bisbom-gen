@@ -3,9 +3,9 @@
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
   "name": "jsoup-jsoup-1.22.1.jar",
-  "documentNamespace": "https://omnibor.io/spdx/jsoup/2960ddb7-b754-4606-9d55-d9639436c3cf",
+  "documentNamespace": "https://omnibor.io/spdx/jsoup/be106325-f25f-4eb4-b747-ee706ad89828",
   "creationInfo": {
-    "created": "2026-05-04T22:25:37Z",
+    "created": "2026-05-08T18:04:34Z",
     "creators": [
       "Tool: omnibor-analysis",
       "Tool: bomsh_create_bom_java.py"
@@ -17,7 +17,7 @@
       "SPDXID": "SPDXRef-Package-jsoup-1.22.1.jar",
       "name": "jsoup",
       "versionInfo": "1.22.1",
-      "downloadLocation": "NOASSERTION",
+      "downloadLocation": "https://github.com/jhy/jsoup/commit/8dd66febe8d5e2221a63f4d1228a2a35df81c148",
       "filesAnalyzed": true,
       "primaryPackagePurpose": "APPLICATION",
       "supplier": "NOASSERTION",
@@ -28,6 +28,40 @@
           "referenceLocator": "pkg:maven/jsoup/jsoup"
         }
       ]
+    },
+    {
+      "SPDXID": "SPDXRef-BuildTool-javac",
+      "name": "javac",
+      "versionInfo": "21.0.10",
+      "supplier": "Organization: Oracle",
+      "downloadLocation": "https://jdk.java.net/",
+      "filesAnalyzed": false,
+      "primaryPackagePurpose": "APPLICATION",
+      "externalRefs": [
+        {
+          "referenceCategory": "SECURITY",
+          "referenceType": "cpe23Type",
+          "referenceLocator": "cpe:2.3:a:oracle:jdk:21.0.10:*:*:*:*:*:*:*"
+        }
+      ],
+      "comment": "Java compiler (JDK 21.0.10) used to compile .java sources into .class bytecode."
+    },
+    {
+      "SPDXID": "SPDXRef-BuildTool-maven",
+      "name": "maven",
+      "versionInfo": "3.9.15",
+      "supplier": "Organization: Apache Software Foundation",
+      "downloadLocation": "https://maven.apache.org/",
+      "filesAnalyzed": false,
+      "primaryPackagePurpose": "APPLICATION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.apache.maven/maven@3.9.15"
+        }
+      ],
+      "comment": "Apache Maven 3.9.15 build system used to orchestrate compilation and packaging."
     },
     {
       "SPDXID": "SPDXRef-Dep-0",
@@ -5936,6 +5970,16 @@
       "spdxElementId": "SPDXRef-File-390",
       "relatedSpdxElement": "SPDXRef-Package-jsoup-1.22.1.jar",
       "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-BuildTool-javac",
+      "relatedSpdxElement": "SPDXRef-Package-jsoup-1.22.1.jar",
+      "relationshipType": "BUILD_TOOL_OF"
+    },
+    {
+      "spdxElementId": "SPDXRef-BuildTool-maven",
+      "relatedSpdxElement": "SPDXRef-Package-jsoup-1.22.1.jar",
+      "relationshipType": "BUILD_TOOL_OF"
     },
     {
       "spdxElementId": "SPDXRef-Package-jsoup-1.22.1.jar",

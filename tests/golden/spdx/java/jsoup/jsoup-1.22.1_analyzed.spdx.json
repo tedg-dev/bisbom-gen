@@ -3,9 +3,9 @@
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
   "name": "jsoup-jsoup-1.22.1.jar",
-  "documentNamespace": "https://omnibor.io/spdx/jsoup/8a0c3f7e-22b3-461c-88c8-bb4afe0739c6",
+  "documentNamespace": "https://omnibor.io/spdx/jsoup/ed38bab9-1787-45fc-99c0-af0fbbb03416",
   "creationInfo": {
-    "created": "2026-05-04T22:25:35Z",
+    "created": "2026-05-08T18:04:31Z",
     "creators": [
       "Tool: omnibor-analysis",
       "Tool: bomsh_create_bom_java.py"
@@ -17,7 +17,7 @@
       "SPDXID": "SPDXRef-Package-jsoup-1.22.1.jar",
       "name": "jsoup",
       "versionInfo": "1.22.1",
-      "downloadLocation": "NOASSERTION",
+      "downloadLocation": "https://github.com/jhy/jsoup/commit/8dd66febe8d5e2221a63f4d1228a2a35df81c148",
       "filesAnalyzed": true,
       "primaryPackagePurpose": "APPLICATION",
       "supplier": "NOASSERTION",
