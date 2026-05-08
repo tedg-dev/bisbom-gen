@@ -1,0 +1,37 @@
+# ============================================================
+# Alpine Integration Testing Image
+#
+# Minimal image for testing ApkResolver, PURL generation,
+# and package metadata resolution on Alpine Linux.
+#
+# Build:
+#   docker compose -f docker/docker-compose.yml build omnibor-alpine
+# ============================================================
+
+FROM alpine:3.19
+
+# Install Python 3 and common system libraries
+# that our resolver tests need to query against.
+RUN apk add --no-cache \
+    python3 \
+    py3-pip \
+    # System libraries to test resolver against
+    gcc \
+    g++ \
+    musl-dev \
+    make \
+    openssl \
+    zlib \
+    # Utilities
+    git \
+    wget \
+    bash
+
+# Python dependencies (runtime + test)
+COPY requirements.txt /tmp/requirements.txt
+COPY requirements-dev.txt /tmp/requirements-dev.txt
+RUN pip3 install --no-cache-dir --break-system-packages \
+    -r /tmp/requirements-dev.txt \
+    && rm /tmp/requirements.txt /tmp/requirements-dev.txt
+
+WORKDIR /workspace

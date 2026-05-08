@@ -9,9 +9,8 @@ Generates SPDX 2.3 SBOMs for Java projects using:
 
 import json
 import re
-import subprocess  # noqa: F401  kept for mock paths
+import subprocess
 import uuid
-import xml.etree.ElementTree as ET  # noqa: F401
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -181,6 +180,218 @@ class JavaSpdxGenerator:
         if self._is_gradle():
             return get_gradle_group(self.repo_dir)
         return get_project_group_id(self.repo_dir)
+
+    # -------------------------------------------------
+    # Build tool version detection
+    # -------------------------------------------------
+    @staticmethod
+    def _detect_javac_version():
+        """Detect the JDK version from ``javac -version``.
+
+        Returns:
+            Version string (e.g. ``"17.0.13"``) or None.
+        """
+        try:
+            result = subprocess.run(
+                ["javac", "-version"],
+                capture_output=True, text=True,
+                timeout=10, check=False,
+            )
+            # javac output: "javac 17.0.13"
+            output = (
+                result.stdout.strip()
+                or result.stderr.strip()
+            )
+            m = re.search(r"(\d+[\d.]*)", output)
+            return m.group(1) if m else None
+        except (FileNotFoundError, subprocess.TimeoutExpired):
+            return None
+
+    @staticmethod
+    def _detect_maven_version():
+        """Detect the Maven version from ``mvn --version``.
+
+        Returns:
+            Version string (e.g. ``"3.9.15"``) or None.
+        """
+        try:
+            result = subprocess.run(
+                ["mvn", "--version"],
+                capture_output=True, text=True,
+                timeout=10, check=False,
+            )
+            # First line: "Apache Maven 3.9.15 (...)"
+            m = re.search(
+                r"Apache Maven (\d+[\d.]*)",
+                result.stdout,
+            )
+            return m.group(1) if m else None
+        except (FileNotFoundError, subprocess.TimeoutExpired):
+            return None
+
+    @staticmethod
+    def _detect_gradle_version(repo_dir):
+        """Detect Gradle version from wrapper or system.
+
+        Returns:
+            Version string (e.g. ``"8.5"``) or None.
+        """
+        # Check gradle-wrapper.properties first
+        props = (
+            Path(repo_dir) / "gradle" / "wrapper"
+            / "gradle-wrapper.properties"
+        )
+        if props.exists():
+            try:
+                text = props.read_text(
+                    encoding="utf-8",
+                )
+                m = re.search(
+                    r"gradle-(\d+[\d.]*)", text,
+                )
+                if m:
+                    return m.group(1)
+            except OSError:
+                pass
+        # Fallback: system gradle
+        try:
+            result = subprocess.run(
+                ["gradle", "--version"],
+                capture_output=True, text=True,
+                timeout=10, check=False,
+            )
+            m = re.search(
+                r"Gradle (\d+[\d.]*)",
+                result.stdout,
+            )
+            return m.group(1) if m else None
+        except (FileNotFoundError, subprocess.TimeoutExpired):
+            return None
+
+    def _add_build_tools(self, doc, root_pkg_id):
+        """Add JDK and build system as BUILD_TOOL_OF.
+
+        Mirrors how ``emitter.py`` adds gcc/go/rustc for
+        other languages.  Every compiled artifact has at
+        least a compiler (javac) and a build system
+        (Maven or Gradle) that produced it.
+        """
+        # ── javac (JDK compiler) ──────────────────────
+        jdk_ver = self._detect_javac_version()
+        if jdk_ver:
+            jdk_id = "SPDXRef-BuildTool-javac"
+            doc["packages"].append({
+                "SPDXID": jdk_id,
+                "name": "javac",
+                "versionInfo": jdk_ver,
+                "supplier": "Organization: Oracle",
+                "downloadLocation": (
+                    "https://jdk.java.net/"
+                ),
+                "filesAnalyzed": False,
+                "primaryPackagePurpose":
+                    "APPLICATION",
+                "externalRefs": [{
+                    "referenceCategory": "SECURITY",
+                    "referenceType": "cpe23Type",
+                    "referenceLocator": (
+                        f"cpe:2.3:a:oracle:jdk:"
+                        f"{jdk_ver}:*:*:*:*:*:*:*"
+                    ),
+                }],
+                "comment": (
+                    f"Java compiler (JDK {jdk_ver}) "
+                    "used to compile .java sources "
+                    "into .class bytecode."
+                ),
+            })
+            doc["relationships"].append({
+                "spdxElementId": jdk_id,
+                "relatedSpdxElement": root_pkg_id,
+                "relationshipType": BUILD_TOOL_OF,
+            })
+
+        # ── Build system (Maven or Gradle) ────────────
+        if self._is_gradle():
+            gradle_ver = self._detect_gradle_version(
+                self.repo_dir,
+            )
+            if gradle_ver:
+                gid = "SPDXRef-BuildTool-gradle"
+                doc["packages"].append({
+                    "SPDXID": gid,
+                    "name": "gradle",
+                    "versionInfo": gradle_ver,
+                    "supplier": (
+                        "Organization: Gradle Inc"
+                    ),
+                    "downloadLocation": (
+                        "https://gradle.org/"
+                    ),
+                    "filesAnalyzed": False,
+                    "primaryPackagePurpose":
+                        "APPLICATION",
+                    "externalRefs": [{
+                        "referenceCategory":
+                            "PACKAGE-MANAGER",
+                        "referenceType": "purl",
+                        "referenceLocator": (
+                            "pkg:maven/"
+                            "org.gradle/gradle@"
+                            f"{gradle_ver}"
+                        ),
+                    }],
+                    "comment": (
+                        f"Gradle {gradle_ver} build "
+                        "system used to orchestrate "
+                        "compilation and packaging."
+                    ),
+                })
+                doc["relationships"].append({
+                    "spdxElementId": gid,
+                    "relatedSpdxElement": root_pkg_id,
+                    "relationshipType": BUILD_TOOL_OF,
+                })
+        else:
+            mvn_ver = self._detect_maven_version()
+            if mvn_ver:
+                mid = "SPDXRef-BuildTool-maven"
+                doc["packages"].append({
+                    "SPDXID": mid,
+                    "name": "maven",
+                    "versionInfo": mvn_ver,
+                    "supplier": (
+                        "Organization: "
+                        "Apache Software Foundation"
+                    ),
+                    "downloadLocation": (
+                        "https://maven.apache.org/"
+                    ),
+                    "filesAnalyzed": False,
+                    "primaryPackagePurpose":
+                        "APPLICATION",
+                    "externalRefs": [{
+                        "referenceCategory":
+                            "PACKAGE-MANAGER",
+                        "referenceType": "purl",
+                        "referenceLocator": (
+                            "pkg:maven/"
+                            "org.apache.maven/maven@"
+                            f"{mvn_ver}"
+                        ),
+                    }],
+                    "comment": (
+                        f"Apache Maven {mvn_ver} "
+                        "build system used to "
+                        "orchestrate compilation "
+                        "and packaging."
+                    ),
+                })
+                doc["relationships"].append({
+                    "spdxElementId": mid,
+                    "relatedSpdxElement": root_pkg_id,
+                    "relationshipType": BUILD_TOOL_OF,
+                })
 
     def generate(
         self, output_path, binary_name=None,
@@ -429,9 +640,40 @@ class JavaSpdxGenerator:
                 "relationshipType": CONTAINED_BY,
             })
 
-        # For analyzed SBOMs, skip Maven deps entirely —
-        # thin JARs don't bundle dependency code
+        # ── Build tools (javac + build system) ────────
+        # Same pattern as gcc/go/rustc in emitter.py:
+        # detect the compiler and build system that
+        # produced this artifact and emit BUILD_TOOL_OF.
+        self._add_build_tools(doc, root_pkg_id)
+
+        # For analyzed SBOMs, strip BUILD_TOOL_OF rels
+        # and their orphaned packages — build tools
+        # aren't compiled into the binary.
         if sbom_type == "analyzed":
+            bt_ids = {
+                r["spdxElementId"]
+                for r in doc["relationships"]
+                if r["relationshipType"]
+                == BUILD_TOOL_OF
+            }
+            doc["relationships"] = [
+                r for r in doc["relationships"]
+                if r["relationshipType"]
+                != BUILD_TOOL_OF
+            ]
+            # Remove orphaned build-tool packages
+            still_used = {
+                r["spdxElementId"]
+                for r in doc["relationships"]
+            } | {
+                r["relatedSpdxElement"]
+                for r in doc["relationships"]
+            }
+            doc["packages"] = [
+                p for p in doc["packages"]
+                if p["SPDXID"] not in bt_ids
+                or p["SPDXID"] in still_used
+            ]
             return doc
 
         # Add Maven dependencies as packages
@@ -562,33 +804,22 @@ class JavaSpdxGenerator:
                 else:
                     target = root_pkg_id
 
-            # Classify relationship type based on scope
-            # and groupId.  Known build tools (ant, maven
-            # plugins, etc.) get BUILD_TOOL_OF; others
-            # get scope-based type (DEPENDS_ON, etc.).
-            # Scope metadata is in the package comment.
+            # Classify by scope only — all dependency
+            # tree entries are library deps (DEPENDS_ON
+            # etc.).  Build tools are emitted separately
+            # by _add_build_tools().
             rel_type = java_dep_relationship(
                 dep.get("scope", "compile"),
-                group_id=dep.get("groupId"),
             )
             if rel_type is None:
                 continue
 
-            # Relationship direction differs by type:
-            #   BUILD_TOOL_OF: tool → target
-            #   DEPENDS_ON:    parent → child
-            if rel_type == BUILD_TOOL_OF:
-                doc["relationships"].append({
-                    "spdxElementId": dep_id,
-                    "relatedSpdxElement": target,
-                    "relationshipType": rel_type,
-                })
-            else:
-                doc["relationships"].append({
-                    "spdxElementId": target,
-                    "relatedSpdxElement": dep_id,
-                    "relationshipType": rel_type,
-                })
+            # Direction: parent DEPENDS_ON child
+            doc["relationships"].append({
+                "spdxElementId": target,
+                "relatedSpdxElement": dep_id,
+                "relationshipType": rel_type,
+            })
 
         return doc
 

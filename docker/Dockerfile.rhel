@@ -1,0 +1,78 @@
+# ============================================================
+# RHEL Integration Testing Image (Rocky Linux 9)
+#
+# Minimal image for testing RpmResolver, PURL generation,
+# and package metadata resolution on RPM-based distros.
+#
+# Build:
+#   docker compose -f docker/docker-compose.yml build omnibor-rhel
+# ============================================================
+
+FROM rockylinux:9
+
+# Install Python 3.11+ and common system libraries
+# that our resolver tests need to query against.
+RUN dnf install -y --setopt=install_weak_deps=False \
+    python3.11 \
+    python3.11-pip \
+    # System libraries to test resolver against
+    gcc \
+    gcc-c++ \
+    make \
+    openssl-libs \
+    zlib \
+    glibc \
+    # Java (for #112 Java on RHEL)
+    java-17-openjdk-devel \
+    # Utilities
+    git \
+    patch \
+    wget \
+    which \
+    tar \
+    && dnf clean all
+
+# Install Maven 3.9 (dnf maven is 3.6, too old for many projects)
+ENV MAVEN_VERSION=3.9.15
+RUN wget -q "https://dlcdn.apache.org/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz" \
+    -O /tmp/maven.tar.gz \
+    && tar -C /opt -xzf /tmp/maven.tar.gz \
+    && ln -sf /opt/apache-maven-${MAVEN_VERSION}/bin/mvn \
+       /usr/local/bin/mvn \
+    && rm /tmp/maven.tar.gz
+
+# Use python3.11 as default python3
+RUN ln -sf /usr/bin/python3.11 /usr/bin/python3
+
+# Python dependencies (runtime + test)
+COPY requirements.txt /tmp/requirements.txt
+COPY requirements-dev.txt /tmp/requirements-dev.txt
+RUN python3 -m pip install --no-cache-dir \
+    -r /tmp/requirements-dev.txt \
+    && rm /tmp/requirements.txt /tmp/requirements-dev.txt
+
+# Bomsh Java scripts (treedb generation — used in both
+# standalone and sidecar modes for JAR introspection).
+# No bomtrace binaries needed — only the Python scripts.
+RUN git clone --depth 1 \
+    https://github.com/omnibor/bomsh.git \
+    /opt/bomsh
+
+# Patch bomsh_create_bom_java.py (same as main Dockerfile)
+COPY docker/patches/bomsh_java_sourcefile.patch \
+    /tmp/bomsh_java.patch
+RUN cd /opt/bomsh && \
+    patch -p1 < /tmp/bomsh_java.patch && \
+    rm /tmp/bomsh_java.patch
+
+# Fast Java class reader (same as main Dockerfile)
+COPY docker/patches/bomsh_java_fast_classreader.py \
+    /opt/bomsh/scripts/bomsh_java_fast_classreader.py
+COPY docker/patches/apply_fast_javap.py \
+    /tmp/apply_fast_javap.py
+RUN python3 /tmp/apply_fast_javap.py && \
+    rm /tmp/apply_fast_javap.py
+
+ENV PATH="/opt/bomsh/bin:/opt/bomsh/scripts:${PATH}"
+
+WORKDIR /workspace
