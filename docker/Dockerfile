@@ -342,4 +342,12 @@ RUN python3 /tmp/apply_fast_javap.py && \
 
 ENV PATH="/opt/bomsh/bin:/opt/bomsh/scripts:${PATH}"
 
+# ── Bake app code into image for standalone CI use ──
+# When pulled from GHCR, the image must be self-contained.
+# Local dev can still override via volume mounts.
+COPY app/ /workspace/app/
+COPY requirements.txt /workspace/requirements.txt
+
+WORKDIR /workspace
+
 CMD ["/bin/bash"]
