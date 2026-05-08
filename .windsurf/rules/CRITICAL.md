@@ -20,6 +20,9 @@ Violating any rule marked NEVER is a critical failure.
   commands that read stdin. Use temp files instead.
 - [ ] **NEVER** use `gh pr create --body "..."` inline. Write body to
   `/tmp/pr_body.md` and use `--body-file /tmp/pr_body.md`.
+- [ ] **NEVER** use `gh issue create --body "..."` inline or with
+  heredocs. Write body to `/tmp/issue_body.md` and use
+  `--body-file /tmp/issue_body.md`.
 - [ ] **NEVER** run `git commit` without `-m "msg"` or `-F /tmp/msg.txt`.
 - [ ] **NEVER** run `cd` as a command. Use the `Cwd` parameter instead.
 - [ ] **NEVER** exceed **200 characters** per command line. Split into
