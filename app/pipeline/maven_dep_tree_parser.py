@@ -211,7 +211,9 @@ def classify_scopes(deps):
     return result
 
 
-def run_maven_dep_tree(repo_dir, runner=None):
+def run_maven_dep_tree(
+    repo_dir, runner=None, maven_modules=None,
+):
     """Run ``mvn dependency:tree -DoutputType=dot``.
 
     Args:
@@ -219,6 +221,10 @@ def run_maven_dep_tree(repo_dir, runner=None):
             contain ``pom.xml``).
         runner: Optional ``CommandRunner`` for logging.
             If None, uses subprocess directly.
+        maven_modules: Optional ``-pl`` value for
+            multi-module projects (e.g. ``"crawler4j"``).
+            When set, dep:tree targets only the specified
+            module(s) instead of the entire reactor.
 
     Returns:
         The raw stdout string, or None on failure.
@@ -231,16 +237,26 @@ def run_maven_dep_tree(repo_dir, runner=None):
         )
         return None
 
+    cmd = [
+        "mvn", "dependency:tree",
+        "-DoutputType=dot",
+    ]
+    if maven_modules:
+        cmd.extend(["-pl", maven_modules])
+
+    # runner is accepted for interface consistency
+    # with other pipeline functions but not yet used
+    # for dep:tree (subprocess.run is sufficient).
+    _ = runner
+
     try:
         result = subprocess.run(
-            [
-                "mvn", "dependency:tree",
-                "-DoutputType=dot",
-            ],
+            cmd,
             cwd=str(repo_path),
             capture_output=True,
             text=True,
             timeout=120,
+            check=False,
         )
         if result.returncode != 0:
             print(

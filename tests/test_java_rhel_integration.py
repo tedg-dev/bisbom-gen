@@ -24,6 +24,7 @@ Skip in normal test runs::
 import json
 import shutil
 import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -43,6 +44,7 @@ def _image_exists(tag="omnibor-env:rhel9"):
         result = subprocess.run(
             ["docker", "image", "inspect", tag],
             capture_output=True, timeout=10,
+            check=False,
         )
         return result.returncode == 0
     except (subprocess.TimeoutExpired, OSError):
@@ -74,13 +76,17 @@ PROJECT_ROOT = Path(__file__).parent.parent
 class TestJavaOnRhel(unittest.TestCase):
     """Integration test: Java sidecar pipeline on RHEL.
 
-    Builds jsoup 1.22.1 using dep:tree strategy inside
+    Builds crawler4j 4.4.0 using dep:tree strategy inside
     the RHEL container (sidecar mode, no SYS_PTRACE).
+    Uses a complex multi-module Maven project with
+    BUILD_TOOL_OF dependencies.
 
     Acceptance criteria (from issue #112):
     - Valid SPDX on RHEL
     - No strace, no SYS_PTRACE, no dpkg in logs
     - PURLs use pkg:rpm/
+    - BUILD_TOOL_OF relationships present
+    - Structurally equivalent to standalone golden files
     """
 
     _output_dir = None
@@ -108,7 +114,7 @@ class TestJavaOnRhel(unittest.TestCase):
             "-w", "/workspace",
             "omnibor-env:rhel9",
             "python3", "/workspace/app/analyze.py",
-            "--repo", "jsoup",
+            "--repo", "crawler4j",
             "--mode", "sidecar",
         ]
         cls._run_result = subprocess.run(
@@ -116,24 +122,33 @@ class TestJavaOnRhel(unittest.TestCase):
             capture_output=True,
             text=True,
             timeout=600,
+            check=False,
         )
 
         # Find the generated SPDX files
         spdx_java_dir = (
             Path(cls._output_dir) / "spdx" / "java"
-            / "jsoup"
+            / "crawler4j"
         )
         cls._build_spdx = None
+        cls._analyzed_spdx = None
         if spdx_java_dir.exists():
             ts_dirs = sorted(spdx_java_dir.iterdir())
             if ts_dirs:
                 ts_dir = ts_dirs[-1]
                 build = (
                     ts_dir
-                    / "jsoup-1.22.1_build.spdx.json"
+                    / "crawler4j-4.4.0_build.spdx.json"
+                )
+                analyzed = (
+                    ts_dir
+                    / "crawler4j-4.4.0_analyzed"
+                    ".spdx.json"
                 )
                 if build.exists():
                     cls._build_spdx = build
+                if analyzed.exists():
+                    cls._analyzed_spdx = analyzed
 
     @classmethod
     def tearDownClass(cls):
@@ -183,8 +198,8 @@ class TestJavaOnRhel(unittest.TestCase):
         """Build SPDX file should be created on RHEL."""
         self.assertIsNotNone(
             self._build_spdx,
-            "jsoup-1.22.1_build.spdx.json not found "
-            f"in output. Pipeline output:\n"
+            "crawler4j-4.4.0_build.spdx.json not "
+            "found in output. Pipeline output:\n"
             f"{self._run_result.stdout[-1000:]}",
         )
 
@@ -193,7 +208,7 @@ class TestJavaOnRhel(unittest.TestCase):
         if not self._build_spdx:
             self.skipTest("Build SPDX not generated")
 
-        with open(self._build_spdx) as f:
+        with open(self._build_spdx, encoding="utf-8") as f:
             doc = json.load(f)
 
         self.assertEqual(
@@ -207,7 +222,7 @@ class TestJavaOnRhel(unittest.TestCase):
         if not self._build_spdx:
             self.skipTest("Build SPDX not generated")
 
-        with open(self._build_spdx) as f:
+        with open(self._build_spdx, encoding="utf-8") as f:
             doc = json.load(f)
 
         pkgs = doc.get("packages", [])
@@ -231,7 +246,7 @@ class TestJavaOnRhel(unittest.TestCase):
         if not self._build_spdx:
             self.skipTest("Build SPDX not generated")
 
-        with open(self._build_spdx) as f:
+        with open(self._build_spdx, encoding="utf-8") as f:
             doc = json.load(f)
 
         for pkg in doc.get("packages", []):
@@ -255,6 +270,95 @@ class TestJavaOnRhel(unittest.TestCase):
             or "MavenDepTreeStrategy" in stdout,
             "Expected dep:tree strategy in pipeline "
             f"output:\n{stdout[-1000:]}",
+        )
+
+    # ── BUILD_TOOL_OF ────────────────────────────────
+
+    def test_build_tool_of_present(self):
+        """Build SPDX should have BUILD_TOOL_OF rels."""
+        if not self._build_spdx:
+            self.skipTest("Build SPDX not generated")
+
+        with open(self._build_spdx, encoding="utf-8") as f:
+            doc = json.load(f)
+
+        bt_rels = [
+            r for r in doc.get("relationships", [])
+            if r["relationshipType"] == "BUILD_TOOL_OF"
+        ]
+        self.assertGreaterEqual(
+            len(bt_rels), 1,
+            "Expected BUILD_TOOL_OF relationships "
+            "in crawler4j build SPDX",
+        )
+
+    # ── Golden file comparison ───────────────────────
+
+    def test_build_spdx_matches_golden(self):
+        """Build SPDX must be structurally equivalent
+        to the standalone-generated golden file."""
+        if not self._build_spdx:
+            self.skipTest("Build SPDX not generated")
+
+        golden = (
+            PROJECT_ROOT / "tests" / "golden"
+            / "spdx" / "java" / "crawler4j"
+            / "crawler4j-4.4.0_build.spdx.json"
+        )
+        if not golden.exists():
+            self.skipTest(
+                f"Golden file not found: {golden}"
+            )
+
+        sys.path.insert(0, str(PROJECT_ROOT))
+        from app.spdx.structural_comparator import (
+            SpdxStructuralComparator,
+        )
+        comparator = SpdxStructuralComparator(
+            tolerance_pct=0,
+        )
+        result = comparator.compare(
+            str(golden), str(self._build_spdx),
+        )
+        self.assertTrue(
+            result.is_equivalent,
+            f"RHEL build SPDX differs from golden:\n"
+            f"{result.summary()}",
+        )
+
+    def test_analyzed_spdx_matches_golden(self):
+        """Analyzed SPDX must be structurally equivalent
+        to the standalone-generated golden file."""
+        if not self._analyzed_spdx:
+            self.skipTest(
+                "Analyzed SPDX not generated"
+            )
+
+        golden = (
+            PROJECT_ROOT / "tests" / "golden"
+            / "spdx" / "java" / "crawler4j"
+            / "crawler4j-4.4.0_analyzed.spdx.json"
+        )
+        if not golden.exists():
+            self.skipTest(
+                f"Golden file not found: {golden}"
+            )
+
+        sys.path.insert(0, str(PROJECT_ROOT))
+        from app.spdx.structural_comparator import (
+            SpdxStructuralComparator,
+        )
+        comparator = SpdxStructuralComparator(
+            tolerance_pct=0,
+        )
+        result = comparator.compare(
+            str(golden),
+            str(self._analyzed_spdx),
+        )
+        self.assertTrue(
+            result.is_equivalent,
+            "RHEL analyzed SPDX differs from "
+            f"golden:\n{result.summary()}",
         )
 
 

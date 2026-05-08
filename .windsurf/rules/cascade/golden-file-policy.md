@@ -9,6 +9,29 @@ priority: critical
 Golden SPDX files are **immutable baselines**. They exist solely to detect
 changes caused by our code. They are NOT tracking upstream repos.
 
+## Golden Files Are Project-Wide — One Baseline for ALL Variants
+
+Golden files are the **single source of truth for the entire project**.
+Every execution variant must produce structurally equivalent SPDX output
+when compared against the same golden files:
+
+- **Every OS**: Ubuntu, RHEL (Rocky Linux 9), Alpine 3.19
+- **Every mode**: standalone (strace/ptrace), sidecar (dep:tree)
+- **Every environment**: EC2, local Docker, CI
+
+If a run on any OS or mode produces SPDX that differs from the golden
+file, that is a **regression** that must be investigated and reported.
+There are NO per-OS or per-mode golden files — the golden files are
+OS-agnostic and mode-agnostic.
+
+## Standalone Mode Is the Authoritative Baseline
+
+Golden files MUST be generated from **standalone mode** (strace/ptrace
+on Ubuntu). Standalone is the original, most thorough analysis mode —
+it produces the ground-truth SPDX via build interception. All other
+variants (sidecar, RHEL, Alpine) are then compared against the
+standalone-generated golden files to verify structural equivalence.
+
 ## Absolute Rule: Cascade NEVER Updates Golden Files
 
 No code change, upstream change, bomsh update, or any other reason

@@ -9,6 +9,7 @@ import unittest
 from unittest.mock import patch, MagicMock
 
 from app.pipeline.lang_runners import (
+    _extract_maven_modules,
     _select_java_strategy,
     run_java_pipeline,
 )
@@ -67,7 +68,7 @@ class TestSelectJavaStrategy(unittest.TestCase):
         ".is_gradle_project",
         return_value=True,
     )
-    def test_sidecar_gradle(self, mock_is_gradle):
+    def test_sidecar_gradle(self, _mock_is_gradle):
         result = _select_java_strategy(
             "checkstyle", self._repo_cfg(),
             self._paths(), "sidecar",
@@ -132,13 +133,13 @@ class TestRunJavaPipelineMode(unittest.TestCase):
     def test_standalone_uses_build_java(self, _):
         pipeline = self._setup()
         with patch("builtins.print"):
-            success, dur, tracer = run_java_pipeline(
+            ok, _dur, tracer = run_java_pipeline(
                 pipeline, "jsoup",
                 self._repo_cfg(), self._paths(),
                 self._omnibor(), "2024-01-01",
                 mode="standalone",
             )
-        self.assertTrue(success)
+        self.assertTrue(ok)
         self.assertEqual(tracer, "strace")
         pipeline.builder.build_java\
             .assert_called_once()
@@ -160,13 +161,13 @@ class TestRunJavaPipelineMode(unittest.TestCase):
     ):
         pipeline = self._setup()
         with patch("builtins.print"):
-            success, dur, tracer = run_java_pipeline(
+            ok, _dur, tracer = run_java_pipeline(
                 pipeline, "jsoup",
                 self._repo_cfg(), self._paths(),
                 self._omnibor(), "2024-01-01",
                 mode="sidecar",
             )
-        self.assertTrue(success)
+        self.assertTrue(ok)
         self.assertEqual(tracer, "maven-dep-tree")
         pipeline.builder.build\
             .assert_called_once()
@@ -188,7 +189,7 @@ class TestRunJavaPipelineMode(unittest.TestCase):
     def test_default_mode_is_standalone(self, _):
         pipeline = self._setup()
         with patch("builtins.print"):
-            success, dur, tracer = run_java_pipeline(
+            _ok, _dur, tracer = run_java_pipeline(
                 pipeline, "jsoup",
                 self._repo_cfg(), self._paths(),
                 self._omnibor(), "2024-01-01",
@@ -197,6 +198,93 @@ class TestRunJavaPipelineMode(unittest.TestCase):
         # Default mode=standalone -> build_java
         pipeline.builder.build_java\
             .assert_called_once()
+
+
+class TestExtractMavenModules(unittest.TestCase):
+    """Tests for _extract_maven_modules()."""
+
+    def test_no_pl_flag(self):
+        steps = ["mvn package -DskipTests"]
+        self.assertIsNone(
+            _extract_maven_modules(steps),
+        )
+
+    def test_pl_flag(self):
+        steps = [
+            "mvn package -DskipTests -q -pl crawler4j",
+        ]
+        self.assertEqual(
+            _extract_maven_modules(steps),
+            "crawler4j",
+        )
+
+    def test_pl_with_also_make(self):
+        steps = ["mvn package -pl cli -am"]
+        self.assertEqual(
+            _extract_maven_modules(steps),
+            "cli",
+        )
+
+    def test_non_maven_step_ignored(self):
+        steps = [
+            "gradle build",
+            "mvn package -pl core",
+        ]
+        self.assertEqual(
+            _extract_maven_modules(steps),
+            "core",
+        )
+
+    def test_none_build_steps(self):
+        self.assertIsNone(
+            _extract_maven_modules(None),
+        )
+
+    def test_empty_build_steps(self):
+        self.assertIsNone(
+            _extract_maven_modules([]),
+        )
+
+
+class TestSidecarPassesMavenModules(unittest.TestCase):
+    """Verify -pl flows from config to strategy."""
+
+    @patch(
+        "app.spdx.gradle_parser"
+        ".is_gradle_project",
+        return_value=False,
+    )
+    def test_modules_set_on_strategy(self, _):
+        cfg = {
+            "build_steps": [
+                "mvn package -pl crawler4j",
+            ],
+        }
+        paths = {"repos_dir": "/workspace/repos"}
+        strategy = _select_java_strategy(
+            "crawler4j", cfg, paths, "sidecar",
+        )
+        self.assertIsInstance(
+            strategy, MavenDepTreeStrategy,
+        )
+        self.assertEqual(
+            strategy._maven_modules, "crawler4j",
+        )
+
+    @patch(
+        "app.spdx.gradle_parser"
+        ".is_gradle_project",
+        return_value=False,
+    )
+    def test_no_modules_when_absent(self, _):
+        cfg = {"build_steps": ["mvn package"]}
+        paths = {"repos_dir": "/workspace/repos"}
+        strategy = _select_java_strategy(
+            "jsoup", cfg, paths, "sidecar",
+        )
+        self.assertIsNone(
+            strategy._maven_modules,
+        )
 
 
 if __name__ == "__main__":
