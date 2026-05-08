@@ -600,7 +600,12 @@ class TestGetMavenDeps(unittest.TestCase):
 
 
 class TestBuildSpdx(unittest.TestCase):
-    """Tests for _build_spdx."""
+    """Tests for _build_spdx.
+
+    Build tool detection is mocked out (returns None)
+    so tests focus on dependency graph structure without
+    being affected by the local JDK/Maven installation.
+    """
 
     def setUp(self):
         self.gen = JavaSpdxGenerator(
@@ -608,6 +613,22 @@ class TestBuildSpdx(unittest.TestCase):
             repos_dir="/tmp/repos",
             repo_name="myapp",
         )
+        # Suppress build tool detection so tests don't
+        # depend on local JDK/Maven installation.
+        p1 = patch.object(
+            JavaSpdxGenerator,
+            "_detect_javac_version",
+            return_value=None,
+        )
+        p2 = patch.object(
+            JavaSpdxGenerator,
+            "_detect_maven_version",
+            return_value=None,
+        )
+        p1.start()
+        p2.start()
+        self.addCleanup(p1.stop)
+        self.addCleanup(p2.stop)
 
     def test_empty_spdx(self):
         doc = self.gen._build_spdx("myapp.jar", [], [])
@@ -1034,8 +1055,199 @@ class TestBuildSpdx(unittest.TestCase):
         self.assertEqual(len(depends), 1)
 
 
+class TestBuildToolEmission(unittest.TestCase):
+    """Tests for javac/maven BUILD_TOOL_OF emission."""
+
+    def setUp(self):
+        self.gen = JavaSpdxGenerator(
+            bom_dir="/tmp/bom",
+            repos_dir="/tmp/repos",
+            repo_name="myapp",
+        )
+
+    @patch.object(
+        JavaSpdxGenerator, "_detect_maven_version",
+        return_value="3.9.15",
+    )
+    @patch.object(
+        JavaSpdxGenerator, "_detect_javac_version",
+        return_value="17.0.13",
+    )
+    def test_javac_and_maven_emitted(
+        self, _m_javac, _m_mvn,
+    ):
+        """Both javac and maven should appear as
+        BUILD_TOOL_OF on build SBOMs."""
+        doc = self.gen._build_spdx(
+            "myapp.jar", [], [],
+        )
+        bt_rels = [
+            r for r in doc["relationships"]
+            if r["relationshipType"] == "BUILD_TOOL_OF"
+        ]
+        self.assertEqual(len(bt_rels), 2)
+        bt_names = {
+            p["name"] for p in doc["packages"]
+            if p["SPDXID"].startswith(
+                "SPDXRef-BuildTool-"
+            )
+        }
+        self.assertEqual(
+            bt_names, {"javac", "maven"},
+        )
+
+    @patch.object(
+        JavaSpdxGenerator, "_detect_maven_version",
+        return_value="3.9.15",
+    )
+    @patch.object(
+        JavaSpdxGenerator, "_detect_javac_version",
+        return_value="17.0.13",
+    )
+    def test_javac_version_in_package(
+        self, _m_javac, _m_mvn,
+    ):
+        """javac package should have correct version."""
+        doc = self.gen._build_spdx(
+            "myapp.jar", [], [],
+        )
+        jdk_pkg = [
+            p for p in doc["packages"]
+            if p["name"] == "javac"
+        ][0]
+        self.assertEqual(
+            jdk_pkg["versionInfo"], "17.0.13",
+        )
+        self.assertIn(
+            "cpe:2.3:a:oracle:jdk:17.0.13",
+            jdk_pkg["externalRefs"][0][
+                "referenceLocator"
+            ],
+        )
+
+    @patch.object(
+        JavaSpdxGenerator, "_detect_maven_version",
+        return_value="3.9.15",
+    )
+    @patch.object(
+        JavaSpdxGenerator, "_detect_javac_version",
+        return_value="17.0.13",
+    )
+    def test_maven_version_in_package(
+        self, _m_javac, _m_mvn,
+    ):
+        """maven package should have correct version."""
+        doc = self.gen._build_spdx(
+            "myapp.jar", [], [],
+        )
+        mvn_pkg = [
+            p for p in doc["packages"]
+            if p["name"] == "maven"
+        ][0]
+        self.assertEqual(
+            mvn_pkg["versionInfo"], "3.9.15",
+        )
+
+    @patch.object(
+        JavaSpdxGenerator, "_detect_maven_version",
+        return_value="3.9.15",
+    )
+    @patch.object(
+        JavaSpdxGenerator, "_detect_javac_version",
+        return_value="17.0.13",
+    )
+    def test_analyzed_strips_build_tools(
+        self, _m_javac, _m_mvn,
+    ):
+        """Analyzed SBOMs should NOT contain
+        BUILD_TOOL_OF relationships or packages."""
+        doc = self.gen._build_spdx(
+            "myapp.jar", [], [],
+            sbom_type="analyzed",
+        )
+        bt_rels = [
+            r for r in doc["relationships"]
+            if r["relationshipType"] == "BUILD_TOOL_OF"
+        ]
+        self.assertEqual(len(bt_rels), 0)
+        bt_pkgs = [
+            p for p in doc["packages"]
+            if p["SPDXID"].startswith(
+                "SPDXRef-BuildTool-"
+            )
+        ]
+        self.assertEqual(len(bt_pkgs), 0)
+
+    @patch.object(
+        JavaSpdxGenerator, "_detect_maven_version",
+        return_value=None,
+    )
+    @patch.object(
+        JavaSpdxGenerator, "_detect_javac_version",
+        return_value=None,
+    )
+    def test_no_tools_when_undetectable(
+        self, _m_javac, _m_mvn,
+    ):
+        """No BUILD_TOOL_OF when detection fails."""
+        doc = self.gen._build_spdx(
+            "myapp.jar", [], [],
+        )
+        bt_rels = [
+            r for r in doc["relationships"]
+            if r["relationshipType"] == "BUILD_TOOL_OF"
+        ]
+        self.assertEqual(len(bt_rels), 0)
+
+    @patch.object(
+        JavaSpdxGenerator, "_detect_maven_version",
+        return_value=None,
+    )
+    @patch.object(
+        JavaSpdxGenerator, "_detect_javac_version",
+        return_value="21.0.1",
+    )
+    def test_javac_only_when_maven_absent(
+        self, _m_javac, _m_mvn,
+    ):
+        """Only javac emitted when maven not found."""
+        doc = self.gen._build_spdx(
+            "myapp.jar", [], [],
+        )
+        bt_rels = [
+            r for r in doc["relationships"]
+            if r["relationshipType"] == "BUILD_TOOL_OF"
+        ]
+        self.assertEqual(len(bt_rels), 1)
+        bt_names = {
+            p["name"] for p in doc["packages"]
+            if p["SPDXID"].startswith(
+                "SPDXRef-BuildTool-"
+            )
+        }
+        self.assertEqual(bt_names, {"javac"})
+
+
 class TestGenerate(unittest.TestCase):
     """Tests for the generate method."""
+
+    def setUp(self):
+        # Suppress build tool detection so tests don't
+        # depend on local JDK/Maven installation.
+        p1 = patch.object(
+            JavaSpdxGenerator,
+            "_detect_javac_version",
+            return_value=None,
+        )
+        p2 = patch.object(
+            JavaSpdxGenerator,
+            "_detect_maven_version",
+            return_value=None,
+        )
+        p1.start()
+        p2.start()
+        self.addCleanup(p1.stop)
+        self.addCleanup(p2.stop)
 
     @patch.object(JavaSpdxGenerator, "_get_maven_deps")
     def test_generate_success(self, mock_maven):
