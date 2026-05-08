@@ -27,10 +27,11 @@ RUN apk add --no-cache \
     wget \
     bash
 
-# Python dependencies
+# Python dependencies (runtime + test)
 COPY requirements.txt /tmp/requirements.txt
+COPY requirements-dev.txt /tmp/requirements-dev.txt
 RUN pip3 install --no-cache-dir --break-system-packages \
-    -r /tmp/requirements.txt \
-    && rm /tmp/requirements.txt
+    -r /tmp/requirements-dev.txt \
+    && rm /tmp/requirements.txt /tmp/requirements-dev.txt
 
 WORKDIR /workspace

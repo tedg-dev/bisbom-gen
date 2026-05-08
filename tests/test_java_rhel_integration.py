@@ -107,7 +107,7 @@ class TestJavaOnRhel(unittest.TestCase):
             ),
             "-w", "/workspace",
             "omnibor-env:rhel9",
-            "python3", "-m", "app.pipeline.runners",
+            "python3", "/workspace/app/analyze.py",
             "--repo", "jsoup",
             "--mode", "sidecar",
         ]

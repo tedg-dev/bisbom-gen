@@ -128,7 +128,7 @@ class TestJsoupMavenSidecar(unittest.TestCase):
             ),
             "-w", "/workspace",
             "omnibor-env:standalone",
-            "python3", "-m", "app.pipeline.runners",
+            "python3", "/workspace/app/analyze.py",
             "--repo", "jsoup",
             "--mode", "sidecar",
         ]

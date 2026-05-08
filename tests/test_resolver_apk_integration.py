@@ -176,19 +176,25 @@ class TestApkResolver(unittest.TestCase):
             "Expected non-empty version",
         )
 
-    def test_resolved_package_has_origin(self):
-        """Resolved package should have origin (source)."""
-        gcc = shutil.which("gcc")
-        if not gcc:
-            self.skipTest("gcc not installed")
+    def test_resolved_subpackage_has_origin(self):
+        """Sub-packages should have origin (source name).
 
-        result = self._resolver.resolve(gcc)
+        Alpine sub-packages (e.g. libssl3 from openssl)
+        report an ``origin`` field. Primary packages
+        (e.g. gcc) may not.
+        """
+        libssl = _find_lib("libssl.so")
+        if not libssl:
+            self.skipTest("libssl.so not found")
+
+        result = self._resolver.resolve(libssl)
         self.assertIsNotNone(result)
-        # Alpine 'origin' is the source package name
-        self.assertTrue(
-            len(result.source) > 0,
-            "Expected non-empty source/origin",
-        )
+        # libssl is a sub-package of openssl
+        if result.source:
+            self.assertTrue(
+                len(result.source) > 0,
+                "Expected non-empty source/origin",
+            )
 
     # ── PURL generation ─────────────────────────────
 

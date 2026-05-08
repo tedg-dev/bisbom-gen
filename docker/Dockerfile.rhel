@@ -31,12 +31,14 @@ RUN dnf install -y --setopt=install_weak_deps=False \
     which \
     && dnf clean all
 
-# Symlink python3 to python3.11
-RUN alternatives --set python3 /usr/bin/python3.11
+# Use python3.11 as default python3
+RUN ln -sf /usr/bin/python3.11 /usr/bin/python3
 
-# Python dependencies
+# Python dependencies (runtime + test)
 COPY requirements.txt /tmp/requirements.txt
-RUN pip3.11 install --no-cache-dir -r /tmp/requirements.txt \
-    && rm /tmp/requirements.txt
+COPY requirements-dev.txt /tmp/requirements-dev.txt
+RUN python3 -m pip install --no-cache-dir \
+    -r /tmp/requirements-dev.txt \
+    && rm /tmp/requirements.txt /tmp/requirements-dev.txt
 
 WORKDIR /workspace
