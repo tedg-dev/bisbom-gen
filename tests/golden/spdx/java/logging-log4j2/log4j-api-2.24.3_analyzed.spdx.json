@@ -1,0 +1,5517 @@
+{
+  "spdxVersion": "SPDX-2.3",
+  "dataLicense": "CC0-1.0",
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "name": "logging-log4j2-log4j-api-2.24.3.jar",
+  "documentNamespace": "https://omnibor.io/spdx/logging-log4j2/ca30c3f9-fc5c-4ad6-b9bd-21ed515f649e",
+  "creationInfo": {
+    "created": "2026-05-08T18:35:18Z",
+    "creators": [
+      "Tool: omnibor-analysis",
+      "Tool: bomsh_create_bom_java.py"
+    ],
+    "licenseListVersion": "3.19"
+  },
+  "packages": [
+    {
+      "SPDXID": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "name": "log4j-api",
+      "versionInfo": "2.24.3",
+      "downloadLocation": "https://github.com/apache/logging-log4j2/commit/4aa5efec7f2ee2d4623381cd66c3df3a16a6b9a9",
+      "filesAnalyzed": true,
+      "primaryPackagePurpose": "APPLICATION",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/logging-log4j2/log4j-api"
+        }
+      ]
+    }
+  ],
+  "files": [
+    {
+      "SPDXID": "SPDXRef-File-0",
+      "fileName": "log4j-api-java9/src/main/java/org/apache/logging/log4j/util/internal/DefaultObjectInputFilter.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "df62f71e5f750207b323be2799030b493c681a5f"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-1",
+      "fileName": "log4j-api-java9/target/classes/org/apache/logging/log4j/util/internal/DefaultObjectInputFilter.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "19ac5978903359fa56b0a202c838f112c7b23fff"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-2",
+      "fileName": "log4j-api-java9/src/main/java/org/apache/logging/log4j/util/ProcessIdUtil.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "ad6666d59778ff3bba5bf86bc09256b0f7d2aa62"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-3",
+      "fileName": "log4j-api-java9/target/classes/org/apache/logging/log4j/util/ProcessIdUtil.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "3178b17802c20d1c37c832dcf88f377bf8534f58"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-4",
+      "fileName": "log4j-api-java9/src/main/java/org/apache/logging/log4j/util/Base64Util.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "ad66303df382150873c461e547a083c80f576957"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-5",
+      "fileName": "log4j-api-java9/target/classes/org/apache/logging/log4j/util/Base64Util.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "8174492d89fcbc1b806fd8cb0850f0444ab3f29e"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-6",
+      "fileName": "log4j-api-java9/src/main/java/org/apache/logging/log4j/util/StackLocator.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "f8915071daf6f675e00ac01aeb1079618c98cb17"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-7",
+      "fileName": "log4j-api-java9/target/classes/org/apache/logging/log4j/util/StackLocator.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "05c4aaa816287d5b3af45543b2a98c9aa9b7c0cd"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-8",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/internal/map/UnmodifiableArrayBackedMap.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "078e8c7c70b86304caa4c94f20e0abda0f0279c8"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-9",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/internal/map/UnmodifiableArrayBackedMap$UnmodifiableEntrySet.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "6e647bea20531ff4dbe317f80b37a84aa0f1c46f"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-10",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/internal/map/UnmodifiableArrayBackedMap$UnmodifiableEntry.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "16c47ec8e1008a97dbf8c9a8d4efa2158cd94135"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-11",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/internal/map/UnmodifiableArrayBackedMap.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "0f86af4e02e03e63ed726ce41273162e1647cb85"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-12",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/internal/map/UnmodifiableArrayBackedMap$1.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "bbc3a765a4348946a1ab3acb52a203fc639c4612"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-13",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/internal/map/UnmodifiableArrayBackedMap$UnmodifiableEntryIterator.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "d075b38f45e018fa99c9dd9847af70a2d6804748"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-14",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/internal/LogManagerStatus.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "68bd7345833ded4f453490823915d530de2c47da"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-15",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/internal/LogManagerStatus.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "b6d6b6b0daf077189d9b659e8c905daba79b7a34"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-16",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/internal/DefaultLogBuilder.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "608f0ad21ec6f578aa11e901a898e025f6bcebaa"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-17",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/internal/DefaultLogBuilder.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "afdb9fede54bd7030dc0ccebb356bf6bbd8d3af9"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-18",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/internal/package-info.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "cc9a920b43a47b0b36e3802a62d3d7cf709911be"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-19",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/internal/package-info.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "efd6cceb98b5839d192e2c0b562d3e3cccdb5252"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-20",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/ThreadContext.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "d919b3130a1c3695de164bc651998e75205ba077"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-21",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/ThreadContext$ContextStack.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "4ef89cf96abf5f8f4bce5ee5cb2b72a355f0c18e"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-22",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/Level.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "9f8e786326978fcdef62e9067b6dc9ab84757f01"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-23",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/Level.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "b29d45968bd3bdaa3f04ffb466c2c033c3957cd5"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-24",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/Marker.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "9be36461ebbf9cad03b4c2a9cd333c02076c8396"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-25",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/Marker.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "6075e7cbbc2cff7652e19c5449d53b4a98ab44a2"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-26",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/CloseableThreadContext.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "c585edf546069a9c588474e60a2d99ef4cb42d05"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-27",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/CloseableThreadContext$Instance.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "ba2fcb0c560922830346fa43d3291013a0df52ff"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-28",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/ThreadContext$1.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "a5b4427813a02d7d198c7422c6db80b53d2a47f6"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-29",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/ThreadContext$EmptyThreadContextStack.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "7cdfa77c7b5082fc842178784f0f961f62162b0f"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-30",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/package-info.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "5b260752271e8d6420de2fdd3f832bb6ba4fe874"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-31",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/package-info.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "bebf2dcdd51c68a3f0b984eb6195bf27336c69c6"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-32",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/spi/LoggerContextFactory.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "a075db9407230037c282ade969934769bb52355b"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-33",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/spi/LoggerContextFactory.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "e62cac85e87b62ca2d4fc2f3050a40a92e0ae5d3"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-34",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/spi/ObjectThreadContextMap.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "5e312453fbacdc9a5c568b4bb139c5fad66e3255"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-35",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/spi/ObjectThreadContextMap.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "5999cf4c18f38637e7f0a9c54bd1a4a105a8c3aa"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-36",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/spi/ExtendedLoggerWrapper.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "c8ad2e23f76dfaca1411c572d0d4eefd9ac8da37"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-37",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/spi/ExtendedLoggerWrapper.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "04857e2d7832c7c50dc36b90470774a2e02dee77"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-38",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/spi/LoggerContextShutdownEnabled.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "0add801259c85c154d1a87060a9b94ac46a1f913"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-39",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/spi/LoggerContextShutdownEnabled.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "d1d6023e51f42692f90f9eb57e6de4ed1e690161"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-40",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/spi/LoggerRegistry.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "87cee471135d481251f2ae998ee6e67bc33a72d2"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-41",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/spi/LoggerRegistry$MapFactory.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "ba09fb2aaaa45ad3d0a84e0deba1348d7f3c3a39"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-42",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/spi/LoggerRegistry.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "ea5ad3b7514cc1bbd209bb36d6fb08dff8f13060"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-43",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/spi/ThreadContextMap.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "f0af90ddbb21341140c4dc3a4297ea15d638ad28"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-44",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/spi/ThreadContextMap.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "f1bf7bd6de686b2aa40ee78b5749adc927cd04cc"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-45",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/spi/ReadOnlyThreadContextMap.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "de9ae028aa279cd6ac8702831e631ae1a4e673ab"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-46",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/spi/ReadOnlyThreadContextMap.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "249d3357580d664688b11c3ecdbf64451729977b"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-47",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/spi/MutableThreadContextStack.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "898982e4307d60e45f3f8f52ddf2fb2222dffa7a"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-48",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/spi/MutableThreadContextStack.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "d1313f6fb48ccf0adb4d4033fc4bd7ff46f5b690"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-49",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/spi/MessageFactory2Adapter.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "1e0f4162c02c8aa4e124bf3c4122fac470e66ba3"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-50",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/spi/MessageFactory2Adapter.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "f16975f5fb125155c04131e0d290ede023a6dc46"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-51",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/spi/package-info.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "1637d7a3d16aa86c6d726b5e108d5e47213789bd"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-52",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/spi/package-info.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "f44307853bd9da5280de45796aca43a90a51e420"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-53",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/spi/Provider.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "4f15843e284d4250f5729fe48dfd30de59429e7b"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-54",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/spi/Provider.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "3309efb451523a0ef0731ae7eb769ce4dfeaebbd"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-55",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/spi/LoggerAdapter.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "d4dcfb35158e28959f7f323a4b04b9a5726e3aba"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-56",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/spi/LoggerAdapter.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "3e7cc6552eb4977f43744a13015baf8e8863668d"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-57",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/spi/LoggerContextShutdownAware.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "5ea88122dbe3ad0da359770400a73106035e56a0"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-58",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/spi/LoggerContextShutdownAware.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "3280d0a27a3718d9f585bac6bb3840c1b6bd031c"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-59",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/spi/ThreadContextMap2.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "ccd7f86b672c706cf9b0ee0d40972798029ff675"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-60",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/spi/ThreadContextMap2.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "ccd83be76bec0b740ad9976a1a5f34cdc9542ec8"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-61",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/spi/LoggerRegistry$ConcurrentMapFactory.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "16d0c339d7be1bc30b91c1531b14257497d62f37"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-62",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/spi/LoggerRegistry$WeakMapFactory.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "760b828a57cf8783b2cff9cfb154120fbc4b586d"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-63",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/spi/LocationAwareLogger.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "dd6950eed19fca51771a3b03a900c9e42860d313"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-64",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/spi/LocationAwareLogger.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "9d0e106cf9c547c318fc47229d78b4a08581bc1d"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-65",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/spi/LoggerContext.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "a14af967bf452c6459ceff995668bb52600d7698"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-66",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/spi/LoggerContext.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "bfc40ce45c1224e88d5ca2eaae9fd026ab147f3c"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-67",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/spi/CopyOnWrite.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "ff958f1516fee76e5188076249088359301b872a"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-68",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/spi/CopyOnWrite.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "964c69a89d6e2a4c08d94d165eea7ad0240c4f6f"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-69",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/spi/DefaultThreadContextStack.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "5ed3fb41eaa9c50628b4dbf3308c627efc556dcb"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-70",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/spi/DefaultThreadContextStack.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "58e82f52964bab9a390dfb93fa13109f07730e6c"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-71",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/spi/DefaultThreadContextMap.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "471dba72fda3c475acceca25965b082fbb757fc1"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-72",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/spi/DefaultThreadContextMap$1.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "49ef0c6befd0fc3870a60f8288b8fef890e08b64"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-73",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/spi/CleanableThreadContextMap.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "b5d97454b203a962e8983e634cd8825ba39091b2"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-74",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/spi/CleanableThreadContextMap.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "b72f4460319e7a016998aac6825ef0f879ff1e8a"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-75",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/spi/ThreadContextStack.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "5096aa1e021b6545b551dc8a035f916c468a356a"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-76",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/spi/ThreadContextStack.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "4ffce8723802246f4d29a7509f73000b62c11d6c"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-77",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/spi/LoggerContextKey.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "cae2e1e95ddb287b3b78762a7f5df1ea56826112"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-78",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/spi/LoggerContextKey.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "4634c8c04ae9d899f94d9202f96141347b5443dd"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-79",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/spi/AbstractLogger.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "ecc499ac5861632b663c2fd91ace7a1489963089"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-80",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/spi/AbstractLogger.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "a054fa3ee72ff137adb26b514828b099917c8983"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-81",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/spi/ExtendedLogger.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "29b02cf53df330f70a05c350f902c5ede6c08f50"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-82",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/spi/ExtendedLogger.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "f09ab74aebf471f22093eced5899aa5638751efd"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-83",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/spi/StandardLevel.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "c08d7177abcc0099f6435e72f4c4a7d036e7a000"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-84",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/spi/StandardLevel.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "c69102b7441c6cfcf2af01cb7767cc1506740977"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-85",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/spi/DefaultThreadContextMap.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "41b84123809553ec24bff554a5d561f68e072e8b"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-86",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/spi/Terminable.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "fb93c54b63ceea543bcefa9e2a0f290e5be04f89"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-87",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/spi/Terminable.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "c5abb3ccde7204dcb3e7defe05685666b7c19177"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-88",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/spi/ThreadContextMapFactory.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "418beb4583c3b1ac963ef0f6d85d046a49f41ec8"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-89",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/spi/ThreadContextMapFactory.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "ff1ee08a20e27fba0f46ef4a0b977cc221e60d1e"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-90",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/spi/NoOpThreadContextMap.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "6de97d6235a43d5dd155085162b283b976a12e75"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-91",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/spi/NoOpThreadContextMap.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "c7a277ab9bf364fd194d55903a7960edc62f28d9"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-92",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/spi/AbstractLoggerAdapter.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "4fb5cdb49ee1208eee9cd1a27b533fb6c66c3a76"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-93",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/spi/AbstractLoggerAdapter.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "25772c598638e650596f6bf3ffec7198b97dc92d"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-94",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/CloseableThreadContext.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "0d3f62b9918242cafafcf7b3832270a0b75fc21e"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-95",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/CloseableThreadContext$1.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "1d7cb2057eb3c1fc15cea5274966dc497341df9e"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-96",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/util/IndexedReadOnlyStringMap.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "92dacc49cf54d414ea871832933b627f49c21682"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-97",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/util/IndexedReadOnlyStringMap.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "5f2b3b3ae73929e89719d849463e4c665fa921f6"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-98",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/util/InternalApi.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "46bab988bdf2b2350ec1cc99176a560a67d0ba3b"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-99",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/util/InternalApi.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "0bdc50bdda574a86c75a473de05c0825ef298d05"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-100",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/util/Unbox.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "fd577eaa45c4111077d0ec1cb4a3cbc10f391cb2"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-101",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/util/Unbox.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "6fb57c714b17c5eaf56dac6f25bdfcb18acebb06"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-102",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/util/ServiceLoaderUtil.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "30b56f83b56a673853ca51a074216ef79b7bf380"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-103",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/util/ServiceLoaderUtil$1.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "cb02d253c13fdadd7f98c1fec6caaf5d6486d17a"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-104",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/util/PrivateSecurityManagerStackTraceUtil.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "ec2b5cf1e4d09cf436a1951e123916582269175c"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-105",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/util/PrivateSecurityManagerStackTraceUtil.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "aabccac31e17101c23e295ae24fa24413be914bf"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-106",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/util/internal/SerializationUtil.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "6180f47421fda60c07b75466a8a599985a0af06b"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-107",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/util/internal/SerializationUtil.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "8fb4c16a2f2d2051c2b68e6894d3b9ecf62dc70c"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-108",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/util/LazyBoolean.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "26db8639de9de903e6e3801914bf8a3759863b0e"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-109",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/util/LazyBoolean.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "963e512c3756735243483922142e10b379894eb4"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-110",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/util/PerformanceSensitive.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "ccfac6b04cad4510183757ce55454c9216e52ea2"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-111",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/util/PerformanceSensitive.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "daef73890274c460551e132d3dcc7926727acb52"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-112",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/util/PropertyFilePropertySource.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "3440af04602dfbe74e9a91f4ba735dfb4b2c7275"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-113",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/util/PropertyFilePropertySource.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "aa3166b5f548510fbe631a0c2e3b8a01c3b76dfd"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-114",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/util/LazyUtil.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "8b0b8c7a2971ff06e33aacf9f45f026c6537b0bd"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-115",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/util/LazyUtil$Constant.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "a5e9244c541feb4733215a3dfb0b5ff256fe6457"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-116",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/util/ProcessIdUtil.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "be34c4926a4b7272f40bc8870086dfd42c5bb392"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-117",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/util/ProcessIdUtil.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "ecc3c93b15273d06caae20b52274d94ae4f33359"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-118",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/util/PropertiesPropertySource.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "311247c85f72acd2bc08f7f8fa2882ab34835278"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-119",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/util/PropertiesPropertySource.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "bf47a29289999ded984f0744d5f0b7c59697b95c"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-120",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/util/Cast.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "df97c336ee574a80f38cbcc94648f2f393eaf395"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-121",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/util/Cast.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "151b791dff30f791924acaf23fa042755b058f25"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-122",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/util/LoaderUtil.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "001ad3a5f5b25855d71f62b077268ed6cb091a36"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-123",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/util/LoaderUtil$1.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "1e13dcdb6d8129cf8933b920337cc32fd6e2c0c6"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-124",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/util/ServiceLoaderUtil.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "118572d1c8b063a4eaa1bb5ffbca71a300ca9a1e"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-125",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/util/LoaderUtil$UrlResource.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "c24006358087cc17a3ad87201f1a830998a68702"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-126",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/util/BiConsumer.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "e7cedb6bb3b1c807d0a85b70c59f9354f6657852"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-127",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/util/BiConsumer.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "4e7908017424836ae59b084e2c5dfdc5eff06c0e"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-128",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/util/PrivateSecurityManagerStackTraceUtil$PrivateSecurityManager.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "e91670f4dc4b4ce44fed312dad64136acdd85db2"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-129",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/util/ReadOnlyStringMap.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "3d69978cdfebddf08028565141e3dea68ac6d7e9"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-130",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/util/ReadOnlyStringMap.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "e54d4db07dce444b988f316e52ac45c20f0265db"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-131",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/util/LoaderUtil$ThreadContextClassLoaderGetter.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "04c3d22c5b727546435b75f58a727b937e010314"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-132",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/util/Strings.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "ce7093c790f535a0fdb53d9aa6cecfe297b54e7f"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-133",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/util/Strings.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "0207594d0b5457a22c857fa3817119cc386dcabb"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-134",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/util/SortedArrayStringMap.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "2d2a67c25793a4030290b650ea58e5a5f6bf2782"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-135",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/util/SortedArrayStringMap.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "49fe4f893d7d27ff0661ef541fe305aa14d4afd3"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-136",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/util/package-info.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "757248862a2a3f43af794548b0c9d4b0da1a8eeb"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-137",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/util/package-info.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "11ae2111a70ae39fe922641e6d80735dfc3df30a"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-138",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/util/IndexedStringMap.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "40fb2f3cc17204a2fdba676947e685311469439c"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-139",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/util/IndexedStringMap.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "227ea2d59816c8c822376ea6499e2f9cd4a811fa"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-140",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/util/PropertySource.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "399c4ea010cae239d6b5bcfbad7a8aafb7f09143"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-141",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/util/PropertySource.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "ffe69c2640bbaf1ee5d5711d4d1ce13ba24ccc1b"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-142",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/util/Lazy.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "2e0d84b3cedebf6f7b8a30a283ff96b93fc27427"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-143",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/util/Lazy.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "0ffb6f18f2f253f3f930fbea2621cf620a7ff518"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-144",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/util/StringBuilderFormattable.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "fa8d5c288936df9195b1e0810055325a7512aaf4"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-145",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/util/StringBuilderFormattable.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "e820ff3b4952d480c6e3f47f2df4afbe743c6a2b"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-146",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/util/Base64Util.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "f96bffd28d44aa09b22ed9363dfa2eec5e4f099f"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-147",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/util/Base64Util.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "e1928014ad36f134dcc208c382645c7a5feea3d2"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-148",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/util/LambdaUtil.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "ef1f3b0b321c16e3d8f9bd531e3bef01acf82739"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-149",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/util/LambdaUtil.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "98615ed193c8abaf183cb8ffc6b4cfb4a9dd1b90"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-150",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/util/Chars.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "b17e6cd0f8f0cc681a046f0c03867a7b8401a823"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-151",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/util/Chars.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "126cc31a319358f64516e18fed8a96712f45f791"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-152",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/util/MultiFormatStringBuilderFormattable.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "570d655edb1d695f9958c39dbdde8624769b43e8"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-153",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/util/MultiFormatStringBuilderFormattable.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "b3193d2c8bd2f0a49319cfe64b3ee00d82d8807c"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-154",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/util/Unbox$1.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "4e6950e22f4ba74447cfe42a31945d7a997700e0"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-155",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/util/LoaderUtil.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "68b866802d203adfa063f75a1bc98fbdcf76f535"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-156",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/util/EnvironmentPropertySource.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "c9edf087d8d0b5a011f2e50eddf901fc657131f8"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-157",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/util/EnvironmentPropertySource.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "c8528c6859566e83f13e01232c65b2e6547ee80f"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-158",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/util/StringMap.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "6d4ef39f931da4c0283f6953bc30862142700354"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-159",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/util/StringMap.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "9acc1a4bebba5925b2e60520f7aa30cb920d5421"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-160",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/util/StringBuilders.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "aae5892f5b99b65c980ec3c80a9f80ce1e77b3d4"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-161",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/util/StringBuilders.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "2d12ada7a6381ec87a5509e79f5d82462c35d49b"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-162",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/util/Constants.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "b2324d90012949779ba00194245c9f8a54d438ef"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-163",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/util/Constants.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "d00f2ee3dc9d38f007b86677daf7a67adcfc33a3"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-164",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/util/Supplier.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "45ad5c667d2af7aae2146c848bf365b137d30c6a"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-165",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/util/Supplier.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "3c45ffdbc8f38b0e526ddb6e95fb7665f82d9af9"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-166",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/util/InternalException.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "486aa8b84d50e67cd76afdcc7c83f58acb102937"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-167",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/util/InternalException.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "0964ce456842f562c8935e0a12bd5008f9f4c929"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-168",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/util/PrivateSecurityManagerStackTraceUtil$1.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "0645ade3b3588a5de5c87ef7a524cc33baa8d28e"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-169",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/util/LazyUtil$1.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "7b0f47c4d74fdab16e2e83e23592f55493669141"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-170",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/util/Timer.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "f85fb1a1c02fd47b22c72c5b26dcad7226d2b725"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-171",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/util/Timer$1.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "906d9cf0e7bf2032c12c4c2bc594bb0607ac0fdd"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-172",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/util/Timer$Status.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "c08f4f865c104d90f1d7e6ab162f01421797da26"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-173",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/util/PropertiesUtil.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "30b92854b0c4ad028d100a9cb2505614bd4f5833"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-174",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/util/PropertiesUtil$TimeUnit.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "3a73c86e15280d63510610aca3bcfcf7884e0bd4"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-175",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/util/TriConsumer.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "f307dada6e79913f8f5826b861b7e84ff0d1cf9e"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-176",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/util/TriConsumer.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "59d37c79982d7fcfa52ef19b7c6f9d98938fa9eb"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-177",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/util/FilteredObjectInputStream.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "52b71507dea6de54f246d9c5e8aa027f529e157a"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-178",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/util/FilteredObjectInputStream.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "1c4512e05a06968b6f385ac27b24cd11af42a4aa"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-179",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/util/ProviderActivator.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "bbb696648514780597f05544fb90317fc1f02c05"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-180",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/util/ProviderActivator.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "8e6e687471766eabdfc29bc06c8577e27f2f57a4"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-181",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/util/StackLocatorUtil.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "e37f781d98a9cb7ff64d6c9aa6d9cc6ad23028a6"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-182",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/util/StackLocatorUtil.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "0d54eb176ac55c36b85c389326ab867e3ebfe268"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-183",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/util/ProviderUtil.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "2b74606f081bc484300374d139e1e0e58bbed432"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-184",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/util/ProviderUtil.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "66e071f877bae1cf423206b27e4de5a9f361e3fe"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-185",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/util/LazyUtil$PureLazy.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "b580e211ecc4f6cd96c8a9cdcc86d150e033c342"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-186",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/util/MessageSupplier.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "d3776a1a7442f60bff73a9d6622ef3a362e54420"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-187",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/util/MessageSupplier.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "eb7e3fea704b51f14e4a9409dc09535651fe342e"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-188",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/util/PropertySource$Util.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "95c25f55e0c49865d172221321480111ab8fdcba"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-189",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/util/Timer$2.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "48295df83f4342e8317ccb1f2fbd84278c35d838"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-190",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/util/PropertiesUtil.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "8737a0e0a7472ee5cd00608f689f15515cc82c8f"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-191",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/util/Unbox$State.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "3f0871beb4a72a9703e227297c4621639dc5a105"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-192",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/util/PropertiesUtil$Environment.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "2bc7af08b3b3fb5f4813b929aa9fecf64539c1f5"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-193",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/util/LazyUtil$WeakConstant.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "336268e3ee37265166a8b580559fea805055a08a"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-194",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/util/EnglishEnums.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "c2a58032ae57fb3541cb3f50973266b77d603fd0"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-195",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/util/EnglishEnums.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "0c2fadf4f71eb3b9ebe5b69a1301dc5501ea8795"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-196",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/util/LazyUtil.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "871f3591ccdc98abc5cf13addb6c0566b4a08f6b"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-197",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/util/ServiceLoaderUtil$ServiceLoaderSpliterator.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "6c166d86dfcf75af24d40a0ba203834d0389767a"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-198",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/util/Timer.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "3f87183eaea38c8e826889269d79e1f28edefda4"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-199",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/util/SystemPropertiesPropertySource.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "e49dad0dd57b1126d9d23284518df4353d2782de"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-200",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/util/SystemPropertiesPropertySource.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "a3f64b3d80261f03b5d9474e9a8f8bbe7bdc4f70"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-201",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/util/Unbox$WebSafeState.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "88018f611110c10270009f767dea6b9222708f7c"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-202",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/util/OsgiServiceLocator.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "46157290c18c5d4bb2d73ec084919e6d90ff563b"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-203",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/util/OsgiServiceLocator.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "6e5d7822abe5ed02ae2628eb272753cbfb4b54c4"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-204",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/util/PropertiesUtil$1.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "67a38198b7d56936f94148a5ab696cb511825b5e"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-205",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/util/LazyUtil$SafeLazy.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "b479e051984cf7d0780c207da0db046a410f8e8c"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-206",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/util/StackLocator.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "8871b44a11b0c4ebb36593005d43628d8a612e92"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-207",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/util/StackLocator.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "56eaa39d526c619b81cc6124a7b3c63cd8689c5d"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-208",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/util/PropertySource$Comparator.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "c9bd7f6cbb0bbb1ed5c2bb468957b0097f34c874"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-209",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/util/Activator.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "3cb55e97292902d5d0afd2e39a920ec3fa455a06"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-210",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/util/Activator.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "3b4bb68ca37b92543ccecd22846955abb352f1c9"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-211",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/BridgeAware.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "4ee476c52480195a4b7741b0743ede053ac4dcac"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-212",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/BridgeAware.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "d9b61ffed649484e72b09b004110117389320d39"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-213",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/LogManager.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "cdb91c57658e7492e5ebe73c7f19b91631b128c0"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-214",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/LogManager.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "f63b7272609c11582faa72541fa2059f8d0ac8dc"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-215",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/simple/internal/SimpleProvider.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "e62e2a5c27f29e81e28987378b3b54cdf9ae486e"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-216",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/simple/internal/SimpleProvider$Config.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "27c383ae36d4e5677bd786f4271b65ce6c4c48dc"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-217",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/simple/internal/SimpleProvider.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "b8e3d94a7f7251e512d1125fb963378dd4aab04d"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-218",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/simple/package-info.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "29139a12ace5ad656e81e5fd5253c0d9a3042233"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-219",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/simple/package-info.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "c1a3cfe7c88509207768d07155ef2814f5cebe55"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-220",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/simple/SimpleLogger.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "1690893187fadce0e2f90296988d7339815038de"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-221",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/simple/SimpleLogger.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "05b1425f5cc9741c452f6892be94bde2dd175daf"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-222",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/simple/SimpleLoggerContext.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "55cced06f58a8a3628144861687b0173c65b4315"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-223",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/simple/SimpleLoggerContext.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "d711eb9ca2efc4cbfe247dee790d37cd9008644b"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-224",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/simple/SimpleLoggerContextFactory.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "962c7a7651f4827c81619f81d42a54e940005b0c"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-225",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/simple/SimpleLoggerContextFactory.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "2a436a68703945da7594bab7b27dba0cf72f9c96"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-226",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/ThreadContext$NoOpThreadContextStack.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "9d36e0ecc87a210eceb606738a8f8c9434a7ed11"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-227",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/MarkerManager.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "6dc5953a8594a4b7c428d88bb421f2f70b7d4c02"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-228",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/MarkerManager.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "33dd1d0311a265b83b4b58432c49807042945572"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-229",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/EventLogger.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "9b08fa2d8507bda2ae1509d16e02be77a9f20021"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-230",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/EventLogger.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "d6b1c49c4a87d85cd664c3eeecc789ad20ea58bb"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-231",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/Logger.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "ef461ddfe31beea1ac3957246f664bc6188f9c82"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-232",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/Logger.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "6eeb6d04a317b3abc76bcdeecbe29b8af9ebbcdf"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-233",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/LogBuilder.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "992d2875138987f127e73f591b1f616375cf50b2"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-234",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/LogBuilder$1.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "0be459de71ac481be606e0daa7ed11c27e79acb8"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-235",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/message/ReusableMessageFactory.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "92712ac8cfcdbeddfa71c1ed918707baed75f68c"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-236",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/message/ReusableMessageFactory$1.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "ad2e184dd0df3598247991ce070c4144449df5bb"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-237",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/message/ReusableParameterizedMessage.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "053a5bf8f1cde5f504b2847943a2bd80f222b35a"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-238",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/message/ReusableParameterizedMessage.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "b6763dec4e22b0ebadf478fd51f2ee4827adbba7"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-239",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/message/FormattedMessage.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "31c4040251d2cdc8d298e234524c38cfd999fc3c"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-240",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/message/FormattedMessage.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "7363c287f01f6e77c184c9947ab62a68d0d05834"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-241",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/message/ThreadDumpMessage.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "4ddbdc5c5f483dd3dcf3b034ad9b64f384bd43df"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-242",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/message/ThreadDumpMessage$ThreadInfoFactory.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "7de78f1d25be0ca901f4577ca84fc3fb2f8cab3b"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-243",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/message/StringFormattedMessage.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "d1eba763d1cd74c79610f28f72fa647c9a8a85d6"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-244",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/message/StringFormattedMessage.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "a1951af56e0ed6d73468405c6dad61b3c884f764"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-245",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/message/LoggerNameAwareMessage.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "b86f8b271b391fdd48154dbd18f23e254344a8bd"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-246",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/message/LoggerNameAwareMessage.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "46f324eff67ee4bdcd6ef3023f928087af3de87a"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-247",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/message/ThreadDumpMessage.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "0b12bdd92fea6068f8f0fcc9144cf653af549e5f"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-248",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/message/DefaultFlowMessageFactory.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "57dbd29b8aba47e8475fd2e74ba7e2354f73d6f7"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-249",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/message/DefaultFlowMessageFactory$SimpleEntryMessage.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "6ff275119129d3721e249d1213599f4aa9ecdafd"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-250",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/message/MessageFormatMessageFactory.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "8cc82d73de913fb097bdd8f6ac788c6f4d2b0d0c"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-251",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/message/MessageFormatMessageFactory.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "e675570460ec94a3c0f6906cf3e762f0369ec486"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-252",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/message/ThreadDumpMessage$BasicThreadInfoFactory.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "8ba6f26bbdc9dd69ed16e6e40d39bed302e12a18"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-253",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/message/StringMapMessage.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "d2d642a0c4bd6d993226498d02fd681f51ae7070"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-254",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/message/StringMapMessage.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "eafb532fa41703c7f2e4cac5dde39d23b4c592dc"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-255",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/message/ReusableObjectMessage.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "08c86259358ce3fce6742c0a48ce5948bba8e088"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-256",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/message/ReusableObjectMessage.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "480a7fa83998a1e738eefa7aa302a4415fb31af3"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-257",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/message/BasicThreadInformation.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "fae8236793ff53e78550a0e31d27f1b5bd039aee"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-258",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/message/BasicThreadInformation.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "e54c116baab60a34a54598b4bdd1da93f1c91ffa"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-259",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/message/MapMessage.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "7ce23b3d5ae72d64ec147f081c968fe55d50ced0"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-260",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/message/MapMessage.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "37d636cc6a8db071fe67fb93e40cf82b5381a561"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-261",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/message/ParameterizedMessage.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "4da3642cca15c599192af6407d1daa50eac40a27"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-262",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/message/ParameterizedMessage$1.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "33145b3d870b4a6a2a9e506ed655391aecab412e"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-263",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/message/MessageFactory2.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "755f89307cc187e7766132c46712bd2386a443dd"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-264",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/message/MessageFactory2.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "bbf43cfd015a2e9500fff38ca0c80f9f4bd3f8a6"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-265",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/message/SimpleMessage.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "f7f1dd1308d784178ec8f43647901037d0422f39"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-266",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/message/SimpleMessage.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "d2359e4d84fb30ae57a8b98dbf83dfad072511a8"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-267",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/message/ThreadInformation.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "68e9e79ff51b77fd1e2edc0c60b5cf1fd1a77269"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-268",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/message/ThreadInformation.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "8b733da79eca31e10bef355273ce2456a4b1f723"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-269",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/message/package-info.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "dae91264f45b4a3d62a305688897a26085ed64d8"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-270",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/message/package-info.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "945a86f9ab3d6345f1c5c155c80d11e31611674f"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-271",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/message/MessageFormatMessage.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "609bf77f4e864739b91c66498d3c2d2bf930c1f8"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-272",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/message/MessageFormatMessage.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "e49afd5e446331d39b0bca50f9290bb1e9cc4adf"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-273",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/message/ThreadDumpMessage$ThreadDumpMessageProxy.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "3561015fe61248ce7b89eeff875c89b2d0918697"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-274",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/message/StringFormatterMessageFactory.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "4cdb1b525136a085ec93ef16dbf67fcfebbb6b38"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-275",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/message/StringFormatterMessageFactory.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "add24cbc984be997c2a0c05d39ee7cc042a8ba8d"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-276",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/message/ParameterConsumer.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "199d0b4f6a35e61be5c079977b2b0684e2845200"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-277",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/message/ParameterConsumer.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "eca914bf599d9faf99c9d04960f74ac6806e4a0c"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-278",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/message/LocalizedMessageFactory.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "10d75fc90720f43cd3b8a487c4f5b1e58e0d6981"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-279",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/message/LocalizedMessageFactory.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "0970108d60136f5386ea95e611fa2cbf352971f5"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-280",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/message/MultiformatMessage.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "2c817258aa3d3337b47df21db6140a045971b4bc"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-281",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/message/MultiformatMessage.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "1a7665c83bf8139a8b6a58c1a69789eaf7d250d6"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-282",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/message/DefaultFlowMessageFactory$AbstractFlowMessage.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "bb2990f2e1c0d75a870662507e7b23dd622edcaf"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-283",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/message/MessageCollectionMessage.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "1ebd438f3fae000f001c2aea14f83255b960d487"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-284",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/message/MessageCollectionMessage.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "61bb1d37e9d8ef0fa1f10e0201c47f20aa3b9fd8"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-285",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/message/ParameterizedNoReferenceMessageFactory.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "d27f7d476598c48a1412b8c583ca1f48f672a8d2"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-286",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/message/ParameterizedNoReferenceMessageFactory$StatusMessage.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "76a6a7194b0469d0f93f533cda22d8337f8e9cc9"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-287",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/message/StructuredDataCollectionMessage.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "fbe760bfa6d7f5aa8ca9a2bbb2e4e4c029fa016a"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-288",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/message/StructuredDataCollectionMessage.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "81634a20cb13722978b1333b8a71a8bd8680d9ca"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-289",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/message/ParameterFormatter.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "0e990894c0f91d6d78eba748d79a930d9cdafdfb"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-290",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/message/ParameterFormatter$MessagePatternAnalysis.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "b40521d8164ea5e5b39b17575e902af3caa7a6aa"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-291",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/message/AbstractMessageFactory.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "c39c65becce977d9971034884777e600aacf40f1"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-292",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/message/AbstractMessageFactory.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "beef748b70554b8740121e44d24288ba119c01e9"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-293",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/message/StructuredDataMessage.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "75ca3ef3010a9eea609e0be3d3c001e10512e885"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-294",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/message/StructuredDataMessage.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "2a26fda68c4bf2956a2f63e6d07df281e1f34555"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-295",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/message/ParameterizedMessage.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "7e88de05a6c39091d8aeba224b55a16d623e3c1e"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-296",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/message/MapMessage$MapFormat.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "2a1ce0c6302b1784ed527ffc193059ac5e114098"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-297",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/message/ObjectArrayMessage.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "ffd83974b0a23d19f3908bd54cf35790dc313ef8"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-298",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/message/ObjectArrayMessage.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "56de3794628baebd502db86fd7887a8a18685bcf"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-299",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/message/ReusableSimpleMessage.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "a2722709c933da762f5ab251a7f12b315ff740db"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-300",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/message/ReusableSimpleMessage.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "fc532781e0b3c8f2bdf6c73fc7ffb9309f5f1739"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-301",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/message/TimestampMessage.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "71191229c3c27ef2bb807a41d1167152d2377200"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-302",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/message/TimestampMessage.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "4970e600315356aa7e91124d76721a6f7d197250"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-303",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/message/Clearable.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "d17367f903bcfe28c714fee86b68f2c513ebed2c"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-304",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/message/Clearable.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "1965bcd7bb922d40cb46094b613c7da863d6b26a"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-305",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/message/FormattedMessageFactory.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "566c2b901628f44df5f2b767dd21e67cf661489d"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-306",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/message/FormattedMessageFactory.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "de8383490b0dd9ef3e385a25aa4c9aa210c28f36"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-307",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/message/MapMessage$1.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "2810c6caa32fe015234b6a96418e6b65b385234b"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-308",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/message/ThreadDumpMessage$1.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "3875dbdd38c05ca93118cd8baec1dd46e78d7bb4"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-309",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/message/ParameterVisitable.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "f0ce3e820f18e457e6672672c356cc06a608e10c"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-310",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/message/ParameterVisitable.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "d063aa9608c64f44db3e332ff41c04f9aa696734"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-311",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/message/LocalizedMessage.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "c3152224d93ef6dfefe2fe6026b4f18bd988e40c"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-312",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/message/LocalizedMessage.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "6b05168922980df246d5c7e177f7894b11f25c6c"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-313",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/message/ParameterizedNoReferenceMessageFactory.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "fbcef05881430cde91f6c8815910a53771802cc0"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-314",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/message/SimpleMessageFactory.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "f292c85bde21e4b14eb67e1fef0e27db1dbd03c1"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-315",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/message/SimpleMessageFactory.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "b2f2cbbd15f414e17cd18215f8222a8da119c847"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-316",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/message/ExitMessage.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "e15d0a9cdd8980b631e7e9b6e75d3a9fd425d52f"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-317",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/message/ExitMessage.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "31c5bb1c6bbc05ff7d2f356b16f3cd5cfabf5706"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-318",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/message/StructuredDataId.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "c323e876687d97adf15bcd1c501fb96565e29613"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-319",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/message/StructuredDataId.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "7926a2466395339d1ba09511600378a59b87f33c"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-320",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/message/ParameterFormatter.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "a013aeb7332871e6cc1454743310bb45acbd3383"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-321",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/message/ReusableMessageFactory$SerializationProxy.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "6159dfce743fc7ce147045490a1414c3eaf14241"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-322",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/message/EntryMessage.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "b7aae3feb9b75d26f7920168fda87bc22892a0d1"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-323",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/message/EntryMessage.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "d1cc6243c1e5a9efcaf4b3215108663b1fd9f647"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-324",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/message/FlowMessage.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "27098424beca3a9f49238d7e41ddcad49b51b208"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-325",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/message/FlowMessage.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "8f8803a95d62e668a84dda162601cb0b1312fc5c"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-326",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/message/ReusableMessageFactory.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "83a2e8d7f2c4e1c6098e5ba9acaf6380ecbbf089"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-327",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/message/ReusableMessage.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "35e8fa3919cbc0419c0e9671cca2e664651ec854"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-328",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/message/ReusableMessage.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "28d9d07febebf31fc5e191c828c29f05fb618bce"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-329",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/message/Message.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "1b1dcaab26539f58a8d968102d7bb6652c1beb37"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-330",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/message/Message.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "bbcb89b63c0a9d8f1f5ac88d165fc82686d2f0d5"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-331",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/message/ParameterizedMessage$FormatBufferHolder.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "6ec08d44be4c81c04fd1ea66462f03594da27bfb"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-332",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/message/StructuredDataMessage$Format.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "5dadaf0196c61d63472cc551574e73479e08330c"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-333",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/message/DefaultFlowMessageFactory$SimpleExitMessage.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "20a2081b73ca513195d0621ce8cc96f0394ae22a"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-334",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/message/DefaultFlowMessageFactory.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "2ebe2cc766116df0b8889b492b5adcca98ab161f"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-335",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/message/AsynchronouslyFormattable.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "6ed2684fc975e76028bfca6c6def2046d59c3a0b"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-336",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/message/AsynchronouslyFormattable.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "5b1f4d1a133f75f7957c412137769d4ffc2eec05"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-337",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/message/FlowMessageFactory.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "e2c7f26053ebe0913d9e66a295a13ba4f5b3f139"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-338",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/message/FlowMessageFactory.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "45de9e3fc43c161c9c1d42d8c427fad547afdf6b"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-339",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/message/MapMessageJsonFormatter.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "c5e5127f53313a06c939c21a41fbd146f1756b16"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-340",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/message/MapMessageJsonFormatter.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "effab80d3b470f87b67105a34ef836ddf0ab8b43"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-341",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/message/MessageFactory.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "62a433469dad94b38ffed441573b796a098f1311"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-342",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/message/MessageFactory.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "1c2a6ac723e41c3efc94f778f91dfac4f3a4a7c7"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-343",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/message/ObjectMessage.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "c0e02adfd78e4626170e90847ccef0076dcac81f"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-344",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/message/ObjectMessage.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "5bf5383434c1516c05a652ae188774b8adb631e6"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-345",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/message/ParameterizedMessageFactory.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "4df77e3bca6c1ba6784221ca2e2c78e4505609bd"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-346",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/message/ParameterizedMessageFactory.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "5c32a5ec6e69fd25c4b646aa4033fb6b74d820eb"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-347",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/LoggingException.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "f057eda66fb9c91db838d0ff9e4f39c74f4dc507"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-348",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/LoggingException.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "5d298d8d7a1960d4c80891ec4161a7b63cba51dc"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-349",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/MarkerManager$Log4jMarker.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "a0a56ba5727e71db0ab61cff9162b5afca784fb9"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-350",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/LogBuilder.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "f709bd6c3436ebfa6b1aed581eda0d3bc317b766"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-351",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/ThreadContext.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "787687e50a17c0565a68e5ec7f601ce2613719e4"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-352",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/status/StatusConsoleListener.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "6261c172aa99c5b79ac70e362fd14100971f8ef4"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-353",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/status/StatusConsoleListener.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "e42d4123c3d79b3dea86663c46cf8a3f8ed9746c"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-354",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/status/StatusLogger.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "64938962a95e0440d0a2fa89b0f1e4747b4237cb"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-355",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/status/StatusLogger$PropertiesUtilsDouble.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "380c8a5bba32283600e2ea35e846614b1267a8f8"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-356",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/status/package-info.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "12fddb603957410dc49b0cea8fbdc87af95113b3"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-357",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/status/package-info.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "bec96b1438735bba0d680f0bad94e6b0f979cdbe"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-358",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/status/StatusLogger.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "2927167d9541c1119875cf7591e68c1858572f5a"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-359",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/status/StatusLogger$InstanceHolder.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "e0e883dff499c1d34a7bb6373ffce19ae4aaa79d"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-360",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/status/StatusLogger$Config.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "fc92616992cddcfbffda828e96d36ed5aed8ef5c"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-361",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/status/StatusData.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "337224459ac6cacb05d7faea36545fc8739f5b19"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-362",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/status/StatusData.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "6bab27f0dd27b416e040e7b05951da5710312d87"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-363",
+      "fileName": "log4j-api/src/main/java/org/apache/logging/log4j/status/StatusListener.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "c5288b61b68eeabc7d312d6025dbed031989a429"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-364",
+      "fileName": "log4j-api/target/classes/org/apache/logging/log4j/status/StatusListener.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "60be32835a322b630b791e3326ce3a8cde931734"
+        }
+      ]
+    }
+  ],
+  "relationships": [
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "DESCRIBES"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-0",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-1",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-2",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-3",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-4",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-5",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-6",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-7",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-8",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-9",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-10",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-11",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-12",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-13",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-14",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-15",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-16",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-17",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-18",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-19",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-20",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-21",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-22",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-23",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-24",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-25",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-26",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-27",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-28",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-29",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-30",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-31",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-32",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-33",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-34",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-35",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-36",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-37",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-38",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-39",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-40",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-41",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-42",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-43",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-44",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-45",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-46",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-47",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-48",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-49",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-50",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-51",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-52",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-53",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-54",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-55",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-56",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-57",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-58",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-59",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-60",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-61",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-62",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-63",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-64",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-65",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-66",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-67",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-68",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-69",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-70",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-71",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-72",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-73",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-74",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-75",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-76",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-77",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-78",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-79",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-80",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-81",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-82",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-83",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-84",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-85",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-86",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-87",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-88",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-89",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-90",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-91",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-92",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-93",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-94",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-95",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-96",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-97",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-98",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-99",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-100",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-101",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-102",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-103",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-104",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-105",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-106",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-107",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-108",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-109",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-110",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-111",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-112",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-113",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-114",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-115",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-116",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-117",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-118",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-119",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-120",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-121",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-122",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-123",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-124",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-125",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-126",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-127",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-128",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-129",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-130",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-131",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-132",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-133",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-134",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-135",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-136",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-137",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-138",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-139",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-140",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-141",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-142",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-143",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-144",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-145",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-146",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-147",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-148",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-149",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-150",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-151",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-152",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-153",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-154",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-155",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-156",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-157",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-158",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-159",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-160",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-161",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-162",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-163",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-164",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-165",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-166",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-167",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-168",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-169",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-170",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-171",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-172",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-173",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-174",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-175",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-176",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-177",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-178",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-179",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-180",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-181",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-182",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-183",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-184",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-185",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-186",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-187",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-188",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-189",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-190",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-191",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-192",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-193",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-194",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-195",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-196",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-197",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-198",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-199",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-200",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-201",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-202",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-203",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-204",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-205",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-206",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-207",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-208",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-209",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-210",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-211",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-212",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-213",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-214",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-215",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-216",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-217",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-218",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-219",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-220",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-221",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-222",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-223",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-224",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-225",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-226",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-227",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-228",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-229",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-230",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-231",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-232",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-233",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-234",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-235",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-236",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-237",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-238",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-239",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-240",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-241",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-242",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-243",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-244",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-245",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-246",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-247",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-248",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-249",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-250",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-251",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-252",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-253",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-254",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-255",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-256",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-257",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-258",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-259",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-260",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-261",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-262",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-263",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-264",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-265",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-266",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-267",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-268",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-269",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-270",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-271",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-272",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-273",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-274",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-275",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-276",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-277",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-278",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-279",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-280",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-281",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-282",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-283",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-284",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-285",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-286",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-287",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-288",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-289",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-290",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-291",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-292",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-293",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-294",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-295",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-296",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-297",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-298",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-299",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-300",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-301",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-302",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-303",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-304",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-305",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-306",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-307",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-308",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-309",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-310",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-311",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-312",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-313",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-314",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-315",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-316",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-317",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-318",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-319",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-320",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-321",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-322",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-323",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-324",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-325",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-326",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-327",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-328",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-329",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-330",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-331",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-332",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-333",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-334",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-335",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-336",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-337",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-338",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-339",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-340",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-341",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-342",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-343",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-344",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-345",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-346",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-347",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-348",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-349",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-350",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-351",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-352",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-353",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-354",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-355",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-356",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-357",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-358",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-359",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-360",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-361",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-362",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-363",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-364",
+      "relatedSpdxElement": "SPDXRef-Package-log4j-api-2.24.3.jar",
+      "relationshipType": "CONTAINED_BY"
+    }
+  ]
+}
