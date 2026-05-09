@@ -18,8 +18,8 @@ and are never deferred to "later."
 
 ## Coverage Requirements
 
-- **Overall project**: ≥95% line coverage (configurable per project)
-- **Individual source files**: ≥90% line coverage
+- **Overall project**: ≥97% line coverage
+- **Individual source files**: ≥95% line coverage
 - **New code**: 100% of new public functions must have at least one test
 - Report coverage to the user after every test run
 
