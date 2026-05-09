@@ -26,7 +26,7 @@ def run_c_cpp_pipeline(
     OmniBOR SPDX, metadata, ADG SPDX, validation,
     binary collection.
 
-    Returns (success, duration_sec, tracer_name).
+    Returns (success, capture_dur, spdx_dur, tracer).
     """
     tracer = omnibor_cfg.get("tracer", "bomtrace3")
 
@@ -43,16 +43,17 @@ def run_c_cpp_pipeline(
         )
         sys.exit(1)
 
-    # Step 4: Instrumented build
+    # Step 4: Instrumented build (timed separately)
     start = time.time()
     success = pipeline.builder.build(
         repo_name, repo_cfg,
         paths_cfg, omnibor_cfg,
         run_ts=run_ts,
     )
-    duration = time.time() - start
+    capture_dur = time.time() - start
 
-    # Step 5a: Generate SPDX from OmniBOR
+    # Steps 5-7: SPDX generation + validation (timed)
+    spdx_start = time.time()
     spdx_file = None
     if success:
         spdx_file = pipeline.spdx_gen.generate(
@@ -90,8 +91,9 @@ def run_c_cpp_pipeline(
             repo_name, repo_cfg, paths_cfg,
             run_ts=run_ts,
         )
+    spdx_dur = time.time() - spdx_start
 
-    return success, duration, tracer
+    return success, capture_dur, spdx_dur, tracer
 
 
 # ============================================================
@@ -115,22 +117,23 @@ def run_rust_pipeline(
     See: https://github.com/omnibor/bomsh
     #software-vulnerability-cve-search-for-rust-packages
 
-    Returns (success, duration_sec, tracer_name).
+    Returns (success, capture_dur, spdx_dur, tracer).
     """
     tracer = omnibor_rust_cfg.get(
         "tracer", "bomtrace2",
     )
 
-    # Step 4: Instrumented build (bomtrace2)
+    # Step 4: Instrumented build (timed separately)
     start = time.time()
     success = pipeline.builder.build(
         repo_name, repo_cfg,
         paths_cfg, omnibor_rust_cfg,
         run_ts=run_ts,
     )
-    duration = time.time() - start
+    capture_dur = time.time() - start
 
-    # Step 5a: Generate SPDX from OmniBOR
+    # Steps 5-7: SPDX generation + validation (timed)
+    spdx_start = time.time()
     spdx_file = None
     if success:
         spdx_file = pipeline.spdx_gen.generate(
@@ -168,8 +171,9 @@ def run_rust_pipeline(
             repo_name, repo_cfg, paths_cfg,
             run_ts=run_ts,
         )
+    spdx_dur = time.time() - spdx_start
 
-    return success, duration, tracer
+    return success, capture_dur, spdx_dur, tracer
 
 
 # ============================================================
@@ -244,13 +248,13 @@ def run_java_pipeline(
     In standalone mode (default): strace + bomsh_create_bom_java.py.
     In sidecar mode: dep:tree strategy (no strace needed).
 
-    Returns (success, duration_sec, tracer_name).
+    Returns (success, capture_dur, spdx_dur, tracer).
     """
     strategy = _select_java_strategy(
         repo_name, repo_cfg, paths_cfg, mode,
     )
 
-    # Step 4: Build (strace or sidecar)
+    # Step 4: Build (timed separately)
     start = time.time()
     if strategy:
         # Sidecar: use builder.build() with strategy
@@ -267,10 +271,10 @@ def run_java_pipeline(
             paths_cfg, omnibor_java_cfg,
             run_ts=run_ts,
         )
-    duration = time.time() - start
+    capture_dur = time.time() - start
 
-    # Step 5a: Generate SPDX from OmniBOR
-    # (Java uses bomsh_create_bom_java.py output)
+    # Steps 5-7: SPDX generation + validation (timed)
+    spdx_start = time.time()
     spdx_file = None
     if success:
         spdx_file = pipeline.spdx_gen.generate_java(
@@ -307,8 +311,10 @@ def run_java_pipeline(
             run_ts=run_ts,
         )
 
+    spdx_dur = time.time() - spdx_start
+
     tracer = strategy.name if strategy else "strace"
-    return success, duration, tracer
+    return success, capture_dur, spdx_dur, tracer
 
 
 def generate_java_adg_spdx(
@@ -508,22 +514,23 @@ def run_go_pipeline(
     See: https://github.com/omnibor/bomsh
     #software-vulnerability-cve-search-for-golang-packages
 
-    Returns (success, duration_sec, tracer_name).
+    Returns (success, capture_dur, spdx_dur, tracer).
     """
     tracer = omnibor_go_cfg.get(
         "tracer", "bomtrace2",
     )
 
-    # Step 4: Instrumented build (bomtrace2)
+    # Step 4: Instrumented build (timed separately)
     start = time.time()
     success = pipeline.builder.build(
         repo_name, repo_cfg,
         paths_cfg, omnibor_go_cfg,
         run_ts=run_ts,
     )
-    duration = time.time() - start
+    capture_dur = time.time() - start
 
-    # Step 5a: Generate SPDX from OmniBOR
+    # Steps 5-7: SPDX generation + validation (timed)
+    spdx_start = time.time()
     spdx_file = None
     if success:
         spdx_file = pipeline.spdx_gen.generate(
@@ -561,5 +568,6 @@ def run_go_pipeline(
             repo_name, repo_cfg, paths_cfg,
             run_ts=run_ts,
         )
+    spdx_dur = time.time() - spdx_start
 
-    return success, duration, tracer
+    return success, capture_dur, spdx_dur, tracer

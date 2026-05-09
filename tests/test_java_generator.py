@@ -1780,5 +1780,179 @@ class TestIsExtractionArtifact(unittest.TestCase):
         )
 
 
+class TestGradleProjectFromDir(unittest.TestCase):
+    """Tests for _gradle_project_from_dir."""
+
+    def _gen(self):
+        # repo_dir = repos_dir / repo_name
+        # = /workspace/repos / app
+        return JavaSpdxGenerator(
+            "/tmp/bom", "/workspace/repos", "app",
+        )
+
+    def test_none_returns_none(self):
+        self.assertIsNone(
+            self._gen()._gradle_project_from_dir(
+                None,
+            )
+        )
+
+    def test_same_dir_returns_none(self):
+        self.assertIsNone(
+            self._gen()._gradle_project_from_dir(
+                "/workspace/repos/app"
+            )
+        )
+
+    def test_subdir_returns_colon_path(self):
+        result = self._gen()._gradle_project_from_dir(
+            "/workspace/repos/app/sub/mod"
+        )
+        self.assertEqual(result, ":sub:mod")
+
+    def test_outside_repo_returns_none(self):
+        self.assertIsNone(
+            self._gen()._gradle_project_from_dir(
+                "/other/path"
+            )
+        )
+
+
+class TestGetMavenDepsGradle(unittest.TestCase):
+    """Test _get_maven_deps delegates to Gradle."""
+
+    @patch(
+        "app.spdx.java_generator.get_gradle_deps"
+    )
+    @patch(
+        "app.spdx.java_generator.is_gradle_project",
+        return_value=True,
+    )
+    def test_gradle_project_uses_gradle(
+        self, _mock_is, mock_get
+    ):
+        mock_get.return_value = [
+            {"groupId": "a", "artifactId": "b"},
+        ]
+        gen = JavaSpdxGenerator(
+            "/repo", "/repos", "/repo/build",
+        )
+        result = gen._get_maven_deps()
+        mock_get.assert_called_once()
+        self.assertEqual(len(result), 1)
+
+
+class TestGetProjectGroupIdGradle(unittest.TestCase):
+    """Test _get_project_group_id Gradle branch."""
+
+    @patch(
+        "app.spdx.java_generator.get_gradle_group",
+        return_value="com.example",
+    )
+    @patch(
+        "app.spdx.java_generator.is_gradle_project",
+        return_value=True,
+    )
+    def test_gradle_group(self, _mock_is, mock_grp):
+        gen = JavaSpdxGenerator(
+            "/repo", "/repos", "/repo/build",
+        )
+        result = gen._get_project_group_id()
+        self.assertEqual(result, "com.example")
+
+
+class TestDetectVersionFailures(unittest.TestCase):
+    """Test version detection failure paths."""
+
+    @patch("subprocess.run")
+    def test_javac_not_found(self, mock_run):
+        mock_run.side_effect = FileNotFoundError
+        result = JavaSpdxGenerator._detect_javac_version()
+        self.assertIsNone(result)
+
+    @patch("subprocess.run")
+    def test_maven_not_found(self, mock_run):
+        mock_run.side_effect = FileNotFoundError
+        result = JavaSpdxGenerator._detect_maven_version()
+        self.assertIsNone(result)
+
+    def test_gradle_version_from_wrapper(self):
+        with tempfile.TemporaryDirectory() as td:
+            wp = (
+                Path(td) / "gradle" / "wrapper"
+            )
+            wp.mkdir(parents=True)
+            props = (
+                wp / "gradle-wrapper.properties"
+            )
+            props.write_text(
+                "distributionUrl="
+                "https\\://services.gradle.org/"
+                "distributions/"
+                "gradle-8.5-bin.zip\n"
+            )
+            ver = (
+                JavaSpdxGenerator
+                ._detect_gradle_version(td)
+            )
+        self.assertEqual(ver, "8.5")
+
+    @patch("subprocess.run")
+    def test_gradle_version_system_fallback(
+        self, mock_run
+    ):
+        mock_run.return_value = MagicMock(
+            stdout="Gradle 8.3\n",
+        )
+        with tempfile.TemporaryDirectory() as td:
+            ver = (
+                JavaSpdxGenerator
+                ._detect_gradle_version(td)
+            )
+        self.assertEqual(ver, "8.3")
+
+    @patch("subprocess.run")
+    def test_gradle_version_not_found(self, mock_run):
+        mock_run.side_effect = FileNotFoundError
+        with tempfile.TemporaryDirectory() as td:
+            ver = (
+                JavaSpdxGenerator
+                ._detect_gradle_version(td)
+            )
+        self.assertIsNone(ver)
+
+
+class TestAddBuildToolsGradle(unittest.TestCase):
+    """Test _add_build_tools with Gradle project."""
+
+    @patch(
+        "app.spdx.java_generator"
+        ".JavaSpdxGenerator._detect_gradle_version",
+        return_value="8.5",
+    )
+    @patch(
+        "app.spdx.java_generator"
+        ".JavaSpdxGenerator._detect_javac_version",
+        return_value="21.0.1",
+    )
+    @patch(
+        "app.spdx.java_generator.is_gradle_project",
+        return_value=True,
+    )
+    def test_gradle_build_tool_added(
+        self, _g, _j, _v
+    ):
+        gen = JavaSpdxGenerator(
+            "/repo", "/repos", "/repo/build",
+        )
+        doc = {"packages": [], "relationships": []}
+        gen._add_build_tools(doc, "SPDXRef-Root")
+        names = [
+            p["name"] for p in doc["packages"]
+        ]
+        self.assertIn("gradle", names)
+        self.assertIn("javac", names)
+
+
 if __name__ == "__main__":
     unittest.main()

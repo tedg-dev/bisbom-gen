@@ -520,5 +520,177 @@ class TestGetGradleDeps(unittest.TestCase):
         )
 
 
+class TestGetGradleDepsEdgeCases(unittest.TestCase):
+    """Edge cases for get_gradle_deps."""
+
+    @patch("app.spdx.gradle_parser.subprocess.run")
+    def test_timeout_falls_back(self, mock_run):
+        mock_run.side_effect = (
+            __import__("subprocess").TimeoutExpired(
+                "gradlew", 120,
+            )
+        )
+        with tempfile.TemporaryDirectory() as td:
+            (Path(td) / "gradlew").touch()
+            bg = Path(td) / "build.gradle"
+            bg.write_text(
+                "dependencies {\n"
+                "    implementation "
+                "'com.x:y:1.0'\n"
+                "}\n"
+            )
+            result = get_gradle_deps(td)
+        self.assertEqual(len(result), 1)
+
+    @patch("app.spdx.gradle_parser.subprocess.run")
+    def test_file_not_found(self, mock_run):
+        mock_run.side_effect = FileNotFoundError
+        with tempfile.TemporaryDirectory() as td:
+            (Path(td) / "gradlew").touch()
+            result = get_gradle_deps(td)
+        self.assertEqual(result, [])
+
+
+class TestParseGradleDepTreeEdge(unittest.TestCase):
+    """Edge cases for parse_gradle_dep_tree."""
+
+    def test_non_dep_line_skipped(self):
+        output = (
+            "runtimeClasspath\n"
+            "+--- com.a:b:1.0\n"
+            "|    some garbage line\n"
+            "\\--- com.c:d:2.0\n"
+        )
+        deps = parse_gradle_dep_tree(output)
+        self.assertEqual(len(deps), 2)
+
+    def test_break_on_new_section(self):
+        output = (
+            "runtimeClasspath\n"
+            "+--- com.a:b:1.0\n"
+            "\n"
+            "testRuntimeClasspath\n"
+            "+--- junit:junit:4.13\n"
+        )
+        deps = parse_gradle_dep_tree(output)
+        self.assertEqual(len(deps), 1)
+        self.assertEqual(deps[0]["artifactId"], "b")
+
+
+class TestGetGradleVersionEdge(unittest.TestCase):
+    """Edge cases for get_gradle_version."""
+
+    def test_snapshot_stripped_from_build_gradle(self):
+        with tempfile.TemporaryDirectory() as td:
+            bg = Path(td) / "build.gradle"
+            bg.write_text(
+                "version = '2.0.0-SNAPSHOT'\n"
+            )
+            ver = get_gradle_version(td)
+        self.assertEqual(ver, "2.0.0")
+
+    def test_no_version_returns_unknown(self):
+        with tempfile.TemporaryDirectory() as td:
+            bg = Path(td) / "build.gradle"
+            bg.write_text("apply plugin: 'java'\n")
+            ver = get_gradle_version(td)
+        self.assertEqual(ver, "unknown")
+
+    def test_props_oserror_falls_through(self):
+        with tempfile.TemporaryDirectory() as td:
+            props = Path(td) / "gradle.properties"
+            props.mkdir()  # dir instead of file -> OSError
+            bg = Path(td) / "build.gradle"
+            bg.write_text(
+                "version = '3.0.0'\n"
+            )
+            ver = get_gradle_version(td)
+        self.assertEqual(ver, "3.0.0")
+
+
+class TestGetGradleGroupEdge(unittest.TestCase):
+    """Edge cases for get_gradle_group."""
+
+    def test_group_from_build_gradle(self):
+        with tempfile.TemporaryDirectory() as td:
+            bg = Path(td) / "build.gradle"
+            bg.write_text("group = 'com.example'\n")
+            grp = get_gradle_group(td)
+        self.assertEqual(grp, "com.example")
+
+    def test_no_group_returns_none(self):
+        with tempfile.TemporaryDirectory() as td:
+            bg = Path(td) / "build.gradle"
+            bg.write_text("apply plugin: 'java'\n")
+            grp = get_gradle_group(td)
+        self.assertIsNone(grp)
+
+    def test_props_oserror_falls_through(self):
+        with tempfile.TemporaryDirectory() as td:
+            props = Path(td) / "gradle.properties"
+            props.mkdir()  # dir instead of file -> OSError
+            bg = Path(td) / "build.gradle"
+            bg.write_text("group = 'org.test'\n")
+            grp = get_gradle_group(td)
+        self.assertEqual(grp, "org.test")
+
+
+class TestParseBuildGradleEdge(unittest.TestCase):
+    """Edge cases for _parse_build_gradle."""
+
+    def test_oserror_returns_empty(self):
+        with tempfile.TemporaryDirectory() as td:
+            bg = Path(td) / "build.gradle"
+            bg.mkdir()  # dir instead of file -> OSError
+            result = _parse_build_gradle(Path(td))
+        self.assertEqual(result, [])
+
+    def test_no_build_file_returns_empty(self):
+        with tempfile.TemporaryDirectory() as td:
+            result = _parse_build_gradle(Path(td))
+        self.assertEqual(result, [])
+
+    def test_unknown_config_skipped(self):
+        with tempfile.TemporaryDirectory() as td:
+            bg = Path(td) / "build.gradle"
+            bg.write_text(
+                "dependencies {\n"
+                "    classpath 'com.x:y:1.0'\n"
+                "    implementation 'com.a:b:2.0'\n"
+                "}\n"
+            )
+            result = _parse_build_gradle(Path(td))
+        # classpath is not in config_to_scope
+        self.assertEqual(len(result), 1)
+        self.assertEqual(
+            result[0]["artifactId"], "b",
+        )
+
+
+class TestParseGradleDepTreeMoreEdge(
+    unittest.TestCase,
+):
+    """More edge cases for parse_gradle_dep_tree."""
+
+    def test_non_matching_dep_skipped(self):
+        output = (
+            "runtimeClasspath\n"
+            "+--- com.a:b:1.0\n"
+            "+--- (project :submod)\n"
+            "\\--- com.c:d:2.0\n"
+        )
+        deps = parse_gradle_dep_tree(output)
+        self.assertEqual(len(deps), 2)
+
+    def test_section_break_after_deps(self):
+        output = (
+            "runtimeClasspath\n"
+            "+--- com.a:b:1.0\n"
+            "compileClasspath\n"
+        )
+        deps = parse_gradle_dep_tree(output)
+        self.assertEqual(len(deps), 1)
+
+
 if __name__ == "__main__":
     unittest.main()

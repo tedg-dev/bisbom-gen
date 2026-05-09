@@ -965,6 +965,59 @@ class TestSpdxGenerator(unittest.TestCase):
             self.assertIn("WARN", output)
 
 
+class TestSpdxGeneratorExtraLines(unittest.TestCase):
+    """Cover remaining uncovered lines."""
+
+    def test_init_custom_bomsh_dir(self):
+        gen = SpdxGenerator(bomsh_dir="/custom/dir")
+        self.assertEqual(gen.bomsh_dir, "/custom/dir")
+
+    def test_patch_vcs_uri(self):
+        import json as _json
+        with tempfile.TemporaryDirectory() as td:
+            doc = {
+                "spdxVersion": "SPDX-2.3",
+                "name": "curl",
+                "documentNamespace": "ns",
+                "creationInfo": {
+                    "created": "2026-01-01",
+                    "creators": ["Tool: test"],
+                },
+                "packages": [{
+                    "SPDXID": "SPDXRef-Package",
+                    "name": "curl",
+                    "downloadLocation": "NOASSERTION",
+                }],
+            }
+            path = Path(td) / "test.spdx.json"
+            path.write_text(_json.dumps(doc))
+            with patch.object(
+                SpdxGenerator, "_bomsh_version",
+                return_value="1.0",
+            ), patch.object(
+                SpdxGenerator, "_bomtrace_version",
+                return_value="6.11",
+            ), patch("builtins.print"):
+                SpdxGenerator.patch_spdx_metadata(
+                    str(path),
+                    vcs_uri="git+https://github.com/curl/curl@v8.0",
+                )
+            result = _json.loads(path.read_text())
+            self.assertEqual(
+                result["packages"][0][
+                    "downloadLocation"
+                ],
+                "git+https://github.com/curl/curl@v8.0",
+            )
+
+    def test_generate_java_returns_none(self):
+        gen = SpdxGenerator()
+        result = gen.generate_java(
+            "app", {}, {}, {},
+        )
+        self.assertIsNone(result)
+
+
 # ============================================================
 # SpdxGenerator — creator patching
 # ============================================================
@@ -2255,6 +2308,45 @@ class TestDocWriter(unittest.TestCase):
             self.assertIn("myrepo", content)
             self.assertIn("bin/app", content)
 
+    def test_write_build_doc_with_timing_split(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            paths = {"output_dir": tmpdir}
+            cfg = {
+                "url": "https://github.com/x/y.git",
+                "build_steps": ["make"],
+                "language": "c-cpp",
+            }
+            with patch("builtins.print"):
+                result = DocWriter.write_build_doc(
+                    "myrepo", cfg, paths,
+                    True, 45.0,
+                    capture_dur=42.5,
+                    spdx_dur=2.5,
+                )
+            content = Path(result).read_text()
+            self.assertIn("capture: 42.5s", content)
+            self.assertIn("SPDX: 2.5s", content)
+
+    def test_write_runtime_doc_with_timing_split(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            paths = {"output_dir": tmpdir}
+            repo_cfg = {"language": "c-cpp"}
+            with patch("builtins.print"):
+                result = DocWriter.write_runtime_doc(
+                    "myrepo", repo_cfg, paths, 45.0,
+                    capture_dur=42.5,
+                    spdx_dur=2.5,
+                )
+            content = Path(result).read_text()
+            self.assertIn(
+                "Capture (build + interception):",
+                content,
+            )
+            self.assertIn("42.5 seconds", content)
+            self.assertIn(
+                "SPDX generation:", content,
+            )
+
     def test_write_build_doc_failure(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             paths = {"output_dir": tmpdir}
@@ -2789,7 +2881,9 @@ class TestMainFullRun(unittest.TestCase):
         p = _mock_pipeline()
         mock_cls.return_value = p
         p.builder.build.return_value = True
-        mock_time.side_effect = [100.0, 142.5]
+        mock_time.side_effect = [
+            100.0, 142.5, 142.5, 145.0,
+        ]
 
         with patch("builtins.print"):
             analyze.main()
@@ -2840,7 +2934,9 @@ class TestMainFullRun(unittest.TestCase):
         p = _mock_pipeline()
         mock_cls.return_value = p
         p.builder.build.return_value = False
-        mock_time.side_effect = [100.0, 110.0]
+        mock_time.side_effect = [
+            100.0, 110.0, 110.0, 110.1,
+        ]
 
         with patch("builtins.print"):
             analyze.main()
@@ -2863,7 +2959,9 @@ class TestMainFullRun(unittest.TestCase):
         p = _mock_pipeline()
         mock_cls.return_value = p
         p.builder.build.return_value = True
-        mock_time.side_effect = [100.0, 110.0]
+        mock_time.side_effect = [
+            100.0, 110.0, 110.0, 112.0,
+        ]
 
         with patch("builtins.print"):
             analyze.main()
@@ -2885,7 +2983,9 @@ class TestMainFullRun(unittest.TestCase):
         p = _mock_pipeline()
         mock_cls.return_value = p
         p.builder.build.return_value = True
-        mock_time.side_effect = [100.0, 110.0]
+        mock_time.side_effect = [
+            100.0, 110.0, 110.0, 112.0,
+        ]
         real_cfg = load_config()
         real_cfg.setdefault(
             "pipeline", {}
@@ -2939,7 +3039,9 @@ class TestMainGoRepo(unittest.TestCase):
         p = _mock_pipeline()
         mock_cls.return_value = p
         p.builder.build.return_value = True
-        mock_time.side_effect = [100.0, 110.0]
+        mock_time.side_effect = [
+            100.0, 110.0, 110.0, 112.0,
+        ]
 
         with patch("builtins.print"):
             analyze.main()
@@ -2973,7 +3075,9 @@ class TestMainGoRepo(unittest.TestCase):
         p = _mock_pipeline()
         mock_cls.return_value = p
         p.builder.build.return_value = False
-        mock_time.side_effect = [100.0, 110.0]
+        mock_time.side_effect = [
+            100.0, 110.0, 110.0, 110.1,
+        ]
 
         with patch("builtins.print"):
             analyze.main()
@@ -2997,7 +3101,9 @@ class TestMainGoRepo(unittest.TestCase):
         p = _mock_pipeline()
         mock_cls.return_value = p
         p.builder.build.return_value = True
-        mock_time.side_effect = [100.0, 110.0]
+        mock_time.side_effect = [
+            100.0, 110.0, 110.0, 112.0,
+        ]
         real_cfg = load_config()
         real_cfg.setdefault(
             "pipeline", {}
@@ -3032,7 +3138,7 @@ class TestRunGoPipeline(unittest.TestCase):
         paths_cfg = {"output_dir": "/tmp/out"}
 
         with patch("builtins.print"):
-            success, duration, tracer = _run_go_pipeline(
+            success, cap, spdx, tracer = _run_go_pipeline(
                 p, "fzf", repo_cfg,
                 paths_cfg, self.GO_OMNIBOR_CFG,
                 "2026-03-04_1200",
@@ -3075,7 +3181,7 @@ class TestRunGoPipeline(unittest.TestCase):
         paths_cfg = {"output_dir": "/tmp/out"}
 
         with patch("builtins.print"):
-            success, _, _ = _run_go_pipeline(
+            success, _, _, _ = _run_go_pipeline(
                 p, "fzf", repo_cfg,
                 paths_cfg, self.GO_OMNIBOR_CFG,
                 "2026-03-04_1200",
@@ -3144,7 +3250,7 @@ class TestRunRustPipeline(unittest.TestCase):
         paths_cfg = {"output_dir": "/tmp/out"}
 
         with patch("builtins.print"):
-            success, duration, tracer = _run_rust_pipeline(
+            success, cap, spdx, tracer = _run_rust_pipeline(
                 p, "oxipng", repo_cfg,
                 paths_cfg, self.RUST_OMNIBOR_CFG,
                 "2026-03-05_1200",
@@ -3185,7 +3291,7 @@ class TestRunRustPipeline(unittest.TestCase):
         paths_cfg = {"output_dir": "/tmp/out"}
 
         with patch("builtins.print"):
-            success, _, _ = _run_rust_pipeline(
+            success, _, _, _ = _run_rust_pipeline(
                 p, "oxipng", repo_cfg,
                 paths_cfg, self.RUST_OMNIBOR_CFG,
                 "2026-03-05_1200",
@@ -3836,7 +3942,9 @@ class TestMainAdgValidation(unittest.TestCase):
             "/tmp/a.spdx.json",
             "/tmp/b.spdx.json",
         ]
-        mock_time.side_effect = [100.0, 110.0]
+        mock_time.side_effect = [
+            100.0, 110.0, 110.0, 112.0,
+        ]
 
         with patch("builtins.print"):
             analyze.main()

@@ -133,7 +133,7 @@ class TestRunJavaPipelineMode(unittest.TestCase):
     def test_standalone_uses_build_java(self, _):
         pipeline = self._setup()
         with patch("builtins.print"):
-            ok, _dur, tracer = run_java_pipeline(
+            ok, _cap, _spdx, tracer = run_java_pipeline(
                 pipeline, "jsoup",
                 self._repo_cfg(), self._paths(),
                 self._omnibor(), "2024-01-01",
@@ -161,7 +161,7 @@ class TestRunJavaPipelineMode(unittest.TestCase):
     ):
         pipeline = self._setup()
         with patch("builtins.print"):
-            ok, _dur, tracer = run_java_pipeline(
+            ok, _cap, _spdx, tracer = run_java_pipeline(
                 pipeline, "jsoup",
                 self._repo_cfg(), self._paths(),
                 self._omnibor(), "2024-01-01",
@@ -189,7 +189,7 @@ class TestRunJavaPipelineMode(unittest.TestCase):
     def test_default_mode_is_standalone(self, _):
         pipeline = self._setup()
         with patch("builtins.print"):
-            _ok, _dur, tracer = run_java_pipeline(
+            _ok, _cap, _spdx, tracer = run_java_pipeline(
                 pipeline, "jsoup",
                 self._repo_cfg(), self._paths(),
                 self._omnibor(), "2024-01-01",

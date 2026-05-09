@@ -95,6 +95,8 @@ class DocWriter:
         run_ts=None, tracer=None,
         raw_logfile=None,
         commit_sha=None,
+        capture_dur=None,
+        spdx_dur=None,
     ):
         """Write build log to output/build-logs/<lang>/<repo>/<ts>/."""
         ts = run_ts or timestamp()
@@ -107,12 +109,20 @@ class DocWriter:
         doc_path = docs_dir / "build.md"
 
         status = "SUCCESS" if success else "FAILED"
+        timing = (
+            f"**Duration:** {duration_sec:.1f}"
+            " seconds"
+        )
+        if capture_dur is not None:
+            timing += (
+                f" (capture: {capture_dur:.1f}s"
+                f" + SPDX: {spdx_dur:.1f}s)"
+            )
         content = (
             f"# Build Log — {repo_name}\n\n"
             f"**Date:** {datetime.now().isoformat()}\n"
             f"**Status:** {status}\n"
-            f"**Duration:** {duration_sec:.1f}"
-            " seconds\n\n"
+            f"{timing}\n\n"
             "## Repository\n\n"
             f"- **URL:** {repo_cfg['url']}\n"
             f"- **Branch:** "
@@ -185,6 +195,8 @@ class DocWriter:
         repo_name, repo_cfg, paths_cfg,
         duration_sec, baseline_sec=None,
         run_ts=None, tracer=None,
+        capture_dur=None,
+        spdx_dur=None,
     ):
         """Write runtime performance metrics."""
         ts = run_ts or timestamp()
@@ -224,12 +236,22 @@ class DocWriter:
             "from build interception\n"
         )
 
+        timing_breakdown = ""
+        if capture_dur is not None:
+            timing_breakdown = (
+                f"\n**Capture (build + interception):**"
+                f" {capture_dur:.1f} seconds\n"
+                f"**SPDX generation:** "
+                f"{spdx_dur:.1f} seconds\n"
+            )
+
         content = (
             f"# Runtime Metrics — {repo_name}\n\n"
             f"**Date:** "
             f"{datetime.now().isoformat()}\n"
             f"**{build_label}:** "
             f"{duration_sec:.1f} seconds\n"
+            f"{timing_breakdown}"
             f"{overhead_pct}\n\n"
             "## Notes\n\n"
             f"{notes}"

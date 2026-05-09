@@ -299,3 +299,59 @@ class TestRpmResolverMakePurl:
         r = _make_resolver("fedora", "39")
         purl = r.make_purl("glibc", "2.38-6.fc39")
         assert purl == "pkg:rpm/fedora/glibc@2.38-6.fc39"
+
+
+# ── is_package_installed ───────────────────────────────────
+
+
+class TestRpmIsPackageInstalled:
+    """Tests for is_package_installed()."""
+
+    @patch("subprocess.check_output")
+    def test_installed_returns_true(self, mock_sub):
+        mock_sub.return_value = "openssl-libs-3.0.7"
+        r = _make_resolver()
+        assert r.is_package_installed("openssl-libs")
+
+    @patch("subprocess.check_output")
+    def test_not_installed_returns_false(self, mock_sub):
+        mock_sub.side_effect = (
+            subprocess.CalledProcessError(1, "rpm")
+        )
+        r = _make_resolver()
+        assert r.is_package_installed("nope") is False
+
+    @patch("subprocess.check_output")
+    def test_oserror_returns_false(self, mock_sub):
+        mock_sub.side_effect = OSError("no rpm")
+        r = _make_resolver()
+        assert r.is_package_installed("x") is False
+
+
+# ── install_hint ───────────────────────────────────────────
+
+
+class TestRpmInstallHint:
+
+    def test_returns_dnf_command(self):
+        r = _make_resolver()
+        assert r.install_hint(["a", "b"]) == (
+            "dnf install -y a b"
+        )
+
+
+# ── resolve metadata with empty name ──────────────────────
+
+
+class TestRpmResolveEmptyName:
+    """Test resolve_metadata returns None for empty name."""
+
+    @patch("subprocess.check_output")
+    def test_empty_name_field(self, mock_sub):
+        # rpm returns empty name field
+        mock_sub.return_value = (
+            "|||x86_64||"
+        )
+        r = _make_resolver()
+        result = r._query_metadata("badpkg")
+        assert result is None

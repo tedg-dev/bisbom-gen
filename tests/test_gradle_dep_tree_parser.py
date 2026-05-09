@@ -371,5 +371,95 @@ class TestGradleDepTreeStrategy(unittest.TestCase):
             self.assertFalse(ok)
 
 
+class TestRunGradleDepTreeEdge(unittest.TestCase):
+    """Edge cases for run_gradle_dep_tree."""
+
+    @patch(
+        "app.pipeline.gradle_dep_tree_parser"
+        ".subprocess.run"
+    )
+    def test_file_not_found(self, mock_run):
+        mock_run.side_effect = FileNotFoundError
+        result = run_gradle_dep_tree("/repo")
+        self.assertIsNone(result)
+
+
+class TestFindGradleSubprojectsEdge(unittest.TestCase):
+    """Edge cases for find_gradle_subprojects."""
+
+    def test_settings_oserror(self):
+        with tempfile.TemporaryDirectory() as td:
+            # Create dir instead of file to trigger OSError
+            s = Path(td) / "settings.gradle"
+            s.mkdir()
+            result = find_gradle_subprojects(td)
+        self.assertEqual(result, [])
+
+    def test_colon_prefix_subproject(self):
+        with tempfile.TemporaryDirectory() as td:
+            s = Path(td) / "settings.gradle"
+            s.write_text(
+                "include 'sub1', ':sub2'\n"
+            )
+            result = find_gradle_subprojects(td)
+        self.assertIn("sub1", result)
+        self.assertIn(":sub2", result)
+
+
+class TestGetAllGradleDeps(unittest.TestCase):
+    """Tests for get_all_gradle_deps."""
+
+    @patch(
+        "app.pipeline.gradle_dep_tree_parser"
+        ".run_gradle_dep_tree"
+    )
+    def test_subproject_deps_merged(self, mock_run):
+        from app.pipeline.gradle_dep_tree_parser import (
+            get_all_gradle_deps,
+        )
+        mock_run.side_effect = [
+            # Root project
+            (
+                "runtimeClasspath\n"
+                "+--- com.a:b:1.0\n"
+            ),
+            # Subproject
+            (
+                "runtimeClasspath\n"
+                "+--- com.c:d:2.0\n"
+            ),
+        ]
+        with tempfile.TemporaryDirectory() as td:
+            s = Path(td) / "settings.gradle"
+            s.write_text("include 'sub'\n")
+            deps = get_all_gradle_deps(td)
+        self.assertEqual(len(deps), 2)
+
+    @patch(
+        "app.pipeline.gradle_dep_tree_parser"
+        ".run_gradle_dep_tree"
+    )
+    def test_dedup_across_projects(self, mock_run):
+        from app.pipeline.gradle_dep_tree_parser import (
+            get_all_gradle_deps,
+        )
+        mock_run.side_effect = [
+            (
+                "runtimeClasspath\n"
+                "+--- com.a:b:1.0\n"
+            ),
+            (
+                "runtimeClasspath\n"
+                "+--- com.a:b:1.0\n"
+            ),
+        ]
+        with tempfile.TemporaryDirectory() as td:
+            s = Path(td) / "settings.gradle"
+            s.write_text("include 'sub'\n")
+            deps = get_all_gradle_deps(td)
+        # Deduped: same groupId:artifactId
+        self.assertEqual(len(deps), 1)
+
+
 if __name__ == "__main__":
     unittest.main()

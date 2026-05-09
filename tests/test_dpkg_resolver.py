@@ -260,3 +260,64 @@ class TestDpkgResolverMakePurl:
         r = _make_resolver("debian", "12")
         purl = r.make_purl("libc6", "2.36-9")
         assert purl == "pkg:deb/debian/libc6@2.36-9"
+
+
+# ── is_package_installed ───────────────────────────────────
+
+
+class TestDpkgIsPackageInstalled:
+    """Tests for is_package_installed()."""
+
+    @patch("subprocess.check_output")
+    def test_installed_returns_true(self, mock_sub):
+        mock_sub.return_value = "install ok installed"
+        r = _make_resolver()
+        assert r.is_package_installed("libc6") is True
+
+    @patch("subprocess.check_output")
+    def test_not_installed_returns_false(self, mock_sub):
+        mock_sub.return_value = "deinstall ok config-files"
+        r = _make_resolver()
+        assert r.is_package_installed("foo") is False
+
+    @patch("subprocess.check_output")
+    def test_error_returns_false(self, mock_sub):
+        mock_sub.side_effect = (
+            subprocess.CalledProcessError(1, "dpkg-query")
+        )
+        r = _make_resolver()
+        assert r.is_package_installed("bad") is False
+
+    @patch("subprocess.check_output")
+    def test_oserror_returns_false(self, mock_sub):
+        mock_sub.side_effect = OSError("no dpkg")
+        r = _make_resolver()
+        assert r.is_package_installed("x") is False
+
+
+# ── install_hint ───────────────────────────────────────────
+
+
+class TestDpkgInstallHint:
+
+    def test_returns_apt_command(self):
+        r = _make_resolver()
+        assert r.install_hint(["a", "b"]) == (
+            "apt-get install -y a b"
+        )
+
+
+# ── distro_version_qualifier ──────────────────────────────
+
+
+class TestDpkgDistroVersionQualifier:
+
+    def test_with_version(self):
+        r = _make_resolver("ubuntu", "22.04")
+        assert r.distro_version_qualifier == (
+            "ubuntu-22.04"
+        )
+
+    def test_without_version(self):
+        r = _make_resolver("ubuntu", "")
+        assert r.distro_version_qualifier == "ubuntu"

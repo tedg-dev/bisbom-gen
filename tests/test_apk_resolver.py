@@ -324,3 +324,41 @@ class TestApkResolverMakePurl:
         r = _make_resolver("alpine", "3.18")
         purl = r.make_purl("musl", "1.2.4-r2")
         assert purl == "pkg:apk/alpine/musl@1.2.4-r2"
+
+
+# ── is_package_installed ───────────────────────────────────
+
+
+class TestApkIsPackageInstalled:
+
+    @patch("subprocess.check_output")
+    def test_installed_returns_true(self, mock_sub):
+        mock_sub.return_value = "musl-1.2.4-r2"
+        r = _make_resolver()
+        assert r.is_package_installed("musl") is True
+
+    @patch("subprocess.check_output")
+    def test_error_returns_false(self, mock_sub):
+        mock_sub.side_effect = (
+            subprocess.CalledProcessError(1, "apk")
+        )
+        r = _make_resolver()
+        assert r.is_package_installed("nope") is False
+
+    @patch("subprocess.check_output")
+    def test_oserror_returns_false(self, mock_sub):
+        mock_sub.side_effect = OSError("no apk")
+        r = _make_resolver()
+        assert r.is_package_installed("x") is False
+
+
+# ── install_hint ───────────────────────────────────────────
+
+
+class TestApkInstallHint:
+
+    def test_returns_apk_command(self):
+        r = _make_resolver()
+        assert r.install_hint(["a", "b"]) == (
+            "apk add a b"
+        )
