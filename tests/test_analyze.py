@@ -612,6 +612,106 @@ class TestBomtraceBuilder(unittest.TestCase):
         )
 
 
+class TestBomtraceBuilderBaseline(unittest.TestCase):
+    """Tests for BomtraceBuilder.build_baseline()."""
+
+    def _cfg(self):
+        return (
+            {
+                "build_steps": [
+                    "autoreconf -fi",
+                    "./configure",
+                    "make -j4",
+                ],
+                "clean_cmd": "make clean",
+                "language": "c-cpp",
+            },
+            {
+                "repos_dir": "/repos",
+                "output_dir": "/out",
+            },
+        )
+
+    def test_success(self):
+        runner = MagicMock()
+        runner.run.return_value = 0
+        builder = BomtraceBuilder(runner)
+        repo_cfg, paths = self._cfg()
+
+        with patch("builtins.print"):
+            result = builder.build_baseline(
+                "curl", repo_cfg, paths,
+            )
+        self.assertIsNotNone(result)
+        self.assertEqual(result.name, "baseline")
+        self.assertEqual(result.phase, "phase1")
+        self.assertGreaterEqual(result.wall_sec, 0)
+        # clean + 2 prebuild + build = 4 calls
+        self.assertEqual(runner.run.call_count, 4)
+        # NO tracer prefix on build cmd
+        build_call = runner.run.call_args_list[3]
+        self.assertEqual(
+            build_call[0][0], "make -j4",
+        )
+
+    def test_no_clean_cmd(self):
+        runner = MagicMock()
+        runner.run.return_value = 0
+        builder = BomtraceBuilder(runner)
+        repo_cfg, paths = self._cfg()
+        del repo_cfg["clean_cmd"]
+
+        with patch("builtins.print"):
+            result = builder.build_baseline(
+                "curl", repo_cfg, paths,
+            )
+        self.assertIsNotNone(result)
+        # 2 prebuild + build = 3 calls (no clean)
+        self.assertEqual(runner.run.call_count, 3)
+
+    def test_no_prebuild_steps(self):
+        runner = MagicMock()
+        runner.run.return_value = 0
+        builder = BomtraceBuilder(runner)
+        repo_cfg, paths = self._cfg()
+        repo_cfg["build_steps"] = ["make -j4"]
+        del repo_cfg["clean_cmd"]
+
+        with patch("builtins.print"):
+            result = builder.build_baseline(
+                "curl", repo_cfg, paths,
+            )
+        self.assertIsNotNone(result)
+        # Only build = 1 call
+        self.assertEqual(runner.run.call_count, 1)
+
+    def test_prebuild_failure(self):
+        runner = MagicMock()
+        # clean ok, first prebuild fails
+        runner.run.side_effect = [0, 1]
+        builder = BomtraceBuilder(runner)
+        repo_cfg, paths = self._cfg()
+
+        with patch("builtins.print"):
+            result = builder.build_baseline(
+                "curl", repo_cfg, paths,
+            )
+        self.assertIsNone(result)
+
+    def test_build_failure(self):
+        runner = MagicMock()
+        # clean ok, 2 prebuild ok, build fails
+        runner.run.side_effect = [0, 0, 0, 1]
+        builder = BomtraceBuilder(runner)
+        repo_cfg, paths = self._cfg()
+
+        with patch("builtins.print"):
+            result = builder.build_baseline(
+                "curl", repo_cfg, paths,
+            )
+        self.assertIsNone(result)
+
+
 class TestBomtraceBuilderJava(unittest.TestCase):
     """Tests for BomtraceBuilder.build_java()."""
 
@@ -3278,6 +3378,65 @@ class TestMainGoRepo(unittest.TestCase):
             analyze.main()
 
         p.syft_gen.generate.assert_called_once()
+
+
+class TestBaseline(unittest.TestCase):
+    """Tests for --baseline mode."""
+
+    @patch(
+        "app.pipeline.timing.save_baseline",
+    )
+    @patch("app.pipeline.runners.AnalysisPipeline")
+    @patch(
+        "sys.argv",
+        ["analyze.py", "--repo", "curl",
+         "--baseline", "--skip-clone"],
+    )
+    def test_baseline_success(
+        self, mock_cls, mock_save,
+    ):
+        p = _mock_pipeline()
+        mock_cls.return_value = p
+        p.builder.build_baseline.return_value = (
+            StepMetrics(
+                name="baseline", phase="phase1",
+                wall_sec=8.0,
+                cpu_user_sec=6.0, cpu_sys_sec=1.5,
+            )
+        )
+
+        with patch("builtins.print"):
+            analyze.main()
+
+        p.builder.build_baseline\
+            .assert_called_once()
+        # No Phase 2 in baseline mode
+        p.spdx_gen.generate.assert_not_called()
+        p.binary_collector.collect\
+            .assert_not_called()
+        mock_save.assert_called_once()
+
+    @patch(
+        "app.pipeline.timing.save_baseline",
+    )
+    @patch("app.pipeline.runners.AnalysisPipeline")
+    @patch(
+        "sys.argv",
+        ["analyze.py", "--repo", "curl",
+         "--baseline", "--skip-clone"],
+    )
+    def test_baseline_build_failure(
+        self, mock_cls, mock_save,
+    ):
+        p = _mock_pipeline()
+        mock_cls.return_value = p
+        # build_baseline returns None on failure
+        p.builder.build_baseline.return_value = None
+
+        with patch("builtins.print"):
+            analyze.main()
+
+        mock_save.assert_not_called()
 
 
 class TestRunGoPipeline(unittest.TestCase):

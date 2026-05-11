@@ -16,6 +16,7 @@ from app.pipeline.timing import (
     StepMetrics,
     TimingResult,
     StepTimer,
+    infer_parallelism,
     save_runtime_json,
     load_baseline,
     save_baseline,
@@ -105,7 +106,61 @@ class TestStepMetrics(unittest.TestCase):
         self.assertEqual(m.cpu_user_sec, 0.0)
         self.assertEqual(m.cpu_sys_sec, 0.0)
         self.assertEqual(m.cpu_count, 1)
+        self.assertEqual(m.expected_parallelism, 1)
         self.assertFalse(m.contention)
+
+    def test_contention_severity_no_contention(self):
+        m = StepMetrics(
+            name="build", phase="phase1",
+            wall_sec=10.0,
+            cpu_user_sec=8.0, cpu_sys_sec=1.5,
+            contention=False,
+        )
+        self.assertAlmostEqual(
+            m.contention_severity, 0.0,
+        )
+
+    def test_contention_severity_with_contention(self):
+        m = StepMetrics(
+            name="build", phase="phase1",
+            wall_sec=10.0,
+            cpu_user_sec=1.0, cpu_sys_sec=0.0,
+            cpu_count=4,
+            expected_parallelism=4,
+            contention=True,
+        )
+        # efficiency = 0.1, threshold = min(4,4)*0.7 = 2.8
+        # severity = (1 - 0.1/2.8) * 100 = 96.4%
+        self.assertGreater(
+            m.contention_severity, 90.0,
+        )
+
+    def test_contention_severity_zero_wall(self):
+        m = StepMetrics(
+            name="build", phase="phase1",
+            wall_sec=0.0, contention=True,
+        )
+        self.assertAlmostEqual(
+            m.contention_severity, 0.0,
+        )
+
+    def test_to_dict_includes_severity(self):
+        m = StepMetrics(
+            name="build", phase="phase1",
+            wall_sec=10.0,
+            cpu_user_sec=1.0, cpu_sys_sec=0.0,
+            cpu_count=4,
+            expected_parallelism=4,
+            contention=True,
+        )
+        d = m.to_dict()
+        self.assertIn("contention_severity", d)
+        self.assertGreater(
+            d["contention_severity"], 0,
+        )
+        self.assertIn(
+            "expected_parallelism", d,
+        )
 
 
 # ============================================================
@@ -167,6 +222,41 @@ class TestTimingResult(unittest.TestCase):
         self.assertEqual(t.phase2_total, 0.0)
         self.assertEqual(t.total, 0.0)
 
+    def test_contention_steps_none(self):
+        t = self._make_timing()
+        self.assertEqual(len(t.contention_steps), 0)
+
+    def test_contention_steps_some(self):
+        t = TimingResult(
+            tracer="x", success=True,
+            steps=[
+                StepMetrics(
+                    name="a", phase="phase1",
+                    wall_sec=5.0, contention=True,
+                ),
+                StepMetrics(
+                    name="b", phase="phase1",
+                    wall_sec=10.0, contention=False,
+                ),
+                StepMetrics(
+                    name="c", phase="phase2",
+                    wall_sec=3.0, contention=True,
+                ),
+            ],
+        )
+        self.assertEqual(len(t.contention_steps), 2)
+        self.assertAlmostEqual(
+            t.contention_total_sec, 8.0,
+        )
+        # 8/18 * 100 = 44.4%
+        self.assertAlmostEqual(
+            t.contention_pct, 44.4, places=1,
+        )
+
+    def test_contention_pct_empty(self):
+        t = TimingResult(tracer="x", success=True)
+        self.assertAlmostEqual(t.contention_pct, 0.0)
+
     def test_to_dict(self):
         t = self._make_timing()
         d = t.to_dict()
@@ -177,6 +267,15 @@ class TestTimingResult(unittest.TestCase):
         self.assertEqual(d["total_sec"], 16.0)
         self.assertEqual(len(d["steps"]), 4)
         self.assertIsInstance(d["steps"][0], dict)
+
+    def test_to_dict_contention_summary(self):
+        t = self._make_timing()
+        d = t.to_dict()
+        cs = d["contention_summary"]
+        self.assertEqual(cs["steps_flagged"], 0)
+        self.assertEqual(cs["total_steps"], 4)
+        self.assertEqual(cs["duration_sec"], 0.0)
+        self.assertEqual(cs["pct_of_total"], 0.0)
 
     def test_to_dict_rounds(self):
         t = TimingResult(
@@ -440,10 +539,29 @@ class TestSaveBaseline(unittest.TestCase):
             repo_cfg = {"language": "java"}
             with patch("builtins.print"):
                 result = save_baseline(
-                    m, paths, "checkstyle", repo_cfg,
+                    m, paths, "checkstyle",
+                    repo_cfg,
                 )
             self.assertIn("baseline.json", result)
             self.assertIn("java", result)
+
+    def test_includes_run_ts(self):
+        m = StepMetrics(
+            name="build", phase="phase1",
+            wall_sec=5.0,
+        )
+        with tempfile.TemporaryDirectory() as td:
+            paths = {"output_dir": td}
+            repo_cfg = {"language": "go"}
+            with patch("builtins.print"):
+                result = save_baseline(
+                    m, paths, "fzf", repo_cfg,
+                    run_ts="2026-05-11_0900",
+                )
+            data = json.loads(Path(result).read_text())
+            self.assertEqual(
+                data["run_ts"], "2026-05-11_0900",
+            )
 
 
 # ============================================================
@@ -455,6 +573,176 @@ class TestContentionThreshold(unittest.TestCase):
 
     def test_threshold_value(self):
         self.assertEqual(CONTENTION_THRESHOLD, 0.70)
+
+
+# ============================================================
+# Doc writer formatting (contention-related)
+# ============================================================
+
+class TestFormatContention(unittest.TestCase):
+    """Tests for contention formatting in doc_writer."""
+
+    def test_no_contention_message(self):
+        from app.pipeline.doc_writer import (
+            _format_contention_summary,
+        )
+        t = TimingResult(
+            tracer="x", success=True,
+            steps=[
+                StepMetrics(
+                    name="build", phase="phase1",
+                    wall_sec=10.0,
+                ),
+            ],
+        )
+        result = _format_contention_summary(t)
+        self.assertIn("No contention detected", result)
+        self.assertIn("1 steps", result)
+
+    def test_contention_summary_content(self):
+        from app.pipeline.doc_writer import (
+            _format_contention_summary,
+        )
+        t = TimingResult(
+            tracer="x", success=True,
+            steps=[
+                StepMetrics(
+                    name="build", phase="phase1",
+                    wall_sec=40.0,
+                    cpu_user_sec=1.0, cpu_sys_sec=0.0,
+                    cpu_count=4,
+                    expected_parallelism=4,
+                    contention=True,
+                ),
+                StepMetrics(
+                    name="spdx_gen", phase="phase2",
+                    wall_sec=5.0,
+                ),
+            ],
+        )
+        result = _format_contention_summary(t)
+        self.assertIn("1 of 2", result)
+        self.assertIn("40.0s", result)
+        self.assertIn("Most severe", result)
+        self.assertIn("Build", result)
+
+    def test_timing_table_has_expected_col(self):
+        from app.pipeline.doc_writer import (
+            _format_timing_table,
+        )
+        t = TimingResult(
+            tracer="x", success=True,
+            steps=[
+                StepMetrics(
+                    name="build", phase="phase1",
+                    wall_sec=10.0,
+                    expected_parallelism=4,
+                    cpu_user_sec=8.0,
+                    cpu_sys_sec=1.0,
+                ),
+            ],
+        )
+        result = _format_timing_table(t)
+        self.assertIn("Expected", result)
+        self.assertIn("4x", result)
+        self.assertIn("\u2014", result)
+
+
+# ============================================================
+# infer_parallelism
+# ============================================================
+
+class TestInferParallelism(unittest.TestCase):
+    """Tests for infer_parallelism()."""
+
+    def test_make_j_nproc(self):
+        self.assertEqual(
+            infer_parallelism(
+                "make -j$(nproc)", cpu_count=8,
+            ), 8,
+        )
+
+    def test_make_j_number(self):
+        self.assertEqual(
+            infer_parallelism(
+                "make -j4", cpu_count=8,
+            ), 4,
+        )
+
+    def test_make_j1(self):
+        self.assertEqual(
+            infer_parallelism(
+                "make -j1", cpu_count=4,
+            ), 1,
+        )
+
+    def test_bare_make(self):
+        self.assertEqual(
+            infer_parallelism(
+                "make", cpu_count=4,
+            ), 1,
+        )
+
+    def test_make_clean(self):
+        self.assertEqual(
+            infer_parallelism(
+                "make clean", cpu_count=4,
+            ), 1,
+        )
+
+    def test_go_build(self):
+        self.assertEqual(
+            infer_parallelism(
+                "go build -a -trimpath -o fzf .",
+                cpu_count=4,
+            ), 4,
+        )
+
+    def test_cargo_build(self):
+        self.assertEqual(
+            infer_parallelism(
+                "cargo build --release",
+                cpu_count=8,
+            ), 8,
+        )
+
+    def test_mvn(self):
+        self.assertEqual(
+            infer_parallelism(
+                "mvn package -DskipTests -q",
+                cpu_count=4,
+            ), 1,
+        )
+
+    def test_gradlew(self):
+        self.assertEqual(
+            infer_parallelism(
+                "./gradlew :prov:build -x test",
+                cpu_count=4,
+            ), 4,
+        )
+
+    def test_unknown_tool(self):
+        self.assertEqual(
+            infer_parallelism(
+                "./build.sh", cpu_count=4,
+            ), 1,
+        )
+
+    def test_cmake_make_j(self):
+        self.assertEqual(
+            infer_parallelism(
+                "make -j$(nproc)", cpu_count=16,
+            ), 16,
+        )
+
+    def test_env_prefix_mvn(self):
+        self.assertEqual(
+            infer_parallelism(
+                "env JAVA_HOME=/usr mvn install",
+                cpu_count=4,
+            ), 1,
+        )
 
 
 if __name__ == "__main__":

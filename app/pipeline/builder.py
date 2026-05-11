@@ -15,7 +15,9 @@ from pathlib import Path
 from typing import List
 
 from app.config import lang_subdir, timestamp
-from app.pipeline.timing import StepMetrics, StepTimer
+from app.pipeline.timing import (
+    StepMetrics, StepTimer, infer_parallelism,
+)
 from app.runner import CommandRunner
 
 
@@ -87,11 +89,11 @@ class BomtraceBuilder:
                 # fail on a fresh clone
             result.steps.append(timer.metrics)
 
-        # --- Phase 1b: Configure (pre-build steps) ---
+        # --- Phase 1b: Pre-build steps ---
         build_steps = repo_cfg["build_steps"]
         pre_steps = build_steps[:-1]
         if pre_steps:
-            timer = StepTimer("configure", "phase1")
+            timer = StepTimer("prebuild", "phase1")
             with timer:
                 for step in pre_steps:
                     rc = self.runner.run(
@@ -124,7 +126,10 @@ class BomtraceBuilder:
             instrumented = f"{tracer} {make_cmd}"
             env = None
 
-        timer = StepTimer("build", "phase1")
+        parallelism = infer_parallelism(make_cmd)
+        timer = StepTimer(
+            "build", "phase1", parallelism,
+        )
         with timer:
             rc = self.runner.run(
                 instrumented, cwd=str(repo_dir),
@@ -182,6 +187,73 @@ class BomtraceBuilder:
         result.success = True
         return result
 
+    def build_baseline(
+        self, repo_name, repo_cfg, paths_cfg,
+    ):
+        """Run non-instrumented build for baseline timing.
+
+        Executes clean + prebuild + build WITHOUT any
+        tracer (no bomtrace/strace).  The entire Phase 1
+        is timed as one aggregate measurement so the
+        result can be compared against instrumented Phase 1
+        to compute overhead.
+
+        Returns:
+            ``StepMetrics`` for the full Phase 1, or
+            ``None`` if the build failed.
+        """
+        repo_dir = (
+            Path(paths_cfg["repos_dir"]) / repo_name
+        )
+        build_steps = repo_cfg["build_steps"]
+        clean_cmd = repo_cfg.get("clean_cmd")
+        pre_steps = build_steps[:-1]
+        make_cmd = build_steps[-1]
+
+        parallelism = infer_parallelism(make_cmd)
+        timer = StepTimer(
+            "baseline", "phase1", parallelism,
+        )
+        with timer:
+            # Clean (ignore exit code)
+            if clean_cmd:
+                self.runner.run(
+                    clean_cmd, cwd=str(repo_dir),
+                    description=(
+                        f"Clean: {clean_cmd}"
+                    ),
+                )
+
+            # Pre-build steps
+            for step in pre_steps:
+                rc = self.runner.run(
+                    step, cwd=str(repo_dir),
+                    description=(
+                        f"Pre-build: {step[:60]}"
+                    ),
+                )
+                if rc != 0:
+                    print(
+                        "[ERROR] Baseline pre-build "
+                        f"failed: {step}"
+                    )
+                    return None
+
+            # Build (NO tracer)
+            rc = self.runner.run(
+                make_cmd, cwd=str(repo_dir),
+                description=(
+                    f"Baseline: {make_cmd[:60]}"
+                ),
+            )
+            if rc != 0:
+                print(
+                    "[ERROR] Baseline build failed"
+                )
+                return None
+
+        return timer.metrics
+
     def build_java(
         self, repo_name, repo_cfg,
         paths_cfg, omnibor_java_cfg,
@@ -227,11 +299,11 @@ class BomtraceBuilder:
                 )
             result.steps.append(timer.metrics)
 
-        # --- Phase 1b: Configure (pre-build steps) ---
+        # --- Phase 1b: Pre-build steps ---
         build_steps = repo_cfg["build_steps"]
         pre_steps = build_steps[:-1]
         if pre_steps:
-            timer = StepTimer("configure", "phase1")
+            timer = StepTimer("prebuild", "phase1")
             with timer:
                 for step in pre_steps:
                     rc = self.runner.run(
@@ -257,7 +329,10 @@ class BomtraceBuilder:
             f"strace {strace_opts} -o {strace_log} "
             f"{build_cmd}"
         )
-        timer = StepTimer("build", "phase1")
+        parallelism = infer_parallelism(build_cmd)
+        timer = StepTimer(
+            "build", "phase1", parallelism,
+        )
         with timer:
             rc = self.runner.run(
                 instrumented, cwd=str(repo_dir),

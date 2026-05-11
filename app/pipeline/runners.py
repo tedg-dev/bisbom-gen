@@ -65,6 +65,13 @@ def main():
             f"Default: {DEFAULT_MODE}"
         ),
     )
+    parser.add_argument(
+        "--baseline", action="store_true",
+        help=(
+            "Run non-instrumented build to capture "
+            "baseline timing. No Phase 2 analysis."
+        ),
+    )
     args = parser.parse_args()
 
     config = load_config()
@@ -153,6 +160,14 @@ def main():
             "[WARN] Could not resolve commit SHA"
         )
 
+    # Baseline mode: non-instrumented build only
+    if args.baseline:
+        _run_baseline(
+            args.repo, repo_cfg, paths_cfg,
+            run_ts, pipeline,
+        )
+        return
+
     # Step 2: Syft SBOM (manifest-based — optional,
     # disabled by default in config.yaml).
     # --syft-only CLI flag overrides config.
@@ -212,6 +227,14 @@ def main():
             paths_cfg, run_ts,
         )
 
+    # Load baseline (golden reference) for overhead calc
+    from app.pipeline.timing import (
+        load_baseline, save_runtime_json,
+    )
+    baseline = load_baseline(
+        paths_cfg, args.repo, repo_cfg,
+    )
+
     # Step 8: Write docs (all languages)
     raw_logfile = omnibor_cfg.get("raw_logfile")
     pipeline.docs.write_build_doc(
@@ -227,15 +250,10 @@ def main():
         duration, run_ts=run_ts,
         tracer=timing.tracer,
         timing=timing,
+        baseline=baseline,
     )
 
     # Save runtime.json
-    from app.pipeline.timing import (
-        load_baseline, save_runtime_json,
-    )
-    baseline = load_baseline(
-        paths_cfg, args.repo, repo_cfg,
-    )
     save_runtime_json(
         timing, paths_cfg, args.repo,
         repo_cfg, run_ts,
@@ -261,6 +279,42 @@ def main():
                 f"  Baseline: {bl:.1f}s  "
                 f"Overhead: {overhead:+.1f}%"
             )
+    print(f"{'#'*60}\n")
+
+
+def _run_baseline(
+    repo_name, repo_cfg, paths_cfg,
+    run_ts, pipeline,
+):
+    """Run non-instrumented build and save baseline.
+
+    Delegates to ``BomtraceBuilder.build_baseline()``
+    which runs clean + prebuild + build WITHOUT tracer.
+    The entire Phase 1 is timed as one aggregate
+    ``StepMetrics`` and saved as ``baseline.json``.
+    """
+    from app.pipeline.timing import save_baseline
+
+    print(f"\n[BASELINE] {repo_name}: "
+          "non-instrumented build")
+
+    metrics = pipeline.builder.build_baseline(
+        repo_name, repo_cfg, paths_cfg,
+    )
+    if metrics is None:
+        print(f"[ERROR] Baseline failed: {repo_name}")
+        return
+
+    save_baseline(
+        metrics, paths_cfg, repo_name,
+        repo_cfg, run_ts=run_ts,
+    )
+
+    print(
+        f"[BASELINE] {repo_name}: "
+        f"{metrics.wall_sec:.1f}s "
+        f"(CPU eff: {metrics.cpu_efficiency:.2f}x)"
+    )
     print(f"{'#'*60}\n")
 
 

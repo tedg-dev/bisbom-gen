@@ -232,6 +232,9 @@ class DocWriter:
             content += _format_phase_summary(
                 timing, baseline,
             )
+            content += _format_contention_summary(
+                timing,
+            )
 
         build_cmd = repo_cfg.get(
             "build_steps", ["unknown"]
@@ -262,7 +265,7 @@ class DocWriter:
 
 _STEP_LABELS = {
     "clean": "Clean",
-    "configure": "Configure",
+    "prebuild": "Pre-Build",
     "build": "Build",
     "adg": "ADG Generation",
     "omnibor_sbom": "OmniBOR SBOM",
@@ -282,14 +285,15 @@ def _format_timing_table(timing):
     """Format per-step timing as a markdown table.
 
     Each row shows step name, phase, wall time,
-    CPU efficiency, and contention flag.
+    expected parallelism, actual CPU efficiency,
+    and contention severity.
     """
     lines = [
         "\n## Per-Step Timing\n",
         "| Step | Phase | Wall (s) "
-        "| CPU Eff | Flag |",
+        "| Expected | CPU Eff | Contention |",
         "|------|-------|----------"
-        "|---------|------|",
+        "|----------|---------|------------|",
     ]
     for step in timing.steps:
         label = _STEP_LABELS.get(
@@ -298,12 +302,17 @@ def _format_timing_table(timing):
         phase = _PHASE_LABELS.get(
             step.phase, step.phase,
         )
-        flag = "CONTENTION" if step.contention else ""
+        exp = f"{step.expected_parallelism}x"
         eff = f"{step.cpu_efficiency:.2f}x"
+        if step.contention:
+            sev = step.contention_severity
+            flag = f"\u26a0 {sev:.0f}% below"
+        else:
+            flag = "\u2014"
         lines.append(
             f"| {label} | {phase} "
             f"| {step.wall_sec:.1f} "
-            f"| {eff} | {flag} |"
+            f"| {exp} | {eff} | {flag} |"
         )
     lines.append("")
     return "\n".join(lines)
@@ -342,5 +351,50 @@ def _format_phase_summary(timing, baseline=None):
             lines.append(
                 f"- **Overhead:** {overhead:+.1f}%"
             )
+    lines.append("")
+    return "\n".join(lines)
+
+
+def _format_contention_summary(timing):
+    """Format aggregate contention analysis section.
+
+    Reports how many steps had contention, total time
+    under contention, percentage of pipeline time, and
+    the most severe step.
+    """
+    flagged = timing.contention_steps
+    total_steps = len(timing.steps)
+    if not flagged:
+        return (
+            "\n## Contention Analysis\n\n"
+            f"No contention detected across "
+            f"{total_steps} steps.\n"
+        )
+
+    dur = timing.contention_total_sec
+    pct = timing.contention_pct
+    lines = [
+        "\n## Contention Analysis\n",
+        f"- **Steps with contention:** "
+        f"{len(flagged)} of {total_steps}",
+        f"- **Total contention duration:** "
+        f"{dur:.1f}s of {timing.total:.1f}s "
+        f"({pct:.1f}%)",
+    ]
+
+    # Most severe step
+    worst = max(
+        flagged, key=lambda s: s.contention_severity,
+    )
+    worst_label = _STEP_LABELS.get(
+        worst.name, worst.name,
+    )
+    lines.append(
+        f"- **Most severe:** {worst_label} "
+        f"\u2014 {worst.cpu_efficiency:.2f}x actual "
+        f"vs {worst.expected_parallelism}x expected "
+        f"({worst.contention_severity:.0f}% below "
+        f"threshold)"
+    )
     lines.append("")
     return "\n".join(lines)
