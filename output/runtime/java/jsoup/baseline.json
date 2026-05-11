@@ -1,0 +1,22 @@
+{
+  "name": "baseline",
+  "phase": "phase1",
+  "wall_sec": 31.86,
+  "cpu_user_sec": 57.11,
+  "cpu_sys_sec": 1.91,
+  "cpu_count": 4,
+  "load_avg_start": [
+    4.51,
+    4.64,
+    4.26
+  ],
+  "load_avg_end": [
+    3.12,
+    4.29,
+    4.16
+  ],
+  "contention": false,
+  "cpu_total_sec": 59.02,
+  "cpu_efficiency": 1.85,
+  "run_ts": "2026-05-11_2142"
+}
