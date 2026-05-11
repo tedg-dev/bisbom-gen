@@ -95,8 +95,7 @@ class DocWriter:
         run_ts=None, tracer=None,
         raw_logfile=None,
         commit_sha=None,
-        capture_dur=None,
-        spdx_dur=None,
+        timing=None,
     ):
         """Write build log to output/build-logs/<lang>/<repo>/<ts>/."""
         ts = run_ts or timestamp()
@@ -109,20 +108,21 @@ class DocWriter:
         doc_path = docs_dir / "build.md"
 
         status = "SUCCESS" if success else "FAILED"
-        timing = (
+        timing_str = (
             f"**Duration:** {duration_sec:.1f}"
             " seconds"
         )
-        if capture_dur is not None:
-            timing += (
-                f" (capture: {capture_dur:.1f}s"
-                f" + SPDX: {spdx_dur:.1f}s)"
+        if timing:
+            timing_str += (
+                f" (build: {timing.phase1_total:.1f}s"
+                f" + analysis: "
+                f"{timing.phase2_total:.1f}s)"
             )
         content = (
-            f"# Build Log — {repo_name}\n\n"
+            f"# Build Log \u2014 {repo_name}\n\n"
             f"**Date:** {datetime.now().isoformat()}\n"
             f"**Status:** {status}\n"
-            f"{timing}\n\n"
+            f"{timing_str}\n\n"
             "## Repository\n\n"
             f"- **URL:** {repo_cfg['url']}\n"
             f"- **Branch:** "
@@ -182,6 +182,12 @@ class DocWriter:
                 "production/release binaries.\n"
             )
 
+        if timing:
+            content += _format_timing_table(timing)
+            content += _format_phase_summary(
+                timing, None,
+            )
+
         with open(
             doc_path, "w", encoding="utf-8"
         ) as f:
@@ -193,10 +199,10 @@ class DocWriter:
     @staticmethod
     def write_runtime_doc(
         repo_name, repo_cfg, paths_cfg,
-        duration_sec, baseline_sec=None,
+        duration_sec,
         run_ts=None, tracer=None,
-        capture_dur=None,
-        spdx_dur=None,
+        timing=None,
+        baseline=None,
     ):
         """Write runtime performance metrics."""
         ts = run_ts or timestamp()
@@ -212,49 +218,31 @@ class DocWriter:
             runtime_dir / "runtime.md"
         )
 
-        overhead_pct = ""
-        if baseline_sec and baseline_sec > 0:
-            pct = (
-                (duration_sec - baseline_sec)
-                / baseline_sec * 100
-            )
-            overhead_pct = (
-                f"\n**Bomtrace3 overhead:** "
-                f"{pct:.1f}%"
+        tracer_name = tracer or "unknown"
+        content = (
+            f"# Runtime Metrics \u2014 {repo_name}\n\n"
+            f"**Date:** "
+            f"{datetime.now().isoformat()}\n"
+            f"**Tracer:** {tracer_name}\n"
+            f"**Total:** {duration_sec:.1f} seconds\n"
+        )
+
+        if timing:
+            content += _format_timing_table(timing)
+            content += _format_phase_summary(
+                timing, baseline,
             )
 
         build_cmd = repo_cfg.get(
             "build_steps", ["unknown"]
         )[-1]
-        tracer_name = tracer or "unknown"
-        build_label = "Instrumented build time"
-        notes = (
+        content += (
+            "\n## Notes\n\n"
             f"- Measured wall-clock time for "
             f"{tracer_name}-instrumented "
             f"`{build_cmd}`\n"
             "- OmniBOR ADG + SPDX generated "
             "from build interception\n"
-        )
-
-        timing_breakdown = ""
-        if capture_dur is not None:
-            timing_breakdown = (
-                f"\n**Capture (build + interception):**"
-                f" {capture_dur:.1f} seconds\n"
-                f"**SPDX generation:** "
-                f"{spdx_dur:.1f} seconds\n"
-            )
-
-        content = (
-            f"# Runtime Metrics — {repo_name}\n\n"
-            f"**Date:** "
-            f"{datetime.now().isoformat()}\n"
-            f"**{build_label}:** "
-            f"{duration_sec:.1f} seconds\n"
-            f"{timing_breakdown}"
-            f"{overhead_pct}\n\n"
-            "## Notes\n\n"
-            f"{notes}"
         )
 
         with open(
@@ -266,3 +254,93 @@ class DocWriter:
             f"[OK] Runtime doc written to {doc_path}"
         )
         return str(doc_path)
+
+
+# ============================================================
+# Formatting helpers (module-level, used by both doc methods)
+# ============================================================
+
+_STEP_LABELS = {
+    "clean": "Clean",
+    "configure": "Configure",
+    "build": "Build",
+    "adg": "ADG Generation",
+    "omnibor_sbom": "OmniBOR SBOM",
+    "metadata": "Metadata",
+    "spdx_gen": "SPDX Generation",
+    "validate": "Validation",
+    "collect": "Binary Collection",
+}
+
+_PHASE_LABELS = {
+    "phase1": "Phase 1: Build Interception",
+    "phase2": "Phase 2: Post-Build Analysis",
+}
+
+
+def _format_timing_table(timing):
+    """Format per-step timing as a markdown table.
+
+    Each row shows step name, phase, wall time,
+    CPU efficiency, and contention flag.
+    """
+    lines = [
+        "\n## Per-Step Timing\n",
+        "| Step | Phase | Wall (s) "
+        "| CPU Eff | Flag |",
+        "|------|-------|----------"
+        "|---------|------|",
+    ]
+    for step in timing.steps:
+        label = _STEP_LABELS.get(
+            step.name, step.name,
+        )
+        phase = _PHASE_LABELS.get(
+            step.phase, step.phase,
+        )
+        flag = "CONTENTION" if step.contention else ""
+        eff = f"{step.cpu_efficiency:.2f}x"
+        lines.append(
+            f"| {label} | {phase} "
+            f"| {step.wall_sec:.1f} "
+            f"| {eff} | {flag} |"
+        )
+    lines.append("")
+    return "\n".join(lines)
+
+
+def _format_phase_summary(timing, baseline=None):
+    """Format phase totals and baseline comparison."""
+    p1 = timing.phase1_total
+    p2 = timing.phase2_total
+    total = p1 + p2
+
+    lines = [
+        "\n## Phase Summary\n",
+        f"- **Phase 1 (Build Interception):** "
+        f"{p1:.1f}s",
+        f"- **Phase 2 (Post-Build Analysis):** "
+        f"{p2:.1f}s",
+        f"- **Total:** {total:.1f}s",
+    ]
+
+    if baseline:
+        bl = baseline.get("wall_sec", 0)
+        if bl > 0:
+            overhead = (p1 - bl) / bl * 100
+            lines.append(
+                "\n### Baseline Comparison\n"
+            )
+            lines.append(
+                f"- **Non-instrumented build:** "
+                f"{bl:.1f}s"
+            )
+            lines.append(
+                f"- **Instrumented build "
+                f"(Phase 1):** {p1:.1f}s"
+            )
+            lines.append(
+                f"- **Overhead:** {overhead:+.1f}%"
+            )
+    lines.append("")
+    return "\n".join(lines)

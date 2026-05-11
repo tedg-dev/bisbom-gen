@@ -174,44 +174,36 @@ def main():
 
     # -------------------------------------------------
     # Language-specific pipeline branch
-    # Each returns (success, capture_dur, spdx_dur,
-    #               tracer_name).
+    # Each returns a TimingResult with per-step metrics.
     # -------------------------------------------------
     if lang == "c-cpp":
-        success, capture_dur, spdx_dur, tracer = (
-            run_c_cpp_pipeline(
-                pipeline, args.repo, repo_cfg,
-                paths_cfg, omnibor_cfg, run_ts,
-                vcs_uri=vcs_uri,
-            )
+        timing = run_c_cpp_pipeline(
+            pipeline, args.repo, repo_cfg,
+            paths_cfg, omnibor_cfg, run_ts,
+            vcs_uri=vcs_uri,
         )
     elif lang == "rust":
-        success, capture_dur, spdx_dur, tracer = (
-            run_rust_pipeline(
-                pipeline, args.repo, repo_cfg,
-                paths_cfg, omnibor_cfg, run_ts,
-                vcs_uri=vcs_uri,
-            )
+        timing = run_rust_pipeline(
+            pipeline, args.repo, repo_cfg,
+            paths_cfg, omnibor_cfg, run_ts,
+            vcs_uri=vcs_uri,
         )
     elif lang == "java":
         mode = config.get("mode", DEFAULT_MODE)
-        success, capture_dur, spdx_dur, tracer = (
-            run_java_pipeline(
-                pipeline, args.repo, repo_cfg,
-                paths_cfg, omnibor_cfg, run_ts,
-                vcs_uri=vcs_uri,
-                mode=mode,
-            )
+        timing = run_java_pipeline(
+            pipeline, args.repo, repo_cfg,
+            paths_cfg, omnibor_cfg, run_ts,
+            vcs_uri=vcs_uri,
+            mode=mode,
         )
     else:
-        success, capture_dur, spdx_dur, tracer = (
-            run_go_pipeline(
-                pipeline, args.repo, repo_cfg,
-                paths_cfg, omnibor_cfg, run_ts,
-                vcs_uri=vcs_uri,
-            )
+        timing = run_go_pipeline(
+            pipeline, args.repo, repo_cfg,
+            paths_cfg, omnibor_cfg, run_ts,
+            vcs_uri=vcs_uri,
         )
-    duration = capture_dur + spdx_dur
+    success = timing.success
+    duration = timing.total
 
     # Step 7b: Validate Syft SPDX (if enabled)
     if syft_enabled:
@@ -225,28 +217,50 @@ def main():
     pipeline.docs.write_build_doc(
         args.repo, repo_cfg, paths_cfg,
         success, duration,
-        run_ts=run_ts, tracer=tracer,
+        run_ts=run_ts, tracer=timing.tracer,
         raw_logfile=raw_logfile,
         commit_sha=commit_sha,
-        capture_dur=capture_dur,
-        spdx_dur=spdx_dur,
+        timing=timing,
     )
     pipeline.docs.write_runtime_doc(
         args.repo, repo_cfg, paths_cfg,
         duration, run_ts=run_ts,
-        tracer=tracer,
-        capture_dur=capture_dur,
-        spdx_dur=spdx_dur,
+        tracer=timing.tracer,
+        timing=timing,
     )
 
+    # Save runtime.json
+    from app.pipeline.timing import (
+        load_baseline, save_runtime_json,
+    )
+    baseline = load_baseline(
+        paths_cfg, args.repo, repo_cfg,
+    )
+    save_runtime_json(
+        timing, paths_cfg, args.repo,
+        repo_cfg, run_ts,
+        baseline=baseline,
+    )
+
+    # Console summary
+    p1 = timing.phase1_total
+    p2 = timing.phase2_total
     status = "COMPLETE" if success else "FAILED"
     print(f"\n{'#'*60}")
     print(f"  Analysis {status}: {args.repo}")
     print(
-        f"  Capture: {capture_dur:.1f}s  "
-        f"SPDX: {spdx_dur:.1f}s  "
+        f"  Build: {p1:.1f}s  "
+        f"Analysis: {p2:.1f}s  "
         f"Total: {duration:.1f}s"
     )
+    if baseline:
+        bl = baseline.get("wall_sec", 0)
+        if bl > 0:
+            overhead = (p1 - bl) / bl * 100
+            print(
+                f"  Baseline: {bl:.1f}s  "
+                f"Overhead: {overhead:+.1f}%"
+            )
     print(f"{'#'*60}\n")
 
 

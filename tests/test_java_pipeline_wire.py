@@ -17,6 +17,7 @@ from app.pipeline.interception import (
     MavenDepTreeStrategy,
     GradleDepTreeStrategy,
 )
+from app.pipeline.builder import BuildResult
 
 
 class TestSelectJavaStrategy(unittest.TestCase):
@@ -91,8 +92,12 @@ class TestRunJavaPipelineMode(unittest.TestCase):
 
     def _setup(self):
         pipeline = MagicMock()
-        pipeline.builder.build_java.return_value = True
-        pipeline.builder.build.return_value = True
+        pipeline.builder.build_java.return_value = (
+            BuildResult(success=True)
+        )
+        pipeline.builder.build.return_value = (
+            BuildResult(success=True)
+        )
         pipeline.spdx_gen.generate_java.return_value = (
             "/out/spdx.json"
         )
@@ -133,14 +138,14 @@ class TestRunJavaPipelineMode(unittest.TestCase):
     def test_standalone_uses_build_java(self, _):
         pipeline = self._setup()
         with patch("builtins.print"):
-            ok, _cap, _spdx, tracer = run_java_pipeline(
+            timing = run_java_pipeline(
                 pipeline, "jsoup",
                 self._repo_cfg(), self._paths(),
                 self._omnibor(), "2024-01-01",
                 mode="standalone",
             )
-        self.assertTrue(ok)
-        self.assertEqual(tracer, "strace")
+        self.assertTrue(timing.success)
+        self.assertEqual(timing.tracer, "strace")
         pipeline.builder.build_java\
             .assert_called_once()
         pipeline.builder.build\
@@ -161,14 +166,16 @@ class TestRunJavaPipelineMode(unittest.TestCase):
     ):
         pipeline = self._setup()
         with patch("builtins.print"):
-            ok, _cap, _spdx, tracer = run_java_pipeline(
+            timing = run_java_pipeline(
                 pipeline, "jsoup",
                 self._repo_cfg(), self._paths(),
                 self._omnibor(), "2024-01-01",
                 mode="sidecar",
             )
-        self.assertTrue(ok)
-        self.assertEqual(tracer, "maven-dep-tree")
+        self.assertTrue(timing.success)
+        self.assertEqual(
+            timing.tracer, "maven-dep-tree",
+        )
         pipeline.builder.build\
             .assert_called_once()
         # Verify strategy was passed
@@ -189,12 +196,12 @@ class TestRunJavaPipelineMode(unittest.TestCase):
     def test_default_mode_is_standalone(self, _):
         pipeline = self._setup()
         with patch("builtins.print"):
-            _ok, _cap, _spdx, tracer = run_java_pipeline(
+            timing = run_java_pipeline(
                 pipeline, "jsoup",
                 self._repo_cfg(), self._paths(),
                 self._omnibor(), "2024-01-01",
             )
-        self.assertEqual(tracer, "strace")
+        self.assertEqual(timing.tracer, "strace")
         # Default mode=standalone -> build_java
         pipeline.builder.build_java\
             .assert_called_once()

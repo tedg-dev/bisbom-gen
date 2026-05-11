@@ -4,13 +4,17 @@ Language-specific pipeline runners.
 Contains the per-language orchestration functions that run
 the build→SPDX→validate→collect workflow for C/C++, Rust,
 Go, and Java repositories.
+
+Each runner returns a ``TimingResult`` with per-step
+metrics for Phase 1 (build interception) and Phase 2
+(post-build analysis).
 """
 
 import sys
-import time
 from pathlib import Path
 
 from app.config import lang_subdir
+from app.pipeline.timing import StepTimer, TimingResult
 
 
 # ============================================================
@@ -26,74 +30,56 @@ def run_c_cpp_pipeline(
     OmniBOR SPDX, metadata, ADG SPDX, validation,
     binary collection.
 
-    Returns (success, capture_dur, spdx_dur, tracer).
+    Returns ``TimingResult`` with per-step metrics.
     """
     tracer = omnibor_cfg.get("tracer", "bomtrace3")
+    timing = TimingResult(tracer=tracer)
 
-    # Step 3: Validate apt dependencies
+    # Validate apt dependencies
     deps_ok, missing = (
         pipeline.validator.validate(repo_cfg)
     )
     if not deps_ok:
         print(
-            "[ERROR] Cannot proceed — "
+            "[ERROR] Cannot proceed \u2014 "
             f"{len(missing)} missing package(s). "
             "Add them to the Dockerfile and "
             "rebuild the image."
         )
         sys.exit(1)
 
-    # Step 4: Instrumented build (timed separately)
-    start = time.time()
-    success = pipeline.builder.build(
+    # Phase 1: Build (clean + configure + build + ADG)
+    build_result = pipeline.builder.build(
         repo_name, repo_cfg,
         paths_cfg, omnibor_cfg,
         run_ts=run_ts,
     )
-    capture_dur = time.time() - start
+    timing.steps.extend(build_result.steps)
+    timing.success = build_result.success
+    if not build_result.success:
+        return timing
 
-    # Steps 5-7: SPDX generation + validation (timed)
-    spdx_start = time.time()
-    spdx_file = None
-    if success:
-        spdx_file = pipeline.spdx_gen.generate(
-            repo_name, repo_cfg,
-            paths_cfg, omnibor_cfg,
-            run_ts=run_ts,
-            vcs_uri=vcs_uri,
+    # Phase 2: Post-build analysis
+    timing.steps.extend(
+        _run_post_build(
+            pipeline, repo_name, repo_cfg,
+            paths_cfg, run_ts,
+            sbom_fn=lambda: pipeline.spdx_gen.generate(
+                repo_name, repo_cfg,
+                paths_cfg, omnibor_cfg,
+                run_ts=run_ts,
+                vcs_uri=vcs_uri,
+            ),
+            spdx_gen_fn=lambda: (
+                pipeline.adg_spdx.generate(
+                    repo_name, repo_cfg, paths_cfg,
+                    run_ts=run_ts,
+                    vcs_uri=vcs_uri,
+                )
+            ),
         )
-
-    # Step 5b: Collect component metadata + dynamic libs
-    if success:
-        pipeline.metadata_collector.collect(
-            repo_name, repo_cfg, paths_cfg,
-            run_ts=run_ts,
-        )
-
-    # Step 5c: Generate per-binary ADG SPDX
-    adg_files = []
-    if success:
-        adg_files = pipeline.adg_spdx.generate(
-            repo_name, repo_cfg, paths_cfg,
-            run_ts=run_ts,
-            vcs_uri=vcs_uri,
-        )
-
-    # Step 6: Validate SPDX documents
-    if spdx_file:
-        pipeline.spdx_validator.validate(spdx_file)
-    for adg_file in adg_files:
-        pipeline.spdx_validator.validate(adg_file)
-
-    # Step 7: Collect output binaries
-    if success:
-        pipeline.binary_collector.collect(
-            repo_name, repo_cfg, paths_cfg,
-            run_ts=run_ts,
-        )
-    spdx_dur = time.time() - spdx_start
-
-    return success, capture_dur, spdx_dur, tracer
+    )
+    return timing
 
 
 # ============================================================
@@ -117,63 +103,45 @@ def run_rust_pipeline(
     See: https://github.com/omnibor/bomsh
     #software-vulnerability-cve-search-for-rust-packages
 
-    Returns (success, capture_dur, spdx_dur, tracer).
+    Returns ``TimingResult`` with per-step metrics.
     """
     tracer = omnibor_rust_cfg.get(
         "tracer", "bomtrace2",
     )
+    timing = TimingResult(tracer=tracer)
 
-    # Step 4: Instrumented build (timed separately)
-    start = time.time()
-    success = pipeline.builder.build(
+    # Phase 1: Build
+    build_result = pipeline.builder.build(
         repo_name, repo_cfg,
         paths_cfg, omnibor_rust_cfg,
         run_ts=run_ts,
     )
-    capture_dur = time.time() - start
+    timing.steps.extend(build_result.steps)
+    timing.success = build_result.success
+    if not build_result.success:
+        return timing
 
-    # Steps 5-7: SPDX generation + validation (timed)
-    spdx_start = time.time()
-    spdx_file = None
-    if success:
-        spdx_file = pipeline.spdx_gen.generate(
-            repo_name, repo_cfg,
-            paths_cfg, omnibor_rust_cfg,
-            run_ts=run_ts,
-            vcs_uri=vcs_uri,
+    # Phase 2: Post-build analysis
+    timing.steps.extend(
+        _run_post_build(
+            pipeline, repo_name, repo_cfg,
+            paths_cfg, run_ts,
+            sbom_fn=lambda: pipeline.spdx_gen.generate(
+                repo_name, repo_cfg,
+                paths_cfg, omnibor_rust_cfg,
+                run_ts=run_ts,
+                vcs_uri=vcs_uri,
+            ),
+            spdx_gen_fn=lambda: (
+                pipeline.adg_spdx.generate(
+                    repo_name, repo_cfg, paths_cfg,
+                    run_ts=run_ts,
+                    vcs_uri=vcs_uri,
+                )
+            ),
         )
-
-    # Step 5b: Collect component metadata
-    if success:
-        pipeline.metadata_collector.collect(
-            repo_name, repo_cfg, paths_cfg,
-            run_ts=run_ts,
-        )
-
-    # Step 5c: Generate per-binary ADG SPDX
-    adg_files = []
-    if success:
-        adg_files = pipeline.adg_spdx.generate(
-            repo_name, repo_cfg, paths_cfg,
-            run_ts=run_ts,
-            vcs_uri=vcs_uri,
-        )
-
-    # Step 6: Validate SPDX documents
-    if spdx_file:
-        pipeline.spdx_validator.validate(spdx_file)
-    for adg_file in adg_files:
-        pipeline.spdx_validator.validate(adg_file)
-
-    # Step 7: Collect output binaries
-    if success:
-        pipeline.binary_collector.collect(
-            repo_name, repo_cfg, paths_cfg,
-            run_ts=run_ts,
-        )
-    spdx_dur = time.time() - spdx_start
-
-    return success, capture_dur, spdx_dur, tracer
+    )
+    return timing
 
 
 # ============================================================
@@ -248,73 +216,55 @@ def run_java_pipeline(
     In standalone mode (default): strace + bomsh_create_bom_java.py.
     In sidecar mode: dep:tree strategy (no strace needed).
 
-    Returns (success, capture_dur, spdx_dur, tracer).
+    Returns ``TimingResult`` with per-step metrics.
     """
     strategy = _select_java_strategy(
         repo_name, repo_cfg, paths_cfg, mode,
     )
+    tracer = strategy.name if strategy else "strace"
+    timing = TimingResult(tracer=tracer)
 
-    # Step 4: Build (timed separately)
-    start = time.time()
+    # Phase 1: Build
     if strategy:
-        # Sidecar: use builder.build() with strategy
-        success = pipeline.builder.build(
+        build_result = pipeline.builder.build(
             repo_name, repo_cfg,
             paths_cfg, omnibor_java_cfg,
             run_ts=run_ts,
             strategy=strategy,
         )
     else:
-        # Standalone: legacy strace path
-        success = pipeline.builder.build_java(
+        build_result = pipeline.builder.build_java(
             repo_name, repo_cfg,
             paths_cfg, omnibor_java_cfg,
             run_ts=run_ts,
         )
-    capture_dur = time.time() - start
+    timing.steps.extend(build_result.steps)
+    timing.success = build_result.success
+    if not build_result.success:
+        return timing
 
-    # Steps 5-7: SPDX generation + validation (timed)
-    spdx_start = time.time()
-    spdx_file = None
-    if success:
-        spdx_file = pipeline.spdx_gen.generate_java(
-            repo_name, repo_cfg,
-            paths_cfg, omnibor_java_cfg,
-            run_ts=run_ts,
+    # Phase 2: Post-build analysis
+    timing.steps.extend(
+        _run_post_build(
+            pipeline, repo_name, repo_cfg,
+            paths_cfg, run_ts,
+            sbom_fn=lambda: (
+                pipeline.spdx_gen.generate_java(
+                    repo_name, repo_cfg,
+                    paths_cfg, omnibor_java_cfg,
+                    run_ts=run_ts,
+                )
+            ),
+            spdx_gen_fn=lambda: (
+                generate_java_adg_spdx(
+                    repo_name, repo_cfg,
+                    paths_cfg, run_ts,
+                    vcs_uri=vcs_uri,
+                )
+            ),
         )
-
-    # Step 5b: Collect component metadata
-    if success:
-        pipeline.metadata_collector.collect(
-            repo_name, repo_cfg, paths_cfg,
-            run_ts=run_ts,
-        )
-
-    # Step 5c: Generate per-binary ADG SPDX (Java-specific)
-    adg_files = []
-    if success:
-        adg_files = generate_java_adg_spdx(
-            repo_name, repo_cfg, paths_cfg, run_ts,
-            vcs_uri=vcs_uri,
-        )
-
-    # Step 6: Validate SPDX documents
-    if spdx_file:
-        pipeline.spdx_validator.validate(spdx_file)
-    for adg_file in adg_files:
-        pipeline.spdx_validator.validate(adg_file)
-
-    # Step 7: Collect output JARs
-    if success:
-        pipeline.binary_collector.collect(
-            repo_name, repo_cfg, paths_cfg,
-            run_ts=run_ts,
-        )
-
-    spdx_dur = time.time() - spdx_start
-
-    tracer = strategy.name if strategy else "strace"
-    return success, capture_dur, spdx_dur, tracer
+    )
+    return timing
 
 
 def generate_java_adg_spdx(
@@ -514,60 +464,116 @@ def run_go_pipeline(
     See: https://github.com/omnibor/bomsh
     #software-vulnerability-cve-search-for-golang-packages
 
-    Returns (success, capture_dur, spdx_dur, tracer).
+    Returns ``TimingResult`` with per-step metrics.
     """
     tracer = omnibor_go_cfg.get(
         "tracer", "bomtrace2",
     )
+    timing = TimingResult(tracer=tracer)
 
-    # Step 4: Instrumented build (timed separately)
-    start = time.time()
-    success = pipeline.builder.build(
+    # Phase 1: Build
+    build_result = pipeline.builder.build(
         repo_name, repo_cfg,
         paths_cfg, omnibor_go_cfg,
         run_ts=run_ts,
     )
-    capture_dur = time.time() - start
+    timing.steps.extend(build_result.steps)
+    timing.success = build_result.success
+    if not build_result.success:
+        return timing
 
-    # Steps 5-7: SPDX generation + validation (timed)
-    spdx_start = time.time()
-    spdx_file = None
-    if success:
-        spdx_file = pipeline.spdx_gen.generate(
-            repo_name, repo_cfg,
-            paths_cfg, omnibor_go_cfg,
-            run_ts=run_ts,
-            vcs_uri=vcs_uri,
+    # Phase 2: Post-build analysis
+    timing.steps.extend(
+        _run_post_build(
+            pipeline, repo_name, repo_cfg,
+            paths_cfg, run_ts,
+            sbom_fn=lambda: pipeline.spdx_gen.generate(
+                repo_name, repo_cfg,
+                paths_cfg, omnibor_go_cfg,
+                run_ts=run_ts,
+                vcs_uri=vcs_uri,
+            ),
+            spdx_gen_fn=lambda: (
+                pipeline.adg_spdx.generate(
+                    repo_name, repo_cfg, paths_cfg,
+                    run_ts=run_ts,
+                    vcs_uri=vcs_uri,
+                )
+            ),
         )
+    )
+    return timing
 
-    # Step 5b: Collect component metadata
-    if success:
+
+# ============================================================
+# Shared post-build helper (Phase 2 steps)
+# ============================================================
+
+def _run_post_build(
+    pipeline, repo_name, repo_cfg,
+    paths_cfg, run_ts,
+    sbom_fn=None,
+    spdx_gen_fn=None,
+):
+    """Run Phase 2 post-build steps (generic, all languages).
+
+    Callers inject two callbacks to vary behavior:
+
+    - ``sbom_fn``: generates the OmniBOR SBOM
+      (``bomsh_sbom.py`` for C/Rust/Go, no-op for Java).
+    - ``spdx_gen_fn``: generates per-binary SPDX
+      (``AdgSpdxGenerator`` for C/Rust/Go,
+      ``JavaSpdxGenerator`` for Java).
+
+    Returns list of ``StepMetrics`` for each step.
+    """
+    steps = []
+
+    # OmniBOR SBOM
+    spdx_file = None
+    timer = StepTimer("omnibor_sbom", "phase2")
+    with timer:
+        if sbom_fn:
+            spdx_file = sbom_fn()
+    steps.append(timer.metrics)
+
+    # Metadata collection
+    timer = StepTimer("metadata", "phase2")
+    with timer:
         pipeline.metadata_collector.collect(
             repo_name, repo_cfg, paths_cfg,
             run_ts=run_ts,
         )
+    steps.append(timer.metrics)
 
-    # Step 5c: Generate per-binary ADG SPDX
+    # SPDX generation
     adg_files = []
-    if success:
-        adg_files = pipeline.adg_spdx.generate(
-            repo_name, repo_cfg, paths_cfg,
-            run_ts=run_ts,
-            vcs_uri=vcs_uri,
-        )
+    timer = StepTimer("spdx_gen", "phase2")
+    with timer:
+        if spdx_gen_fn:
+            adg_files = spdx_gen_fn()
+    steps.append(timer.metrics)
 
-    # Step 6: Validate SPDX documents
-    if spdx_file:
-        pipeline.spdx_validator.validate(spdx_file)
-    for adg_file in adg_files:
-        pipeline.spdx_validator.validate(adg_file)
+    # Validation
+    timer = StepTimer("validate", "phase2")
+    with timer:
+        if spdx_file:
+            pipeline.spdx_validator.validate(
+                spdx_file,
+            )
+        for adg_file in adg_files:
+            pipeline.spdx_validator.validate(
+                adg_file,
+            )
+    steps.append(timer.metrics)
 
-    # Step 7: Collect output binaries
-    if success:
+    # Binary collection
+    timer = StepTimer("collect", "phase2")
+    with timer:
         pipeline.binary_collector.collect(
             repo_name, repo_cfg, paths_cfg,
             run_ts=run_ts,
         )
-    spdx_dur = time.time() - spdx_start
+    steps.append(timer.metrics)
 
-    return success, capture_dur, spdx_dur, tracer
+    return steps
