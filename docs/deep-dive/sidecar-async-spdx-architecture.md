@@ -107,9 +107,32 @@ retry policy.
 
 ### P4. Backward Compatibility
 
-The existing single-phase `analyze.py` continues to work unchanged.
-The two-phase mode is opt-in via `--phase build` / `--phase spdx` flags.
-Teams that prefer the simpler single-phase approach can keep using it.
+Mode (standalone vs. sidecar) and execution model (single-phase
+vs. two-phase) are **orthogonal**. Any combination is valid:
+
+<table>
+<tr>
+  <th style="min-width:120px"></th>
+  <th style="min-width:180px">Single-Phase (default)</th>
+  <th style="min-width:180px">Two-Phase (opt-in)</th>
+</tr>
+<tr>
+  <td><strong>Standalone</strong></td>
+  <td><code>analyze.py --repo curl</code><br>Current default for C/C++, Go, Rust</td>
+  <td><code>analyze.py --repo curl --phase build</code><br>then <code>--phase spdx</code></td>
+</tr>
+<tr>
+  <td><strong>Sidecar</strong></td>
+  <td><code>analyze.py --repo jsoup --mode sidecar</code><br>Current default for Java sidecar</td>
+  <td><code>analyze.py --repo jsoup --mode sidecar --phase build</code><br>then <code>--phase spdx</code></td>
+</tr>
+</table>
+
+The existing single-phase `analyze.py` continues to work unchanged
+for both standalone and sidecar modes. The two-phase execution model
+is opt-in via `--phase build` / `--phase spdx` flags. Teams that
+prefer the simpler single-phase approach can keep using it regardless
+of which interception mode they choose.
 
 ### P5. Fail-Safe for Phase 2 — Ephemeral Build Environments
 
@@ -297,10 +320,10 @@ differ in their interception mechanism and artifact types:
 <table>
 <tr>
   <th style="min-width:100px">Language</th>
-  <th>Phase 1 (In-Band)</th>
-  <th>Interception Mechanism</th>
-  <th>Phase 1 Artifact</th>
-  <th>Phase 2 (Out-of-Band)</th>
+  <th style="min-width:180px">Phase 1 (In-Band)</th>
+  <th style="min-width:200px">Interception Mechanism</th>
+  <th style="min-width:160px">Phase 1 Artifact</th>
+  <th style="min-width:280px">Phase 2 (Out-of-Band)</th>
 </tr>
 <tr>
   <td><strong>C/C++</strong></td>
@@ -353,12 +376,38 @@ remaining steps (5a&ndash;7 in each runner) are out-of-band.
 
 ### What Runs (Per Language)
 
-| Language | Build Step | ADG/Treedb Step | Output Artifact |
-|:---------|:----------|:----------------|:----------------|
-| **C/C++** | `bomtrace3 make` or `CC=wrapper make` | `bomsh_create_bom.py -r <raw_logfile> -b <bom_dir>` | `bomsh_hook_raw_logfile`, treedb |
-| **Rust** | `bomtrace2 cargo build --release` or `RUSTC_WRAPPER=wrapper cargo build --release` | `bomsh_create_bom.py -r <raw_logfile> -b <bom_dir>` | `bomsh_hook_raw_logfile`, treedb |
-| **Go** | `bomtrace2 go build -a` or `go build -a -toolexec=wrapper` | `bomsh_create_bom.py -r <raw_logfile> -b <bom_dir>` | `bomsh_hook_raw_logfile`, treedb |
-| **Java** | `strace <opts> ./gradlew build` or `./gradlew build` (sidecar) | `bomsh_create_bom_java.py -r <repo_dir> -j <treedb>` | `bomsh_omnibor_treedb`, strace log |
+<table>
+<tr>
+  <th style="min-width:100px">Language</th>
+  <th style="min-width:260px">Build Step</th>
+  <th style="min-width:260px">ADG/Treedb Step</th>
+  <th style="min-width:180px">Output Artifact</th>
+</tr>
+<tr>
+  <td><strong>C/C++</strong></td>
+  <td><strong>Standalone:</strong> <code>bomtrace3 make</code><br><strong>Sidecar:</strong> <code>CC=wrapper make</code></td>
+  <td><code>bomsh_create_bom.py -r &lt;raw_logfile&gt; -b &lt;bom_dir&gt;</code></td>
+  <td><code>bomsh_hook_raw_logfile</code>, treedb</td>
+</tr>
+<tr>
+  <td><strong>Rust</strong></td>
+  <td><strong>Standalone:</strong> <code>bomtrace2 cargo build --release</code><br><strong>Sidecar:</strong> <code>RUSTC_WRAPPER=wrapper cargo build --release</code></td>
+  <td><code>bomsh_create_bom.py -r &lt;raw_logfile&gt; -b &lt;bom_dir&gt;</code></td>
+  <td><code>bomsh_hook_raw_logfile</code>, treedb</td>
+</tr>
+<tr>
+  <td><strong>Go</strong></td>
+  <td><strong>Standalone:</strong> <code>bomtrace2 go build -a</code><br><strong>Sidecar:</strong> <code>go build -a -toolexec=wrapper</code></td>
+  <td><code>bomsh_create_bom.py -r &lt;raw_logfile&gt; -b &lt;bom_dir&gt;</code></td>
+  <td><code>bomsh_hook_raw_logfile</code>, treedb</td>
+</tr>
+<tr>
+  <td><strong>Java</strong></td>
+  <td><strong>Standalone:</strong> <code>strace &lt;opts&gt; ./gradlew build</code><br><strong>Sidecar:</strong> <code>./gradlew build</code> (unmodified) + dep:tree</td>
+  <td><code>bomsh_create_bom_java.py -r &lt;repo_dir&gt; -j &lt;treedb&gt;</code></td>
+  <td><code>bomsh_omnibor_treedb</code>, strace log</td>
+</tr>
+</table>
 
 ### What Does NOT Run (All Languages)
 
@@ -1111,9 +1160,13 @@ or after the per-language wrapper work.
 
 ### Phase 1 (In-Band) Target Per Language
 
+**Overhead is measured build-step-to-build-step** (baseline build vs.
+instrumented build, excluding clean and prebuild) for an
+apples-to-apples comparison.
+
 | Language | Build Overhead | Treedb Overhead | Total Phase 1 Overhead |
 |----------|---------------|-----------------|----------------------|
-| **Java (sidecar)** | 0% (unmodified build) | ~60% of build time | **<2x build time** |
+| **Java (sidecar)** | +1.7% measured avg (8 repos, 2026-05-12) | ~60% of build time | **<2x build time** |
 | **C/C++ (wrapper)** | 3–5% per compilation unit | Seconds (raw logfile already written) | **<5% total** |
 | **Go (-toolexec)** | 10–15% per compilation unit | Seconds (raw logfile already written) | **<15% total** |
 | **Rust (RUSTC_WRAPPER)** | 5–10% per compilation unit | Seconds (raw logfile already written) | **<10% total** |
@@ -1270,6 +1323,7 @@ or after the per-language wrapper work.
 *Updated: 2026-05-05 14:15 HST — expanded all sections to cover C/C++, Rust, Go, Java (was Java-only)*
 *Updated: 2026-05-05 14:20 HST — added Section 9 (Artifact Provenance and Integrity): ephemeral build environments, GitOID-based provenance chain, SPDX ExternalRef binding, SLSA/Sigstore alignment, retention policy, durable storage requirements*
 *Updated: 2026-05-05 14:35 HST — added Appendix A (Corona centralized SBOM construction)*
+*Updated: 2026-05-12 17:30 HST — P4: clarified mode (standalone/sidecar) vs. execution model (single-phase/two-phase) as orthogonal dimensions; converted "What Runs (Per Language)" table to HTML; added min-width to "Per-Language Phase Split" columns; updated Java sidecar overhead with measured +1.7% avg (8 repos)*
 
 ---
 
