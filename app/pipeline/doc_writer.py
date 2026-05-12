@@ -334,23 +334,39 @@ def _format_phase_summary(timing, baseline=None):
     ]
 
     if baseline:
-        bl = baseline.get("wall_sec", 0)
-        if bl > 0:
-            overhead = (p1 - bl) / bl * 100
-            lines.append(
-                "\n### Baseline Comparison\n"
+        from app.pipeline.timing import (
+            baseline_build_step,
+        )
+        bl_build = baseline_build_step(baseline)
+        if bl_build:
+            bl_wall = bl_build.get("wall_sec", 0)
+            # Find instrumented build step
+            inst_build = next(
+                (s for s in timing.steps
+                 if s.name == "build"),
+                None,
             )
-            lines.append(
-                f"- **Non-instrumented build:** "
-                f"{bl:.1f}s"
-            )
-            lines.append(
-                f"- **Instrumented build "
-                f"(Phase 1):** {p1:.1f}s"
-            )
-            lines.append(
-                f"- **Overhead:** {overhead:+.1f}%"
-            )
+            if bl_wall > 0 and inst_build:
+                overhead = (
+                    (inst_build.wall_sec - bl_wall)
+                    / bl_wall * 100
+                )
+                lines.append(
+                    "\n### Baseline Comparison "
+                    "(Build Step Only)\n"
+                )
+                lines.append(
+                    "- **Baseline build:** "
+                    f"{bl_wall:.1f}s"
+                )
+                lines.append(
+                    "- **Instrumented build:** "
+                    f"{inst_build.wall_sec:.1f}s"
+                )
+                lines.append(
+                    f"- **Overhead:** "
+                    f"{overhead:+.1f}%"
+                )
     lines.append("")
     return "\n".join(lines)
 

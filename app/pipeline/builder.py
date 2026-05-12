@@ -23,7 +23,8 @@ from app.runner import CommandRunner
 
 @dataclass
 class BuildResult:
-    """Result from ``build()`` or ``build_java()``.
+    """Result from ``build()``, ``build_java()``, or
+    ``build_baseline()``.
 
     Carries success flag plus per-phase ``StepMetrics``
     so callers can assign Phase 1 vs Phase 2 timing.
@@ -193,15 +194,16 @@ class BomtraceBuilder:
         """Run non-instrumented build for baseline timing.
 
         Executes clean + prebuild + build WITHOUT any
-        tracer (no bomtrace/strace).  The entire Phase 1
-        is timed as one aggregate measurement so the
-        result can be compared against instrumented Phase 1
-        to compute overhead.
+        tracer (no bomtrace/strace).  Each step is timed
+        separately — exactly mirroring the instrumented
+        path — so the build step can be compared
+        apples-to-apples against the instrumented build.
 
         Returns:
-            ``StepMetrics`` for the full Phase 1, or
+            ``BuildResult`` with per-step metrics, or
             ``None`` if the build failed.
         """
+        result = BuildResult()
         repo_dir = (
             Path(paths_cfg["repos_dir"]) / repo_name
         )
@@ -210,49 +212,61 @@ class BomtraceBuilder:
         pre_steps = build_steps[:-1]
         make_cmd = build_steps[-1]
 
-        parallelism = infer_parallelism(make_cmd)
-        timer = StepTimer(
-            "baseline", "phase1", parallelism,
-        )
-        with timer:
-            # Clean (ignore exit code)
-            if clean_cmd:
+        # --- Clean (ignore exit code) ---
+        if clean_cmd:
+            timer = StepTimer("clean", "phase1")
+            with timer:
                 self.runner.run(
                     clean_cmd, cwd=str(repo_dir),
                     description=(
                         f"Clean: {clean_cmd}"
                     ),
                 )
+            result.steps.append(timer.metrics)
 
-            # Pre-build steps
-            for step in pre_steps:
-                rc = self.runner.run(
-                    step, cwd=str(repo_dir),
-                    description=(
-                        f"Pre-build: {step[:60]}"
-                    ),
-                )
-                if rc != 0:
-                    print(
-                        "[ERROR] Baseline pre-build "
-                        f"failed: {step}"
+        # --- Pre-build steps ---
+        if pre_steps:
+            timer = StepTimer("prebuild", "phase1")
+            with timer:
+                for step in pre_steps:
+                    rc = self.runner.run(
+                        step, cwd=str(repo_dir),
+                        description=(
+                            f"Pre-build: {step[:60]}"
+                        ),
                     )
-                    return None
+                    if rc != 0:
+                        print(
+                            "[ERROR] Baseline pre-build "
+                            f"failed: {step}"
+                        )
+                        result.steps.append(
+                            timer.metrics
+                        )
+                        return result
+            result.steps.append(timer.metrics)
 
-            # Build (NO tracer)
+        # --- Build (NO tracer) ---
+        parallelism = infer_parallelism(make_cmd)
+        timer = StepTimer(
+            "build", "phase1", parallelism,
+        )
+        with timer:
             rc = self.runner.run(
                 make_cmd, cwd=str(repo_dir),
                 description=(
                     f"Baseline: {make_cmd[:60]}"
                 ),
             )
-            if rc != 0:
-                print(
-                    "[ERROR] Baseline build failed"
-                )
-                return None
+        result.steps.append(timer.metrics)
+        if rc != 0:
+            print(
+                "[ERROR] Baseline build failed"
+            )
+            return result
 
-        return timer.metrics
+        result.success = True
+        return result
 
     def build_java(
         self, repo_name, repo_cfg,

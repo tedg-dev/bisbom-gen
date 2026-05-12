@@ -272,13 +272,29 @@ def main():
         f"Total: {duration:.1f}s"
     )
     if baseline:
-        bl = baseline.get("wall_sec", 0)
-        if bl > 0:
-            overhead = (p1 - bl) / bl * 100
-            print(
-                f"  Baseline: {bl:.1f}s  "
-                f"Overhead: {overhead:+.1f}%"
+        from app.pipeline.timing import (
+            baseline_build_step,
+        )
+        bl_build = baseline_build_step(baseline)
+        if bl_build:
+            bl_wall = bl_build.get("wall_sec", 0)
+            # Find instrumented build step
+            inst_build = next(
+                (s for s in timing.steps
+                 if s.name == "build"),
+                None,
             )
+            if bl_wall > 0 and inst_build:
+                overhead = (
+                    (inst_build.wall_sec - bl_wall)
+                    / bl_wall * 100
+                )
+                print(
+                    f"  Build overhead: "
+                    f"{bl_wall:.1f}s → "
+                    f"{inst_build.wall_sec:.1f}s "
+                    f"({overhead:+.1f}%)"
+                )
     print(f"{'#'*60}\n")
 
 
@@ -290,30 +306,46 @@ def _run_baseline(
 
     Delegates to ``BomtraceBuilder.build_baseline()``
     which runs clean + prebuild + build WITHOUT tracer.
-    The entire Phase 1 is timed as one aggregate
-    ``StepMetrics`` and saved as ``baseline.json``.
+    Each step is timed separately so the build step
+    can be compared apples-to-apples against the
+    instrumented build.
     """
     from app.pipeline.timing import save_baseline
 
     print(f"\n[BASELINE] {repo_name}: "
           "non-instrumented build")
 
-    metrics = pipeline.builder.build_baseline(
+    build_result = pipeline.builder.build_baseline(
         repo_name, repo_cfg, paths_cfg,
     )
-    if metrics is None:
+    if build_result is None or not build_result.success:
         print(f"[ERROR] Baseline failed: {repo_name}")
         return
 
     save_baseline(
-        metrics, paths_cfg, repo_name,
+        build_result, paths_cfg, repo_name,
         repo_cfg, run_ts=run_ts,
     )
 
+    # Report the build step specifically
+    build_step = next(
+        (s for s in build_result.steps
+         if s.name == "build"),
+        None,
+    )
+    if build_step:
+        print(
+            f"[BASELINE] {repo_name}: build "
+            f"{build_step.wall_sec:.1f}s "
+            f"(CPU eff: "
+            f"{build_step.cpu_efficiency:.2f}x)"
+        )
+    total = sum(
+        s.wall_sec for s in build_result.steps
+    )
     print(
-        f"[BASELINE] {repo_name}: "
-        f"{metrics.wall_sec:.1f}s "
-        f"(CPU eff: {metrics.cpu_efficiency:.2f}x)"
+        f"[BASELINE] {repo_name}: total "
+        f"{total:.1f}s"
     )
     print(f"{'#'*60}\n")
 

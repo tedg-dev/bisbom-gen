@@ -430,13 +430,14 @@ def load_baseline(paths_cfg, repo_name, repo_cfg):
 
 
 def save_baseline(
-    metrics, paths_cfg, repo_name, repo_cfg,
+    build_result, paths_cfg, repo_name, repo_cfg,
     run_ts=None,
 ):
     """Write baseline.json from a non-instrumented build.
 
     Args:
-        metrics: ``StepMetrics`` from the plain build.
+        build_result: ``BuildResult`` from
+            ``build_baseline()`` with per-step metrics.
         paths_cfg: Paths config section.
         repo_name: Repository name.
         repo_cfg: Repository config section.
@@ -453,7 +454,11 @@ def save_baseline(
     baseline_dir.mkdir(parents=True, exist_ok=True)
     out_path = baseline_dir / "baseline.json"
 
-    data = metrics.to_dict()
+    data = {
+        "steps": [
+            s.to_dict() for s in build_result.steps
+        ],
+    }
     if run_ts:
         data["run_ts"] = run_ts
     with open(out_path, "w", encoding="utf-8") as f:
@@ -461,3 +466,31 @@ def save_baseline(
 
     print(f"[OK] Baseline written to {out_path}")
     return str(out_path)
+
+
+def baseline_build_step(baseline):
+    """Extract the build step from a baseline dict.
+
+    Finds the step named ``build`` in the baseline's
+    ``steps`` array for apples-to-apples comparison
+    against the instrumented build step.
+
+    Supports both the current format (steps array) and
+    legacy format (single flat dict with ``wall_sec``).
+
+    Returns:
+        Step dict with ``wall_sec``, ``cpu_total_sec``,
+        etc., or ``None`` if not found.
+    """
+    if not baseline:
+        return None
+    # Current format: {"steps": [...]}
+    if "steps" in baseline:
+        for step in baseline["steps"]:
+            if step.get("name") == "build":
+                return step
+        return None
+    # Legacy format: single flat dict (aggregate)
+    if "wall_sec" in baseline:
+        return baseline
+    return None

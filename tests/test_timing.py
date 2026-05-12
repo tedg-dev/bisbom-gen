@@ -11,6 +11,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
+from app.pipeline.builder import BuildResult
 from app.pipeline.timing import (
     CONTENTION_THRESHOLD,
     StepMetrics,
@@ -20,6 +21,7 @@ from app.pipeline.timing import (
     save_runtime_json,
     load_baseline,
     save_baseline,
+    baseline_build_step,
     _safe_loadavg,
 )
 
@@ -511,57 +513,108 @@ class TestLoadBaseline(unittest.TestCase):
 class TestSaveBaseline(unittest.TestCase):
     """Tests for save_baseline."""
 
-    def test_writes_baseline_file(self):
-        m = StepMetrics(
-            name="build", phase="phase1",
-            wall_sec=30.0,
-            cpu_user_sec=25.0, cpu_sys_sec=3.0,
+    def _build_result(self, build_wall=30.0):
+        return BuildResult(
+            success=True,
+            steps=[
+                StepMetrics(
+                    name="clean", phase="phase1",
+                    wall_sec=2.0,
+                ),
+                StepMetrics(
+                    name="build", phase="phase1",
+                    wall_sec=build_wall,
+                    cpu_user_sec=25.0,
+                    cpu_sys_sec=3.0,
+                ),
+            ],
         )
+
+    def test_writes_baseline_file(self):
+        br = self._build_result(30.0)
         with tempfile.TemporaryDirectory() as td:
             paths = {"output_dir": td}
             repo_cfg = {"language": "rust"}
             with patch("builtins.print"):
                 result = save_baseline(
-                    m, paths, "oxipng", repo_cfg,
+                    br, paths, "oxipng", repo_cfg,
                 )
             self.assertTrue(Path(result).exists())
             data = json.loads(Path(result).read_text())
-            self.assertEqual(data["name"], "build")
-            self.assertEqual(data["wall_sec"], 30.0)
+            self.assertIn("steps", data)
+            build = next(
+                s for s in data["steps"]
+                if s["name"] == "build"
+            )
+            self.assertEqual(build["wall_sec"], 30.0)
 
     def test_creates_directory(self):
-        m = StepMetrics(
-            name="build", phase="phase1",
-            wall_sec=10.0,
-        )
+        br = self._build_result(10.0)
         with tempfile.TemporaryDirectory() as td:
             paths = {"output_dir": td}
             repo_cfg = {"language": "java"}
             with patch("builtins.print"):
                 result = save_baseline(
-                    m, paths, "checkstyle",
+                    br, paths, "checkstyle",
                     repo_cfg,
                 )
             self.assertIn("baseline.json", result)
             self.assertIn("java", result)
 
     def test_includes_run_ts(self):
-        m = StepMetrics(
-            name="build", phase="phase1",
-            wall_sec=5.0,
-        )
+        br = self._build_result(5.0)
         with tempfile.TemporaryDirectory() as td:
             paths = {"output_dir": td}
             repo_cfg = {"language": "go"}
             with patch("builtins.print"):
                 result = save_baseline(
-                    m, paths, "fzf", repo_cfg,
+                    br, paths, "fzf", repo_cfg,
                     run_ts="2026-05-11_0900",
                 )
             data = json.loads(Path(result).read_text())
             self.assertEqual(
                 data["run_ts"], "2026-05-11_0900",
             )
+
+
+# ============================================================
+# baseline_build_step
+# ============================================================
+
+class TestBaselineBuildStep(unittest.TestCase):
+    """Tests for baseline_build_step."""
+
+    def test_returns_none_for_none(self):
+        self.assertIsNone(baseline_build_step(None))
+
+    def test_returns_none_for_empty(self):
+        self.assertIsNone(baseline_build_step({}))
+
+    def test_extracts_build_from_steps(self):
+        bl = {
+            "steps": [
+                {"name": "clean", "wall_sec": 2.0},
+                {"name": "build", "wall_sec": 30.0},
+            ],
+        }
+        result = baseline_build_step(bl)
+        self.assertIsNotNone(result)
+        self.assertEqual(result["wall_sec"], 30.0)
+        self.assertEqual(result["name"], "build")
+
+    def test_returns_none_when_no_build_step(self):
+        bl = {
+            "steps": [
+                {"name": "clean", "wall_sec": 2.0},
+            ],
+        }
+        self.assertIsNone(baseline_build_step(bl))
+
+    def test_legacy_format(self):
+        bl = {"wall_sec": 42.0, "name": "baseline"}
+        result = baseline_build_step(bl)
+        self.assertIsNotNone(result)
+        self.assertEqual(result["wall_sec"], 42.0)
 
 
 # ============================================================

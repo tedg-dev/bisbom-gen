@@ -643,9 +643,18 @@ class TestBomtraceBuilderBaseline(unittest.TestCase):
                 "curl", repo_cfg, paths,
             )
         self.assertIsNotNone(result)
-        self.assertEqual(result.name, "baseline")
-        self.assertEqual(result.phase, "phase1")
-        self.assertGreaterEqual(result.wall_sec, 0)
+        self.assertTrue(result.success)
+        # Separate steps: clean, prebuild, build
+        names = [s.name for s in result.steps]
+        self.assertEqual(
+            names, ["clean", "prebuild", "build"],
+        )
+        # Build step has correct phase
+        build_step = result.steps[2]
+        self.assertEqual(build_step.phase, "phase1")
+        self.assertGreaterEqual(
+            build_step.wall_sec, 0,
+        )
         # clean + 2 prebuild + build = 4 calls
         self.assertEqual(runner.run.call_count, 4)
         # NO tracer prefix on build cmd
@@ -666,6 +675,11 @@ class TestBomtraceBuilderBaseline(unittest.TestCase):
                 "curl", repo_cfg, paths,
             )
         self.assertIsNotNone(result)
+        self.assertTrue(result.success)
+        names = [s.name for s in result.steps]
+        self.assertEqual(
+            names, ["prebuild", "build"],
+        )
         # 2 prebuild + build = 3 calls (no clean)
         self.assertEqual(runner.run.call_count, 3)
 
@@ -682,6 +696,9 @@ class TestBomtraceBuilderBaseline(unittest.TestCase):
                 "curl", repo_cfg, paths,
             )
         self.assertIsNotNone(result)
+        self.assertTrue(result.success)
+        names = [s.name for s in result.steps]
+        self.assertEqual(names, ["build"])
         # Only build = 1 call
         self.assertEqual(runner.run.call_count, 1)
 
@@ -696,7 +713,8 @@ class TestBomtraceBuilderBaseline(unittest.TestCase):
             result = builder.build_baseline(
                 "curl", repo_cfg, paths,
             )
-        self.assertIsNone(result)
+        self.assertIsNotNone(result)
+        self.assertFalse(result.success)
 
     def test_build_failure(self):
         runner = MagicMock()
@@ -709,7 +727,8 @@ class TestBomtraceBuilderBaseline(unittest.TestCase):
             result = builder.build_baseline(
                 "curl", repo_cfg, paths,
             )
-        self.assertIsNone(result)
+        self.assertIsNotNone(result)
+        self.assertFalse(result.success)
 
 
 class TestBomtraceBuilderJava(unittest.TestCase):
@@ -3100,7 +3119,11 @@ class TestMainFullRun(unittest.TestCase):
     )
     @patch(
         "app.pipeline.timing.load_baseline",
-        return_value={"wall_sec": 5.0},
+        return_value={
+            "steps": [
+                {"name": "build", "wall_sec": 5.0},
+            ],
+        },
     )
     @patch("app.pipeline.runners.AnalysisPipeline")
     @patch(
@@ -3114,6 +3137,14 @@ class TestMainFullRun(unittest.TestCase):
         mock_cls.return_value = p
         p.builder.build.return_value = BuildResult(
             success=True,
+            steps=[
+                StepMetrics(
+                    name="build", phase="phase1",
+                    wall_sec=6.0,
+                    cpu_user_sec=5.0,
+                    cpu_sys_sec=0.5,
+                ),
+            ],
         )
         printed = []
         with patch(
@@ -3127,7 +3158,7 @@ class TestMainFullRun(unittest.TestCase):
             analyze.main()
         overhead_lines = [
             line for line in printed
-            if "Overhead" in line
+            if "overhead" in line.lower()
         ]
         self.assertTrue(len(overhead_lines) > 0)
 
@@ -3398,10 +3429,22 @@ class TestBaseline(unittest.TestCase):
         p = _mock_pipeline()
         mock_cls.return_value = p
         p.builder.build_baseline.return_value = (
-            StepMetrics(
-                name="baseline", phase="phase1",
-                wall_sec=8.0,
-                cpu_user_sec=6.0, cpu_sys_sec=1.5,
+            BuildResult(
+                success=True,
+                steps=[
+                    StepMetrics(
+                        name="clean",
+                        phase="phase1",
+                        wall_sec=1.0,
+                    ),
+                    StepMetrics(
+                        name="build",
+                        phase="phase1",
+                        wall_sec=8.0,
+                        cpu_user_sec=6.0,
+                        cpu_sys_sec=1.5,
+                    ),
+                ],
             )
         )
 
@@ -3430,8 +3473,10 @@ class TestBaseline(unittest.TestCase):
     ):
         p = _mock_pipeline()
         mock_cls.return_value = p
-        # build_baseline returns None on failure
-        p.builder.build_baseline.return_value = None
+        # build_baseline returns failed BuildResult
+        p.builder.build_baseline.return_value = (
+            BuildResult(success=False, steps=[])
+        )
 
         with patch("builtins.print"):
             analyze.main()
