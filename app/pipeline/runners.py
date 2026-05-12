@@ -230,12 +230,28 @@ def main():
         )
     elif lang == "java":
         mode = config.get("mode", DEFAULT_MODE)
-        timing = run_java_pipeline(
-            pipeline, args.repo, repo_cfg,
-            paths_cfg, omnibor_cfg, run_ts,
-            vcs_uri=vcs_uri,
-            mode=mode,
-        )
+        if args.phase == "build":
+            timing = _run_phase1_only(
+                pipeline, args.repo, repo_cfg,
+                paths_cfg, omnibor_cfg, run_ts,
+                mode=mode, lang=lang,
+                commit_sha=commit_sha,
+                vcs_uri=vcs_uri,
+            )
+        elif args.phase == "spdx":
+            timing = _run_phase2_only(
+                pipeline, args.repo,
+                args.manifest, paths_cfg,
+                omnibor_cfg, run_ts,
+                vcs_uri=vcs_uri,
+            )
+        else:
+            timing = run_java_pipeline(
+                pipeline, args.repo, repo_cfg,
+                paths_cfg, omnibor_cfg, run_ts,
+                vcs_uri=vcs_uri,
+                mode=mode,
+            )
     else:
         timing = run_go_pipeline(
             pipeline, args.repo, repo_cfg,
@@ -350,6 +366,155 @@ def _validate_phase_args(args, parser):
             "--phase build (manifest is an "
             "output of Phase 1, not an input)"
         )
+
+
+def _run_phase1_only(
+    pipeline, repo_name, repo_cfg,
+    paths_cfg, omnibor_cfg, run_ts,
+    mode, lang, commit_sha, vcs_uri,
+):
+    """Run Phase 1 only and write manifest.
+
+    Used with ``--phase build --mode sidecar``.
+    Runs the build, then writes a manifest that
+    Phase 2 can consume independently.
+
+    Returns ``TimingResult``.
+    """
+    from app.pipeline.manifest import write_manifest
+
+    timing, _ = run_java_phase1(
+        pipeline, repo_name, repo_cfg,
+        paths_cfg, omnibor_cfg, run_ts,
+        mode=mode,
+    )
+    if not timing.success:
+        return timing
+
+    # Determine artifact paths for the manifest
+    bom_dir = (
+        Path(paths_cfg["output_dir"])
+        / "omnibor" / lang / repo_name / run_ts
+    )
+    spdx_dir = (
+        Path(paths_cfg["output_dir"])
+        / "spdx" / lang / repo_name / run_ts
+    )
+
+    # Resolve output binary paths
+    repo_dir = (
+        Path(paths_cfg["repos_dir"]) / repo_name
+    )
+    bin_paths = []
+    for pattern in repo_cfg.get(
+        "output_binaries", [],
+    ):
+        if "*" in pattern or "?" in pattern:
+            bin_paths.extend(
+                str(p) for p in repo_dir.glob(pattern)
+            )
+        else:
+            p = repo_dir / pattern
+            if p.exists():
+                bin_paths.append(str(p))
+
+    artifacts = {
+        "bom_dir": str(bom_dir),
+        "binaries": bin_paths,
+    }
+
+    # Include strace log if present (standalone)
+    strace_log = omnibor_cfg.get("strace_logfile")
+    if strace_log and Path(strace_log).exists():
+        artifacts["strace_log"] = strace_log
+
+    paths = {
+        "repos_dir": paths_cfg["repos_dir"],
+        "output_dir": paths_cfg["output_dir"],
+        "spdx_dir": str(spdx_dir),
+    }
+
+    manifest_path = write_manifest(
+        manifest_dir=str(bom_dir),
+        repo_name=repo_name,
+        language=lang,
+        mode=mode,
+        tracer=timing.tracer,
+        run_ts=run_ts,
+        commit_sha=commit_sha,
+        vcs_uri=vcs_uri,
+        artifacts=artifacts,
+        paths=paths,
+        repo_cfg={
+            k: repo_cfg[k] for k in (
+                "output_binaries", "language",
+                "build_steps",
+            ) if k in repo_cfg
+        },
+        omnibor_cfg=omnibor_cfg,
+    )
+    print(
+        f"[OK] Phase 1 manifest: {manifest_path}"
+    )
+
+    return timing
+
+
+def _run_phase2_only(
+    pipeline, repo_name,
+    manifest_path, paths_cfg,
+    omnibor_cfg, run_ts,
+    vcs_uri="NOASSERTION",
+):
+    """Run Phase 2 only from a manifest.
+
+    Used with ``--phase spdx --manifest <path>``.
+    Reads the manifest to locate Phase 1 artifacts,
+    then runs SPDX generation + validation.
+
+    Returns ``TimingResult``.
+    """
+    from app.pipeline.manifest import (
+        read_manifest, verify_gitoids,
+    )
+    from app.pipeline.timing import TimingResult
+
+    manifest = read_manifest(manifest_path)
+
+    # Verify artifact integrity
+    passed, failed = verify_gitoids(manifest)
+    if failed:
+        print(
+            f"[WARN] {len(failed)} artifact(s) "
+            f"failed gitoid verification"
+        )
+        for f in failed:
+            print(f"  - {f}")
+    if passed:
+        print(
+            f"[OK] {len(passed)} artifact(s) "
+            f"verified via gitoid"
+        )
+
+    # Use manifest values, fall back to CLI args
+    m_repo_cfg = manifest.get("repo_cfg", {})
+    m_omnibor = manifest.get(
+        "omnibor_cfg", omnibor_cfg,
+    )
+    m_vcs = manifest.get("vcs_uri", vcs_uri)
+    m_ts = manifest.get("run_ts", run_ts)
+    tracer = manifest.get("tracer", "unknown")
+
+    timing = TimingResult(tracer=tracer)
+    timing.success = True
+
+    phase2_steps = run_java_phase2(
+        pipeline, repo_name, m_repo_cfg,
+        paths_cfg, m_omnibor, m_ts,
+        vcs_uri=m_vcs,
+    )
+    timing.steps.extend(phase2_steps)
+    return timing
 
 
 def _run_baseline(
