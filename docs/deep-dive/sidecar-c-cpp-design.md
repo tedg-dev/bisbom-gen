@@ -6,6 +6,12 @@
 
 ---
 
+> **Supported modes**: See `sidecar-phase-isolation-infrastructure.md` §1
+> for the authoritative definition of Standalone and Sidecar modes.
+> All modes apply to C/C++.
+
+---
+
 ## 1. Current State
 
 | Component | Status |

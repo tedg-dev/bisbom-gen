@@ -9,9 +9,10 @@
 
 ## Per-Language Design Documents
 
-This document covers **cross-cutting infrastructure** (manifest, CLI, config,
-Corona, Docker, testing framework). Each language has its own design doc with
-strategy details, Phase 1/2 artifacts, and implementation tasks:
+This document covers the **shared components** that all languages use:
+manifest format, CLI flags, config schema, Corona integration, Docker
+setup, and the testing framework. Each language has its own design doc
+with strategy details, Phase 1/2 artifacts, and implementation tasks:
 
 - **`sidecar-c-cpp-design.md`** — `CcWrapperStrategy`, upstream bomsh wrappers, version pre-computation
 - **`sidecar-java-design.md`** — `MavenDepTreeStrategy`/`GradleDepTreeStrategy` (already implemented)
@@ -23,22 +24,42 @@ strategy details, Phase 1/2 artifacts, and implementation tasks:
 
 ## 1. Executive Summary
 
-This document describes the shared infrastructure for:
+The `omnibor-analysis` pipeline supports two execution modes:
+**Standalone** and **Sidecar**. Both are permanent, first-class modes.
 
-1. **Isolating Phase 1 (build interception) from Phase 2 (SPDX generation)** so they
-   can run independently — in the same process, in separate CI stages, or across
-   entirely different hosts.
-2. **Enabling Phase 2 execution on either the sidecar container or a Corona daemon**,
-   using a well-defined artifact contract (`phase1_manifest.json`) as the only
-   coupling point.
-3. **CLI, config, and module changes** that apply to all languages.
+- **Sidecar** is the authoritative mode for all enterprise repository
+  build-interception SBOM generation projects. It uses the customer's
+  native toolchains and does not require `SYS_PTRACE`.
+- **Standalone** is the baseline for `omnibor-analysis` golden file
+  generation and the primary `omnibor-analysis` development/debug mode.
+  It is also used by enterprise teams with isolated black-box build
+  machines, where the Standalone container is customized to include their
+  specific build toolsets, operating systems, and configurations.
 
-Language-specific strategy wiring, artifacts, and testing are in the per-language
-docs above.
+**Standalone** always runs the full pipeline (Phase 1 + Phase 2) in a
+single container. There is no phase split for Standalone.
 
-The design preserves full backward compatibility: the default `--mode standalone`
-path is unchanged, and running without `--phase` executes both phases sequentially
-as today.
+**Sidecar** can run either way:
+- **Sidecar full** — Phase 1 + Phase 2 in one container (primary customer mode)
+- **Sidecar Phase 1 only** — Phase 1 produces artifacts and exits;
+  Phase 2 runs in a separate process, host, or Corona daemon
+
+This document describes the shared infrastructure:
+
+1. **Two modes: Standalone and Sidecar** — Standalone uses ptrace-based
+   interception (`bomtrace3`/`bomtrace2`) and requires `SYS_PTRACE`.
+   Sidecar uses build-system-native interception mechanisms and does
+   **not** require `SYS_PTRACE`. The specific mechanism varies by
+   language — see per-language design docs for details.
+2. **Phase isolation (Sidecar only)** — Phase 1 (build interception) and
+   Phase 2 (SPDX generation) can run independently, connected only by a
+   well-defined artifact contract (`phase1_manifest.json`).
+3. **Multiple Phase 2 executors** — Phase 2 can run in the sidecar
+   container, on a different host, or on a Corona daemon.
+4. **CLI, config, and module changes** that apply to all languages.
+
+Language-specific strategy wiring, artifacts, and testing are in the
+per-language docs listed above.
 
 ---
 
@@ -102,9 +123,25 @@ The following existing diagrams illustrate the target architecture:
 
 ## 4. Artifact Contract: `phase1_manifest.json`
 
-The manifest is the **only** interface between Phase 1 and Phase 2. It must contain
-everything Phase 2 needs to produce SPDX without access to config.yaml or the
-running pipeline state.
+The `phase1_manifest.json` is a small pointer file (~1-2 KB) that records
+the paths to the existing artifacts (treedb, raw logfile, binaries,
+bom_dir, etc.) plus metadata (repo name, language, commit SHA, run
+timestamp). The actual artifact files stay in their original format and
+location — nothing is converted or bundled.
+
+The purpose is purely for **Sidecar Phase 1 only** mode: when Phase 2
+runs in a different process or on a different host, it needs to know
+where all the Phase 1 artifacts are. Today that information is derived
+from `config.yaml` + convention, which requires the entire config and
+source tree to be available. The manifest decouples that.
+
+The manifest is written after Phase 1 completes (after the build and
+treedb generation), before Phase 2 starts. It is a single `json.dump()`
+call — effectively zero build-time overhead.
+
+In Standalone mode and Sidecar full mode, where Phase 1 and Phase 2 run
+in the same process, the manifest is not needed — Phase 2 already has
+everything in memory.
 
 ### 4.1 Schema
 
@@ -207,11 +244,41 @@ output/omnibor/{lang}/{repo}/{run_ts}/phase1_manifest.json
 
 This is inside `bom_dir`, co-located with the OmniBOR ADG artifacts.
 
-### 4.3 Provenance Integrity
+### 4.3 When the Manifest Is Written
 
-Each artifact path in the manifest includes a SHA-256 gitoid computed at Phase 1
-completion time. Phase 2 can optionally verify these gitoids before processing to
-detect tampering or corruption during transfer.
+The manifest is written **after** Phase 1 completes — after the build,
+treedb generation, and ADG creation have all finished. It does not run
+during the build and has zero impact on build time.
+
+| Mode | Manifest written? | Manifest read? |
+|------|------------------|----------------|
+| **Standalone** | No | No — Phase 2 has everything in memory |
+| **Sidecar full** | No | No — Phase 2 has everything in memory |
+| **Sidecar Phase 1 only** | Yes — `json.dump()` after build | No — Phase 2 runs in a separate invocation |
+| **Phase 2 from manifest** | No — Phase 1 already ran | Yes — reads manifest to locate artifacts |
+
+### 4.4 Why Not Reuse `config.yaml`?
+
+Today, Phase 2 derives artifact locations from `config.yaml` paths plus
+naming conventions (e.g., `output/omnibor/{lang}/{repo}/{run_ts}/`). This
+works when both phases run in the same process because the config, source
+tree, and build environment are all available.
+
+In Sidecar Phase 1 only mode, Phase 2 runs in a different process or on
+a different host. It may not have access to:
+- `config.yaml` (the sidecar container may be destroyed after Phase 1)
+- The source tree (not transferred to the analysis host)
+- The build environment (compiler paths, environment variables)
+
+The manifest captures exactly what Phase 2 needs — artifact paths,
+repo metadata, and resolved config — in a single self-contained file
+that can be transferred alongside the artifacts.
+
+### 4.5 Provenance Integrity
+
+Each artifact path in the manifest includes a SHA-256 gitoid computed at
+Phase 1 completion time. Phase 2 can optionally verify these gitoids
+before processing to detect tampering or corruption during transfer.
 
 ---
 
@@ -219,18 +286,19 @@ detect tampering or corruption during transfer.
 
 ### 5.1 CLI Interface Changes
 
-```
-# Current (unchanged — runs both phases)
+```bash
+# Standalone (always full pipeline — Phase 1 + Phase 2)
 python3 -m app.analyze --repo curl
+python3 -m app.analyze --repo curl --mode standalone  # explicit, same effect
 
-# Phase 1 only — build + treedb + manifest
-python3 -m app.analyze --repo curl --phase build
+# Sidecar full (Phase 1 + Phase 2, no SYS_PTRACE)
+python3 -m app.analyze --repo curl --mode sidecar
 
-# Phase 2 only — SPDX from manifest
-python3 -m app.analyze --repo curl --phase spdx --manifest /path/to/phase1_manifest.json
-
-# Sidecar + Phase 1 only
+# Sidecar Phase 1 only — Phase 2 runs elsewhere
 python3 -m app.analyze --repo curl --mode sidecar --phase build
+
+# Phase 2 from manifest (consumes artifacts from any Sidecar Phase 1 run)
+python3 -m app.analyze --repo curl --phase spdx --manifest /path/to/phase1_manifest.json
 ```
 
 New CLI arguments in `app/pipeline/runners.py`:
@@ -242,11 +310,11 @@ New CLI arguments in `app/pipeline/runners.py`:
 
 ### 5.2 Execution Patterns
 
-#### Pattern A: Default (Sequential — backward compatible)
+#### Pattern A: Standalone (full pipeline, single container)
 
 ```
 ┌─────────────────────────────────────────────┐
-│  Container (standalone or sidecar)          │
+│  Container (standalone, SYS_PTRACE)         │
 │                                             │
 │  Phase 1: clone → build → treedb → ADG     │
 │     ↓ (in-memory, no manifest needed)       │
@@ -254,27 +322,43 @@ New CLI arguments in `app/pipeline/runners.py`:
 └─────────────────────────────────────────────┘
 ```
 
-No manifest is written (or it's written but not read). This is today's behavior.
+This is the only Standalone pattern. Phase split is not supported in
+Standalone mode.
 
-#### Pattern B: Two-Stage CI (same container)
+#### Pattern B: Sidecar Full (Phase 1 + Phase 2, single container)
 
 ```
-┌──────────── CI Stage 1 ────────────┐
-│  --phase build                     │
+┌─────────────────────────────────────────────┐
+│  Container (sidecar, NO SYS_PTRACE)         │
+│                                             │
+│  Phase 1: clone → build → treedb → ADG     │
+│     ↓ (in-memory, no manifest needed)       │
+│  Phase 2: SBOM → metadata → SPDX → validate│
+└─────────────────────────────────────────────┘
+```
+
+Same flow as Standalone but using wrapper-based interception. This is
+the **primary customer deployment mode**.
+
+#### Pattern C: Sidecar Phase 1 + Separate Phase 2 (two-stage CI)
+
+```
+┌──── CI Stage 1 (sidecar) ─────────┐
+│  --mode sidecar --phase build      │
 │  Phase 1: clone → build → treedb   │
 │  → writes phase1_manifest.json     │
 └────────────┬───────────────────────┘
              │ manifest + bom_dir artifacts
 ┌────────────▼───────────────────────┐
-│  CI Stage 2 (--phase spdx)        │
-│  Phase 2: reads manifest           │
-│  → SBOM → metadata → SPDX         │
+│  CI Stage 2 (--phase spdx)         │
+│  Phase 2: reads manifest            │
+│  → SBOM → metadata → SPDX          │
 └────────────────────────────────────┘
 ```
 
-Phase 2 runs in a parallel or downstream CI stage, reducing the critical path.
+Phase 2 runs in a downstream CI stage, reducing the critical path.
 
-#### Pattern C: Cross-Host (sidecar → analysis host)
+#### Pattern D: Sidecar Phase 1 + Remote Phase 2 (cross-host)
 
 ```
 ┌──── Customer CI (sidecar) ─────┐     ┌──── Analysis Host ──────────┐
@@ -286,7 +370,7 @@ Phase 2 runs in a parallel or downstream CI stage, reducing the critical path.
 
 Artifacts are transferred via `rsync`, S3, or CI artifact upload.
 
-#### Pattern D: Corona Daemon (future)
+#### Pattern E: Corona Daemon (future extension of Pattern C/D)
 
 ```
 ┌──── Customer CI (sidecar) ─────┐     ┌──── Corona Service ─────────┐
@@ -552,71 +636,16 @@ output. This naturally separates because there is no binary artifact.
 
 ---
 
-## 8. Corona Integration Design
+## 8. Corona Integration
 
-### 8.1 Corona Agent
+Corona integration is a future capability where Sidecar Phase 1 uploads
+artifacts to a Corona service, which runs Phase 2 asynchronously. The
+phase-split architecture (manifest + artifact contract) in this document
+is a prerequisite for Corona integration.
 
-The Corona agent runs as a Phase 1 post-step, replacing `--phase spdx` with
-an HTTP upload:
-
-```python
-class CoronaAgent:
-    """Uploads Phase 1 artifacts to Corona for async Phase 2."""
-
-    def __init__(self, corona_url, api_key):
-        self.url = corona_url
-        self.api_key = api_key
-
-    def upload(self, manifest_path):
-        """Upload manifest + referenced artifacts to Corona.
-
-        POST /api/v1/analyze
-        Content-Type: multipart/form-data
-
-        Parts:
-          - manifest: phase1_manifest.json
-          - artifacts: tar.gz of bom_dir + binaries
-        """
-        ...
-```
-
-### 8.2 Corona Daemon Phase 2
-
-The Corona daemon receives the upload and runs Phase 2 using the same
-`run_{lang}_phase2()` functions — identical code path to `--phase spdx`.
-
-```
-Corona Daemon
-  ├── /api/v1/analyze    POST — accept manifest + artifacts
-  ├── /api/v1/status/:id GET  — poll analysis status
-  └── /api/v1/sbom/:id   GET  — retrieve completed SPDX
-```
-
-### 8.3 CLI Integration
-
-```bash
-# Upload to Corona instead of running Phase 2 locally
-python3 -m app.analyze --repo curl --mode sidecar --phase build \
-    --corona-url https://corona.internal/api/v1
-```
-
-When `--corona-url` is specified with `--phase build`, the pipeline:
-1. Runs Phase 1 normally
-2. Writes `phase1_manifest.json`
-3. Calls `CoronaAgent.upload()` instead of running Phase 2
-
-### 8.4 Graduated Adoption Path
-
-| Stage | CI/CD Pattern | Phase 2 Location | Complexity |
-|-------|---------------|-------------------|------------|
-| 0 | Current (no isolation) | Same process | None |
-| 1 | `--phase build` + `--phase spdx` | Same container, separate stages | Low |
-| 2 | Sidecar container → analysis host | Different host, `rsync` artifacts | Medium |
-| 3 | Sidecar → Corona daemon | HTTP API, async processing | High |
-
-Each stage is independently testable. Stage 0 → Stage 1 requires only the
-manifest module + CLI changes. Stage 1 → Stage 2 requires artifact transfer.
-Stage 2 → Stage 3 requires the Corona agent.
+**Design details are deferred to a dedicated Corona integration design
+document.** This document does not specify Corona APIs, upload protocols,
+or daemon architecture.
 
 ---
 
@@ -646,11 +675,11 @@ phase_isolation:
   # Whether to write phase1_manifest.json after Phase 1
   write_manifest: true  # default: true when --phase build
 
-  # Corona integration (optional)
-  corona:
-    url: https://corona.internal/api/v1
-    api_key_env: CORONA_API_KEY  # env var name, never hardcoded
-    upload_timeout_sec: 300
+  # Corona integration (future — see dedicated Corona design doc)
+  # corona:
+  #   url: https://corona.internal/api/v1
+  #   api_key_env: CORONA_API_KEY
+  #   upload_timeout_sec: 300
 ```
 
 ### 9.3 Per-Language Sidecar Config
@@ -838,16 +867,10 @@ wrappers for C/C++/Go/Rust — may be blocked on upstream).
 
 **Deliverable**: Phase 2 can run on a different host from Phase 1.
 
-### Phase V: Corona Agent (2-3 days — future)
+### Phase V: Corona Integration (future — see dedicated design doc)
 
-| # | Task | Files Modified | Effort |
-|---|------|---------------|--------|
-| 21 | Create `app/pipeline/corona.py` (agent) | New file | 1d |
-| 22 | Add `--corona-url` CLI flag | `runners.py` | 0.25d |
-| 23 | Corona daemon scaffold (FastAPI or Flask) | New service | 1d |
-| 24 | Integration test with mock Corona | `tests/` | 0.5d |
-
-**Deliverable**: Phase 1 can upload to Corona; Corona runs Phase 2 async.
+Deferred to a separate Corona integration design document. The
+phase-split architecture from Phases I–IV is a prerequisite.
 
 ---
 
@@ -866,19 +889,36 @@ wrappers for C/C++/Go/Rust — may be blocked on upstream).
 
 ## 15. Success Criteria
 
-1. **Backward compatible**: `python3 -m app.analyze --repo curl` (no new flags)
-   produces identical output to current behavior.
-2. **Phase isolation works**: `--phase build` + `--phase spdx --manifest ...`
-   produces SPDX matching the golden files.
-3. **Sidecar works for Java**: `--mode sidecar --repo jsoup` runs without
-   `SYS_PTRACE` and passes golden file comparison.
-4. **Sidecar strategies wired**: `--mode sidecar` selects the correct
-   `InterceptionStrategy` for each language.
-5. **Tests**: ≥97% overall coverage, ≥95% per file.
-6. **Performance**: Phase 1 (build-only) completes within 5% of baseline
-   build time (excluding Phase 2 overhead).
-7. **Documentation**: Updated architecture docs, usage guide, and config
-   reference.
+All three execution modes must pass independently:
+
+### Sidecar Full (authoritative enterprise mode)
+1. `--mode sidecar --repo jsoup` runs **both Phase 1 and Phase 2** without
+   `SYS_PTRACE` and produces complete SPDX output.
+2. Sidecar full SPDX matches standalone golden files (per golden file policy).
+3. `--mode sidecar` selects the correct `InterceptionStrategy` for each
+   language.
+
+### Sidecar Phase 1 Only + Separate Phase 2
+4. `--mode sidecar --phase build` produces `phase1_manifest.json` and all
+   referenced artifacts, then exits without producing SPDX.
+5. `--phase spdx --manifest <path>` consumes the manifest and produces
+   SPDX matching the golden files — without access to `config.yaml`,
+   the source tree, or the original build environment.
+6. The Phase 2 executor produces **identical SPDX** whether it runs in
+   the same container or on a different host.
+
+### Standalone Full (golden file baseline + black-box builds)
+7. `python3 -m app.analyze --repo curl` (no new flags) produces identical
+   output to current behavior — **zero regression**.
+8. Standalone remains the baseline for `omnibor-analysis` golden file
+   generation and development/debug mode.
+
+### Cross-Cutting
+9. **Tests**: ≥97% overall coverage, ≥95% per file.
+10. **Performance**: Phase 1 (build-only) completes within 5% of baseline
+    build time (excluding Phase 2 overhead).
+11. **Documentation**: Updated architecture docs, usage guide, config
+    reference, and per-language design docs.
 
 ---
 
@@ -887,8 +927,7 @@ wrappers for C/C++/Go/Rust — may be blocked on upstream).
 | File | Change Type | Description |
 |------|-------------|-------------|
 | `app/pipeline/manifest.py` | **New** | Manifest writer + reader |
-| `app/pipeline/corona.py` | **New** (Phase V) | Corona agent |
-| `app/pipeline/runners.py` | Modify | Add `--phase`, `--manifest`, `--corona-url` args |
+| `app/pipeline/runners.py` | Modify | Add `--phase`, `--manifest` args |
 | `app/pipeline/lang_runners.py` | Modify | Split runners into `phase1`/`phase2`/`pipeline` |
 | `app/pipeline/builder.py` | Modify | Add `bom_dir`/`repo_dir`/`binaries` to `BuildResult` |
 | `app/pipeline/interception.py` | No change | Already complete |

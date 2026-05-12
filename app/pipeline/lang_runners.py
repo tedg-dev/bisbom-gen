@@ -205,18 +205,19 @@ def _select_java_strategy(
     )
 
 
-def run_java_pipeline(
+def run_java_phase1(
     pipeline, repo_name, repo_cfg,
     paths_cfg, omnibor_java_cfg, run_ts,
-    vcs_uri="NOASSERTION",
     mode="standalone",
 ):
-    """Java pipeline: build + SPDX generation.
+    """Java Phase 1: build interception only.
 
-    In standalone mode (default): strace + bomsh_create_bom_java.py.
+    In standalone mode: strace + bomsh_create_bom_java.py.
     In sidecar mode: dep:tree strategy (no strace needed).
 
-    Returns ``TimingResult`` with per-step metrics.
+    Returns ``(TimingResult, strategy)`` tuple.
+    The strategy is needed by Phase 2 dispatch but is
+    a Phase 1 decision, so it is returned here.
     """
     strategy = _select_java_strategy(
         repo_name, repo_cfg, paths_cfg, mode,
@@ -224,7 +225,6 @@ def run_java_pipeline(
     tracer = strategy.name if strategy else "strace"
     timing = TimingResult(tracer=tracer)
 
-    # Phase 1: Build
     if strategy:
         build_result = pipeline.builder.build(
             repo_name, repo_cfg,
@@ -240,28 +240,71 @@ def run_java_pipeline(
         )
     timing.steps.extend(build_result.steps)
     timing.success = build_result.success
-    if not build_result.success:
+    return timing, strategy
+
+
+def run_java_phase2(
+    pipeline, repo_name, repo_cfg,
+    paths_cfg, omnibor_java_cfg, run_ts,
+    vcs_uri="NOASSERTION",
+):
+    """Java Phase 2: SPDX generation + validation.
+
+    Runs post-build analysis: OmniBOR SBOM, metadata,
+    per-binary SPDX, validation, binary collection.
+
+    Returns list of ``StepMetrics``.
+    """
+    return _run_post_build(
+        pipeline, repo_name, repo_cfg,
+        paths_cfg, run_ts,
+        sbom_fn=lambda: (
+            pipeline.spdx_gen.generate_java(
+                repo_name, repo_cfg,
+                paths_cfg, omnibor_java_cfg,
+                run_ts=run_ts,
+            )
+        ),
+        spdx_gen_fn=lambda: (
+            generate_java_adg_spdx(
+                repo_name, repo_cfg,
+                paths_cfg, run_ts,
+                vcs_uri=vcs_uri,
+            )
+        ),
+    )
+
+
+def run_java_pipeline(
+    pipeline, repo_name, repo_cfg,
+    paths_cfg, omnibor_java_cfg, run_ts,
+    vcs_uri="NOASSERTION",
+    mode="standalone",
+):
+    """Java pipeline: build + SPDX generation.
+
+    In standalone mode (default): strace + bomsh_create_bom_java.py.
+    In sidecar mode: dep:tree strategy (no strace needed).
+
+    Backward-compatible: calls Phase 1 then Phase 2
+    sequentially. For phase isolation, use
+    ``run_java_phase1`` / ``run_java_phase2`` directly.
+
+    Returns ``TimingResult`` with per-step metrics.
+    """
+    timing, _ = run_java_phase1(
+        pipeline, repo_name, repo_cfg,
+        paths_cfg, omnibor_java_cfg, run_ts,
+        mode=mode,
+    )
+    if not timing.success:
         return timing
 
-    # Phase 2: Post-build analysis
     timing.steps.extend(
-        _run_post_build(
+        run_java_phase2(
             pipeline, repo_name, repo_cfg,
-            paths_cfg, run_ts,
-            sbom_fn=lambda: (
-                pipeline.spdx_gen.generate_java(
-                    repo_name, repo_cfg,
-                    paths_cfg, omnibor_java_cfg,
-                    run_ts=run_ts,
-                )
-            ),
-            spdx_gen_fn=lambda: (
-                generate_java_adg_spdx(
-                    repo_name, repo_cfg,
-                    paths_cfg, run_ts,
-                    vcs_uri=vcs_uri,
-                )
-            ),
+            paths_cfg, omnibor_java_cfg, run_ts,
+            vcs_uri=vcs_uri,
         )
     )
     return timing

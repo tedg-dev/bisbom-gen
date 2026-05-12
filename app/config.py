@@ -38,6 +38,9 @@ def lang_subdir(repo_cfg):
 VALID_MODES = ("standalone", "sidecar")
 DEFAULT_MODE = "standalone"
 
+# Valid phase isolation phases
+VALID_PHASES = ("build", "spdx")
+
 # Maps language names to their omnibor config keys
 _LANG_OMNIBOR_KEYS = {
     "c-cpp": "omnibor",

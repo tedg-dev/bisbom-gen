@@ -12,12 +12,15 @@ from pathlib import Path
 from app.config import (
     lang_subdir, load_config, resolve_omnibor_cfg,
     timestamp, VALID_MODES, DEFAULT_MODE,
+    VALID_PHASES,
 )
 from app.pipeline.facade import AnalysisPipeline
 from app.pipeline.lang_runners import (
     run_c_cpp_pipeline,
     run_rust_pipeline,
     run_java_pipeline,
+    run_java_phase1,
+    run_java_phase2,
     run_go_pipeline,
     generate_java_adg_spdx,
 )
@@ -72,7 +75,29 @@ def main():
             "baseline timing. No Phase 2 analysis."
         ),
     )
+    parser.add_argument(
+        "--phase",
+        choices=VALID_PHASES,
+        default=None,
+        help=(
+            "Run only Phase 1 (build) or "
+            "Phase 2 (spdx). Requires "
+            "--mode sidecar. Omit to run both."
+        ),
+    )
+    parser.add_argument(
+        "--manifest",
+        type=str, default=None,
+        help=(
+            "Path to phase1_manifest.json "
+            "(required with --phase spdx)"
+        ),
+    )
     args = parser.parse_args()
+
+    # Validate phase isolation constraints
+    if args.phase:
+        _validate_phase_args(args, parser)
 
     config = load_config()
     # CLI --mode overrides config file
@@ -296,6 +321,35 @@ def main():
                     f"({overhead:+.1f}%)"
                 )
     print(f"{'#'*60}\n")
+
+
+def _validate_phase_args(args, parser):
+    """Validate --phase CLI constraints.
+
+    Rules:
+    - ``--phase`` requires ``--mode sidecar``
+      (standalone does not support phase isolation).
+    - ``--phase spdx`` requires ``--manifest``.
+    - ``--phase build`` must not have ``--manifest``.
+    """
+    mode = args.mode or DEFAULT_MODE
+    if mode != "sidecar":
+        parser.error(
+            "--phase requires --mode sidecar "
+            "(standalone does not support "
+            "phase isolation)"
+        )
+    if args.phase == "spdx" and not args.manifest:
+        parser.error(
+            "--phase spdx requires --manifest "
+            "<path to phase1_manifest.json>"
+        )
+    if args.phase == "build" and args.manifest:
+        parser.error(
+            "--manifest is not valid with "
+            "--phase build (manifest is an "
+            "output of Phase 1, not an input)"
+        )
 
 
 def _run_baseline(
