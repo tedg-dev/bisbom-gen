@@ -13,6 +13,10 @@ from app.pipeline.runners import (
     _run_java_pipeline,
     _generate_java_adg_spdx,
 )
+from app.pipeline.builder import BuildResult
+from app.pipeline.timing import (
+    TimingResult, StepMetrics,
+)
 
 
 class TestRunJavaPipeline(unittest.TestCase):
@@ -20,7 +24,9 @@ class TestRunJavaPipeline(unittest.TestCase):
 
     def _make_pipeline(self):
         p = MagicMock()
-        p.builder.build_java.return_value = True
+        p.builder.build_java.return_value = BuildResult(
+            success=True,
+        )
         p.spdx_gen.generate_java.return_value = (
             "/tmp/spdx.json"
         )
@@ -64,13 +70,13 @@ class TestRunJavaPipeline(unittest.TestCase):
             )
             pipeline = self._make_pipeline()
 
-            success, _cap, _spdx, tracer = _run_java_pipeline(
+            timing = _run_java_pipeline(
                 pipeline, "myapp", repo_cfg,
                 paths, java_cfg, "ts1",
             )
 
-            self.assertTrue(success)
-            self.assertEqual(tracer, "strace")
+            self.assertTrue(timing.success)
+            self.assertEqual(timing.tracer, "strace")
             pipeline.builder.build_java.assert_called_once()
             pipeline.spdx_gen.generate_java.assert_called_once()
             pipeline.metadata_collector.collect.assert_called_once()
@@ -92,14 +98,16 @@ class TestRunJavaPipeline(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             paths, repo_cfg, java_cfg = self._make_cfg(td)
             pipeline = self._make_pipeline()
-            pipeline.builder.build_java.return_value = False
+            pipeline.builder.build_java.return_value = (
+                BuildResult(success=False)
+            )
 
-            success, _cap, _spdx, _tracer = _run_java_pipeline(
+            timing = _run_java_pipeline(
                 pipeline, "myapp", repo_cfg,
                 paths, java_cfg, "ts1",
             )
 
-            self.assertFalse(success)
+            self.assertFalse(timing.success)
             pipeline.spdx_gen.generate_java.assert_not_called()
             pipeline.metadata_collector.collect.assert_not_called()
             pipeline.binary_collector.collect.assert_not_called()
@@ -118,12 +126,12 @@ class TestRunJavaPipeline(unittest.TestCase):
                 None
             )
 
-            success, _cap, _spdx, _tracer = _run_java_pipeline(
+            timing = _run_java_pipeline(
                 pipeline, "myapp", repo_cfg,
                 paths, java_cfg, "ts1",
             )
 
-            self.assertTrue(success)
+            self.assertTrue(timing.success)
             # No spdx file + no adg files + no syft
             pipeline.spdx_validator.validate.assert_not_called()
 
@@ -476,12 +484,20 @@ class TestJarMapFallbackMatching(unittest.TestCase):
 class TestMainJavaDispatch(unittest.TestCase):
     """Test that main() dispatches to Java pipeline."""
 
+    @patch(
+        "app.pipeline.timing.save_runtime_json",
+    )
+    @patch(
+        "app.pipeline.timing.load_baseline",
+        return_value=None,
+    )
     @patch("app.pipeline.runners.run_java_pipeline")
     @patch("app.pipeline.runners.AnalysisPipeline")
     @patch("app.pipeline.runners.load_config")
     @patch("app.pipeline.runners.timestamp")
     def test_java_dispatch(
-        self, mock_ts, mock_cfg, mock_pipe, mock_java,
+        self, mock_ts, mock_cfg, mock_pipe,
+        mock_java, _bl, _save,
     ):
         mock_ts.return_value = "ts1"
         mock_cfg.return_value = {
@@ -509,7 +525,17 @@ class TestMainJavaDispatch(unittest.TestCase):
         }
         mock_pipe_inst = MagicMock()
         mock_pipe.return_value = mock_pipe_inst
-        mock_java.return_value = (True, 8.0, 2.0, "strace")
+        mock_java.return_value = TimingResult(
+            tracer="strace",
+            success=True,
+            steps=[
+                StepMetrics(
+                    name="build",
+                    phase="phase1",
+                    wall_sec=8.0,
+                ),
+            ],
+        )
 
         from app.pipeline.runners import main
         with patch(
@@ -520,12 +546,20 @@ class TestMainJavaDispatch(unittest.TestCase):
 
         mock_java.assert_called_once()
 
+    @patch(
+        "app.pipeline.timing.save_runtime_json",
+    )
+    @patch(
+        "app.pipeline.timing.load_baseline",
+        return_value=None,
+    )
     @patch("app.pipeline.runners.run_rust_pipeline")
     @patch("app.pipeline.runners.AnalysisPipeline")
     @patch("app.pipeline.runners.load_config")
     @patch("app.pipeline.runners.timestamp")
     def test_rust_dispatch(
-        self, mock_ts, mock_cfg, mock_pipe, mock_rust,
+        self, mock_ts, mock_cfg, mock_pipe,
+        mock_rust, _bl, _save,
     ):
         mock_ts.return_value = "ts1"
         mock_cfg.return_value = {
@@ -554,7 +588,17 @@ class TestMainJavaDispatch(unittest.TestCase):
         }
         mock_pipe_inst = MagicMock()
         mock_pipe.return_value = mock_pipe_inst
-        mock_rust.return_value = (True, 8.0, 2.0, "bomtrace2")
+        mock_rust.return_value = TimingResult(
+            tracer="bomtrace2",
+            success=True,
+            steps=[
+                StepMetrics(
+                    name="build",
+                    phase="phase1",
+                    wall_sec=8.0,
+                ),
+            ],
+        )
 
         from app.pipeline.runners import main
         with patch(

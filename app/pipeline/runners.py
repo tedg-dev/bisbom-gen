@@ -65,6 +65,13 @@ def main():
             f"Default: {DEFAULT_MODE}"
         ),
     )
+    parser.add_argument(
+        "--baseline", action="store_true",
+        help=(
+            "Run non-instrumented build to capture "
+            "baseline timing. No Phase 2 analysis."
+        ),
+    )
     args = parser.parse_args()
 
     config = load_config()
@@ -153,6 +160,14 @@ def main():
             "[WARN] Could not resolve commit SHA"
         )
 
+    # Baseline mode: non-instrumented build only
+    if args.baseline:
+        _run_baseline(
+            args.repo, repo_cfg, paths_cfg,
+            run_ts, pipeline,
+        )
+        return
+
     # Step 2: Syft SBOM (manifest-based — optional,
     # disabled by default in config.yaml).
     # --syft-only CLI flag overrides config.
@@ -174,44 +189,36 @@ def main():
 
     # -------------------------------------------------
     # Language-specific pipeline branch
-    # Each returns (success, capture_dur, spdx_dur,
-    #               tracer_name).
+    # Each returns a TimingResult with per-step metrics.
     # -------------------------------------------------
     if lang == "c-cpp":
-        success, capture_dur, spdx_dur, tracer = (
-            run_c_cpp_pipeline(
-                pipeline, args.repo, repo_cfg,
-                paths_cfg, omnibor_cfg, run_ts,
-                vcs_uri=vcs_uri,
-            )
+        timing = run_c_cpp_pipeline(
+            pipeline, args.repo, repo_cfg,
+            paths_cfg, omnibor_cfg, run_ts,
+            vcs_uri=vcs_uri,
         )
     elif lang == "rust":
-        success, capture_dur, spdx_dur, tracer = (
-            run_rust_pipeline(
-                pipeline, args.repo, repo_cfg,
-                paths_cfg, omnibor_cfg, run_ts,
-                vcs_uri=vcs_uri,
-            )
+        timing = run_rust_pipeline(
+            pipeline, args.repo, repo_cfg,
+            paths_cfg, omnibor_cfg, run_ts,
+            vcs_uri=vcs_uri,
         )
     elif lang == "java":
         mode = config.get("mode", DEFAULT_MODE)
-        success, capture_dur, spdx_dur, tracer = (
-            run_java_pipeline(
-                pipeline, args.repo, repo_cfg,
-                paths_cfg, omnibor_cfg, run_ts,
-                vcs_uri=vcs_uri,
-                mode=mode,
-            )
+        timing = run_java_pipeline(
+            pipeline, args.repo, repo_cfg,
+            paths_cfg, omnibor_cfg, run_ts,
+            vcs_uri=vcs_uri,
+            mode=mode,
         )
     else:
-        success, capture_dur, spdx_dur, tracer = (
-            run_go_pipeline(
-                pipeline, args.repo, repo_cfg,
-                paths_cfg, omnibor_cfg, run_ts,
-                vcs_uri=vcs_uri,
-            )
+        timing = run_go_pipeline(
+            pipeline, args.repo, repo_cfg,
+            paths_cfg, omnibor_cfg, run_ts,
+            vcs_uri=vcs_uri,
         )
-    duration = capture_dur + spdx_dur
+    success = timing.success
+    duration = timing.total
 
     # Step 7b: Validate Syft SPDX (if enabled)
     if syft_enabled:
@@ -220,32 +227,125 @@ def main():
             paths_cfg, run_ts,
         )
 
+    # Load baseline (golden reference) for overhead calc
+    from app.pipeline.timing import (
+        load_baseline, save_runtime_json,
+    )
+    baseline = load_baseline(
+        paths_cfg, args.repo, repo_cfg,
+    )
+
     # Step 8: Write docs (all languages)
     raw_logfile = omnibor_cfg.get("raw_logfile")
     pipeline.docs.write_build_doc(
         args.repo, repo_cfg, paths_cfg,
         success, duration,
-        run_ts=run_ts, tracer=tracer,
+        run_ts=run_ts, tracer=timing.tracer,
         raw_logfile=raw_logfile,
         commit_sha=commit_sha,
-        capture_dur=capture_dur,
-        spdx_dur=spdx_dur,
+        timing=timing,
     )
     pipeline.docs.write_runtime_doc(
         args.repo, repo_cfg, paths_cfg,
         duration, run_ts=run_ts,
-        tracer=tracer,
-        capture_dur=capture_dur,
-        spdx_dur=spdx_dur,
+        tracer=timing.tracer,
+        timing=timing,
+        baseline=baseline,
     )
 
+    # Save runtime.json
+    save_runtime_json(
+        timing, paths_cfg, args.repo,
+        repo_cfg, run_ts,
+        baseline=baseline,
+    )
+
+    # Console summary
+    p1 = timing.phase1_total
+    p2 = timing.phase2_total
     status = "COMPLETE" if success else "FAILED"
     print(f"\n{'#'*60}")
     print(f"  Analysis {status}: {args.repo}")
     print(
-        f"  Capture: {capture_dur:.1f}s  "
-        f"SPDX: {spdx_dur:.1f}s  "
+        f"  Build: {p1:.1f}s  "
+        f"Analysis: {p2:.1f}s  "
         f"Total: {duration:.1f}s"
+    )
+    if baseline:
+        from app.pipeline.timing import (
+            baseline_build_step,
+        )
+        bl_build = baseline_build_step(baseline)
+        if bl_build:
+            bl_wall = bl_build.get("wall_sec", 0)
+            # Find instrumented build step
+            inst_build = next(
+                (s for s in timing.steps
+                 if s.name == "build"),
+                None,
+            )
+            if bl_wall > 0 and inst_build:
+                overhead = (
+                    (inst_build.wall_sec - bl_wall)
+                    / bl_wall * 100
+                )
+                print(
+                    f"  Build overhead: "
+                    f"{bl_wall:.1f}s → "
+                    f"{inst_build.wall_sec:.1f}s "
+                    f"({overhead:+.1f}%)"
+                )
+    print(f"{'#'*60}\n")
+
+
+def _run_baseline(
+    repo_name, repo_cfg, paths_cfg,
+    run_ts, pipeline,
+):
+    """Run non-instrumented build and save baseline.
+
+    Delegates to ``BomtraceBuilder.build_baseline()``
+    which runs clean + prebuild + build WITHOUT tracer.
+    Each step is timed separately so the build step
+    can be compared apples-to-apples against the
+    instrumented build.
+    """
+    from app.pipeline.timing import save_baseline
+
+    print(f"\n[BASELINE] {repo_name}: "
+          "non-instrumented build")
+
+    build_result = pipeline.builder.build_baseline(
+        repo_name, repo_cfg, paths_cfg,
+    )
+    if build_result is None or not build_result.success:
+        print(f"[ERROR] Baseline failed: {repo_name}")
+        return
+
+    save_baseline(
+        build_result, paths_cfg, repo_name,
+        repo_cfg, run_ts=run_ts,
+    )
+
+    # Report the build step specifically
+    build_step = next(
+        (s for s in build_result.steps
+         if s.name == "build"),
+        None,
+    )
+    if build_step:
+        print(
+            f"[BASELINE] {repo_name}: build "
+            f"{build_step.wall_sec:.1f}s "
+            f"(CPU eff: "
+            f"{build_step.cpu_efficiency:.2f}x)"
+        )
+    total = sum(
+        s.wall_sec for s in build_result.steps
+    )
+    print(
+        f"[BASELINE] {repo_name}: total "
+        f"{total:.1f}s"
     )
     print(f"{'#'*60}\n")
 
