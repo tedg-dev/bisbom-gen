@@ -1,18 +1,37 @@
 # Phase Isolation System Test
 
+## Architecture Overview
+
+[![Phase Isolation CI/CD Architecture](phase-isolation-ci-cd.png)](phase-isolation-ci-cd.drawio)
+
+> **Click to view full size.** Shows the two-job CI/CD architecture:
+> Job 1 (build + Phase 1) uploads artifacts → Job 2 (Phase 2) downloads
+> and generates SPDX. No shared filesystem between jobs.
+
 ## Purpose
 
 Proves that Phase 1 (build) and Phase 2 (SPDX generation) can run in
-**completely separate Docker containers**, communicating only via:
+**completely separate execution contexts**, communicating only via:
 
 1. The **manifest file** (`phase1_manifest.json`) — written by Phase 1,
    read by Phase 2
-2. The **shared volume** (`output/`) — Phase 1's build artifacts persist
-   on the host filesystem between containers
+2. **Explicit artifact transfer** — Phase 1's build artifacts are
+   uploaded and downloaded between contexts (no shared filesystem)
 
 This validates the enterprise deployment model where Phase 1 runs in a
 customer's build environment and Phase 2 runs in a separate analysis
 service (e.g., Corona).
+
+### Execution Patterns
+
+| Pattern | Phase 1 | Artifact Transfer | Phase 2 | Use Case |
+|---------|---------|-------------------|---------|----------|
+| **Local Docker** | Container A | Shared volume | Container B | Development / validation |
+| **CI/CD (GitHub Actions)** | Job 1 runner | `actions/upload-artifact` / `actions/download-artifact` | Job 2 runner | Automated pipeline |
+| **Enterprise (Corona)** | Customer CI | S3 / OCI registry | Corona agent | Production deployment |
+
+All three patterns use the same CLI interface (`--phase build`,
+`--phase spdx --manifest <path>`) and the same manifest format.
 
 ## Location
 
@@ -23,6 +42,7 @@ service (e.g., Corona).
 - **Unit tests**: `tests/test_phase_isolation.py` (13 tests)
 - **Golden files**: `tests/golden/spdx/java/<repo>/`
 - **Comparison script**: `scripts/compare_golden.py`
+- **Drawio source**: `docs/features/phase-isolation-ci-cd.drawio`
 
 ## How It Works
 
@@ -157,6 +177,63 @@ At the end of each repo test, a proof summary is printed:
 - Internal timing extracted from pipeline logs
 - Total combined time
 
+## CI/CD Integration (GitHub Actions)
+
+Phase isolation maps to GitHub Actions as **two separate jobs**
+connected by artifact upload/download. This is the industry-standard
+pattern for staged CI/CD pipelines (analogous to Jenkins parameterized
+builds, GitLab CI stages, Azure DevOps pipeline stages).
+
+### Job Structure
+
+```
+baseline          → always runs (standard build, timing reference)
+build-and-phase1  → conditional: build + Phase 1 sidecar → upload artifacts
+phase2-analyze    → conditional: download artifacts → Phase 2 → upload SPDX
+```
+
+### Instrumented / Standard Toggle
+
+The sidecar jobs are controlled by a generic, language-agnostic toggle:
+
+| Source | Mechanism | Scope |
+|--------|-----------|-------|
+| **Manual trigger** | `workflow_dispatch` input `enable_sbom` (boolean) | Per-run choice |
+| **Default** | Repository variable `vars.OMNIBOR_ENABLED` | Push/PR triggers |
+
+This is the same pattern used by Jenkins, GitLab CI, and Azure DevOps
+for optional pipeline stages. The toggle has zero knowledge of language
+or build system — it only controls whether sidecar jobs run.
+
+### What Phase 2 Needs
+
+Phase 2 runs in a separate GitHub Actions job (different runner,
+no shared filesystem). It receives only:
+
+| Data | Source | Why |
+|------|--------|-----|
+| `phase1_manifest.json` | Phase 1 artifact upload | Locates artifacts, carries config |
+| `bomsh_omnibor_treedb` | Phase 1 artifact upload | Source→class→JAR provenance chain |
+| `dep_tree.json` | Phase 1 artifact upload | Dependency graph resolution |
+| `target/*.jar` | Build artifact upload | Binary collection + SPDX fileInfo |
+| `pom.xml` | `actions/checkout` | Module structure discovery |
+
+### Local Retrieval
+
+CI artifacts can be downloaded to a local Mac or EC2 via the GitHub
+CLI (industry standard):
+
+```bash
+# Download SPDX output
+gh run download <run-id> \
+  -R tedg-dev/omnibor-java-testapp \
+  -n spdx-output -D ./output/
+
+# Download Phase 1 artifacts to run Phase 2 locally
+gh run download <run-id> \
+  -n phase1-artifacts -D ./phase1/
+```
+
 ## Golden Files Available
 
 | Repo | Golden Files | Details |
@@ -213,3 +290,12 @@ All test logs are preserved in `/tmp/phase_isolation_test/<repo>/`:
 - **Sidecar mode** supports phase isolation: Phase 1 only, with
   Phase 2 running separately.
 - Only sidecar mode is valid for `--phase build` or `--phase spdx`.
+
+### Related Diagrams
+
+| Diagram | Description |
+|---------|-------------|
+| [![Phase Isolation CI/CD](phase-isolation-ci-cd.png)](phase-isolation-ci-cd.drawio) | **Phase Isolation CI/CD** — Two-job GitHub Actions architecture with artifact transfer, toggle mechanism, and local retrieval. ([drawio source](phase-isolation-ci-cd.drawio)) |
+| [![Two-Phase Sidecar Architecture](../deep-dive/sidecar-two-phase-corona-p1.png)](../deep-dive/sidecar-two-phase-corona.drawio) | **Two-Phase Sidecar Architecture** — General Phase 1/Phase 2 pipeline with per-language interception, artifact store, and provenance chain. ([drawio source](../deep-dive/sidecar-two-phase-corona.drawio)) |
+
+> **Click any diagram to view full size.**
