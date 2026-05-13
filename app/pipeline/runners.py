@@ -6,6 +6,7 @@ pipeline runners in app.pipeline.lang_runners.
 """
 
 import argparse
+import json
 import sys
 from pathlib import Path
 
@@ -137,7 +138,15 @@ def main():
     #   output/omnibor/{lang}/{repo}/{run_ts}/
     #   output/build-logs/{lang}/{repo}/{run_ts}/
     #   output/runtime/{lang}/{repo}/{run_ts}/
-    run_ts = timestamp()
+    # Phase 2-only: reuse Phase 1's timestamp so all
+    # output lands in the same directory tree.
+    if args.phase == "spdx" and args.manifest:
+        _m = json.loads(
+            Path(args.manifest).read_text()
+        )
+        run_ts = _m.get("run_ts", timestamp())
+    else:
+        run_ts = timestamp()
 
     print(f"\n{'#'*60}")
     print(f"  OmniBOR Analysis: {args.repo}")

@@ -313,6 +313,21 @@ class BomtraceBuilder:
                 )
             result.steps.append(timer.metrics)
 
+        # Gradle's `clean` task does not clean
+        # buildSrc/build/ — it is an included build
+        # with its own lifecycle.  When cached classes
+        # exist, Gradle skips recompilation and strace
+        # never sees the .java file opens.  Remove
+        # buildSrc/build/ to force a full recompile so
+        # strace captures all source file access.
+        buildsrc_build = repo_dir / "buildSrc" / "build"
+        if buildsrc_build.is_dir():
+            shutil.rmtree(str(buildsrc_build))
+            print(
+                "[OK] Cleaned buildSrc/build "
+                "(Gradle included build cache)"
+            )
+
         # --- Phase 1b: Pre-build steps ---
         build_steps = repo_cfg["build_steps"]
         pre_steps = build_steps[:-1]

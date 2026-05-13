@@ -60,9 +60,10 @@ class JavaSpdxGenerator:
         self.vcs_uri = vcs_uri
         # Set of absolute file paths opened during
         # the build (from strace openat log).  Used
-        # to filter workspace-scan results to only
-        # files actually accessed — mirrors how
-        # C/C++ uses the raw logfile for evidence.
+        # as secondary verification of treedb’s
+        # heuristic class→source mapping.  Logged as
+        # warnings when discrepancies found, but does
+        # NOT discard files — treedb is authoritative.
         self.strace_accessed = strace_accessed or set()
 
     # -------------------------------------------------
@@ -444,26 +445,25 @@ class JavaSpdxGenerator:
             len(all_files) - len(source_files)
         )
 
-        # Filter to strace-verified files when the
-        # openat log is available.  This narrows
-        # workspace-scan results to only files the
-        # build actually opened.
-        strace_excluded = 0
+        # Secondary verification: compare treedb
+        # files against strace openat log.  Treedb
+        # uses heuristic path-similarity scoring for
+        # class→source mapping, so discrepancies may
+        # indicate false positives.  Log warnings but
+        # do NOT discard — strace can also miss files
+        # (e.g. Gradle included-build caching).
+        strace_unverified = 0
         if self.strace_accessed:
-            verified = []
             for f in source_files:
                 fp = f.get("file_path", "")
-                if fp in self.strace_accessed:
-                    verified.append(f)
-                else:
-                    strace_excluded += 1
-            source_files = verified
+                if fp not in self.strace_accessed:
+                    strace_unverified += 1
 
         strace_msg = ""
-        if strace_excluded:
+        if strace_unverified:
             strace_msg = (
-                f", {strace_excluded} not in "
-                f"strace log"
+                f", {strace_unverified} not in "
+                f"strace log (kept)"
             )
         test_msg = (
             f", {test_files_excluded} test excluded"

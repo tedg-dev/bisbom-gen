@@ -1608,8 +1608,13 @@ class TestSiblingFiltering(unittest.TestCase):
         self.assertIn("commons", pkg_names)
 
 
-class TestStraceFiltering(unittest.TestCase):
-    """Tests for strace openat log filtering."""
+class TestStraceVerification(unittest.TestCase):
+    """Strace is informational, not a filter.
+
+    Treedb is the authoritative provenance chain.
+    Strace provides secondary verification — files
+    not in the strace log are kept but logged.
+    """
 
     def test_init_default_strace_empty(self):
         """Default strace_accessed is empty set."""
@@ -1634,10 +1639,10 @@ class TestStraceFiltering(unittest.TestCase):
     @patch.object(
         JavaSpdxGenerator, "_get_maven_deps"
     )
-    def test_strace_filters_source_files(
+    def test_unverified_files_kept_in_spdx(
         self, mock_maven
     ):
-        """Files not in strace log are excluded."""
+        """Files not in strace are kept (not filtered)."""
         with tempfile.TemporaryDirectory() as td:
             repos = Path(td) / "repos"
             repo = repos / "myapp"
@@ -1673,7 +1678,7 @@ class TestStraceFiltering(unittest.TestCase):
                 {
                     "sha1": "bbb",
                     "file_path": str(
-                        repo / "src/main/Stale.java"
+                        repo / "src/main/Other.java"
                     ),
                 },
             ]
@@ -1685,11 +1690,15 @@ class TestStraceFiltering(unittest.TestCase):
             )
             self.assertIsNotNone(result)
             doc = json.loads(out.read_text())
-            # Only App.java should be in files
-            self.assertEqual(len(doc["files"]), 1)
+            # Both files kept — strace is
+            # informational, not a gate.
+            self.assertEqual(len(doc["files"]), 2)
+            names = {
+                f["fileName"] for f in doc["files"]
+            }
+            self.assertIn("src/main/App.java", names)
             self.assertIn(
-                "src/main/App.java",
-                doc["files"][0]["fileName"],
+                "src/main/Other.java", names
             )
 
     @patch.object(
