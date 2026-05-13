@@ -242,7 +242,7 @@ def run_maven_dep_tree(
         "-DoutputType=dot",
     ]
     if maven_modules:
-        cmd.extend(["-pl", maven_modules])
+        cmd.extend(["-pl", maven_modules, "-am"])
 
     # runner is accepted for interface consistency
     # with other pipeline functions but not yet used

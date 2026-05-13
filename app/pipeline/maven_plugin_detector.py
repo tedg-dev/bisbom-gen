@@ -93,10 +93,11 @@ class DetectionResult:
         """
         if not self.detections:
             return ""
-        lines = []
+        seen = []
         for d in self.detections:
-            lines.append(d.warning)
-        return "; ".join(lines)
+            if d.warning not in seen:
+                seen.append(d.warning)
+        return "; ".join(seen)
 
     @property
     def plugin_ids(self) -> List[str]:

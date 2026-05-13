@@ -1963,5 +1963,56 @@ class TestAddBuildToolsGradle(unittest.TestCase):
         self.assertIn("javac", names)
 
 
+class TestCreationInfo(unittest.TestCase):
+    """Tests for _creation_info static method."""
+
+    def test_without_plugin_detection(self):
+        info = JavaSpdxGenerator._creation_info(
+            "2026-01-01T00:00:00Z",
+        )
+        self.assertEqual(
+            info["created"], "2026-01-01T00:00:00Z",
+        )
+        self.assertIn(
+            "Tool: omnibor-analysis", info["creators"],
+        )
+        self.assertNotIn("comment", info)
+
+    def test_with_no_plugins_detected(self):
+        from app.pipeline.maven_plugin_detector import (
+            DetectionResult,
+        )
+        result = DetectionResult()
+        info = JavaSpdxGenerator._creation_info(
+            "2026-01-01T00:00:00Z", result,
+        )
+        self.assertNotIn("comment", info)
+
+    def test_with_shade_plugin(self):
+        from app.pipeline.maven_plugin_detector import (
+            DetectionResult,
+            PluginDetection,
+        )
+        result = DetectionResult(detections=[
+            PluginDetection(
+                plugin_id="maven-shade-plugin",
+                group_id="org.apache.maven.plugins",
+                warning="shade detected — uber-JAR",
+                pom_path="/pom.xml",
+            ),
+        ])
+        info = JavaSpdxGenerator._creation_info(
+            "2026-01-01T00:00:00Z", result,
+        )
+        self.assertIn("comment", info)
+        self.assertIn("shade", info["comment"])
+
+    def test_with_none_plugin_detection(self):
+        info = JavaSpdxGenerator._creation_info(
+            "2026-01-01T00:00:00Z", None,
+        )
+        self.assertNotIn("comment", info)
+
+
 if __name__ == "__main__":
     unittest.main()
