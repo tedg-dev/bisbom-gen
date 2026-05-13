@@ -305,7 +305,6 @@ All test logs are preserved in `/tmp/phase_isolation_test/<repo>/`:
 
 | Diagram | Description |
 |---------|-------------|
-| [![Phase Isolation CI/CD](phase-isolation-ci-cd.png)](phase-isolation-ci-cd.drawio) | **Phase Isolation CI/CD** — Two-job GitHub Actions architecture with artifact transfer, toggle mechanism, and local retrieval. ([drawio source](phase-isolation-ci-cd.drawio)) |
 | [![Two-Phase Sidecar Architecture](sidecar-two-phase-corona-p1.png)](sidecar-two-phase-corona.drawio) | **Two-Phase Sidecar Architecture** — General Phase 1/Phase 2 pipeline with per-language interception, artifact store, and provenance chain. ([drawio source](sidecar-two-phase-corona.drawio)) |
 
-> **Click any diagram to view full size.**
+> **Click diagram to view full size.**
