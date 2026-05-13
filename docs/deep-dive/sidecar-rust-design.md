@@ -1,12 +1,12 @@
 # Sidecar & Phase Isolation — Rust
 
-> **Parent doc**: `sidecar-phase-isolation-infrastructure.md`
+> **Parent doc**: `../features/phase-isolation/sidecar-phase-isolation-infrastructure.md`
 > **Status**: Design proposal — not yet implemented
 > **Date**: 2026-06-12
 
 ---
 
-> **Supported modes**: See `sidecar-phase-isolation-infrastructure.md` §1
+> **Supported modes**: See `../features/phase-isolation/sidecar-phase-isolation-infrastructure.md` §1
 > for the authoritative definition of Standalone and Sidecar modes.
 > All modes apply to Rust.
 

@@ -96,12 +96,12 @@ per-language docs listed above.
 
 The following existing diagrams illustrate the target architecture:
 
-- `sidecar-standalone-architecture.drawio` — current standalone flow
-- `sidecar-target-architecture.drawio` — target dual-mode flow
+- `../../deep-dive/sidecar-standalone-architecture.drawio` — current standalone flow
+- `../../deep-dive/sidecar-target-architecture.drawio` — target dual-mode flow
 - `sidecar-two-phase-corona.drawio` — Phase 1 → manifest → Phase 2/Corona
-- `sidecar-strategy-pattern.drawio` — strategy pattern class hierarchy
-- `sidecar-critical-path.drawio` — CI/CD critical path reduction
-- `sidecar-dependency-graph.drawio` — module dependency graph
+- `../../deep-dive/sidecar-strategy-pattern.drawio` — strategy pattern class hierarchy
+- `../../deep-dive/sidecar-critical-path.drawio` — CI/CD critical path reduction
+- `../../deep-dive/sidecar-dependency-graph.drawio` — module dependency graph
 
 ---
 
