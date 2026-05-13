@@ -40,7 +40,7 @@ All three patterns use the same CLI interface (`--phase build`,
 - **Phase 2 dispatch**: `app/pipeline/runners.py` → `_run_phase2_only()`
 - **Manifest module**: `app/pipeline/manifest.py`
 - **Unit tests**: `tests/test_phase_isolation.py` (13 tests)
-- **Golden files**: `tests/golden/spdx/java/<repo>/`
+- **Golden files**: `tests/golden/spdx/<lang>/<repo>/`
 - **Comparison script**: `scripts/compare_golden.py`
 - **Drawio source**: `docs/features/phase-isolation-ci-cd.drawio`
 
@@ -56,7 +56,7 @@ docker compose run --rm -T omnibor-sidecar \
 
 1. Builds the repo inside a fresh sidecar container
 2. Writes `phase1_manifest.json` to
-   `output/omnibor/java/<repo>/<ts>/`
+   `output/omnibor/<lang>/<repo>/<ts>/`
 3. The manifest includes:
    - `run_ts` — timestamp for consistent output directory naming
    - `commit_sha` — git commit of the target repo
@@ -72,7 +72,7 @@ docker compose run --rm -T omnibor-sidecar \
 The test script parses the Phase 1 log for:
 
 ```
-Phase 1 manifest: /workspace/output/omnibor/java/<repo>/<ts>/phase1_manifest.json
+Phase 1 manifest: /workspace/output/omnibor/<lang>/<repo>/<ts>/phase1_manifest.json
 ```
 
 ### Pre-Phase 2 Assertions
@@ -100,7 +100,7 @@ docker compose run --rm -T omnibor-sidecar \
 2. Reads the manifest from the shared volume
 3. Verifies artifact integrity via gitoid SHA-256 hashes
 4. Reuses Phase 1's `run_ts` so all output goes to the same
-   directory tree (fix in `runners.py` lines 142-149)
+   directory tree (see `run_ts` reuse below)
 5. Runs full Phase 2 pipeline:
    - OmniBOR SBOM generation
    - Metadata collection
@@ -109,7 +109,7 @@ docker compose run --rm -T omnibor-sidecar \
    - Binary collection
 6. Container B exits and is removed
 
-### `run_ts` Reuse (Bug Fix)
+### `run_ts` Reuse
 
 When `--phase spdx` is used, `main()` reads the manifest early and
 uses Phase 1's `run_ts` instead of generating a new timestamp. This
@@ -143,8 +143,8 @@ If any proof fails, the test reports `[FAIL]` and exits non-zero.
 After the proof assertions:
 
 1. Reads `run_ts` from the manifest
-2. Locates SPDX output at `output/spdx/java/<repo>/<run_ts>/`
-3. Compares against `tests/golden/spdx/java/<repo>/`
+2. Locates SPDX output at `output/spdx/<lang>/<repo>/<run_ts>/`
+3. Compares against `tests/golden/spdx/<lang>/<repo>/`
    using `scripts/compare_golden.py`
 4. Reports all differences (package counts, names, versions,
    relationships, added/removed entries)
@@ -213,10 +213,14 @@ no shared filesystem). It receives only:
 | Data | Source | Why |
 |------|--------|-----|
 | `phase1_manifest.json` | Phase 1 artifact upload | Locates artifacts, carries config |
-| `bomsh_omnibor_treedb` | Phase 1 artifact upload | Source→class→JAR provenance chain |
-| `dep_tree.json` | Phase 1 artifact upload | Dependency graph resolution |
-| `target/*.jar` | Build artifact upload | Binary collection + SPDX fileInfo |
-| `pom.xml` | `actions/checkout` | Module structure discovery |
+| `bomsh_omnibor_treedb` | Phase 1 artifact upload | Source→binary provenance chain |
+| Language-specific deps | Phase 1 artifact upload | Dependency graph resolution |
+| Build output binaries | Build artifact upload | Binary collection + SPDX fileInfo |
+| Source tree | `actions/checkout` | Build system structure discovery |
+
+> **Example (Java/Maven)**: deps = `dep_tree.json`, binaries = `target/*.jar`,
+> structure = `pom.xml`. Other languages produce equivalent artifacts
+> via their native dependency resolution tools.
 
 ### Local Retrieval
 
@@ -226,7 +230,7 @@ CLI (industry standard):
 ```bash
 # Download SPDX output
 gh run download <run-id> \
-  -R tedg-dev/omnibor-java-testapp \
+  -R <owner>/<repo> \
   -n spdx-output -D ./output/
 
 # Download Phase 1 artifacts to run Phase 2 locally
@@ -236,16 +240,22 @@ gh run download <run-id> \
 
 ## Golden Files Available
 
-| Repo | Golden Files | Details |
-|------|-------------|---------|
-| jsoup | 2 | `jsoup-1.22.1` analyzed + build |
-| checkstyle | 2 | `checkstyle-13.3.0` analyzed + build |
-| crawler4j | 2 | `crawler4j-4.4.0` analyzed + build |
-| dependency-check | 4 | core + utils, analyzed + build |
-| logging-log4j2 | 4 | `log4j-api` + `log4j-core`, analyzed + build |
-| spring-boot | 6 | spring-boot + `buildSrc` + config-processor |
-| bc-java | 4 | `bccore` + `bcprov`, analyzed + build |
-| omnibor-java-testapp | 0 | No golden files yet |
+Golden files exist under `tests/golden/spdx/<lang>/<repo>/` for all
+supported languages. Each repo has `_analyzed` + `_build` SPDX pairs
+per output binary.
+
+| Language | Repo | Golden Files |
+|----------|------|-------------|
+| Java | jsoup | 2 |
+| Java | checkstyle | 2 |
+| Java | crawler4j | 2 |
+| Java | dependency-check | 4 |
+| Java | logging-log4j2 | 4 |
+| Java | spring-boot | 6 |
+| Java | bc-java | 4 |
+| C/C++ | curl, ffmpeg, nmap, redis | 26 total |
+| Go | lazygit | 2 total |
+| Rust | oxipng, dura | 4 total |
 
 ## Usage
 
@@ -296,6 +306,6 @@ All test logs are preserved in `/tmp/phase_isolation_test/<repo>/`:
 | Diagram | Description |
 |---------|-------------|
 | [![Phase Isolation CI/CD](phase-isolation-ci-cd.png)](phase-isolation-ci-cd.drawio) | **Phase Isolation CI/CD** — Two-job GitHub Actions architecture with artifact transfer, toggle mechanism, and local retrieval. ([drawio source](phase-isolation-ci-cd.drawio)) |
-| [![Two-Phase Sidecar Architecture](../deep-dive/sidecar-two-phase-corona-p1.png)](../deep-dive/sidecar-two-phase-corona.drawio) | **Two-Phase Sidecar Architecture** — General Phase 1/Phase 2 pipeline with per-language interception, artifact store, and provenance chain. ([drawio source](../deep-dive/sidecar-two-phase-corona.drawio)) |
+| [![Two-Phase Sidecar Architecture](sidecar-two-phase-corona-p1.png)](sidecar-two-phase-corona.drawio) | **Two-Phase Sidecar Architecture** — General Phase 1/Phase 2 pipeline with per-language interception, artifact store, and provenance chain. ([drawio source](sidecar-two-phase-corona.drawio)) |
 
 > **Click any diagram to view full size.**
