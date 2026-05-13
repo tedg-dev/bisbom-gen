@@ -866,6 +866,90 @@ class TestBomtraceBuilderJava(unittest.TestCase):
                 )
             self.assertFalse(result.success)
 
+    def test_buildsrc_build_cleaned(self):
+        """buildSrc/build/ removed before instrumented build."""
+        runner = MagicMock()
+        runner.run.return_value = 0
+        builder = BomtraceBuilder(runner)
+        with tempfile.TemporaryDirectory() as td:
+            repo_cfg, paths, java_cfg = self._java_cfg(td)
+            # Create buildSrc/build with cached classes
+            bs_build = (
+                Path(td) / "repos" / "myapp"
+                / "buildSrc" / "build" / "classes"
+            )
+            bs_build.mkdir(parents=True)
+            (bs_build / "Foo.class").write_bytes(
+                b"fake"
+            )
+            Path(java_cfg["strace_logfile"]).write_text(
+                "1 openat(AT_FDCWD, \"/f\", 0) = 3\n"
+            )
+            with patch("builtins.print") as mock_print:
+                result = builder.build_java(
+                    "myapp", repo_cfg, paths, java_cfg
+                )
+            self.assertTrue(result.success)
+            # buildSrc/build should be gone
+            self.assertFalse(
+                (
+                    Path(td) / "repos" / "myapp"
+                    / "buildSrc" / "build"
+                ).exists()
+            )
+            # Verify log message printed
+            msgs = [
+                str(c) for c in mock_print.call_args_list
+            ]
+            self.assertTrue(
+                any("buildSrc" in m for m in msgs),
+                f"Expected buildSrc log message: {msgs}",
+            )
+
+    def test_no_buildsrc_no_error(self):
+        """No error when repo has no buildSrc directory."""
+        runner = MagicMock()
+        runner.run.return_value = 0
+        builder = BomtraceBuilder(runner)
+        with tempfile.TemporaryDirectory() as td:
+            repo_cfg, paths, java_cfg = self._java_cfg(td)
+            Path(java_cfg["strace_logfile"]).write_text(
+                "1 openat(AT_FDCWD, \"/f\", 0) = 3\n"
+            )
+            with patch("builtins.print"):
+                result = builder.build_java(
+                    "myapp", repo_cfg, paths, java_cfg
+                )
+            self.assertTrue(result.success)
+
+    def test_buildsrc_without_build_dir(self):
+        """No error when buildSrc/ exists but has no build/."""
+        runner = MagicMock()
+        runner.run.return_value = 0
+        builder = BomtraceBuilder(runner)
+        with tempfile.TemporaryDirectory() as td:
+            repo_cfg, paths, java_cfg = self._java_cfg(td)
+            # buildSrc/ exists but no build/ subdirectory
+            (
+                Path(td) / "repos" / "myapp"
+                / "buildSrc" / "src"
+            ).mkdir(parents=True)
+            Path(java_cfg["strace_logfile"]).write_text(
+                "1 openat(AT_FDCWD, \"/f\", 0) = 3\n"
+            )
+            with patch("builtins.print"):
+                result = builder.build_java(
+                    "myapp", repo_cfg, paths, java_cfg
+                )
+            self.assertTrue(result.success)
+            # buildSrc/src should still exist
+            self.assertTrue(
+                (
+                    Path(td) / "repos" / "myapp"
+                    / "buildSrc" / "src"
+                ).exists()
+            )
+
 
 # ============================================================
 # SpdxGenerator

@@ -312,7 +312,7 @@ class TestRunPhase2Only:
         pipeline = _make_pipeline()
 
         with tempfile.TemporaryDirectory() as td:
-            paths, repo_cfg, omnibor = _make_cfg(td)
+            paths, _, omnibor = _make_cfg(td)
 
             # Create an artifact file and record its gitoid
             artifact = Path(td) / "treedb"
@@ -433,3 +433,68 @@ class TestPhaseRoundTrip:
             assert manifest["repo_name"] == "myapp"
             assert manifest["language"] == "java"
             assert manifest["mode"] == "sidecar"
+
+    @patch(
+        "app.pipeline.lang_runners"
+        "._select_java_strategy",
+    )
+    @patch(
+        "app.pipeline.lang_runners"
+        ".generate_java_adg_spdx",
+    )
+    def test_phase2_uses_phase1_run_ts(
+        self, mock_adg, mock_strategy,
+    ):
+        """Phase 2 must reuse Phase 1's run_ts so all
+        output (SPDX, docs, runtime) lands in the same
+        directory tree."""
+        mock_strategy.return_value = None
+        mock_adg.return_value = ["/tmp/adg.spdx.json"]
+        pipeline = _make_pipeline()
+
+        with tempfile.TemporaryDirectory() as td:
+            paths, repo_cfg, omnibor = _make_cfg(td)
+
+            repo_dir = Path(td) / "repos" / "myapp"
+            target_dir = repo_dir / "target"
+            target_dir.mkdir(parents=True)
+            (target_dir / "myapp.jar").write_text("x")
+
+            # Phase 1: uses a specific run_ts
+            phase1_ts = "2026-05-12_1200"
+            timing1 = _run_phase1_only(
+                pipeline, "myapp", repo_cfg,
+                paths, omnibor, phase1_ts,
+                mode="sidecar", lang="java",
+                commit_sha="abc", vcs_uri="https://x",
+            )
+            assert timing1.success
+
+            # Read manifest — verify run_ts stored
+            bom_dir = (
+                Path(td) / "output" / "omnibor"
+                / "java" / "myapp" / phase1_ts
+            )
+            manifest_path = bom_dir / MANIFEST_FILENAME
+            manifest = read_manifest(manifest_path)
+            assert manifest["run_ts"] == phase1_ts
+
+            # Phase 2 with a DIFFERENT run_ts arg
+            phase2_ts = "2026-05-12_9999"
+            timing2 = _run_phase2_only(
+                pipeline, "myapp",
+                str(manifest_path), paths,
+                omnibor, phase2_ts,
+            )
+            assert timing2.success
+
+            # _run_phase2_only uses manifest's run_ts
+            # (phase1_ts), not the phase2_ts arg,
+            # for the actual SPDX generation calls.
+            assert mock_adg.called
+            # Phase 1 ts must appear in the call args
+            call_str = str(mock_adg.call_args)
+            assert phase1_ts in call_str, (
+                f"Expected {phase1_ts} in Phase 2 "
+                f"call, got: {call_str}"
+            )
