@@ -397,7 +397,7 @@ class JavaSpdxGenerator:
     def generate(
         self, output_path, binary_name=None,
         sbom_type="build", jar_files=None,
-        pom_dir=None,
+        pom_dir=None, plugin_detection=None,
     ):
         """Generate SPDX for a Java JAR.
 
@@ -414,6 +414,10 @@ class JavaSpdxGenerator:
             pom_dir: optional directory containing the
                 module's pom.xml for per-module Maven
                 dependency resolution.
+            plugin_detection: optional ``DetectionResult``
+                from ``maven_plugin_detector``. When present
+                and a shade/assembly plugin is detected,
+                the SPDX ``creationInfo`` is annotated.
 
         Returns output path on success, None on failure.
         """
@@ -509,6 +513,7 @@ class JavaSpdxGenerator:
         doc = self._build_spdx(
             bin_name, source_files, maven_deps,
             sbom_type=sbom_type,
+            plugin_detection=plugin_detection,
         )
 
         # Write output
@@ -536,9 +541,35 @@ class JavaSpdxGenerator:
 
         return str(out)
 
+    @staticmethod
+    def _creation_info(created_ts, plugin_detection=None):
+        """Build SPDX ``creationInfo`` block.
+
+        When a repackaging plugin (shade, assembly) is
+        detected, appends the warning to the ``comment``
+        field so downstream consumers know the SBOM may
+        not reflect the full JAR contents.
+        """
+        info = {
+            "created": created_ts,
+            "creators": [
+                "Tool: omnibor-analysis",
+                "Tool: bomsh_create_bom_java.py",
+            ],
+            "licenseListVersion": "3.19",
+        }
+        if (
+            plugin_detection
+            and plugin_detection.spdx_comment
+        ):
+            info["comment"] = (
+                plugin_detection.spdx_comment
+            )
+        return info
+
     def _build_spdx(
         self, bin_name, source_files, maven_deps,
-        sbom_type="build",
+        sbom_type="build", plugin_detection=None,
     ):
         """Build SPDX 2.3 document.
 
@@ -546,6 +577,10 @@ class JavaSpdxGenerator:
           'analyzed' — only source files compiled into
               the JAR (thin JAR has zero bundled deps)
           'build' — full Maven dependency graph
+
+        plugin_detection: optional ``DetectionResult``;
+          when present, annotates ``creationInfo.comment``
+          with repackaging plugin warnings.
         """
         now = datetime.now(timezone.utc).strftime(
             "%Y-%m-%dT%H:%M:%SZ"
@@ -566,14 +601,9 @@ class JavaSpdxGenerator:
                 f"https://omnibor.io/spdx/"
                 f"{self.repo_name}/{doc_uuid}"
             ),
-            "creationInfo": {
-                "created": now,
-                "creators": [
-                    "Tool: omnibor-analysis",
-                    "Tool: bomsh_create_bom_java.py",
-                ],
-                "licenseListVersion": "3.19",
-            },
+            "creationInfo": self._creation_info(
+                now, plugin_detection,
+            ),
             "packages": [],
             "files": [],
             "relationships": [],

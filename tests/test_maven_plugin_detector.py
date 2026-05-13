@@ -388,6 +388,54 @@ class TestDetectionResult(unittest.TestCase):
             r.plugin_ids, ["maven-shade-plugin"],
         )
 
+    def test_spdx_comment_dedup(self):
+        """Duplicate warnings from multi-module POMs
+        should appear only once in spdx_comment."""
+        r = DetectionResult(detections=[
+            PluginDetection(
+                plugin_id="maven-shade-plugin",
+                group_id="org.apache.maven.plugins",
+                warning="shade detected",
+                pom_path="/core/pom.xml",
+            ),
+            PluginDetection(
+                plugin_id="maven-shade-plugin",
+                group_id="org.apache.maven.plugins",
+                warning="shade detected",
+                pom_path="/cli/pom.xml",
+            ),
+        ])
+        self.assertEqual(
+            r.spdx_comment, "shade detected",
+        )
+
+    def test_spdx_comment_dedup_mixed(self):
+        """Different warnings are preserved, duplicates
+        are collapsed."""
+        r = DetectionResult(detections=[
+            PluginDetection(
+                plugin_id="maven-shade-plugin",
+                group_id="org.apache.maven.plugins",
+                warning="shade",
+                pom_path="/a/pom.xml",
+            ),
+            PluginDetection(
+                plugin_id="maven-shade-plugin",
+                group_id="org.apache.maven.plugins",
+                warning="shade",
+                pom_path="/b/pom.xml",
+            ),
+            PluginDetection(
+                plugin_id="maven-assembly-plugin",
+                group_id="org.apache.maven.plugins",
+                warning="assembly",
+                pom_path="/c/pom.xml",
+            ),
+        ])
+        self.assertEqual(
+            r.spdx_comment, "shade; assembly",
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -325,6 +325,9 @@ def generate_java_adg_spdx(
     were compiled into that specific JAR (traced via
     bomsh treedb hash_tree).
     """
+    from app.pipeline.maven_plugin_detector import (
+        detect_repackaging_plugins,
+    )
     from app.spdx.java_generator import JavaSpdxGenerator
     from app.spdx.parser import AdgParser
 
@@ -389,6 +392,14 @@ def generate_java_adg_spdx(
             f"{repo_name}"
         )
         return []
+
+    # Detect shade/assembly plugins for SPDX annotation
+    plugin_result = detect_repackaging_plugins(
+        str(repo_dir),
+    )
+    if plugin_result.is_uber_jar:
+        for det in plugin_result.detections:
+            print(f"[WARN] {repo_name}: {det.warning}")
 
     gen = JavaSpdxGenerator(
         bom_dir=str(bom_dir),
@@ -463,6 +474,7 @@ def generate_java_adg_spdx(
             sbom_type="analyzed",
             jar_files=jar_files,
             pom_dir=pom_dir,
+            plugin_detection=plugin_result,
         )
         if result:
             results.append(result)
@@ -478,6 +490,7 @@ def generate_java_adg_spdx(
             sbom_type="build",
             jar_files=jar_files,
             pom_dir=pom_dir,
+            plugin_detection=plugin_result,
         )
         if result:
             results.append(result)

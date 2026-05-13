@@ -471,6 +471,43 @@ class TestRunMavenDepTree(unittest.TestCase):
                 result = run_maven_dep_tree(td)
             self.assertIsNone(result)
 
+    @patch("app.pipeline.maven_dep_tree_parser"
+           ".subprocess.run")
+    def test_maven_modules_passes_pl_and_am(
+        self, mock_run,
+    ):
+        """When maven_modules is set, -pl and -am must
+        both be passed to mvn dependency:tree."""
+        mock_run.return_value = MagicMock(
+            returncode=0, stdout="",
+        )
+        with tempfile.TemporaryDirectory() as td:
+            (Path(td) / "pom.xml").touch()
+            run_maven_dep_tree(
+                td, maven_modules="crawler4j",
+            )
+        args = mock_run.call_args
+        cmd = args[0][0]
+        self.assertIn("-pl", cmd)
+        self.assertIn("crawler4j", cmd)
+        self.assertIn("-am", cmd)
+
+    @patch("app.pipeline.maven_dep_tree_parser"
+           ".subprocess.run")
+    def test_no_maven_modules_no_pl(self, mock_run):
+        """Without maven_modules, -pl and -am must NOT
+        appear in the command."""
+        mock_run.return_value = MagicMock(
+            returncode=0, stdout="",
+        )
+        with tempfile.TemporaryDirectory() as td:
+            (Path(td) / "pom.xml").touch()
+            run_maven_dep_tree(td)
+        args = mock_run.call_args
+        cmd = args[0][0]
+        self.assertNotIn("-pl", cmd)
+        self.assertNotIn("-am", cmd)
+
 
 # ============================================================
 # Tests: InterceptionStrategy / MavenDepTreeStrategy
