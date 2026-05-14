@@ -9,13 +9,11 @@ Generates SPDX 2.3 SBOMs for Java projects using:
 
 import json
 import re
-import subprocess  # noqa: F401  kept for mock paths
+import subprocess
 import uuid
-import xml.etree.ElementTree as ET  # noqa: F401
 from datetime import datetime, timezone
 from pathlib import Path
 
-from app.spdx.parser import AdgParser
 from app.spdx.maven_parser import (
     get_maven_deps,
     get_version,
@@ -31,6 +29,7 @@ from app.spdx.gradle_parser import (
     is_gradle_project,
 )
 from app.spdx.relationships import (
+    BUILD_TOOL_OF,
     CONTAINED_BY,
     DESCRIBES,
     java_dep_relationship,
@@ -52,16 +51,19 @@ class JavaSpdxGenerator:
     def __init__(
         self, bom_dir, repos_dir, repo_name,
         strace_accessed=None,
+        vcs_uri="NOASSERTION",
     ):
         self.bom_dir = Path(bom_dir)
         self.repos_dir = Path(repos_dir)
         self.repo_name = repo_name
         self.repo_dir = self.repos_dir / repo_name
+        self.vcs_uri = vcs_uri
         # Set of absolute file paths opened during
         # the build (from strace openat log).  Used
-        # to filter workspace-scan results to only
-        # files actually accessed — mirrors how
-        # C/C++ uses the raw logfile for evidence.
+        # as secondary verification of treedb’s
+        # heuristic class→source mapping.  Logged as
+        # warnings when discrepancies found, but does
+        # NOT discard files — treedb is authoritative.
         self.strace_accessed = strace_accessed or set()
 
     # -------------------------------------------------
@@ -180,10 +182,222 @@ class JavaSpdxGenerator:
             return get_gradle_group(self.repo_dir)
         return get_project_group_id(self.repo_dir)
 
+    # -------------------------------------------------
+    # Build tool version detection
+    # -------------------------------------------------
+    @staticmethod
+    def _detect_javac_version():
+        """Detect the JDK version from ``javac -version``.
+
+        Returns:
+            Version string (e.g. ``"17.0.13"``) or None.
+        """
+        try:
+            result = subprocess.run(
+                ["javac", "-version"],
+                capture_output=True, text=True,
+                timeout=10, check=False,
+            )
+            # javac output: "javac 17.0.13"
+            output = (
+                result.stdout.strip()
+                or result.stderr.strip()
+            )
+            m = re.search(r"(\d+[\d.]*)", output)
+            return m.group(1) if m else None
+        except (FileNotFoundError, subprocess.TimeoutExpired):
+            return None
+
+    @staticmethod
+    def _detect_maven_version():
+        """Detect the Maven version from ``mvn --version``.
+
+        Returns:
+            Version string (e.g. ``"3.9.15"``) or None.
+        """
+        try:
+            result = subprocess.run(
+                ["mvn", "--version"],
+                capture_output=True, text=True,
+                timeout=10, check=False,
+            )
+            # First line: "Apache Maven 3.9.15 (...)"
+            m = re.search(
+                r"Apache Maven (\d+[\d.]*)",
+                result.stdout,
+            )
+            return m.group(1) if m else None
+        except (FileNotFoundError, subprocess.TimeoutExpired):
+            return None
+
+    @staticmethod
+    def _detect_gradle_version(repo_dir):
+        """Detect Gradle version from wrapper or system.
+
+        Returns:
+            Version string (e.g. ``"8.5"``) or None.
+        """
+        # Check gradle-wrapper.properties first
+        props = (
+            Path(repo_dir) / "gradle" / "wrapper"
+            / "gradle-wrapper.properties"
+        )
+        if props.exists():
+            try:
+                text = props.read_text(
+                    encoding="utf-8",
+                )
+                m = re.search(
+                    r"gradle-(\d+[\d.]*)", text,
+                )
+                if m:
+                    return m.group(1)
+            except OSError:
+                pass
+        # Fallback: system gradle
+        try:
+            result = subprocess.run(
+                ["gradle", "--version"],
+                capture_output=True, text=True,
+                timeout=10, check=False,
+            )
+            m = re.search(
+                r"Gradle (\d+[\d.]*)",
+                result.stdout,
+            )
+            return m.group(1) if m else None
+        except (FileNotFoundError, subprocess.TimeoutExpired):
+            return None
+
+    def _add_build_tools(self, doc, root_pkg_id):
+        """Add JDK and build system as BUILD_TOOL_OF.
+
+        Mirrors how ``emitter.py`` adds gcc/go/rustc for
+        other languages.  Every compiled artifact has at
+        least a compiler (javac) and a build system
+        (Maven or Gradle) that produced it.
+        """
+        # ── javac (JDK compiler) ──────────────────────
+        jdk_ver = self._detect_javac_version()
+        if jdk_ver:
+            jdk_id = "SPDXRef-BuildTool-javac"
+            doc["packages"].append({
+                "SPDXID": jdk_id,
+                "name": "javac",
+                "versionInfo": jdk_ver,
+                "supplier": "Organization: Oracle",
+                "downloadLocation": (
+                    "https://jdk.java.net/"
+                ),
+                "filesAnalyzed": False,
+                "primaryPackagePurpose":
+                    "APPLICATION",
+                "externalRefs": [{
+                    "referenceCategory": "SECURITY",
+                    "referenceType": "cpe23Type",
+                    "referenceLocator": (
+                        f"cpe:2.3:a:oracle:jdk:"
+                        f"{jdk_ver}:*:*:*:*:*:*:*"
+                    ),
+                }],
+                "comment": (
+                    f"Java compiler (JDK {jdk_ver}) "
+                    "used to compile .java sources "
+                    "into .class bytecode."
+                ),
+            })
+            doc["relationships"].append({
+                "spdxElementId": jdk_id,
+                "relatedSpdxElement": root_pkg_id,
+                "relationshipType": BUILD_TOOL_OF,
+            })
+
+        # ── Build system (Maven or Gradle) ────────────
+        if self._is_gradle():
+            gradle_ver = self._detect_gradle_version(
+                self.repo_dir,
+            )
+            if gradle_ver:
+                gid = "SPDXRef-BuildTool-gradle"
+                doc["packages"].append({
+                    "SPDXID": gid,
+                    "name": "gradle",
+                    "versionInfo": gradle_ver,
+                    "supplier": (
+                        "Organization: Gradle Inc"
+                    ),
+                    "downloadLocation": (
+                        "https://gradle.org/"
+                    ),
+                    "filesAnalyzed": False,
+                    "primaryPackagePurpose":
+                        "APPLICATION",
+                    "externalRefs": [{
+                        "referenceCategory":
+                            "PACKAGE-MANAGER",
+                        "referenceType": "purl",
+                        "referenceLocator": (
+                            "pkg:maven/"
+                            "org.gradle/gradle@"
+                            f"{gradle_ver}"
+                        ),
+                    }],
+                    "comment": (
+                        f"Gradle {gradle_ver} build "
+                        "system used to orchestrate "
+                        "compilation and packaging."
+                    ),
+                })
+                doc["relationships"].append({
+                    "spdxElementId": gid,
+                    "relatedSpdxElement": root_pkg_id,
+                    "relationshipType": BUILD_TOOL_OF,
+                })
+        else:
+            mvn_ver = self._detect_maven_version()
+            if mvn_ver:
+                mid = "SPDXRef-BuildTool-maven"
+                doc["packages"].append({
+                    "SPDXID": mid,
+                    "name": "maven",
+                    "versionInfo": mvn_ver,
+                    "supplier": (
+                        "Organization: "
+                        "Apache Software Foundation"
+                    ),
+                    "downloadLocation": (
+                        "https://maven.apache.org/"
+                    ),
+                    "filesAnalyzed": False,
+                    "primaryPackagePurpose":
+                        "APPLICATION",
+                    "externalRefs": [{
+                        "referenceCategory":
+                            "PACKAGE-MANAGER",
+                        "referenceType": "purl",
+                        "referenceLocator": (
+                            "pkg:maven/"
+                            "org.apache.maven/maven@"
+                            f"{mvn_ver}"
+                        ),
+                    }],
+                    "comment": (
+                        f"Apache Maven {mvn_ver} "
+                        "build system used to "
+                        "orchestrate compilation "
+                        "and packaging."
+                    ),
+                })
+                doc["relationships"].append({
+                    "spdxElementId": mid,
+                    "relatedSpdxElement": root_pkg_id,
+                    "relationshipType": BUILD_TOOL_OF,
+                })
+
     def generate(
         self, output_path, binary_name=None,
         sbom_type="build", jar_files=None,
-        pom_dir=None,
+        pom_dir=None, plugin_detection=None,
     ):
         """Generate SPDX for a Java JAR.
 
@@ -193,39 +407,41 @@ class JavaSpdxGenerator:
             sbom_type: 'analyzed' (only what's in the
                 JAR — source files, no deps) or 'build'
                 (full dependency graph).
-            jar_files: optional list of dicts with sha1
+            jar_files: list of dicts with sha1
                 and file_path — per-JAR source files
                 from AdgParser.get_jar_source_files().
-                If None, falls back to all
-                project_source from treedb.
+                Required; None is an error.
             pom_dir: optional directory containing the
                 module's pom.xml for per-module Maven
                 dependency resolution.
+            plugin_detection: optional ``DetectionResult``
+                from ``maven_plugin_detector``. When present
+                and a shade/assembly plugin is detected,
+                the SPDX ``creationInfo`` is annotated.
 
         Returns output path on success, None on failure.
         """
         bin_name = binary_name or f"{self.repo_name}.jar"
 
-        # Use per-JAR filtered files if provided,
-        # otherwise fall back to all project_source
-        if jar_files is not None:
-            all_files = jar_files
-        else:
-            parser = AdgParser(
-                self.bom_dir, self.repos_dir
+        # jar_files must be provided by the caller
+        # (per-JAR source files from treedb).  Never
+        # fall back to all project_source — that would
+        # silently include files from other JARs.
+        if jar_files is None:
+            print(
+                f"[ERROR] {bin_name}: jar_files is "
+                f"None — cannot generate SPDX "
+                f"without per-JAR file list"
             )
-            try:
-                classified = parser.parse()
-            except FileNotFoundError as e:
-                print(f"[ERROR] {e}")
-                return None
-            all_files = classified.get(
-                "project_source", []
-            )
+            return None
+        all_files = jar_files
 
         source_files = [
             f for f in all_files
             if not self._is_test_file(
+                f.get("file_path", "")
+            )
+            and not self._is_extraction_artifact(
                 f.get("file_path", "")
             )
         ]
@@ -233,26 +449,25 @@ class JavaSpdxGenerator:
             len(all_files) - len(source_files)
         )
 
-        # Filter to strace-verified files when the
-        # openat log is available.  This narrows
-        # workspace-scan results to only files the
-        # build actually opened.
-        strace_excluded = 0
+        # Secondary verification: compare treedb
+        # files against strace openat log.  Treedb
+        # uses heuristic path-similarity scoring for
+        # class→source mapping, so discrepancies may
+        # indicate false positives.  Log warnings but
+        # do NOT discard — strace can also miss files
+        # (e.g. Gradle included-build caching).
+        strace_unverified = 0
         if self.strace_accessed:
-            verified = []
             for f in source_files:
                 fp = f.get("file_path", "")
-                if fp in self.strace_accessed:
-                    verified.append(f)
-                else:
-                    strace_excluded += 1
-            source_files = verified
+                if fp not in self.strace_accessed:
+                    strace_unverified += 1
 
         strace_msg = ""
-        if strace_excluded:
+        if strace_unverified:
             strace_msg = (
-                f", {strace_excluded} not in "
-                f"strace log"
+                f", {strace_unverified} not in "
+                f"strace log (kept)"
             )
         test_msg = (
             f", {test_files_excluded} test excluded"
@@ -298,6 +513,7 @@ class JavaSpdxGenerator:
         doc = self._build_spdx(
             bin_name, source_files, maven_deps,
             sbom_type=sbom_type,
+            plugin_detection=plugin_detection,
         )
 
         # Write output
@@ -325,9 +541,35 @@ class JavaSpdxGenerator:
 
         return str(out)
 
+    @staticmethod
+    def _creation_info(created_ts, plugin_detection=None):
+        """Build SPDX ``creationInfo`` block.
+
+        When a repackaging plugin (shade, assembly) is
+        detected, appends the warning to the ``comment``
+        field so downstream consumers know the SBOM may
+        not reflect the full JAR contents.
+        """
+        info = {
+            "created": created_ts,
+            "creators": [
+                "Tool: omnibor-analysis",
+                "Tool: bomsh_create_bom_java.py",
+            ],
+            "licenseListVersion": "3.19",
+        }
+        if (
+            plugin_detection
+            and plugin_detection.spdx_comment
+        ):
+            info["comment"] = (
+                plugin_detection.spdx_comment
+            )
+        return info
+
     def _build_spdx(
         self, bin_name, source_files, maven_deps,
-        sbom_type="build",
+        sbom_type="build", plugin_detection=None,
     ):
         """Build SPDX 2.3 document.
 
@@ -335,6 +577,10 @@ class JavaSpdxGenerator:
           'analyzed' — only source files compiled into
               the JAR (thin JAR has zero bundled deps)
           'build' — full Maven dependency graph
+
+        plugin_detection: optional ``DetectionResult``;
+          when present, annotates ``creationInfo.comment``
+          with repackaging plugin warnings.
         """
         now = datetime.now(timezone.utc).strftime(
             "%Y-%m-%dT%H:%M:%SZ"
@@ -355,14 +601,9 @@ class JavaSpdxGenerator:
                 f"https://omnibor.io/spdx/"
                 f"{self.repo_name}/{doc_uuid}"
             ),
-            "creationInfo": {
-                "created": now,
-                "creators": [
-                    "Tool: omnibor-analysis",
-                    "Tool: bomsh_create_bom_java.py",
-                ],
-                "licenseListVersion": "3.19",
-            },
+            "creationInfo": self._creation_info(
+                now, plugin_detection,
+            ),
             "packages": [],
             "files": [],
             "relationships": [],
@@ -380,7 +621,7 @@ class JavaSpdxGenerator:
             "versionInfo": self._get_version(
                 artifact_path=bin_name,
             ),
-            "downloadLocation": "NOASSERTION",
+            "downloadLocation": self.vcs_uri,
             "filesAnalyzed": True,
             "primaryPackagePurpose": "APPLICATION",
             "supplier": "NOASSERTION",
@@ -429,9 +670,40 @@ class JavaSpdxGenerator:
                 "relationshipType": CONTAINED_BY,
             })
 
-        # For analyzed SBOMs, skip Maven deps entirely —
-        # thin JARs don't bundle dependency code
+        # ── Build tools (javac + build system) ────────
+        # Same pattern as gcc/go/rustc in emitter.py:
+        # detect the compiler and build system that
+        # produced this artifact and emit BUILD_TOOL_OF.
+        self._add_build_tools(doc, root_pkg_id)
+
+        # For analyzed SBOMs, strip BUILD_TOOL_OF rels
+        # and their orphaned packages — build tools
+        # aren't compiled into the binary.
         if sbom_type == "analyzed":
+            bt_ids = {
+                r["spdxElementId"]
+                for r in doc["relationships"]
+                if r["relationshipType"]
+                == BUILD_TOOL_OF
+            }
+            doc["relationships"] = [
+                r for r in doc["relationships"]
+                if r["relationshipType"]
+                != BUILD_TOOL_OF
+            ]
+            # Remove orphaned build-tool packages
+            still_used = {
+                r["spdxElementId"]
+                for r in doc["relationships"]
+            } | {
+                r["relatedSpdxElement"]
+                for r in doc["relationships"]
+            }
+            doc["packages"] = [
+                p for p in doc["packages"]
+                if p["SPDXID"] not in bt_ids
+                or p["SPDXID"] in still_used
+            ]
             return doc
 
         # Add Maven dependencies as packages
@@ -562,16 +834,17 @@ class JavaSpdxGenerator:
                 else:
                     target = root_pkg_id
 
-            # SPDX 2.3 Table 68: compile, runtime,
-            # and provided scopes all map to DEPENDS_ON.
-            # BUILD_TOOL_OF is reserved for the build
-            # system itself (javac, maven, gradle).
-            # Scope metadata is in the package comment.
+            # Classify by scope only — all dependency
+            # tree entries are library deps (DEPENDS_ON
+            # etc.).  Build tools are emitted separately
+            # by _add_build_tools().
             rel_type = java_dep_relationship(
                 dep.get("scope", "compile"),
             )
             if rel_type is None:
                 continue
+
+            # Direction: parent DEPENDS_ON child
             doc["relationships"].append({
                 "spdxElementId": target,
                 "relatedSpdxElement": dep_id,
@@ -603,6 +876,22 @@ class JavaSpdxGenerator:
         name = version_pattern.sub("", name)
 
         return name
+
+    @staticmethod
+    def _is_extraction_artifact(file_path):
+        """Return True if path is a bomsh extraction artifact.
+
+        ``bomsh_create_bom_java.py`` extracts JARs into
+        ``/tmp/bomjdir/`` for introspection.  These paths
+        appear in the treedb but are not project source
+        files — they are intermediate extraction artifacts
+        (e.g. ``.class`` files from multi-release JARs).
+
+        In standalone mode the strace ``openat`` filter
+        already excludes them.  This filter ensures
+        sidecar mode is consistent.
+        """
+        return "/tmp/bomjdir/" in file_path
 
     @staticmethod
     def _is_test_file(file_path):

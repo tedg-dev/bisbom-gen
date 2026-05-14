@@ -600,7 +600,12 @@ class TestGetMavenDeps(unittest.TestCase):
 
 
 class TestBuildSpdx(unittest.TestCase):
-    """Tests for _build_spdx."""
+    """Tests for _build_spdx.
+
+    Build tool detection is mocked out (returns None)
+    so tests focus on dependency graph structure without
+    being affected by the local JDK/Maven installation.
+    """
 
     def setUp(self):
         self.gen = JavaSpdxGenerator(
@@ -608,6 +613,22 @@ class TestBuildSpdx(unittest.TestCase):
             repos_dir="/tmp/repos",
             repo_name="myapp",
         )
+        # Suppress build tool detection so tests don't
+        # depend on local JDK/Maven installation.
+        p1 = patch.object(
+            JavaSpdxGenerator,
+            "_detect_javac_version",
+            return_value=None,
+        )
+        p2 = patch.object(
+            JavaSpdxGenerator,
+            "_detect_maven_version",
+            return_value=None,
+        )
+        p1.start()
+        p2.start()
+        self.addCleanup(p1.stop)
+        self.addCleanup(p2.stop)
 
     def test_empty_spdx(self):
         doc = self.gen._build_spdx("myapp.jar", [], [])
@@ -1034,14 +1055,202 @@ class TestBuildSpdx(unittest.TestCase):
         self.assertEqual(len(depends), 1)
 
 
+class TestBuildToolEmission(unittest.TestCase):
+    """Tests for javac/maven BUILD_TOOL_OF emission."""
+
+    def setUp(self):
+        self.gen = JavaSpdxGenerator(
+            bom_dir="/tmp/bom",
+            repos_dir="/tmp/repos",
+            repo_name="myapp",
+        )
+
+    @patch.object(
+        JavaSpdxGenerator, "_detect_maven_version",
+        return_value="3.9.15",
+    )
+    @patch.object(
+        JavaSpdxGenerator, "_detect_javac_version",
+        return_value="17.0.13",
+    )
+    def test_javac_and_maven_emitted(
+        self, _m_javac, _m_mvn,
+    ):
+        """Both javac and maven should appear as
+        BUILD_TOOL_OF on build SBOMs."""
+        doc = self.gen._build_spdx(
+            "myapp.jar", [], [],
+        )
+        bt_rels = [
+            r for r in doc["relationships"]
+            if r["relationshipType"] == "BUILD_TOOL_OF"
+        ]
+        self.assertEqual(len(bt_rels), 2)
+        bt_names = {
+            p["name"] for p in doc["packages"]
+            if p["SPDXID"].startswith(
+                "SPDXRef-BuildTool-"
+            )
+        }
+        self.assertEqual(
+            bt_names, {"javac", "maven"},
+        )
+
+    @patch.object(
+        JavaSpdxGenerator, "_detect_maven_version",
+        return_value="3.9.15",
+    )
+    @patch.object(
+        JavaSpdxGenerator, "_detect_javac_version",
+        return_value="17.0.13",
+    )
+    def test_javac_version_in_package(
+        self, _m_javac, _m_mvn,
+    ):
+        """javac package should have correct version."""
+        doc = self.gen._build_spdx(
+            "myapp.jar", [], [],
+        )
+        jdk_pkg = [
+            p for p in doc["packages"]
+            if p["name"] == "javac"
+        ][0]
+        self.assertEqual(
+            jdk_pkg["versionInfo"], "17.0.13",
+        )
+        self.assertIn(
+            "cpe:2.3:a:oracle:jdk:17.0.13",
+            jdk_pkg["externalRefs"][0][
+                "referenceLocator"
+            ],
+        )
+
+    @patch.object(
+        JavaSpdxGenerator, "_detect_maven_version",
+        return_value="3.9.15",
+    )
+    @patch.object(
+        JavaSpdxGenerator, "_detect_javac_version",
+        return_value="17.0.13",
+    )
+    def test_maven_version_in_package(
+        self, _m_javac, _m_mvn,
+    ):
+        """maven package should have correct version."""
+        doc = self.gen._build_spdx(
+            "myapp.jar", [], [],
+        )
+        mvn_pkg = [
+            p for p in doc["packages"]
+            if p["name"] == "maven"
+        ][0]
+        self.assertEqual(
+            mvn_pkg["versionInfo"], "3.9.15",
+        )
+
+    @patch.object(
+        JavaSpdxGenerator, "_detect_maven_version",
+        return_value="3.9.15",
+    )
+    @patch.object(
+        JavaSpdxGenerator, "_detect_javac_version",
+        return_value="17.0.13",
+    )
+    def test_analyzed_strips_build_tools(
+        self, _m_javac, _m_mvn,
+    ):
+        """Analyzed SBOMs should NOT contain
+        BUILD_TOOL_OF relationships or packages."""
+        doc = self.gen._build_spdx(
+            "myapp.jar", [], [],
+            sbom_type="analyzed",
+        )
+        bt_rels = [
+            r for r in doc["relationships"]
+            if r["relationshipType"] == "BUILD_TOOL_OF"
+        ]
+        self.assertEqual(len(bt_rels), 0)
+        bt_pkgs = [
+            p for p in doc["packages"]
+            if p["SPDXID"].startswith(
+                "SPDXRef-BuildTool-"
+            )
+        ]
+        self.assertEqual(len(bt_pkgs), 0)
+
+    @patch.object(
+        JavaSpdxGenerator, "_detect_maven_version",
+        return_value=None,
+    )
+    @patch.object(
+        JavaSpdxGenerator, "_detect_javac_version",
+        return_value=None,
+    )
+    def test_no_tools_when_undetectable(
+        self, _m_javac, _m_mvn,
+    ):
+        """No BUILD_TOOL_OF when detection fails."""
+        doc = self.gen._build_spdx(
+            "myapp.jar", [], [],
+        )
+        bt_rels = [
+            r for r in doc["relationships"]
+            if r["relationshipType"] == "BUILD_TOOL_OF"
+        ]
+        self.assertEqual(len(bt_rels), 0)
+
+    @patch.object(
+        JavaSpdxGenerator, "_detect_maven_version",
+        return_value=None,
+    )
+    @patch.object(
+        JavaSpdxGenerator, "_detect_javac_version",
+        return_value="21.0.1",
+    )
+    def test_javac_only_when_maven_absent(
+        self, _m_javac, _m_mvn,
+    ):
+        """Only javac emitted when maven not found."""
+        doc = self.gen._build_spdx(
+            "myapp.jar", [], [],
+        )
+        bt_rels = [
+            r for r in doc["relationships"]
+            if r["relationshipType"] == "BUILD_TOOL_OF"
+        ]
+        self.assertEqual(len(bt_rels), 1)
+        bt_names = {
+            p["name"] for p in doc["packages"]
+            if p["SPDXID"].startswith(
+                "SPDXRef-BuildTool-"
+            )
+        }
+        self.assertEqual(bt_names, {"javac"})
+
+
 class TestGenerate(unittest.TestCase):
     """Tests for the generate method."""
 
+    def setUp(self):
+        # Suppress build tool detection so tests don't
+        # depend on local JDK/Maven installation.
+        p1 = patch.object(
+            JavaSpdxGenerator,
+            "_detect_javac_version",
+            return_value=None,
+        )
+        p2 = patch.object(
+            JavaSpdxGenerator,
+            "_detect_maven_version",
+            return_value=None,
+        )
+        p1.start()
+        p2.start()
+        self.addCleanup(p1.stop)
+        self.addCleanup(p2.stop)
+
     @patch.object(JavaSpdxGenerator, "_get_maven_deps")
-    @patch("app.spdx.java_generator.AdgParser")
-    def test_generate_success(
-        self, mock_parser_cls, mock_maven
-    ):
+    def test_generate_success(self, mock_maven):
         with tempfile.TemporaryDirectory() as td:
             repos = Path(td) / "repos"
             repo = repos / "myapp"
@@ -1055,49 +1264,15 @@ class TestGenerate(unittest.TestCase):
             bom.mkdir()
             out = Path(td) / "out" / "test.spdx.json"
 
-            mock_parser = MagicMock()
-            mock_parser.parse.return_value = {
-                "project_source": [
-                    {
-                        "file_path": str(
-                            repo / "src/A.java"
-                        ),
-                        "sha1": "abc",
-                    }
-                ],
-            }
-            mock_parser_cls.return_value = mock_parser
             mock_maven.return_value = []
-
-            gen = JavaSpdxGenerator(
-                bom_dir=str(bom),
-                repos_dir=str(repos),
-                repo_name="myapp",
-            )
-            result = gen.generate(str(out))
-            self.assertIsNotNone(result)
-            self.assertTrue(out.exists())
-            doc = json.loads(out.read_text())
-            self.assertEqual(
-                doc["spdxVersion"], "SPDX-2.3"
-            )
-
-    @patch("app.spdx.java_generator.AdgParser")
-    def test_generate_parser_failure(
-        self, mock_parser_cls
-    ):
-        with tempfile.TemporaryDirectory() as td:
-            repos = Path(td) / "repos"
-            repo = repos / "myapp"
-            repo.mkdir(parents=True)
-            bom = Path(td) / "bom"
-            bom.mkdir()
-
-            mock_parser = MagicMock()
-            mock_parser.parse.side_effect = (
-                FileNotFoundError("treedb not found")
-            )
-            mock_parser_cls.return_value = mock_parser
+            jar_files = [
+                {
+                    "file_path": str(
+                        repo / "src/A.java"
+                    ),
+                    "sha1": "abc",
+                },
+            ]
 
             gen = JavaSpdxGenerator(
                 bom_dir=str(bom),
@@ -1105,14 +1280,38 @@ class TestGenerate(unittest.TestCase):
                 repo_name="myapp",
             )
             result = gen.generate(
-                str(Path(td) / "out.json")
+                str(out), jar_files=jar_files,
+            )
+            self.assertIsNotNone(result)
+            self.assertTrue(out.exists())
+            doc = json.loads(out.read_text())
+            self.assertEqual(
+                doc["spdxVersion"], "SPDX-2.3"
+            )
+
+    def test_generate_none_jar_files_returns_none(self):
+        """jar_files=None is an error, not a fallback."""
+        with tempfile.TemporaryDirectory() as td:
+            repos = Path(td) / "repos"
+            repo = repos / "myapp"
+            repo.mkdir(parents=True)
+            bom = Path(td) / "bom"
+            bom.mkdir()
+
+            gen = JavaSpdxGenerator(
+                bom_dir=str(bom),
+                repos_dir=str(repos),
+                repo_name="myapp",
+            )
+            result = gen.generate(
+                str(Path(td) / "out.json"),
+                jar_files=None,
             )
             self.assertIsNone(result)
 
     @patch.object(JavaSpdxGenerator, "_get_maven_deps")
-    @patch("app.spdx.java_generator.AdgParser")
     def test_generate_default_binary_name(
-        self, mock_parser_cls, mock_maven
+        self, mock_maven
     ):
         with tempfile.TemporaryDirectory() as td:
             repos = Path(td) / "repos"
@@ -1127,11 +1326,6 @@ class TestGenerate(unittest.TestCase):
             bom.mkdir()
             out = Path(td) / "out.spdx.json"
 
-            mock_parser = MagicMock()
-            mock_parser.parse.return_value = {
-                "project_source": [],
-            }
-            mock_parser_cls.return_value = mock_parser
             mock_maven.return_value = []
 
             gen = JavaSpdxGenerator(
@@ -1139,7 +1333,9 @@ class TestGenerate(unittest.TestCase):
                 repos_dir=str(repos),
                 repo_name="myapp",
             )
-            result = gen.generate(str(out))
+            result = gen.generate(
+                str(out), jar_files=[],
+            )
             self.assertIsNotNone(result)
             doc = json.loads(out.read_text())
             # Default name uses repo_name.jar
@@ -1148,9 +1344,8 @@ class TestGenerate(unittest.TestCase):
             )
 
     @patch.object(JavaSpdxGenerator, "_get_maven_deps")
-    @patch("app.spdx.java_generator.AdgParser")
     def test_generate_filters_test_deps(
-        self, mock_parser_cls, mock_maven
+        self, mock_maven
     ):
         with tempfile.TemporaryDirectory() as td:
             repos = Path(td) / "repos"
@@ -1165,11 +1360,6 @@ class TestGenerate(unittest.TestCase):
             bom.mkdir()
             out = Path(td) / "out.spdx.json"
 
-            mock_parser = MagicMock()
-            mock_parser.parse.return_value = {
-                "project_source": [],
-            }
-            mock_parser_cls.return_value = mock_parser
             mock_maven.return_value = [
                 {
                     "groupId": "a",
@@ -1196,7 +1386,10 @@ class TestGenerate(unittest.TestCase):
                 repos_dir=str(repos),
                 repo_name="myapp",
             )
-            result = gen.generate(str(out))
+            result = gen.generate(
+                str(out), jar_files=[],
+            )
+            self.assertIsNotNone(result)
             doc = json.loads(out.read_text())
             # Only root + compile dep, not test dep
             self.assertEqual(len(doc["packages"]), 2)
@@ -1415,8 +1608,13 @@ class TestSiblingFiltering(unittest.TestCase):
         self.assertIn("commons", pkg_names)
 
 
-class TestStraceFiltering(unittest.TestCase):
-    """Tests for strace openat log filtering."""
+class TestStraceVerification(unittest.TestCase):
+    """Strace is informational, not a filter.
+
+    Treedb is the authoritative provenance chain.
+    Strace provides secondary verification — files
+    not in the strace log are kept but logged.
+    """
 
     def test_init_default_strace_empty(self):
         """Default strace_accessed is empty set."""
@@ -1441,11 +1639,10 @@ class TestStraceFiltering(unittest.TestCase):
     @patch.object(
         JavaSpdxGenerator, "_get_maven_deps"
     )
-    @patch("app.spdx.java_generator.AdgParser")
-    def test_strace_filters_source_files(
-        self, mock_parser_cls, mock_maven
+    def test_unverified_files_kept_in_spdx(
+        self, mock_maven
     ):
-        """Files not in strace log are excluded."""
+        """Files not in strace are kept (not filtered)."""
         with tempfile.TemporaryDirectory() as td:
             repos = Path(td) / "repos"
             repo = repos / "myapp"
@@ -1481,7 +1678,7 @@ class TestStraceFiltering(unittest.TestCase):
                 {
                     "sha1": "bbb",
                     "file_path": str(
-                        repo / "src/main/Stale.java"
+                        repo / "src/main/Other.java"
                     ),
                 },
             ]
@@ -1491,20 +1688,24 @@ class TestStraceFiltering(unittest.TestCase):
                 sbom_type="analyzed",
                 jar_files=jar_files,
             )
+            self.assertIsNotNone(result)
             doc = json.loads(out.read_text())
-            # Only App.java should be in files
-            self.assertEqual(len(doc["files"]), 1)
+            # Both files kept — strace is
+            # informational, not a gate.
+            self.assertEqual(len(doc["files"]), 2)
+            names = {
+                f["fileName"] for f in doc["files"]
+            }
+            self.assertIn("src/main/App.java", names)
             self.assertIn(
-                "src/main/App.java",
-                doc["files"][0]["fileName"],
+                "src/main/Other.java", names
             )
 
     @patch.object(
         JavaSpdxGenerator, "_get_maven_deps"
     )
-    @patch("app.spdx.java_generator.AdgParser")
     def test_no_strace_keeps_all_files(
-        self, mock_parser_cls, mock_maven
+        self, mock_maven
     ):
         """Without strace data, all files pass through."""
         with tempfile.TemporaryDirectory() as td:
@@ -1547,9 +1748,270 @@ class TestStraceFiltering(unittest.TestCase):
                 sbom_type="analyzed",
                 jar_files=jar_files,
             )
+            self.assertIsNotNone(result)
             doc = json.loads(out.read_text())
             # Both files kept
             self.assertEqual(len(doc["files"]), 2)
+
+
+class TestIsExtractionArtifact(unittest.TestCase):
+    """Tests for _is_extraction_artifact filter."""
+
+    def test_bomjdir_path_is_artifact(self):
+        self.assertTrue(
+            JavaSpdxGenerator._is_extraction_artifact(
+                "/tmp/bomjdir/jsoup-1.22.1.jar/"
+                "META-INF/versions/11/"
+                "module-info.class"
+            )
+        )
+
+    def test_bomjdir_nested_path(self):
+        self.assertTrue(
+            JavaSpdxGenerator._is_extraction_artifact(
+                "/tmp/bomjdir/foo.jar/Bar.class"
+            )
+        )
+
+    def test_repo_source_not_artifact(self):
+        self.assertFalse(
+            JavaSpdxGenerator._is_extraction_artifact(
+                "/workspace/repos/jsoup/"
+                "src/main/java/org/jsoup/Jsoup.java"
+            )
+        )
+
+    def test_empty_string(self):
+        self.assertFalse(
+            JavaSpdxGenerator._is_extraction_artifact(
+                ""
+            )
+        )
+
+
+class TestGradleProjectFromDir(unittest.TestCase):
+    """Tests for _gradle_project_from_dir."""
+
+    def _gen(self):
+        # repo_dir = repos_dir / repo_name
+        # = /workspace/repos / app
+        return JavaSpdxGenerator(
+            "/tmp/bom", "/workspace/repos", "app",
+        )
+
+    def test_none_returns_none(self):
+        self.assertIsNone(
+            self._gen()._gradle_project_from_dir(
+                None,
+            )
+        )
+
+    def test_same_dir_returns_none(self):
+        self.assertIsNone(
+            self._gen()._gradle_project_from_dir(
+                "/workspace/repos/app"
+            )
+        )
+
+    def test_subdir_returns_colon_path(self):
+        result = self._gen()._gradle_project_from_dir(
+            "/workspace/repos/app/sub/mod"
+        )
+        self.assertEqual(result, ":sub:mod")
+
+    def test_outside_repo_returns_none(self):
+        self.assertIsNone(
+            self._gen()._gradle_project_from_dir(
+                "/other/path"
+            )
+        )
+
+
+class TestGetMavenDepsGradle(unittest.TestCase):
+    """Test _get_maven_deps delegates to Gradle."""
+
+    @patch(
+        "app.spdx.java_generator.get_gradle_deps"
+    )
+    @patch(
+        "app.spdx.java_generator.is_gradle_project",
+        return_value=True,
+    )
+    def test_gradle_project_uses_gradle(
+        self, _mock_is, mock_get
+    ):
+        mock_get.return_value = [
+            {"groupId": "a", "artifactId": "b"},
+        ]
+        gen = JavaSpdxGenerator(
+            "/repo", "/repos", "/repo/build",
+        )
+        result = gen._get_maven_deps()
+        mock_get.assert_called_once()
+        self.assertEqual(len(result), 1)
+
+
+class TestGetProjectGroupIdGradle(unittest.TestCase):
+    """Test _get_project_group_id Gradle branch."""
+
+    @patch(
+        "app.spdx.java_generator.get_gradle_group",
+        return_value="com.example",
+    )
+    @patch(
+        "app.spdx.java_generator.is_gradle_project",
+        return_value=True,
+    )
+    def test_gradle_group(self, _mock_is, mock_grp):
+        gen = JavaSpdxGenerator(
+            "/repo", "/repos", "/repo/build",
+        )
+        result = gen._get_project_group_id()
+        self.assertEqual(result, "com.example")
+
+
+class TestDetectVersionFailures(unittest.TestCase):
+    """Test version detection failure paths."""
+
+    @patch("subprocess.run")
+    def test_javac_not_found(self, mock_run):
+        mock_run.side_effect = FileNotFoundError
+        result = JavaSpdxGenerator._detect_javac_version()
+        self.assertIsNone(result)
+
+    @patch("subprocess.run")
+    def test_maven_not_found(self, mock_run):
+        mock_run.side_effect = FileNotFoundError
+        result = JavaSpdxGenerator._detect_maven_version()
+        self.assertIsNone(result)
+
+    def test_gradle_version_from_wrapper(self):
+        with tempfile.TemporaryDirectory() as td:
+            wp = (
+                Path(td) / "gradle" / "wrapper"
+            )
+            wp.mkdir(parents=True)
+            props = (
+                wp / "gradle-wrapper.properties"
+            )
+            props.write_text(
+                "distributionUrl="
+                "https\\://services.gradle.org/"
+                "distributions/"
+                "gradle-8.5-bin.zip\n"
+            )
+            ver = (
+                JavaSpdxGenerator
+                ._detect_gradle_version(td)
+            )
+        self.assertEqual(ver, "8.5")
+
+    @patch("subprocess.run")
+    def test_gradle_version_system_fallback(
+        self, mock_run
+    ):
+        mock_run.return_value = MagicMock(
+            stdout="Gradle 8.3\n",
+        )
+        with tempfile.TemporaryDirectory() as td:
+            ver = (
+                JavaSpdxGenerator
+                ._detect_gradle_version(td)
+            )
+        self.assertEqual(ver, "8.3")
+
+    @patch("subprocess.run")
+    def test_gradle_version_not_found(self, mock_run):
+        mock_run.side_effect = FileNotFoundError
+        with tempfile.TemporaryDirectory() as td:
+            ver = (
+                JavaSpdxGenerator
+                ._detect_gradle_version(td)
+            )
+        self.assertIsNone(ver)
+
+
+class TestAddBuildToolsGradle(unittest.TestCase):
+    """Test _add_build_tools with Gradle project."""
+
+    @patch(
+        "app.spdx.java_generator"
+        ".JavaSpdxGenerator._detect_gradle_version",
+        return_value="8.5",
+    )
+    @patch(
+        "app.spdx.java_generator"
+        ".JavaSpdxGenerator._detect_javac_version",
+        return_value="21.0.1",
+    )
+    @patch(
+        "app.spdx.java_generator.is_gradle_project",
+        return_value=True,
+    )
+    def test_gradle_build_tool_added(
+        self, _g, _j, _v
+    ):
+        gen = JavaSpdxGenerator(
+            "/repo", "/repos", "/repo/build",
+        )
+        doc = {"packages": [], "relationships": []}
+        gen._add_build_tools(doc, "SPDXRef-Root")
+        names = [
+            p["name"] for p in doc["packages"]
+        ]
+        self.assertIn("gradle", names)
+        self.assertIn("javac", names)
+
+
+class TestCreationInfo(unittest.TestCase):
+    """Tests for _creation_info static method."""
+
+    def test_without_plugin_detection(self):
+        info = JavaSpdxGenerator._creation_info(
+            "2026-01-01T00:00:00Z",
+        )
+        self.assertEqual(
+            info["created"], "2026-01-01T00:00:00Z",
+        )
+        self.assertIn(
+            "Tool: omnibor-analysis", info["creators"],
+        )
+        self.assertNotIn("comment", info)
+
+    def test_with_no_plugins_detected(self):
+        from app.pipeline.maven_plugin_detector import (
+            DetectionResult,
+        )
+        result = DetectionResult()
+        info = JavaSpdxGenerator._creation_info(
+            "2026-01-01T00:00:00Z", result,
+        )
+        self.assertNotIn("comment", info)
+
+    def test_with_shade_plugin(self):
+        from app.pipeline.maven_plugin_detector import (
+            DetectionResult,
+            PluginDetection,
+        )
+        result = DetectionResult(detections=[
+            PluginDetection(
+                plugin_id="maven-shade-plugin",
+                group_id="org.apache.maven.plugins",
+                warning="shade detected — uber-JAR",
+                pom_path="/pom.xml",
+            ),
+        ])
+        info = JavaSpdxGenerator._creation_info(
+            "2026-01-01T00:00:00Z", result,
+        )
+        self.assertIn("comment", info)
+        self.assertIn("shade", info["comment"])
+
+    def test_with_none_plugin_detection(self):
+        info = JavaSpdxGenerator._creation_info(
+            "2026-01-01T00:00:00Z", None,
+        )
+        self.assertNotIn("comment", info)
 
 
 if __name__ == "__main__":

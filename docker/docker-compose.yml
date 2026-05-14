@@ -1,20 +1,21 @@
 services:
-  omnibor-env:
+  # --------------------------------------------------------
+  # Standalone: full image with toolchains + bomtrace
+  # Usage: docker compose up omnibor-standalone
+  # --------------------------------------------------------
+  omnibor-standalone:
     # REQUIRED: bomtrace3 needs x86 (sys/reg.h). Uses QEMU on Apple Silicon.
     platform: linux/amd64
     build:
-      # Context is project root so Dockerfile can COPY requirements.txt
       context: ..
       dockerfile: docker/Dockerfile
+      target: standalone
+    image: omnibor-env:standalone
     container_name: omnibor-analysis
     volumes:
-      # Mount repos directory for cloned source code
       - ../repos:/workspace/repos
-      # Mount output directory for generated artifacts
       - ../output:/workspace/output
-      # Mount app scripts for orchestration
       - ../app:/workspace/app
-      # Mount docs for report generation
       - ../docs:/workspace/docs
     working_dir: /workspace
     stdin_open: true
@@ -24,3 +25,65 @@ services:
       - SYS_PTRACE
     security_opt:
       - seccomp:unconfined
+
+  # --------------------------------------------------------
+  # Sidecar: minimal image (no toolchains, no SYS_PTRACE)
+  # Usage: docker compose up omnibor-sidecar
+  # --------------------------------------------------------
+  omnibor-sidecar:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      target: sidecar
+    image: omnibor-env:sidecar
+    container_name: omnibor-sidecar
+    volumes:
+      - ../repos:/workspace/repos
+      - ../output:/workspace/output
+      - ../app:/workspace/app
+      - ../docs:/workspace/docs
+    working_dir: /workspace
+    stdin_open: true
+    tty: true
+
+  # --------------------------------------------------------
+  # Default (backward compatible alias for standalone)
+  # Usage: docker compose up omnibor-env
+  # --------------------------------------------------------
+  omnibor-env:
+    extends:
+      service: omnibor-standalone
+
+  # --------------------------------------------------------
+  # RHEL 9 (Rocky): integration testing for RpmResolver
+  # Usage: docker compose run --rm omnibor-rhel pytest ...
+  # --------------------------------------------------------
+  omnibor-rhel:
+    platform: linux/amd64
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.rhel
+    image: omnibor-env:rhel9
+    volumes:
+      - ../app:/workspace/app:ro
+      - ../tests:/workspace/tests:ro
+      - ../repos:/workspace/repos
+      - ../output:/workspace/output
+    working_dir: /workspace
+
+  # --------------------------------------------------------
+  # Alpine 3.19: integration testing for ApkResolver
+  # Usage: docker compose run --rm omnibor-alpine pytest ...
+  # --------------------------------------------------------
+  omnibor-alpine:
+    platform: linux/amd64
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.alpine
+    image: omnibor-env:alpine
+    volumes:
+      - ../app:/workspace/app:ro
+      - ../tests:/workspace/tests:ro
+      - ../repos:/workspace/repos
+      - ../output:/workspace/output
+    working_dir: /workspace

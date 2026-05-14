@@ -138,7 +138,7 @@ Pre-configured Rust repos: **oxipng**, **dura**
 
 Pre-configured Go repos: **lazygit**, **fzf**, **pocketbase**, **croc**, **dive**, **gdu**
 
-Pre-configured Java repos: **checkstyle**, **jsoup**, **crawler4j**, **dependency-check**, **logging-log4j2**, **spring-boot**, **bc-java**, **datahub**
+Pre-configured Java repos: **checkstyle**, **jsoup**, **crawler4j**, **dependency-check**, **logging-log4j2**, **spring-boot**, **bc-java**
 
 ### Add a new repo from GitHub
 

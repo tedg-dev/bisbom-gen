@@ -265,17 +265,23 @@ def extract_graph(doc):
             else:
                 group = "depth-1"
         elif spdx_id in depends_nodes:
-            # Go module type grouping
+            # Go stdlib is a unique category; Go
+            # direct/indirect map to the universal
+            # direct_dep/transitive_dep types.
             gk = go_node_kind.get(spdx_id)
             if gk == "stdlib":
                 node_type = "go_stdlib"
                 group = "go_stdlib"
             elif gk == "direct":
-                node_type = "go_direct"
-                group = "go_direct"
+                node_type = "direct_dep"
+                group = "depth-1"
             elif gk == "indirect":
-                node_type = "go_indirect"
-                group = "go_indirect"
+                node_type = "transitive_dep"
+                # Go SPDX is flat (all modules at BFS
+                # depth 1 from root), so BFS depth
+                # cannot distinguish direct/indirect.
+                # Force depth-2 for visual separation.
+                group = "depth-2"
             elif has_static:
                 # C/C++: DEPENDS_ON = transitive
                 node_type = "transitive_dep"

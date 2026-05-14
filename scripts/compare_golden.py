@@ -15,10 +15,14 @@ def rel_counts(rels):
 
 
 def compare(golden_path, new_path):
-    g = json.load(open(golden_path))
-    n = json.load(open(new_path))
+    with open(golden_path, encoding="utf-8") as fh:
+        g = json.load(fh)
+    with open(new_path, encoding="utf-8") as fh:
+        n = json.load(fh)
     gp = g.get("packages", [])
     np_ = n.get("packages", [])
+    gf = g.get("files", [])
+    nf = n.get("files", [])
     gr = g.get("relationships", [])
     nr = n.get("relationships", [])
 
@@ -29,26 +33,47 @@ def compare(golden_path, new_path):
     if len(gp) != len(np_):
         diffs.append(f"  Package count: {len(gp)} -> {len(np_)}")
 
-    # Package names
-    gn = sorted(p["name"] for p in gp)
-    nn = sorted(p["name"] for p in np_)
-    missing = set(gn) - set(nn)
-    extra = set(nn) - set(gn)
-    if missing:
-        diffs.append(f"  Missing packages: {sorted(missing)}")
-    if extra:
-        diffs.append(f"  Extra packages: {sorted(extra)}")
+    # Package identity — keyed by SPDXID (unique per document)
+    g_by_id = {p["SPDXID"]: p for p in gp}
+    n_by_id = {p["SPDXID"]: p for p in np_}
+    missing_ids = set(g_by_id) - set(n_by_id)
+    extra_ids = set(n_by_id) - set(g_by_id)
+    if missing_ids:
+        labels = sorted(
+            f"{sid} ({g_by_id[sid]['name']})"
+            for sid in missing_ids
+        )
+        diffs.append(f"  Missing packages: {labels}")
+    if extra_ids:
+        labels = sorted(
+            f"{sid} ({n_by_id[sid]['name']})"
+            for sid in extra_ids
+        )
+        diffs.append(f"  Extra packages: {labels}")
 
-    # Package versions
-    gv = {p["name"]: p.get("versionInfo", "") for p in gp}
-    nv = {p["name"]: p.get("versionInfo", "") for p in np_}
-    for name in sorted(set(gv.keys()) & set(nv.keys())):
-        if gv[name] != nv[name]:
-            diffs.append(f"  Version changed [{name}]: '{gv[name]}' -> '{nv[name]}'")
+    # Package versions — matched by SPDXID
+    for sid in sorted(set(g_by_id) & set(n_by_id)):
+        gv = g_by_id[sid].get("versionInfo", "")
+        nv = n_by_id[sid].get("versionInfo", "")
+        if gv != nv:
+            name = g_by_id[sid]["name"]
+            diffs.append(
+                f"  Version changed [{name} "
+                f"({sid})]: '{gv}' -> '{nv}'"
+            )
+
+    # File counts
+    if len(gf) != len(nf):
+        diffs.append(
+            f"  File count: {len(gf)} -> {len(nf)}"
+        )
 
     # Relationship total count
     if len(gr) != len(nr):
-        diffs.append(f"  Relationship count: {len(gr)} -> {len(nr)}")
+        diffs.append(
+            f"  Relationship count: "
+            f"{len(gr)} -> {len(nr)}"
+        )
 
     # Relationship type counts
     grc = rel_counts(gr)
@@ -60,48 +85,55 @@ def compare(golden_path, new_path):
             diffs.append(f"  {t}: {gc} -> {nc}")
 
     # Relationship endpoints (source->target pairs)
-    g_pairs = sorted(
-        f"{r['spdxElementId']}->{r['relatedSpdxElement']}:{r['relationshipType']}"
-        for r in gr
-    )
-    n_pairs = sorted(
-        f"{r['spdxElementId']}->{r['relatedSpdxElement']}:{r['relationshipType']}"
-        for r in nr
-    )
+    def _rel_key(r):
+        src = r["spdxElementId"]
+        tgt = r["relatedSpdxElement"]
+        typ = r["relationshipType"]
+        return f"{src}->{tgt}:{typ}"
+
+    g_pairs = sorted(_rel_key(r) for r in gr)
+    n_pairs = sorted(_rel_key(r) for r in nr)
     removed_rels = set(g_pairs) - set(n_pairs)
     added_rels = set(n_pairs) - set(g_pairs)
     if removed_rels:
-        diffs.append(f"  Removed relationships ({len(removed_rels)}):")
+        n = len(removed_rels)
+        diffs.append(f"  Removed relationships ({n}):")
         for r in sorted(removed_rels)[:20]:
             diffs.append(f"    - {r}")
-        if len(removed_rels) > 20:
-            diffs.append(f"    ... and {len(removed_rels) - 20} more")
+        if n > 20:
+            diffs.append(f"    ... and {n - 20} more")
     if added_rels:
-        diffs.append(f"  Added relationships ({len(added_rels)}):")
+        n = len(added_rels)
+        diffs.append(f"  Added relationships ({n}):")
         for r in sorted(added_rels)[:20]:
             diffs.append(f"    + {r}")
-        if len(added_rels) > 20:
-            diffs.append(f"    ... and {len(added_rels) - 20} more")
+        if n > 20:
+            diffs.append(f"    ... and {n - 20} more")
 
-    # External references
-    for p_g in gp:
-        p_n_match = [p for p in np_ if p["name"] == p_g["name"]]
-        if not p_n_match:
-            continue
-        p_n = p_n_match[0]
+    # External references — matched by SPDXID
+    for sid in sorted(set(g_by_id) & set(n_by_id)):
         g_refs = sorted(
             json.dumps(r, sort_keys=True)
-            for r in p_g.get("externalRefs", [])
+            for r in g_by_id[sid].get(
+                "externalRefs", []
+            )
         )
         n_refs = sorted(
             json.dumps(r, sort_keys=True)
-            for r in p_n.get("externalRefs", [])
+            for r in n_by_id[sid].get(
+                "externalRefs", []
+            )
         )
         if g_refs != n_refs:
-            diffs.append(f"  External refs changed [{p_g['name']}]")
+            name = g_by_id[sid]["name"]
+            diffs.append(
+                f"  External refs changed "
+                f"[{name} ({sid})]"
+            )
 
     print(f"=== {fname} ===")
     print(f"  Packages: {len(gp)} -> {len(np_)}")
+    print(f"  Files: {len(gf)} -> {len(nf)}")
     print(f"  Relationships: {len(gr)} -> {len(nr)}")
     if diffs:
         print("  ** DIFFERENCES FOUND **")

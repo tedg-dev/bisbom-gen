@@ -65,7 +65,7 @@ omnibor-analysis/
 │   ├── issues/            Upstream bug tracking and workarounds
 │   └── deep-dive/         Research, performance, enterprise docs
 ├── terraform/             AWS EC2 infrastructure as code
-├── tests/                 Unit tests (900 tests)
+├── tests/                 Unit tests (1310 tests, 98% coverage)
 ├── repos/                 Cloned target repositories (gitignored)
 ├── output/                Generated artifacts: SBOMs, ADGs, binaries (gitignored)
 ├── .windsurf/             Cascade AI rules and workflows
@@ -222,6 +222,42 @@ Each `.spdx.json` has a corresponding `.spdx.html` interactive D3.js visualizati
 | `output/build-logs/{lang}/{repo}/{ts}/build.md` | Build log, environment snapshot |
 
 **Path convention:** `{lang}` is `c-cpp`, `rust`, `go`, or `java`. `{ts}` is `YYYY-MM-DD_HHMM`.
+
+## Runtime Performance
+
+Wall-clock times on EC2 `c6i.xlarge` (4 vCPU, 8 GB). **Capture** is the instrumented build (bomtrace + compilation). **SPDX** is post-build analysis (OmniBOR ADG, SPDX generation, validation, binary collection).
+
+### C/C++ (bomtrace3 + strace)
+
+| Repo | Capture | SPDX | Total |
+|------|--------:|-----:|------:|
+| curl | 72s | 12s | 84s |
+| redis | 31s | 12s | 43s |
+| nmap | 51s | 19s | 69s |
+| FFmpeg | 741s | 123s | 864s |
+
+### Rust (bomtrace2)
+
+| Repo | Capture | SPDX | Total |
+|------|--------:|-----:|------:|
+| oxipng | 40s | 6s | 45s |
+| dura | 177s | 15s | 192s |
+
+### Go (bomtrace2)
+
+| Repo | Capture | SPDX | Total |
+|------|--------:|-----:|------:|
+| fzf | 47s | 21s | 69s |
+| lazygit | 120s | 42s | 161s |
+
+### Java (strace)
+
+| Repo | Capture | SPDX | Total |
+|------|--------:|-----:|------:|
+| jsoup | 34s | 7s | 42s |
+| checkstyle | 73s | 19s | 92s |
+
+> SPDX generation is typically 10–20% of total wall time. The majority is spent in the instrumented build itself.
 
 ## Contributing
 

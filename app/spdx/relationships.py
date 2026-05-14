@@ -9,23 +9,25 @@ https://spdx.github.io/spdx-spec/v2.3/relationships-between-SPDX-elements/
 Key spec guidance (Table 68 examples):
   - compile scope      → DEPENDS_ON
   - runtime scope      → DEPENDS_ON
-  - provided scope     → DEPENDS_ON  (NOT BUILD_TOOL_OF)
+  - provided scope     → DEPENDS_ON (unless build tool)
   - test scope         → TEST_DEPENDENCY_OF
   - devDependencies    → DEV_DEPENDENCY_OF
   - optional           → OPTIONAL_DEPENDENCY_OF
   - compiler / linker  → BUILD_TOOL_OF
   - makefile           → BUILD_TOOL_OF
+  - build tool dep     → BUILD_TOOL_OF
 
-BUILD_TOOL_OF is reserved for the *build system itself*
-(gcc, go, javac, maven, gradle, make) — packages that
-compile/link the software. It is NOT for library
-dependencies in Maven ``provided`` scope.
+BUILD_TOOL_OF applies to packages that compile, link, or
+package the software — gcc, go, javac, maven, gradle,
+make, etc.  Build tools are detected and emitted by
+each generator's ``_add_build_tools()`` method, not
+inferred from library dependencies.
 
-Maven ``provided`` means "the dependency is required at
-compile time but supplied by the deployment environment
-at runtime".  In SPDX terms this is still DEPENDS_ON;
-the scope is recorded in the package comment field.
-SPDX 3.0 formalises this as ``hasProvidedDependency``.
+Maven/Gradle dependency tree entries are always library
+dependencies — they get scope-based relationship types.
+Even if a dependency (e.g. ant) is a build tool for
+OTHER projects, if it appears in the dependency tree
+it means THIS project uses it as a library (DEPENDS_ON).
 """
 
 # -----------------------------------------------------------
@@ -68,7 +70,12 @@ _JAVA_EXCLUDED_SCOPES = frozenset({"test"})
 
 
 def java_dep_relationship(scope):
-    """Return the SPDX relationship type for a Java dependency.
+    """Return the SPDX relationship type for a Java dep.
+
+    All Maven/Gradle dependency tree entries are library
+    dependencies — their relationship type is determined
+    solely by scope.  Build tools (javac, maven, gradle)
+    are emitted separately by ``_add_build_tools()``.
 
     Args:
         scope: Maven or Gradle dependency scope string.
@@ -80,53 +87,3 @@ def java_dep_relationship(scope):
     if scope in _JAVA_EXCLUDED_SCOPES:
         return None
     return _JAVA_SCOPE_MAP.get(scope, DEPENDS_ON)
-
-
-# -----------------------------------------------------------
-# Build-tool classification
-# -----------------------------------------------------------
-# These groupIds identify *build tools* — software used to
-# compile, link, or package the project.  If we ever extract
-# Maven/Gradle plugins as SPDX packages, they should use
-# BUILD_TOOL_OF rather than DEPENDS_ON.
-BUILD_TOOL_GROUP_IDS = frozenset({
-    # Java build systems
-    "org.apache.maven",
-    "org.apache.maven.plugins",
-    "org.codehaus.mojo",
-    "org.gradle",
-    # Compilers / code generators
-    "org.apache.maven.plugin-tools",
-})
-
-# Binary names that are build tools (C/C++/Go)
-BUILD_TOOL_BINARIES = frozenset({
-    "gcc", "g++", "cc", "c++",
-    "ld", "ld.lld", "gold",
-    "ar", "ranlib",
-    "as",
-    "make", "cmake", "ninja",
-    "go",
-    "rustc", "cargo",
-    "javac",
-})
-
-
-def is_build_tool(*, group_id=None, binary_name=None):
-    """Check if a dependency is a build tool.
-
-    Build tools compile, link, or package the software.
-    They are NOT runtime dependencies.
-
-    Args:
-        group_id: Maven/Gradle groupId (Java).
-        binary_name: Executable name (C/C++/Go/Rust).
-
-    Returns:
-        True if the dependency is a build tool.
-    """
-    if group_id and group_id in BUILD_TOOL_GROUP_IDS:
-        return True
-    if binary_name and binary_name in BUILD_TOOL_BINARIES:
-        return True
-    return False

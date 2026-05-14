@@ -101,13 +101,18 @@ def go_module_from_vendor_path(rest):
     return "/".join(parts[:2])
 
 
-def detect_go_version(go_stdlib):
+def detect_go_version(go_stdlib, go_root=None):
     """Detect Go version from stdlib or install.
 
     Strategy:
       1. Look for -goversion flag in build commands
-      2. Read /usr/local/go/VERSION file
+      2. Read {go_root}/VERSION file
       3. Fall back to 'unknown'
+
+    Args:
+        go_stdlib: List of Go stdlib artifact dicts.
+        go_root: Path to Go installation root.
+            Defaults to ``/usr/local/go``.
     """
     for art in go_stdlib:
         cmd = art.get("build_cmd", "")
@@ -115,7 +120,8 @@ def detect_go_version(go_stdlib):
         if m:
             return m.group(1).lstrip("go")
     # Fallback: read Go VERSION file
-    ver_file = Path("/usr/local/go/VERSION")
+    root = go_root or "/usr/local/go"
+    ver_file = Path(root) / "VERSION"
     if ver_file.exists():
         # File is multi-line: "go1.26.0\ntime ..."
         first_line = (

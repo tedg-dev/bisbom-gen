@@ -1,0 +1,2322 @@
+{
+  "spdxVersion": "SPDX-2.3",
+  "dataLicense": "CC0-1.0",
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "name": "spring-boot-spring-boot-configuration-processor-3.4.4.jar",
+  "documentNamespace": "https://omnibor.io/spdx/spring-boot/bb1c5717-d6ab-4923-ad83-f3f89065b258",
+  "creationInfo": {
+    "created": "2026-05-08T21:31:01Z",
+    "creators": [
+      "Tool: omnibor-analysis",
+      "Tool: bomsh_create_bom_java.py"
+    ],
+    "licenseListVersion": "3.19"
+  },
+  "packages": [
+    {
+      "SPDXID": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "name": "spring-boot-configuration-processor",
+      "versionInfo": "3.4.4",
+      "downloadLocation": "https://github.com/spring-projects/spring-boot/commit/d4eb5561217be6bd490634fe5254fc4824d8dd87",
+      "filesAnalyzed": true,
+      "primaryPackagePurpose": "APPLICATION",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/spring-boot/spring-boot-configuration-processor"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-BuildTool-javac",
+      "name": "javac",
+      "versionInfo": "21.0.10",
+      "supplier": "Organization: Oracle",
+      "downloadLocation": "https://jdk.java.net/",
+      "filesAnalyzed": false,
+      "primaryPackagePurpose": "APPLICATION",
+      "externalRefs": [
+        {
+          "referenceCategory": "SECURITY",
+          "referenceType": "cpe23Type",
+          "referenceLocator": "cpe:2.3:a:oracle:jdk:21.0.10:*:*:*:*:*:*:*"
+        }
+      ],
+      "comment": "Java compiler (JDK 21.0.10) used to compile .java sources into .class bytecode."
+    },
+    {
+      "SPDXID": "SPDXRef-BuildTool-gradle",
+      "name": "gradle",
+      "versionInfo": "8.13",
+      "supplier": "Organization: Gradle Inc",
+      "downloadLocation": "https://gradle.org/",
+      "filesAnalyzed": false,
+      "primaryPackagePurpose": "APPLICATION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.gradle/gradle@8.13"
+        }
+      ],
+      "comment": "Gradle 8.13 build system used to orchestrate compilation and packaging."
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-0",
+      "name": "janino",
+      "versionInfo": "3.1.10",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/codehaus/janino/janino/3.1.10/janino-3.1.10.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.codehaus.janino",
+      "comment": "Maven scope: compile. Transitive dependency",
+      "sourceInfo": "Maven Central: org.codehaus.janino:janino:3.1.10",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.codehaus.janino/janino@3.1.10"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-1",
+      "name": "activemq-bom",
+      "versionInfo": "6.1.6",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/apache/activemq/activemq-bom/6.1.6/activemq-bom-6.1.6.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.apache.activemq",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: janino. BOM/platform artifact \u2014 POM-only, no compiled code",
+      "sourceInfo": "Maven Central: org.apache.activemq:activemq-bom:6.1.6",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.apache.activemq/activemq-bom@6.1.6"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-2",
+      "name": "artemis-bom",
+      "versionInfo": "2.37.0",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/apache/activemq/artemis-bom/2.37.0/artemis-bom-2.37.0.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.apache.activemq",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: janino. BOM/platform artifact \u2014 POM-only, no compiled code",
+      "sourceInfo": "Maven Central: org.apache.activemq:artemis-bom:2.37.0",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.apache.activemq/artemis-bom@2.37.0"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-3",
+      "name": "assertj-bom",
+      "versionInfo": "3.26.3",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/assertj/assertj-bom/3.26.3/assertj-bom-3.26.3.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.assertj",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: janino. BOM/platform artifact \u2014 POM-only, no compiled code",
+      "sourceInfo": "Maven Central: org.assertj:assertj-bom:3.26.3",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.assertj/assertj-bom@3.26.3"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-4",
+      "name": "zipkin-reporter-bom",
+      "versionInfo": "3.4.3",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/io/zipkin/reporter2/zipkin-reporter-bom/3.4.3/zipkin-reporter-bom-3.4.3.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: io.zipkin.reporter2",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: janino. BOM/platform artifact \u2014 POM-only, no compiled code",
+      "sourceInfo": "Maven Central: io.zipkin.reporter2:zipkin-reporter-bom:3.4.3",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/io.zipkin.reporter2/zipkin-reporter-bom@3.4.3"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-5",
+      "name": "brave-bom",
+      "versionInfo": "6.0.3",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/io/zipkin/brave/brave-bom/6.0.3/brave-bom-6.0.3.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: io.zipkin.brave",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: janino. BOM/platform artifact \u2014 POM-only, no compiled code",
+      "sourceInfo": "Maven Central: io.zipkin.brave:brave-bom:6.0.3",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/io.zipkin.brave/brave-bom@6.0.3"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-6",
+      "name": "java-driver-bom",
+      "versionInfo": "4.18.1",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/apache/cassandra/java-driver-bom/4.18.1/java-driver-bom-4.18.1.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.apache.cassandra",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: janino. BOM/platform artifact \u2014 POM-only, no compiled code",
+      "sourceInfo": "Maven Central: org.apache.cassandra:java-driver-bom:4.18.1",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.apache.cassandra/java-driver-bom@4.18.1"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-7",
+      "name": "jaxb-bom",
+      "versionInfo": "4.0.5",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/glassfish/jaxb/jaxb-bom/4.0.5/jaxb-bom-4.0.5.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.glassfish.jaxb",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: janino. BOM/platform artifact \u2014 POM-only, no compiled code",
+      "sourceInfo": "Maven Central: org.glassfish.jaxb:jaxb-bom:4.0.5",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.glassfish.jaxb/jaxb-bom@4.0.5"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-8",
+      "name": "groovy-bom",
+      "versionInfo": "4.0.26",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/apache/groovy/groovy-bom/4.0.26/groovy-bom-4.0.26.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.apache.groovy",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: janino. BOM/platform artifact \u2014 POM-only, no compiled code",
+      "sourceInfo": "Maven Central: org.apache.groovy:groovy-bom:4.0.26",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.apache.groovy/groovy-bom@4.0.26"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-9",
+      "name": "infinispan-bom",
+      "versionInfo": "15.0.14.Final",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/infinispan/infinispan-bom/15.0.14.Final/infinispan-bom-15.0.14.Final.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.infinispan",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: janino. BOM/platform artifact \u2014 POM-only, no compiled code",
+      "sourceInfo": "Maven Central: org.infinispan:infinispan-bom:15.0.14.Final",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.infinispan/infinispan-bom@15.0.14.Final"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-10",
+      "name": "jackson-bom",
+      "versionInfo": "2.18.3",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/com/fasterxml/jackson/jackson-bom/2.18.3/jackson-bom-2.18.3.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: com.fasterxml.jackson",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: janino. BOM/platform artifact \u2014 POM-only, no compiled code",
+      "sourceInfo": "Maven Central: com.fasterxml.jackson:jackson-bom:2.18.3",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/com.fasterxml.jackson/jackson-bom@2.18.3"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-11",
+      "name": "jersey-bom",
+      "versionInfo": "3.1.10",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/glassfish/jersey/jersey-bom/3.1.10/jersey-bom-3.1.10.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.glassfish.jersey",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: janino. BOM/platform artifact \u2014 POM-only, no compiled code",
+      "sourceInfo": "Maven Central: org.glassfish.jersey:jersey-bom:3.1.10",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.glassfish.jersey/jersey-bom@3.1.10"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-12",
+      "name": "jetty-ee10-bom",
+      "versionInfo": "12.0.18",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/eclipse/jetty/ee10/jetty-ee10-bom/12.0.18/jetty-ee10-bom-12.0.18.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.eclipse.jetty.ee10",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: janino. BOM/platform artifact \u2014 POM-only, no compiled code",
+      "sourceInfo": "Maven Central: org.eclipse.jetty.ee10:jetty-ee10-bom:12.0.18",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.eclipse.jetty.ee10/jetty-ee10-bom@12.0.18"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-13",
+      "name": "jetty-bom",
+      "versionInfo": "12.0.18",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/eclipse/jetty/jetty-bom/12.0.18/jetty-bom-12.0.18.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.eclipse.jetty",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: janino. BOM/platform artifact \u2014 POM-only, no compiled code",
+      "sourceInfo": "Maven Central: org.eclipse.jetty:jetty-bom:12.0.18",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.eclipse.jetty/jetty-bom@12.0.18"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-14",
+      "name": "junit-bom",
+      "versionInfo": "5.11.4",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/junit/junit-bom/5.11.4/junit-bom-5.11.4.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.junit",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: janino. BOM/platform artifact \u2014 POM-only, no compiled code",
+      "sourceInfo": "Maven Central: org.junit:junit-bom:5.11.4",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.junit/junit-bom@5.11.4"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-15",
+      "name": "kotlin-bom",
+      "versionInfo": "1.9.25",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlin/kotlin-bom/1.9.25/kotlin-bom-1.9.25.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.jetbrains.kotlin",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: janino. BOM/platform artifact \u2014 POM-only, no compiled code",
+      "sourceInfo": "Maven Central: org.jetbrains.kotlin:kotlin-bom:1.9.25",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.jetbrains.kotlin/kotlin-bom@1.9.25"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-16",
+      "name": "kotlinx-coroutines-bom",
+      "versionInfo": "1.8.1",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlinx/kotlinx-coroutines-bom/1.8.1/kotlinx-coroutines-bom-1.8.1.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.jetbrains.kotlinx",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: janino. BOM/platform artifact \u2014 POM-only, no compiled code",
+      "sourceInfo": "Maven Central: org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.8.1",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.jetbrains.kotlinx/kotlinx-coroutines-bom@1.8.1"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-17",
+      "name": "kotlinx-serialization-bom",
+      "versionInfo": "1.6.3",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlinx/kotlinx-serialization-bom/1.6.3/kotlinx-serialization-bom-1.6.3.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.jetbrains.kotlinx",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: janino. BOM/platform artifact \u2014 POM-only, no compiled code",
+      "sourceInfo": "Maven Central: org.jetbrains.kotlinx:kotlinx-serialization-bom:1.6.3",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.jetbrains.kotlinx/kotlinx-serialization-bom@1.6.3"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-18",
+      "name": "log4j-bom",
+      "versionInfo": "2.24.3",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/apache/logging/log4j/log4j-bom/2.24.3/log4j-bom-2.24.3.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.apache.logging.log4j",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: janino. BOM/platform artifact \u2014 POM-only, no compiled code",
+      "sourceInfo": "Maven Central: org.apache.logging.log4j:log4j-bom:2.24.3",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.apache.logging.log4j/log4j-bom@2.24.3"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-19",
+      "name": "micrometer-bom",
+      "versionInfo": "1.14.5",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/io/micrometer/micrometer-bom/1.14.5/micrometer-bom-1.14.5.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: io.micrometer",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: janino. BOM/platform artifact \u2014 POM-only, no compiled code",
+      "sourceInfo": "Maven Central: io.micrometer:micrometer-bom:1.14.5",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/io.micrometer/micrometer-bom@1.14.5"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-20",
+      "name": "micrometer-tracing-bom",
+      "versionInfo": "1.4.4",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/io/micrometer/micrometer-tracing-bom/1.4.4/micrometer-tracing-bom-1.4.4.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: io.micrometer",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: janino. BOM/platform artifact \u2014 POM-only, no compiled code",
+      "sourceInfo": "Maven Central: io.micrometer:micrometer-tracing-bom:1.4.4",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/io.micrometer/micrometer-tracing-bom@1.4.4"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-21",
+      "name": "mockito-bom",
+      "versionInfo": "5.14.2",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/mockito/mockito-bom/5.14.2/mockito-bom-5.14.2.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.mockito",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: janino. BOM/platform artifact \u2014 POM-only, no compiled code",
+      "sourceInfo": "Maven Central: org.mockito:mockito-bom:5.14.2",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.mockito/mockito-bom@5.14.2"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-22",
+      "name": "netty-bom",
+      "versionInfo": "4.1.119.Final",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/io/netty/netty-bom/4.1.119.Final/netty-bom-4.1.119.Final.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: io.netty",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: janino. BOM/platform artifact \u2014 POM-only, no compiled code",
+      "sourceInfo": "Maven Central: io.netty:netty-bom:4.1.119.Final",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/io.netty/netty-bom@4.1.119.Final"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-23",
+      "name": "opentelemetry-bom",
+      "versionInfo": "1.43.0",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/io/opentelemetry/opentelemetry-bom/1.43.0/opentelemetry-bom-1.43.0.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: io.opentelemetry",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: janino. BOM/platform artifact \u2014 POM-only, no compiled code",
+      "sourceInfo": "Maven Central: io.opentelemetry:opentelemetry-bom:1.43.0",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/io.opentelemetry/opentelemetry-bom@1.43.0"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-24",
+      "name": "prometheus-metrics-bom",
+      "versionInfo": "1.3.6",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/io/prometheus/prometheus-metrics-bom/1.3.6/prometheus-metrics-bom-1.3.6.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: io.prometheus",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: janino. BOM/platform artifact \u2014 POM-only, no compiled code",
+      "sourceInfo": "Maven Central: io.prometheus:prometheus-metrics-bom:1.3.6",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/io.prometheus/prometheus-metrics-bom@1.3.6"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-25",
+      "name": "simpleclient_bom",
+      "versionInfo": "0.16.0",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/io/prometheus/simpleclient_bom/0.16.0/simpleclient_bom-0.16.0.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: io.prometheus",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: janino. BOM/platform artifact \u2014 POM-only, no compiled code",
+      "sourceInfo": "Maven Central: io.prometheus:simpleclient_bom:0.16.0",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/io.prometheus/simpleclient_bom@0.16.0"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-26",
+      "name": "pulsar-bom",
+      "versionInfo": "3.3.5",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/apache/pulsar/pulsar-bom/3.3.5/pulsar-bom-3.3.5.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.apache.pulsar",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: janino. BOM/platform artifact \u2014 POM-only, no compiled code",
+      "sourceInfo": "Maven Central: org.apache.pulsar:pulsar-bom:3.3.5",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.apache.pulsar/pulsar-bom@3.3.5"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-27",
+      "name": "querydsl-bom",
+      "versionInfo": "5.1.0",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/com/querydsl/querydsl-bom/5.1.0/querydsl-bom-5.1.0.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: com.querydsl",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: janino. BOM/platform artifact \u2014 POM-only, no compiled code",
+      "sourceInfo": "Maven Central: com.querydsl:querydsl-bom:5.1.0",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/com.querydsl/querydsl-bom@5.1.0"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-28",
+      "name": "reactor-bom",
+      "versionInfo": "2024.0.4",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/io/projectreactor/reactor-bom/2024.0.4/reactor-bom-2024.0.4.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: io.projectreactor",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: janino. BOM/platform artifact \u2014 POM-only, no compiled code",
+      "sourceInfo": "Maven Central: io.projectreactor:reactor-bom:2024.0.4",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/io.projectreactor/reactor-bom@2024.0.4"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-29",
+      "name": "rest-assured-bom",
+      "versionInfo": "5.5.1",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/io/rest-assured/rest-assured-bom/5.5.1/rest-assured-bom-5.5.1.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: io.rest-assured",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: janino. BOM/platform artifact \u2014 POM-only, no compiled code",
+      "sourceInfo": "Maven Central: io.rest-assured:rest-assured-bom:5.5.1",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/io.rest-assured/rest-assured-bom@5.5.1"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-30",
+      "name": "rsocket-bom",
+      "versionInfo": "1.1.5",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/io/rsocket/rsocket-bom/1.1.5/rsocket-bom-1.1.5.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: io.rsocket",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: janino. BOM/platform artifact \u2014 POM-only, no compiled code",
+      "sourceInfo": "Maven Central: io.rsocket:rsocket-bom:1.1.5",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/io.rsocket/rsocket-bom@1.1.5"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-31",
+      "name": "selenium-bom",
+      "versionInfo": "4.25.0",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/seleniumhq/selenium/selenium-bom/4.25.0/selenium-bom-4.25.0.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.seleniumhq.selenium",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: janino. BOM/platform artifact \u2014 POM-only, no compiled code",
+      "sourceInfo": "Maven Central: org.seleniumhq.selenium:selenium-bom:4.25.0",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.seleniumhq.selenium/selenium-bom@4.25.0"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-32",
+      "name": "spring-amqp-bom",
+      "versionInfo": "3.2.4",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/springframework/amqp/spring-amqp-bom/3.2.4/spring-amqp-bom-3.2.4.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.springframework.amqp",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: janino. BOM/platform artifact \u2014 POM-only, no compiled code",
+      "sourceInfo": "Maven Central: org.springframework.amqp:spring-amqp-bom:3.2.4",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.springframework.amqp/spring-amqp-bom@3.2.4"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-33",
+      "name": "spring-batch-bom",
+      "versionInfo": "5.2.2",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/springframework/batch/spring-batch-bom/5.2.2/spring-batch-bom-5.2.2.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.springframework.batch",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: janino. BOM/platform artifact \u2014 POM-only, no compiled code",
+      "sourceInfo": "Maven Central: org.springframework.batch:spring-batch-bom:5.2.2",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.springframework.batch/spring-batch-bom@5.2.2"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-34",
+      "name": "spring-data-bom",
+      "versionInfo": "2024.1.4",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/springframework/data/spring-data-bom/2024.1.4/spring-data-bom-2024.1.4.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.springframework.data",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: janino. BOM/platform artifact \u2014 POM-only, no compiled code",
+      "sourceInfo": "Maven Central: org.springframework.data:spring-data-bom:2024.1.4",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.springframework.data/spring-data-bom@2024.1.4"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-35",
+      "name": "spring-framework-bom",
+      "versionInfo": "6.2.5",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/springframework/spring-framework-bom/6.2.5/spring-framework-bom-6.2.5.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.springframework",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: janino. BOM/platform artifact \u2014 POM-only, no compiled code",
+      "sourceInfo": "Maven Central: org.springframework:spring-framework-bom:6.2.5",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.springframework/spring-framework-bom@6.2.5"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-36",
+      "name": "spring-integration-bom",
+      "versionInfo": "6.4.3",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/springframework/integration/spring-integration-bom/6.4.3/spring-integration-bom-6.4.3.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.springframework.integration",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: janino. BOM/platform artifact \u2014 POM-only, no compiled code",
+      "sourceInfo": "Maven Central: org.springframework.integration:spring-integration-bom:6.4.3",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.springframework.integration/spring-integration-bom@6.4.3"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-37",
+      "name": "spring-pulsar-bom",
+      "versionInfo": "1.2.4",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/springframework/pulsar/spring-pulsar-bom/1.2.4/spring-pulsar-bom-1.2.4.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.springframework.pulsar",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: janino. BOM/platform artifact \u2014 POM-only, no compiled code",
+      "sourceInfo": "Maven Central: org.springframework.pulsar:spring-pulsar-bom:1.2.4",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.springframework.pulsar/spring-pulsar-bom@1.2.4"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-38",
+      "name": "spring-restdocs-bom",
+      "versionInfo": "3.0.3",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/springframework/restdocs/spring-restdocs-bom/3.0.3/spring-restdocs-bom-3.0.3.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.springframework.restdocs",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: janino. BOM/platform artifact \u2014 POM-only, no compiled code",
+      "sourceInfo": "Maven Central: org.springframework.restdocs:spring-restdocs-bom:3.0.3",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.springframework.restdocs/spring-restdocs-bom@3.0.3"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-39",
+      "name": "spring-security-bom",
+      "versionInfo": "6.4.4",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/springframework/security/spring-security-bom/6.4.4/spring-security-bom-6.4.4.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.springframework.security",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: janino. BOM/platform artifact \u2014 POM-only, no compiled code",
+      "sourceInfo": "Maven Central: org.springframework.security:spring-security-bom:6.4.4",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.springframework.security/spring-security-bom@6.4.4"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-40",
+      "name": "spring-session-bom",
+      "versionInfo": "3.4.2",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/springframework/session/spring-session-bom/3.4.2/spring-session-bom-3.4.2.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.springframework.session",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: janino. BOM/platform artifact \u2014 POM-only, no compiled code",
+      "sourceInfo": "Maven Central: org.springframework.session:spring-session-bom:3.4.2",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.springframework.session/spring-session-bom@3.4.2"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-41",
+      "name": "spring-ws-bom",
+      "versionInfo": "4.0.12",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/springframework/ws/spring-ws-bom/4.0.12/spring-ws-bom-4.0.12.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.springframework.ws",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: janino. BOM/platform artifact \u2014 POM-only, no compiled code",
+      "sourceInfo": "Maven Central: org.springframework.ws:spring-ws-bom:4.0.12",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.springframework.ws/spring-ws-bom@4.0.12"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-42",
+      "name": "testcontainers-bom",
+      "versionInfo": "1.20.6",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/testcontainers/testcontainers-bom/1.20.6/testcontainers-bom-1.20.6.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.testcontainers",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: janino. BOM/platform artifact \u2014 POM-only, no compiled code",
+      "sourceInfo": "Maven Central: org.testcontainers:testcontainers-bom:1.20.6",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.testcontainers/testcontainers-bom@1.20.6"
+        }
+      ]
+    }
+  ],
+  "files": [
+    {
+      "SPDXID": "SPDXRef-File-0",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/src/main/java/org/springframework/boot/configurationprocessor/JavaBeanPropertyDescriptor.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "88023f5a493c9ed3a66952ea593361261f6e53d3"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-1",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/build/classes/java/main/org/springframework/boot/configurationprocessor/JavaBeanPropertyDescriptor.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "cbb7e248204fc5d70551630a069bc71c234e395c"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-2",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/src/main/java/org/springframework/boot/configurationprocessor/TypeUtils.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "d5096cb33dd5393e6f1503b1419c97ddcdda8a95"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-3",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/build/classes/java/main/org/springframework/boot/configurationprocessor/TypeUtils$TypeDescriptor.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "4a1d82b41b0754e50aa3397a599e6ed07a9e20df"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-4",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/src/main/java/org/springframework/boot/configurationprocessor/LombokPropertyDescriptor.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "83a50b863d58fe0a9641340428f209cdedd80771"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-5",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/build/classes/java/main/org/springframework/boot/configurationprocessor/LombokPropertyDescriptor.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "92863c05a24348a6e6adb61e2a1783ae47481136"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-6",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/src/main/java/org/springframework/boot/configurationprocessor/ParameterPropertyDescriptor.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "806f5cc2d54903747fb3a4292a1a83583b7a062c"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-7",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/build/classes/java/main/org/springframework/boot/configurationprocessor/ParameterPropertyDescriptor$DefaultValueCoercionTypeVisitor.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "59669f493c90fa1cdf08ae13c4799661ca0849b7"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-8",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/src/main/java/org/springframework/boot/configurationprocessor/PropertyDescriptor.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "1ff2ad08985c9c792524096d24d52f484d7fbad2"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-9",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/build/classes/java/main/org/springframework/boot/configurationprocessor/PropertyDescriptor.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "a929fa153efc6476228592be3c9deda33257cb68"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-10",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/src/main/java/org/springframework/boot/configurationprocessor/MetadataGenerationEnvironment.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "88751f65c40f2305f4c9b06a81a9acdabdb6643c"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-11",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/build/classes/java/main/org/springframework/boot/configurationprocessor/MetadataGenerationEnvironment.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "8e9e4fbf50ccd4db771364952056dbebbe927141"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-12",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/src/json-shade/java/org/springframework/boot/configurationprocessor/json/JSONTokener.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "682ca94ae7ea1c21d7a3469ff37d6d4eb6f4dbc8"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-13",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/build/classes/java/main/org/springframework/boot/configurationprocessor/json/JSONTokener.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "78a98290936ba7c304ec72c819cf1814b7a7158f"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-14",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/src/json-shade/java/org/springframework/boot/configurationprocessor/json/JSONStringer.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "29028b60585027745cc6aab3f71b1efda38fdc2d"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-15",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/build/classes/java/main/org/springframework/boot/configurationprocessor/json/JSONStringer.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "9a62a18529d3090aea1e8de7e8c111b59b6a9643"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-16",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/src/json-shade/java/org/springframework/boot/configurationprocessor/json/JSONObject.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "8bb808fff37c56f658237f72feaf6e2d7b8a2cf1"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-17",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/build/classes/java/main/org/springframework/boot/configurationprocessor/json/JSONObject$1.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "191cb57a8dcaeeedeb86925e63e16d44ccb10847"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-18",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/src/json-shade/java/org/springframework/boot/configurationprocessor/json/JSONException.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "7393da11fd3591c5c56a804a61e123ee992c279d"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-19",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/build/classes/java/main/org/springframework/boot/configurationprocessor/json/JSONException.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "d65e00163bad0a34cf2ff65f633b7d322d57057f"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-20",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/build/classes/java/main/org/springframework/boot/configurationprocessor/json/JSONStringer$Scope.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "04fee806883ad73bdb62e88eed87efb9fa342055"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-21",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/build/classes/java/main/org/springframework/boot/configurationprocessor/json/JSONObject.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "75aeeebffdfc4233bba5dce894a773b499c2156c"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-22",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/src/json-shade/java/org/springframework/boot/configurationprocessor/json/JSONArray.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "99c511328c5dc58012001f8d0461bd94925c2203"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-23",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/build/classes/java/main/org/springframework/boot/configurationprocessor/json/JSONArray.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "bd9a854c606452f6b37d161cf5576d7786236334"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-24",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/src/json-shade/java/org/springframework/boot/configurationprocessor/json/JSON.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "97404944fcedcef63a27ca3f189de2de069ec074"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-25",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/build/classes/java/main/org/springframework/boot/configurationprocessor/json/JSON.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "267cefdae48ea26ffd43a0ed711952352d835fe9"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-26",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/src/main/java/org/springframework/boot/configurationprocessor/MetadataStore.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "31ba670d7c7e11cafb1e7424580a2466383bad0a"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-27",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/build/classes/java/main/org/springframework/boot/configurationprocessor/MetadataStore.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "0ced15e686b2c509b7d0e823acbe512c0de6d90b"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-28",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/build/classes/java/main/org/springframework/boot/configurationprocessor/TypeUtils.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "ca0a5f31d2ba218f49b8371e4585a07358be02b5"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-29",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/src/main/java/org/springframework/boot/configurationprocessor/support/ConventionUtils.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "b9961e0bc70b82b828405c940474e402f7e6f974"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-30",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/build/classes/java/main/org/springframework/boot/configurationprocessor/support/ConventionUtils.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "bb9f07c7deba0556e5f3bb2eea25342a75e025b2"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-31",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/src/main/java/org/springframework/boot/configurationprocessor/PropertyDescriptorResolver.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "1f1853de87141fedd70e02612460ec1105bc5ce3"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-32",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/build/classes/java/main/org/springframework/boot/configurationprocessor/PropertyDescriptorResolver.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "18f0665cfdf3a5713db413589766eda555aea97b"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-33",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/src/main/java/org/springframework/boot/configurationprocessor/TypeElementMembers.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "5aa3b921d60fdd6956ca2dbcccd351af58261366"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-34",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/build/classes/java/main/org/springframework/boot/configurationprocessor/TypeElementMembers.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "2f927956acdb797e855fb0ba3a98b85923387c40"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-35",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/src/main/java/org/springframework/boot/configurationprocessor/MetadataCollector.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "2aa1a55a074e65c6797a3e7735c694dd875a5a24"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-36",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/build/classes/java/main/org/springframework/boot/configurationprocessor/MetadataCollector.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "98c3c2f3564ef4e5721b5e14ab02d826f6e0a3c4"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-37",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/build/classes/java/main/org/springframework/boot/configurationprocessor/TypeUtils$TypeExtractor.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "fefad658670be53c7a2ebc3e7ebda7630e665e39"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-38",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/src/main/java/org/springframework/boot/configurationprocessor/ConstructorParameterPropertyDescriptor.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "da36d12a31d765ec834567b28424db16c9433c13"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-39",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/build/classes/java/main/org/springframework/boot/configurationprocessor/ConstructorParameterPropertyDescriptor.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "12204c542d41f7811f604f717d6ff9b82b5dbefe"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-40",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/src/main/java/org/springframework/boot/configurationprocessor/metadata/JsonMarshaller.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "e7d6e84e8a263d134ce8f3522f62f2b4fa32ac19"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-41",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/build/classes/java/main/org/springframework/boot/configurationprocessor/metadata/JsonMarshaller$JsonPath.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "46cdd17e6f3a6b6217733eabb8d794c4615c818b"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-42",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/build/classes/java/main/org/springframework/boot/configurationprocessor/metadata/JsonMarshaller.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "9f57bb92853780a62ae68ada9e55b4510b585351"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-43",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/src/main/java/org/springframework/boot/configurationprocessor/metadata/ItemMetadata.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "33b71248595a6f7a173f6d3ec7c249048ffe8601"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-44",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/build/classes/java/main/org/springframework/boot/configurationprocessor/metadata/ItemMetadata$ItemType.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "2c15c4aab49f0265f5a0d2b2469ef344f69dbe5a"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-45",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/src/main/java/org/springframework/boot/configurationprocessor/metadata/ItemHint.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "c44e22b89d4b640e25ee55b296bac30af0141595"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-46",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/build/classes/java/main/org/springframework/boot/configurationprocessor/metadata/ItemHint$ValueProvider.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "fc84923e4fc33758e84f94efc7d2b6891f3193d6"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-47",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/src/main/java/org/springframework/boot/configurationprocessor/metadata/JsonConverter.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "bd6239e19df144312a71cf12395ce331f0402d1c"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-48",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/build/classes/java/main/org/springframework/boot/configurationprocessor/metadata/JsonConverter.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "4dae7af984a5b30c93acb059962f34c91b89e850"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-49",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/src/main/java/org/springframework/boot/configurationprocessor/metadata/InvalidConfigurationMetadataException.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "a43a3295b0982e51781925e34a346c565d8daf80"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-50",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/build/classes/java/main/org/springframework/boot/configurationprocessor/metadata/InvalidConfigurationMetadataException.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "e49e2359c9a39af842c70d335429d2c14eab6e66"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-51",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/build/classes/java/main/org/springframework/boot/configurationprocessor/metadata/JsonConverter$ItemMetadataComparator.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "b6089385754f7375aeae05d68bc8151d8db86aad"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-52",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/build/classes/java/main/org/springframework/boot/configurationprocessor/metadata/ItemHint$ValueHint.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "07d438f32c2a6188b93b833097a97c111ae7bcb0"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-53",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/src/main/java/org/springframework/boot/configurationprocessor/metadata/ConfigurationMetadata.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "3b8c1fd2785a57318e603bcc6138398948070b6f"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-54",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/build/classes/java/main/org/springframework/boot/configurationprocessor/metadata/ConfigurationMetadata.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "3c25baa7148618a3281cf2e794ea4b44de03be5f"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-55",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/src/main/java/org/springframework/boot/configurationprocessor/metadata/ItemDeprecation.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "e684edf73c6f1929bbe4ebb329e084d713b7d78d"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-56",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/build/classes/java/main/org/springframework/boot/configurationprocessor/metadata/ItemDeprecation.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "7a6135ac96682b333d2193f7a3bc46bf054e2ab9"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-57",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/build/classes/java/main/org/springframework/boot/configurationprocessor/metadata/JsonMarshaller$1.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "ec80148b9ec7f71d97bfd742774f7db8273ccb4c"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-58",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/build/classes/java/main/org/springframework/boot/configurationprocessor/metadata/ItemHint.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "44cafb347ede5a963b64a49ce49737cf640d2767"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-59",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/build/classes/java/main/org/springframework/boot/configurationprocessor/metadata/ItemMetadata.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "6b0b0693e026a2ae6f6cb4948f274e6d94a888c3"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-60",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/build/classes/java/main/org/springframework/boot/configurationprocessor/PropertyDescriptorResolver$Bindable.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "33b4f73702ecf3c752f462e3d60a860e6ded76dd"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-61",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/src/main/java/org/springframework/boot/configurationprocessor/RecordParameterPropertyDescriptor.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "a2ced12c8abab712eecd8e052bf84ac65f63b241"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-62",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/build/classes/java/main/org/springframework/boot/configurationprocessor/RecordParameterPropertyDescriptor.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "91d712637a35dc2ee05deb0b67a973392e7dc517"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-63",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/src/main/java/org/springframework/boot/configurationprocessor/fieldvalues/FieldValuesParser.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "2032cc64c8d1fee0e649395354fdb87a5048c37b"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-64",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/build/classes/java/main/org/springframework/boot/configurationprocessor/fieldvalues/FieldValuesParser.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "34f1fb8aa30ca233895476a42ed8039b323306c6"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-65",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/src/main/java/org/springframework/boot/configurationprocessor/fieldvalues/javac/ExpressionTree.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "365e16be04d5e487249595669accf0a51fee3668"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-66",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/build/classes/java/main/org/springframework/boot/configurationprocessor/fieldvalues/javac/ExpressionTree$Member.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "ea56515d4d47fd488ef2e59752ef0925a3d7a80c"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-67",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/src/main/java/org/springframework/boot/configurationprocessor/fieldvalues/javac/VariableTree.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "e7a844fc7d7a4ec4f7a21c031884691085b90194"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-68",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/build/classes/java/main/org/springframework/boot/configurationprocessor/fieldvalues/javac/VariableTree.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "1a954c71b422783a446e5fd8f632f70c9edb5313"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-69",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/src/main/java/org/springframework/boot/configurationprocessor/fieldvalues/javac/TreeVisitor.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "dcc72ec97098c7de0edd96de05ed420c93821321"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-70",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/build/classes/java/main/org/springframework/boot/configurationprocessor/fieldvalues/javac/TreeVisitor.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "90342ca3501b04d9547519f1f36728d89967e0ea"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-71",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/src/main/java/org/springframework/boot/configurationprocessor/fieldvalues/javac/JavaCompilerFieldValuesParser.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "d76fe5416ee543e1eef40392db4fe8cc1b6aeed1"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-72",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/build/classes/java/main/org/springframework/boot/configurationprocessor/fieldvalues/javac/JavaCompilerFieldValuesParser$FieldCollector.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "61d16ecbf6e5106b2e87b2bc7b85055f1d4b505b"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-73",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/build/classes/java/main/org/springframework/boot/configurationprocessor/fieldvalues/javac/JavaCompilerFieldValuesParser.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "fba8981eb4deb22b1a1446a9e5c79d9562b6ba6a"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-74",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/src/main/java/org/springframework/boot/configurationprocessor/fieldvalues/javac/Tree.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "8b4d80a4be8fe131f5e661aac9e65a6e9fb49058"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-75",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/build/classes/java/main/org/springframework/boot/configurationprocessor/fieldvalues/javac/Tree.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "233d2ebacbf6f05d178de2a6553c22681021c4c6"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-76",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/build/classes/java/main/org/springframework/boot/configurationprocessor/fieldvalues/javac/ExpressionTree.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "6687ed4116f6b583d249870467799e8c8308beb5"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-77",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/src/main/java/org/springframework/boot/configurationprocessor/fieldvalues/javac/Trees.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "f635b8e9701c4958252742405cf4c8e4a20a2f5f"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-78",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/build/classes/java/main/org/springframework/boot/configurationprocessor/fieldvalues/javac/Trees.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "19c02efda273ea0bbb4583b2a3eec2e8f22e5e94"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-79",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/build/classes/java/main/org/springframework/boot/configurationprocessor/fieldvalues/javac/Tree$TreeVisitorInvocationHandler.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "3048934e2f3d509617a351d525adb2c028d29233"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-80",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/src/main/java/org/springframework/boot/configurationprocessor/fieldvalues/javac/ReflectionWrapper.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "152750385c02eccffecba90c967ca4eb00e11aff"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-81",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/build/classes/java/main/org/springframework/boot/configurationprocessor/fieldvalues/javac/ReflectionWrapper.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "221a8109b26851a1c1cbff4caacdb16921be84ba"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-82",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/build/classes/java/main/org/springframework/boot/configurationprocessor/ParameterPropertyDescriptor.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "d3a4fc4c86e65b1f957514be6224bd7173b9f522"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-83",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/build/classes/java/main/org/springframework/boot/configurationprocessor/ParameterPropertyDescriptor$DefaultPrimitiveTypeVisitor.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "2c457e70a6590495835ba05eaf1aa7069f44ae4e"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-84",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/src/main/java/org/springframework/boot/configurationprocessor/ConfigurationMetadataAnnotationProcessor.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "e44bd5e54f603c7e87079d91e5823821397656c3"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-85",
+      "fileName": "spring-boot-project/spring-boot-tools/spring-boot-configuration-processor/build/classes/java/main/org/springframework/boot/configurationprocessor/ConfigurationMetadataAnnotationProcessor.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "4bf0af87129eca927360062ed1c40a771b1cbce8"
+        }
+      ]
+    }
+  ],
+  "relationships": [
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "DESCRIBES"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-0",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-1",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-2",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-3",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-4",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-5",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-6",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-7",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-8",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-9",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-10",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-11",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-12",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-13",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-14",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-15",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-16",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-17",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-18",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-19",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-20",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-21",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-22",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-23",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-24",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-25",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-26",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-27",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-28",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-29",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-30",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-31",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-32",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-33",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-34",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-35",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-36",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-37",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-38",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-39",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-40",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-41",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-42",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-43",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-44",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-45",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-46",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-47",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-48",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-49",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-50",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-51",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-52",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-53",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-54",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-55",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-56",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-57",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-58",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-59",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-60",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-61",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-62",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-63",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-64",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-65",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-66",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-67",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-68",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-69",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-70",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-71",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-72",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-73",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-74",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-75",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-76",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-77",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-78",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-79",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-80",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-81",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-82",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-83",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-84",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-85",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-BuildTool-javac",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "BUILD_TOOL_OF"
+    },
+    {
+      "spdxElementId": "SPDXRef-BuildTool-gradle",
+      "relatedSpdxElement": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relationshipType": "BUILD_TOOL_OF"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-spring-boot-configuration-processor-3.4.4.jar",
+      "relatedSpdxElement": "SPDXRef-Dep-0",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-0",
+      "relatedSpdxElement": "SPDXRef-Dep-1",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-0",
+      "relatedSpdxElement": "SPDXRef-Dep-2",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-0",
+      "relatedSpdxElement": "SPDXRef-Dep-3",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-0",
+      "relatedSpdxElement": "SPDXRef-Dep-4",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-0",
+      "relatedSpdxElement": "SPDXRef-Dep-5",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-0",
+      "relatedSpdxElement": "SPDXRef-Dep-6",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-0",
+      "relatedSpdxElement": "SPDXRef-Dep-7",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-0",
+      "relatedSpdxElement": "SPDXRef-Dep-8",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-0",
+      "relatedSpdxElement": "SPDXRef-Dep-9",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-0",
+      "relatedSpdxElement": "SPDXRef-Dep-10",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-0",
+      "relatedSpdxElement": "SPDXRef-Dep-11",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-0",
+      "relatedSpdxElement": "SPDXRef-Dep-12",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-0",
+      "relatedSpdxElement": "SPDXRef-Dep-13",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-0",
+      "relatedSpdxElement": "SPDXRef-Dep-14",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-0",
+      "relatedSpdxElement": "SPDXRef-Dep-15",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-0",
+      "relatedSpdxElement": "SPDXRef-Dep-16",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-0",
+      "relatedSpdxElement": "SPDXRef-Dep-17",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-0",
+      "relatedSpdxElement": "SPDXRef-Dep-18",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-0",
+      "relatedSpdxElement": "SPDXRef-Dep-19",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-0",
+      "relatedSpdxElement": "SPDXRef-Dep-20",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-0",
+      "relatedSpdxElement": "SPDXRef-Dep-21",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-0",
+      "relatedSpdxElement": "SPDXRef-Dep-22",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-0",
+      "relatedSpdxElement": "SPDXRef-Dep-23",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-0",
+      "relatedSpdxElement": "SPDXRef-Dep-24",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-0",
+      "relatedSpdxElement": "SPDXRef-Dep-25",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-0",
+      "relatedSpdxElement": "SPDXRef-Dep-26",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-0",
+      "relatedSpdxElement": "SPDXRef-Dep-27",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-0",
+      "relatedSpdxElement": "SPDXRef-Dep-28",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-0",
+      "relatedSpdxElement": "SPDXRef-Dep-29",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-0",
+      "relatedSpdxElement": "SPDXRef-Dep-30",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-0",
+      "relatedSpdxElement": "SPDXRef-Dep-31",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-0",
+      "relatedSpdxElement": "SPDXRef-Dep-32",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-0",
+      "relatedSpdxElement": "SPDXRef-Dep-33",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-0",
+      "relatedSpdxElement": "SPDXRef-Dep-34",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-0",
+      "relatedSpdxElement": "SPDXRef-Dep-35",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-0",
+      "relatedSpdxElement": "SPDXRef-Dep-36",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-0",
+      "relatedSpdxElement": "SPDXRef-Dep-37",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-0",
+      "relatedSpdxElement": "SPDXRef-Dep-38",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-0",
+      "relatedSpdxElement": "SPDXRef-Dep-39",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-0",
+      "relatedSpdxElement": "SPDXRef-Dep-40",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-0",
+      "relatedSpdxElement": "SPDXRef-Dep-41",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-0",
+      "relatedSpdxElement": "SPDXRef-Dep-42",
+      "relationshipType": "DEPENDS_ON"
+    }
+  ]
+}

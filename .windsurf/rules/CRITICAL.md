@@ -20,6 +20,9 @@ Violating any rule marked NEVER is a critical failure.
   commands that read stdin. Use temp files instead.
 - [ ] **NEVER** use `gh pr create --body "..."` inline. Write body to
   `/tmp/pr_body.md` and use `--body-file /tmp/pr_body.md`.
+- [ ] **NEVER** use `gh issue create --body "..."` inline or with
+  heredocs. Write body to `/tmp/issue_body.md` and use
+  `--body-file /tmp/issue_body.md`.
 - [ ] **NEVER** run `git commit` without `-m "msg"` or `-F /tmp/msg.txt`.
 - [ ] **NEVER** run `cd` as a command. Use the `Cwd` parameter instead.
 - [ ] **NEVER** exceed **200 characters** per command line. Split into
@@ -59,12 +62,27 @@ Violating any rule marked NEVER is a critical failure.
 
 ## Before Every Golden File Comparison
 
+- [ ] **Golden files are PROJECT-WIDE** — one baseline for ALL variants.
+  Every OS (Ubuntu, RHEL, Alpine), every mode (standalone, sidecar),
+  every environment (EC2, local, CI) must be compared against the
+  **same** golden files. There are NO per-OS or per-mode golden files.
+- [ ] **Standalone mode is the AUTHORITATIVE baseline.** Golden files
+  MUST be generated from standalone mode (strace/ptrace on Ubuntu).
+  All other variants (sidecar, RHEL, Alpine) are compared against
+  standalone-generated golden files to verify structural equivalence.
+- [ ] **ALWAYS** compare SPDX output against golden files after every
+  successful run, regardless of OS or mode.
 - [ ] **NEVER** update golden files without explicit user approval.
+- [ ] **NEVER** suggest updating golden files — no reason is valid.
+  The user reviews diffs and decides. Period.
 - [ ] **NEVER** dismiss differences with "likely upstream" or "within
   tolerance" — report EVERY difference.
 - [ ] **ALWAYS** report: exact counts (old → new), added/removed entries,
   version changes, structural changes.
 - [ ] **ALWAYS** stop and wait for user approval if any diffs exist.
+- [ ] **ALWAYS** clean bomtrace3 treedb between sequential repo runs
+  (`rm -f /tmp/bomsh_hook_raw_logfile* /tmp/bomsh_createbom* /tmp/treedb_*`
+  but PRESERVE `/tmp/bomsh_hook2.py`).
 
 ---
 
@@ -86,10 +104,20 @@ Violating any rule marked NEVER is a critical failure.
 ## Before Every Git Operation
 
 - [ ] **NEVER** commit directly to `main`. Always use feature branches.
+  GitHub Rulesets enforce this server-side — direct push is rejected.
 - [ ] **NEVER** create a PR or merge without explicit user approval.
 - [ ] **NEVER** use `git push --force` or `git push -f`.
+  Server-side rejected via Ruleset A (`non_fast_forward` rule).
 - [ ] **ALWAYS** use conventional branch prefixes: `fix/`, `feat/`,
   `chore/`, `docs/`, `test/`.
+- [ ] **NEVER** leave stashed work behind. If you `git stash`, you MUST
+  `git stash pop` in the same turn — stash, operate, switch back, pop.
+- [ ] **NEVER** assume the working tree belongs to Cascade. Other AI
+  conversations or the user may have uncommitted changes at any time.
+- [ ] **ALWAYS** prefer `git fetch` without switching branches over
+  `git checkout` + stash when you only need to read remote state.
+- [ ] **Reference**: See `infrastructure/github-rulesets.md` for full
+  ruleset configuration. Owner merges without review; contributors need 1.
 
 ---
 

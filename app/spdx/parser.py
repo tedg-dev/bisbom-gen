@@ -18,9 +18,14 @@ class AdgParser:
       - crt_object: C runtime objects (crt*.o)
     """
 
-    def __init__(self, bom_dir, repos_dir):
+    def __init__(
+        self, bom_dir, repos_dir,
+        go_root=None, cargo_home=None,
+    ):
         self.bom_dir = Path(bom_dir)
         self.repos_dir = Path(repos_dir)
+        self.go_root = go_root or "/usr/local/go"
+        self.cargo_home = cargo_home or "~/.cargo"
         self.meta_dir = (
             self.bom_dir / "metadata" / "bomsh"
         )
@@ -48,7 +53,7 @@ class AdgParser:
             "go_stdlib": [],
         }
 
-        go_stdlib_prefix = "/usr/local/go/src/"
+        go_stdlib_prefix = f"{self.go_root}/src/"
 
         for sha1, entry in treedb.items():
             fp = entry.get("file_path", "")
@@ -96,13 +101,20 @@ class AdgParser:
                     classified[
                         "project_source"
                     ].append(item)
-            elif "/.cargo/registry/src/" in fp:
+            elif (
+                "/.cargo/registry/src/" in fp
+                or f"{self.cargo_home}/registry/" in fp
+            ):
                 # Rust crate sources from Cargo registry
                 classified[
                     "project_source"
                 ].append(item)
             else:
-                # Other system files (incl. /tmp/go-build)
+                # Catch-all: anything not positively matched
+                # above (e.g. /tmp/ build intermediates,
+                # /opt/ tool files).  Allowlist above is the
+                # security boundary — nothing reaches
+                # project_source without a prefix match.
                 classified["system_header"].append(
                     item
                 )
@@ -171,10 +183,15 @@ class AdgParser:
                             ),
                         })
 
-                # Also include the class file itself
+                # Also include the class file itself,
+                # but skip bomsh extraction artifacts
+                # (/tmp/bomjdir/) — these are intermediate
+                # paths from JAR introspection, not
+                # project source files.
                 if (
                     cls_path
                     and class_sha not in seen
+                    and "/tmp/bomjdir/" not in cls_path
                 ):
                     seen.add(class_sha)
                     sources.append({

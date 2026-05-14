@@ -1,0 +1,2769 @@
+{
+  "spdxVersion": "SPDX-2.3",
+  "dataLicense": "CC0-1.0",
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "name": "spring-boot-buildSrc.jar",
+  "documentNamespace": "https://omnibor.io/spdx/spring-boot/0c1d9124-4fe0-4cba-b16b-22757bb36459",
+  "creationInfo": {
+    "created": "2026-05-08T21:31:38Z",
+    "creators": [
+      "Tool: omnibor-analysis",
+      "Tool: bomsh_create_bom_java.py"
+    ],
+    "licenseListVersion": "3.19"
+  },
+  "packages": [
+    {
+      "SPDXID": "SPDXRef-Package-buildSrc.jar",
+      "name": "buildSrc",
+      "versionInfo": "3.4.4",
+      "downloadLocation": "https://github.com/spring-projects/spring-boot/commit/d4eb5561217be6bd490634fe5254fc4824d8dd87",
+      "filesAnalyzed": true,
+      "primaryPackagePurpose": "APPLICATION",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/spring-boot/buildSrc"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-BuildTool-javac",
+      "name": "javac",
+      "versionInfo": "21.0.10",
+      "supplier": "Organization: Oracle",
+      "downloadLocation": "https://jdk.java.net/",
+      "filesAnalyzed": false,
+      "primaryPackagePurpose": "APPLICATION",
+      "externalRefs": [
+        {
+          "referenceCategory": "SECURITY",
+          "referenceType": "cpe23Type",
+          "referenceLocator": "cpe:2.3:a:oracle:jdk:21.0.10:*:*:*:*:*:*:*"
+        }
+      ],
+      "comment": "Java compiler (JDK 21.0.10) used to compile .java sources into .class bytecode."
+    },
+    {
+      "SPDXID": "SPDXRef-BuildTool-gradle",
+      "name": "gradle",
+      "versionInfo": "8.13",
+      "supplier": "Organization: Gradle Inc",
+      "downloadLocation": "https://gradle.org/",
+      "filesAnalyzed": false,
+      "primaryPackagePurpose": "APPLICATION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.gradle/gradle@8.13"
+        }
+      ],
+      "comment": "Gradle 8.13 build system used to orchestrate compilation and packaging."
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-0",
+      "name": "spring-framework-bom",
+      "versionInfo": "6.2.5",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/springframework/spring-framework-bom/6.2.5/spring-framework-bom-6.2.5.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.springframework",
+      "comment": "Maven scope: compile. Direct dependency. BOM/platform artifact \u2014 POM-only, no compiled code",
+      "sourceInfo": "Maven Central: org.springframework:spring-framework-bom:6.2.5",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.springframework/spring-framework-bom@6.2.5"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-1",
+      "name": "jackson-databind",
+      "versionInfo": "2.18.3",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/com/fasterxml/jackson/core/jackson-databind/2.18.3/jackson-databind-2.18.3.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: com.fasterxml.jackson.core",
+      "comment": "Maven scope: compile. Direct dependency",
+      "sourceInfo": "Maven Central: com.fasterxml.jackson.core:jackson-databind:2.18.3",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/com.fasterxml.jackson.core/jackson-databind@2.18.3"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-2",
+      "name": "jackson-annotations",
+      "versionInfo": "2.18.3",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/com/fasterxml/jackson/core/jackson-annotations/2.18.3/jackson-annotations-2.18.3.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: com.fasterxml.jackson.core",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: jackson-databind",
+      "sourceInfo": "Maven Central: com.fasterxml.jackson.core:jackson-annotations:2.18.3",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/com.fasterxml.jackson.core/jackson-annotations@2.18.3"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-3",
+      "name": "jackson-bom",
+      "versionInfo": "2.18.3",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/com/fasterxml/jackson/jackson-bom/2.18.3/jackson-bom-2.18.3.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: com.fasterxml.jackson",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: jackson-annotations. BOM/platform artifact \u2014 POM-only, no compiled code",
+      "sourceInfo": "Maven Central: com.fasterxml.jackson:jackson-bom:2.18.3",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/com.fasterxml.jackson/jackson-bom@2.18.3"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-4",
+      "name": "jackson-core",
+      "versionInfo": "2.18.3",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/com/fasterxml/jackson/core/jackson-core/2.18.3/jackson-core-2.18.3.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: com.fasterxml.jackson.core",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: jackson-databind",
+      "sourceInfo": "Maven Central: com.fasterxml.jackson.core:jackson-core:2.18.3",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/com.fasterxml.jackson.core/jackson-core@2.18.3"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-5",
+      "name": "gradle-node-plugin",
+      "versionInfo": "3.5.1",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/com/github/node-gradle/gradle-node-plugin/3.5.1/gradle-node-plugin-3.5.1.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: com.github.node-gradle",
+      "comment": "Maven scope: compile. Direct dependency",
+      "sourceInfo": "Maven Central: com.github.node-gradle:gradle-node-plugin:3.5.1",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/com.github.node-gradle/gradle-node-plugin@3.5.1"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-6",
+      "name": "develocity-gradle-plugin",
+      "versionInfo": "3.17.2",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/com/gradle/develocity-gradle-plugin/3.17.2/develocity-gradle-plugin-3.17.2.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: com.gradle",
+      "comment": "Maven scope: compile. Direct dependency",
+      "sourceInfo": "Maven Central: com.gradle:develocity-gradle-plugin:3.17.2",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/com.gradle/develocity-gradle-plugin@3.17.2"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-7",
+      "name": "archunit",
+      "versionInfo": "1.3.0",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/com/tngtech/archunit/archunit/1.3.0/archunit-1.3.0.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: com.tngtech.archunit",
+      "comment": "Maven scope: compile. Direct dependency",
+      "sourceInfo": "Maven Central: com.tngtech.archunit:archunit:1.3.0",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/com.tngtech.archunit/archunit@1.3.0"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-8",
+      "name": "commons-codec",
+      "versionInfo": "1.17.2",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/commons-codec/commons-codec/1.17.2/commons-codec-1.17.2.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: commons-codec",
+      "comment": "Maven scope: compile. Direct dependency",
+      "sourceInfo": "Maven Central: commons-codec:commons-codec:1.17.2",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/commons-codec/commons-codec@1.17.2"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-9",
+      "name": "de.undercouch.download.gradle.plugin",
+      "versionInfo": "5.5.0",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/de/undercouch/download/de.undercouch.download.gradle.plugin/5.5.0/de.undercouch.download.gradle.plugin-5.5.0.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: de.undercouch.download",
+      "comment": "Maven scope: compile. Direct dependency",
+      "sourceInfo": "Maven Central: de.undercouch.download:de.undercouch.download.gradle.plugin:5.5.0",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/de.undercouch.download/de.undercouch.download.gradle.plugin@5.5.0"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-10",
+      "name": "gradle-download-task",
+      "versionInfo": "5.5.0",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/de/undercouch/gradle-download-task/5.5.0/gradle-download-task-5.5.0.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: de.undercouch",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: de.undercouch.download.gradle.plugin",
+      "sourceInfo": "Maven Central: de.undercouch:gradle-download-task:5.5.0",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/de.undercouch/gradle-download-task@5.5.0"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-11",
+      "name": "dokkatoo-plugin",
+      "versionInfo": "2.3.1",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/dev/adamko/dokkatoo/dokkatoo-plugin/2.3.1/dokkatoo-plugin-2.3.1.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: dev.adamko.dokkatoo",
+      "comment": "Maven scope: compile. Direct dependency",
+      "sourceInfo": "Maven Central: dev.adamko.dokkatoo:dokkatoo-plugin:2.3.1",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/dev.adamko.dokkatoo/dokkatoo-plugin@2.3.1"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-12",
+      "name": "dokka-core",
+      "versionInfo": "1.9.20",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/jetbrains/dokka/dokka-core/1.9.20/dokka-core-1.9.20.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.jetbrains.dokka",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: dokkatoo-plugin",
+      "sourceInfo": "Maven Central: org.jetbrains.dokka:dokka-core:1.9.20",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.jetbrains.dokka/dokka-core@1.9.20"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-13",
+      "name": "kotlin-reflect",
+      "versionInfo": "1.9.22",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlin/kotlin-reflect/1.9.22/kotlin-reflect-1.9.22.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.jetbrains.kotlin",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: dokka-core",
+      "sourceInfo": "Maven Central: org.jetbrains.kotlin:kotlin-reflect:1.9.22",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.jetbrains.kotlin/kotlin-reflect@1.9.22"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-14",
+      "name": "kotlin-stdlib",
+      "versionInfo": "1.9.25",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlin/kotlin-stdlib/1.9.25/kotlin-stdlib-1.9.25.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.jetbrains.kotlin",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: kotlin-reflect",
+      "sourceInfo": "Maven Central: org.jetbrains.kotlin:kotlin-stdlib:1.9.25",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.jetbrains.kotlin/kotlin-stdlib@1.9.25"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-15",
+      "name": "annotations",
+      "versionInfo": "23.0.0",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/jetbrains/annotations/23.0.0/annotations-23.0.0.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.jetbrains",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: kotlin-stdlib",
+      "sourceInfo": "Maven Central: org.jetbrains:annotations:23.0.0",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.jetbrains/annotations@23.0.0"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-16",
+      "name": "kotlinx-coroutines-core",
+      "versionInfo": "1.7.3",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlinx/kotlinx-coroutines-core/1.7.3/kotlinx-coroutines-core-1.7.3.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.jetbrains.kotlinx",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: dokka-core",
+      "sourceInfo": "Maven Central: org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.jetbrains.kotlinx/kotlinx-coroutines-core@1.7.3"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-17",
+      "name": "kotlinx-coroutines-core-jvm",
+      "versionInfo": "1.7.3",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlinx/kotlinx-coroutines-core-jvm/1.7.3/kotlinx-coroutines-core-jvm-1.7.3.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.jetbrains.kotlinx",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: kotlinx-coroutines-core",
+      "sourceInfo": "Maven Central: org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.7.3",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.jetbrains.kotlinx/kotlinx-coroutines-core-jvm@1.7.3"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-18",
+      "name": "kotlinx-coroutines-bom",
+      "versionInfo": "1.7.3",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlinx/kotlinx-coroutines-bom/1.7.3/kotlinx-coroutines-bom-1.7.3.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.jetbrains.kotlinx",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: kotlinx-coroutines-core-jvm. BOM/platform artifact \u2014 POM-only, no compiled code",
+      "sourceInfo": "Maven Central: org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.7.3",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.jetbrains.kotlinx/kotlinx-coroutines-bom@1.7.3"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-19",
+      "name": "kotlin-stdlib-common",
+      "versionInfo": "1.9.25",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlin/kotlin-stdlib-common/1.9.25/kotlin-stdlib-common-1.9.25.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.jetbrains.kotlin",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: kotlinx-coroutines-core-jvm",
+      "sourceInfo": "Maven Central: org.jetbrains.kotlin:kotlin-stdlib-common:1.9.25",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.jetbrains.kotlin/kotlin-stdlib-common@1.9.25"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-20",
+      "name": "kotlin-stdlib-jdk8",
+      "versionInfo": "1.8.20",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlin/kotlin-stdlib-jdk8/1.8.20/kotlin-stdlib-jdk8-1.8.20.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.jetbrains.kotlin",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: kotlinx-coroutines-core-jvm",
+      "sourceInfo": "Maven Central: org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.20",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.jetbrains.kotlin/kotlin-stdlib-jdk8@1.8.20"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-21",
+      "name": "kotlin-stdlib-jdk7",
+      "versionInfo": "1.8.20",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlin/kotlin-stdlib-jdk7/1.8.20/kotlin-stdlib-jdk7-1.8.20.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.jetbrains.kotlin",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: kotlin-stdlib-jdk8",
+      "sourceInfo": "Maven Central: org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.20",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.jetbrains.kotlin/kotlin-stdlib-jdk7@1.8.20"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-22",
+      "name": "jackson-module-kotlin",
+      "versionInfo": "2.18.3",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/com/fasterxml/jackson/module/jackson-module-kotlin/2.18.3/jackson-module-kotlin-2.18.3.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: com.fasterxml.jackson.module",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: dokka-core",
+      "sourceInfo": "Maven Central: com.fasterxml.jackson.module:jackson-module-kotlin:2.18.3",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/com.fasterxml.jackson.module/jackson-module-kotlin@2.18.3"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-23",
+      "name": "jackson-dataformat-xml",
+      "versionInfo": "2.18.3",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/com/fasterxml/jackson/dataformat/jackson-dataformat-xml/2.18.3/jackson-dataformat-xml-2.18.3.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: com.fasterxml.jackson.dataformat",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: dokka-core",
+      "sourceInfo": "Maven Central: com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.18.3",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/com.fasterxml.jackson.dataformat/jackson-dataformat-xml@2.18.3"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-24",
+      "name": "stax2-api",
+      "versionInfo": "4.2.2",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/codehaus/woodstox/stax2-api/4.2.2/stax2-api-4.2.2.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.codehaus.woodstox",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: jackson-dataformat-xml",
+      "sourceInfo": "Maven Central: org.codehaus.woodstox:stax2-api:4.2.2",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.codehaus.woodstox/stax2-api@4.2.2"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-25",
+      "name": "woodstox-core",
+      "versionInfo": "7.0.0",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/com/fasterxml/woodstox/woodstox-core/7.0.0/woodstox-core-7.0.0.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: com.fasterxml.woodstox",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: jackson-dataformat-xml",
+      "sourceInfo": "Maven Central: com.fasterxml.woodstox:woodstox-core:7.0.0",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/com.fasterxml.woodstox/woodstox-core@7.0.0"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-26",
+      "name": "kotlinx-serialization-bom",
+      "versionInfo": "1.6.3",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlinx/kotlinx-serialization-bom/1.6.3/kotlinx-serialization-bom-1.6.3.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.jetbrains.kotlinx",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: dokkatoo-plugin. BOM/platform artifact \u2014 POM-only, no compiled code",
+      "sourceInfo": "Maven Central: org.jetbrains.kotlinx:kotlinx-serialization-bom:1.6.3",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.jetbrains.kotlinx/kotlinx-serialization-bom@1.6.3"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-27",
+      "name": "kotlinx-serialization-json-jvm",
+      "versionInfo": "1.6.3",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlinx/kotlinx-serialization-json-jvm/1.6.3/kotlinx-serialization-json-jvm-1.6.3.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.jetbrains.kotlinx",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: kotlinx-serialization-bom",
+      "sourceInfo": "Maven Central: org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.6.3",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.jetbrains.kotlinx/kotlinx-serialization-json-jvm@1.6.3"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-28",
+      "name": "kotlinx-serialization-core",
+      "versionInfo": "1.6.3",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlinx/kotlinx-serialization-core/1.6.3/kotlinx-serialization-core-1.6.3.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.jetbrains.kotlinx",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: kotlinx-serialization-json-jvm",
+      "sourceInfo": "Maven Central: org.jetbrains.kotlinx:kotlinx-serialization-core:1.6.3",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.jetbrains.kotlinx/kotlinx-serialization-core@1.6.3"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-29",
+      "name": "kotlinx-serialization-core-jvm",
+      "versionInfo": "1.6.3",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlinx/kotlinx-serialization-core-jvm/1.6.3/kotlinx-serialization-core-jvm-1.6.3.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.jetbrains.kotlinx",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: kotlinx-serialization-core",
+      "sourceInfo": "Maven Central: org.jetbrains.kotlinx:kotlinx-serialization-core-jvm:1.6.3",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.jetbrains.kotlinx/kotlinx-serialization-core-jvm@1.6.3"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-30",
+      "name": "spring-antora-plugin",
+      "versionInfo": "0.0.1",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/io/spring/gradle/antora/spring-antora-plugin/0.0.1/spring-antora-plugin-0.0.1.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: io.spring.gradle.antora",
+      "comment": "Maven scope: compile. Direct dependency",
+      "sourceInfo": "Maven Central: io.spring.gradle.antora:spring-antora-plugin:0.0.1",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/io.spring.gradle.antora/spring-antora-plugin@0.0.1"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-31",
+      "name": "snakeyaml",
+      "versionInfo": "2.3",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/yaml/snakeyaml/2.3/snakeyaml-2.3.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.yaml",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: spring-antora-plugin",
+      "sourceInfo": "Maven Central: org.yaml:snakeyaml:2.3",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.yaml/snakeyaml@2.3"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-32",
+      "name": "spring-javaformat-gradle-plugin",
+      "versionInfo": "0.0.43",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/io/spring/javaformat/spring-javaformat-gradle-plugin/0.0.43/spring-javaformat-gradle-plugin-0.0.43.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: io.spring.javaformat",
+      "comment": "Maven scope: compile. Direct dependency",
+      "sourceInfo": "Maven Central: io.spring.javaformat:spring-javaformat-gradle-plugin:0.0.43",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/io.spring.javaformat/spring-javaformat-gradle-plugin@0.0.43"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-33",
+      "name": "spring-javaformat-formatter-shaded",
+      "versionInfo": "0.0.43",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/io/spring/javaformat/spring-javaformat-formatter-shaded/0.0.43/spring-javaformat-formatter-shaded-0.0.43.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: io.spring.javaformat",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: spring-javaformat-gradle-plugin",
+      "sourceInfo": "Maven Central: io.spring.javaformat:spring-javaformat-formatter-shaded:0.0.43",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/io.spring.javaformat/spring-javaformat-formatter-shaded@0.0.43"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-34",
+      "name": "nohttp-gradle",
+      "versionInfo": "0.0.11",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/io/spring/nohttp/nohttp-gradle/0.0.11/nohttp-gradle-0.0.11.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: io.spring.nohttp",
+      "comment": "Maven scope: compile. Direct dependency",
+      "sourceInfo": "Maven Central: io.spring.nohttp:nohttp-gradle:0.0.11",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/io.spring.nohttp/nohttp-gradle@0.0.11"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-35",
+      "name": "nohttp-checkstyle",
+      "versionInfo": "0.0.11",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/io/spring/nohttp/nohttp-checkstyle/0.0.11/nohttp-checkstyle-0.0.11.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: io.spring.nohttp",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: nohttp-gradle",
+      "sourceInfo": "Maven Central: io.spring.nohttp:nohttp-checkstyle:0.0.11",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/io.spring.nohttp/nohttp-checkstyle@0.0.11"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-36",
+      "name": "checkstyle",
+      "versionInfo": "8.33",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/com/puppycrawl/tools/checkstyle/8.33/checkstyle-8.33.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: com.puppycrawl.tools",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: nohttp-checkstyle",
+      "sourceInfo": "Maven Central: com.puppycrawl.tools:checkstyle:8.33",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/com.puppycrawl.tools/checkstyle@8.33"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-37",
+      "name": "picocli",
+      "versionInfo": "4.3.1",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/info/picocli/picocli/4.3.1/picocli-4.3.1.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: info.picocli",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: checkstyle",
+      "sourceInfo": "Maven Central: info.picocli:picocli:4.3.1",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/info.picocli/picocli@4.3.1"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-38",
+      "name": "antlr",
+      "versionInfo": "2.7.7",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/antlr/antlr/2.7.7/antlr-2.7.7.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: antlr",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: checkstyle",
+      "sourceInfo": "Maven Central: antlr:antlr:2.7.7",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/antlr/antlr@2.7.7"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-39",
+      "name": "antlr4-runtime",
+      "versionInfo": "4.8-1",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/antlr/antlr4-runtime/4.8-1/antlr4-runtime-4.8-1.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.antlr",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: checkstyle",
+      "sourceInfo": "Maven Central: org.antlr:antlr4-runtime:4.8-1",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.antlr/antlr4-runtime@4.8-1"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-40",
+      "name": "commons-beanutils",
+      "versionInfo": "1.9.4",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/commons-beanutils/commons-beanutils/1.9.4/commons-beanutils-1.9.4.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: commons-beanutils",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: checkstyle",
+      "sourceInfo": "Maven Central: commons-beanutils:commons-beanutils:1.9.4",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/commons-beanutils/commons-beanutils@1.9.4"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-41",
+      "name": "commons-logging",
+      "versionInfo": "1.2",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/commons-logging/commons-logging/1.2/commons-logging-1.2.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: commons-logging",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: commons-beanutils",
+      "sourceInfo": "Maven Central: commons-logging:commons-logging:1.2",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/commons-logging/commons-logging@1.2"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-42",
+      "name": "commons-collections",
+      "versionInfo": "3.2.2",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/commons-collections/commons-collections/3.2.2/commons-collections-3.2.2.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: commons-collections",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: commons-beanutils",
+      "sourceInfo": "Maven Central: commons-collections:commons-collections:3.2.2",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/commons-collections/commons-collections@3.2.2"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-43",
+      "name": "guava",
+      "versionInfo": "32.0.1-jre",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/com/google/guava/guava/32.0.1-jre/guava-32.0.1-jre.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: com.google.guava",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: checkstyle",
+      "sourceInfo": "Maven Central: com.google.guava:guava:32.0.1-jre",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/com.google.guava/guava@32.0.1-jre"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-44",
+      "name": "failureaccess",
+      "versionInfo": "1.0.1",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/com/google/guava/failureaccess/1.0.1/failureaccess-1.0.1.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: com.google.guava",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: guava",
+      "sourceInfo": "Maven Central: com.google.guava:failureaccess:1.0.1",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/com.google.guava/failureaccess@1.0.1"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-45",
+      "name": "listenablefuture",
+      "versionInfo": "9999.0-empty-to-avoid-conflict-with-guava",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/com/google/guava/listenablefuture/9999.0-empty-to-avoid-conflict-with-guava/listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: com.google.guava",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: guava. Placeholder artifact \u2014 empty JAR for conflict avoidance",
+      "sourceInfo": "Maven Central: com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/com.google.guava/listenablefuture@9999.0-empty-to-avoid-conflict-with-guava"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-46",
+      "name": "jsr305",
+      "versionInfo": "3.0.2",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/com/google/code/findbugs/jsr305/3.0.2/jsr305-3.0.2.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: com.google.code.findbugs",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: guava",
+      "sourceInfo": "Maven Central: com.google.code.findbugs:jsr305:3.0.2",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/com.google.code.findbugs/jsr305@3.0.2"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-47",
+      "name": "checker-qual",
+      "versionInfo": "3.33.0",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/checkerframework/checker-qual/3.33.0/checker-qual-3.33.0.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.checkerframework",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: guava",
+      "sourceInfo": "Maven Central: org.checkerframework:checker-qual:3.33.0",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.checkerframework/checker-qual@3.33.0"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-48",
+      "name": "error_prone_annotations",
+      "versionInfo": "2.18.0",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/com/google/errorprone/error_prone_annotations/2.18.0/error_prone_annotations-2.18.0.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: com.google.errorprone",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: guava",
+      "sourceInfo": "Maven Central: com.google.errorprone:error_prone_annotations:2.18.0",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/com.google.errorprone/error_prone_annotations@2.18.0"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-49",
+      "name": "j2objc-annotations",
+      "versionInfo": "2.8",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/com/google/j2objc/j2objc-annotations/2.8/j2objc-annotations-2.8.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: com.google.j2objc",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: guava",
+      "sourceInfo": "Maven Central: com.google.j2objc:j2objc-annotations:2.8",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/com.google.j2objc/j2objc-annotations@2.8"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-50",
+      "name": "Saxon-HE",
+      "versionInfo": "9.9.1-7",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/net/sf/saxon/Saxon-HE/9.9.1-7/Saxon-HE-9.9.1-7.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: net.sf.saxon",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: checkstyle",
+      "sourceInfo": "Maven Central: net.sf.saxon:Saxon-HE:9.9.1-7",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/net.sf.saxon/Saxon-HE@9.9.1-7"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-51",
+      "name": "nohttp",
+      "versionInfo": "0.0.11",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/io/spring/nohttp/nohttp/0.0.11/nohttp-0.0.11.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: io.spring.nohttp",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: nohttp-checkstyle",
+      "sourceInfo": "Maven Central: io.spring.nohttp:nohttp:0.0.11",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/io.spring.nohttp/nohttp@0.0.11"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-52",
+      "name": "httpclient5",
+      "versionInfo": "5.3.1",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/apache/httpcomponents/client5/httpclient5/5.3.1/httpclient5-5.3.1.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.apache.httpcomponents.client5",
+      "comment": "Maven scope: compile. Direct dependency",
+      "sourceInfo": "Maven Central: org.apache.httpcomponents.client5:httpclient5:5.3.1",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.apache.httpcomponents.client5/httpclient5@5.3.1"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-53",
+      "name": "httpcore5",
+      "versionInfo": "5.2.4",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/apache/httpcomponents/core5/httpcore5/5.2.4/httpcore5-5.2.4.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.apache.httpcomponents.core5",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: httpclient5",
+      "sourceInfo": "Maven Central: org.apache.httpcomponents.core5:httpcore5:5.2.4",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.apache.httpcomponents.core5/httpcore5@5.2.4"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-54",
+      "name": "httpcore5-h2",
+      "versionInfo": "5.2.4",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/apache/httpcomponents/core5/httpcore5-h2/5.2.4/httpcore5-h2-5.2.4.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.apache.httpcomponents.core5",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: httpclient5",
+      "sourceInfo": "Maven Central: org.apache.httpcomponents.core5:httpcore5-h2:5.2.4",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.apache.httpcomponents.core5/httpcore5-h2@5.2.4"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-55",
+      "name": "maven-embedder",
+      "versionInfo": "3.9.4",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/apache/maven/maven-embedder/3.9.4/maven-embedder-3.9.4.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.apache.maven",
+      "comment": "Maven scope: compile. Direct dependency",
+      "sourceInfo": "Maven Central: org.apache.maven:maven-embedder:3.9.4",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.apache.maven/maven-embedder@3.9.4"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-56",
+      "name": "maven-settings",
+      "versionInfo": "3.9.4",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/apache/maven/maven-settings/3.9.4/maven-settings-3.9.4.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.apache.maven",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: maven-embedder",
+      "sourceInfo": "Maven Central: org.apache.maven:maven-settings:3.9.4",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.apache.maven/maven-settings@3.9.4"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-57",
+      "name": "plexus-utils",
+      "versionInfo": "3.5.1",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/codehaus/plexus/plexus-utils/3.5.1/plexus-utils-3.5.1.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.codehaus.plexus",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: maven-settings",
+      "sourceInfo": "Maven Central: org.codehaus.plexus:plexus-utils:3.5.1",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.codehaus.plexus/plexus-utils@3.5.1"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-58",
+      "name": "maven-settings-builder",
+      "versionInfo": "3.9.4",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/apache/maven/maven-settings-builder/3.9.4/maven-settings-builder-3.9.4.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.apache.maven",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: maven-embedder",
+      "sourceInfo": "Maven Central: org.apache.maven:maven-settings-builder:3.9.4",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.apache.maven/maven-settings-builder@3.9.4"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-59",
+      "name": "maven-builder-support",
+      "versionInfo": "3.9.4",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/apache/maven/maven-builder-support/3.9.4/maven-builder-support-3.9.4.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.apache.maven",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: maven-settings-builder",
+      "sourceInfo": "Maven Central: org.apache.maven:maven-builder-support:3.9.4",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.apache.maven/maven-builder-support@3.9.4"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-60",
+      "name": "javax.inject",
+      "versionInfo": "1",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/javax/inject/javax.inject/1/javax.inject-1.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: javax.inject",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: maven-settings-builder",
+      "sourceInfo": "Maven Central: javax.inject:javax.inject:1",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/javax.inject/javax.inject@1"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-61",
+      "name": "plexus-interpolation",
+      "versionInfo": "1.26",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/codehaus/plexus/plexus-interpolation/1.26/plexus-interpolation-1.26.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.codehaus.plexus",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: maven-settings-builder",
+      "sourceInfo": "Maven Central: org.codehaus.plexus:plexus-interpolation:1.26",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.codehaus.plexus/plexus-interpolation@1.26"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-62",
+      "name": "plexus-sec-dispatcher",
+      "versionInfo": "2.0",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/codehaus/plexus/plexus-sec-dispatcher/2.0/plexus-sec-dispatcher-2.0.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.codehaus.plexus",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: maven-settings-builder",
+      "sourceInfo": "Maven Central: org.codehaus.plexus:plexus-sec-dispatcher:2.0",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.codehaus.plexus/plexus-sec-dispatcher@2.0"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-63",
+      "name": "plexus-cipher",
+      "versionInfo": "2.0",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/codehaus/plexus/plexus-cipher/2.0/plexus-cipher-2.0.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.codehaus.plexus",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: plexus-sec-dispatcher",
+      "sourceInfo": "Maven Central: org.codehaus.plexus:plexus-cipher:2.0",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.codehaus.plexus/plexus-cipher@2.0"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-64",
+      "name": "maven-core",
+      "versionInfo": "3.9.4",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/apache/maven/maven-core/3.9.4/maven-core-3.9.4.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.apache.maven",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: maven-embedder",
+      "sourceInfo": "Maven Central: org.apache.maven:maven-core:3.9.4",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.apache.maven/maven-core@3.9.4"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-65",
+      "name": "maven-model",
+      "versionInfo": "3.9.4",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/apache/maven/maven-model/3.9.4/maven-model-3.9.4.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.apache.maven",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: maven-core",
+      "sourceInfo": "Maven Central: org.apache.maven:maven-model:3.9.4",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.apache.maven/maven-model@3.9.4"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-66",
+      "name": "maven-repository-metadata",
+      "versionInfo": "3.9.4",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/apache/maven/maven-repository-metadata/3.9.4/maven-repository-metadata-3.9.4.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.apache.maven",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: maven-core",
+      "sourceInfo": "Maven Central: org.apache.maven:maven-repository-metadata:3.9.4",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.apache.maven/maven-repository-metadata@3.9.4"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-67",
+      "name": "maven-artifact",
+      "versionInfo": "3.9.4",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/apache/maven/maven-artifact/3.9.4/maven-artifact-3.9.4.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.apache.maven",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: maven-core",
+      "sourceInfo": "Maven Central: org.apache.maven:maven-artifact:3.9.4",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.apache.maven/maven-artifact@3.9.4"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-68",
+      "name": "commons-lang3",
+      "versionInfo": "3.12.0",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/apache/commons/commons-lang3/3.12.0/commons-lang3-3.12.0.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.apache.commons",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: maven-artifact",
+      "sourceInfo": "Maven Central: org.apache.commons:commons-lang3:3.12.0",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.apache.commons/commons-lang3@3.12.0"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-69",
+      "name": "maven-plugin-api",
+      "versionInfo": "3.9.4",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/apache/maven/maven-plugin-api/3.9.4/maven-plugin-api-3.9.4.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.apache.maven",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: maven-core",
+      "sourceInfo": "Maven Central: org.apache.maven:maven-plugin-api:3.9.4",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.apache.maven/maven-plugin-api@3.9.4"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-70",
+      "name": "org.eclipse.sisu.plexus",
+      "versionInfo": "0.3.5",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/eclipse/sisu/org.eclipse.sisu.plexus/0.3.5/org.eclipse.sisu.plexus-0.3.5.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.eclipse.sisu",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: maven-plugin-api",
+      "sourceInfo": "Maven Central: org.eclipse.sisu:org.eclipse.sisu.plexus:0.3.5",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.eclipse.sisu/org.eclipse.sisu.plexus@0.3.5"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-71",
+      "name": "javax.annotation-api",
+      "versionInfo": "1.3.2",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/javax/annotation/javax.annotation-api/1.3.2/javax.annotation-api-1.3.2.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: javax.annotation",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: org.eclipse.sisu.plexus",
+      "sourceInfo": "Maven Central: javax.annotation:javax.annotation-api:1.3.2",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/javax.annotation/javax.annotation-api@1.3.2"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-72",
+      "name": "org.eclipse.sisu.inject",
+      "versionInfo": "0.3.5",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/eclipse/sisu/org.eclipse.sisu.inject/0.3.5/org.eclipse.sisu.inject-0.3.5.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.eclipse.sisu",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: org.eclipse.sisu.plexus",
+      "sourceInfo": "Maven Central: org.eclipse.sisu:org.eclipse.sisu.inject:0.3.5",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.eclipse.sisu/org.eclipse.sisu.inject@0.3.5"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-73",
+      "name": "plexus-component-annotations",
+      "versionInfo": "2.1.0",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/codehaus/plexus/plexus-component-annotations/2.1.0/plexus-component-annotations-2.1.0.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.codehaus.plexus",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: org.eclipse.sisu.plexus",
+      "sourceInfo": "Maven Central: org.codehaus.plexus:plexus-component-annotations:2.1.0",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.codehaus.plexus/plexus-component-annotations@2.1.0"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-74",
+      "name": "plexus-classworlds",
+      "versionInfo": "2.7.0",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/codehaus/plexus/plexus-classworlds/2.7.0/plexus-classworlds-2.7.0.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.codehaus.plexus",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: org.eclipse.sisu.plexus",
+      "sourceInfo": "Maven Central: org.codehaus.plexus:plexus-classworlds:2.7.0",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.codehaus.plexus/plexus-classworlds@2.7.0"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-75",
+      "name": "maven-model-builder",
+      "versionInfo": "3.9.4",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/apache/maven/maven-model-builder/3.9.4/maven-model-builder-3.9.4.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.apache.maven",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: maven-core",
+      "sourceInfo": "Maven Central: org.apache.maven:maven-model-builder:3.9.4",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.apache.maven/maven-model-builder@3.9.4"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-76",
+      "name": "maven-resolver-provider",
+      "versionInfo": "3.9.4",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/apache/maven/maven-resolver-provider/3.9.4/maven-resolver-provider-3.9.4.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.apache.maven",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: maven-core",
+      "sourceInfo": "Maven Central: org.apache.maven:maven-resolver-provider:3.9.4",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.apache.maven/maven-resolver-provider@3.9.4"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-77",
+      "name": "maven-resolver-api",
+      "versionInfo": "1.9.14",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/apache/maven/resolver/maven-resolver-api/1.9.14/maven-resolver-api-1.9.14.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.apache.maven.resolver",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: maven-resolver-provider",
+      "sourceInfo": "Maven Central: org.apache.maven.resolver:maven-resolver-api:1.9.14",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.apache.maven.resolver/maven-resolver-api@1.9.14"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-78",
+      "name": "maven-resolver-spi",
+      "versionInfo": "1.9.14",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/apache/maven/resolver/maven-resolver-spi/1.9.14/maven-resolver-spi-1.9.14.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.apache.maven.resolver",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: maven-resolver-provider",
+      "sourceInfo": "Maven Central: org.apache.maven.resolver:maven-resolver-spi:1.9.14",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.apache.maven.resolver/maven-resolver-spi@1.9.14"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-79",
+      "name": "maven-resolver-util",
+      "versionInfo": "1.9.14",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/apache/maven/resolver/maven-resolver-util/1.9.14/maven-resolver-util-1.9.14.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.apache.maven.resolver",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: maven-resolver-provider",
+      "sourceInfo": "Maven Central: org.apache.maven.resolver:maven-resolver-util:1.9.14",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.apache.maven.resolver/maven-resolver-util@1.9.14"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-80",
+      "name": "maven-resolver-impl",
+      "versionInfo": "1.9.14",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/apache/maven/resolver/maven-resolver-impl/1.9.14/maven-resolver-impl-1.9.14.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.apache.maven.resolver",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: maven-resolver-provider",
+      "sourceInfo": "Maven Central: org.apache.maven.resolver:maven-resolver-impl:1.9.14",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.apache.maven.resolver/maven-resolver-impl@1.9.14"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-81",
+      "name": "maven-resolver-named-locks",
+      "versionInfo": "1.9.14",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/apache/maven/resolver/maven-resolver-named-locks/1.9.14/maven-resolver-named-locks-1.9.14.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.apache.maven.resolver",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: maven-resolver-impl",
+      "sourceInfo": "Maven Central: org.apache.maven.resolver:maven-resolver-named-locks:1.9.14",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.apache.maven.resolver/maven-resolver-named-locks@1.9.14"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-82",
+      "name": "maven-shared-utils",
+      "versionInfo": "3.3.4",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/apache/maven/shared/maven-shared-utils/3.3.4/maven-shared-utils-3.3.4.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.apache.maven.shared",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: maven-core",
+      "sourceInfo": "Maven Central: org.apache.maven.shared:maven-shared-utils:3.3.4",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.apache.maven.shared/maven-shared-utils@3.3.4"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-83",
+      "name": "guice",
+      "versionInfo": "5.1.0",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/com/google/inject/guice/5.1.0/guice-5.1.0.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: com.google.inject",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: maven-core",
+      "sourceInfo": "Maven Central: com.google.inject:guice:5.1.0",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/com.google.inject/guice@5.1.0"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-84",
+      "name": "aopalliance",
+      "versionInfo": "1.0",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/aopalliance/aopalliance/1.0/aopalliance-1.0.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: aopalliance",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: guice",
+      "sourceInfo": "Maven Central: aopalliance:aopalliance:1.0",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/aopalliance/aopalliance@1.0"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-85",
+      "name": "commons-cli",
+      "versionInfo": "1.5.0",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/commons-cli/commons-cli/1.5.0/commons-cli-1.5.0.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: commons-cli",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: maven-embedder",
+      "sourceInfo": "Maven Central: commons-cli:commons-cli:1.5.0",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/commons-cli/commons-cli@1.5.0"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-86",
+      "name": "gradle-antora-plugin",
+      "versionInfo": "1.0.0",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/antora/gradle-antora-plugin/1.0.0/gradle-antora-plugin-1.0.0.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.antora",
+      "comment": "Maven scope: compile. Direct dependency",
+      "sourceInfo": "Maven Central: org.antora:gradle-antora-plugin:1.0.0",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.antora/gradle-antora-plugin@1.0.0"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-87",
+      "name": "org.eclipse.jgit",
+      "versionInfo": "6.4.0.202211300538-r",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/eclipse/jgit/org.eclipse.jgit/6.4.0.202211300538-r/org.eclipse.jgit-6.4.0.202211300538-r.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.eclipse.jgit",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: gradle-antora-plugin",
+      "sourceInfo": "Maven Central: org.eclipse.jgit:org.eclipse.jgit:6.4.0.202211300538-r",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.eclipse.jgit/org.eclipse.jgit@6.4.0.202211300538-r"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-88",
+      "name": "JavaEWAH",
+      "versionInfo": "1.1.13",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/com/googlecode/javaewah/JavaEWAH/1.1.13/JavaEWAH-1.1.13.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: com.googlecode.javaewah",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: org.eclipse.jgit",
+      "sourceInfo": "Maven Central: com.googlecode.javaewah:JavaEWAH:1.1.13",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/com.googlecode.javaewah/JavaEWAH@1.1.13"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-89",
+      "name": "gson",
+      "versionInfo": "2.8.9",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/com/google/code/gson/gson/2.8.9/gson-2.8.9.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: com.google.code.gson",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: gradle-antora-plugin",
+      "sourceInfo": "Maven Central: com.google.code.gson:gson:2.8.9",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/com.google.code.gson/gson@2.8.9"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-90",
+      "name": "kotlin-gradle-plugin",
+      "versionInfo": "1.9.25",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlin/kotlin-gradle-plugin/1.9.25/kotlin-gradle-plugin-1.9.25.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.jetbrains.kotlin",
+      "comment": "Maven scope: compile. Direct dependency",
+      "sourceInfo": "Maven Central: org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.25",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.jetbrains.kotlin/kotlin-gradle-plugin@1.9.25"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-91",
+      "name": "kotlin-gradle-plugins-bom",
+      "versionInfo": "1.9.25",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlin/kotlin-gradle-plugins-bom/1.9.25/kotlin-gradle-plugins-bom-1.9.25.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.jetbrains.kotlin",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: kotlin-gradle-plugin. BOM/platform artifact \u2014 POM-only, no compiled code",
+      "sourceInfo": "Maven Central: org.jetbrains.kotlin:kotlin-gradle-plugins-bom:1.9.25",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.jetbrains.kotlin/kotlin-gradle-plugins-bom@1.9.25"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-92",
+      "name": "kotlin-gradle-plugin-api",
+      "versionInfo": "1.9.25",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlin/kotlin-gradle-plugin-api/1.9.25/kotlin-gradle-plugin-api-1.9.25.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.jetbrains.kotlin",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: kotlin-gradle-plugin",
+      "sourceInfo": "Maven Central: org.jetbrains.kotlin:kotlin-gradle-plugin-api:1.9.25",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.jetbrains.kotlin/kotlin-gradle-plugin-api@1.9.25"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-93",
+      "name": "kotlin-gradle-plugin-annotations",
+      "versionInfo": "1.9.25",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlin/kotlin-gradle-plugin-annotations/1.9.25/kotlin-gradle-plugin-annotations-1.9.25.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.jetbrains.kotlin",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: kotlin-gradle-plugin-api",
+      "sourceInfo": "Maven Central: org.jetbrains.kotlin:kotlin-gradle-plugin-annotations:1.9.25",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.jetbrains.kotlin/kotlin-gradle-plugin-annotations@1.9.25"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-94",
+      "name": "kotlin-native-utils",
+      "versionInfo": "1.9.25",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlin/kotlin-native-utils/1.9.25/kotlin-native-utils-1.9.25.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.jetbrains.kotlin",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: kotlin-gradle-plugin-api",
+      "sourceInfo": "Maven Central: org.jetbrains.kotlin:kotlin-native-utils:1.9.25",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.jetbrains.kotlin/kotlin-native-utils@1.9.25"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-95",
+      "name": "kotlin-util-io",
+      "versionInfo": "1.9.25",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlin/kotlin-util-io/1.9.25/kotlin-util-io-1.9.25.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.jetbrains.kotlin",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: kotlin-native-utils",
+      "sourceInfo": "Maven Central: org.jetbrains.kotlin:kotlin-util-io:1.9.25",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.jetbrains.kotlin/kotlin-util-io@1.9.25"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-96",
+      "name": "kotlin-util-klib",
+      "versionInfo": "1.9.25",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlin/kotlin-util-klib/1.9.25/kotlin-util-klib-1.9.25.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.jetbrains.kotlin",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: kotlin-native-utils",
+      "sourceInfo": "Maven Central: org.jetbrains.kotlin:kotlin-util-klib:1.9.25",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.jetbrains.kotlin/kotlin-util-klib@1.9.25"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-97",
+      "name": "kotlin-project-model",
+      "versionInfo": "1.9.25",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlin/kotlin-project-model/1.9.25/kotlin-project-model-1.9.25.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.jetbrains.kotlin",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: kotlin-gradle-plugin-api",
+      "sourceInfo": "Maven Central: org.jetbrains.kotlin:kotlin-project-model:1.9.25",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.jetbrains.kotlin/kotlin-project-model@1.9.25"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-98",
+      "name": "kotlin-tooling-core",
+      "versionInfo": "1.9.25",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlin/kotlin-tooling-core/1.9.25/kotlin-tooling-core-1.9.25.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.jetbrains.kotlin",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: kotlin-project-model",
+      "sourceInfo": "Maven Central: org.jetbrains.kotlin:kotlin-tooling-core:1.9.25",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.jetbrains.kotlin/kotlin-tooling-core@1.9.25"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-99",
+      "name": "kotlin-gradle-plugin-model",
+      "versionInfo": "1.9.25",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlin/kotlin-gradle-plugin-model/1.9.25/kotlin-gradle-plugin-model-1.9.25.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.jetbrains.kotlin",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: kotlin-gradle-plugin",
+      "sourceInfo": "Maven Central: org.jetbrains.kotlin:kotlin-gradle-plugin-model:1.9.25",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.jetbrains.kotlin/kotlin-gradle-plugin-model@1.9.25"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-100",
+      "name": "kotlin-gradle-plugin-idea",
+      "versionInfo": "1.9.25",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlin/kotlin-gradle-plugin-idea/1.9.25/kotlin-gradle-plugin-idea-1.9.25.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.jetbrains.kotlin",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: kotlin-gradle-plugin",
+      "sourceInfo": "Maven Central: org.jetbrains.kotlin:kotlin-gradle-plugin-idea:1.9.25",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.jetbrains.kotlin/kotlin-gradle-plugin-idea@1.9.25"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-101",
+      "name": "kotlin-gradle-plugin-idea-proto",
+      "versionInfo": "1.9.25",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlin/kotlin-gradle-plugin-idea-proto/1.9.25/kotlin-gradle-plugin-idea-proto-1.9.25.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.jetbrains.kotlin",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: kotlin-gradle-plugin",
+      "sourceInfo": "Maven Central: org.jetbrains.kotlin:kotlin-gradle-plugin-idea-proto:1.9.25",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.jetbrains.kotlin/kotlin-gradle-plugin-idea-proto@1.9.25"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-102",
+      "name": "kotlin-klib-commonizer-api",
+      "versionInfo": "1.9.25",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlin/kotlin-klib-commonizer-api/1.9.25/kotlin-klib-commonizer-api-1.9.25.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.jetbrains.kotlin",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: kotlin-gradle-plugin",
+      "sourceInfo": "Maven Central: org.jetbrains.kotlin:kotlin-klib-commonizer-api:1.9.25",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.jetbrains.kotlin/kotlin-klib-commonizer-api@1.9.25"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-103",
+      "name": "kotlin-build-tools-api",
+      "versionInfo": "1.9.25",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlin/kotlin-build-tools-api/1.9.25/kotlin-build-tools-api-1.9.25.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.jetbrains.kotlin",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: kotlin-gradle-plugin",
+      "sourceInfo": "Maven Central: org.jetbrains.kotlin:kotlin-build-tools-api:1.9.25",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.jetbrains.kotlin/kotlin-build-tools-api@1.9.25"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-104",
+      "name": "kotlin-compiler-embeddable",
+      "versionInfo": "1.9.25",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlin/kotlin-compiler-embeddable/1.9.25/kotlin-compiler-embeddable-1.9.25.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.jetbrains.kotlin",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: kotlin-gradle-plugin",
+      "sourceInfo": "Maven Central: org.jetbrains.kotlin:kotlin-compiler-embeddable:1.9.25",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.jetbrains.kotlin/kotlin-compiler-embeddable@1.9.25"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-105",
+      "name": "kotlin-script-runtime",
+      "versionInfo": "1.9.25",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlin/kotlin-script-runtime/1.9.25/kotlin-script-runtime-1.9.25.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.jetbrains.kotlin",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: kotlin-compiler-embeddable",
+      "sourceInfo": "Maven Central: org.jetbrains.kotlin:kotlin-script-runtime:1.9.25",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.jetbrains.kotlin/kotlin-script-runtime@1.9.25"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-106",
+      "name": "kotlin-daemon-embeddable",
+      "versionInfo": "1.9.25",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlin/kotlin-daemon-embeddable/1.9.25/kotlin-daemon-embeddable-1.9.25.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.jetbrains.kotlin",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: kotlin-compiler-embeddable",
+      "sourceInfo": "Maven Central: org.jetbrains.kotlin:kotlin-daemon-embeddable:1.9.25",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.jetbrains.kotlin/kotlin-daemon-embeddable@1.9.25"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-107",
+      "name": "trove4j",
+      "versionInfo": "1.0.20200330",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/jetbrains/intellij/deps/trove4j/1.0.20200330/trove4j-1.0.20200330.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.jetbrains.intellij.deps",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: kotlin-compiler-embeddable",
+      "sourceInfo": "Maven Central: org.jetbrains.intellij.deps:trove4j:1.0.20200330",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.jetbrains.intellij.deps/trove4j@1.0.20200330"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-108",
+      "name": "kotlin-android-extensions",
+      "versionInfo": "1.9.25",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlin/kotlin-android-extensions/1.9.25/kotlin-android-extensions-1.9.25.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.jetbrains.kotlin",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: kotlin-gradle-plugin",
+      "sourceInfo": "Maven Central: org.jetbrains.kotlin:kotlin-android-extensions:1.9.25",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.jetbrains.kotlin/kotlin-android-extensions@1.9.25"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-109",
+      "name": "kotlin-compiler-runner",
+      "versionInfo": "1.9.25",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlin/kotlin-compiler-runner/1.9.25/kotlin-compiler-runner-1.9.25.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.jetbrains.kotlin",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: kotlin-gradle-plugin",
+      "sourceInfo": "Maven Central: org.jetbrains.kotlin:kotlin-compiler-runner:1.9.25",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.jetbrains.kotlin/kotlin-compiler-runner@1.9.25"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-110",
+      "name": "kotlin-daemon-client",
+      "versionInfo": "1.9.25",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlin/kotlin-daemon-client/1.9.25/kotlin-daemon-client-1.9.25.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.jetbrains.kotlin",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: kotlin-compiler-runner",
+      "sourceInfo": "Maven Central: org.jetbrains.kotlin:kotlin-daemon-client:1.9.25",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.jetbrains.kotlin/kotlin-daemon-client@1.9.25"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-111",
+      "name": "kotlin-scripting-compiler-embeddable",
+      "versionInfo": "1.9.25",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlin/kotlin-scripting-compiler-embeddable/1.9.25/kotlin-scripting-compiler-embeddable-1.9.25.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.jetbrains.kotlin",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: kotlin-gradle-plugin",
+      "sourceInfo": "Maven Central: org.jetbrains.kotlin:kotlin-scripting-compiler-embeddable:1.9.25",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.jetbrains.kotlin/kotlin-scripting-compiler-embeddable@1.9.25"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-112",
+      "name": "kotlin-scripting-compiler-impl-embeddable",
+      "versionInfo": "1.9.25",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlin/kotlin-scripting-compiler-impl-embeddable/1.9.25/kotlin-scripting-compiler-impl-embeddable-1.9.25.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.jetbrains.kotlin",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: kotlin-scripting-compiler-embeddable",
+      "sourceInfo": "Maven Central: org.jetbrains.kotlin:kotlin-scripting-compiler-impl-embeddable:1.9.25",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.jetbrains.kotlin/kotlin-scripting-compiler-impl-embeddable@1.9.25"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-113",
+      "name": "kotlin-scripting-common",
+      "versionInfo": "1.9.25",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlin/kotlin-scripting-common/1.9.25/kotlin-scripting-common-1.9.25.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.jetbrains.kotlin",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: kotlin-scripting-compiler-impl-embeddable",
+      "sourceInfo": "Maven Central: org.jetbrains.kotlin:kotlin-scripting-common:1.9.25",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.jetbrains.kotlin/kotlin-scripting-common@1.9.25"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-114",
+      "name": "kotlin-scripting-jvm",
+      "versionInfo": "1.9.25",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlin/kotlin-scripting-jvm/1.9.25/kotlin-scripting-jvm-1.9.25.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.jetbrains.kotlin",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: kotlin-scripting-compiler-impl-embeddable",
+      "sourceInfo": "Maven Central: org.jetbrains.kotlin:kotlin-scripting-jvm:1.9.25",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.jetbrains.kotlin/kotlin-scripting-jvm@1.9.25"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-115",
+      "name": "spring-aop",
+      "versionInfo": "6.2.5",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/springframework/spring-aop/6.2.5/spring-aop-6.2.5.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.springframework",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: kotlin-compiler-embeddable",
+      "sourceInfo": "Maven Central: org.springframework:spring-aop:6.2.5",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.springframework/spring-aop@6.2.5"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-116",
+      "name": "spring-beans",
+      "versionInfo": "6.2.5",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/springframework/spring-beans/6.2.5/spring-beans-6.2.5.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.springframework",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: spring-aop",
+      "sourceInfo": "Maven Central: org.springframework:spring-beans:6.2.5",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.springframework/spring-beans@6.2.5"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-117",
+      "name": "spring-core",
+      "versionInfo": "6.2.5",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/springframework/spring-core/6.2.5/spring-core-6.2.5.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.springframework",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: spring-beans",
+      "sourceInfo": "Maven Central: org.springframework:spring-core:6.2.5",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.springframework/spring-core@6.2.5"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-118",
+      "name": "spring-jcl",
+      "versionInfo": "6.2.5",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/springframework/spring-jcl/6.2.5/spring-jcl-6.2.5.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.springframework",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: spring-core",
+      "sourceInfo": "Maven Central: org.springframework:spring-jcl:6.2.5",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.springframework/spring-jcl@6.2.5"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-119",
+      "name": "spring-expression",
+      "versionInfo": "6.2.5",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/springframework/spring-expression/6.2.5/spring-expression-6.2.5.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.springframework",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: kotlin-compiler-embeddable",
+      "sourceInfo": "Maven Central: org.springframework:spring-expression:6.2.5",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.springframework/spring-expression@6.2.5"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-120",
+      "name": "micrometer-observation",
+      "versionInfo": "1.14.5",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/io/micrometer/micrometer-observation/1.14.5/micrometer-observation-1.14.5.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: io.micrometer",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: kotlin-compiler-embeddable",
+      "sourceInfo": "Maven Central: io.micrometer:micrometer-observation:1.14.5",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/io.micrometer/micrometer-observation@1.14.5"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-121",
+      "name": "micrometer-commons",
+      "versionInfo": "1.14.5",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/io/micrometer/micrometer-commons/1.14.5/micrometer-commons-1.14.5.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: io.micrometer",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: micrometer-observation",
+      "sourceInfo": "Maven Central: io.micrometer:micrometer-commons:1.14.5",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/io.micrometer/micrometer-commons@1.14.5"
+        }
+      ]
+    }
+  ],
+  "files": [],
+  "relationships": [
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relatedSpdxElement": "SPDXRef-Package-buildSrc.jar",
+      "relationshipType": "DESCRIBES"
+    },
+    {
+      "spdxElementId": "SPDXRef-BuildTool-javac",
+      "relatedSpdxElement": "SPDXRef-Package-buildSrc.jar",
+      "relationshipType": "BUILD_TOOL_OF"
+    },
+    {
+      "spdxElementId": "SPDXRef-BuildTool-gradle",
+      "relatedSpdxElement": "SPDXRef-Package-buildSrc.jar",
+      "relationshipType": "BUILD_TOOL_OF"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-buildSrc.jar",
+      "relatedSpdxElement": "SPDXRef-Dep-0",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-buildSrc.jar",
+      "relatedSpdxElement": "SPDXRef-Dep-1",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-1",
+      "relatedSpdxElement": "SPDXRef-Dep-2",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-2",
+      "relatedSpdxElement": "SPDXRef-Dep-3",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-1",
+      "relatedSpdxElement": "SPDXRef-Dep-4",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-buildSrc.jar",
+      "relatedSpdxElement": "SPDXRef-Dep-5",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-buildSrc.jar",
+      "relatedSpdxElement": "SPDXRef-Dep-6",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-buildSrc.jar",
+      "relatedSpdxElement": "SPDXRef-Dep-7",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-buildSrc.jar",
+      "relatedSpdxElement": "SPDXRef-Dep-8",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-buildSrc.jar",
+      "relatedSpdxElement": "SPDXRef-Dep-9",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-9",
+      "relatedSpdxElement": "SPDXRef-Dep-10",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-buildSrc.jar",
+      "relatedSpdxElement": "SPDXRef-Dep-11",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-11",
+      "relatedSpdxElement": "SPDXRef-Dep-12",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-12",
+      "relatedSpdxElement": "SPDXRef-Dep-13",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-13",
+      "relatedSpdxElement": "SPDXRef-Dep-14",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-14",
+      "relatedSpdxElement": "SPDXRef-Dep-15",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-12",
+      "relatedSpdxElement": "SPDXRef-Dep-16",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-16",
+      "relatedSpdxElement": "SPDXRef-Dep-17",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-17",
+      "relatedSpdxElement": "SPDXRef-Dep-18",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-17",
+      "relatedSpdxElement": "SPDXRef-Dep-19",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-17",
+      "relatedSpdxElement": "SPDXRef-Dep-20",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-20",
+      "relatedSpdxElement": "SPDXRef-Dep-21",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-12",
+      "relatedSpdxElement": "SPDXRef-Dep-22",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-12",
+      "relatedSpdxElement": "SPDXRef-Dep-23",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-23",
+      "relatedSpdxElement": "SPDXRef-Dep-24",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-23",
+      "relatedSpdxElement": "SPDXRef-Dep-25",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-11",
+      "relatedSpdxElement": "SPDXRef-Dep-26",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-26",
+      "relatedSpdxElement": "SPDXRef-Dep-27",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-27",
+      "relatedSpdxElement": "SPDXRef-Dep-28",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-28",
+      "relatedSpdxElement": "SPDXRef-Dep-29",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-buildSrc.jar",
+      "relatedSpdxElement": "SPDXRef-Dep-30",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-30",
+      "relatedSpdxElement": "SPDXRef-Dep-31",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-buildSrc.jar",
+      "relatedSpdxElement": "SPDXRef-Dep-32",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-32",
+      "relatedSpdxElement": "SPDXRef-Dep-33",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-buildSrc.jar",
+      "relatedSpdxElement": "SPDXRef-Dep-34",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-34",
+      "relatedSpdxElement": "SPDXRef-Dep-35",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-35",
+      "relatedSpdxElement": "SPDXRef-Dep-36",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-36",
+      "relatedSpdxElement": "SPDXRef-Dep-37",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-36",
+      "relatedSpdxElement": "SPDXRef-Dep-38",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-36",
+      "relatedSpdxElement": "SPDXRef-Dep-39",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-36",
+      "relatedSpdxElement": "SPDXRef-Dep-40",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-40",
+      "relatedSpdxElement": "SPDXRef-Dep-41",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-40",
+      "relatedSpdxElement": "SPDXRef-Dep-42",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-36",
+      "relatedSpdxElement": "SPDXRef-Dep-43",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-43",
+      "relatedSpdxElement": "SPDXRef-Dep-44",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-43",
+      "relatedSpdxElement": "SPDXRef-Dep-45",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-43",
+      "relatedSpdxElement": "SPDXRef-Dep-46",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-43",
+      "relatedSpdxElement": "SPDXRef-Dep-47",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-43",
+      "relatedSpdxElement": "SPDXRef-Dep-48",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-43",
+      "relatedSpdxElement": "SPDXRef-Dep-49",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-36",
+      "relatedSpdxElement": "SPDXRef-Dep-50",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-35",
+      "relatedSpdxElement": "SPDXRef-Dep-51",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-buildSrc.jar",
+      "relatedSpdxElement": "SPDXRef-Dep-52",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-52",
+      "relatedSpdxElement": "SPDXRef-Dep-53",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-52",
+      "relatedSpdxElement": "SPDXRef-Dep-54",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-buildSrc.jar",
+      "relatedSpdxElement": "SPDXRef-Dep-55",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-55",
+      "relatedSpdxElement": "SPDXRef-Dep-56",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-56",
+      "relatedSpdxElement": "SPDXRef-Dep-57",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-55",
+      "relatedSpdxElement": "SPDXRef-Dep-58",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-58",
+      "relatedSpdxElement": "SPDXRef-Dep-59",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-58",
+      "relatedSpdxElement": "SPDXRef-Dep-60",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-58",
+      "relatedSpdxElement": "SPDXRef-Dep-61",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-58",
+      "relatedSpdxElement": "SPDXRef-Dep-62",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-62",
+      "relatedSpdxElement": "SPDXRef-Dep-63",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-55",
+      "relatedSpdxElement": "SPDXRef-Dep-64",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-64",
+      "relatedSpdxElement": "SPDXRef-Dep-65",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-64",
+      "relatedSpdxElement": "SPDXRef-Dep-66",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-64",
+      "relatedSpdxElement": "SPDXRef-Dep-67",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-67",
+      "relatedSpdxElement": "SPDXRef-Dep-68",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-64",
+      "relatedSpdxElement": "SPDXRef-Dep-69",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-69",
+      "relatedSpdxElement": "SPDXRef-Dep-70",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-70",
+      "relatedSpdxElement": "SPDXRef-Dep-71",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-70",
+      "relatedSpdxElement": "SPDXRef-Dep-72",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-70",
+      "relatedSpdxElement": "SPDXRef-Dep-73",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-70",
+      "relatedSpdxElement": "SPDXRef-Dep-74",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-64",
+      "relatedSpdxElement": "SPDXRef-Dep-75",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-64",
+      "relatedSpdxElement": "SPDXRef-Dep-76",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-76",
+      "relatedSpdxElement": "SPDXRef-Dep-77",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-76",
+      "relatedSpdxElement": "SPDXRef-Dep-78",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-76",
+      "relatedSpdxElement": "SPDXRef-Dep-79",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-76",
+      "relatedSpdxElement": "SPDXRef-Dep-80",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-80",
+      "relatedSpdxElement": "SPDXRef-Dep-81",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-64",
+      "relatedSpdxElement": "SPDXRef-Dep-82",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-64",
+      "relatedSpdxElement": "SPDXRef-Dep-83",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-83",
+      "relatedSpdxElement": "SPDXRef-Dep-84",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-55",
+      "relatedSpdxElement": "SPDXRef-Dep-85",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-buildSrc.jar",
+      "relatedSpdxElement": "SPDXRef-Dep-86",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-86",
+      "relatedSpdxElement": "SPDXRef-Dep-87",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-87",
+      "relatedSpdxElement": "SPDXRef-Dep-88",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-86",
+      "relatedSpdxElement": "SPDXRef-Dep-89",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-buildSrc.jar",
+      "relatedSpdxElement": "SPDXRef-Dep-90",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-90",
+      "relatedSpdxElement": "SPDXRef-Dep-91",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-90",
+      "relatedSpdxElement": "SPDXRef-Dep-92",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-92",
+      "relatedSpdxElement": "SPDXRef-Dep-93",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-92",
+      "relatedSpdxElement": "SPDXRef-Dep-94",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-94",
+      "relatedSpdxElement": "SPDXRef-Dep-95",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-94",
+      "relatedSpdxElement": "SPDXRef-Dep-96",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-92",
+      "relatedSpdxElement": "SPDXRef-Dep-97",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-97",
+      "relatedSpdxElement": "SPDXRef-Dep-98",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-90",
+      "relatedSpdxElement": "SPDXRef-Dep-99",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-90",
+      "relatedSpdxElement": "SPDXRef-Dep-100",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-90",
+      "relatedSpdxElement": "SPDXRef-Dep-101",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-90",
+      "relatedSpdxElement": "SPDXRef-Dep-102",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-90",
+      "relatedSpdxElement": "SPDXRef-Dep-103",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-90",
+      "relatedSpdxElement": "SPDXRef-Dep-104",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-104",
+      "relatedSpdxElement": "SPDXRef-Dep-105",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-104",
+      "relatedSpdxElement": "SPDXRef-Dep-106",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-104",
+      "relatedSpdxElement": "SPDXRef-Dep-107",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-90",
+      "relatedSpdxElement": "SPDXRef-Dep-108",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-90",
+      "relatedSpdxElement": "SPDXRef-Dep-109",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-109",
+      "relatedSpdxElement": "SPDXRef-Dep-110",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-90",
+      "relatedSpdxElement": "SPDXRef-Dep-111",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-111",
+      "relatedSpdxElement": "SPDXRef-Dep-112",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-112",
+      "relatedSpdxElement": "SPDXRef-Dep-113",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-112",
+      "relatedSpdxElement": "SPDXRef-Dep-114",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-104",
+      "relatedSpdxElement": "SPDXRef-Dep-115",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-115",
+      "relatedSpdxElement": "SPDXRef-Dep-116",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-116",
+      "relatedSpdxElement": "SPDXRef-Dep-117",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-117",
+      "relatedSpdxElement": "SPDXRef-Dep-118",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-104",
+      "relatedSpdxElement": "SPDXRef-Dep-119",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-104",
+      "relatedSpdxElement": "SPDXRef-Dep-120",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Dep-120",
+      "relatedSpdxElement": "SPDXRef-Dep-121",
+      "relationshipType": "DEPENDS_ON"
+    }
+  ]
+}

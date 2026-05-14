@@ -1,0 +1,41 @@
+{
+  "spdxVersion": "SPDX-2.3",
+  "dataLicense": "CC0-1.0",
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "name": "spring-boot-buildSrc.jar",
+  "documentNamespace": "https://omnibor.io/spdx/spring-boot/a68bcd4d-919d-4453-8fa9-fd2129ebf7d2",
+  "creationInfo": {
+    "created": "2026-05-08T21:31:20Z",
+    "creators": [
+      "Tool: omnibor-analysis",
+      "Tool: bomsh_create_bom_java.py"
+    ],
+    "licenseListVersion": "3.19"
+  },
+  "packages": [
+    {
+      "SPDXID": "SPDXRef-Package-buildSrc.jar",
+      "name": "buildSrc",
+      "versionInfo": "3.4.4",
+      "downloadLocation": "https://github.com/spring-projects/spring-boot/commit/d4eb5561217be6bd490634fe5254fc4824d8dd87",
+      "filesAnalyzed": true,
+      "primaryPackagePurpose": "APPLICATION",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/spring-boot/buildSrc"
+        }
+      ]
+    }
+  ],
+  "files": [],
+  "relationships": [
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relatedSpdxElement": "SPDXRef-Package-buildSrc.jar",
+      "relationshipType": "DESCRIBES"
+    }
+  ]
+}

@@ -12,7 +12,7 @@ blockquote { font-size: 18px; }
 
 # OmniBOR Tech Deep Dive — Demo Cheat Sheet
 
-> **Last modified:** 2026-04-17 11:41 HST
+> **Last modified:** 2026-04-29 05:46 HST
 
 | | |
 |---|---|
@@ -179,24 +179,151 @@ release tag for reproducibility, and the build steps. The pipeline runs
 all steps except the last one normally, then wraps the final `make` with
 bomtrace3 for interception."
 
-**1e. Pipeline orchestration**
+**1e. Pipeline entry point — `runners.py`**
 
 Open `app/pipeline/runners.py`.
 
-**Say:** "`main()` clones the repo, generates a Syft manifest SBOM, then
-dispatches to the language-specific pipeline. For C/C++ that's
-`_run_c_cpp_pipeline()` — instrumented build, SPDX generation, validation,
-and documentation. Add a repo to the YAML and the pipeline handles the
-rest."
+**Say:** "This is the CLI entry point. `main()` parses arguments, loads
+`config.yaml`, creates a single `AnalysisPipeline` facade, then executes
+the common steps: clone the repo at its pinned tag, optionally generate a
+Syft manifest SBOM, then dispatch to the language-specific runner. After
+the language pipeline returns, it writes build and runtime documentation."
 
-**1f. Builder — where interception happens**
+**Key code path** (lines 100–170):
+
+```text
+main()
+  → pipeline = AnalysisPipeline()        # facade.py — composes all components
+  → pipeline.cloner.clone(...)           # git clone at pinned tag
+  → pipeline.syft_gen.generate(...)      # optional Syft manifest SBOM
+  → run_c_cpp_pipeline(pipeline, ...)    # dispatch to lang_runners.py
+  → pipeline.docs.write_build_doc(...)   # build documentation
+```
+
+---
+
+**1f. Language-specific runner — `lang_runners.py`**
+
+Open `app/pipeline/lang_runners.py`.
+
+**Say:** "Each language has its own pipeline function.
+`run_c_cpp_pipeline()` orchestrates the seven steps for C/C++:
+
+1. **Validate apt deps** — checks `apt_deps` from config are installed
+2. **Instrumented build** — `pipeline.builder.build()` wraps `make` with
+   bomtrace3
+3. **OmniBOR SPDX** — `pipeline.spdx_gen.generate()` calls `bomsh_sbom.py`
+   to produce SPDX from the OmniBOR data
+4. **Collect metadata** — dynamic libraries, component versions
+5. **Per-binary ADG SPDX** — `pipeline.adg_spdx.generate()` produces the
+   analyzed + build SBOM pair per binary
+6. **Validate SPDX** — schema + semantic validation
+7. **Collect binaries** — copy output binaries to `output/binaries/`
+
+Rust and Go follow the same pattern using bomtrace2 instead of bomtrace3.
+Java uses strace + `bomsh_create_bom_java.py` instead."
+
+---
+
+**1g. The Facade — `facade.py`**
+
+Open `app/pipeline/facade.py`.
+
+**Say:** "`AnalysisPipeline` is a facade that composes all pipeline
+components via dependency injection. Each component — `RepoCloner`,
+`BomtraceBuilder`, `SpdxGenerator`, `MetadataCollector`, `AdgSpdxStep`,
+`SpdxValidator`, `SyftGenerator`, `BinaryCollector`, `DocWriter` — is
+independently testable. The facade wires them together with a shared
+`CommandRunner` that executes shell commands inside the Docker container."
+
+---
+
+**1h. Builder — where interception happens**
 
 Open `app/pipeline/builder.py`.
 
-**Say:** "The builder runs pre-build steps normally, then prepends
-bomtrace3 to the final `make` command. After the build, it calls
-`bomsh_create_bom.py` to generate the Artifact Dependency Graph from the
-raw logfile."
+**Say:** "The builder is where omnibor-analysis hands off to the upstream
+bomsh tools. Here's the exact sequence inside `build()`:
+
+**Step 1 — Clean.** Run `make clean` or `make distclean` (from
+`clean_cmd` in config) so every source file is recompiled. Without this,
+make sees existing `.o` files and becomes a no-op — bomtrace3 intercepts
+zero compiler calls.
+
+**Step 2 — Pre-build.** Run every `build_steps` entry except the last
+one without instrumentation. For C/C++ this is typically `autoreconf` and
+`./configure` — they generate Makefiles but don't compile code.
+
+**Step 3 — Instrumented build.** Prepend the tracer to the final build
+step:
+
+```text
+bomtrace3 make -j$(nproc)
+```
+
+bomtrace3 is a modified strace. It attaches via ptrace as the parent
+process and intercepts every `execve()` syscall. When make spawns gcc,
+ar, or ld, bomtrace3 captures the full command line and computes
+SHA-256 gitoid hashes for every input and output file. The result is a
+raw logfile at `/tmp/bomsh_hook_raw_logfile.sha1`.
+
+**Step 4 — ADG generation.** Call `bomsh_create_bom.py` to parse the raw
+logfile into an Artifact Dependency Graph:
+
+```text
+bomsh_create_bom.py -r /tmp/bomsh_hook_raw_logfile.sha1 -b <bom_dir>
+```
+
+This produces two key artifacts in `<bom_dir>/metadata/bomsh/`:
+- `bomsh_omnibor_treedb` — JSON mapping of gitoid → filepath, with
+  `hash_tree` arrays showing which inputs built each output
+- `bomsh_omnibor_doc_mapping` — maps binary hashes to OmniBOR document IDs
+- `bomsh_hook_raw_logfile` — archived copy of the raw build trace"
+
+---
+
+**1i. OmniBOR config — language-specific tracers**
+
+Open `app/config.yaml` and scroll to the `omnibor:` sections at the bottom.
+
+**Say:** "The config has four omnibor sections — one per language:
+
+| Language | Tracer | ADG Script | Key Difference |
+|----------|--------|-----------|----------------|
+| C/C++ | `bomtrace3` | `bomsh_create_bom.py` | ptrace-based, intercepts execve |
+| Rust | `bomtrace2` | `bomsh_create_bom.py` | ptrace-based, bomsh has dedicated rustc parser |
+| Go | `bomtrace2 -c bomtrace_go.conf` | `bomsh_create_bom.py` | Go-specific config watches go tool compile/link |
+| Java | `strace` (external) | `bomsh_create_bom_java.py` | Post-build analysis, scans .java → .class → .jar |
+
+All four produce the same output structure: a treedb JSON in
+`output/omnibor/{lang}/{repo}/{ts}/metadata/bomsh/`."
+
+---
+
+**1j. From treedb to SPDX — two output types**
+
+**Say:** "After the build, omnibor-analysis produces two SPDX files per
+binary (following the CISA SBOM taxonomy):
+
+1. **Analyzed SBOM** (`*_analyzed.spdx.json`) — only the source files
+   compiled into the binary, traced from the treedb `hash_tree`. Each
+   file has its gitoid checksum. This is the ground-truth provenance.
+
+2. **Build SBOM** (`*_build.spdx.json`) — the full dependency graph:
+   vendored libraries detected from source paths (e.g., `deps/lua/`,
+   `vendor/zlib/`), dynamic libraries from `ldd` output, build tools
+   (gcc, libc6). Versions detected from source headers and version files.
+
+The `AdgSpdxStep` in `adg_spdx.py` drives this. It instantiates
+`AdgSpdxGenerator` (from `spdx_from_adg.py`) which reads the treedb,
+resolves vendored packages via `VendoredVersionDetector`, classifies
+relationships (STATIC_LINK, DYNAMIC_LINK, BUILD_TOOL_OF, DEPENDS_ON),
+and emits SPDX 2.3 JSON through `SpdxEmitter`.
+
+Finally, `SpdxGenerator.patch_spdx_metadata()` injects OmniBOR
+ExternalRefs — `PERSISTENT-ID` references with `gitoid:blob:sha1:` locators
+— into each SPDX package, linking the SBOM back to the OmniBOR artifact
+identity."
 
 <br><br><hr>
 
@@ -639,4 +766,4 @@ ssh omnibor-build "sudo rm -rf /home/ubuntu/omnibor-analysis/repos/openosc"
 
 ---
 
-*Last updated: 2026-04-17 11:41 HST*
+*Last updated: 2026-04-29 05:46 HST*

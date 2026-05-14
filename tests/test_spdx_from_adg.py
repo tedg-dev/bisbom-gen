@@ -34,6 +34,27 @@ from app.version_detection.strategies import (
 from app.version_detection.patterns import (
     name_prefixes,
 )
+from app.spdx.package_resolver import (
+    PackageResolver,
+)
+
+
+class _FakeDpkgResolver(PackageResolver):
+    """Stub resolver for testing ComponentResolver on macOS."""
+
+    def resolve(self, file_path):
+        return None
+
+    def purl_scheme(self):
+        return "pkg:deb/ubuntu"
+
+    @property
+    def distro_version_qualifier(self):
+        return "ubuntu-22.04"
+
+
+def _fake_dpkg_resolver():
+    return _FakeDpkgResolver()
 
 
 class TestAdgParser(unittest.TestCase):
@@ -430,6 +451,69 @@ class TestAdgParser(unittest.TestCase):
                 sources[0]["file_path"],
             )
 
+    def test_get_jar_source_files_excludes_bomjdir(self):
+        """Extraction artifacts in /tmp/bomjdir/ excluded."""
+        with tempfile.TemporaryDirectory() as td:
+            meta = self._setup_bom_dir(td)
+            treedb = {
+                "jar_sha": {
+                    "file_path": (
+                        "/repos/myapp/target/app.jar"
+                    ),
+                    "hash_tree": [
+                        "cls_sha", "mi_sha",
+                    ],
+                },
+                "cls_sha": {
+                    "file_path": (
+                        "/repos/myapp/target/"
+                        "classes/App.class"
+                    ),
+                    "hash_tree": ["src_sha"],
+                },
+                "src_sha": {
+                    "file_path": (
+                        "/repos/myapp/src/main/"
+                        "java/App.java"
+                    ),
+                },
+                "mi_sha": {
+                    "file_path": (
+                        "/tmp/bomjdir/app.jar/"
+                        "META-INF/versions/11/"
+                        "module-info.class"
+                    ),
+                },
+            }
+            (meta / "bomsh_omnibor_treedb").write_text(
+                json.dumps(treedb)
+            )
+            parser = AdgParser(
+                str(Path(td) / "bom"), "/repos"
+            )
+            result = parser.get_jar_source_files()
+            sources = result["myapp/target/app.jar"]
+            paths = [
+                s["file_path"] for s in sources
+            ]
+            # Source and class included
+            self.assertTrue(
+                any("App.java" in p for p in paths)
+            )
+            self.assertTrue(
+                any("App.class" in p for p in paths)
+            )
+            # bomjdir artifact excluded
+            self.assertFalse(
+                any("bomjdir" in p for p in paths)
+            )
+            self.assertFalse(
+                any(
+                    "module-info" in p
+                    for p in paths
+                )
+            )
+
     def test_classify_empty_filepath(self):
         """Entries with empty file_path are skipped."""
         with tempfile.TemporaryDirectory() as td:
@@ -490,6 +574,57 @@ class TestAdgParser(unittest.TestCase):
             result = parser.parse()
             self.assertEqual(
                 len(result["system_header"]), 1
+            )
+
+    def test_classify_tmp_never_reaches_project_source(self):
+        """/tmp/ paths land in catch-all, not project_source."""
+        with tempfile.TemporaryDirectory() as td:
+            meta = self._setup_bom_dir(td)
+            treedb = {
+                "lto": {
+                    "file_path": (
+                        "/tmp/cc3RYFEm.ltrans0.o"
+                    ),
+                },
+                "gobuild": {
+                    "file_path": (
+                        "/tmp/go-build123/main.go"
+                    ),
+                },
+                "bomjdir": {
+                    "file_path": (
+                        "/tmp/bomjdir/app.jar/"
+                        "module-info.class"
+                    ),
+                },
+                "real": {
+                    "file_path": "/repos/myapp/main.c",
+                },
+            }
+            (meta / "bomsh_omnibor_treedb").write_text(
+                json.dumps(treedb)
+            )
+            parser = AdgParser(
+                str(Path(td) / "bom"), "/repos"
+            )
+            result = parser.parse()
+            # Only real file in project_source
+            self.assertEqual(
+                len(result["project_source"]), 1
+            )
+            self.assertEqual(
+                result["project_source"][0][
+                    "file_path"
+                ],
+                "/repos/myapp/main.c",
+            )
+            # /tmp/ paths are in catch-all bucket
+            self.assertEqual(
+                len(result["system_header"]), 3
+            )
+            # Zero in build_intermediate
+            self.assertEqual(
+                len(result["build_intermediate"]), 0
             )
 
 
@@ -569,7 +704,7 @@ class TestComponentResolver(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             meta = self._base_metadata()
             path = self._write_metadata(td, meta)
-            resolver = ComponentResolver(path)
+            resolver = ComponentResolver(path, resolver=_fake_dpkg_resolver())
 
             dynlib_path = Path(td) / "dynamic_libs.json"
             dynlib_path.write_text(
@@ -588,7 +723,7 @@ class TestComponentResolver(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             meta = self._base_metadata()
             path = self._write_metadata(td, meta)
-            resolver = ComponentResolver(path)
+            resolver = ComponentResolver(path, resolver=_fake_dpkg_resolver())
 
             dynlib_path = Path(td) / "dynamic_libs.json"
             dynlib_path.write_text(
@@ -608,7 +743,7 @@ class TestComponentResolver(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             meta = self._base_metadata()
             path = self._write_metadata(td, meta)
-            resolver = ComponentResolver(path)
+            resolver = ComponentResolver(path, resolver=_fake_dpkg_resolver())
 
             dynlib_path = Path(td) / "dynamic_libs.json"
             dynlib_path.write_text(
@@ -627,7 +762,7 @@ class TestComponentResolver(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             meta = self._base_metadata()
             path = self._write_metadata(td, meta)
-            resolver = ComponentResolver(path)
+            resolver = ComponentResolver(path, resolver=_fake_dpkg_resolver())
 
             dynlib_path = Path(td) / "dynamic_libs.json"
             dynlib_path.write_text(
@@ -646,7 +781,7 @@ class TestComponentResolver(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             meta = self._base_metadata()
             path = self._write_metadata(td, meta)
-            resolver = ComponentResolver(path)
+            resolver = ComponentResolver(path, resolver=_fake_dpkg_resolver())
 
             dynlib_path = Path(td) / "dynamic_libs.json"
             dynlib_path.write_text(
@@ -668,7 +803,7 @@ class TestComponentResolver(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             meta = self._base_metadata()
             path = self._write_metadata(td, meta)
-            resolver = ComponentResolver(path)
+            resolver = ComponentResolver(path, resolver=_fake_dpkg_resolver())
 
             # Epoch removal
             self.assertEqual(
@@ -694,7 +829,7 @@ class TestComponentResolver(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             meta = self._base_metadata()
             path = self._write_metadata(td, meta)
-            resolver = ComponentResolver(path)
+            resolver = ComponentResolver(path, resolver=_fake_dpkg_resolver())
             self.assertEqual(
                 resolver.distro_codename,
                 "ubuntu-22.04",
@@ -704,7 +839,7 @@ class TestComponentResolver(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             meta = self._base_metadata()
             path = self._write_metadata(td, meta)
-            resolver = ComponentResolver(path)
+            resolver = ComponentResolver(path, resolver=_fake_dpkg_resolver())
             # Don't load dynamic libs
             components = (
                 resolver.resolve_dynamic_components()
@@ -715,7 +850,7 @@ class TestComponentResolver(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             meta = self._base_metadata()
             path = self._write_metadata(td, meta)
-            resolver = ComponentResolver(path)
+            resolver = ComponentResolver(path, resolver=_fake_dpkg_resolver())
 
             dynlibs = {
                 "binary": "/curl",
@@ -777,6 +912,50 @@ class TestSpdxEmitter(unittest.TestCase):
         # DESCRIBES + BUILD_TOOL_OF = 2
         self.assertEqual(
             len(doc["relationships"]), 2
+        )
+
+    def test_emit_vcs_uri_on_root_package(self):
+        """vcs_uri sets downloadLocation on root pkg."""
+        vcs = (
+            "https://github.com/curl/curl/commit/"
+            + "a" * 40
+        )
+        emitter = SpdxEmitter(
+            repo_name="curl",
+            repo_version="8.19.0",
+            distro="Ubuntu 22.04",
+            gcc_version="gcc 11.4.0",
+            vcs_uri=vcs,
+        )
+        doc = emitter.emit(
+            components=[],
+            project_files=[],
+            doc_mapping={},
+            logfile_hashes={},
+        )
+        root_pkg = doc["packages"][0]
+        self.assertEqual(
+            root_pkg["downloadLocation"], vcs,
+        )
+
+    def test_emit_default_download_location(self):
+        """Default downloadLocation is NOASSERTION."""
+        emitter = SpdxEmitter(
+            repo_name="curl",
+            repo_version="8.19.0",
+            distro="Ubuntu 22.04",
+            gcc_version="gcc 11.4.0",
+        )
+        doc = emitter.emit(
+            components=[],
+            project_files=[],
+            doc_mapping={},
+            logfile_hashes={},
+        )
+        root_pkg = doc["packages"][0]
+        self.assertEqual(
+            root_pkg["downloadLocation"],
+            "NOASSERTION",
         )
 
     def test_emit_with_components(self):
@@ -1965,6 +2144,16 @@ class TestComponentResolverEdgeCases(
     """Edge-case tests for ComponentResolver."""
 
     def test_non_ubuntu_distro_fallback(self):
+        """When resolver has no qualifier and distro
+        is not Ubuntu, falls back to 'linux'."""
+
+        class _NoQualResolver(PackageResolver):
+            def resolve(self, file_path):
+                return None
+
+            def purl_scheme(self):
+                return "pkg:deb/debian"
+
         with tempfile.TemporaryDirectory() as td:
             meta = {
                 "distro": "Debian GNU/Linux 12",
@@ -1976,7 +2165,10 @@ class TestComponentResolverEdgeCases(
             }
             path = Path(td) / "meta.json"
             path.write_text(json.dumps(meta))
-            resolver = ComponentResolver(str(path))
+            resolver = ComponentResolver(
+                str(path),
+                resolver=_NoQualResolver(),
+            )
             self.assertEqual(
                 resolver.distro_codename, "linux"
             )
@@ -1984,6 +2176,14 @@ class TestComponentResolverEdgeCases(
 
 class TestAdgSpdxGenerator(unittest.TestCase):
     """Tests for AdgSpdxGenerator facade."""
+
+    def setUp(self):
+        patcher = patch(
+            "app.spdx.package_resolver.auto_detect_resolver",
+            return_value=_fake_dpkg_resolver(),
+        )
+        self._mock_resolver = patcher.start()
+        self.addCleanup(patcher.stop)
 
     def _setup_full(self, td):
         """Create a complete test environment."""
@@ -2172,6 +2372,14 @@ class TestAdgSpdxGenerator(unittest.TestCase):
 class TestCli(unittest.TestCase):
     """Tests for CLI main() function."""
 
+    def setUp(self):
+        patcher = patch(
+            "app.spdx.package_resolver.auto_detect_resolver",
+            return_value=_fake_dpkg_resolver(),
+        )
+        self._mock_resolver = patcher.start()
+        self.addCleanup(patcher.stop)
+
     def test_main_success(self):
         from spdx_from_adg import main
         with tempfile.TemporaryDirectory() as td:
@@ -2289,7 +2497,7 @@ class TestProjectBuiltLibs(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             meta = self._base_metadata()
             path = self._write_metadata(td, meta)
-            resolver = ComponentResolver(path)
+            resolver = ComponentResolver(path, resolver=_fake_dpkg_resolver())
 
             dynlibs = {
                 "binary": "/repos/ffmpeg/ffmpeg",
@@ -2620,6 +2828,14 @@ class TestGenerateMissingDynlibs(unittest.TestCase):
     """Test generate() when dynamic_libs.json is
     missing (lines 1312-1317)."""
 
+    def setUp(self):
+        patcher = patch(
+            "app.spdx.package_resolver.auto_detect_resolver",
+            return_value=_fake_dpkg_resolver(),
+        )
+        self._mock_resolver = patcher.start()
+        self.addCleanup(patcher.stop)
+
     def test_missing_dynlib_returns_none(self):
         """generate() returns None if dynlib not found."""
         with tempfile.TemporaryDirectory() as td:
@@ -2671,6 +2887,14 @@ class TestGenerateMissingDynlibs(unittest.TestCase):
 class TestVisualizationFailure(unittest.TestCase):
     """Test HTML visualization failure handling
     (lines 1384-1385)."""
+
+    def setUp(self):
+        patcher = patch(
+            "app.spdx.package_resolver.auto_detect_resolver",
+            return_value=_fake_dpkg_resolver(),
+        )
+        self._mock_resolver = patcher.start()
+        self.addCleanup(patcher.stop)
 
     def test_visualization_exception_caught(self):
         """generate() succeeds even when visualization
@@ -2873,12 +3097,16 @@ class TestDetectGoVersion(unittest.TestCase):
                 "/usr/local/go/src/fmt/print.go"
             ),
         }]
-        # No build_cmd, no VERSION file on macOS
-        ver = SpdxEmitter._detect_go_version(stdlib)
+        # No build_cmd, non-existent go_root
+        ver = SpdxEmitter._detect_go_version(
+            stdlib, go_root="/nonexistent/go",
+        )
         self.assertEqual(ver, "unknown")
 
     def test_empty_stdlib(self):
-        ver = SpdxEmitter._detect_go_version([])
+        ver = SpdxEmitter._detect_go_version(
+            [], go_root="/nonexistent/go",
+        )
         self.assertEqual(ver, "unknown")
 
 

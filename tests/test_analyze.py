@@ -5,6 +5,7 @@ Tests for app/analyze.py — class-based analysis pipeline.
 Uses unittest.mock to avoid real subprocess calls.
 """
 
+import os
 import sys
 import tempfile
 import unittest
@@ -25,6 +26,9 @@ from analyze import (
     _run_rust_pipeline,
     _validate_syft_spdx,
 )
+from app.pipeline.builder import BuildResult
+from app.pipeline.timing import TimingResult, StepMetrics
+from app.spdx.package_resolver import PackageResolver
 
 
 # ============================================================
@@ -130,45 +134,122 @@ class TestCommandRunner(unittest.TestCase):
         output = "\n".join(printed)
         self.assertIn("42", output)
 
+    @patch("analyze.subprocess.run")
+    def test_env_none_inherits_default(
+        self, mock_run,
+    ):
+        mock_run.return_value = MagicMock(
+            returncode=0, stdout="",
+        )
+        runner = CommandRunner()
+        with patch("builtins.print"):
+            runner.run("echo", description="env")
+        call_kw = mock_run.call_args[1]
+        self.assertIsNone(call_kw.get("env"))
+
+    @patch("analyze.subprocess.run")
+    @patch("analyze.os.environ", {"PATH": "/usr/bin"})
+    def test_env_merged(self, mock_run):
+        mock_run.return_value = MagicMock(
+            returncode=0, stdout="",
+        )
+        runner = CommandRunner()
+        with patch("builtins.print"):
+            runner.run(
+                "echo", description="env",
+                env={"CC": "/usr/bin/gcc"},
+            )
+        call_kw = mock_run.call_args[1]
+        run_env = call_kw.get("env")
+        self.assertIsNotNone(run_env)
+        self.assertEqual(
+            run_env["CC"], "/usr/bin/gcc",
+        )
+        self.assertEqual(
+            run_env["PATH"], "/usr/bin",
+        )
+
+    @patch("analyze.subprocess.run")
+    def test_env_printed_in_header(self, mock_run):
+        mock_run.return_value = MagicMock(
+            returncode=0, stdout="",
+        )
+        runner = CommandRunner()
+        printed = []
+        with patch(
+            "builtins.print",
+            side_effect=lambda *a, **kw: (
+                printed.append(
+                    " ".join(str(x) for x in a)
+                )
+            ),
+        ):
+            runner.run(
+                "echo", description="env",
+                env={"MY_VAR": "1"},
+            )
+        output = "\n".join(printed)
+        self.assertIn("MY_VAR", output)
+
 
 # ============================================================
 # DependencyValidator
 # ============================================================
 
+class _FakeValidatorResolver(PackageResolver):
+    """Stub resolver for DependencyValidator tests."""
+
+    def __init__(self, installed=None):
+        self._installed = set(installed or [])
+
+    def resolve(self, file_path):
+        return None
+
+    def purl_scheme(self):
+        return "pkg:deb/ubuntu"
+
+    def is_package_installed(self, pkg_name):
+        return pkg_name in self._installed
+
+    def install_hint(self, packages):
+        pkgs = " ".join(packages)
+        return f"apt-get install -y {pkgs}"
+
+
 class TestDependencyValidator(unittest.TestCase):
     """Tests for DependencyValidator."""
 
     def test_no_apt_deps(self):
-        runner = MagicMock()
-        v = DependencyValidator(runner)
+        resolver = _FakeValidatorResolver()
+        v = DependencyValidator(resolver=resolver)
         ok, missing = v.validate({})
         self.assertTrue(ok)
         self.assertEqual(missing, [])
-        runner.run.assert_not_called()
 
     def test_empty_apt_deps(self):
-        runner = MagicMock()
-        v = DependencyValidator(runner)
+        resolver = _FakeValidatorResolver()
+        v = DependencyValidator(resolver=resolver)
         ok, missing = v.validate({"apt_deps": []})
         self.assertTrue(ok)
         self.assertEqual(missing, [])
 
     def test_all_installed(self):
-        runner = MagicMock()
-        runner.run.return_value = 0
-        v = DependencyValidator(runner)
+        resolver = _FakeValidatorResolver(
+            installed=["libssl-dev", "zlib1g-dev"]
+        )
+        v = DependencyValidator(resolver=resolver)
         with patch("builtins.print"):
             ok, missing = v.validate(
                 {"apt_deps": ["libssl-dev", "zlib1g-dev"]}
             )
         self.assertTrue(ok)
         self.assertEqual(missing, [])
-        self.assertEqual(runner.run.call_count, 2)
 
     def test_some_missing(self):
-        runner = MagicMock()
-        runner.run.side_effect = [0, 1, 0]
-        v = DependencyValidator(runner)
+        resolver = _FakeValidatorResolver(
+            installed=["libssl-dev", "zlib1g-dev"]
+        )
+        v = DependencyValidator(resolver=resolver)
         with patch("builtins.print"):
             ok, missing = v.validate(
                 {"apt_deps": [
@@ -180,9 +261,8 @@ class TestDependencyValidator(unittest.TestCase):
         self.assertEqual(missing, ["libpsl-dev"])
 
     def test_all_missing(self):
-        runner = MagicMock()
-        runner.run.return_value = 1
-        v = DependencyValidator(runner)
+        resolver = _FakeValidatorResolver()
+        v = DependencyValidator(resolver=resolver)
         with patch("builtins.print"):
             ok, missing = v.validate(
                 {"apt_deps": ["a", "b"]}
@@ -191,9 +271,8 @@ class TestDependencyValidator(unittest.TestCase):
         self.assertEqual(missing, ["a", "b"])
 
     def test_prints_install_hint(self):
-        runner = MagicMock()
-        runner.run.return_value = 1
-        v = DependencyValidator(runner)
+        resolver = _FakeValidatorResolver()
+        v = DependencyValidator(resolver=resolver)
         printed = []
         with patch(
             "builtins.print",
@@ -272,6 +351,63 @@ class TestRepoCloner(unittest.TestCase):
             call_args = runner.run.call_args
             self.assertIn("master", call_args[0][0])
 
+    def test_get_commit_sha_valid_repo(self):
+        """get_commit_sha returns 40-char SHA for a real git repo."""
+        with tempfile.TemporaryDirectory() as td:
+            import subprocess
+            subprocess.run(
+                ["git", "init"], cwd=td,
+                capture_output=True,
+            )
+            subprocess.run(
+                ["git", "commit", "--allow-empty",
+                 "-m", "init"],
+                cwd=td, capture_output=True,
+                env={
+                    **os.environ,
+                    "GIT_AUTHOR_NAME": "test",
+                    "GIT_AUTHOR_EMAIL": "t@t",
+                    "GIT_COMMITTER_NAME": "test",
+                    "GIT_COMMITTER_EMAIL": "t@t",
+                },
+            )
+            sha = RepoCloner.get_commit_sha(td)
+            self.assertIsNotNone(sha)
+            self.assertEqual(len(sha), 40)
+            self.assertTrue(
+                all(c in "0123456789abcdef"
+                    for c in sha)
+            )
+
+    def test_get_commit_sha_not_a_repo(self):
+        """get_commit_sha returns None for non-git dir."""
+        with tempfile.TemporaryDirectory() as td:
+            sha = RepoCloner.get_commit_sha(td)
+            self.assertIsNone(sha)
+
+    def test_build_vcs_uri(self):
+        """build_vcs_uri formats commit URL."""
+        uri = RepoCloner.build_vcs_uri(
+            "https://github.com/x/y.git",
+            "a" * 40,
+        )
+        self.assertEqual(
+            uri,
+            "https://github.com/x/y/commit/"
+            + "a" * 40,
+        )
+
+    def test_build_vcs_uri_missing_inputs(self):
+        """build_vcs_uri returns NOASSERTION on None."""
+        self.assertEqual(
+            RepoCloner.build_vcs_uri(None, "abc"),
+            "NOASSERTION",
+        )
+        self.assertEqual(
+            RepoCloner.build_vcs_uri("url", None),
+            "NOASSERTION",
+        )
+
 
 # ============================================================
 # BomtraceBuilder
@@ -309,7 +445,7 @@ class TestBomtraceBuilder(unittest.TestCase):
             result = builder.build(
                 "curl", repo_cfg, paths, omnibor
             )
-        self.assertTrue(result)
+        self.assertTrue(result.success)
         # clean + 2 pre-build + instrumented + ADG = 5
         self.assertEqual(runner.run.call_count, 5)
 
@@ -324,7 +460,7 @@ class TestBomtraceBuilder(unittest.TestCase):
             result = builder.build(
                 "curl", repo_cfg, paths, omnibor
             )
-        self.assertTrue(result)
+        self.assertTrue(result.success)
         # no clean + 2 pre-build + instrumented + ADG = 4
         self.assertEqual(runner.run.call_count, 4)
 
@@ -339,7 +475,7 @@ class TestBomtraceBuilder(unittest.TestCase):
             result = builder.build(
                 "curl", repo_cfg, paths, omnibor
             )
-        self.assertFalse(result)
+        self.assertFalse(result.success)
 
     def test_make_failure(self):
         runner = MagicMock()
@@ -352,7 +488,7 @@ class TestBomtraceBuilder(unittest.TestCase):
             result = builder.build(
                 "curl", repo_cfg, paths, omnibor
             )
-        self.assertFalse(result)
+        self.assertFalse(result.success)
 
     def test_adg_failure(self):
         runner = MagicMock()
@@ -365,7 +501,7 @@ class TestBomtraceBuilder(unittest.TestCase):
             result = builder.build(
                 "curl", repo_cfg, paths, omnibor
             )
-        self.assertFalse(result)
+        self.assertFalse(result.success)
 
     def test_clean_failure_ignored(self):
         runner = MagicMock()
@@ -378,7 +514,7 @@ class TestBomtraceBuilder(unittest.TestCase):
             result = builder.build(
                 "curl", repo_cfg, paths, omnibor
             )
-        self.assertTrue(result)
+        self.assertTrue(result.success)
 
     def test_instrumented_cmd_uses_tracer(self):
         runner = MagicMock()
@@ -395,6 +531,204 @@ class TestBomtraceBuilder(unittest.TestCase):
         self.assertIn(
             "bomtrace3", instrumented_call[0][0]
         )
+
+    def test_strategy_instrument_command(self):
+        runner = MagicMock()
+        runner.run.return_value = 0
+        strategy = MagicMock()
+        strategy.instrument_command.return_value = (
+            "wrapped make -j4", {"CC": "/w/cc"},
+        )
+        strategy.generate_adg.return_value = True
+        builder = BomtraceBuilder(runner)
+        repo_cfg, paths, omnibor = self._cfg()
+
+        with patch("builtins.print"):
+            result = builder.build(
+                "curl", repo_cfg, paths, omnibor,
+                strategy=strategy,
+            )
+        self.assertTrue(result.success)
+        strategy.instrument_command.assert_called_once()
+        # Verify env was passed to runner.run
+        build_call = runner.run.call_args_list[3]
+        self.assertEqual(
+            build_call[1].get("env"),
+            {"CC": "/w/cc"},
+        )
+
+    def test_strategy_generate_adg_called(self):
+        runner = MagicMock()
+        runner.run.return_value = 0
+        strategy = MagicMock()
+        strategy.instrument_command.return_value = (
+            "make -j4", {},
+        )
+        strategy.generate_adg.return_value = True
+        builder = BomtraceBuilder(runner)
+        repo_cfg, paths, omnibor = self._cfg()
+
+        with patch("builtins.print"):
+            builder.build(
+                "curl", repo_cfg, paths, omnibor,
+                strategy=strategy,
+            )
+        strategy.generate_adg.assert_called_once()
+
+    def test_strategy_adg_failure(self):
+        runner = MagicMock()
+        runner.run.return_value = 0
+        strategy = MagicMock()
+        strategy.instrument_command.return_value = (
+            "make -j4", {},
+        )
+        strategy.generate_adg.return_value = False
+        builder = BomtraceBuilder(runner)
+        repo_cfg, paths, omnibor = self._cfg()
+
+        with patch("builtins.print"):
+            result = builder.build(
+                "curl", repo_cfg, paths, omnibor,
+                strategy=strategy,
+            )
+        self.assertFalse(result.success)
+
+    def test_no_strategy_uses_legacy(self):
+        runner = MagicMock()
+        runner.run.return_value = 0
+        builder = BomtraceBuilder(runner)
+        repo_cfg, paths, omnibor = self._cfg()
+
+        with patch("builtins.print"):
+            builder.build(
+                "curl", repo_cfg, paths, omnibor,
+            )
+        # Legacy: clean + 2 pre + instrumented + ADG = 5
+        self.assertEqual(runner.run.call_count, 5)
+        # Legacy: bomtrace3 in instrumented cmd
+        build_call = runner.run.call_args_list[3]
+        self.assertIn(
+            "bomtrace3", build_call[0][0],
+        )
+
+
+class TestBomtraceBuilderBaseline(unittest.TestCase):
+    """Tests for BomtraceBuilder.build_baseline()."""
+
+    def _cfg(self):
+        return (
+            {
+                "build_steps": [
+                    "autoreconf -fi",
+                    "./configure",
+                    "make -j4",
+                ],
+                "clean_cmd": "make clean",
+                "language": "c-cpp",
+            },
+            {
+                "repos_dir": "/repos",
+                "output_dir": "/out",
+            },
+        )
+
+    def test_success(self):
+        runner = MagicMock()
+        runner.run.return_value = 0
+        builder = BomtraceBuilder(runner)
+        repo_cfg, paths = self._cfg()
+
+        with patch("builtins.print"):
+            result = builder.build_baseline(
+                "curl", repo_cfg, paths,
+            )
+        self.assertIsNotNone(result)
+        self.assertTrue(result.success)
+        # Separate steps: clean, prebuild, build
+        names = [s.name for s in result.steps]
+        self.assertEqual(
+            names, ["clean", "prebuild", "build"],
+        )
+        # Build step has correct phase
+        build_step = result.steps[2]
+        self.assertEqual(build_step.phase, "phase1")
+        self.assertGreaterEqual(
+            build_step.wall_sec, 0,
+        )
+        # clean + 2 prebuild + build = 4 calls
+        self.assertEqual(runner.run.call_count, 4)
+        # NO tracer prefix on build cmd
+        build_call = runner.run.call_args_list[3]
+        self.assertEqual(
+            build_call[0][0], "make -j4",
+        )
+
+    def test_no_clean_cmd(self):
+        runner = MagicMock()
+        runner.run.return_value = 0
+        builder = BomtraceBuilder(runner)
+        repo_cfg, paths = self._cfg()
+        del repo_cfg["clean_cmd"]
+
+        with patch("builtins.print"):
+            result = builder.build_baseline(
+                "curl", repo_cfg, paths,
+            )
+        self.assertIsNotNone(result)
+        self.assertTrue(result.success)
+        names = [s.name for s in result.steps]
+        self.assertEqual(
+            names, ["prebuild", "build"],
+        )
+        # 2 prebuild + build = 3 calls (no clean)
+        self.assertEqual(runner.run.call_count, 3)
+
+    def test_no_prebuild_steps(self):
+        runner = MagicMock()
+        runner.run.return_value = 0
+        builder = BomtraceBuilder(runner)
+        repo_cfg, paths = self._cfg()
+        repo_cfg["build_steps"] = ["make -j4"]
+        del repo_cfg["clean_cmd"]
+
+        with patch("builtins.print"):
+            result = builder.build_baseline(
+                "curl", repo_cfg, paths,
+            )
+        self.assertIsNotNone(result)
+        self.assertTrue(result.success)
+        names = [s.name for s in result.steps]
+        self.assertEqual(names, ["build"])
+        # Only build = 1 call
+        self.assertEqual(runner.run.call_count, 1)
+
+    def test_prebuild_failure(self):
+        runner = MagicMock()
+        # clean ok, first prebuild fails
+        runner.run.side_effect = [0, 1]
+        builder = BomtraceBuilder(runner)
+        repo_cfg, paths = self._cfg()
+
+        with patch("builtins.print"):
+            result = builder.build_baseline(
+                "curl", repo_cfg, paths,
+            )
+        self.assertIsNotNone(result)
+        self.assertFalse(result.success)
+
+    def test_build_failure(self):
+        runner = MagicMock()
+        # clean ok, 2 prebuild ok, build fails
+        runner.run.side_effect = [0, 0, 0, 1]
+        builder = BomtraceBuilder(runner)
+        repo_cfg, paths = self._cfg()
+
+        with patch("builtins.print"):
+            result = builder.build_baseline(
+                "curl", repo_cfg, paths,
+            )
+        self.assertIsNotNone(result)
+        self.assertFalse(result.success)
 
 
 class TestBomtraceBuilderJava(unittest.TestCase):
@@ -438,7 +772,7 @@ class TestBomtraceBuilderJava(unittest.TestCase):
                 result = builder.build_java(
                     "myapp", repo_cfg, paths, java_cfg
                 )
-            self.assertTrue(result)
+            self.assertTrue(result.success)
             # clean + instrumented build + treedb gen = 3
             self.assertEqual(runner.run.call_count, 3)
             # Verify strace log was archived
@@ -471,7 +805,7 @@ class TestBomtraceBuilderJava(unittest.TestCase):
                 result = builder.build_java(
                     "myapp", repo_cfg, paths, java_cfg
                 )
-            self.assertTrue(result)
+            self.assertTrue(result.success)
             self.assertTrue(
                 any("WARN" in p for p in printed)
             )
@@ -487,7 +821,7 @@ class TestBomtraceBuilderJava(unittest.TestCase):
                 result = builder.build_java(
                     "myapp", repo_cfg, paths, java_cfg
                 )
-            self.assertTrue(result)
+            self.assertTrue(result.success)
             # no clean + instrumented + treedb = 2
             self.assertEqual(runner.run.call_count, 2)
 
@@ -504,7 +838,7 @@ class TestBomtraceBuilderJava(unittest.TestCase):
                 result = builder.build_java(
                     "myapp", repo_cfg, paths, java_cfg
                 )
-            self.assertFalse(result)
+            self.assertFalse(result.success)
 
     def test_instrumented_build_failure(self):
         runner = MagicMock()
@@ -517,7 +851,7 @@ class TestBomtraceBuilderJava(unittest.TestCase):
                 result = builder.build_java(
                     "myapp", repo_cfg, paths, java_cfg
                 )
-            self.assertFalse(result)
+            self.assertFalse(result.success)
 
     def test_create_bom_failure(self):
         runner = MagicMock()
@@ -530,7 +864,91 @@ class TestBomtraceBuilderJava(unittest.TestCase):
                 result = builder.build_java(
                     "myapp", repo_cfg, paths, java_cfg
                 )
-            self.assertFalse(result)
+            self.assertFalse(result.success)
+
+    def test_buildsrc_build_cleaned(self):
+        """buildSrc/build/ removed before instrumented build."""
+        runner = MagicMock()
+        runner.run.return_value = 0
+        builder = BomtraceBuilder(runner)
+        with tempfile.TemporaryDirectory() as td:
+            repo_cfg, paths, java_cfg = self._java_cfg(td)
+            # Create buildSrc/build with cached classes
+            bs_build = (
+                Path(td) / "repos" / "myapp"
+                / "buildSrc" / "build" / "classes"
+            )
+            bs_build.mkdir(parents=True)
+            (bs_build / "Foo.class").write_bytes(
+                b"fake"
+            )
+            Path(java_cfg["strace_logfile"]).write_text(
+                "1 openat(AT_FDCWD, \"/f\", 0) = 3\n"
+            )
+            with patch("builtins.print") as mock_print:
+                result = builder.build_java(
+                    "myapp", repo_cfg, paths, java_cfg
+                )
+            self.assertTrue(result.success)
+            # buildSrc/build should be gone
+            self.assertFalse(
+                (
+                    Path(td) / "repos" / "myapp"
+                    / "buildSrc" / "build"
+                ).exists()
+            )
+            # Verify log message printed
+            msgs = [
+                str(c) for c in mock_print.call_args_list
+            ]
+            self.assertTrue(
+                any("buildSrc" in m for m in msgs),
+                f"Expected buildSrc log message: {msgs}",
+            )
+
+    def test_no_buildsrc_no_error(self):
+        """No error when repo has no buildSrc directory."""
+        runner = MagicMock()
+        runner.run.return_value = 0
+        builder = BomtraceBuilder(runner)
+        with tempfile.TemporaryDirectory() as td:
+            repo_cfg, paths, java_cfg = self._java_cfg(td)
+            Path(java_cfg["strace_logfile"]).write_text(
+                "1 openat(AT_FDCWD, \"/f\", 0) = 3\n"
+            )
+            with patch("builtins.print"):
+                result = builder.build_java(
+                    "myapp", repo_cfg, paths, java_cfg
+                )
+            self.assertTrue(result.success)
+
+    def test_buildsrc_without_build_dir(self):
+        """No error when buildSrc/ exists but has no build/."""
+        runner = MagicMock()
+        runner.run.return_value = 0
+        builder = BomtraceBuilder(runner)
+        with tempfile.TemporaryDirectory() as td:
+            repo_cfg, paths, java_cfg = self._java_cfg(td)
+            # buildSrc/ exists but no build/ subdirectory
+            (
+                Path(td) / "repos" / "myapp"
+                / "buildSrc" / "src"
+            ).mkdir(parents=True)
+            Path(java_cfg["strace_logfile"]).write_text(
+                "1 openat(AT_FDCWD, \"/f\", 0) = 3\n"
+            )
+            with patch("builtins.print"):
+                result = builder.build_java(
+                    "myapp", repo_cfg, paths, java_cfg
+                )
+            self.assertTrue(result.success)
+            # buildSrc/src should still exist
+            self.assertTrue(
+                (
+                    Path(td) / "repos" / "myapp"
+                    / "buildSrc" / "src"
+                ).exists()
+            )
 
 
 # ============================================================
@@ -750,6 +1168,59 @@ class TestSpdxGenerator(unittest.TestCase):
                 )
             output = "\n".join(printed)
             self.assertIn("WARN", output)
+
+
+class TestSpdxGeneratorExtraLines(unittest.TestCase):
+    """Cover remaining uncovered lines."""
+
+    def test_init_custom_bomsh_dir(self):
+        gen = SpdxGenerator(bomsh_dir="/custom/dir")
+        self.assertEqual(gen.bomsh_dir, "/custom/dir")
+
+    def test_patch_vcs_uri(self):
+        import json as _json
+        with tempfile.TemporaryDirectory() as td:
+            doc = {
+                "spdxVersion": "SPDX-2.3",
+                "name": "curl",
+                "documentNamespace": "ns",
+                "creationInfo": {
+                    "created": "2026-01-01",
+                    "creators": ["Tool: test"],
+                },
+                "packages": [{
+                    "SPDXID": "SPDXRef-Package",
+                    "name": "curl",
+                    "downloadLocation": "NOASSERTION",
+                }],
+            }
+            path = Path(td) / "test.spdx.json"
+            path.write_text(_json.dumps(doc))
+            with patch.object(
+                SpdxGenerator, "_bomsh_version",
+                return_value="1.0",
+            ), patch.object(
+                SpdxGenerator, "_bomtrace_version",
+                return_value="6.11",
+            ), patch("builtins.print"):
+                SpdxGenerator.patch_spdx_metadata(
+                    str(path),
+                    vcs_uri="git+https://github.com/curl/curl@v8.0",
+                )
+            result = _json.loads(path.read_text())
+            self.assertEqual(
+                result["packages"][0][
+                    "downloadLocation"
+                ],
+                "git+https://github.com/curl/curl@v8.0",
+            )
+
+    def test_generate_java_returns_none(self):
+        gen = SpdxGenerator()
+        result = gen.generate_java(
+            "app", {}, {}, {},
+        )
+        self.assertIsNone(result)
 
 
 # ============================================================
@@ -1009,7 +1480,8 @@ class TestSpdxGeneratorMetadata(unittest.TestCase):
                 / "2026-02-12_1300"
             )
             mock_patch.assert_called_once_with(
-                result, bom_dir
+                result, bom_dir,
+                vcs_uri=None,
             )
 
     def test_generate_no_patch_when_no_output(self):
@@ -2041,6 +2513,81 @@ class TestDocWriter(unittest.TestCase):
             self.assertIn("myrepo", content)
             self.assertIn("bin/app", content)
 
+    def test_write_build_doc_with_timing_split(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            paths = {"output_dir": tmpdir}
+            cfg = {
+                "url": "https://github.com/x/y.git",
+                "build_steps": ["make"],
+                "language": "c-cpp",
+            }
+            t = TimingResult(
+                tracer="bomtrace3",
+                success=True,
+                steps=[
+                    StepMetrics(
+                        name="build",
+                        phase="phase1",
+                        wall_sec=42.5,
+                    ),
+                    StepMetrics(
+                        name="spdx_gen",
+                        phase="phase2",
+                        wall_sec=2.5,
+                    ),
+                ],
+            )
+            with patch("builtins.print"):
+                result = DocWriter.write_build_doc(
+                    "myrepo", cfg, paths,
+                    True, 45.0,
+                    timing=t,
+                )
+            content = Path(result).read_text()
+            self.assertIn(
+                "build: 42.5s", content,
+            )
+            self.assertIn(
+                "analysis: 2.5s", content,
+            )
+
+    def test_write_runtime_doc_with_timing_split(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            paths = {"output_dir": tmpdir}
+            repo_cfg = {"language": "c-cpp"}
+            t = TimingResult(
+                tracer="bomtrace3",
+                success=True,
+                steps=[
+                    StepMetrics(
+                        name="build",
+                        phase="phase1",
+                        wall_sec=42.5,
+                    ),
+                    StepMetrics(
+                        name="spdx_gen",
+                        phase="phase2",
+                        wall_sec=2.5,
+                    ),
+                ],
+            )
+            with patch("builtins.print"):
+                result = DocWriter.write_runtime_doc(
+                    "myrepo", repo_cfg, paths,
+                    45.0,
+                    timing=t,
+                )
+            content = Path(result).read_text()
+            self.assertIn(
+                "Phase 1 (Build Interception):",
+                content,
+            )
+            self.assertIn("42.5s", content)
+            self.assertIn(
+                "Phase 2 (Post-Build Analysis):",
+                content,
+            )
+
     def test_write_build_doc_failure(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             paths = {"output_dir": tmpdir}
@@ -2074,13 +2621,25 @@ class TestDocWriter(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmpdir:
             paths = {"output_dir": tmpdir}
             repo_cfg = {"language": "c-cpp"}
+            t = TimingResult(
+                tracer="bomtrace3",
+                success=True,
+                steps=[
+                    StepMetrics(
+                        name="build",
+                        phase="phase1",
+                        wall_sec=60.0,
+                    ),
+                ],
+            )
             with patch("builtins.print"):
                 result = DocWriter.write_runtime_doc(
                     "repo", repo_cfg, paths, 60.0,
-                    baseline_sec=30.0,
+                    timing=t,
+                    baseline={"wall_sec": 30.0},
                 )
             content = Path(result).read_text()
-            self.assertIn("100.0%", content)
+            self.assertIn("+100.0%", content)
 
     def test_write_runtime_doc_no_baseline(self):
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -2089,10 +2648,9 @@ class TestDocWriter(unittest.TestCase):
             with patch("builtins.print"):
                 result = DocWriter.write_runtime_doc(
                     "repo", repo_cfg, paths, 60.0,
-                    baseline_sec=None,
                 )
             content = Path(result).read_text()
-            self.assertNotIn("overhead", content)
+            self.assertNotIn("Overhead", content)
 
     def test_write_build_doc_go(self):
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -2134,7 +2692,7 @@ class TestDocWriter(unittest.TestCase):
                 )
             content = Path(result).read_text()
             self.assertIn(
-                "Instrumented build time", content
+                "Total:", content,
             )
             self.assertIn("go build -a", content)
             self.assertIn("bomtrace2", content)
@@ -2180,7 +2738,7 @@ class TestDocWriter(unittest.TestCase):
                 )
             content = Path(result).read_text()
             self.assertIn(
-                "Instrumented build time", content
+                "Total:", content,
             )
             self.assertIn(
                 "cargo build --release", content
@@ -2375,6 +2933,15 @@ class TestClassifyReleaseBuild(unittest.TestCase):
 class TestAnalysisPipeline(unittest.TestCase):
     """Tests for AnalysisPipeline facade."""
 
+    def setUp(self):
+        patcher = patch(
+            "app.spdx.package_resolver"
+            ".auto_detect_resolver",
+            return_value=_FakeValidatorResolver(),
+        )
+        self._mock_resolver = patcher.start()
+        self.addCleanup(patcher.stop)
+
     def test_default_construction(self):
         p = AnalysisPipeline()
         self.assertIsInstance(p.runner, CommandRunner)
@@ -2508,22 +3075,72 @@ class TestMainUnknownRepo(unittest.TestCase):
             self.assertEqual(cm.exception.code, 1)
 
 
+class TestMainModeFlag(unittest.TestCase):
+    """Tests for --mode CLI flag."""
+
+    @patch("app.pipeline.runners.load_config")
+    @patch("app.pipeline.runners.AnalysisPipeline")
+    @patch(
+        "sys.argv",
+        ["analyze.py", "--list", "--mode", "sidecar"],
+    )
+    def test_mode_sidecar_overrides_config(
+        self, mock_cls, mock_load,
+    ):
+        mock_load.return_value = {
+            "repos": {},
+            "paths": {},
+            "omnibor": {"tracer": "bomtrace3"},
+        }
+        p = MagicMock()
+        mock_cls.return_value = p
+        with patch("builtins.print"):
+            analyze.main()
+        config = mock_load.return_value
+        self.assertEqual(config["mode"], "sidecar")
+
+    @patch("app.pipeline.runners.load_config")
+    @patch("app.pipeline.runners.AnalysisPipeline")
+    @patch("sys.argv", ["analyze.py", "--list"])
+    def test_no_mode_keeps_config_default(
+        self, mock_cls, mock_load,
+    ):
+        mock_load.return_value = {
+            "repos": {},
+            "paths": {},
+            "omnibor": {"tracer": "bomtrace3"},
+        }
+        p = MagicMock()
+        mock_cls.return_value = p
+        with patch("builtins.print"):
+            analyze.main()
+        config = mock_load.return_value
+        self.assertNotIn("mode", config)
+
+
 class TestMainFullRun(unittest.TestCase):
     """Tests for main() full analysis run."""
 
-    @patch("app.pipeline.lang_runners.time.time")
+    @patch(
+        "app.pipeline.timing.save_runtime_json",
+    )
+    @patch(
+        "app.pipeline.timing.load_baseline",
+        return_value=None,
+    )
     @patch("app.pipeline.runners.AnalysisPipeline")
     @patch(
         "sys.argv",
         ["analyze.py", "--repo", "curl"],
     )
     def test_full_run_success(
-        self, mock_cls, mock_time
+        self, mock_cls, _bl, _save,
     ):
         p = _mock_pipeline()
         mock_cls.return_value = p
-        p.builder.build.return_value = True
-        mock_time.side_effect = [100.0, 142.5]
+        p.builder.build.return_value = BuildResult(
+            success=True,
+        )
 
         with patch("builtins.print"):
             analyze.main()
@@ -2538,6 +3155,96 @@ class TestMainFullRun(unittest.TestCase):
         p.binary_collector.collect.assert_called_once()
         p.docs.write_build_doc.assert_called_once()
         p.docs.write_runtime_doc.assert_called_once()
+
+    @patch(
+        "app.pipeline.timing.save_runtime_json",
+    )
+    @patch(
+        "app.pipeline.timing.load_baseline",
+        return_value=None,
+    )
+    @patch(
+        "app.pipeline.cloner.RepoCloner"
+        ".get_commit_sha",
+        return_value="abc123def456789",
+    )
+    @patch("app.pipeline.runners.AnalysisPipeline")
+    @patch(
+        "sys.argv",
+        ["analyze.py", "--repo", "curl"],
+    )
+    def test_commit_sha_printed(
+        self, mock_cls, _sha, _bl, _save,
+    ):
+        p = _mock_pipeline()
+        mock_cls.return_value = p
+        p.builder.build.return_value = BuildResult(
+            success=True,
+        )
+        printed = []
+        with patch(
+            "builtins.print",
+            side_effect=lambda *a, **kw: (
+                printed.append(
+                    " ".join(str(x) for x in a)
+                )
+            ),
+        ):
+            analyze.main()
+        sha_lines = [
+            line for line in printed
+            if "Commit SHA" in line
+        ]
+        self.assertTrue(len(sha_lines) > 0)
+        self.assertIn("abc123def456", sha_lines[0])
+
+    @patch(
+        "app.pipeline.timing.save_runtime_json",
+    )
+    @patch(
+        "app.pipeline.timing.load_baseline",
+        return_value={
+            "steps": [
+                {"name": "build", "wall_sec": 5.0},
+            ],
+        },
+    )
+    @patch("app.pipeline.runners.AnalysisPipeline")
+    @patch(
+        "sys.argv",
+        ["analyze.py", "--repo", "curl"],
+    )
+    def test_baseline_overhead_printed(
+        self, mock_cls, _bl, _save,
+    ):
+        p = _mock_pipeline()
+        mock_cls.return_value = p
+        p.builder.build.return_value = BuildResult(
+            success=True,
+            steps=[
+                StepMetrics(
+                    name="build", phase="phase1",
+                    wall_sec=6.0,
+                    cpu_user_sec=5.0,
+                    cpu_sys_sec=0.5,
+                ),
+            ],
+        )
+        printed = []
+        with patch(
+            "builtins.print",
+            side_effect=lambda *a, **kw: (
+                printed.append(
+                    " ".join(str(x) for x in a)
+                )
+            ),
+        ):
+            analyze.main()
+        overhead_lines = [
+            line for line in printed
+            if "overhead" in line.lower()
+        ]
+        self.assertTrue(len(overhead_lines) > 0)
 
     @patch("app.pipeline.runners.AnalysisPipeline")
     @patch(
@@ -2562,19 +3269,26 @@ class TestMainFullRun(unittest.TestCase):
 
         p.builder.build.assert_not_called()
 
-    @patch("app.pipeline.lang_runners.time.time")
+    @patch(
+        "app.pipeline.timing.save_runtime_json",
+    )
+    @patch(
+        "app.pipeline.timing.load_baseline",
+        return_value=None,
+    )
     @patch("app.pipeline.runners.AnalysisPipeline")
     @patch(
         "sys.argv",
         ["analyze.py", "--repo", "curl"],
     )
     def test_full_run_build_failure(
-        self, mock_cls, mock_time
+        self, mock_cls, _bl, _save,
     ):
         p = _mock_pipeline()
         mock_cls.return_value = p
-        p.builder.build.return_value = False
-        mock_time.side_effect = [100.0, 110.0]
+        p.builder.build.return_value = BuildResult(
+            success=False,
+        )
 
         with patch("builtins.print"):
             analyze.main()
@@ -2584,7 +3298,13 @@ class TestMainFullRun(unittest.TestCase):
         p.binary_collector.collect.assert_not_called()
         p.docs.write_build_doc.assert_called_once()
 
-    @patch("app.pipeline.lang_runners.time.time")
+    @patch(
+        "app.pipeline.timing.save_runtime_json",
+    )
+    @patch(
+        "app.pipeline.timing.load_baseline",
+        return_value=None,
+    )
     @patch("app.pipeline.runners.AnalysisPipeline")
     @patch(
         "sys.argv",
@@ -2593,11 +3313,14 @@ class TestMainFullRun(unittest.TestCase):
             "--skip-clone",
         ],
     )
-    def test_skip_clone(self, mock_cls, mock_time):
+    def test_skip_clone(
+        self, mock_cls, _bl, _save,
+    ):
         p = _mock_pipeline()
         mock_cls.return_value = p
-        p.builder.build.return_value = True
-        mock_time.side_effect = [100.0, 110.0]
+        p.builder.build.return_value = BuildResult(
+            success=True,
+        )
 
         with patch("builtins.print"):
             analyze.main()
@@ -2605,21 +3328,28 @@ class TestMainFullRun(unittest.TestCase):
         p.cloner.clone.assert_not_called()
 
     @patch(
+        "app.pipeline.timing.save_runtime_json",
+    )
+    @patch(
+        "app.pipeline.timing.load_baseline",
+        return_value=None,
+    )
+    @patch(
         "app.pipeline.runners.load_config",
     )
-    @patch("app.pipeline.lang_runners.time.time")
     @patch("app.pipeline.runners.AnalysisPipeline")
     @patch(
         "sys.argv",
         ["analyze.py", "--repo", "curl"],
     )
     def test_syft_enabled_via_config(
-        self, mock_cls, mock_time, mock_cfg
+        self, mock_cls, mock_cfg, _bl, _save,
     ):
         p = _mock_pipeline()
         mock_cls.return_value = p
-        p.builder.build.return_value = True
-        mock_time.side_effect = [100.0, 110.0]
+        p.builder.build.return_value = BuildResult(
+            success=True,
+        )
         real_cfg = load_config()
         real_cfg.setdefault(
             "pipeline", {}
@@ -2661,19 +3391,26 @@ class TestMainFullRun(unittest.TestCase):
 class TestMainGoRepo(unittest.TestCase):
     """Tests for main() with Go repos."""
 
-    @patch("app.pipeline.lang_runners.time.time")
+    @patch(
+        "app.pipeline.timing.save_runtime_json",
+    )
+    @patch(
+        "app.pipeline.timing.load_baseline",
+        return_value=None,
+    )
     @patch("app.pipeline.runners.AnalysisPipeline")
     @patch(
         "sys.argv",
         ["analyze.py", "--repo", "fzf"],
     )
     def test_go_uses_bomtrace2(
-        self, mock_cls, mock_time
+        self, mock_cls, _bl, _save,
     ):
         p = _mock_pipeline()
         mock_cls.return_value = p
-        p.builder.build.return_value = True
-        mock_time.side_effect = [100.0, 110.0]
+        p.builder.build.return_value = BuildResult(
+            success=True,
+        )
 
         with patch("builtins.print"):
             analyze.main()
@@ -2695,19 +3432,26 @@ class TestMainGoRepo(unittest.TestCase):
         p.docs.write_runtime_doc\
             .assert_called_once()
 
-    @patch("app.pipeline.lang_runners.time.time")
+    @patch(
+        "app.pipeline.timing.save_runtime_json",
+    )
+    @patch(
+        "app.pipeline.timing.load_baseline",
+        return_value=None,
+    )
     @patch("app.pipeline.runners.AnalysisPipeline")
     @patch(
         "sys.argv",
         ["analyze.py", "--repo", "fzf"],
     )
     def test_go_build_failure(
-        self, mock_cls, mock_time
+        self, mock_cls, _bl, _save,
     ):
         p = _mock_pipeline()
         mock_cls.return_value = p
-        p.builder.build.return_value = False
-        mock_time.side_effect = [100.0, 110.0]
+        p.builder.build.return_value = BuildResult(
+            success=False,
+        )
 
         with patch("builtins.print"):
             analyze.main()
@@ -2717,21 +3461,28 @@ class TestMainGoRepo(unittest.TestCase):
         p.docs.write_build_doc.assert_called_once()
 
     @patch(
+        "app.pipeline.timing.save_runtime_json",
+    )
+    @patch(
+        "app.pipeline.timing.load_baseline",
+        return_value=None,
+    )
+    @patch(
         "app.pipeline.runners.load_config",
     )
-    @patch("app.pipeline.lang_runners.time.time")
     @patch("app.pipeline.runners.AnalysisPipeline")
     @patch(
         "sys.argv",
         ["analyze.py", "--repo", "fzf"],
     )
     def test_go_syft_enabled(
-        self, mock_cls, mock_time, mock_cfg
+        self, mock_cls, mock_cfg, _bl, _save,
     ):
         p = _mock_pipeline()
         mock_cls.return_value = p
-        p.builder.build.return_value = True
-        mock_time.side_effect = [100.0, 110.0]
+        p.builder.build.return_value = BuildResult(
+            success=True,
+        )
         real_cfg = load_config()
         real_cfg.setdefault(
             "pipeline", {}
@@ -2742,6 +3493,79 @@ class TestMainGoRepo(unittest.TestCase):
             analyze.main()
 
         p.syft_gen.generate.assert_called_once()
+
+
+class TestBaseline(unittest.TestCase):
+    """Tests for --baseline mode."""
+
+    @patch(
+        "app.pipeline.timing.save_baseline",
+    )
+    @patch("app.pipeline.runners.AnalysisPipeline")
+    @patch(
+        "sys.argv",
+        ["analyze.py", "--repo", "curl",
+         "--baseline", "--skip-clone"],
+    )
+    def test_baseline_success(
+        self, mock_cls, mock_save,
+    ):
+        p = _mock_pipeline()
+        mock_cls.return_value = p
+        p.builder.build_baseline.return_value = (
+            BuildResult(
+                success=True,
+                steps=[
+                    StepMetrics(
+                        name="clean",
+                        phase="phase1",
+                        wall_sec=1.0,
+                    ),
+                    StepMetrics(
+                        name="build",
+                        phase="phase1",
+                        wall_sec=8.0,
+                        cpu_user_sec=6.0,
+                        cpu_sys_sec=1.5,
+                    ),
+                ],
+            )
+        )
+
+        with patch("builtins.print"):
+            analyze.main()
+
+        p.builder.build_baseline\
+            .assert_called_once()
+        # No Phase 2 in baseline mode
+        p.spdx_gen.generate.assert_not_called()
+        p.binary_collector.collect\
+            .assert_not_called()
+        mock_save.assert_called_once()
+
+    @patch(
+        "app.pipeline.timing.save_baseline",
+    )
+    @patch("app.pipeline.runners.AnalysisPipeline")
+    @patch(
+        "sys.argv",
+        ["analyze.py", "--repo", "curl",
+         "--baseline", "--skip-clone"],
+    )
+    def test_baseline_build_failure(
+        self, mock_cls, mock_save,
+    ):
+        p = _mock_pipeline()
+        mock_cls.return_value = p
+        # build_baseline returns failed BuildResult
+        p.builder.build_baseline.return_value = (
+            BuildResult(success=False, steps=[])
+        )
+
+        with patch("builtins.print"):
+            analyze.main()
+
+        mock_save.assert_not_called()
 
 
 class TestRunGoPipeline(unittest.TestCase):
@@ -2761,18 +3585,21 @@ class TestRunGoPipeline(unittest.TestCase):
 
     def test_instrumented_build_called(self):
         p = _mock_pipeline()
-        p.builder.build.return_value = True
+        p.builder.build.return_value = BuildResult(
+            success=True,
+        )
         repo_cfg = {"language": "go"}
         paths_cfg = {"output_dir": "/tmp/out"}
 
         with patch("builtins.print"):
-            success, duration = _run_go_pipeline(
+            timing = _run_go_pipeline(
                 p, "fzf", repo_cfg,
                 paths_cfg, self.GO_OMNIBOR_CFG,
                 "2026-03-04_1200",
             )
 
-        self.assertTrue(success)
+        self.assertTrue(timing.success)
+        self.assertIn("bomtrace2", timing.tracer)
         p.builder.build.assert_called_once_with(
             "fzf", repo_cfg,
             paths_cfg, self.GO_OMNIBOR_CFG,
@@ -2781,7 +3608,9 @@ class TestRunGoPipeline(unittest.TestCase):
 
     def test_full_pipeline_on_success(self):
         p = _mock_pipeline()
-        p.builder.build.return_value = True
+        p.builder.build.return_value = BuildResult(
+            success=True,
+        )
         repo_cfg = {"language": "go"}
         paths_cfg = {"output_dir": "/tmp/out"}
 
@@ -2803,18 +3632,20 @@ class TestRunGoPipeline(unittest.TestCase):
 
     def test_skips_steps_on_failure(self):
         p = _mock_pipeline()
-        p.builder.build.return_value = False
+        p.builder.build.return_value = BuildResult(
+            success=False,
+        )
         repo_cfg = {"language": "go"}
         paths_cfg = {"output_dir": "/tmp/out"}
 
         with patch("builtins.print"):
-            success, _ = _run_go_pipeline(
+            timing = _run_go_pipeline(
                 p, "fzf", repo_cfg,
                 paths_cfg, self.GO_OMNIBOR_CFG,
                 "2026-03-04_1200",
             )
 
-        self.assertFalse(success)
+        self.assertFalse(timing.success)
         p.spdx_gen.generate.assert_not_called()
         p.metadata_collector.collect\
             .assert_not_called()
@@ -2872,18 +3703,21 @@ class TestRunRustPipeline(unittest.TestCase):
 
     def test_instrumented_build_called(self):
         p = _mock_pipeline()
-        p.builder.build.return_value = True
+        p.builder.build.return_value = BuildResult(
+            success=True,
+        )
         repo_cfg = {"language": "rust"}
         paths_cfg = {"output_dir": "/tmp/out"}
 
         with patch("builtins.print"):
-            success, duration = _run_rust_pipeline(
+            timing = _run_rust_pipeline(
                 p, "oxipng", repo_cfg,
                 paths_cfg, self.RUST_OMNIBOR_CFG,
                 "2026-03-05_1200",
             )
 
-        self.assertTrue(success)
+        self.assertTrue(timing.success)
+        self.assertEqual(timing.tracer, "bomtrace2")
         p.builder.build.assert_called_once_with(
             "oxipng", repo_cfg,
             paths_cfg, self.RUST_OMNIBOR_CFG,
@@ -2892,7 +3726,9 @@ class TestRunRustPipeline(unittest.TestCase):
 
     def test_full_pipeline_on_success(self):
         p = _mock_pipeline()
-        p.builder.build.return_value = True
+        p.builder.build.return_value = BuildResult(
+            success=True,
+        )
         repo_cfg = {"language": "rust"}
         paths_cfg = {"output_dir": "/tmp/out"}
 
@@ -2912,18 +3748,20 @@ class TestRunRustPipeline(unittest.TestCase):
 
     def test_skips_steps_on_failure(self):
         p = _mock_pipeline()
-        p.builder.build.return_value = False
+        p.builder.build.return_value = BuildResult(
+            success=False,
+        )
         repo_cfg = {"language": "rust"}
         paths_cfg = {"output_dir": "/tmp/out"}
 
         with patch("builtins.print"):
-            success, _ = _run_rust_pipeline(
+            timing = _run_rust_pipeline(
                 p, "oxipng", repo_cfg,
                 paths_cfg, self.RUST_OMNIBOR_CFG,
                 "2026-03-05_1200",
             )
 
-        self.assertFalse(success)
+        self.assertFalse(timing.success)
         p.spdx_gen.generate.assert_not_called()
         p.metadata_collector.collect\
             .assert_not_called()
@@ -3549,18 +4387,26 @@ class TestMetadataCollector(unittest.TestCase):
 class TestMainAdgValidation(unittest.TestCase):
     """Cover line 1400: adg_files validation loop."""
 
-    @patch("app.pipeline.lang_runners.time.time")
+    @patch(
+        "app.pipeline.timing.save_runtime_json",
+    )
+    @patch(
+        "app.pipeline.timing.load_baseline",
+        return_value=None,
+    )
     @patch("app.pipeline.runners.AnalysisPipeline")
     @patch(
         "sys.argv",
         ["analyze.py", "--repo", "curl"],
     )
     def test_adg_files_validated(
-        self, mock_cls, mock_time,
+        self, mock_cls, _bl, _save,
     ):
         p = _mock_pipeline()
         mock_cls.return_value = p
-        p.builder.build.return_value = True
+        p.builder.build.return_value = BuildResult(
+            success=True,
+        )
         p.spdx_gen.generate.return_value = (
             "/tmp/test.spdx.json"
         )
@@ -3568,7 +4414,6 @@ class TestMainAdgValidation(unittest.TestCase):
             "/tmp/a.spdx.json",
             "/tmp/b.spdx.json",
         ]
-        mock_time.side_effect = [100.0, 110.0]
 
         with patch("builtins.print"):
             analyze.main()

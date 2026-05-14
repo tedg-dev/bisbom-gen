@@ -13,6 +13,10 @@ from app.pipeline.runners import (
     _run_java_pipeline,
     _generate_java_adg_spdx,
 )
+from app.pipeline.builder import BuildResult
+from app.pipeline.timing import (
+    TimingResult, StepMetrics,
+)
 
 
 class TestRunJavaPipeline(unittest.TestCase):
@@ -20,7 +24,9 @@ class TestRunJavaPipeline(unittest.TestCase):
 
     def _make_pipeline(self):
         p = MagicMock()
-        p.builder.build_java.return_value = True
+        p.builder.build_java.return_value = BuildResult(
+            success=True,
+        )
         p.spdx_gen.generate_java.return_value = (
             "/tmp/spdx.json"
         )
@@ -64,12 +70,13 @@ class TestRunJavaPipeline(unittest.TestCase):
             )
             pipeline = self._make_pipeline()
 
-            success, dur = _run_java_pipeline(
+            timing = _run_java_pipeline(
                 pipeline, "myapp", repo_cfg,
                 paths, java_cfg, "ts1",
             )
 
-            self.assertTrue(success)
+            self.assertTrue(timing.success)
+            self.assertEqual(timing.tracer, "strace")
             pipeline.builder.build_java.assert_called_once()
             pipeline.spdx_gen.generate_java.assert_called_once()
             pipeline.metadata_collector.collect.assert_called_once()
@@ -91,14 +98,16 @@ class TestRunJavaPipeline(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             paths, repo_cfg, java_cfg = self._make_cfg(td)
             pipeline = self._make_pipeline()
-            pipeline.builder.build_java.return_value = False
+            pipeline.builder.build_java.return_value = (
+                BuildResult(success=False)
+            )
 
-            success, dur = _run_java_pipeline(
+            timing = _run_java_pipeline(
                 pipeline, "myapp", repo_cfg,
                 paths, java_cfg, "ts1",
             )
 
-            self.assertFalse(success)
+            self.assertFalse(timing.success)
             pipeline.spdx_gen.generate_java.assert_not_called()
             pipeline.metadata_collector.collect.assert_not_called()
             pipeline.binary_collector.collect.assert_not_called()
@@ -117,12 +126,12 @@ class TestRunJavaPipeline(unittest.TestCase):
                 None
             )
 
-            success, dur = _run_java_pipeline(
+            timing = _run_java_pipeline(
                 pipeline, "myapp", repo_cfg,
                 paths, java_cfg, "ts1",
             )
 
-            self.assertTrue(success)
+            self.assertTrue(timing.success)
             # No spdx file + no adg files + no syft
             pipeline.spdx_validator.validate.assert_not_called()
 
@@ -338,15 +347,157 @@ class TestGenerateJavaAdgSpdx(unittest.TestCase):
             )
 
 
+class TestJarMapFallbackMatching(unittest.TestCase):
+    """Tests for JAR filename-based fallback matching.
+
+    When the treedb JAR path differs from the
+    output_binaries glob path (e.g., Gradle
+    maven-publish puts JARs in build/maven-repository/
+    while glob finds build/libs/), the pipeline must
+    match by filename and never silently fall back to
+    all project files.
+    """
+
+    @patch(
+        "app.spdx.parser.AdgParser"
+    )
+    @patch(
+        "app.spdx.java_generator.JavaSpdxGenerator"
+    )
+    def test_filename_fallback_matches(
+        self, mock_gen_cls, mock_parser_cls,
+    ):
+        """Exact path miss but filename match succeeds."""
+        mock_gen = MagicMock()
+        mock_gen.generate.side_effect = [
+            "/tmp/analyzed.spdx.json",
+            "/tmp/build.spdx.json",
+        ]
+        mock_gen_cls.return_value = mock_gen
+
+        # Treedb has JAR under maven-repository/
+        mock_parser = MagicMock()
+        mock_parser.get_jar_source_files.return_value = {
+            "myapp/build/maven-repo/myapp-1.0.jar": [
+                {"sha1": "a", "file_path": "a.java"},
+            ],
+        }
+        mock_parser.parse_strace_openat_log.return_value = (
+            set()
+        )
+        mock_parser_cls.return_value = mock_parser
+
+        with tempfile.TemporaryDirectory() as td:
+            paths_cfg = {
+                "output_dir": str(
+                    Path(td) / "output"
+                ),
+                "repos_dir": str(
+                    Path(td) / "repos"
+                ),
+            }
+            repo_cfg = {
+                "language": "java",
+                "output_binaries": [
+                    # Glob finds build/libs/
+                    "build/libs/myapp-1.0.jar",
+                ],
+            }
+            jar = (
+                Path(td) / "repos" / "myapp"
+                / "build" / "libs" / "myapp-1.0.jar"
+            )
+            jar.parent.mkdir(parents=True)
+            jar.write_bytes(b"PK")
+
+            result = _generate_java_adg_spdx(
+                "myapp", repo_cfg, paths_cfg, "ts1",
+            )
+
+            self.assertEqual(len(result), 2)
+            # Verify jar_files was passed (not None)
+            calls = mock_gen.generate.call_args_list
+            for call in calls:
+                self.assertIsNotNone(
+                    call.kwargs["jar_files"],
+                )
+                self.assertEqual(
+                    len(call.kwargs["jar_files"]), 1,
+                )
+
+    @patch(
+        "app.spdx.parser.AdgParser"
+    )
+    @patch(
+        "app.spdx.java_generator.JavaSpdxGenerator"
+    )
+    def test_no_match_skips_jar(
+        self, mock_gen_cls, mock_parser_cls,
+    ):
+        """No path or filename match → skip JAR."""
+        mock_gen = MagicMock()
+        mock_gen_cls.return_value = mock_gen
+
+        # Treedb has different JARs entirely
+        mock_parser = MagicMock()
+        mock_parser.get_jar_source_files.return_value = {
+            "myapp/target/other-1.0.jar": [
+                {"sha1": "a", "file_path": "a.java"},
+            ],
+        }
+        mock_parser.parse_strace_openat_log.return_value = (
+            set()
+        )
+        mock_parser_cls.return_value = mock_parser
+
+        with tempfile.TemporaryDirectory() as td:
+            paths_cfg = {
+                "output_dir": str(
+                    Path(td) / "output"
+                ),
+                "repos_dir": str(
+                    Path(td) / "repos"
+                ),
+            }
+            repo_cfg = {
+                "language": "java",
+                "output_binaries": [
+                    "target/myapp-1.0.jar",
+                ],
+            }
+            jar = (
+                Path(td) / "repos" / "myapp"
+                / "target" / "myapp-1.0.jar"
+            )
+            jar.parent.mkdir(parents=True)
+            jar.write_bytes(b"PK")
+
+            result = _generate_java_adg_spdx(
+                "myapp", repo_cfg, paths_cfg, "ts1",
+            )
+
+            # JAR skipped — no SPDX generated
+            self.assertEqual(result, [])
+            mock_gen.generate.assert_not_called()
+
+
 class TestMainJavaDispatch(unittest.TestCase):
     """Test that main() dispatches to Java pipeline."""
 
+    @patch(
+        "app.pipeline.timing.save_runtime_json",
+    )
+    @patch(
+        "app.pipeline.timing.load_baseline",
+        return_value=None,
+    )
     @patch("app.pipeline.runners.run_java_pipeline")
     @patch("app.pipeline.runners.AnalysisPipeline")
     @patch("app.pipeline.runners.load_config")
     @patch("app.pipeline.runners.timestamp")
     def test_java_dispatch(
-        self, mock_ts, mock_cfg, mock_pipe, mock_java,
+        self, mock_ts, mock_cfg, mock_pipe,
+        mock_java, _bl, _save,
     ):
         mock_ts.return_value = "ts1"
         mock_cfg.return_value = {
@@ -374,7 +525,17 @@ class TestMainJavaDispatch(unittest.TestCase):
         }
         mock_pipe_inst = MagicMock()
         mock_pipe.return_value = mock_pipe_inst
-        mock_java.return_value = (True, 10.0)
+        mock_java.return_value = TimingResult(
+            tracer="strace",
+            success=True,
+            steps=[
+                StepMetrics(
+                    name="build",
+                    phase="phase1",
+                    wall_sec=8.0,
+                ),
+            ],
+        )
 
         from app.pipeline.runners import main
         with patch(
@@ -385,12 +546,20 @@ class TestMainJavaDispatch(unittest.TestCase):
 
         mock_java.assert_called_once()
 
+    @patch(
+        "app.pipeline.timing.save_runtime_json",
+    )
+    @patch(
+        "app.pipeline.timing.load_baseline",
+        return_value=None,
+    )
     @patch("app.pipeline.runners.run_rust_pipeline")
     @patch("app.pipeline.runners.AnalysisPipeline")
     @patch("app.pipeline.runners.load_config")
     @patch("app.pipeline.runners.timestamp")
     def test_rust_dispatch(
-        self, mock_ts, mock_cfg, mock_pipe, mock_rust,
+        self, mock_ts, mock_cfg, mock_pipe,
+        mock_rust, _bl, _save,
     ):
         mock_ts.return_value = "ts1"
         mock_cfg.return_value = {
@@ -419,7 +588,17 @@ class TestMainJavaDispatch(unittest.TestCase):
         }
         mock_pipe_inst = MagicMock()
         mock_pipe.return_value = mock_pipe_inst
-        mock_rust.return_value = (True, 10.0)
+        mock_rust.return_value = TimingResult(
+            tracer="bomtrace2",
+            success=True,
+            steps=[
+                StepMetrics(
+                    name="build",
+                    phase="phase1",
+                    wall_sec=8.0,
+                ),
+            ],
+        )
 
         from app.pipeline.runners import main
         with patch(

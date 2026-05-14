@@ -7,15 +7,18 @@ relationship types per SPDX 2.3 Clause 11, Table 68.
 import pytest
 
 from app.spdx.relationships import (
-    BUILD_TOOL_OF,
     DEPENDS_ON,
-    is_build_tool,
     java_dep_relationship,
 )
 
 
 class TestJavaDepRelationship:
-    """SPDX 2.3 Table 68 scope → relationship mapping."""
+    """SPDX 2.3 Table 68 scope → relationship mapping.
+
+    All Maven/Gradle dependency tree entries are library
+    dependencies — relationship type is scope-based only.
+    Build tools are emitted separately by _add_build_tools().
+    """
 
     @pytest.mark.parametrize("scope", [
         "compile",
@@ -47,61 +50,20 @@ class TestJavaDepRelationship:
         """Unknown scopes default to DEPENDS_ON."""
         assert java_dep_relationship("custom") == DEPENDS_ON
 
-    def test_provided_is_not_build_tool_of(self):
-        """Maven 'provided' scope is DEPENDS_ON, not
-        BUILD_TOOL_OF.  'provided' means the dependency
-        is needed at compile/runtime but supplied by the
-        deployment environment — it is still a dependency,
-        not a build tool."""
-        result = java_dep_relationship("provided")
-        assert result == DEPENDS_ON
-        assert result != BUILD_TOOL_OF
+    def test_provided_is_depends_on(self):
+        """Maven 'provided' is always DEPENDS_ON — the dep
+        is needed at compile time but supplied by the
+        deployment environment."""
+        assert java_dep_relationship("provided") == DEPENDS_ON
 
+    def test_ant_dep_is_depends_on(self):
+        """A project that depends on ant as a library
+        (e.g. checkstyle) gets DEPENDS_ON, not
+        BUILD_TOOL_OF.  Build tools are emitted via
+        _add_build_tools(), not from the dependency tree."""
+        assert java_dep_relationship("compile") == DEPENDS_ON
 
-class TestIsBuildTool:
-    """Build tool classification by groupId or binary name."""
-
-    @pytest.mark.parametrize("group_id", [
-        "org.apache.maven",
-        "org.apache.maven.plugins",
-        "org.codehaus.mojo",
-        "org.gradle",
-    ])
-    def test_java_build_tool_group_ids(self, group_id):
-        """Known build system groupIds are build tools."""
-        assert is_build_tool(group_id=group_id) is True
-
-    @pytest.mark.parametrize("group_id", [
-        "org.apache.ant",
-        "com.google.guava",
-        "org.checkerframework",
-        "info.picocli",
-    ])
-    def test_library_group_ids_not_build_tools(
-        self, group_id,
-    ):
-        """Library dependencies are NOT build tools, even
-        if they are build systems in other contexts (e.g.
-        ant as a provided dep of checkstyle)."""
-        assert is_build_tool(group_id=group_id) is False
-
-    @pytest.mark.parametrize("binary", [
-        "gcc", "g++", "ld", "ar", "make", "cmake",
-        "go", "rustc", "cargo", "javac",
-    ])
-    def test_compiler_binaries_are_build_tools(
-        self, binary,
-    ):
-        """Compilers and linkers are build tools."""
-        assert is_build_tool(binary_name=binary) is True
-
-    @pytest.mark.parametrize("binary", [
-        "curl", "python3", "node", "java",
-    ])
-    def test_non_compiler_binaries(self, binary):
-        """Application binaries are not build tools."""
-        assert is_build_tool(binary_name=binary) is False
-
-    def test_no_args_returns_false(self):
-        """No arguments → not a build tool."""
-        assert is_build_tool() is False
+    def test_maven_lib_dep_is_depends_on(self):
+        """Even org.apache.maven dependencies in the tree
+        are library deps (DEPENDS_ON), not build tools."""
+        assert java_dep_relationship("compile") == DEPENDS_ON

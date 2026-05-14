@@ -1,0 +1,51 @@
+{
+  "steps": [
+    {
+      "name": "clean",
+      "phase": "phase1",
+      "wall_sec": 23.29,
+      "cpu_user_sec": 60.65,
+      "cpu_sys_sec": 2.52,
+      "cpu_count": 4,
+      "expected_parallelism": 1,
+      "load_avg_start": [
+        3.5,
+        2.09,
+        1.12
+      ],
+      "load_avg_end": [
+        3.8,
+        2.27,
+        1.21
+      ],
+      "contention": false,
+      "cpu_total_sec": 63.18,
+      "cpu_efficiency": 2.71,
+      "contention_severity": 0.0
+    },
+    {
+      "name": "build",
+      "phase": "phase1",
+      "wall_sec": 140.7,
+      "cpu_user_sec": 363.38,
+      "cpu_sys_sec": 9.27,
+      "cpu_count": 4,
+      "expected_parallelism": 4,
+      "load_avg_start": [
+        3.8,
+        2.27,
+        1.21
+      ],
+      "load_avg_end": [
+        2.51,
+        2.34,
+        1.39
+      ],
+      "contention": true,
+      "cpu_total_sec": 372.65,
+      "cpu_efficiency": 2.65,
+      "contention_severity": 5.4
+    }
+  ],
+  "run_ts": "2026-05-12_1543"
+}

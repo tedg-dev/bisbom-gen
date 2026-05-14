@@ -23,6 +23,7 @@ class AdgSpdxGenerator:
         bomtrace_version="unknown",
         bomsh_version="unknown",
         vendored_dirs=None,
+        vcs_uri="NOASSERTION",
     ):
         self.bom_dir = Path(bom_dir)
         self.repos_dir = Path(repos_dir)
@@ -30,6 +31,7 @@ class AdgSpdxGenerator:
         self.bomtrace_version = bomtrace_version
         self.bomsh_version = bomsh_version
         self.vendored_dirs = vendored_dirs
+        self.vcs_uri = vcs_uri
 
     def generate(
         self, output_path,
@@ -144,6 +146,7 @@ class AdgSpdxGenerator:
             binary_name=bin_name,
             vendored_dirs=self.vendored_dirs,
             repos_dir=self.repos_dir,
+            vcs_uri=self.vcs_uri,
         )
 
         doc = emitter.emit(

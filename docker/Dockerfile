@@ -1,7 +1,45 @@
-FROM ubuntu:22.04
+# ============================================================
+# Multi-stage Dockerfile for OmniBOR Analysis
+#
+# Targets:
+#   standalone — full image with toolchains + bomtrace (default)
+#   sidecar    — minimal image with analysis pipeline only
+#
+# Build:
+#   docker build --target standalone -t omnibor-env:standalone .
+#   docker build --target sidecar    -t omnibor-env:sidecar .
+# ============================================================
+
+# ============================================================
+# Stage: base — common OS, Python, utilities
+# ============================================================
+FROM ubuntu:22.04 AS base
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=UTC
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git \
+    wget \
+    curl \
+    ca-certificates \
+    patch \
+    python3 \
+    python3-pip \
+    && rm -rf /var/lib/apt/lists/*
+
+# Python runtime dependencies for app scripts
+COPY requirements.txt /tmp/requirements.txt
+RUN pip3 install --no-cache-dir -r /tmp/requirements.txt && \
+    rm /tmp/requirements.txt
+
+WORKDIR /workspace
+
+
+# ============================================================
+# Stage: standalone — full image with all toolchains + bomtrace
+# ============================================================
+FROM base AS standalone
 
 # ============================================================
 # Base build tools and libraries (C/C++)
@@ -23,12 +61,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     automake \
     libtool \
     pkg-config \
-    git \
-    wget \
-    curl \
-    ca-certificates \
-    python3 \
-    python3-pip \
     strace \
     # Utilities needed by bomsh scripts
     xxd \
@@ -66,18 +98,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     flex \
     bison \
     && rm -rf /var/lib/apt/lists/*
-
-# ============================================================
-# Python runtime dependencies for app scripts
-# ============================================================
-# WHY: analyze.py, compare.py, and add_repo.py all import pyyaml.
-# requirements.txt is the single source of truth for Python deps,
-# shared between local development (.venv) and this container.
-# If a new Python dependency is added, update requirements.txt —
-# do NOT add ad-hoc pip install commands here.
-COPY requirements.txt /tmp/requirements.txt
-RUN pip3 install --no-cache-dir -r /tmp/requirements.txt && \
-    rm /tmp/requirements.txt
 
 # ============================================================
 # Install Syft (manifest-based SBOM generation)
@@ -264,6 +284,75 @@ COPY docker/bomtrace_go.conf /opt/bomsh/bin/bomtrace_go.conf
 # ============================================================
 # Working directory — repos are mounted here
 # ============================================================
+WORKDIR /workspace
+
+CMD ["/bin/bash"]
+
+
+# ============================================================
+# Stage: sidecar — minimal analysis image (no toolchains)
+# ============================================================
+# Use this when the build happens in a separate CI container
+# and this image only runs dep:tree + SPDX generation.
+# No SYS_PTRACE capability required.
+# ============================================================
+FROM base AS sidecar
+
+ENV OMNIBOR_MODE=sidecar
+
+# Java JDK + Maven — required for Gradle/Maven dep:tree
+# (sidecar doesn't build, but needs JVM to resolve deps)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    openjdk-17-jdk \
+    openjdk-21-jdk \
+    maven \
+    && rm -rf /var/lib/apt/lists/*
+ENV JAVA_HOME="/usr/lib/jvm/java-21-openjdk-amd64"
+ENV MAVEN_VERSION=3.9.15
+RUN wget -q "https://dlcdn.apache.org/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz" -O /tmp/maven.tar.gz && \
+    tar -C /opt -xzf /tmp/maven.tar.gz && \
+    rm /tmp/maven.tar.gz
+RUN ln -sf /opt/apache-maven-${MAVEN_VERSION}/bin/mvn /usr/local/bin/mvn && \
+    ln -s /opt/apache-maven-${MAVEN_VERSION}/bin/mvn /usr/local/bin/mvn3.9 && \
+    ln -s /usr/share/maven/bin/mvn /usr/local/bin/mvn3.6
+# Unblock HTTP Maven repositories (same as standalone)
+RUN for settings in \
+        /opt/apache-maven-${MAVEN_VERSION}/conf/settings.xml \
+        /usr/share/maven/conf/settings.xml; do \
+      if [ -f "$settings" ]; then \
+        sed -i '/<mirror>/,/<\/mirror>/{/maven-default-http-blocker/,/<\/mirror>/d; /<mirror>/d}' "$settings"; \
+      fi; \
+    done
+ENV PATH="${JAVA_HOME}/bin:${PATH}"
+
+# Only need bomsh scripts (no bomtrace binaries)
+RUN git clone --depth 1 \
+    https://github.com/omnibor/bomsh.git \
+    /opt/bomsh
+
+# Patch bomsh_create_bom_java.py (same as standalone)
+COPY docker/patches/bomsh_java_sourcefile.patch \
+    /tmp/bomsh_java.patch
+RUN cd /opt/bomsh && \
+    patch -p1 < /tmp/bomsh_java.patch && \
+    rm /tmp/bomsh_java.patch
+
+# Fast Java class reader (same as standalone)
+COPY docker/patches/bomsh_java_fast_classreader.py \
+    /opt/bomsh/scripts/bomsh_java_fast_classreader.py
+COPY docker/patches/apply_fast_javap.py \
+    /tmp/apply_fast_javap.py
+RUN python3 /tmp/apply_fast_javap.py && \
+    rm /tmp/apply_fast_javap.py
+
+ENV PATH="/opt/bomsh/bin:/opt/bomsh/scripts:${PATH}"
+
+# ── Bake app code into image for standalone CI use ──
+# When pulled from GHCR, the image must be self-contained.
+# Local dev can still override via volume mounts.
+COPY app/ /workspace/app/
+COPY requirements.txt /workspace/requirements.txt
+
 WORKDIR /workspace
 
 CMD ["/bin/bash"]
