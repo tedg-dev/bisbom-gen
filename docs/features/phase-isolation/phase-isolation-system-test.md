@@ -2,11 +2,13 @@
 
 ## Architecture Overview
 
-[![Phase Isolation CI/CD Architecture](phase-isolation-ci-cd.png)](phase-isolation-ci-cd.drawio)
+<a href="phase-isolation-ci-cd.png"><img src="phase-isolation-ci-cd.png" width="600" alt="Phase Isolation CI/CD Architecture — click to enlarge"></a>
 
-> **Click to view full size.** Shows the two-job CI/CD architecture:
-> Job 1 (build + Phase 1) uploads artifacts → Job 2 (Phase 2) downloads
-> and generates SPDX. No shared filesystem between jobs.
+*Click image to enlarge. Source: [phase-isolation-ci-cd.drawio](phase-isolation-ci-cd.drawio)*
+
+Shows the two-job CI/CD architecture: Job 1 (build + Phase 1) uploads
+artifacts → Job 2 (Phase 2) downloads and generates SPDX. No shared
+filesystem between jobs.
 
 ## Purpose
 
@@ -42,7 +44,7 @@ All three patterns use the same CLI interface (`--phase build`,
 - **Unit tests**: `tests/test_phase_isolation.py` (13 tests)
 - **Golden files**: `tests/golden/spdx/<lang>/<repo>/`
 - **Comparison script**: `scripts/compare_golden.py`
-- **Drawio source**: `docs/features/phase-isolation-ci-cd.drawio`
+- **Drawio source**: `docs/features/phase-isolation/phase-isolation-ci-cd.drawio`
 
 ## How It Works
 
@@ -50,20 +52,29 @@ All three patterns use the same CLI interface (`--phase build`,
 
 ```bash
 docker compose run --rm -T omnibor-sidecar \
-  python3 app/analyze.py --repo <repo> --mode sidecar \
-  --phase build --skip-clone
+  bash -c "echo CONTAINER_ID=\$(hostname) && \
+    cd /workspace && python3 app/analyze.py \
+    --repo <repo> --mode sidecar --phase build \
+    --skip-clone"
 ```
 
 1. Builds the repo inside a fresh sidecar container
 2. Writes `phase1_manifest.json` to
    `output/omnibor/<lang>/<repo>/<ts>/`
 3. The manifest includes:
+   - `version` — manifest schema version (`"1.0"`)
+   - `repo_name` — repository name
+   - `language` — language string (e.g. `"java"`)
+   - `mode` — execution mode (`"sidecar"`)
+   - `tracer` — interception method used (e.g. `"maven-dep-tree"`)
    - `run_ts` — timestamp for consistent output directory naming
    - `commit_sha` — git commit of the target repo
    - `vcs_uri` — source repository URL
-   - `artifacts` — paths to build outputs + gitoid SHA-256 hashes
-   - `repo_cfg` — subset of `config.yaml` for Phase 2
-   - `omnibor_cfg` — OmniBOR tool configuration
+   - `artifacts` — paths to build outputs (`bom_dir`, `binaries`)
+   - `paths` — directory paths (`repos_dir`, `output_dir`, `spdx_dir`)
+   - `gitoids` — SHA-256 gitoid hashes for artifact integrity verification
+   - `repo_cfg` — subset of `config.yaml` for Phase 2 (optional)
+   - `omnibor_cfg` — OmniBOR tool configuration (optional)
 4. Prints `[OK] Phase 1 manifest: <path>` to stdout
 5. Container A exits and is removed (`--rm`)
 
@@ -91,9 +102,10 @@ Before starting Container B, the test:
 
 ```bash
 docker compose run --rm -T omnibor-sidecar \
-  bash -c "echo CONTAINER_ID=$(hostname) && \
-    python3 app/analyze.py --repo <repo> --mode sidecar \
-    --phase spdx --manifest <path> --skip-clone"
+  bash -c "echo CONTAINER_ID=\$(hostname) && \
+    cd /workspace && python3 app/analyze.py \
+    --repo <repo> --mode sidecar --phase spdx \
+    --manifest <path> --skip-clone"
 ```
 
 1. A **fresh, separate** sidecar container starts (hostname captured)
@@ -270,6 +282,10 @@ bash scripts/run_phase_isolation_test.sh jsoup
 bash scripts/run_phase_isolation_test.sh "jsoup checkstyle"
 ```
 
+> **Note**: The test script currently hardcodes `java` in golden file
+> and SPDX output paths. It only works for Java repos until the script
+> is generalized to detect language from the manifest or config.
+
 ## Unit Tests
 
 `tests/test_phase_isolation.py` contains 13 tests covering:
@@ -303,8 +319,9 @@ All test logs are preserved in `/tmp/phase_isolation_test/<repo>/`:
 
 ### Related Diagrams
 
-| Diagram | Description |
-|---------|-------------|
-| [![Two-Phase Sidecar Architecture](sidecar-two-phase-corona-p1.png)](sidecar-two-phase-corona.drawio) | **Two-Phase Sidecar Architecture** — General Phase 1/Phase 2 pipeline with per-language interception, artifact store, and provenance chain. ([drawio source](sidecar-two-phase-corona.drawio)) |
+<a href="sidecar-two-phase-corona-p1.png"><img src="sidecar-two-phase-corona-p1.png" width="600" alt="Two-Phase Sidecar Architecture — click to enlarge"></a>
 
-> **Click diagram to view full size.**
+*Click image to enlarge. Source: [sidecar-two-phase-corona.drawio](sidecar-two-phase-corona.drawio)*
+
+**Two-Phase Sidecar Architecture** — General Phase 1/Phase 2 pipeline
+with per-language interception, artifact store, and provenance chain.

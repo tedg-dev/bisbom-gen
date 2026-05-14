@@ -12,6 +12,14 @@
 
 ---
 
+## Architecture Diagram
+
+<a href="../architecture/c-cpp-sidecar-mode.png"><img src="../architecture/c-cpp-sidecar-mode.png" width="600" alt="C/C++ Sidecar Mode Architecture — click to enlarge"></a>
+
+*Click image to enlarge. Source: [c-cpp-sidecar-mode.drawio](../architecture/c-cpp-sidecar-mode.drawio)*
+
+---
+
 ## 1. Current State
 
 | Component | Status |

@@ -24,12 +24,11 @@ with full dependency breakdown:
 | **Docker 20.10+** | Running the analysis container (any OS — Linux, macOS, or Windows) |
 | **Git** | Version control |
 
-> **Important:** The analysis container runs as Linux x86_64 and requires
-> Docker with `SYS_PTRACE` capability. Docker Desktop on macOS or Windows
-> works — it provides a Linux VM transparently. Apple Silicon (ARM64) Macs
-> can run x86_64 containers via Rosetta, but ptrace results may be unreliable
-> under emulation. For production analysis, use a native x86_64 host (local,
-> cloud VM, or remote server). See [Platform Support](../architecture/platform-support.md).
+> **Important:** The analysis container runs as Linux x86_64. **Sidecar
+> mode** (the default) does not require `SYS_PTRACE` and works in
+> standard Docker and Kubernetes environments. **Standalone mode**
+> (legacy, for golden file generation) requires `SYS_PTRACE` capability.
+> See [Platform Support](../architecture/platform-support.md).
 
 ## Step 1: Clone and Open in Windsurf
 
@@ -207,10 +206,12 @@ omnibor-analysis/
 ├── tests/                  # Unit tests (874+ tests, 97%+ coverage)
 ├── docs/                   # Hand-written documentation
 │   ├── architecture/       # System diagrams and technical design
-│   ├── features/           # Feature documentation
+│   ├── features/           # Feature documentation (phase isolation, SBOMs)
 │   ├── guides/             # Onboarding, contributing, AWS setup
-│   ├── deep-dive/          # Research, performance, optimization
-│   └── issues/             # Upstream bug tracking
+│   ├── deep-dive/          # Sidecar design docs (per-language)
+│   ├── testing/            # Golden file regression testing
+│   ├── issues/             # Upstream bug tracking
+│   └── _archived/          # Historical documents (not current)
 ├── .windsurf/              # Cascade AI configuration
 │   ├── rules/              # Project rules (always loaded)
 │   └── workflows/          # Slash commands (/add-repo, etc.)
@@ -240,7 +241,8 @@ omnibor-analysis/
 
 - [AWS Greenfield Setup Guide](aws-setup-guide.md) — **New AWS environment from scratch (Cisco Duo SSO + Terraform)**
 - [AWS Existing Environment Guide](aws-existing-environment-guide.md) — **Add OmniBOR build host to existing AWS infrastructure**
-- [SPDX Generation Deep Dive](../deep-dive/spdx-generation-deep-dive.md) — Full technical pipeline documentation
-- [Workflow Guide](../deep-dive/workflow-guide.md) — Detailed workflow descriptions
-- [Vendored Directory Detection](../deep-dive/nmap-target-vendored-dirs.md) — Vendored directory detection explained
+- [Technical Overview](../architecture/technical-overview.md) — High-level system overview
+- [Workflow Guide](workflow-guide.md) — Detailed workflow descriptions
+- [Golden File Testing](../testing/golden-file-testing.md) — Regression testing framework
+- [SPDX FAQ](spdx-faq.md) — Common questions about SPDX output
 - [Architecture README](../architecture/README.md) — System diagrams and technical overview

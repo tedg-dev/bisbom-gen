@@ -20,6 +20,7 @@ spec and the code that implements the behavior.
    - [Why does the analyzed SBOM for Java have only 1 package?](#22-why-does-the-analyzed-sbom-for-java-have-only-1-package)
    - [Why is GCC missing from the analyzed SBOM?](#23-why-is-gcc-missing-from-the-analyzed-sbom)
    - [Why are dynamic libraries missing from the analyzed SBOM?](#24-why-are-dynamic-libraries-missing-from-the-analyzed-sbom)
+   - [What does `filesAnalyzed` mean?](#25-what-does-filesanalyzed-mean)
 3. [Versions](#3-versions)
    - [Why does a package show no version (versionInfo missing)?](#31-why-does-a-package-show-no-version-versioninfo-missing)
    - [Why does the root package version differ from what I expect?](#32-why-does-the-root-package-version-differ-from-what-i-expect)
@@ -174,6 +175,28 @@ loaded at runtime by the dynamic linker, not compiled into the binary.
 The analyzed SBOM includes only statically linked (embedded) components.
 Dynamic libraries appear in the build SBOM with `DYNAMIC_LINK`
 relationships.
+
+### 2.5 What does `filesAnalyzed` mean?
+
+Per SPDX 2.3 §7.8, `filesAnalyzed` indicates whether the files within
+a package were actually analyzed and enumerated in the SPDX document:
+
+- **`true`** — we inspected the package contents and the `files`
+  section lists what we found
+- **`false`** — we know the package exists but did NOT inspect its
+  contents
+
+| Package | `filesAnalyzed` | Why |
+|---------|----------------|-----|
+| Root JAR (e.g., jsoup) | `true` | bomsh traced JAR→class→source provenance |
+| Dependency (e.g., jspecify) | `false` | Discovered via `mvn dependency:tree` — never opened |
+
+Setting `filesAnalyzed: true` on a dependency whose contents were
+never inspected would be a **spec violation**.
+
+This is the norm across SPDX tooling (Syft, Trivy, CycloneDX): `true`
+for packages you built (source provenance), `false` for packages you
+consumed (declared dependencies).
 
 ---
 
@@ -365,7 +388,6 @@ Edge styles indicate relationship types:
 
 - [Analyzed vs. Build SBOMs](../features/analyzed-vs-build-sboms.md) — full two-file design
 - [Version Detection](../features/vendored-version-detection.md) — 12 vendored strategies + root version
-- [SPDX Generation Deep Dive](../deep-dive/spdx-generation-deep-dive.md) — pipeline internals
 - [SPDX 2.3 Relationship Types](https://spdx.github.io/spdx-spec/v2.3/relationships-between-SPDX-elements/) — official spec
 
 ---

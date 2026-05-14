@@ -2,38 +2,54 @@
 
 ## 1. How OmniBOR Works (Build Interception)
 
-OmniBOR intercepts compiler/linker invocations during build to create an **Artifact Dependency Graph (ADG)** — a cryptographic record of every input→output relationship.
+OmniBOR intercepts compiler/linker invocations during build to create
+an **Artifact Dependency Graph (ADG)** — a cryptographic record of
+every input→output relationship.
 
-| Language | Tracer | Mechanism | What's Captured |
-|----------|--------|-----------|-----------------|
-| **C/C++** | `bomtrace3` | Patched strace v6.11; intercepts `execve()` for gcc/g++/ld | Every `.c`/`.h` → `.o` → binary relationship |
-| **Rust** | `bomtrace2` | ptrace wrapper around `cargo build --release` | Crate compilation, `rustc` invocations, static linking |
-| **Go** | `bomtrace2` + `bomtrace_go.conf` | Intercepts `go build -a` with openat syscall tracing | Module compilation, stdlib inclusion |
-| **Java** | `bomsh_create_bom_java.py` | strace + JAR inspection via `javap` | `.java` → `.class` → JAR packaging, Maven dependencies |
+The project supports two execution modes:
 
-**Output:** `bomsh_omnibor_treedb` — a JSON database mapping gitoid hashes (SHA-1 of file contents) to their build relationships.
+| Mode | Mechanism | Requires `SYS_PTRACE` | Primary Use |
+|------|-----------|:---------------------:|-------------|
+| **Sidecar** (baseline) | Language-specific strategies (dep:tree, `-toolexec`, `RUSTC_WRAPPER`, `CC=` wrapper) | No | Enterprise CI/CD |
+| **Standalone** (legacy) | `bomtrace3`/`bomtrace2` ptrace-based tracing | Yes | Golden file generation, isolated builds |
+
+### Sidecar Mode — Per-Language Strategies
+
+| Language | Strategy | What's Captured |
+|----------|----------|-----------------|
+| **Java** | `MavenDepTreeStrategy` / `GradleDepTreeStrategy` | Maven/Gradle dependency graph, `.java` → `.class` → JAR |
+| **C/C++** | `CC=` compiler wrapper (planned) | Every `.c`/`.h` → `.o` → binary relationship |
+| **Go** | `-toolexec` wrapper (planned) | Module compilation, stdlib inclusion |
+| **Rust** | `RUSTC_WRAPPER` (planned) | Crate compilation, `rustc` invocations |
+
+For standalone mode details, see [Standalone Mode](standalone-mode.md).
 
 ---
 
 ## 2. omnibor-analysis Integration
 
-**omnibor-analysis** wraps OmniBOR/bomsh tools into a reproducible pipeline:
+**omnibor-analysis** wraps OmniBOR/bomsh tools into a reproducible
+two-phase pipeline:
 
-```
-Clone → Validate deps → bomtrace build → ADG → SPDX → Validate → Visualize
-```
+- **Phase 1 (Build Interception)** — runs in the customer's build
+  environment, produces build artifacts + `phase1_manifest.json`
+- **Phase 2 (SPDX Generation)** — runs in a separate environment,
+  reads the manifest, generates SPDX SBOMs
 
 | Component | Source | Role |
 |-----------|--------|------|
-| `bomtrace3/bomtrace2` | omnibor/bomsh | Build interception (ptrace-based) |
-| `bomsh_create_bom.py` | omnibor/bomsh | Raw log → ADG treedb |
-| `bomsh_sbom.py` | omnibor/bomsh | ADG → basic OmniBOR SPDX |
-| `app/spdx/generator.py` | omnibor-analysis | ADG → enriched per-binary SPDX with dpkg metadata |
-| `app/spdx/java_generator.py` | omnibor-analysis | Java: ADG + `mvn dependency:tree` → SPDX |
-| `app/version_detection/` | omnibor-analysis | Root version from config tags + 12 vendored detection strategies |
+| `app/pipeline/facade.py` | omnibor-analysis | Pipeline orchestration |
+| `app/pipeline/manifest.py` | omnibor-analysis | Phase 1/2 manifest + gitoid verification |
+| `app/spdx/generator.py` | omnibor-analysis | ADG → enriched per-binary SPDX |
+| `app/spdx/java_generator.py` | omnibor-analysis | Java: dep:tree → SPDX |
+| `app/version_detection/` | omnibor-analysis | Root version + 12 vendored detection strategies |
 | `app/spdx_visualize.py` | omnibor-analysis | SPDX → interactive D3.js HTML |
 
-**Environment:** Docker container on AWS EC2 (Ubuntu 22.04 x86_64) with `SYS_PTRACE` capability.
+**Environment:** Docker container (Ubuntu 22.04 x86_64). Sidecar mode
+does not require `SYS_PTRACE`.
+
+For the full phase isolation architecture, see
+[Sidecar Phase Isolation Infrastructure](../features/phase-isolation/sidecar-phase-isolation-infrastructure.md).
 
 ---
 

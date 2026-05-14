@@ -28,10 +28,12 @@ These diagrams show how OmniBOR/bomsh intercepts the build process for each supp
 
 | Document | Description |
 |----------|-------------|
+| [Technical Overview](technical-overview.md) | High-level system overview for stakeholders |
 | [App Architecture](app-architecture.md) | Pipeline structure, module dependencies, data flow |
+| [Standalone Mode](standalone-mode.md) | Legacy ptrace-based mode (golden files, isolated builds) |
+| [Platform Support](platform-support.md) | Supported OSes, architectures, container requirements |
 | [Analyzed vs Build SBOMs](../features/analyzed-vs-build-sboms.md) | CISA SBOM types and two-file approach rationale |
-| [Technical Overview](omnibor-analysis-technical-overview.md) | High-level system overview for stakeholders |
-| [OmniBOR Analysis Overview](omnibor-analysis-overview.md) | Detailed project methodology |
+| [Phase Isolation](../features/phase-isolation/sidecar-phase-isolation-infrastructure.md) | Sidecar two-phase architecture (baseline) |
 
 ## Diagram Sources
 
