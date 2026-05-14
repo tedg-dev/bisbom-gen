@@ -439,7 +439,7 @@ class TestAnnotateHtml:
         content = html_path.read_text()
         assert "cve-indicator" in content
         assert "cve-tooltip" in content
-        assert "CVE found" in content
+        assert "CVE count" in content
 
     def test_annotate_html_missing_files(self, tmp_path):
         result = GrypeScanner.annotate_html(
@@ -476,7 +476,7 @@ class TestGenerateHtmlWithCves:
         out = tmp_path / "out.html"
         generate_html(doc, str(out))
         content = out.read_text()
-        assert "CVE found (0 pkgs)" in content
+        assert "CVE count (0 pkgs)" in content
 
     def test_html_with_grype(self, tmp_path):
         from app.spdx_visualize import generate_html
@@ -516,20 +516,30 @@ class TestGenerateHtmlWithCves:
             grype_data=SAMPLE_GRYPE_OUTPUT,
         )
         content = out.read_text()
-        assert "CVE found (1 pkg)" in content
+        assert "CVE count (1 pkg)" in content
         assert "CVE-2023-1234" in content
 
 
 class TestFacadeIntegration:
     """Verify GrypeScanner is wired into the facade."""
 
-    def test_facade_has_grype_scanner(self):
+    @patch(
+        "app.spdx.package_resolver"
+        ".auto_detect_resolver",
+        return_value=MagicMock(),
+    )
+    def test_facade_has_grype_scanner(self, _mock):
         from app.pipeline.facade import AnalysisPipeline
         p = AnalysisPipeline()
         assert hasattr(p, "grype_scanner")
         assert isinstance(p.grype_scanner, GrypeScanner)
 
-    def test_facade_accepts_custom_scanner(self):
+    @patch(
+        "app.spdx.package_resolver"
+        ".auto_detect_resolver",
+        return_value=MagicMock(),
+    )
+    def test_facade_accepts_custom_scanner(self, _mock):
         from app.pipeline.facade import AnalysisPipeline
         mock_scanner = MagicMock()
         p = AnalysisPipeline(grype_scanner=mock_scanner)
