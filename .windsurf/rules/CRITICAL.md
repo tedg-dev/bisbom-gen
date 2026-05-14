@@ -66,10 +66,10 @@ Violating any rule marked NEVER is a critical failure.
   Every OS (Ubuntu, RHEL, Alpine), every mode (standalone, sidecar),
   every environment (EC2, local, CI) must be compared against the
   **same** golden files. There are NO per-OS or per-mode golden files.
-- [ ] **Standalone mode is the AUTHORITATIVE baseline.** Golden files
-  MUST be generated from standalone mode (strace/ptrace on Ubuntu).
-  All other variants (sidecar, RHEL, Alpine) are compared against
-  standalone-generated golden files to verify structural equivalence.
+- [ ] **Sidecar mode is the AUTHORITATIVE baseline.** Golden files
+  MUST be generated from sidecar mode (Phase 1 + Phase 2 on Ubuntu).
+  All other variants (standalone, RHEL, Alpine) are compared against
+  sidecar-generated golden files to verify structural equivalence.
 - [ ] **ALWAYS** compare SPDX output against golden files after every
   successful run, regardless of OS or mode.
 - [ ] **NEVER** update golden files without explicit user approval.

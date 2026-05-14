@@ -6,6 +6,25 @@ import sys
 from pathlib import Path
 
 
+def _normalize_ref(ref):
+    """Normalize an external ref for comparison.
+
+    gitoid refs for compiled binaries change every build
+    (binaries are not reproducible).  Normalize the hash
+    portion so structural comparison ignores per-build
+    gitoid variance.
+    """
+    loc = ref.get("referenceLocator", "")
+    if loc.startswith("gitoid:"):
+        # gitoid:blob:sha1:<hash> -> gitoid:blob:sha1:NORMALIZED
+        parts = loc.split(":")
+        if len(parts) >= 4:
+            parts[-1] = "NORMALIZED"
+            ref = dict(ref)
+            ref["referenceLocator"] = ":".join(parts)
+    return ref
+
+
 def rel_counts(rels):
     c = {}
     for r in rels:
@@ -111,15 +130,21 @@ def compare(golden_path, new_path):
             diffs.append(f"    ... and {n - 20} more")
 
     # External references — matched by SPDXID
+    # Normalize gitoid refs (compiled binary hashes
+    # change every build — not reproducible).
     for sid in sorted(set(g_by_id) & set(n_by_id)):
         g_refs = sorted(
-            json.dumps(r, sort_keys=True)
+            json.dumps(
+                _normalize_ref(r), sort_keys=True
+            )
             for r in g_by_id[sid].get(
                 "externalRefs", []
             )
         )
         n_refs = sorted(
-            json.dumps(r, sort_keys=True)
+            json.dumps(
+                _normalize_ref(r), sort_keys=True
+            )
             for r in n_by_id[sid].get(
                 "externalRefs", []
             )
