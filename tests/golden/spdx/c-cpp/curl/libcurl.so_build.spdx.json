@@ -3,9 +3,9 @@
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
   "name": "libcurl.so",
-  "documentNamespace": "https://omnibor.io/omnibor-analysis/libcurl.so-5b8db59c-96e6-4824-84f1-cbca6c662f62",
+  "documentNamespace": "https://omnibor.io/omnibor-analysis/libcurl.so-6f95886b-0862-4bb7-9f70-1636d130f2fd",
   "creationInfo": {
-    "created": "2026-04-02T21:39:27Z",
+    "created": "2026-05-14T17:47:23Z",
     "creators": [
       "Tool: bomtrace3-unknown",
       "Tool: bomsh-unknown",
@@ -17,10 +17,10 @@
     {
       "SPDXID": "SPDXRef-Package-root",
       "name": "libcurl.so",
-      "downloadLocation": "NOASSERTION",
+      "downloadLocation": "https://github.com/curl/curl/commit/8c908d2d0a6d32abdedda2c52e90bd56ec76c24d",
       "filesAnalyzed": true,
       "primaryPackagePurpose": "LIBRARY",
-      "builtDate": "2026-04-02T21:39:27Z",
+      "builtDate": "2026-05-14T17:47:23Z",
       "externalRefs": [],
       "checksums": [],
       "comment": "Built on Ubuntu 22.04.5 LTS with gcc (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0",
@@ -204,7 +204,7 @@
         {
           "referenceCategory": "PACKAGE-MANAGER",
           "referenceType": "purl",
-          "referenceLocator": "pkg:deb/ubuntu/libnghttp2-14@1.43.0-1ubuntu0.2?arch=amd64&distro=ubuntu-22.04"
+          "referenceLocator": "pkg:deb/ubuntu/libnghttp2-14@1.43.0-1ubuntu0.3?arch=amd64&distro=ubuntu-22.04"
         },
         {
           "referenceCategory": "SECURITY",
@@ -213,7 +213,7 @@
         }
       ],
       "comment": "Dynamically linked (direct). sonames: libnghttp2.so.14. dpkg: libnghttp2-14 (amd64)",
-      "versionInfo": "1.43.0-1ubuntu0.2",
+      "versionInfo": "1.43.0-1ubuntu0.3",
       "supplier": "Organization: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>",
       "homepage": "https://nghttp2.org/",
       "packageSourceInfo": "Installed via dpkg package libnghttp2-14 on Ubuntu 22.04.5 LTS."
@@ -228,7 +228,7 @@
         {
           "referenceCategory": "PACKAGE-MANAGER",
           "referenceType": "purl",
-          "referenceLocator": "pkg:deb/ubuntu/libssl3@3.0.2-0ubuntu1.21?arch=amd64&distro=ubuntu-22.04"
+          "referenceLocator": "pkg:deb/ubuntu/libssl3@3.0.2-0ubuntu1.23?arch=amd64&distro=ubuntu-22.04"
         },
         {
           "referenceCategory": "SECURITY",
@@ -237,7 +237,7 @@
         }
       ],
       "comment": "Dynamically linked (direct). sonames: libcrypto.so.3, libssl.so.3. dpkg: libssl3 (amd64)",
-      "versionInfo": "3.0.2-0ubuntu1.21",
+      "versionInfo": "3.0.2-0ubuntu1.23",
       "supplier": "Organization: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>",
       "homepage": "https://www.openssl.org/",
       "packageSourceInfo": "Installed via dpkg package libssl3 on Ubuntu 22.04.5 LTS."
@@ -298,7 +298,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-cf-socket.h-13",
-      "fileName": "repos/curl/lib/cf-socket.h",
+      "fileName": "repos/curl/lib/../lib/cf-socket.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -328,7 +328,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-inet-pton.h-16",
-      "fileName": "repos/curl/lib/curlx/inet_pton.h",
+      "fileName": "repos/curl/lib/../lib/curlx/inet_pton.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -338,7 +338,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-multiif.h-17",
-      "fileName": "repos/curl/lib/multiif.h",
+      "fileName": "repos/curl/lib/../lib/multiif.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -358,7 +358,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-curl-md5.h-19",
-      "fileName": "repos/curl/lib/curl_md5.h",
+      "fileName": "repos/curl/lib/../lib/curl_md5.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -378,7 +378,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-transfer.h-21",
-      "fileName": "repos/curl/lib/transfer.h",
+      "fileName": "repos/curl/lib/../lib/transfer.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -398,7 +398,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-multi-ntfy.h-23",
-      "fileName": "repos/curl/lib/multi_ntfy.h",
+      "fileName": "repos/curl/lib/../lib/multi_ntfy.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -428,7 +428,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-netrc.h-26",
-      "fileName": "repos/curl/lib/netrc.h",
+      "fileName": "repos/curl/lib/../lib/netrc.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -458,7 +458,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-connect.h-29",
-      "fileName": "repos/curl/lib/connect.h",
+      "fileName": "repos/curl/lib/../lib/connect.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -478,7 +478,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-llist.h-31",
-      "fileName": "repos/curl/lib/llist.h",
+      "fileName": "repos/curl/lib/../lib/llist.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -538,7 +538,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-strdup.h-37",
-      "fileName": "repos/curl/lib/curlx/strdup.h",
+      "fileName": "repos/curl/lib/../lib/curlx/strdup.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -558,7 +558,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-curl-threads.h-39",
-      "fileName": "repos/curl/lib/curl_threads.h",
+      "fileName": "repos/curl/lib/../lib/curl_threads.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -668,7 +668,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-curl-ctype.h-50",
-      "fileName": "repos/curl/lib/curl_ctype.h",
+      "fileName": "repos/curl/lib/../lib/curl_ctype.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -718,7 +718,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-ssh.h-55",
-      "fileName": "repos/curl/lib/vssh/ssh.h",
+      "fileName": "repos/curl/lib/../lib/vssh/ssh.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -818,7 +818,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-ftp.h-65",
-      "fileName": "repos/curl/lib/ftp.h",
+      "fileName": "repos/curl/lib/../lib/ftp.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -888,7 +888,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-curl-memrchr.h-72",
-      "fileName": "repos/curl/lib/curl_memrchr.h",
+      "fileName": "repos/curl/lib/../lib/curl_memrchr.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -908,7 +908,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-hash.h-74",
-      "fileName": "repos/curl/lib/hash.h",
+      "fileName": "repos/curl/lib/../lib/hash.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -978,7 +978,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-socketpair.h-81",
-      "fileName": "repos/curl/lib/socketpair.h",
+      "fileName": "repos/curl/lib/../lib/socketpair.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -988,7 +988,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-sockaddr.h-82",
-      "fileName": "repos/curl/lib/sockaddr.h",
+      "fileName": "repos/curl/lib/../lib/sockaddr.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1048,7 +1048,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-base64.h-88",
-      "fileName": "repos/curl/lib/curlx/base64.h",
+      "fileName": "repos/curl/lib/../lib/curlx/base64.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1128,7 +1128,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-pingpong.h-96",
-      "fileName": "repos/curl/lib/pingpong.h",
+      "fileName": "repos/curl/lib/../lib/pingpong.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1138,7 +1138,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-formdata.h-97",
-      "fileName": "repos/curl/lib/formdata.h",
+      "fileName": "repos/curl/lib/../lib/formdata.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1218,7 +1218,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-uint-table.h-105",
-      "fileName": "repos/curl/lib/uint-table.h",
+      "fileName": "repos/curl/lib/../lib/uint-table.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1248,7 +1248,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-curl-printf.h-108",
-      "fileName": "repos/curl/lib/curl_printf.h",
+      "fileName": "repos/curl/lib/../lib/curl_printf.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1278,7 +1278,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-warnless.h-111",
-      "fileName": "repos/curl/lib/curlx/warnless.h",
+      "fileName": "repos/curl/lib/../lib/curlx/warnless.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1288,7 +1288,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-vauth.h-112",
-      "fileName": "repos/curl/lib/vauth/vauth.h",
+      "fileName": "repos/curl/lib/../lib/vauth/vauth.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1408,7 +1408,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-strerr.h-124",
-      "fileName": "repos/curl/lib/curlx/strerr.h",
+      "fileName": "repos/curl/lib/../lib/curlx/strerr.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1458,7 +1458,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-slist.h-129",
-      "fileName": "repos/curl/lib/slist.h",
+      "fileName": "repos/curl/lib/../lib/slist.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1488,7 +1488,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-vssh.h-132",
-      "fileName": "repos/curl/lib/vssh/vssh.h",
+      "fileName": "repos/curl/lib/../lib/vssh/vssh.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1528,7 +1528,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-uint-spbset.h-136",
-      "fileName": "repos/curl/lib/uint-spbset.h",
+      "fileName": "repos/curl/lib/../lib/uint-spbset.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1608,7 +1608,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-curl-setup.h-144",
-      "fileName": "repos/curl/lib/curl_setup.h",
+      "fileName": "repos/curl/lib/../lib/curl_setup.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1648,7 +1648,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-strparse.h-148",
-      "fileName": "repos/curl/lib/curlx/strparse.h",
+      "fileName": "repos/curl/lib/../lib/curlx/strparse.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1678,7 +1678,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-vquic.h-151",
-      "fileName": "repos/curl/lib/vquic/vquic.h",
+      "fileName": "repos/curl/lib/../lib/vquic/vquic.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1688,7 +1688,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-request.h-152",
-      "fileName": "repos/curl/lib/request.h",
+      "fileName": "repos/curl/lib/../lib/request.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1708,7 +1708,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-strcase.h-154",
-      "fileName": "repos/curl/lib/strcase.h",
+      "fileName": "repos/curl/lib/../lib/strcase.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1808,7 +1808,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-urldata.h-164",
-      "fileName": "repos/curl/lib/urldata.h",
+      "fileName": "repos/curl/lib/../lib/urldata.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1858,7 +1858,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-bufref.h-169",
-      "fileName": "repos/curl/lib/bufref.h",
+      "fileName": "repos/curl/lib/../lib/bufref.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1868,7 +1868,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-ftplistparser.h-170",
-      "fileName": "repos/curl/lib/ftplistparser.h",
+      "fileName": "repos/curl/lib/../lib/ftplistparser.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1888,7 +1888,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-curl-share.h-172",
-      "fileName": "repos/curl/lib/curl_share.h",
+      "fileName": "repos/curl/lib/../lib/curl_share.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -2108,7 +2108,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-mqtt.h-194",
-      "fileName": "repos/curl/lib/mqtt.h",
+      "fileName": "repos/curl/lib/../lib/mqtt.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -2118,7 +2118,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-asyn.h-195",
-      "fileName": "repos/curl/lib/asyn.h",
+      "fileName": "repos/curl/lib/../lib/asyn.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -2198,7 +2198,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-hostip.h-203",
-      "fileName": "repos/curl/lib/hostip.h",
+      "fileName": "repos/curl/lib/../lib/hostip.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -2248,7 +2248,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-dynbuf.h-208",
-      "fileName": "repos/curl/lib/curlx/dynbuf.h",
+      "fileName": "repos/curl/lib/../lib/curlx/dynbuf.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -2348,7 +2348,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-uint-bset.h-218",
-      "fileName": "repos/curl/lib/uint-bset.h",
+      "fileName": "repos/curl/lib/../lib/uint-bset.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -2378,7 +2378,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-ratelimit.h-221",
-      "fileName": "repos/curl/lib/ratelimit.h",
+      "fileName": "repos/curl/lib/../lib/ratelimit.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -2418,7 +2418,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-sendf.h-225",
-      "fileName": "repos/curl/lib/sendf.h",
+      "fileName": "repos/curl/lib/../lib/sendf.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -2448,7 +2448,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-curl-config.h-228",
-      "fileName": "repos/curl/lib/curl_config.h",
+      "fileName": "repos/curl/lib/../lib/curl_config.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -2498,7 +2498,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-multihandle.h-233",
-      "fileName": "repos/curl/lib/multihandle.h",
+      "fileName": "repos/curl/lib/../lib/multihandle.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -2708,7 +2708,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-rand.h-254",
-      "fileName": "repos/curl/lib/rand.h",
+      "fileName": "repos/curl/lib/../lib/rand.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -2728,7 +2728,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-functypes.h-256",
-      "fileName": "repos/curl/lib/functypes.h",
+      "fileName": "repos/curl/lib/../lib/functypes.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -2788,7 +2788,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-bufq.h-262",
-      "fileName": "repos/curl/lib/bufq.h",
+      "fileName": "repos/curl/lib/../lib/bufq.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -2808,7 +2808,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-httpsrr.h-264",
-      "fileName": "repos/curl/lib/httpsrr.h",
+      "fileName": "repos/curl/lib/../lib/httpsrr.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -2818,7 +2818,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-cshutdn.h-265",
-      "fileName": "repos/curl/lib/cshutdn.h",
+      "fileName": "repos/curl/lib/../lib/cshutdn.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -2958,7 +2958,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-psl.h-279",
-      "fileName": "repos/curl/lib/psl.h",
+      "fileName": "repos/curl/lib/../lib/psl.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -2998,7 +2998,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-wait.h-283",
-      "fileName": "repos/curl/lib/curlx/wait.h",
+      "fileName": "repos/curl/lib/../lib/curlx/wait.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -3038,7 +3038,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-progress.h-287",
-      "fileName": "repos/curl/lib/progress.h",
+      "fileName": "repos/curl/lib/../lib/progress.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -3058,7 +3058,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-escape.h-289",
-      "fileName": "repos/curl/lib/escape.h",
+      "fileName": "repos/curl/lib/../lib/escape.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -3178,7 +3178,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-curl-trc.h-301",
-      "fileName": "repos/curl/lib/curl_trc.h",
+      "fileName": "repos/curl/lib/../lib/curl_trc.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -3418,7 +3418,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-vtls.h-325",
-      "fileName": "repos/curl/lib/vtls/vtls.h",
+      "fileName": "repos/curl/lib/../lib/vtls/vtls.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -3438,7 +3438,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-vtls-scache.h-327",
-      "fileName": "repos/curl/lib/vtls/vtls_scache.h",
+      "fileName": "repos/curl/lib/../lib/vtls/vtls_scache.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -3448,7 +3448,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-curl-hmac.h-328",
-      "fileName": "repos/curl/lib/curl_hmac.h",
+      "fileName": "repos/curl/lib/../lib/curl_hmac.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -3478,7 +3478,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-http.h-331",
-      "fileName": "repos/curl/lib/http.h",
+      "fileName": "repos/curl/lib/../lib/http.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -3498,7 +3498,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-curl-sha256.h-333",
-      "fileName": "repos/curl/lib/curl_sha256.h",
+      "fileName": "repos/curl/lib/../lib/curl_sha256.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -3548,7 +3548,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-timeval.h-338",
-      "fileName": "repos/curl/lib/curlx/timeval.h",
+      "fileName": "repos/curl/lib/../lib/curlx/timeval.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -3628,7 +3628,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-setopt.h-346",
-      "fileName": "repos/curl/lib/setopt.h",
+      "fileName": "repos/curl/lib/../lib/setopt.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -3648,7 +3648,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-url.h-348",
-      "fileName": "repos/curl/lib/url.h",
+      "fileName": "repos/curl/lib/../lib/url.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -3668,7 +3668,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-splay.h-350",
-      "fileName": "repos/curl/lib/splay.h",
+      "fileName": "repos/curl/lib/../lib/splay.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -3708,7 +3708,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-cfilters.h-354",
-      "fileName": "repos/curl/lib/cfilters.h",
+      "fileName": "repos/curl/lib/../lib/cfilters.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -3878,7 +3878,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-winapi.h-371",
-      "fileName": "repos/curl/lib/curlx/winapi.h",
+      "fileName": "repos/curl/lib/../lib/curlx/winapi.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -3888,7 +3888,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-smb.h-372",
-      "fileName": "repos/curl/lib/smb.h",
+      "fileName": "repos/curl/lib/../lib/smb.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -3928,7 +3928,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-snprintf.h-376",
-      "fileName": "repos/curl/lib/curlx/snprintf.h",
+      "fileName": "repos/curl/lib/../lib/curlx/snprintf.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -3938,7 +3938,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-strcopy.h-377",
-      "fileName": "repos/curl/lib/curlx/strcopy.h",
+      "fileName": "repos/curl/lib/../lib/curlx/strcopy.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -3968,7 +3968,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-conncache.h-380",
-      "fileName": "repos/curl/lib/conncache.h",
+      "fileName": "repos/curl/lib/../lib/conncache.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -3998,7 +3998,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-fopen.h-383",
-      "fileName": "repos/curl/lib/curlx/fopen.h",
+      "fileName": "repos/curl/lib/../lib/curlx/fopen.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -4038,7 +4038,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-http-chunks.h-387",
-      "fileName": "repos/curl/lib/http_chunks.h",
+      "fileName": "repos/curl/lib/../lib/http_chunks.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -4118,7 +4118,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-curl-sha512-256.h-395",
-      "fileName": "repos/curl/lib/curl_sha512_256.h",
+      "fileName": "repos/curl/lib/../lib/curl_sha512_256.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -4128,7 +4128,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-multi-ev.h-396",
-      "fileName": "repos/curl/lib/multi_ev.h",
+      "fileName": "repos/curl/lib/../lib/multi_ev.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -4268,7 +4268,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-dynhds.h-410",
-      "fileName": "repos/curl/lib/dynhds.h",
+      "fileName": "repos/curl/lib/../lib/dynhds.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -4338,7 +4338,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-mime.h-417",
-      "fileName": "repos/curl/lib/mime.h",
+      "fileName": "repos/curl/lib/../lib/mime.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -4358,7 +4358,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-parsedate.h-419",
-      "fileName": "repos/curl/lib/parsedate.h",
+      "fileName": "repos/curl/lib/../lib/parsedate.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -4418,7 +4418,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-nonblock.h-425",
-      "fileName": "repos/curl/lib/curlx/nonblock.h",
+      "fileName": "repos/curl/lib/../lib/curlx/nonblock.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -4488,7 +4488,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-curl-addrinfo.h-432",
-      "fileName": "repos/curl/lib/curl_addrinfo.h",
+      "fileName": "repos/curl/lib/../lib/curl_addrinfo.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -4588,7 +4588,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-curl-ntlm-core.h-442",
-      "fileName": "repos/curl/lib/curl_ntlm_core.h",
+      "fileName": "repos/curl/lib/../lib/curl_ntlm_core.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -4598,7 +4598,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-curl-endian.h-443",
-      "fileName": "repos/curl/lib/curl_endian.h",
+      "fileName": "repos/curl/lib/../lib/curl_endian.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -4608,7 +4608,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-cookie.h-444",
-      "fileName": "repos/curl/lib/cookie.h",
+      "fileName": "repos/curl/lib/../lib/cookie.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -4668,7 +4668,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-select.h-450",
-      "fileName": "repos/curl/lib/select.h",
+      "fileName": "repos/curl/lib/../lib/select.h",
       "checksums": [
         {
           "algorithm": "SHA1",
