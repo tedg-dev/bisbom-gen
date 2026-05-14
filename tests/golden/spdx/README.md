@@ -6,10 +6,10 @@ successful analysis run MUST be compared against these files.
 
 ## Policy
 
-- Golden files are generated from **standalone mode** (strace/ptrace on
-  Ubuntu) — the authoritative baseline
-- All variants (sidecar, RHEL, Alpine) are compared against the same
-  golden files
+- Golden file updates/replacements are generated from **sidecar mode**
+  (Phase 1 + Phase 2 on Ubuntu) — the authoritative baseline
+- All other variants (standalone mode, other OSes) are compared
+  against the same golden files
 - Golden files are **never** updated without explicit user approval
 - Every update MUST include a changelog entry below
 
