@@ -1,7 +1,9 @@
 # Sidecar & Phase Isolation — Shared Infrastructure
 
-> **Status**: Design proposal — not yet implemented
-> **Date**: 2026-06-12
+> **Status**: Partially implemented — Phase I (manifest, CLI, Java phase split) complete and validated in CI/CD
+> 
+> **Date**: 2026-06-12 (design) · Updated 2026-05-14 (implementation status)
+> 
 > **Prerequisite docs**: `sidecar-refactoring-plan.md`, `sidecar-implementation-design.md`,
 > `phase2-binary-artifact-dependencies.md`, `sidecar-async-spdx-architecture.md`
 
@@ -80,28 +82,72 @@ per-language docs listed above.
 | Dual-mode config resolution | `app/config.py` | ✅ `resolve_omnibor_cfg()` handles nested format |
 | `--mode` CLI flag | `app/pipeline/runners.py` | ✅ Parsed, but only passed to Java |
 | `BomtraceBuilder.build()` `strategy=` param | `app/pipeline/builder.py` | ✅ Accepts strategy, delegates to it |
+| `--phase` CLI flag (`build` / `spdx`) | `app/pipeline/runners.py` | ✅ Complete — Java only |
+| `--manifest` CLI flag | `app/pipeline/runners.py` | ✅ Complete — required with `--phase spdx` |
+| `_validate_phase_args()` | `app/pipeline/runners.py` | ✅ Complete — enforces sidecar + manifest constraints |
+| `_run_phase1_only()` | `app/pipeline/runners.py` | ✅ Complete — Java; writes manifest after build |
+| `_run_phase2_only()` | `app/pipeline/runners.py` | ✅ Complete — Java; reads manifest, verifies gitoids |
+| `run_java_phase1()` / `run_java_phase2()` | `app/pipeline/lang_runners.py` | ✅ Complete — Java runner split into phase1/phase2/pipeline |
+| `write_manifest()` / `read_manifest()` | `app/pipeline/manifest.py` | ✅ Complete — function-based API with gitoid verification |
+| `verify_gitoids()` | `app/pipeline/manifest.py` | ✅ Complete — SHA-256 gitoid integrity check |
+| Phase isolation system test script | `scripts/run_phase_isolation_test.sh` | ✅ Complete — two-container Docker test |
+| Phase isolation unit tests (13 tests) | `tests/test_phase_isolation.py` | ✅ Complete |
+| Manifest unit tests (22 tests) | `tests/test_manifest.py` | ✅ Complete |
+| Sidecar Docker image (multi-stage target) | `docker/Dockerfile` (`AS sidecar`) | ✅ Complete — published to GHCR |
+| Sidecar publish workflow | `.github/workflows/publish-sidecar.yml` | ✅ Complete — auto-publishes on push to main |
+| CI/CD proof of execution | `docs/features/phase-isolation/phase-isolation-cicd-results_2026-05-13.md` | ✅ Validated 2026-05-13 — 3 runners, 3 Azure regions |
 
 ### 2.2 What's Missing
 
-| Gap | Impact |
-|-----|--------|
-| **No `--phase` CLI flag** | Cannot run Phase 1 or Phase 2 independently |
-| **No `phase1_manifest.json` writer/reader** | Phase 2 cannot discover Phase 1 artifacts without re-reading config |
-| **C/C++, Go, Rust sidecar strategies not wired** | `--mode sidecar` only works for Java |
-| **Phase 2 requires the source tree** | `ldd`, `readelf`, `bomsh_sbom.py` read binaries from `repo_dir` |
-| **No Corona integration** | Phase 2 can only run inside the same container |
-| **`_run_post_build()` is monolithic** | All Phase 2 steps coupled into one function |
+| Gap | Impact | Status |
+|-----|--------|--------|
+| ~~No `--phase` CLI flag~~ | ~~Cannot run Phase 1 or Phase 2 independently~~ | ✅ Implemented (Java) |
+| ~~No `phase1_manifest.json` writer/reader~~ | ~~Phase 2 cannot discover Phase 1 artifacts~~ | ✅ Implemented |
+| **C/C++, Go, Rust sidecar strategies not wired** | `--mode sidecar` only works for Java | ❌ Pending |
+| **C/C++, Go, Rust phase split not implemented** | `--phase build`/`--phase spdx` only works for Java | ❌ Pending |
+| **Phase 2 requires the source tree (C/C++/Go/Rust)** | `ldd`, `readelf`, `bomsh_sbom.py` read binaries from `repo_dir` | ❌ Pending |
+| **No Corona integration** | Phase 2 can only run inside the same container or via artifact transfer | ❌ Deferred |
+| **`_run_post_build()` is monolithic (C/C++/Go/Rust)** | Java is split into phase1/phase2; other languages still coupled | ⚠️ Partial |
 
 ### 2.3 Architecture Diagram Reference
 
 The following existing diagrams illustrate the target architecture:
 
-- `../../deep-dive/sidecar-standalone-architecture.drawio` — current standalone flow
-- `../../deep-dive/sidecar-target-architecture.drawio` — target dual-mode flow
-- `sidecar-two-phase-corona.drawio` — Phase 1 → manifest → Phase 2/Corona
-- `../../deep-dive/sidecar-strategy-pattern.drawio` — strategy pattern class hierarchy
-- `../../deep-dive/sidecar-critical-path.drawio` — CI/CD critical path reduction
-- `../../deep-dive/sidecar-dependency-graph.drawio` — module dependency graph
+#### Standalone Architecture (current flow)
+
+<a href="../../deep-dive/sidecar-standalone-architecture.png"><img src="../../deep-dive/sidecar-standalone-architecture.png" width="600" alt="Standalone Architecture — click to enlarge"></a>
+
+*Click image to enlarge. Source: [sidecar-standalone-architecture.drawio](../../deep-dive/sidecar-standalone-architecture.drawio)*
+
+#### Target Dual-Mode Architecture
+
+<a href="../../deep-dive/sidecar-target-architecture.png"><img src="../../deep-dive/sidecar-target-architecture.png" width="600" alt="Target Dual-Mode Architecture — click to enlarge"></a>
+
+*Click image to enlarge. Source: [sidecar-target-architecture.drawio](../../deep-dive/sidecar-target-architecture.drawio)*
+
+#### Two-Phase Sidecar with Corona
+
+<a href="sidecar-two-phase-corona-p1.png"><img src="sidecar-two-phase-corona-p1.png" width="600" alt="Two-Phase Sidecar Architecture — click to enlarge"></a>
+
+*Click image to enlarge. Source: [sidecar-two-phase-corona.drawio](sidecar-two-phase-corona.drawio)*
+
+#### Strategy Pattern Class Hierarchy
+
+<a href="../../deep-dive/sidecar-strategy-pattern.png"><img src="../../deep-dive/sidecar-strategy-pattern.png" width="600" alt="Strategy Pattern Class Hierarchy — click to enlarge"></a>
+
+*Click image to enlarge. Source: [sidecar-strategy-pattern.drawio](../../deep-dive/sidecar-strategy-pattern.drawio)*
+
+#### CI/CD Critical Path Reduction
+
+<a href="../../deep-dive/sidecar-critical-path.png"><img src="../../deep-dive/sidecar-critical-path.png" width="600" alt="CI/CD Critical Path Reduction — click to enlarge"></a>
+
+*Click image to enlarge. Source: [sidecar-critical-path.drawio](../../deep-dive/sidecar-critical-path.drawio)*
+
+#### Module Dependency Graph
+
+<a href="../../deep-dive/sidecar-dependency-graph.png"><img src="../../deep-dive/sidecar-dependency-graph.png" width="600" alt="Module Dependency Graph — click to enlarge"></a>
+
+*Click image to enlarge. Source: [sidecar-dependency-graph.drawio](../../deep-dive/sidecar-dependency-graph.drawio)*
 
 ---
 
@@ -385,7 +431,7 @@ Artifacts are transferred via `rsync`, S3, or CI artifact upload.
 
 ## 6. Module Design
 
-### 6.1 New Module: `app/pipeline/manifest.py`
+### 6.1 Module: `app/pipeline/manifest.py` — ✅ Implemented
 
 ```python
 """
@@ -399,118 +445,130 @@ MANIFEST_VERSION = "1.0"
 MANIFEST_FILENAME = "phase1_manifest.json"
 
 
-class ManifestWriter:
-    """Writes phase1_manifest.json after Phase 1."""
+def write_manifest(
+    manifest_dir, repo_name, language, mode,
+    tracer, run_ts, commit_sha, vcs_uri,
+    artifacts, paths,
+    repo_cfg=None, omnibor_cfg=None,
+):
+    """Write phase1_manifest.json after Phase 1.
+    Computes gitoids for all artifact files.
+    Returns Path to the written manifest."""
+    ...
 
-    def write(self, bom_dir, repo_name, repo_cfg,
-              paths_cfg, omnibor_cfg, run_ts,
-              tracer, mode, commit_sha, vcs_uri,
-              binaries):
-        """Write manifest to bom_dir."""
-        ...
+
+def read_manifest(manifest_path):
+    """Read and validate a phase1_manifest.json.
+    Returns parsed manifest dict.
+    Raises ManifestError or FileNotFoundError."""
+    ...
 
 
-class ManifestReader:
-    """Reads phase1_manifest.json for Phase 2."""
-
-    def read(self, manifest_path):
-        """Load and validate manifest. Returns dict."""
-        ...
-
-    def verify_gitoids(self, manifest):
-        """Verify artifact integrity via gitoids."""
-        ...
+def verify_gitoids(manifest):
+    """Verify artifact gitoids from a loaded manifest.
+    Returns (passed, failed) lists of artifact paths."""
+    ...
 ```
 
 **Responsibilities**:
-- `ManifestWriter.write()` is called at the end of Phase 1 (after `builder.build()` succeeds).
-- `ManifestReader.read()` is called at the start of Phase 2 when `--phase spdx` is specified.
-- Gitoid verification is optional but recommended for cross-host transfers.
+- `write_manifest()` is called at the end of Phase 1 (inside `_run_phase1_only()` in `runners.py`, after `builder.build()` succeeds).
+- `read_manifest()` is called at the start of Phase 2 (inside `_run_phase2_only()`) when `--phase spdx` is specified.
+- `verify_gitoids()` is called by Phase 2 after reading the manifest — warns on tampered artifacts but does not abort.
+- 22 unit tests in `tests/test_manifest.py` cover round-trip, validation, gitoid verification, and edge cases.
 
-### 6.2 Modified Module: `app/pipeline/lang_runners.py`
+### 6.2 Modified Module: `app/pipeline/lang_runners.py` — ✅ Java Implemented
 
-Each language runner is refactored from one function into three:
+The Java runner has been refactored from one function into three.
+C/C++, Go, and Rust runners remain monolithic (pending).
 
 ```python
-# Before (current):
-def run_java_pipeline(pipeline, ..., mode="standalone"):
-    # Phase 1
-    build_result = pipeline.builder.build(...)
-    # Phase 2
-    _run_post_build(pipeline, ...)
-
-
-# After (proposed):
+# Implemented (Java):
 def run_java_phase1(pipeline, ..., mode="standalone"):
-    """Phase 1 only: build + treedb + manifest."""
+    """Phase 1 only: build + treedb.
+    Returns (TimingResult, strategy) tuple."""
     strategy = _select_java_strategy(...)
     build_result = pipeline.builder.build(...)
-    ManifestWriter().write(...)
-    return timing
+    return timing, strategy
 
-def run_java_phase2(pipeline, ..., manifest=None):
-    """Phase 2 only: SPDX from manifest or in-memory."""
-    if manifest:
-        ctx = ManifestReader().read(manifest)
-    _run_post_build(pipeline, ..., ctx=ctx)
-    return timing
+def run_java_phase2(pipeline, ..., vcs_uri=...):
+    """Phase 2 only: SPDX generation + validation.
+    Returns list of StepMetrics."""
+    return _run_post_build(pipeline, ...)
 
 def run_java_pipeline(pipeline, ..., mode="standalone"):
-    """Both phases (backward compatible)."""
-    timing1 = run_java_phase1(...)
-    timing2 = run_java_phase2(...)
-    return merge_timing(timing1, timing2)
+    """Both phases (backward compatible).
+    Calls phase1 then phase2 sequentially."""
+    timing, _ = run_java_phase1(...)
+    timing.steps.extend(run_java_phase2(...))
+    return timing
 ```
 
-The same pattern applies to `run_c_cpp_pipeline`, `run_go_pipeline`,
-`run_rust_pipeline`. The shared `_run_post_build()` gains an optional `ctx`
-parameter that provides paths from the manifest instead of constructing them
-from config.
+The manifest writing is handled by `_run_phase1_only()` in `runners.py`,
+not inside `run_java_phase1()`. This keeps the phase1 function reusable
+for both `--phase build` (writes manifest) and full pipeline (no manifest).
 
-### 6.3 Modified Module: `app/pipeline/runners.py` (CLI)
+### 6.3 Modified Module: `app/pipeline/runners.py` (CLI) — ✅ Implemented (Java)
 
 ```python
-# New argument handling in main():
+# Implemented argument handling in main():
 
 parser.add_argument(
     "--phase",
-    choices=("build", "spdx"),
+    choices=VALID_PHASES,  # ("build", "spdx")
     default=None,
-    help="Run only Phase 1 (build) or Phase 2 (spdx)",
+    help="Run only Phase 1 or Phase 2",
 )
 parser.add_argument(
     "--manifest",
-    type=str, default=None,
-    help="Path to phase1_manifest.json (required with --phase spdx)",
+    help="Path to phase1_manifest.json",
 )
 
-# Dispatch logic:
+# Validation:
+if args.phase:
+    _validate_phase_args(args, parser)
+    # Enforces: --phase requires --mode sidecar
+    # --phase spdx requires --manifest
+    # --phase build rejects --manifest
+
+# Dispatch in main() (Java branch only):
 if args.phase == "build":
-    timing = run_{lang}_phase1(...)
-    # Write manifest, skip Phase 2
+    timing = _run_phase1_only(
+        pipeline, repo_name, repo_cfg,
+        paths_cfg, omnibor_cfg, run_ts,
+        mode=mode, lang=lang,
+        commit_sha=commit_sha, vcs_uri=vcs_uri,
+    )
 elif args.phase == "spdx":
-    if not args.manifest:
-        sys.exit("--manifest required with --phase spdx")
-    timing = run_{lang}_phase2(..., manifest=args.manifest)
+    timing = _run_phase2_only(
+        pipeline, repo_name,
+        args.manifest, paths_cfg,
+        omnibor_cfg, run_ts,
+        vcs_uri=vcs_uri,
+    )
 else:
-    timing = run_{lang}_pipeline(...)  # both phases
+    timing = run_java_pipeline(pipeline, ...)
 ```
 
-### 6.4 Modified Module: `app/pipeline/builder.py`
+**Note**: Phase dispatch is currently Java-only. C/C++, Go, and Rust
+language branches do not yet support `--phase` and will need similar
+`_run_phase1_only` / `_run_phase2_only` wiring.
 
-**No structural changes needed.** The builder already accepts `strategy=` and
-delegates to it. The only addition is that `build()` returns the resolved
-`bom_dir` path in `BuildResult` so the manifest writer can reference it.
+### 6.4 Module: `app/pipeline/builder.py` — No Changes Needed
+
+**No structural changes were made.** The builder already accepts `strategy=`
+and delegates to it. `BuildResult` retains its original two fields:
 
 ```python
 @dataclass
 class BuildResult:
     success: bool = False
     steps: List[StepMetrics] = field(default_factory=list)
-    bom_dir: str = ""       # NEW: for manifest writer
-    repo_dir: str = ""      # NEW: for manifest writer
-    binaries: List[str] = field(default_factory=list)  # NEW: resolved paths
 ```
+
+The originally proposed `bom_dir`, `repo_dir`, and `binaries` fields were
+not needed. Instead, `_run_phase1_only()` in `runners.py` constructs
+artifact paths directly from `paths_cfg` and `repo_cfg`, then passes
+them to `write_manifest()`.
 
 ### 6.5 Strategy Wiring for Non-Java Languages
 
@@ -651,61 +709,56 @@ or daemon architecture.
 
 ## 9. Config Schema Changes
 
-### 9.1 Nested Mode Config (already supported)
+### 9.1 Current Config Structure (Flat Per-Language Sections)
+
+The config uses **flat per-language omnibor sections**, not nested
+standalone/sidecar sub-keys. Mode selection is a CLI flag (`--mode`),
+not a config file key.
 
 ```yaml
-mode: sidecar  # or standalone (default)
-
+# config.yaml (actual structure):
 omnibor:
-  standalone:
-    tracer: bomtrace3
-    create_bom_script: bomsh_create_bom.py
-    sbom_script: bomsh_sbom.py
-    raw_logfile: /tmp/bomsh_hook_raw_logfile.sha1
-  sidecar:
-    wrapper_dir: /opt/bomsh/bin
-    create_bom_script: bomsh_create_bom.py
-    sbom_script: bomsh_sbom.py
-```
-
-### 9.2 New Config Fields (Phase Isolation)
-
-```yaml
-phase_isolation:
-  # Whether to write phase1_manifest.json after Phase 1
-  write_manifest: true  # default: true when --phase build
-
-  # Corona integration (future — see dedicated Corona design doc)
-  # corona:
-  #   url: https://corona.internal/api/v1
-  #   api_key_env: CORONA_API_KEY
-  #   upload_timeout_sec: 300
-```
-
-### 9.3 Per-Language Sidecar Config
-
-```yaml
-omnibor_go:
-  standalone:
-    tracer: bomtrace2 -c /opt/bomsh/bin/bomtrace_go.conf
-    create_bom_script: bomsh_create_bom.py
-    sbom_script: bomsh_sbom.py
-    raw_logfile: /tmp/bomsh_hook_raw_logfile.sha1
-  sidecar:
-    wrapper: /opt/bomsh/bin/bomsh_hook.sh
-    create_bom_script: bomsh_create_bom.py
-    sbom_script: bomsh_sbom.py
+  tracer: bomtrace3
+  create_bom_script: bomsh_create_bom.py
+  sbom_script: bomsh_sbom.py
+  raw_logfile: /tmp/bomsh_hook_raw_logfile.sha1
 
 omnibor_rust:
-  standalone:
-    tracer: bomtrace2
-    create_bom_script: bomsh_create_bom.py
-    sbom_script: bomsh_sbom.py
-    raw_logfile: /tmp/bomsh_hook_raw_logfile.sha1
-  sidecar:
-    wrapper: /opt/bomsh/bin/bomsh_hook.sh
-    create_bom_script: bomsh_create_bom.py
-    sbom_script: bomsh_sbom.py
+  tracer: bomtrace2
+  create_bom_script: bomsh_create_bom.py
+  sbom_script: bomsh_sbom.py
+  raw_logfile: /tmp/bomsh_hook_raw_logfile.sha1
+
+omnibor_go:
+  tracer: bomtrace2 -c /opt/bomsh/bin/bomtrace_go.conf
+  create_bom_script: bomsh_create_bom.py
+  sbom_script: bomsh_sbom.py
+  raw_logfile: /tmp/bomsh_hook_raw_logfile.sha1
+
+omnibor_java:
+  strace_opts: -f -s99999 --seccomp-bpf -e trace=openat -qqq
+  create_bom_script: bomsh_create_bom_java.py
+  strace_logfile: /tmp/strace_java_logfile
+```
+
+**Design note**: The originally proposed nested standalone/sidecar
+sub-keys and `phase_isolation` section were not implemented. Mode
+selection is handled entirely via `--mode sidecar` CLI flag, and
+the interception strategy classes (`MavenDepTreeStrategy`,
+`CcWrapperStrategy`, etc.) encapsulate all sidecar-specific behavior.
+No config changes are needed for phase isolation — the `--phase`
+and `--manifest` CLI flags are sufficient.
+
+### 9.2 Future Config Fields (If Needed)
+
+If Corona integration or cross-host Phase 2 requires config:
+
+```yaml
+# Future (not yet implemented):
+# corona:
+#   url: https://corona.internal/api/v1
+#   api_key_env: CORONA_API_KEY
+#   upload_timeout_sec: 300
 ```
 
 ---
@@ -736,134 +789,172 @@ wrapper scripts call `bomsh_hook2.py` before/after the real tool.
 
 ---
 
-## 11. Docker Image Changes
+## 11. Docker Image Changes — ✅ Implemented
 
-### 11.1 Sidecar Image Variant
+### 11.1 Sidecar Image (Multi-Stage Target)
 
-The sidecar Docker image (`Dockerfile.sidecar`) should include:
+The sidecar is a **multi-stage build target** in `docker/Dockerfile`
+(not a separate `Dockerfile.sidecar`). It is built with
+`docker build --target sidecar` and published to GHCR via
+`.github/workflows/publish-sidecar.yml`.
 
 ```dockerfile
-# Interception tools only — NO build toolchains
-COPY --from=bomsh /opt/bomsh/bin/bomsh_hook2.py /opt/bomsh/bin/
-COPY --from=bomsh /opt/bomsh/bin/bomsh_create_bom.py /opt/bomsh/bin/
-COPY --from=bomsh /opt/bomsh/bin/bomsh_create_bom_java.py /opt/bomsh/bin/
-COPY --from=bomsh /opt/bomsh/bin/bomsh_sbom.py /opt/bomsh/bin/
+# docker/Dockerfile (actual sidecar stage):
+FROM base AS sidecar
 
-# CC wrappers (once available)
-COPY --from=bomsh /opt/bomsh/bin/bomsh_cc_wrapper.sh /opt/bomsh/bin/
-COPY --from=bomsh /opt/bomsh/bin/bomsh_cxx_wrapper.sh /opt/bomsh/bin/
-COPY --from=bomsh /opt/bomsh/bin/bomsh_ar_wrapper.sh /opt/bomsh/bin/
-COPY --from=bomsh /opt/bomsh/bin/bomsh_ld_wrapper.sh /opt/bomsh/bin/
+ENV OMNIBOR_MODE=sidecar
 
-# Analysis pipeline
+# Java JDK + Maven — required for dep:tree resolution
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    openjdk-17-jdk openjdk-21-jdk maven \
+    && rm -rf /var/lib/apt/lists/*
+
+# Only bomsh scripts (no bomtrace binaries)
+RUN git clone --depth 1 https://github.com/omnibor/bomsh.git /opt/bomsh
+
+# Patch bomsh_create_bom_java.py + fast class reader
+COPY docker/patches/bomsh_java_sourcefile.patch /tmp/bomsh_java.patch
+RUN cd /opt/bomsh && patch -p1 < /tmp/bomsh_java.patch
+
+# Bake app code for standalone CI use (overridable via volume mount)
 COPY app/ /workspace/app/
-COPY scripts/ /workspace/scripts/
+COPY requirements.txt /workspace/requirements.txt
 
 # NO SYS_PTRACE capability needed
 ```
 
-### 11.2 Dual-Mode Container
+**Key differences from standalone**:
+- No C/C++ toolchains (gcc, g++, make, cmake, etc.)
+- No Go SDK, no Rust toolchain
+- No bomtrace2/bomtrace3 binaries (no ptrace)
+- No `SYS_PTRACE` capability in `docker-compose.yml`
+- Sets `OMNIBOR_MODE=sidecar` environment variable
 
-A single image can serve both modes by detecting whether `bomtrace3` is
-available at runtime:
+### 11.2 Docker Compose Services
 
-```python
-import shutil
-can_ptrace = shutil.which("bomtrace3") is not None
-default_mode = "standalone" if can_ptrace else "sidecar"
+`docker/docker-compose.yml` defines both services:
+
+```yaml
+omnibor-standalone:
+  build: { target: standalone }
+  cap_add: [SYS_PTRACE]  # required for bomtrace
+
+omnibor-sidecar:
+  build: { target: sidecar }
+  # No SYS_PTRACE needed
 ```
+
+### 11.3 GHCR Publication
+
+The sidecar image is auto-published to `ghcr.io/tedg-dev/omnibor-sidecar`
+on every push to `main` that changes `docker/Dockerfile`, `app/**`,
+`requirements.txt`, or the workflow itself. External CI/CD pipelines
+(e.g., `tedg-dev/omnibor-java-testapp`) pull this image for Phase 2.
 
 ---
 
-## 12. Testing Strategy
+## 12. Testing Strategy — ✅ Implemented
 
-### 12.1 Unit Tests
+### 12.1 Manifest Unit Tests (`tests/test_manifest.py` — 22 tests)
 
-| Test | Module | What it validates |
-|------|--------|-------------------|
-| `test_manifest_write_read` | `manifest.py` | Round-trip: write → read → identical dict |
-| `test_manifest_version_check` | `manifest.py` | Rejects unsupported manifest versions |
-| `test_manifest_gitoid_verify` | `manifest.py` | Detects tampered artifacts |
-| `test_select_strategy_*` | `lang_runners.py` | Correct strategy for each mode × language |
-| `test_phase1_writes_manifest` | `lang_runners.py` | `--phase build` produces `phase1_manifest.json` |
-| `test_phase2_reads_manifest` | `lang_runners.py` | `--phase spdx` loads manifest and runs Phase 2 |
-| `test_full_pipeline_unchanged` | `lang_runners.py` | No `--phase` runs both phases (backward compat) |
+| Test Class | Tests | What it validates |
+|------------|-------|-------------------|
+| `TestWriteManifest` | 12 | Creates manifest, parent dirs, content fields, gitoid computation, optional fields, validation errors |
+| `TestReadManifest` | 6 | Round-trip, file not found, malformed JSON, missing fields, wrong version, non-dict |
+| `TestVerifyGitoids` | 4 | Passes on untampered files, detects tampered files, skips missing files, handles empty gitoids |
+| `TestSha256Gitoid` | 3 | Deterministic, different content produces different hash, hex string format |
 
-### 12.2 Integration Tests
+### 12.2 Phase Isolation Unit Tests (`tests/test_phase_isolation.py` — 13 tests)
 
-| Test | Environment | What it validates |
-|------|-------------|-------------------|
-| `test_java_sidecar_e2e` | Docker sidecar image | Java `--mode sidecar` produces valid SPDX |
-| `test_c_cpp_sidecar_e2e` | Docker sidecar image | C/C++ `--mode sidecar` produces valid SPDX |
-| `test_phase_split_e2e` | Docker standalone | `--phase build` → `--phase spdx` produces same SPDX as full run |
-| `test_cross_host_phase2` | Two containers | Phase 1 on host A, `rsync` artifacts, Phase 2 on host B |
+| Test Class | Tests | What it validates |
+|------------|-------|-------------------|
+| `TestValidatePhaseArgs` | 6 | `--phase` requires sidecar mode, `--phase spdx` requires `--manifest`, `--phase build` rejects `--manifest`, valid combinations pass |
+| `TestRunPhase1Only` | 2 | Writes manifest on success, skips manifest on build failure |
+| `TestRunPhase2Only` | 3 | Reads manifest and runs SPDX, missing manifest raises error, tampered artifacts warn (not abort) |
+| `TestPhaseRoundTrip` | 2 | Phase 1 writes manifest → Phase 2 reads it; Phase 2 reuses Phase 1's `run_ts` |
 
-### 12.3 Golden File Comparison
+### 12.3 CI/CD Integration Test (✅ Validated 2026-05-13)
+
+Proof of execution documented in `phase-isolation-cicd-results_2026-05-13.md`:
+
+| Aspect | Result |
+|--------|--------|
+| **Runners** | 3 GitHub Actions runners across 3 Azure regions |
+| **Phase 1 + Phase 2** | Separate jobs, no shared filesystem |
+| **Communication** | `phase1_manifest.json` + `actions/upload-artifact` / `download-artifact` |
+| **Integrity** | GitOID verification passed for all artifacts |
+| **SPDX output** | Valid SPDX 2.3 with correct package counts |
+
+System test script: `scripts/run_phase_isolation_test.sh` (two-container Docker test).
+
+### 12.4 Golden File Comparison
 
 Every sidecar run must produce SPDX that matches the standalone golden files
 (per project golden file policy). The phase-split run (`--phase build` +
 `--phase spdx`) must produce **byte-identical** output to a full sequential
 run (excluding timestamps in `creationInfo`).
 
-### 12.4 Regression Tests
+### 12.5 Regression Tests (✅ Implemented in `test_phase_isolation.py`)
 
-Add a regression test that verifies:
-1. `--phase build` without `--phase spdx` does NOT produce SPDX files
-2. `--phase spdx` without `--manifest` exits with error
-3. `--phase spdx` with invalid manifest exits with descriptive error
-4. `--phase build --baseline` is rejected (baseline is a full-build concept)
+The following regressions are covered:
+1. ✅ `--phase build` without `--mode sidecar` exits with error
+2. ✅ `--phase spdx` without `--manifest` exits with error
+3. ✅ `--phase spdx` with missing manifest raises `FileNotFoundError`
+4. ✅ `--phase build` with `--manifest` is rejected (manifest is output, not input)
+5. ✅ Tampered artifacts produce warning but do not abort Phase 2
 
 ---
 
 ## 13. Implementation Plan
 
-### Phase I: Manifest + CLI (2-3 days)
+### Phase I: Manifest + CLI — ✅ COMPLETE
 
-| # | Task | Files Modified | Effort |
+| # | Task | Files Modified | Status |
 |---|------|---------------|--------|
-| 1 | Create `app/pipeline/manifest.py` (writer + reader) | New file | 0.5d |
-| 2 | Add `--phase` and `--manifest` to CLI | `runners.py` | 0.5d |
-| 3 | Refactor `lang_runners.py` — split Java into `phase1`/`phase2`/`pipeline` | `lang_runners.py` | 0.5d |
-| 4 | Add `bom_dir` to `BuildResult` | `builder.py` | 0.25d |
-| 5 | Write unit tests for manifest + phase isolation | `tests/` | 0.5d |
-| 6 | Integration test: Java `--phase build` + `--phase spdx` | `tests/` | 0.5d |
+| 1 | Create `app/pipeline/manifest.py` (writer + reader + gitoid verify) | New file | ✅ Done |
+| 2 | Add `--phase` and `--manifest` to CLI | `runners.py` | ✅ Done |
+| 3 | Refactor `lang_runners.py` — split Java into `phase1`/`phase2`/`pipeline` | `lang_runners.py` | ✅ Done |
+| 4 | ~~Add `bom_dir` to `BuildResult`~~ | ~~`builder.py`~~ | ✅ Not needed — paths constructed in `_run_phase1_only()` |
+| 5 | Write unit tests for manifest (22) + phase isolation (13) | `tests/` | ✅ Done |
+| 6 | CI/CD integration test: Java `--phase build` + `--phase spdx` | `tedg-dev/omnibor-java-testapp` | ✅ Validated 2026-05-13 |
 
-**Deliverable**: Java works with `--phase build` → `--phase spdx` in the
-same container. All existing tests pass unchanged.
+**Delivered**: Java works with `--phase build` → `--phase spdx` across
+separate CI/CD runners with no shared filesystem. All existing tests
+pass unchanged. Sidecar image published to GHCR.
 
-### Phase II: Wire Sidecar Strategies (2-3 days)
+### Phase II: Wire Sidecar Strategies for Non-Java Languages — ❌ Pending
 
-| # | Task | Files Modified | Effort |
+| # | Task | Files Modified | Status |
 |---|------|---------------|--------|
-| 7 | Wire `CcWrapperStrategy` into `run_c_cpp_pipeline` | `lang_runners.py` | 0.5d |
-| 8 | Wire `GoToolexecStrategy` into `run_go_pipeline` | `lang_runners.py` | 0.5d |
-| 9 | Wire `RustcWrapperStrategy` into `run_rust_pipeline` | `lang_runners.py` | 0.5d |
-| 10 | Pass `mode=` through all language runners | `runners.py`, `lang_runners.py` | 0.25d |
-| 11 | Convert `config.yaml` to nested mode format | `config.yaml` | 0.25d |
-| 12 | Integration tests: sidecar mode per language | `tests/` | 1d |
+| 7 | Wire `CcWrapperStrategy` into `run_c_cpp_pipeline` | `lang_runners.py` | ❌ Pending — blocked on upstream bomsh wrappers |
+| 8 | Wire `GoToolexecStrategy` into `run_go_pipeline` | `lang_runners.py` | ❌ Pending |
+| 9 | Wire `RustcWrapperStrategy` into `run_rust_pipeline` | `lang_runners.py` | ❌ Pending |
+| 10 | Pass `mode=` through all language runners | `runners.py`, `lang_runners.py` | ❌ Pending |
+| 11 | ~~Convert `config.yaml` to nested mode format~~ | ~~`config.yaml`~~ | ✅ Not needed — strategy classes encapsulate mode-specific behavior |
+| 12 | Integration tests: sidecar mode per language | `tests/` | ❌ Pending |
 
 **Deliverable**: `--mode sidecar` works for all languages (requires bomsh
 wrappers for C/C++/Go/Rust — may be blocked on upstream).
 
-### Phase III: Phase Split for All Languages (2-3 days)
+### Phase III: Phase Split for All Languages — ❌ Pending
 
-| # | Task | Files Modified | Effort |
+| # | Task | Files Modified | Status |
 |---|------|---------------|--------|
-| 13 | Split C/C++ runner into `phase1`/`phase2` | `lang_runners.py` | 0.5d |
-| 14 | Split Go runner into `phase1`/`phase2` | `lang_runners.py` | 0.5d |
-| 15 | Split Rust runner into `phase1`/`phase2` | `lang_runners.py` | 0.5d |
-| 16 | Version pre-computation for cross-host Phase 2 | `manifest.py`, `version_detector.py` | 0.5d |
-| 17 | Integration tests: phase split per language | `tests/` | 1d |
+| 13 | Split C/C++ runner into `phase1`/`phase2` | `lang_runners.py` | ❌ Pending |
+| 14 | Split Go runner into `phase1`/`phase2` | `lang_runners.py` | ❌ Pending |
+| 15 | Split Rust runner into `phase1`/`phase2` | `lang_runners.py` | ❌ Pending |
+| 16 | Version pre-computation for cross-host Phase 2 | `manifest.py`, `version_detector.py` | ❌ Pending |
+| 17 | Integration tests: phase split per language | `tests/` | ❌ Pending |
 
 **Deliverable**: All languages support `--phase build` + `--phase spdx`.
 
-### Phase IV: Cross-Host Phase 2 (1-2 days)
+### Phase IV: Cross-Host Phase 2 — ❌ Pending
 
-| # | Task | Files Modified | Effort |
+| # | Task | Files Modified | Status |
 |---|------|---------------|--------|
-| 18 | Artifact packaging script (tar.gz `bom_dir` + binaries) | `scripts/` | 0.5d |
-| 19 | Manifest gitoid verification on Phase 2 side | `manifest.py` | 0.5d |
-| 20 | Documentation: cross-host usage guide | `docs/` | 0.5d |
+| 18 | Artifact packaging script (tar.gz `bom_dir` + binaries) | `scripts/` | ❌ Pending |
+| 19 | ~~Manifest gitoid verification on Phase 2 side~~ | ~~`manifest.py`~~ | ✅ Done (implemented in Phase I) |
+| 20 | Documentation: cross-host usage guide | `docs/` | ❌ Pending |
 
 **Deliverable**: Phase 2 can run on a different host from Phase 1.
 
@@ -924,15 +1015,17 @@ All three execution modes must pass independently:
 
 ## 16. Appendix: File Change Summary
 
-| File | Change Type | Description |
-|------|-------------|-------------|
-| `app/pipeline/manifest.py` | **New** | Manifest writer + reader |
-| `app/pipeline/runners.py` | Modify | Add `--phase`, `--manifest` args |
-| `app/pipeline/lang_runners.py` | Modify | Split runners into `phase1`/`phase2`/`pipeline` |
-| `app/pipeline/builder.py` | Modify | Add `bom_dir`/`repo_dir`/`binaries` to `BuildResult` |
-| `app/pipeline/interception.py` | No change | Already complete |
-| `app/config.py` | Modify | Add `phase_isolation` config schema |
-| `app/config.yaml` | Modify | Add nested mode configs, `phase_isolation` section |
-| `docker/Dockerfile.sidecar` | Modify | Add wrapper scripts |
-| `tests/test_manifest.py` | **New** | Manifest unit tests |
-| `tests/test_phase_isolation.py` | **New** | Phase split integration tests |
+| File | Change Type | Status | Description |
+|------|-------------|--------|-------------|
+| `app/pipeline/manifest.py` | **New** | ✅ Done | Manifest writer + reader + gitoid verification |
+| `app/pipeline/runners.py` | Modify | ✅ Done | `--phase`, `--manifest` args; `_run_phase1_only`, `_run_phase2_only` |
+| `app/pipeline/lang_runners.py` | Modify | ✅ Done (Java) | Java split into `phase1`/`phase2`/`pipeline`; C/C++/Go/Rust pending |
+| `app/pipeline/builder.py` | No change | ✅ N/A | `BuildResult` unchanged; paths constructed in `_run_phase1_only()` |
+| `app/pipeline/interception.py` | No change | ✅ N/A | All strategy classes already complete |
+| `app/config.py` | No change | ✅ N/A | No config schema changes needed; CLI flags suffice |
+| `app/config.yaml` | No change | ✅ N/A | Flat per-language sections retained; no nested mode format |
+| `docker/Dockerfile` (sidecar target) | Modify | ✅ Done | Multi-stage `AS sidecar` target; published to GHCR |
+| `.github/workflows/publish-sidecar.yml` | **New** | ✅ Done | Auto-publishes sidecar image on push to main |
+| `scripts/run_phase_isolation_test.sh` | **New** | ✅ Done | Two-container Docker system test |
+| `tests/test_manifest.py` | **New** | ✅ Done | 22 manifest unit tests |
+| `tests/test_phase_isolation.py` | **New** | ✅ Done | 13 phase isolation unit tests |

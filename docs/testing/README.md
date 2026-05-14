@@ -65,8 +65,8 @@ pytest tests/ -m requires_dpkg -v
   against Fedora, Alpine, and Ubuntu containers
 - **[upstream-changes.md](upstream-changes.md)** — Testing policy when
   upstream repositories (bomsh, bomtrace, target repos) change
-- **[golden-file-workflow.md](golden-file-workflow.md)** — How to manage
-  golden SPDX baselines
+- **[golden-file-testing.md](golden-file-testing.md)** — Golden file
+  regression testing framework and update workflow
 
 ## Quick Reference: When to Run What
 

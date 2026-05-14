@@ -13,11 +13,13 @@
 
 | Directory | Contents |
 |-----------|----------|
-| **[guides/](guides/)** | Setup, onboarding, contributing, AWS infrastructure (greenfield and existing environment) |
+| **[guides/](guides/)** | Setup, onboarding, contributing, AWS infrastructure, workflow guide |
 | **[architecture/](architecture/)** | System design diagrams (draw.io + PNG), pipeline overview, app architecture |
-| **[features/](features/)** | Feature documentation: Go support, SPDX comparison, vendored detection, etc. |
+| **[features/](features/)** | Feature documentation: phase isolation, analyzed vs. build SBOMs, vendored detection |
+| **[deep-dive/](deep-dive/)** | Sidecar design docs (C/C++, Go, Rust, Java), Q4 schedule |
+| **[testing/](testing/)** | Golden file regression testing, test strategy, multi-distro testing |
 | **[issues/](issues/)** | Upstream bomsh/bomtrace bug reports and workarounds |
-| **[deep-dive/](deep-dive/)** | Research, performance analysis, enterprise integration, optimization proposals |
+| **[_archived/](_archived/)** | Historical documents preserved for reference (not current) |
 
 ## Generated Artifacts (not in docs/)
 

@@ -65,16 +65,18 @@ analyze.py
 
 ### Language-specific pipelines
 
-Each language follows the same pattern but with different tools:
+Pipeline execution is split between `runners.py` (CLI + mode routing)
+and `lang_runners.py` (per-language step sequences). Each language
+follows the same pattern:
 
 ```
 Step 1: Clone           RepoCloner.clone()
-Step 2: Syft SBOM       SyftGenerator.generate()
-Step 3: Validate deps   DependencyValidator.validate()     [C/C++ only]
-Step 4: Build           BomtraceBuilder.build()            [or build_java()]
-Step 5a: OmniBOR SPDX   SpdxGenerator.generate()           [or generate_java()]
+Step 2: Syft SBOM       SyftGenerator.generate()                [if enabled]
+Step 3: Validate deps   DependencyValidator.validate()          [C/C++ only]
+Step 4: Build           BomtraceBuilder.build()                 [or sidecar strategy]
+Step 5a: OmniBOR SPDX   SpdxGenerator.generate()                [or generate_java()]
 Step 5b: Metadata        MetadataCollector.collect()
-Step 5c: ADG SPDX        AdgSpdxStep.generate()            [or _generate_java_adg_spdx()]
+Step 5c: ADG SPDX        AdgSpdxStep.generate()                 [or JavaSpdxGenerator]
 Step 6: Validate         SpdxValidator.validate()
 Step 7: Collect          BinaryCollector.collect()
 Step 8: Docs             DocWriter.write_build_doc() + write_runtime_doc()
@@ -85,22 +87,26 @@ Step 8: Docs             DocWriter.write_build_doc() + write_runtime_doc()
 | C/C++ | bomtrace3 | `AdgSpdxStep` → `AdgSpdxGenerator` | apt deps validated first |
 | Rust | bomtrace2 | `AdgSpdxStep` → `AdgSpdxGenerator` | Same as C/C++ but bomtrace2 |
 | Go | bomtrace2 + `bomtrace_go.conf` | `AdgSpdxStep` → `AdgSpdxGenerator` | Needs `-a` flag, openat tracing |
-| Java | strace + `bomsh_create_bom_java.py` | `_generate_java_adg_spdx()` → `JavaSpdxGenerator` | No dynamic libs |
+| Java | strace + `bomsh_create_bom_java.py` | `JavaSpdxGenerator` | Maven + Gradle dep:tree support |
 
 ### Pipeline file dependencies
 
 ```
-app/pipeline/runners.py          # CLI main() + language-specific runners
+app/pipeline/runners.py          # CLI main() + mode routing (standalone/sidecar/phase)
  ├─ app/config.py                # load_config(), timestamp(), lang_subdir()
+ ├─ app/pipeline/lang_runners.py # Per-language pipeline orchestration
+ │   └─ app/pipeline/timing.py   # StepTimer, TimingResult, StepMetrics
+ ├─ app/pipeline/manifest.py     # Phase 1/2 manifest (write, read, verify gitoids)
  └─ app/pipeline/facade.py       # AnalysisPipeline (composes all steps below)
      ├─ app/runner.py             # CommandRunner (subprocess wrapper)
      ├─ app/pipeline/validator.py        # DependencyValidator
      │   └─ app/runner.py
      ├─ app/pipeline/cloner.py           # RepoCloner
      │   └─ app/runner.py
-     ├─ app/pipeline/builder.py          # BomtraceBuilder
+     ├─ app/pipeline/builder.py          # BomtraceBuilder + interception strategy
      │   ├─ app/config.py
-     │   └─ app/runner.py
+     │   ├─ app/runner.py
+     │   └─ app/pipeline/interception.py  # InterceptionStrategy ABC + PtraceStrategy
      ├─ app/pipeline/spdx_generator.py   # SpdxGenerator (bomsh_sbom.py wrapper)
      │   ├─ app/config.py
      │   └─ app/runner.py
@@ -118,6 +124,13 @@ app/pipeline/runners.py          # CLI main() + language-specific runners
      │   └─ app/config.py
      └─ app/pipeline/doc_writer.py       # DocWriter
          └─ app/config.py
+
+# Java-specific pipeline modules
+app/pipeline/maven_dep_tree_parser.py   # Parse mvn dependency:tree DOT format
+app/pipeline/gradle_dep_tree_parser.py  # Parse gradle dependencies tree format
+app/pipeline/maven_plugin_detector.py   # Detect shade/assembly plugin in pom.xml
+app/pipeline/language_validator.py      # Validate language is supported
+app/pipeline/version_checker.py         # Check bomsh upstream for updates
 ```
 
 ## 3. SPDX Generation (`spdx_from_adg.py`)
@@ -174,8 +187,18 @@ and appear in the sibling's own SPDX file instead.
 | `resolver.py` | `ComponentResolver` | Load `component_metadata.json` and `dynamic_libs.json`, map files to dpkg packages |
 | `emitter.py` | `SpdxEmitter` | Build SPDX 2.3 JSON: packages, files, relationships, PURLs, ExternalRefs |
 | `generator.py` | `AdgSpdxGenerator` | Facade: compose parser → resolver → emitter → write JSON → generate HTML |
-| `java_generator.py` | `JavaSpdxGenerator` | Java-specific: treedb + Maven deps + sibling filtering |
+| `java_generator.py` | `JavaSpdxGenerator` | Java-specific: treedb + Maven/Gradle deps + sibling filtering |
 | `cli.py` | `main()` | Standalone CLI for `python3 -m app.spdx_from_adg` |
+| `relationships.py` | — | SPDX 2.3 relationship type constants and scope-to-type mapping |
+| `vendored.py` | — | Vendored dependency detection and sub-component splitting |
+| `lang_parsers.py` | — | Go module, Rust crate, and C/C++ artifact path parsers |
+| `maven_parser.py` | `MavenParser` | Parse Maven `dependency:tree` output for SPDX emission |
+| `gradle_parser.py` | `GradleParser` | Parse Gradle `dependencies` output for SPDX emission |
+| `package_resolver.py` | `PackageResolver` | Multi-distro abstraction: dpkg, rpm, apk resolver factory |
+| `dpkg_resolver.py` | `DpkgResolver` | Debian/Ubuntu `dpkg-query -S` package resolution |
+| `rpm_resolver.py` | `RpmResolver` | RHEL/CentOS `rpm -qf` package resolution |
+| `apk_resolver.py` | `ApkResolver` | Alpine `apk info --who-owns` package resolution |
+| `structural_comparator.py` | `SpdxStructuralComparator` | Compare SPDX docs for structural equivalence (golden file testing) |
 | `version_detector.py` | — | Backward-compat shim → `app.version_detection` |
 
 ## 4. Visualization (`spdx_visualize.py`)
@@ -330,7 +353,10 @@ add_repo.py [shim]
  └── app.repo_discovery.* (all 6 discovery modules + facade + cli)
 
 app/spdx/emitter.py
- └── app.version_detection (VendoredVersionDetector)
+ ├── app.version_detection (VendoredVersionDetector)
+ ├── app.spdx.relationships (relationship type constants)
+ ├── app.spdx.lang_parsers (Go/Rust/C++ path parsers)
+ └── app.spdx.vendored (vendored detection + sub-component split)
 
 app/spdx/generator.py
  ├── app.spdx.parser
@@ -339,7 +365,14 @@ app/spdx/generator.py
  └── spdx_visualize (generate_html) [lazy import at end]
 
 app/spdx/java_generator.py
- └── app.spdx.parser (AdgParser)
+ ├── app.spdx.parser (AdgParser)
+ ├── app.spdx.maven_parser (MavenParser)
+ └── app.spdx.gradle_parser (GradleParser)
+
+app/spdx/package_resolver.py
+ ├── app.spdx.dpkg_resolver (DpkgResolver)
+ ├── app.spdx.rpm_resolver (RpmResolver)
+ └── app.spdx.apk_resolver (ApkResolver)
 
 app/pipeline/adg_spdx.py
  ├── app.config
@@ -354,7 +387,31 @@ app/pipeline/facade.py
 app/pipeline/runners.py
  ├── app.config
  ├── app.pipeline.facade
+ ├── app.pipeline.lang_runners (run_c_cpp/rust/go/java_pipeline)
+ ├── app.pipeline.manifest (write_manifest, read_manifest, verify_gitoids)
  └── app.spdx.java_generator [lazy import in _generate_java_adg_spdx]
+
+app/pipeline/lang_runners.py
+ ├── app.config (lang_subdir)
+ └── app.pipeline.timing (StepTimer, TimingResult)
+
+app/pipeline/interception.py
+ └── (ABC + PtraceStrategy, CcWrapperStrategy skeleton)
+
+app/pipeline/timing.py
+ └── (StepTimer, StepMetrics, TimingResult dataclasses)
+
+app/pipeline/manifest.py
+ └── (write_manifest, read_manifest, verify_gitoids)
+
+app/pipeline/maven_dep_tree_parser.py
+ └── (parse Maven dependency:tree DOT format)
+
+app/pipeline/gradle_dep_tree_parser.py
+ └── app.spdx.gradle_parser
+
+app/pipeline/maven_plugin_detector.py
+ └── (scan pom.xml for shade/assembly plugins)
 
 app/collect_metadata.py
  └── app.version_detection (VendoredVersionDetector) [lazy import]
@@ -362,19 +419,23 @@ app/collect_metadata.py
 
 ## 9. Package Summaries
 
-### `app/pipeline/` — Build orchestration (10 step classes + facade + runners)
+### `app/pipeline/` — Build orchestration (10 step classes + facade + runners + 8 support modules)
 
 Manages the full lifecycle: clone, build with bomtrace instrumentation,
 generate SPDX, validate, collect artifacts, write docs. Each step is a
 small class (30-80 lines) that depends only on `app.config` and
-`app.runner`.
+`app.runner`. Support modules handle interception strategies, timing,
+phase 1/2 manifest, Maven/Gradle dep tree parsing, plugin detection,
+language validation, and version checking.
 
-### `app/spdx/` — SPDX generation (parser → resolver → emitter)
+### `app/spdx/` — SPDX generation (parser → resolver → emitter + 11 support modules)
 
 Three-stage pipeline: parse bomsh treedb → resolve artifacts to named
 packages → emit SPDX 2.3 JSON. The `AdgSpdxGenerator` facade composes
-all three. `JavaSpdxGenerator` handles Java-specific Maven dependency
-resolution.
+all three. `JavaSpdxGenerator` handles Java-specific Maven/Gradle
+dependency resolution. Multi-distro package resolvers (dpkg, rpm, apk)
+support Ubuntu, RHEL, and Alpine. Language-specific parsers handle
+Go modules, Rust crates, and vendored C/C++ libraries.
 
 ### `app/viz/` — D3.js visualization (6 modules)
 
@@ -399,4 +460,4 @@ path detection, build step generation, and config.yaml writing. Used by
 
 ---
 
-*Last updated: April 29, 2026*
+*Last updated: May 14, 2026*

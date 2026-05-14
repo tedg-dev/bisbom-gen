@@ -23,7 +23,7 @@ This guide explains the three core workflows, when to use them, and recommended 
 
 ## `/add-repo` — Add a New Target Repository
 
-Registers a new C/C++ project so the analysis pipeline knows how to clone, configure, and build it. Uses `app/add_repo.py` to **auto-discover** repo metadata from GitHub.
+Registers a new project so the analysis pipeline knows how to clone, configure, and build it. Supports C/C++, Rust, Go, and Java. Uses `app/add_repo.py` to **auto-discover** repo metadata from GitHub.
 
 ### Usage
 
@@ -63,13 +63,19 @@ Accepts: repo name (`curl`), owner/repo (`curl/curl`), or full GitHub URL.
 | `curl` | HTTP transfer library and CLI (~170K LoC) | autoconf + make | ~5 min |
 | `redis` | In-memory data store with 8 vendored libs | plain make | ~3 min |
 | `ffmpeg` | Multimedia framework (~1.2M LoC, 20+ third-party libs) | custom configure + make | ~24 min |
-| `nmap` | Network scanner with 7 vendored libs + 14 dynamic | autoconf + make | ~3.3 min |
+| `nmap` | Network scanner with 10 vendored libs + 14 dynamic | autoconf + make | ~3.3 min |
+| `openosc` | Cisco buffer overflow detection library | autoconf + make | ~1 min |
+| `node` | Node.js runtime (~4M LoC, 20+ vendored deps) | configure + make | ~15 min |
 
 **Go:**
 | Repo | Description | Build System | Build Time |
 |------|-------------|--------------|------------|
+| `fzf` | Fuzzy finder CLI | go build | ~1 min |
 | `lazygit` | Terminal UI for git | go build | ~2 min |
-| `pocketbase` | Backend-as-a-service | go build | ~1 min |
+| `croc` | Secure file transfer tool | go build | ~1 min |
+| `dive` | Docker image layer explorer | go build | ~1 min |
+| `gdu` | Fast disk usage analyzer | go build | ~1 min |
+| `pocketbase` | Open source backend | go build | ~1 min |
 
 **Rust:**
 | Repo | Description | Build System | Build Time |
@@ -77,13 +83,20 @@ Accepts: repo name (`curl`), owner/repo (`curl/curl`), or full GitHub URL.
 | `oxipng` | PNG optimizer | cargo build --release | ~1 min |
 | `dura` | Background git commit tool | cargo build --release | ~3 min |
 
-**Java:**
+**Java (Maven):**
 | Repo | Description | Build System | Build Time |
 |------|-------------|--------------|------------|
+| `jsoup` | HTML parser (zero runtime deps) | mvn package | ~30s |
 | `checkstyle` | Code style checker | mvn package | ~1 min |
-| `jsoup` | HTML parser | mvn package | ~30s |
-| `dependency-check` | Vulnerability scanner (3 modules) | mvn package | ~2 min |
 | `crawler4j` | Web crawler | mvn package | ~30s |
+| `dependency-check` | OWASP vulnerability scanner (6 modules) | mvn package | ~2 min |
+| `logging-log4j2` | Apache Log4j2 logging framework | mvn install (JDK 17) | ~2 min |
+
+**Java (Gradle):**
+| Repo | Description | Build System | Build Time |
+|------|-------------|--------------|------------|
+| `spring-boot` | Spring Boot framework (core module) | gradlew build | ~3 min |
+| `bc-java` | Bouncy Castle crypto (bcprov) | gradlew build | ~2 min |
 
 ### Recommendations
 
@@ -95,7 +108,7 @@ Accepts: repo name (`curl`), owner/repo (`curl/curl`), or full GitHub URL.
 
 ## `/run-analysis` — Run Build Interception Analysis
 
-Instruments a C/C++ build with `bomtrace3` to capture every compiler/linker invocation, then generates OmniBOR Artifact Dependency Graphs (ADG) and SPDX SBOMs.
+Instruments a build with `bomtrace3`/`bomtrace2` (C/C++, Rust, Go) or strace (Java) to capture every compiler/linker invocation, then generates OmniBOR Artifact Dependency Graphs (ADG) and SPDX SBOMs.
 
 ### What it does (7 steps)
 
@@ -127,12 +140,12 @@ docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
 
 | Artifact | Path |
 |----------|------|
-| OmniBOR ADG | `output/omnibor/<repo>/` |
-| Component metadata | `output/omnibor/<repo>/metadata/component_metadata.json` |
-| Dynamic libs (per binary) | `output/omnibor/<repo>/metadata/<binary>/dynamic_libs.json` |
-| SPDX SBOM (OmniBOR) | `output/spdx/<repo>/<repo>_omnibor_<timestamp>.spdx.json` |
-| ADG SPDX (per binary) | `output/spdx/<repo>/<binary>_adg.spdx.json` |
-| Visualization (per binary) | `output/spdx/<repo>/<binary>_adg.spdx.html` |
+| OmniBOR ADG | `output/omnibor/{lang}/<repo>/<ts>/` |
+| Component metadata | `output/omnibor/{lang}/<repo>/<ts>/metadata/component_metadata.json` |
+| Dynamic libs (per binary) | `output/omnibor/{lang}/<repo>/<ts>/metadata/<binary>/dynamic_libs.json` |
+| SPDX SBOM (analyzed) | `output/spdx/{lang}/<repo>/<ts>/<binary>_analyzed.spdx.json` |
+| SPDX SBOM (build) | `output/spdx/{lang}/<repo>/<ts>/<binary>_build.spdx.json` |
+| Visualization (per binary) | `output/spdx/{lang}/<repo>/<ts>/<binary>_*.spdx.html` |
 | Build log | `output/build-logs/{lang}/<repo>/<ts>/build.md` |
 | Runtime metrics | `output/runtime/{lang}/<repo>/<ts>/runtime.md` |
 

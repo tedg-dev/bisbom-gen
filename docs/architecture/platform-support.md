@@ -4,13 +4,35 @@
 
 ## Overview
 
-The OmniBOR analysis container (`omnibor-env`) runs on any host that supports Docker.
-The container itself currently targets **Linux x86_64** due to architecture-specific
-dependencies in the build interception toolchain.
+The OmniBOR analysis pipeline supports two execution modes with different
+platform requirements. **Sidecar mode** (default, no `SYS_PTRACE` required)
+runs on any Docker host. **Standalone mode** (legacy, ptrace-based) requires
+`SYS_PTRACE` capability and targets Linux x86_64.
 
 <a id="host-requirements"></a>
 
+## Execution Modes
+
+| Mode | Container Image | `SYS_PTRACE` | Mechanism | Primary Use |
+|------|----------------|:------------:|-----------|-------------|
+| **Sidecar** (default) | `omnibor-env:sidecar` | No | Language-specific strategies (dep:tree, `-toolexec`, `RUSTC_WRAPPER`) | Enterprise CI/CD |
+| **Standalone** (legacy) | `omnibor-env:standalone` | Yes | `bomtrace3`/`bomtrace2` ptrace-based tracing | Golden file generation, dev/debug |
+
 ## Host Requirements
+
+### Sidecar Mode (recommended)
+
+| | |
+|---|---|
+| **Supported host OS** | Linux, macOS, Windows (via Docker Desktop) |
+| **Container runtime** | Docker 20.10+ (standard capabilities — no `SYS_PTRACE` needed) |
+| **Container architecture** | `linux/amd64` (x86_64) |
+| **Distro images** | Ubuntu 22.04, RHEL 9 (Rocky Linux), Alpine 3.19 |
+
+Sidecar mode works in standard Docker and Kubernetes environments without
+privileged capabilities.
+
+### Standalone Mode (legacy)
 
 | | |
 |---|---|
@@ -56,18 +78,18 @@ This means:
 
 ## What Does Not Work
 
-| Platform | Reason |
-|----------|--------|
-| macOS native (no Docker) | `ptrace` and `execve` interception require Linux kernel |
-| Windows native (no Docker) | Same — Linux kernel required |
-| ARM64 / Graviton (native container) | `bomtrace3` register access is x86_64-only |
-| Alpine Linux (musl) | `bomtrace3` and bomsh scripts assume glibc |
+| Platform | Standalone | Sidecar | Reason |
+|----------|:----------:|:-------:|--------|
+| macOS native (no Docker) | No | No | Linux kernel required |
+| Windows native (no Docker) | No | No | Linux kernel required |
+| ARM64 / Graviton (native) | No | No | `bomtrace3` register access is x86_64-only; sidecar not yet ported |
+| Alpine Linux (musl) | No | **Yes** | Standalone: bomtrace3 assumes glibc. Sidecar: works via `apk` resolver |
 
 <a id="future-arm64"></a>
 
 ## Future: ARM64 Support
 
-Enabling native ARM64 container support requires:
+Enabling native ARM64 standalone container support requires:
 
 1. **Port `bomtrace3` register access** — replace `<sys/reg.h>` x86_64 offsets with `struct user_pt_regs` and ARM64 register names
 2. **Update syscall number mapping** — ARM64 uses different syscall numbers than x86_64

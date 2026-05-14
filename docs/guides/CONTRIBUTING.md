@@ -122,6 +122,26 @@ Additional review policies:
 
 ## Testing
 
+### Unit Tests (required before every commit)
+
+The project has 1,450+ unit tests with 97%+ coverage. All tests must pass
+before committing:
+
+```bash
+# Run the full test suite
+.venv/bin/python3 -m pytest tests/ -x -q
+
+# Run with coverage report
+.venv/bin/python3 -m pytest tests/ --cov=app --cov-report=term-missing
+```
+
+**Coverage requirements:**
+- **Overall project**: ≥97% line coverage
+- **Individual source files**: ≥95% line coverage
+- New public functions must have at least one test
+
+### Integration Tests (for pipeline changes)
+
 - Run analysis scripts against at least one target repo before submitting changes to `app/`
 - Verify Docker image builds successfully after Dockerfile changes
 - Test inside the container, not on the macOS host
@@ -135,6 +155,15 @@ docker-compose -f docker/docker-compose.yml run --rm omnibor-env bomtrace3 --ver
 docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
   python3 /workspace/app/analyze.py --repo curl
 ```
+
+### Pre-commit Gates
+
+Every commit must pass all of these checks:
+
+1. **Import check**: `.venv/bin/python3 -c "import app"` — zero errors
+2. **Lint**: `.venv/bin/python3 -m flake8 app/ tests/` — zero warnings
+3. **Tests**: `.venv/bin/python3 -m pytest tests/ -x -q` — all pass
+4. **Coverage**: meets thresholds above
 
 ## Adding a New Target Repository
 
