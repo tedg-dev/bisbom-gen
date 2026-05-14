@@ -61,7 +61,7 @@ This will:
 - Read all project rules and workflows
 - Create the Python virtual environment
 - Install dependencies from `requirements.txt`
-- Run the test suite (874+ tests, 97%+ coverage)
+- Run the test suite (1,450+ tests, 97%+ coverage)
 - Check Docker availability
 - Report the environment status
 
@@ -133,11 +133,13 @@ Or use the workflow directly:
 
 Pre-configured C/C++ repos: **curl**, **redis**, **ffmpeg**, **nmap**, **openosc**, **node**
 
+Pre-configured Go repos: **fzf**, **lazygit**, **croc**, **dive**, **gdu**, **pocketbase**
+
 Pre-configured Rust repos: **oxipng**, **dura**
 
-Pre-configured Go repos: **lazygit**, **fzf**, **pocketbase**, **croc**, **dive**, **gdu**
+Pre-configured Java (Maven) repos: **jsoup**, **checkstyle**, **crawler4j**, **dependency-check**, **logging-log4j2**
 
-Pre-configured Java repos: **checkstyle**, **jsoup**, **crawler4j**, **dependency-check**, **logging-log4j2**, **spring-boot**, **bc-java**
+Pre-configured Java (Gradle) repos: **spring-boot**, **bc-java**
 
 ### Add a new repo from GitHub
 
@@ -189,34 +191,32 @@ with color-coded nodes (purple=root, teal=vendored, red=dynamic, yellow=build to
 
 ```
 omnibor-analysis/
-├── app/                    # Core application code
-│   ├── analyze.py          # Main pipeline orchestrator
-│   ├── spdx_from_adg.py    # Per-binary SPDX generation
-│   ├── spdx_visualize.py   # D3.js HTML visualization
-│   ├── collect_metadata.py # dpkg package resolution
-│   ├── collect_dynamic_libs.py # ldd/readelf analysis
-│   ├── compare.py          # SBOM comparison tool
-│   ├── add_repo.py         # Auto-discover repos from GitHub
-│   ├── data_loader.py      # Shared data loading utilities
-│   └── config.yaml         # Repository and tool configuration
-├── docker/                 # Container environment
-│   ├── Dockerfile          # Ubuntu 22.04 + gcc + Rust + Go + bomtrace
-│   └── docker-compose.yml  # Container orchestration
-├── terraform/              # AWS EC2 infrastructure as code
-├── tests/                  # Unit tests (874+ tests, 97%+ coverage)
-├── docs/                   # Hand-written documentation
-│   ├── architecture/       # System diagrams and technical design
-│   ├── features/           # Feature documentation (phase isolation, SBOMs)
-│   ├── guides/             # Onboarding, contributing, AWS setup
-│   ├── deep-dive/          # Sidecar design docs (per-language)
-│   ├── testing/            # Golden file regression testing
-│   ├── issues/             # Upstream bug tracking
-│   └── _archived/          # Historical documents (not current)
-├── .windsurf/              # Cascade AI configuration
-│   ├── rules/              # Project rules (always loaded)
-│   └── workflows/          # Slash commands (/add-repo, etc.)
-├── repos/                  # Cloned target repos (gitignored)
-└── output/                 # Generated artifacts (gitignored)
+\u251c\u2500\u2500 app/                    # Core application code
+\u2502   \u251c\u2500\u2500 pipeline/           # Build orchestration (10 steps + facade + runners)
+\u2502   \u251c\u2500\u2500 spdx/               # SPDX generation (parser \u2192 resolver \u2192 emitter)
+\u2502   \u251c\u2500\u2500 viz/                # D3.js HTML visualization modules
+\u2502   \u251c\u2500\u2500 version_detection/  # 12 vendored version detection strategies
+\u2502   \u251c\u2500\u2500 repo_discovery/     # Auto-discover repos from GitHub
+\u2502   \u251c\u2500\u2500 analyze.py          # CLI entry point \u2192 pipeline facade
+\u2502   \u2514\u2500\u2500 config.yaml         # Repository and tool configuration
+\u251c\u2500\u2500 docker/                 # Container environment
+\u2502   \u251c\u2500\u2500 Dockerfile          # Ubuntu 22.04 + gcc + Rust + Go + bomtrace
+\u2502   \u2514\u2500\u2500 docker-compose.yml  # Container orchestration
+\u251c\u2500\u2500 terraform/              # AWS EC2 infrastructure as code
+\u251c\u2500\u2500 tests/                  # Unit tests (1,450+ tests, 97%+ coverage)
+\u251c\u2500\u2500 docs/                   # Hand-written documentation
+\u2502   \u251c\u2500\u2500 architecture/       # System diagrams and technical design
+\u2502   \u251c\u2500\u2500 features/           # Feature documentation (phase isolation, SBOMs)
+\u2502   \u251c\u2500\u2500 guides/             # Onboarding, contributing, AWS setup
+\u2502   \u251c\u2500\u2500 deep-dive/          # Sidecar design docs (per-language)
+\u2502   \u251c\u2500\u2500 testing/            # Golden file regression testing
+\u2502   \u251c\u2500\u2500 issues/             # Upstream bug tracking
+\u2502   \u2514\u2500\u2500 _archived/          # Historical documents (not current)
+\u251c\u2500\u2500 .windsurf/              # Cascade AI configuration
+\u2502   \u251c\u2500\u2500 rules/              # Project rules (always loaded)
+\u2502   \u2514\u2500\u2500 workflows/          # Slash commands (/add-repo, etc.)
+\u251c\u2500\u2500 repos/                  # Cloned target repos (gitignored)
+\u2514\u2500\u2500 output/                 # Generated artifacts (gitignored)
 ```
 
 ## Development Workflow
