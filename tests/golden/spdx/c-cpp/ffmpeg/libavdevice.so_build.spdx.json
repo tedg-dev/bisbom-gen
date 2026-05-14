@@ -2,10 +2,10 @@
   "spdxVersion": "SPDX-2.3",
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
-  "name": "libavformat.so",
-  "documentNamespace": "https://omnibor.io/omnibor-analysis/libavformat.so-33ec31a8-f0e4-4807-8b45-d75c17fecb99",
+  "name": "libavdevice.so",
+  "documentNamespace": "https://omnibor.io/omnibor-analysis/libavdevice.so-ec2034c1-ead0-4bd5-a34f-377f5e591ead",
   "creationInfo": {
-    "created": "2026-05-14T18:00:12Z",
+    "created": "2026-05-14T18:00:09Z",
     "creators": [
       "Tool: bomtrace3-unknown",
       "Tool: bomsh-unknown",
@@ -16,11 +16,11 @@
   "packages": [
     {
       "SPDXID": "SPDXRef-Package-root",
-      "name": "libavformat.so",
+      "name": "libavdevice.so",
       "downloadLocation": "https://github.com/FFmpeg/FFmpeg/commit/9047fa1b084f76b1b4d065af2d743df1b40dfb56",
       "filesAnalyzed": true,
       "primaryPackagePurpose": "LIBRARY",
-      "builtDate": "2026-05-14T18:00:12Z",
+      "builtDate": "2026-05-14T18:00:09Z",
       "externalRefs": [],
       "checksums": [],
       "comment": "Built on Ubuntu 22.04.5 LTS with gcc (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0",
@@ -44,68 +44,42 @@
           "referenceLocator": "cpe:2.3:a:glibc:glibc:2.35:*:*:*:*:*:*:*"
         }
       ],
-      "comment": "Dynamically linked (direct). sonames: ld-linux, libc.so.6, libm.so.6. dpkg: libc6 (amd64)",
+      "comment": "Dynamically linked (direct). sonames: ld-linux, libc.so.6. dpkg: libc6 (amd64)",
       "versionInfo": "2.35-0ubuntu3.13",
       "supplier": "Organization: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>",
       "homepage": "https://www.gnu.org/software/libc/libc.html",
       "packageSourceInfo": "Installed via dpkg package libc6 on Ubuntu 22.04.5 LTS."
     },
     {
-      "SPDXID": "SPDXRef-libssl3-2",
-      "name": "libssl3",
-      "downloadLocation": "https://www.openssl.org/",
-      "filesAnalyzed": false,
-      "primaryPackagePurpose": "LIBRARY",
-      "externalRefs": [
-        {
-          "referenceCategory": "PACKAGE-MANAGER",
-          "referenceType": "purl",
-          "referenceLocator": "pkg:deb/ubuntu/libssl3@3.0.2-0ubuntu1.23?arch=amd64&distro=ubuntu-22.04"
-        },
-        {
-          "referenceCategory": "SECURITY",
-          "referenceType": "cpe23Type",
-          "referenceLocator": "cpe:2.3:a:openssl:openssl:3.0.2:*:*:*:*:*:*:*"
-        }
-      ],
-      "comment": "Dynamically linked (direct). sonames: libcrypto.so.3, libssl.so.3. dpkg: libssl3 (amd64)",
-      "versionInfo": "3.0.2-0ubuntu1.23",
-      "supplier": "Organization: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>",
-      "homepage": "https://www.openssl.org/",
-      "packageSourceInfo": "Installed via dpkg package libssl3 on Ubuntu 22.04.5 LTS."
-    },
-    {
-      "SPDXID": "SPDXRef-zlib1g-3",
-      "name": "zlib1g",
-      "downloadLocation": "http://zlib.net/",
-      "filesAnalyzed": false,
-      "primaryPackagePurpose": "LIBRARY",
-      "externalRefs": [
-        {
-          "referenceCategory": "PACKAGE-MANAGER",
-          "referenceType": "purl",
-          "referenceLocator": "pkg:deb/ubuntu/zlib1g@1:1.2.11.dfsg-2ubuntu9.2?arch=amd64&distro=ubuntu-22.04"
-        },
-        {
-          "referenceCategory": "SECURITY",
-          "referenceType": "cpe23Type",
-          "referenceLocator": "cpe:2.3:a:zlib:zlib:1.2.11:*:*:*:*:*:*:*"
-        }
-      ],
-      "comment": "Dynamically linked (direct). sonames: libz.so.1. dpkg: zlib1g (amd64)",
-      "versionInfo": "1:1.2.11.dfsg-2ubuntu9.2",
-      "supplier": "Organization: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>",
-      "homepage": "http://zlib.net/",
-      "packageSourceInfo": "Installed via dpkg package zlib1g on Ubuntu 22.04.5 LTS."
-    },
-    {
-      "SPDXID": "SPDXRef-libavcodec-4",
+      "SPDXID": "SPDXRef-libavcodec-2",
       "name": "libavcodec",
       "downloadLocation": "NOASSERTION",
       "filesAnalyzed": false,
       "primaryPackagePurpose": "LIBRARY",
       "externalRefs": [],
       "comment": "Project-built shared library (direct). sonames: libavcodec.so.62",
+      "packageSourceInfo": "Built from project source as part of ffmpeg build.",
+      "versionInfo": "8.1"
+    },
+    {
+      "SPDXID": "SPDXRef-libavfilter-3",
+      "name": "libavfilter",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "primaryPackagePurpose": "LIBRARY",
+      "externalRefs": [],
+      "comment": "Project-built shared library (direct). sonames: libavfilter.so.11",
+      "packageSourceInfo": "Built from project source as part of ffmpeg build.",
+      "versionInfo": "8.1"
+    },
+    {
+      "SPDXID": "SPDXRef-libavformat-4",
+      "name": "libavformat",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "primaryPackagePurpose": "LIBRARY",
+      "externalRefs": [],
+      "comment": "Project-built shared library (direct). sonames: libavformat.so.62",
       "packageSourceInfo": "Built from project source as part of ffmpeg build.",
       "versionInfo": "8.1"
     },
@@ -33575,17 +33549,17 @@
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "DYNAMIC_LINK",
-      "relatedSpdxElement": "SPDXRef-libssl3-2"
+      "relatedSpdxElement": "SPDXRef-libavcodec-2"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "DYNAMIC_LINK",
-      "relatedSpdxElement": "SPDXRef-zlib1g-3"
+      "relatedSpdxElement": "SPDXRef-libavfilter-3"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "DYNAMIC_LINK",
-      "relatedSpdxElement": "SPDXRef-libavcodec-4"
+      "relatedSpdxElement": "SPDXRef-libavformat-4"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",

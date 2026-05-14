@@ -24,13 +24,14 @@ file, that is a **regression** that must be investigated and reported.
 There are NO per-OS or per-mode golden files — the golden files are
 OS-agnostic and mode-agnostic.
 
-## Standalone Mode Is the Authoritative Baseline
+## Sidecar Mode Is the Authoritative Baseline
 
-Golden files MUST be generated from **standalone mode** (strace/ptrace
-on Ubuntu). Standalone is the original, most thorough analysis mode —
-it produces the ground-truth SPDX via build interception. All other
-variants (sidecar, RHEL, Alpine) are then compared against the
-standalone-generated golden files to verify structural equivalence.
+Golden files MUST be generated from **sidecar mode** (Phase 1 + Phase 2
+on Ubuntu). Sidecar is the primary enterprise deployment mode — it
+produces the ground-truth SPDX via build interception without requiring
+SYS_PTRACE. All other variants (standalone, RHEL, Alpine) are then
+compared against the sidecar-generated golden files to verify
+structural equivalence.
 
 ## Absolute Rule: Cascade NEVER Updates Golden Files
 
