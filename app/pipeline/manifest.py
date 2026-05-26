@@ -17,6 +17,24 @@ import json
 from pathlib import Path
 
 
+def _sha1(file_path):
+    """Compute plain SHA-1 hex digest for a file."""
+    h = hashlib.sha1()
+    with open(file_path, "rb") as f:
+        for chunk in iter(lambda: f.read(8192), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def _sha256(file_path):
+    """Compute plain SHA-256 hex digest for a file."""
+    h = hashlib.sha256()
+    with open(file_path, "rb") as f:
+        for chunk in iter(lambda: f.read(8192), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
 MANIFEST_VERSION = "1.0"
 MANIFEST_FILENAME = "phase1_manifest.json"
 
@@ -109,6 +127,11 @@ def write_manifest(
 
     # Compute gitoids for artifact files that exist
     data["gitoids"] = _compute_gitoids(artifacts)
+
+    # Enrich binaries with checksums for SPDX correlation
+    data["artifacts"]["binaries"] = _enrich_binaries(
+        artifacts.get("binaries", []),
+    )
 
     manifest_path = manifest_dir / MANIFEST_FILENAME
     with open(manifest_path, "w", encoding="utf-8") as f:
@@ -213,10 +236,17 @@ def _validate_artifacts(artifacts):
             f"Missing required artifact fields: "
             f"{', '.join(sorted(missing))}"
         )
-    if not isinstance(artifacts.get("binaries"), list):
+    binaries = artifacts.get("binaries")
+    if not isinstance(binaries, list):
         raise ManifestError(
             "artifacts.binaries must be a list"
         )
+    # Validate enriched format entries
+    for item in binaries:
+        if isinstance(item, dict) and "path" not in item:
+            raise ManifestError(
+                "enriched binary entry missing 'path'"
+            )
 
 
 def _validate_paths(paths):
@@ -229,6 +259,48 @@ def _validate_paths(paths):
             f"Missing required path fields: "
             f"{', '.join(sorted(missing))}"
         )
+
+
+def _enrich_binaries(binaries):
+    """Enrich binary paths with checksums.
+
+    Converts plain path strings to dicts with:
+      - path: original file path
+      - sha1: plain SHA-1 hex digest
+      - sha256: plain SHA-256 hex digest
+
+    Files that don't exist are kept as-is (string).
+    """
+    enriched = []
+    for item in binaries:
+        if isinstance(item, dict):
+            enriched.append(item)
+            continue
+        p = Path(item)
+        if p.is_file():
+            enriched.append({
+                "path": item,
+                "sha1": _sha1(p),
+                "sha256": _sha256(p),
+            })
+        else:
+            enriched.append(item)
+    return enriched
+
+
+def _binary_paths(binaries):
+    """Extract path strings from binaries list.
+
+    Handles both old format (plain strings) and
+    new format (dicts with 'path' key).
+    """
+    paths = []
+    for item in binaries:
+        if isinstance(item, dict):
+            paths.append(item["path"])
+        elif isinstance(item, str):
+            paths.append(item)
+    return paths
 
 
 def _compute_gitoids(artifacts):
@@ -246,10 +318,19 @@ def _compute_gitoids(artifacts):
                 gitoids[value] = _sha256_gitoid(p)
         elif isinstance(value, list):
             for item in value:
-                if isinstance(item, str):
-                    p = Path(item)
+                # Handle both plain strings and enriched
+                # dicts (with 'path' key)
+                item_path = (
+                    item.get("path") if isinstance(item, dict)
+                    else item if isinstance(item, str)
+                    else None
+                )
+                if item_path:
+                    p = Path(item_path)
                     if p.is_file():
-                        gitoids[item] = _sha256_gitoid(p)
+                        gitoids[item_path] = (
+                            _sha256_gitoid(p)
+                        )
     return gitoids
 
 

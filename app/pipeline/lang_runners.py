@@ -247,11 +247,16 @@ def run_java_phase2(
     pipeline, repo_name, repo_cfg,
     paths_cfg, omnibor_java_cfg, run_ts,
     vcs_uri="NOASSERTION",
+    manifest_binaries=None,
 ):
     """Java Phase 2: SPDX generation + validation.
 
     Runs post-build analysis: OmniBOR SBOM, metadata,
     per-binary SPDX, validation, binary collection.
+
+    Args:
+        manifest_binaries: optional enriched binary list
+            from manifest (dicts with path, sha1, sha256).
 
     Returns list of ``StepMetrics``.
     """
@@ -270,6 +275,7 @@ def run_java_phase2(
                 repo_name, repo_cfg,
                 paths_cfg, run_ts,
                 vcs_uri=vcs_uri,
+                manifest_binaries=manifest_binaries,
             )
         ),
     )
@@ -313,17 +319,23 @@ def run_java_pipeline(
 def generate_java_adg_spdx(
     repo_name, repo_cfg, paths_cfg, run_ts,
     vcs_uri="NOASSERTION",
+    manifest_binaries=None,
 ):
-    """Generate per-binary Java SPDX.
+    """Generate Java SPDX documents.
 
-    Produces two SBOMs per JAR (CISA taxonomy):
-      - _analyzed: only source files in the JAR
-      - _build: full Maven dependency graph
+    Produces two SBOMs (CISA taxonomy):
+      - _analyzed.spdx.json: source files per JAR
+      - _build.spdx.json: full Maven dependency graph
 
-    For multi-module Maven projects, each output JAR
-    gets its own SPDX pair with only the files that
-    were compiled into that specific JAR (traced via
-    bomsh treedb hash_tree).
+    All JARs are combined into a single document per
+    SBOM type. Each JAR becomes a root package with
+    ``packageFileName`` and ``checksums`` for manifest
+    correlation.
+
+    Args:
+        manifest_binaries: optional list of enriched
+            binary dicts from the manifest (with
+            ``path``, ``sha1``, ``sha256`` keys).
     """
     from app.pipeline.maven_plugin_detector import (
         detect_repackaging_plugins,
@@ -393,6 +405,18 @@ def generate_java_adg_spdx(
         )
         return []
 
+    # Build index of manifest checksums by filename
+    # for correlation with SPDX packages
+    checksums_by_name = {}
+    if manifest_binaries:
+        for entry in manifest_binaries:
+            if isinstance(entry, dict):
+                p = Path(entry["path"])
+                checksums_by_name[p.name] = {
+                    "sha1": entry.get("sha1", ""),
+                    "sha256": entry.get("sha256", ""),
+                }
+
     # Detect shade/assembly plugins for SPDX annotation
     plugin_result = detect_repackaging_plugins(
         str(repo_dir),
@@ -409,9 +433,9 @@ def generate_java_adg_spdx(
         vcs_uri=vcs_uri,
     )
 
-    results = []
+    # Collect per-JAR info for multi-JAR document
+    jar_infos = []
     for jar_path in jar_paths:
-        jar_name = jar_path.stem  # e.g. jsoup-1.22.1
         bin_name = jar_path.name  # e.g. jsoup-1.22.1.jar
 
         # Find matching treedb entry by JAR path.
@@ -463,37 +487,50 @@ def generate_java_adg_spdx(
                 pom_dir = str(parent)
                 break
 
-        # Analyzed: only source files in this JAR
-        analyzed_path = (
-            spdx_dir
-            / f"{jar_name}_analyzed.spdx.json"
-        )
-        result = gen.generate(
-            output_path=str(analyzed_path),
-            binary_name=bin_name,
-            sbom_type="analyzed",
-            jar_files=jar_files,
-            pom_dir=pom_dir,
-            plugin_detection=plugin_result,
-        )
-        if result:
-            results.append(result)
+        jar_infos.append({
+            "bin_name": bin_name,
+            "jar_files": jar_files,
+            "pom_dir": pom_dir,
+            "package_file_name": rel_jar,
+            "checksums": checksums_by_name.get(
+                bin_name, {}
+            ),
+        })
 
-        # Build: full dependency graph for this module
-        build_path = (
-            spdx_dir
-            / f"{jar_name}_build.spdx.json"
+    if not jar_infos:
+        print(
+            f"[WARN] No JARs matched treedb for "
+            f"{repo_name}"
         )
-        result = gen.generate(
-            output_path=str(build_path),
-            binary_name=bin_name,
-            sbom_type="build",
-            jar_files=jar_files,
-            pom_dir=pom_dir,
-            plugin_detection=plugin_result,
-        )
-        if result:
-            results.append(result)
+        return []
+
+    results = []
+
+    # Analyzed: source files per JAR
+    analyzed_path = (
+        spdx_dir / f"{repo_name}_analyzed.spdx.json"
+    )
+    result = gen.generate_multi(
+        output_path=str(analyzed_path),
+        jars=jar_infos,
+        sbom_type="analyzed",
+        plugin_detection=plugin_result,
+    )
+    if result:
+        results.append(result)
+
+    # Build: full dependency graph
+    build_path = (
+        spdx_dir / f"{repo_name}_build.spdx.json"
+    )
+    result = gen.generate_multi(
+        output_path=str(build_path),
+        jars=jar_infos,
+        sbom_type="build",
+        plugin_detection=plugin_result,
+    )
+    if result:
+        results.append(result)
 
     return results
 

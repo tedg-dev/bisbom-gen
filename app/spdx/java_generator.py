@@ -73,6 +73,21 @@ class JavaSpdxGenerator:
         return is_gradle_project(self.repo_dir)
 
     def _get_maven_deps(self, pom_dir=None):
+        # Phase 2 path: use pre-captured deps from Phase 1
+        # if available. Phase 1 writes maven_deps.json to
+        # bom_dir during build interception. This allows
+        # Phase 2 to run without pom.xml or Maven installed.
+        cached = self.bom_dir / "maven_deps.json"
+        if cached.exists():
+            with open(cached, encoding="utf-8") as f:
+                deps = json.load(f)
+            print(
+                f"[OK] Using cached deps: "
+                f"{cached} ({len(deps)} entries)"
+            )
+            return deps
+
+        # Phase 1 path (or combined): resolve live
         if self._is_gradle():
             project = self._gradle_project_from_dir(
                 pom_dir
@@ -526,6 +541,374 @@ class JavaSpdxGenerator:
         rel_count = len(doc["relationships"])
         print(
             f"[OK] {bin_name} SPDX: {out.name} "
+            f"({pkg_count} packages, "
+            f"{file_count} files, "
+            f"{rel_count} relationships)"
+        )
+
+        # Generate HTML visualization
+        try:
+            from spdx_visualize import generate_html
+            html_path = str(out.with_suffix(".html"))
+            generate_html(doc, html_path)
+        except Exception as e:
+            print(f"[WARN] Visualization failed: {e}")
+
+        return str(out)
+
+    def generate_multi(
+        self, output_path, jars, sbom_type="build",
+        plugin_detection=None,
+    ):
+        """Generate a single SPDX document for all JARs.
+
+        Args:
+            output_path: where to write the SPDX JSON.
+            jars: list of dicts, each with:
+                - bin_name: JAR filename (e.g. ``"app.jar"``)
+                - jar_files: per-JAR source files from treedb
+                - pom_dir: optional module pom.xml directory
+                - checksums: optional dict with ``sha1``,
+                  ``sha256`` for manifest correlation
+                - package_file_name: optional relative path
+                  to the JAR (for disambiguation)
+            sbom_type: ``"analyzed"`` or ``"build"``.
+            plugin_detection: optional ``DetectionResult``.
+
+        Returns output path on success, None on failure.
+        """
+        if not jars:
+            print("[WARN] generate_multi: no JARs provided")
+            return None
+
+        now = datetime.now(timezone.utc).strftime(
+            "%Y-%m-%dT%H:%M:%SZ"
+        )
+        doc_uuid = str(uuid.uuid4())
+        doc = {
+            "spdxVersion": "SPDX-2.3",
+            "dataLicense": "CC0-1.0",
+            "SPDXID": "SPDXRef-DOCUMENT",
+            "name": f"{self.repo_name}-{sbom_type}",
+            "documentNamespace": (
+                f"https://omnibor.io/spdx/"
+                f"{self.repo_name}/{doc_uuid}"
+            ),
+            "creationInfo": self._creation_info(
+                now, plugin_detection,
+            ),
+            "packages": [],
+            "files": [],
+            "relationships": [],
+        }
+
+        # Global counters for unique SPDX IDs across JARs
+        file_counter = 0
+        dep_counter = 0
+        # Track deps already added (dedup across modules)
+        seen_dep_keys = {}  # "groupId:artifactId:version" → spdx_id
+        # Build tools added once, shared across JARs
+        build_tools_added = False
+
+        for jar_idx, jar_info in enumerate(jars):
+            bin_name = jar_info["bin_name"]
+            jar_files = jar_info.get("jar_files")
+            pom_dir = jar_info.get("pom_dir")
+            checksums = jar_info.get("checksums", {})
+            pkg_filename = jar_info.get(
+                "package_file_name",
+            )
+
+            if jar_files is None:
+                print(
+                    f"[ERROR] {bin_name}: jar_files is "
+                    f"None — skipping"
+                )
+                continue
+
+            # Clean binary name for SPDX ID
+            clean_name = re.sub(
+                r"[^a-zA-Z0-9._-]", "-", bin_name
+            )
+            artifact_name = self._extract_artifact_name(
+                bin_name
+            )
+            root_pkg_id = (
+                f"SPDXRef-Package-{clean_name}"
+            )
+
+            # Filter source files
+            source_files = [
+                f for f in jar_files
+                if not self._is_test_file(
+                    f.get("file_path", "")
+                )
+                and not self._is_extraction_artifact(
+                    f.get("file_path", "")
+                )
+            ]
+            test_excluded = (
+                len(jar_files) - len(source_files)
+            )
+            test_msg = (
+                f", {test_excluded} test excluded"
+                if test_excluded else ""
+            )
+            print(
+                f"[{bin_name}] Source files: "
+                f"{len(source_files)} production"
+                f"{test_msg}"
+            )
+
+            # Build root package with checksums
+            root_pkg = {
+                "SPDXID": root_pkg_id,
+                "name": artifact_name,
+                "versionInfo": self._get_version(
+                    artifact_path=bin_name,
+                ),
+                "downloadLocation": self.vcs_uri,
+                "filesAnalyzed": True,
+                "primaryPackagePurpose": "APPLICATION",
+                "supplier": "NOASSERTION",
+                "externalRefs": [{
+                    "referenceCategory":
+                        "PACKAGE-MANAGER",
+                    "referenceType": "purl",
+                    "referenceLocator": (
+                        f"pkg:maven/{self.repo_name}/"
+                        f"{artifact_name}"
+                    ),
+                }],
+            }
+            if pkg_filename:
+                root_pkg["packageFileName"] = pkg_filename
+            if checksums:
+                root_pkg["checksums"] = []
+                if checksums.get("sha1"):
+                    root_pkg["checksums"].append({
+                        "algorithm": "SHA1",
+                        "checksumValue": checksums["sha1"],
+                    })
+                if checksums.get("sha256"):
+                    root_pkg["checksums"].append({
+                        "algorithm": "SHA256",
+                        "checksumValue": (
+                            checksums["sha256"]
+                        ),
+                    })
+            doc["packages"].append(root_pkg)
+
+            # DESCRIBES relationship
+            doc["relationships"].append({
+                "spdxElementId": "SPDXRef-DOCUMENT",
+                "relatedSpdxElement": root_pkg_id,
+                "relationshipType": DESCRIBES,
+            })
+
+            # Add source files
+            for src in source_files:
+                file_path = src.get("file_path", "")
+                sha1 = src.get("sha1", "")
+                rel_path = file_path
+                repo_prefix = str(self.repo_dir) + "/"
+                if file_path.startswith(repo_prefix):
+                    rel_path = file_path[
+                        len(repo_prefix):
+                    ]
+                file_id = f"SPDXRef-File-{file_counter}"
+                file_counter += 1
+                doc["files"].append({
+                    "SPDXID": file_id,
+                    "fileName": rel_path,
+                    "checksums": [{
+                        "algorithm": "SHA1",
+                        "checksumValue": sha1,
+                    }] if sha1 else [],
+                })
+                doc["relationships"].append({
+                    "spdxElementId": file_id,
+                    "relatedSpdxElement": root_pkg_id,
+                    "relationshipType": CONTAINED_BY,
+                })
+
+            # Build tools (once for the whole document)
+            if not build_tools_added:
+                self._add_build_tools(doc, root_pkg_id)
+                build_tools_added = True
+
+            # For analyzed SBOMs, skip dependencies
+            if sbom_type == "analyzed":
+                continue
+
+            # Get Maven/Gradle dependencies
+            all_deps = self._get_maven_deps(
+                pom_dir=pom_dir
+            )
+            maven_deps = [
+                d for d in all_deps
+                if d["scope"] in (
+                    "compile", "runtime", "provided"
+                )
+            ]
+            test_deps = len(all_deps) - len(maven_deps)
+            direct = sum(
+                1 for d in maven_deps if d["direct"]
+            )
+            trans = len(maven_deps) - direct
+            build_sys = (
+                "Gradle" if self._is_gradle()
+                else "Maven"
+            )
+            print(
+                f"[{bin_name}] {build_sys} dependencies: "
+                f"{len(maven_deps)} runtime "
+                f"({direct} direct, "
+                f"{trans} transitive), "
+                f"{test_deps} test excluded"
+            )
+
+            # Add deps (dedup across JARs)
+            for dep in maven_deps:
+                dep_key = (
+                    f"{dep['groupId']}:"
+                    f"{dep['artifactId']}:"
+                    f"{dep['version']}"
+                )
+
+                if dep_key in seen_dep_keys:
+                    # Already added — just add relationship
+                    dep_id = seen_dep_keys[dep_key]
+                else:
+                    dep_id = (
+                        f"SPDXRef-Dep-{dep_counter}"
+                    )
+                    dep_counter += 1
+                    seen_dep_keys[dep_key] = dep_id
+
+                    purl = (
+                        f"pkg:maven/{dep['groupId']}/"
+                        f"{dep['artifactId']}"
+                        f"@{dep['version']}"
+                    )
+                    comment_parts = [
+                        f"Maven scope: {dep['scope']}",
+                    ]
+                    if dep.get("direct"):
+                        comment_parts.append(
+                            "Direct dependency"
+                        )
+                    else:
+                        comment_parts.append(
+                            "Transitive dependency"
+                        )
+                    if dep.get("optional"):
+                        comment_parts.append("Optional")
+                    if dep.get("parent"):
+                        comment_parts.append(
+                            f"Required by: "
+                            f"{dep['parent']}"
+                        )
+                    annotation = (
+                        self._artifact_annotation(dep)
+                    )
+                    if annotation:
+                        comment_parts.append(annotation)
+
+                    pkg = {
+                        "SPDXID": dep_id,
+                        "name": dep["artifactId"],
+                        "versionInfo": dep["version"],
+                        "downloadLocation": (
+                            "https://repo.maven.apache.org"
+                            "/maven2/"
+                            f"{dep['groupId'].replace('.', '/')}/"
+                            f"{dep['artifactId']}/"
+                            f"{dep['version']}/"
+                            f"{dep['artifactId']}-"
+                            f"{dep['version']}.jar"
+                        ),
+                        "filesAnalyzed": False,
+                        "supplier": (
+                            f"Organization: "
+                            f"{dep['groupId']}"
+                        ),
+                        "comment": ". ".join(
+                            comment_parts
+                        ),
+                        "sourceInfo": (
+                            f"Maven Central: "
+                            f"{dep['groupId']}:"
+                            f"{dep['artifactId']}:"
+                            f"{dep['version']}"
+                        ),
+                        "externalRefs": [{
+                            "referenceCategory":
+                                "PACKAGE-MANAGER",
+                            "referenceType": "purl",
+                            "referenceLocator": purl,
+                        }],
+                    }
+                    doc["packages"].append(pkg)
+
+                # Relationship: determine target
+                if dep.get("direct"):
+                    target = root_pkg_id
+                else:
+                    parent = dep.get("parent")
+                    parent_key = None
+                    if parent:
+                        # Find parent in seen_dep_keys
+                        for k, v in seen_dep_keys.items():
+                            if k.split(":")[1] == parent:
+                                parent_key = v
+                                break
+                    target = parent_key or root_pkg_id
+
+                rel_type = java_dep_relationship(
+                    dep.get("scope", "compile"),
+                )
+                if rel_type:
+                    doc["relationships"].append({
+                        "spdxElementId": target,
+                        "relatedSpdxElement": dep_id,
+                        "relationshipType": rel_type,
+                    })
+
+        # For analyzed, strip build tool packages/rels
+        if sbom_type == "analyzed":
+            bt_ids = {
+                r["spdxElementId"]
+                for r in doc["relationships"]
+                if r["relationshipType"] == BUILD_TOOL_OF
+            }
+            doc["relationships"] = [
+                r for r in doc["relationships"]
+                if r["relationshipType"] != BUILD_TOOL_OF
+            ]
+            still_used = {
+                r["spdxElementId"]
+                for r in doc["relationships"]
+            } | {
+                r["relatedSpdxElement"]
+                for r in doc["relationships"]
+            }
+            doc["packages"] = [
+                p for p in doc["packages"]
+                if p["SPDXID"] not in bt_ids
+                or p["SPDXID"] in still_used
+            ]
+
+        # Write output
+        out = Path(output_path)
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(json.dumps(doc, indent=2) + "\n")
+
+        pkg_count = len(doc["packages"])
+        file_count = len(doc["files"])
+        rel_count = len(doc["relationships"])
+        print(
+            f"[OK] {self.repo_name} SPDX: {out.name} "
             f"({pkg_count} packages, "
             f"{file_count} files, "
             f"{rel_count} relationships)"

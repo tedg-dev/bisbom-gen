@@ -13,6 +13,10 @@ from app.pipeline.manifest import (
     verify_gitoids,
     write_manifest,
     _sha256_gitoid,
+    _enrich_binaries,
+    _binary_paths,
+    _sha1,
+    _sha256,
 )
 
 
@@ -275,6 +279,127 @@ class TestVerifyGitoids:
 
 
 # ── _sha256_gitoid ───────────────────────────────────────
+
+
+class TestEnrichBinaries:
+    """Tests for _enrich_binaries."""
+
+    def test_enriches_existing_file(self, tmp_path):
+        jar = tmp_path / "app.jar"
+        jar.write_bytes(b"jar-bytes")
+        result = _enrich_binaries([str(jar)])
+        assert len(result) == 1
+        entry = result[0]
+        assert isinstance(entry, dict)
+        assert entry["path"] == str(jar)
+        assert len(entry["sha1"]) == 40
+        assert len(entry["sha256"]) == 64
+
+    def test_keeps_missing_file_as_string(self):
+        result = _enrich_binaries(["/no/such/file.jar"])
+        assert result == ["/no/such/file.jar"]
+
+    def test_passes_through_existing_dict(self):
+        entry = {"path": "/x.jar", "sha1": "a", "sha256": "b"}
+        result = _enrich_binaries([entry])
+        assert result == [entry]
+
+    def test_empty_list(self):
+        assert _enrich_binaries([]) == []
+
+    def test_checksums_are_correct(self, tmp_path):
+        jar = tmp_path / "test.jar"
+        jar.write_bytes(b"content")
+        result = _enrich_binaries([str(jar)])
+        entry = result[0]
+        assert entry["sha1"] == _sha1(jar)
+        assert entry["sha256"] == _sha256(jar)
+
+
+class TestBinaryPaths:
+    """Tests for _binary_paths."""
+
+    def test_plain_strings(self):
+        paths = _binary_paths(["/a.jar", "/b.jar"])
+        assert paths == ["/a.jar", "/b.jar"]
+
+    def test_enriched_dicts(self):
+        entries = [
+            {"path": "/a.jar", "sha1": "x"},
+            {"path": "/b.jar", "sha1": "y"},
+        ]
+        assert _binary_paths(entries) == ["/a.jar", "/b.jar"]
+
+    def test_mixed(self):
+        entries = [
+            {"path": "/a.jar", "sha1": "x"},
+            "/b.jar",
+        ]
+        assert _binary_paths(entries) == ["/a.jar", "/b.jar"]
+
+    def test_empty(self):
+        assert _binary_paths([]) == []
+
+
+class TestManifestEnrichedRoundTrip:
+    """Tests for write/read with enriched binaries."""
+
+    def test_binaries_enriched_on_write(
+        self, sample_kwargs,
+    ):
+        path = write_manifest(**sample_kwargs)
+        data = json.loads(path.read_text())
+        binaries = data["artifacts"]["binaries"]
+        # The JAR file exists, so it should be enriched
+        for entry in binaries:
+            if isinstance(entry, dict):
+                assert "path" in entry
+                assert "sha1" in entry
+                assert "sha256" in entry
+
+    def test_enriched_manifest_reads_ok(
+        self, sample_kwargs,
+    ):
+        path = write_manifest(**sample_kwargs)
+        data = read_manifest(path)
+        binaries = data["artifacts"]["binaries"]
+        assert isinstance(binaries, list)
+        assert len(binaries) > 0
+
+    def test_enriched_entry_missing_path_raises(
+        self, tmp_path,
+    ):
+        bad = tmp_path / MANIFEST_FILENAME
+        data = {
+            "version": MANIFEST_VERSION,
+            "repo_name": "x", "language": "java",
+            "mode": "sidecar", "tracer": "t",
+            "run_ts": "ts", "commit_sha": None,
+            "vcs_uri": "NOASSERTION",
+            "artifacts": {
+                "bom_dir": "/tmp/bom",
+                "binaries": [{"sha1": "abc"}],
+            },
+            "paths": {
+                "repos_dir": "/r",
+                "output_dir": "/o",
+                "spdx_dir": "/s",
+            },
+        }
+        bad.write_text(json.dumps(data))
+        with pytest.raises(
+            ManifestError, match="missing 'path'",
+        ):
+            read_manifest(bad)
+
+    def test_gitoids_work_with_enriched_binaries(
+        self, sample_kwargs,
+    ):
+        path = write_manifest(**sample_kwargs)
+        data = json.loads(path.read_text())
+        # Gitoids should still be keyed by path strings
+        for key in data.get("gitoids", {}):
+            assert isinstance(key, str)
 
 
 class TestSha256Gitoid:

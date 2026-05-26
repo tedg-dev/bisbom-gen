@@ -517,10 +517,16 @@ def _run_phase2_only(
     timing = TimingResult(tracer=tracer)
     timing.success = True
 
+    # Pass enriched binaries for SPDX checksum correlation
+    m_binaries = manifest.get("artifacts", {}).get(
+        "binaries", [],
+    )
+
     phase2_steps = run_java_phase2(
         pipeline, repo_name, m_repo_cfg,
         paths_cfg, m_omnibor, m_ts,
         vcs_uri=m_vcs,
+        manifest_binaries=m_binaries,
     )
     timing.steps.extend(phase2_steps)
     return timing

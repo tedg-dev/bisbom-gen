@@ -303,8 +303,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     maven \
     && rm -rf /var/lib/apt/lists/*
 ENV JAVA_HOME="/usr/lib/jvm/java-21-openjdk-amd64"
-ENV MAVEN_VERSION=3.9.15
-RUN wget -q "https://dlcdn.apache.org/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz" -O /tmp/maven.tar.gz && \
+ENV MAVEN_VERSION=3.9.16
+RUN wget -q "https://archive.apache.org/dist/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz" -O /tmp/maven.tar.gz && \
     tar -C /opt -xzf /tmp/maven.tar.gz && \
     rm /tmp/maven.tar.gz
 RUN ln -sf /opt/apache-maven-${MAVEN_VERSION}/bin/mvn /usr/local/bin/mvn && \
