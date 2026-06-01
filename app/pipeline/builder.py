@@ -75,75 +75,91 @@ class BomtraceBuilder:
             / "omnibor" / lang / repo_name / ts
         )
 
-        # --- Phase 1a: Clean ---
-        clean_cmd = repo_cfg.get("clean_cmd")
-        if clean_cmd:
-            timer = StepTimer("clean", "phase1")
-            with timer:
-                self.runner.run(
-                    clean_cmd, cwd=str(repo_dir),
-                    description=(
-                        f"Clean: {clean_cmd}"
-                    ),
-                )
-                # Ignore clean_cmd exit code — it may
-                # fail on a fresh clone
-            result.steps.append(timer.metrics)
-
-        # --- Phase 1b: Pre-build steps ---
-        build_steps = repo_cfg["build_steps"]
-        pre_steps = build_steps[:-1]
-        if pre_steps:
-            timer = StepTimer("prebuild", "phase1")
-            with timer:
-                for step in pre_steps:
-                    rc = self.runner.run(
-                        step, cwd=str(repo_dir),
-                        description=(
-                            f"Pre-build: {step[:60]}"
-                        ),
-                    )
-                    if rc != 0:
-                        print(
-                            "[ERROR] Pre-build step "
-                            f"failed: {step}"
-                        )
-                        result.steps.append(
-                            timer.metrics
-                        )
-                        return result
-            result.steps.append(timer.metrics)
-
-        # --- Phase 1c: Instrumented build ---
-        make_cmd = build_steps[-1]
-        if strategy:
-            instrumented, env = (
-                strategy.instrument_command(
-                    make_cmd, str(repo_dir),
-                )
+        skip_build = repo_cfg.get("skip_build", False)
+        if skip_build:
+            print(
+                f"[INFO] skip_build=true for "
+                f"{repo_name} — skipping clean, "
+                f"pre-build, and instrumented build"
             )
         else:
-            tracer = omnibor_cfg["tracer"]
-            instrumented = f"{tracer} {make_cmd}"
-            env = None
+            # --- Phase 1a: Clean ---
+            clean_cmd = repo_cfg.get("clean_cmd")
+            if clean_cmd:
+                timer = StepTimer("clean", "phase1")
+                with timer:
+                    self.runner.run(
+                        clean_cmd, cwd=str(repo_dir),
+                        description=(
+                            f"Clean: {clean_cmd}"
+                        ),
+                    )
+                    # Ignore clean_cmd exit code — it may
+                    # fail on a fresh clone
+                result.steps.append(timer.metrics)
 
-        parallelism = infer_parallelism(make_cmd)
-        timer = StepTimer(
-            "build", "phase1", parallelism,
-        )
-        with timer:
-            rc = self.runner.run(
-                instrumented, cwd=str(repo_dir),
-                env=env,
-                description=(
-                    f"Instrumented build: "
-                    f"{instrumented[:60]}"
-                ),
+            # --- Phase 1b: Pre-build steps ---
+            build_steps = repo_cfg["build_steps"]
+            pre_steps = build_steps[:-1]
+            if pre_steps:
+                timer = StepTimer(
+                    "prebuild", "phase1",
+                )
+                with timer:
+                    for step in pre_steps:
+                        rc = self.runner.run(
+                            step, cwd=str(repo_dir),
+                            description=(
+                                f"Pre-build: "
+                                f"{step[:60]}"
+                            ),
+                        )
+                        if rc != 0:
+                            print(
+                                "[ERROR] Pre-build "
+                                f"step failed: {step}"
+                            )
+                            result.steps.append(
+                                timer.metrics
+                            )
+                            return result
+                result.steps.append(timer.metrics)
+
+            # --- Phase 1c: Instrumented build ---
+            make_cmd = build_steps[-1]
+            if strategy:
+                instrumented, env = (
+                    strategy.instrument_command(
+                        make_cmd, str(repo_dir),
+                    )
+                )
+            else:
+                tracer = omnibor_cfg["tracer"]
+                instrumented = (
+                    f"{tracer} {make_cmd}"
+                )
+                env = None
+
+            parallelism = infer_parallelism(make_cmd)
+            timer = StepTimer(
+                "build", "phase1", parallelism,
             )
-        result.steps.append(timer.metrics)
-        if rc != 0:
-            print("[ERROR] Instrumented build failed")
-            return result
+            with timer:
+                rc = self.runner.run(
+                    instrumented, cwd=str(repo_dir),
+                    env=env,
+                    description=(
+                        f"Instrumented build: "
+                        f"{instrumented[:60]}"
+                    ),
+                )
+            result.steps.append(timer.metrics)
+            if rc != 0:
+                print(
+                    "[ERROR] Instrumented build "
+                    "failed"
+                )
+                return result
 
         # --- Phase 2a: ADG generation ---
         timer = StepTimer("adg", "phase2")
