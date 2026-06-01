@@ -330,6 +330,201 @@ class TestGenerateJavaAdgSpdx(unittest.TestCase):
                 )
 
 
+class TestManifestBinariesResolution(unittest.TestCase):
+    """Tests for manifest_binaries JAR resolution.
+
+    When manifest_binaries is provided (Phase 2 via
+    orchestrator), JARs are resolved from manifest paths
+    instead of re-globbing output_binaries.  The actual
+    JAR files do not need to exist on disk.
+    """
+
+    @patch(
+        "app.spdx.parser.AdgParser"
+    )
+    @patch(
+        "app.spdx.java_generator.JavaSpdxGenerator"
+    )
+    def test_uses_manifest_paths(
+        self, mock_gen_cls, mock_parser_cls,
+    ):
+        """manifest_binaries used instead of glob."""
+        mock_gen = MagicMock()
+        mock_gen.generate.side_effect = [
+            "/tmp/analyzed.spdx.json",
+            "/tmp/build.spdx.json",
+        ]
+        mock_gen_cls.return_value = mock_gen
+
+        mock_parser = MagicMock()
+        mock_parser.get_jar_source_files\
+            .return_value = {
+            "myapp/target/myapp-1.0.jar": [
+                {
+                    "sha1": "aaa",
+                    "file_path": "a.java",
+                },
+            ],
+        }
+        mock_parser_cls.return_value = mock_parser
+
+        with tempfile.TemporaryDirectory() as td:
+            paths_cfg = {
+                "output_dir": str(
+                    Path(td) / "output"
+                ),
+                "repos_dir": str(
+                    Path(td) / "repos"
+                ),
+            }
+            repo_cfg = {
+                "language": "java",
+                "output_binaries": [
+                    "**/target/*.jar",
+                ],
+            }
+            # Do NOT create JAR on disk — manifest
+            # path is used without file existence check
+            manifest_binaries = [
+                {
+                    "path": str(
+                        Path(td) / "repos" / "myapp"
+                        / "target" / "myapp-1.0.jar"
+                    ),
+                    "sha1": "abc123",
+                    "sha256": "def456",
+                },
+            ]
+            # Create repo dir so relative_to works
+            (
+                Path(td) / "repos" / "myapp"
+            ).mkdir(parents=True)
+
+            result = _generate_java_adg_spdx(
+                "myapp", repo_cfg, paths_cfg, "ts1",
+                manifest_binaries=manifest_binaries,
+            )
+
+            # 2 SPDX (analyzed + build)
+            self.assertEqual(len(result), 2)
+            # Checksums passed through
+            calls = mock_gen.generate.call_args_list
+            self.assertEqual(
+                calls[0].kwargs["checksums"],
+                {"sha1": "abc123", "sha256": "def456"},
+            )
+
+    @patch(
+        "app.spdx.parser.AdgParser"
+    )
+    @patch(
+        "app.spdx.java_generator.JavaSpdxGenerator"
+    )
+    def test_filters_auxiliary_jars(
+        self, mock_gen_cls, mock_parser_cls,
+    ):
+        """Auxiliary JARs in manifest are filtered."""
+        mock_gen = MagicMock()
+        mock_gen_cls.return_value = mock_gen
+
+        mock_parser = MagicMock()
+        mock_parser.get_jar_source_files\
+            .return_value = {}
+        mock_parser_cls.return_value = mock_parser
+
+        with tempfile.TemporaryDirectory() as td:
+            paths_cfg = {
+                "output_dir": str(
+                    Path(td) / "output"
+                ),
+                "repos_dir": str(
+                    Path(td) / "repos"
+                ),
+            }
+            repo_cfg = {
+                "language": "java",
+                "output_binaries": [],
+            }
+            manifest_binaries = [
+                {
+                    "path": "/w/repos/myapp/target/"
+                    "myapp-1.0-sources.jar",
+                    "sha1": "x",
+                    "sha256": "y",
+                },
+            ]
+            (
+                Path(td) / "repos" / "myapp"
+            ).mkdir(parents=True)
+
+            result = _generate_java_adg_spdx(
+                "myapp", repo_cfg, paths_cfg, "ts1",
+                manifest_binaries=manifest_binaries,
+            )
+
+            # Auxiliary JAR filtered → no output
+            self.assertEqual(result, [])
+
+    @patch(
+        "app.spdx.parser.AdgParser"
+    )
+    @patch(
+        "app.spdx.java_generator.JavaSpdxGenerator"
+    )
+    def test_falls_back_to_glob(
+        self, mock_gen_cls, mock_parser_cls,
+    ):
+        """Empty manifest_binaries falls back to glob."""
+        mock_gen = MagicMock()
+        mock_gen.generate.side_effect = [
+            "/tmp/analyzed.spdx.json",
+            "/tmp/build.spdx.json",
+        ]
+        mock_gen_cls.return_value = mock_gen
+
+        mock_parser = MagicMock()
+        mock_parser.get_jar_source_files\
+            .return_value = {
+            "myapp/target/myapp-1.0.jar": [
+                {
+                    "sha1": "aaa",
+                    "file_path": "a.java",
+                },
+            ],
+        }
+        mock_parser_cls.return_value = mock_parser
+
+        with tempfile.TemporaryDirectory() as td:
+            paths_cfg = {
+                "output_dir": str(
+                    Path(td) / "output"
+                ),
+                "repos_dir": str(
+                    Path(td) / "repos"
+                ),
+            }
+            repo_cfg = {
+                "language": "java",
+                "output_binaries": [
+                    "target/myapp-1.0.jar",
+                ],
+            }
+            jar = (
+                Path(td) / "repos" / "myapp"
+                / "target" / "myapp-1.0.jar"
+            )
+            jar.parent.mkdir(parents=True)
+            jar.write_bytes(b"PK")
+
+            # manifest_binaries=None → glob fallback
+            result = _generate_java_adg_spdx(
+                "myapp", repo_cfg, paths_cfg, "ts1",
+                manifest_binaries=None,
+            )
+
+            self.assertEqual(len(result), 2)
+
+
 class TestJarMapFallbackMatching(unittest.TestCase):
     """Tests for JAR filename-based fallback matching.
 

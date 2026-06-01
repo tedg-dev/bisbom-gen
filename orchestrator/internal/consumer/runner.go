@@ -77,27 +77,19 @@ func (r *Runner) RunPhase2(ctx context.Context, jobPrefix string) error {
 	// Docker mode: download artifacts locally, run container, upload results.
 	workDir := filepath.Join(r.cfg.WorkDir, sha, runID)
 	phase1Dir := filepath.Join(workDir, "phase1")
-	buildDir := filepath.Join(workDir, "build")
 	spdxDir := filepath.Join(workDir, "spdx")
 
-	for _, dir := range []string{phase1Dir, buildDir, spdxDir} {
+	for _, dir := range []string{phase1Dir, spdxDir} {
 		if err := os.MkdirAll(dir, 0o755); err != nil {
 			return fmt.Errorf("mkdir %s: %w", dir, err)
 		}
 	}
 
-	// Download Phase 1 artifacts
+	// Download Phase 1 artifacts (treedb, dep:tree, manifest)
 	log.Printf("[INFO] Downloading Phase 1 artifacts: s3://%s/%s/phase1/",
 		r.cfg.S3Bucket, jobPrefix)
 	if err := r.downloadPrefix(ctx, jobPrefix+"/phase1/", phase1Dir); err != nil {
 		return fmt.Errorf("download phase1: %w", err)
-	}
-
-	// Download build output (optional — may not exist)
-	log.Printf("[INFO] Downloading build output: s3://%s/%s/build/",
-		r.cfg.S3Bucket, jobPrefix)
-	if err := r.downloadPrefix(ctx, jobPrefix+"/build/", buildDir); err != nil {
-		log.Printf("[WARN] No build output found (non-fatal): %v", err)
 	}
 
 	// Find the manifest file
@@ -117,7 +109,6 @@ func (r *Runner) RunPhase2(ctx context.Context, jobPrefix string) error {
 	containerManifest := filepath.Join("/workspace/output", relManifest)
 
 	job.Phase1Dir = phase1Dir
-	job.BuildDir = buildDir
 	job.ContainerManifest = containerManifest
 
 	// Launch Phase 2 container

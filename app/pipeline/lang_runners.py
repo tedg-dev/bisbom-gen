@@ -376,27 +376,48 @@ def generate_java_adg_spdx(
             f"accessed during build"
         )
 
-    # Resolve output_binaries globs to actual JARs
-    bins = repo_cfg.get("output_binaries", [])
-    jar_paths = []
-    for pattern in bins:
-        if "*" in pattern or "?" in pattern:
-            jar_paths.extend(repo_dir.glob(pattern))
-        else:
-            p = repo_dir / pattern
-            if p.exists():
-                jar_paths.append(p)
-
-    # Filter to production JARs only
+    # Resolve JARs: prefer manifest_binaries (exact
+    # paths from Phase 1) over re-globbing, since the
+    # orchestrator mounts build output and the glob
+    # may not match the mount structure.
     from app.pipeline.binary_collector import (
         BinaryCollector,
     )
-    jar_paths = [
-        p for p in jar_paths
-        if not BinaryCollector._is_auxiliary_jar(
-            p.name
-        )
-    ]
+
+    jar_paths = []
+    if manifest_binaries:
+        for entry in manifest_binaries:
+            p = Path(
+                entry["path"]
+                if isinstance(entry, dict)
+                else entry
+            )
+            if not BinaryCollector._is_auxiliary_jar(
+                p.name
+            ):
+                jar_paths.append(p)
+        if jar_paths:
+            print(
+                f"[OK] Using {len(jar_paths)} "
+                f"JAR(s) from manifest"
+            )
+    if not jar_paths:
+        bins = repo_cfg.get("output_binaries", [])
+        for pattern in bins:
+            if "*" in pattern or "?" in pattern:
+                jar_paths.extend(
+                    repo_dir.glob(pattern)
+                )
+            else:
+                p = repo_dir / pattern
+                if p.exists():
+                    jar_paths.append(p)
+        jar_paths = [
+            p for p in jar_paths
+            if not BinaryCollector._is_auxiliary_jar(
+                p.name
+            )
+        ]
 
     if not jar_paths:
         print(

@@ -17,15 +17,15 @@ import (
 // ECSLauncher runs Phase 2 by calling the ECS RunTask API.
 //
 // How it works:
-//   1. The orchestrator does NOT download artifacts to local disk.
-//      Instead, it passes S3 paths as environment variable overrides
-//      to the ECS task.
-//   2. ECS launches a new Fargate (or EC2) task using the pre-registered
-//      task definition (e.g., "omnibor-phase2").
-//   3. The Phase 2 container starts, downloads artifacts from S3 itself,
-//      runs SPDX generation, and uploads results back to S3.
-//   4. The orchestrator optionally waits for the task to complete before
-//      acknowledging the SQS message.
+//  1. The orchestrator does NOT download artifacts to local disk.
+//     Instead, it passes S3 paths as environment variable overrides
+//     to the ECS task.
+//  2. ECS launches a new Fargate (or EC2) task using the pre-registered
+//     task definition (e.g., "omnibor-phase2").
+//  3. The Phase 2 container starts, downloads artifacts from S3 itself,
+//     runs SPDX generation, and uploads results back to S3.
+//  4. The orchestrator optionally waits for the task to complete before
+//     acknowledging the SQS message.
 //
 // Key differences from DockerLauncher:
 //   - No local disk needed — S3 is the only shared state
@@ -59,7 +59,6 @@ func NewECSLauncher(cfg *config.Config, awsCfg aws.Config) *ECSLauncher {
 // Launch starts a Phase 2 ECS task and waits for it to complete.
 func (e *ECSLauncher) Launch(ctx context.Context, job *Phase2Job) error {
 	s3Input := fmt.Sprintf("s3://%s/%s/phase1/", job.S3Bucket, job.JobPrefix)
-	s3Build := fmt.Sprintf("s3://%s/%s/build/", job.S3Bucket, job.JobPrefix)
 	s3Output := fmt.Sprintf("s3://%s/%s/spdx/", job.S3Bucket, job.JobPrefix)
 
 	subnets := strings.Split(e.cfg.ECSSubnets, ",")
@@ -67,7 +66,6 @@ func (e *ECSLauncher) Launch(ctx context.Context, job *Phase2Job) error {
 	log.Printf("[INFO] Launching ECS task: cluster=%s task-def=%s",
 		e.cfg.ECSCluster, e.cfg.ECSTaskDefinition)
 	log.Printf("[INFO]   S3 input:  %s", s3Input)
-	log.Printf("[INFO]   S3 build:  %s", s3Build)
 	log.Printf("[INFO]   S3 output: %s", s3Output)
 
 	// RunTask launches a new task instance from the registered task definition.
@@ -98,7 +96,6 @@ func (e *ECSLauncher) Launch(ctx context.Context, job *Phase2Job) error {
 					Name: aws.String("sidecar"),
 					Environment: []ecstypes.KeyValuePair{
 						{Name: aws.String("S3_INPUT_PATH"), Value: &s3Input},
-						{Name: aws.String("S3_BUILD_PATH"), Value: &s3Build},
 						{Name: aws.String("S3_OUTPUT_PATH"), Value: &s3Output},
 						{Name: aws.String("REPO_NAME"), Value: &job.RepoName},
 						{Name: aws.String("S3_BUCKET"), Value: &job.S3Bucket},

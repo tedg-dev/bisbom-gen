@@ -14,14 +14,14 @@ import (
 // DockerLauncher runs Phase 2 via `docker run` on the local Docker daemon.
 //
 // How it works:
-//   1. The orchestrator has already downloaded Phase 1 artifacts and build
-//      output from S3 to local directories (Phase1Dir, BuildDir).
-//   2. These directories are bind-mounted into the sidecar container at the
-//      paths the sidecar expects (/workspace/output, /workspace/repos/<repo>/target).
-//   3. The sidecar runs Phase 2 (SPDX generation) and writes output to
-//      /workspace/output, which maps back to the host's Phase1Dir.
-//   4. After the container exits, the orchestrator uploads SPDX files from
-//      Phase1Dir back to S3.
+//  1. The orchestrator has already downloaded Phase 1 artifacts from S3
+//     to a local directory (Phase1Dir).
+//  2. Phase1Dir is bind-mounted into the sidecar container at
+//     /workspace/output (treedb, dep:tree, manifest).
+//  3. The sidecar runs Phase 2 (SPDX generation) using the manifest's
+//     binary metadata — actual JAR files are not needed on disk.
+//  4. After the container exits, the orchestrator uploads SPDX files from
+//     Phase1Dir back to S3.
 //
 // Requirements:
 //   - Docker daemon running on the host
@@ -43,7 +43,6 @@ func (d *DockerLauncher) Launch(ctx context.Context, job *Phase2Job) error {
 	args := []string{
 		"run", "--rm",
 		"-v", job.Phase1Dir + ":/workspace/output",
-		"-v", job.BuildDir + ":/workspace/repos/" + job.RepoName + "/target",
 		"-e", "OMNIBOR_MODE=sidecar",
 		d.cfg.SidecarImage,
 		"python3", "/workspace/app/analyze.py",

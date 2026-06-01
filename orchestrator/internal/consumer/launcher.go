@@ -8,7 +8,6 @@ type Phase2Job struct {
 	S3Bucket          string // e.g., "omnibor-spdx-artifacts"
 	JobPrefix         string // e.g., "java/omnibor-java-testapp/<sha>/<run_id>"
 	Phase1Dir         string // Local path to downloaded Phase 1 artifacts (docker mode)
-	BuildDir          string // Local path to downloaded build output (docker mode)
 	ContainerManifest string // Container-relative path to phase1_manifest.json
 }
 
