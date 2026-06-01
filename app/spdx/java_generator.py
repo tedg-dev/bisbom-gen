@@ -413,6 +413,7 @@ class JavaSpdxGenerator:
         self, output_path, binary_name=None,
         sbom_type="build", jar_files=None,
         pom_dir=None, plugin_detection=None,
+        checksums=None, package_file_name=None,
     ):
         """Generate SPDX for a Java JAR.
 
@@ -433,6 +434,10 @@ class JavaSpdxGenerator:
                 from ``maven_plugin_detector``. When present
                 and a shade/assembly plugin is detected,
                 the SPDX ``creationInfo`` is annotated.
+            checksums: optional dict with ``sha1`` and
+                ``sha256`` hex digests for the JAR binary.
+            package_file_name: optional relative path
+                to the JAR (for disambiguation).
 
         Returns output path on success, None on failure.
         """
@@ -529,6 +534,8 @@ class JavaSpdxGenerator:
             bin_name, source_files, maven_deps,
             sbom_type=sbom_type,
             plugin_detection=plugin_detection,
+            checksums=checksums,
+            package_file_name=package_file_name,
         )
 
         # Write output
@@ -953,6 +960,7 @@ class JavaSpdxGenerator:
     def _build_spdx(
         self, bin_name, source_files, maven_deps,
         sbom_type="build", plugin_detection=None,
+        checksums=None, package_file_name=None,
     ):
         """Build SPDX 2.3 document.
 
@@ -998,7 +1006,7 @@ class JavaSpdxGenerator:
 
         # Add root package for the JAR
         root_pkg_id = f"SPDXRef-Package-{clean_name}"
-        doc["packages"].append({
+        root_pkg = {
             "SPDXID": root_pkg_id,
             "name": artifact_name,
             "versionInfo": self._get_version(
@@ -1016,7 +1024,24 @@ class JavaSpdxGenerator:
                     f"{artifact_name}"
                 ),
             }],
-        })
+        }
+        if package_file_name:
+            root_pkg["packageFileName"] = package_file_name
+        if checksums:
+            cksum_list = []
+            if checksums.get("sha1"):
+                cksum_list.append({
+                    "algorithm": "SHA1",
+                    "checksumValue": checksums["sha1"],
+                })
+            if checksums.get("sha256"):
+                cksum_list.append({
+                    "algorithm": "SHA256",
+                    "checksumValue": checksums["sha256"],
+                })
+            if cksum_list:
+                root_pkg["checksums"] = cksum_list
+        doc["packages"].append(root_pkg)
 
         # Add DESCRIBES relationship
         doc["relationships"].append({

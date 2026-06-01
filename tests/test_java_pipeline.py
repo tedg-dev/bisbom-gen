@@ -149,9 +149,9 @@ class TestGenerateJavaAdgSpdx(unittest.TestCase):
         self, mock_gen_cls, mock_parser_cls,
     ):
         mock_gen = MagicMock()
-        mock_gen.generate_multi.side_effect = [
-            "/tmp/out/myapp_analyzed.spdx.json",
-            "/tmp/out/myapp_build.spdx.json",
+        mock_gen.generate.side_effect = [
+            "/tmp/out/myapp-1.0_analyzed.spdx.json",
+            "/tmp/out/myapp-1.0_build.spdx.json",
         ]
         mock_gen_cls.return_value = mock_gen
 
@@ -188,11 +188,11 @@ class TestGenerateJavaAdgSpdx(unittest.TestCase):
 
             self.assertEqual(len(result), 2)
             mock_gen_cls.assert_called_once()
-            # Called twice: analyzed + build
+            # Called twice per JAR: analyzed + build
             self.assertEqual(
-                mock_gen.generate_multi.call_count, 2
+                mock_gen.generate.call_count, 2
             )
-            calls = mock_gen.generate_multi.call_args_list
+            calls = mock_gen.generate.call_args_list
             self.assertEqual(
                 calls[0].kwargs["sbom_type"],
                 "analyzed",
@@ -212,7 +212,7 @@ class TestGenerateJavaAdgSpdx(unittest.TestCase):
         self, mock_gen_cls, mock_parser_cls,
     ):
         mock_gen = MagicMock()
-        mock_gen.generate_multi.return_value = None
+        mock_gen.generate.return_value = None
         mock_gen_cls.return_value = mock_gen
 
         mock_parser = MagicMock()
@@ -252,15 +252,19 @@ class TestGenerateJavaAdgSpdx(unittest.TestCase):
     @patch(
         "app.spdx.java_generator.JavaSpdxGenerator"
     )
-    def test_multi_binary_all_jars_in_one_doc(
+    def test_multi_binary_per_jar_spdx(
         self, mock_gen_cls, mock_parser_cls,
     ):
-        """Multi-module project: 3 JARs → 2 SPDX docs."""
+        """Multi-module project: 3 JARs → 6 SPDX docs."""
         mock_gen = MagicMock()
-        # 2 calls: analyzed + build (single doc each)
-        mock_gen.generate_multi.side_effect = [
-            "/tmp/out/myapp_analyzed.spdx.json",
-            "/tmp/out/myapp_build.spdx.json",
+        # 2 calls per JAR (analyzed + build) × 3 JARs
+        mock_gen.generate.side_effect = [
+            "/tmp/out/utils-1.0_analyzed.spdx.json",
+            "/tmp/out/utils-1.0_build.spdx.json",
+            "/tmp/out/core-1.0_analyzed.spdx.json",
+            "/tmp/out/core-1.0_build.spdx.json",
+            "/tmp/out/cli-1.0_analyzed.spdx.json",
+            "/tmp/out/cli-1.0_build.spdx.json",
         ]
         mock_gen_cls.return_value = mock_gen
 
@@ -308,24 +312,22 @@ class TestGenerateJavaAdgSpdx(unittest.TestCase):
                 "myapp", repo_cfg, paths_cfg, "ts1",
             )
 
-            # 2 SPDX docs (analyzed + build)
-            self.assertEqual(len(result), 2)
+            # 6 SPDX docs (2 per JAR × 3 JARs)
+            self.assertEqual(len(result), 6)
             self.assertEqual(
-                mock_gen.generate_multi.call_count, 2
+                mock_gen.generate.call_count, 6
             )
-            # Verify all 3 JARs in each call's jars list
-            calls = mock_gen.generate_multi.call_args_list
-            for call in calls:
-                jars_arg = call.kwargs["jars"]
-                self.assertEqual(len(jars_arg), 3)
-            self.assertEqual(
-                calls[0].kwargs["sbom_type"],
-                "analyzed",
-            )
-            self.assertEqual(
-                calls[1].kwargs["sbom_type"],
-                "build",
-            )
+            calls = mock_gen.generate.call_args_list
+            # Alternates: analyzed, build for each JAR
+            for i in range(0, 6, 2):
+                self.assertEqual(
+                    calls[i].kwargs["sbom_type"],
+                    "analyzed",
+                )
+                self.assertEqual(
+                    calls[i + 1].kwargs["sbom_type"],
+                    "build",
+                )
 
 
 class TestJarMapFallbackMatching(unittest.TestCase):
@@ -350,7 +352,7 @@ class TestJarMapFallbackMatching(unittest.TestCase):
     ):
         """Exact path miss but filename match succeeds."""
         mock_gen = MagicMock()
-        mock_gen.generate_multi.side_effect = [
+        mock_gen.generate.side_effect = [
             "/tmp/analyzed.spdx.json",
             "/tmp/build.spdx.json",
         ]
@@ -396,18 +398,16 @@ class TestJarMapFallbackMatching(unittest.TestCase):
             )
 
             self.assertEqual(len(result), 2)
-            # Verify jar_files in jars list
+            # Verify jar_files passed per-JAR
             calls = (
-                mock_gen.generate_multi.call_args_list
+                mock_gen.generate.call_args_list
             )
             for call in calls:
-                jars_arg = call.kwargs["jars"]
-                self.assertEqual(len(jars_arg), 1)
                 self.assertIsNotNone(
-                    jars_arg[0]["jar_files"],
+                    call.kwargs["jar_files"],
                 )
                 self.assertEqual(
-                    len(jars_arg[0]["jar_files"]), 1,
+                    len(call.kwargs["jar_files"]), 1,
                 )
 
     @patch(
@@ -463,7 +463,7 @@ class TestJarMapFallbackMatching(unittest.TestCase):
 
             # JAR skipped — no SPDX generated
             self.assertEqual(result, [])
-            mock_gen.generate_multi.assert_not_called()
+            mock_gen.generate.assert_not_called()
 
 
 class TestMainJavaDispatch(unittest.TestCase):

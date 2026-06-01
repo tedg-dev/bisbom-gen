@@ -1963,6 +1963,114 @@ class TestAddBuildToolsGradle(unittest.TestCase):
         self.assertIn("javac", names)
 
 
+class TestGenerateChecksums(unittest.TestCase):
+    """Tests for checksums and packageFileName in generate."""
+
+    def setUp(self):
+        p1 = patch.object(
+            JavaSpdxGenerator,
+            "_detect_javac_version",
+            return_value=None,
+        )
+        p2 = patch.object(
+            JavaSpdxGenerator,
+            "_detect_maven_version",
+            return_value=None,
+        )
+        p1.start()
+        p2.start()
+        self.addCleanup(p1.stop)
+        self.addCleanup(p2.stop)
+
+    @patch.object(JavaSpdxGenerator, "_get_maven_deps")
+    def test_checksums_on_root_package(self, mock_deps):
+        """Checksums and packageFileName appear on root."""
+        with tempfile.TemporaryDirectory() as td:
+            repos = Path(td) / "repos"
+            repo = repos / "myapp"
+            repo.mkdir(parents=True)
+            (repo / "pom.xml").write_text(
+                "<project>"
+                "<version>1.0</version>"
+                "</project>"
+            )
+            bom = Path(td) / "bom"
+            bom.mkdir()
+            out = Path(td) / "out" / "test.spdx.json"
+
+            mock_deps.return_value = []
+            jar_files = [
+                {"file_path": "a.java", "sha1": "abc"},
+            ]
+            checksums = {
+                "sha1": "aabbcc",
+                "sha256": "ddeeff",
+            }
+
+            gen = JavaSpdxGenerator(
+                bom_dir=str(bom),
+                repos_dir=str(repos),
+                repo_name="myapp",
+            )
+            gen.generate(
+                str(out),
+                jar_files=jar_files,
+                checksums=checksums,
+                package_file_name="target/app.jar",
+            )
+            doc = json.loads(out.read_text())
+            root = doc["packages"][0]
+            self.assertEqual(
+                root["packageFileName"],
+                "target/app.jar",
+            )
+            self.assertEqual(len(root["checksums"]), 2)
+            algos = {
+                c["algorithm"] for c in root["checksums"]
+            }
+            self.assertEqual(algos, {"SHA1", "SHA256"})
+            vals = {
+                c["checksumValue"]
+                for c in root["checksums"]
+            }
+            self.assertIn("aabbcc", vals)
+            self.assertIn("ddeeff", vals)
+
+    @patch.object(JavaSpdxGenerator, "_get_maven_deps")
+    def test_no_checksums_omits_field(self, mock_deps):
+        """No checksums → no checksums field on root."""
+        with tempfile.TemporaryDirectory() as td:
+            repos = Path(td) / "repos"
+            repo = repos / "myapp"
+            repo.mkdir(parents=True)
+            (repo / "pom.xml").write_text(
+                "<project>"
+                "<version>1.0</version>"
+                "</project>"
+            )
+            bom = Path(td) / "bom"
+            bom.mkdir()
+            out = Path(td) / "out" / "test.spdx.json"
+
+            mock_deps.return_value = []
+            jar_files = [
+                {"file_path": "a.java", "sha1": "abc"},
+            ]
+
+            gen = JavaSpdxGenerator(
+                bom_dir=str(bom),
+                repos_dir=str(repos),
+                repo_name="myapp",
+            )
+            gen.generate(
+                str(out), jar_files=jar_files,
+            )
+            doc = json.loads(out.read_text())
+            root = doc["packages"][0]
+            self.assertNotIn("checksums", root)
+            self.assertNotIn("packageFileName", root)
+
+
 class TestCreationInfo(unittest.TestCase):
     """Tests for _creation_info static method."""
 
