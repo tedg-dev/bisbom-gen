@@ -2,6 +2,7 @@ package consumer
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
@@ -11,15 +12,20 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/aws/aws-sdk-go-v2/service/sqs"
 
 	"github.com/tedg-dev/omnibor-analysis/orchestrator/internal/config"
+	"github.com/tedg-dev/omnibor-analysis/orchestrator/internal/indexer"
 )
 
 // Runner downloads Phase 1 artifacts from S3 and launches the Phase 2 container.
 type Runner struct {
-	cfg      *config.Config
-	s3Client *s3.Client
-	launcher Launcher
+	cfg              *config.Config
+	s3Client         *s3.Client
+	sqsClient        *sqs.Client // for sbom-tree queue
+	launcher         Launcher
+	indexer          *indexer.Indexer // nil when DYNAMO_TABLE is not set
+	sbomTreeQueueURL string           // empty = skip sbom-tree publishing
 }
 
 // NewRunner creates a Runner with an S3 client and the appropriate launcher
@@ -43,11 +49,27 @@ func NewRunner(cfg *config.Config, awsCfg aws.Config) *Runner {
 		launcher = NewDockerLauncher(cfg)
 	}
 
-	return &Runner{
-		cfg:      cfg,
-		s3Client: s3.NewFromConfig(awsCfg),
-		launcher: launcher,
+	r := &Runner{
+		cfg:              cfg,
+		s3Client:         s3.NewFromConfig(awsCfg),
+		launcher:         launcher,
+		sbomTreeQueueURL: cfg.SbomTreeQueueURL,
 	}
+
+	if cfg.SbomTreeQueueURL != "" {
+		r.sqsClient = sqs.NewFromConfig(awsCfg)
+		log.Printf("[INFO] sbom-tree publishing enabled (queue: %s)", cfg.SbomTreeQueueURL)
+	}
+
+	if cfg.DynamoTable != "" {
+		r.indexer = indexer.New(awsCfg, cfg.S3Bucket, cfg.DynamoTable, cfg.GraphTable)
+		log.Printf("[INFO] SPDX indexing enabled (table: %s)", cfg.DynamoTable)
+		if cfg.GraphTable != "" {
+			log.Printf("[INFO] Dependency graph indexing enabled (table: %s)", cfg.GraphTable)
+		}
+	}
+
+	return r
 }
 
 // RunPhase2 downloads artifacts from S3 and launches the sidecar container.
@@ -71,7 +93,10 @@ func (r *Runner) RunPhase2(ctx context.Context, jobPrefix string) error {
 	// We just launch the task and wait for it to finish.
 	if r.cfg.LaunchMode == config.LaunchModeECS {
 		log.Printf("[INFO] Launching Phase 2 via ECS for %s (sha: %s)", repoName, sha)
-		return r.launcher.Launch(ctx, job)
+		if err := r.launcher.Launch(ctx, job); err != nil {
+			return fmt.Errorf("launch phase2: %w", err)
+		}
+		return r.indexSpdx(ctx, jobPrefix)
 	}
 
 	// Docker mode: download artifacts locally, run container, upload results.
@@ -124,7 +149,79 @@ func (r *Runner) RunPhase2(ctx context.Context, jobPrefix string) error {
 		return fmt.Errorf("upload spdx: %w", err)
 	}
 
+	// Index SPDX documents in DynamoDB
+	if err := r.indexSpdx(ctx, jobPrefix); err != nil {
+		return fmt.Errorf("index spdx: %w", err)
+	}
+
 	log.Printf("[INFO] Phase 2 complete for %s/%s", sha, runID)
+	return nil
+}
+
+// indexSpdx writes SPDX location records to DynamoDB if indexing is enabled.
+// After successful graph indexing, publishes sbom-tree requests to SQS.
+func (r *Runner) indexSpdx(ctx context.Context, jobPrefix string) error {
+	if r.indexer == nil {
+		return nil
+	}
+	log.Printf("[INFO] Indexing SPDX documents for %s", jobPrefix)
+	results, err := r.indexer.Index(ctx, jobPrefix)
+	if err != nil {
+		return err
+	}
+
+	// Publish sbom-tree generation requests for each graph-indexed artifact
+	for _, art := range results {
+		if art.GraphIndexed && r.sbomTreeQueueURL != "" {
+			if err := r.publishSbomTreeRequest(ctx, art, jobPrefix); err != nil {
+				log.Printf("[WARN] Failed to publish sbom-tree request for %s: %v",
+					art.SHA256[:12], err)
+			}
+		}
+	}
+
+	return nil
+}
+
+// sbomTreeMessage is the SQS message body for sbom-tree generation.
+type sbomTreeMessage struct {
+	ArtifactSHA256 string `json:"artifactSHA256"`
+	ArtifactName   string `json:"artifactName"`
+	JobPrefix      string `json:"jobPrefix"`
+	Bucket         string `json:"bucket"`
+	GraphTable     string `json:"graphTable"`
+}
+
+// publishSbomTreeRequest sends an SQS message to trigger tree generation.
+func (r *Runner) publishSbomTreeRequest(
+	ctx context.Context,
+	art indexer.IndexedArtifact,
+	jobPrefix string,
+) error {
+	msg := sbomTreeMessage{
+		ArtifactSHA256: art.SHA256,
+		ArtifactName:   art.Name,
+		JobPrefix:      jobPrefix,
+		Bucket:         r.cfg.S3Bucket,
+		GraphTable:     r.cfg.GraphTable,
+	}
+
+	body, err := json.Marshal(msg)
+	if err != nil {
+		return fmt.Errorf("marshal message: %w", err)
+	}
+
+	bodyStr := string(body)
+	_, err = r.sqsClient.SendMessage(ctx, &sqs.SendMessageInput{
+		QueueUrl:    &r.sbomTreeQueueURL,
+		MessageBody: &bodyStr,
+	})
+	if err != nil {
+		return fmt.Errorf("send message: %w", err)
+	}
+
+	log.Printf("[INFO] Published sbom-tree request for %s (%s)",
+		art.Name, art.SHA256[:12])
 	return nil
 }
 
