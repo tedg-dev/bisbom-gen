@@ -39,6 +39,7 @@ type Request struct {
 	JobPrefix      string `json:"jobPrefix"`
 	Bucket         string `json:"bucket"`
 	GraphTable     string `json:"graphTable"`
+	IndexTable     string `json:"indexTable"`
 }
 
 // TreeOutput is the top-level JSON written to S3.
@@ -52,13 +53,13 @@ type TreeOutput struct {
 
 // TreeNode is a single package in the nested tree.
 type TreeNode struct {
-	Purl         string      `json:"purl"`
-	Name         string      `json:"name"`
-	Version      string      `json:"version"`
-	Supplier     string      `json:"supplier,omitempty"`
-	Scope        string      `json:"scope,omitempty"`
-	Depth        int         `json:"depth"`
-	Dependency   []*TreeNode `json:"dependency,omitempty"`
+	Purl       string      `json:"purl"`
+	Name       string      `json:"name"`
+	Version    string      `json:"version"`
+	Supplier   string      `json:"supplier,omitempty"`
+	Scope      string      `json:"scope,omitempty"`
+	Depth      int         `json:"depth"`
+	Dependency []*TreeNode `json:"dependency,omitempty"`
 }
 
 // TreeStats summarizes the dependency tree.
@@ -116,8 +117,40 @@ func (g *Generator) Generate(ctx context.Context, req Request) error {
 		return fmt.Errorf("upload tree: %w", err)
 	}
 
+	s3URI := fmt.Sprintf("s3://%s/%s", req.Bucket, s3Key)
 	log.Printf("[TREE] Uploaded %s (%d packages, max depth %d)",
 		s3Key, stats.TotalPackages, stats.MaxDepth)
+
+	// Update the SpdxIndexTable record with the tree S3 location
+	if req.IndexTable != "" {
+		if err := g.updateIndexRecord(ctx, req.IndexTable, req.ArtifactSHA256, s3URI); err != nil {
+			log.Printf("[TREE] Warning: failed to update index record: %v", err)
+		}
+	}
+
+	return nil
+}
+
+// updateIndexRecord sets the SbomTreeS3 attribute on the existing
+// SpdxIndexTable record for this artifact.
+func (g *Generator) updateIndexRecord(
+	ctx context.Context,
+	table, artifactSHA256, s3URI string,
+) error {
+	_, err := g.dynamoClient.UpdateItem(ctx, &dynamodb.UpdateItemInput{
+		TableName: &table,
+		Key: map[string]dbtypes.AttributeValue{
+			"ArtifactSHA256": &dbtypes.AttributeValueMemberS{Value: artifactSHA256},
+		},
+		UpdateExpression: aws.String("SET SbomTreeS3 = :uri"),
+		ExpressionAttributeValues: map[string]dbtypes.AttributeValue{
+			":uri": &dbtypes.AttributeValueMemberS{Value: s3URI},
+		},
+	})
+	if err != nil {
+		return fmt.Errorf("update item: %w", err)
+	}
+	log.Printf("[TREE] Updated index record %s with SbomTreeS3", artifactSHA256[:12])
 	return nil
 }
 
