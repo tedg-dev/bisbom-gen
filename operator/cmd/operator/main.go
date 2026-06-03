@@ -7,12 +7,15 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/tedg-dev/omnibor-analysis/operator/internal/config"
+	awsconfig "github.com/aws/aws-sdk-go-v2/config"
+
+	"github.com/tedg-dev/omnibor-analysis/operator/internal/api"
+	operatorconfig "github.com/tedg-dev/omnibor-analysis/operator/internal/config"
 	"github.com/tedg-dev/omnibor-analysis/operator/internal/consumer"
 )
 
 func main() {
-	cfg, err := config.Load()
+	cfg, err := operatorconfig.Load()
 	if err != nil {
 		log.Fatalf("[FATAL] Failed to load config: %v", err)
 	}
@@ -34,6 +37,20 @@ func main() {
 		log.Printf("[INFO] Received %s, shutting down...", sig)
 		cancel()
 	}()
+
+	// Start HTTP API server in a goroutine if DynamoDB indexing is enabled
+	if cfg.DynamoTable != "" {
+		awsCfg, err := awsconfig.LoadDefaultConfig(ctx)
+		if err != nil {
+			log.Fatalf("[FATAL] Failed to load AWS config for API: %v", err)
+		}
+		apiServer := api.New(awsCfg, cfg.DynamoTable, cfg.APIAddr)
+		go func() {
+			if err := apiServer.Run(ctx); err != nil {
+				log.Printf("[ERROR] API server exited: %v", err)
+			}
+		}()
+	}
 
 	c, err := consumer.New(cfg)
 	if err != nil {

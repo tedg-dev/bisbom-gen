@@ -73,15 +73,14 @@ func NewRunner(cfg *config.Config, awsCfg aws.Config) *Runner {
 }
 
 // RunPhase2 downloads artifacts from S3 and launches the sidecar container.
-// jobPrefix is the S3 path: <lang>/<repo>/<sha>/<run_id>
+// jobPrefix is the S3 path: <owner>/<repo>/<job_id>
 func (r *Runner) RunPhase2(ctx context.Context, jobPrefix string) error {
 	parts := strings.Split(jobPrefix, "/")
-	if len(parts) < 4 {
+	if len(parts) < 3 {
 		return fmt.Errorf("invalid job prefix: %s", jobPrefix)
 	}
 	repoName := parts[1]
-	sha := parts[2]
-	runID := parts[3]
+	jobID := parts[2]
 
 	job := &Phase2Job{
 		RepoName:  repoName,
@@ -92,7 +91,7 @@ func (r *Runner) RunPhase2(ctx context.Context, jobPrefix string) error {
 	// In ECS mode, the Phase 2 task handles its own S3 I/O.
 	// We just launch the task and wait for it to finish.
 	if r.cfg.LaunchMode == config.LaunchModeECS {
-		log.Printf("[INFO] Launching Phase 2 via ECS for %s (sha: %s)", repoName, sha)
+		log.Printf("[INFO] Launching Phase 2 via ECS for %s (job: %s)", repoName, jobID)
 		if err := r.launcher.Launch(ctx, job); err != nil {
 			return fmt.Errorf("launch phase2: %w", err)
 		}
@@ -100,7 +99,7 @@ func (r *Runner) RunPhase2(ctx context.Context, jobPrefix string) error {
 	}
 
 	// Docker mode: download artifacts locally, run container, upload results.
-	workDir := filepath.Join(r.cfg.WorkDir, sha, runID)
+	workDir := filepath.Join(r.cfg.WorkDir, jobID)
 	phase1Dir := filepath.Join(workDir, "phase1")
 	spdxDir := filepath.Join(workDir, "spdx")
 
@@ -137,7 +136,7 @@ func (r *Runner) RunPhase2(ctx context.Context, jobPrefix string) error {
 	job.ContainerManifest = containerManifest
 
 	// Launch Phase 2 container
-	log.Printf("[INFO] Launching Phase 2 via Docker for %s (sha: %s)", repoName, sha)
+	log.Printf("[INFO] Launching Phase 2 via Docker for %s (job: %s)", repoName, jobID)
 	if err := r.launcher.Launch(ctx, job); err != nil {
 		return fmt.Errorf("launch phase2: %w", err)
 	}
@@ -154,7 +153,7 @@ func (r *Runner) RunPhase2(ctx context.Context, jobPrefix string) error {
 		return fmt.Errorf("index spdx: %w", err)
 	}
 
-	log.Printf("[INFO] Phase 2 complete for %s/%s", sha, runID)
+	log.Printf("[INFO] Phase 2 complete for %s/%s", repoName, jobID)
 	return nil
 }
 
@@ -301,12 +300,9 @@ func (r *Runner) uploadDir(ctx context.Context, localDir, s3Prefix string) error
 			return nil
 		}
 
-		relPath, err := filepath.Rel(localDir, path)
-		if err != nil {
-			return err
-		}
-
-		key := s3Prefix + relPath
+		// Upload flat — use only the filename, not the nested subdirectory
+		// structure that the sidecar creates (e.g., spdx/java/WebGoat/<ts>/).
+		key := s3Prefix + filepath.Base(path)
 		f, err := os.Open(path)
 		if err != nil {
 			return err

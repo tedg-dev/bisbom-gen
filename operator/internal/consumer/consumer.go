@@ -102,8 +102,8 @@ func (c *Consumer) handleMessage(ctx context.Context, msg types.Message) error {
 	log.Printf("[INFO] S3 key: %s", s3Key)
 
 	// Extract path components:
-	// java/omnibor-java-testapp/<sha>/<run_id>/phase1/.../<filename>
-	// We need the prefix up to and including <run_id>
+	// <owner>/<repo>/<job_id>/phase1/.../<filename>
+	// We need the prefix up to and including <job_id>
 	jobPrefix, err := extractJobPrefix(s3Key)
 	if err != nil {
 		return fmt.Errorf("extract job prefix: %w", err)
@@ -150,14 +150,14 @@ func parseS3EventKey(body string) (string, error) {
 	return key, nil
 }
 
-// extractJobPrefix returns the S3 prefix up to <lang>/<repo>/<sha>/<run_id>
-// from a key like java/omnibor-java-testapp/<sha>/<run_id>/phase1/.../file.json
+// extractJobPrefix returns the S3 prefix up to <owner>/<repo>/<job_id>
+// from a key like kkaple/WebGoat/<job_id>/phase1/.../file.json
 func extractJobPrefix(key string) (string, error) {
-	// Split: [lang, repo, sha, run_id, "phase1", ...]
+	// Split: [owner, repo, job_id, "phase1", ...]
 	parts := strings.Split(key, "/")
-	if len(parts) < 5 {
+	if len(parts) < 4 {
 		return "", fmt.Errorf("key too short: %s", key)
 	}
-	// lang/repo/sha/run_id
-	return strings.Join(parts[:4], "/"), nil
+	// owner/repo/job_id
+	return strings.Join(parts[:3], "/"), nil
 }

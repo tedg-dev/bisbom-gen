@@ -36,6 +36,9 @@ type Config struct {
 	GraphTable       string // DynamoDB table for dependency graph (adjacency list)
 	SbomTreeQueueURL string // SQS queue URL for sbom-tree generation requests
 
+	// HTTP API (optional — skipped if DynamoTable is empty)
+	APIAddr string // Listen address for REST API (default: ":8080")
+
 	// ECS-specific (required when LAUNCH_MODE=ecs)
 	ECSCluster        string // ECS cluster ARN or name
 	ECSTaskDefinition string // Task definition family or ARN (e.g., "omnibor-phase2")
@@ -55,6 +58,7 @@ type Config struct {
 //   - DYNAMO_TABLE (optional: DynamoDB table for SPDX indexing; skipped if empty)
 //   - DYNAMO_GRAPH_TABLE (optional: DynamoDB table for dependency graph)
 //   - SQS_SBOM_TREE_URL (optional: SQS queue for sbom-tree generation)
+//   - API_ADDR (optional: HTTP API listen address; default ":8080")
 //
 // Required when LAUNCH_MODE=ecs:
 //   - ECS_CLUSTER, ECS_TASK_DEFINITION, ECS_SUBNETS, ECS_SECURITY_GROUP
@@ -96,6 +100,11 @@ func Load() (*Config, error) {
 		DynamoTable:      os.Getenv("DYNAMO_TABLE"),
 		GraphTable:       os.Getenv("DYNAMO_GRAPH_TABLE"),
 		SbomTreeQueueURL: os.Getenv("SQS_SBOM_TREE_URL"),
+		APIAddr:          os.Getenv("API_ADDR"),
+	}
+
+	if cfg.APIAddr == "" {
+		cfg.APIAddr = ":8080"
 	}
 
 	// Validate ECS-specific config
