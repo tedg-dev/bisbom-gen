@@ -14,7 +14,7 @@
 - [Phase 2 Consumer Architecture](#phase-2-consumer-architecture)
   - [Event-Driven Flow](#event-driven-flow)
   - [Container Launch Options](#container-launch-options)
-  - [Go Operator Logic](#go-operator-logic)
+  - [Operator Microservice Logic](#operator-microservice-logic)
 - [ECS Deployment via AWS CDK](#ecs-deployment-via-aws-cdk)
   - [Architecture](#architecture)
   - [CDK Stack (TypeScript)](#cdk-stack-typescript)
@@ -37,8 +37,12 @@
 
 ## Overview
 
-S3 replaces GitHub Actions artifacts as the transport between Phase 1 and
-Phase 2. This models the enterprise deployment pattern: the build site pushes
+Changes include:
+- S3 replaces GitHub Actions artifacts as the transport between Phase 1 Phase 2. 
+- Introduction of human readable (JSON) tree based dependency output for heirarchical dependency tracking
+
+
+This models the enterprise deployment pattern: the build site pushes
 Phase 1 artifacts to S3, and a separate analysis service pulls from S3 to
 run Phase 2 (SPDX generation).
 
@@ -77,7 +81,7 @@ The S3 path structure is a **contract between two systems**:
 
 | Component | Role | Code location |
 |-----------|------|---------------|
-| **GitHub Actions workflow** | Produces the S3 path (uploads Phase 1 artifacts) | `build.yml` / `s3fedup.yml` in each repo |
+| **GitHub Actions workflow** | Produces the S3 path (uploads Phase 1 artifacts) | typically `build.yml`  in each repo |
 | **Operator** | Consumes the S3 path (downloads artifacts, runs Phase 2) | `operator/internal/consumer/consumer.go` |
 
 **Producer side (workflow):** The workflow constructs the job directory
@@ -111,15 +115,17 @@ S3 key: kkaple/WebGoat/20260603-153000_8c3a1710b358_26894443338/phase1/.../manif
 
 The operator then uses this prefix to locate `phase1/`, `build/`, and
 `spdx/` subdirectories. **Both sides must agree on this 3-part structure.**
-If a workflow still uses the old 4-part format (`<lang>/<repo>/<sha>/<run_id>`),
-the operator will fail to find the Phase 1 artifacts.
+This is a convention that must be understood by the build engineers managing the repo
+which want to use build based SBOMs.
 
 **Checklist when onboarding a new repo:**
 
 1. Set `S3_REPO: ${{ github.repository }}` (not a hardcoded path)
 2. Construct `JOB_ID` as `<TS>_<sha12>_<run_id>` (single directory, no nested levels)
-3. Upload to `s3://<bucket>/<S3_REPO>/<JOB_ID>/phase1/`
-4. Ensure the SQS notification bucket prefix includes the repo's owner path
+3. Set upload to `s3://<bucket>/<S3_REPO>/<JOB_ID>/phase1/`
+5. Validate that `${{ github.repository }}` matches the expected format (e.g., `<owner>/<repo>`)
+6. (TBD) Validate that `${{ github.repository }}` matches the current set used by the trust policy
+
 
 ## AWS Setup
 
@@ -178,7 +184,11 @@ The `StringLike` wildcard array allows any of the following to assume this role:
 **Note:** The Cisco GHE instance (`gh-xr.scm.engit.cisco.com`) may require a
 separate OIDC provider if its issuer URL differs from `token.actions.githubusercontent.com`.
 Verify the OIDC issuer URL for your GHE instance before adding it.
-See Appendix for examples of multiple OIDC providers.
+See Appendix for examples of multiple OIDC providers.  If there are multiple issuers there 
+may be another caveat to work through in that the S3 bucket naming convention potentially 
+could conflict if two different GHE instances have identical names for owner/repo.  This 
+should only mean that their artifacts would be stored in the same S3 bucket, which is 
+probably not a big deal.
 
 Create the role:
 
@@ -219,125 +229,159 @@ aws iam put-role-policy \
 
 ## GitHub Actions Workflow
 
-The `s3fedup.yml` workflow runs: Build → Phase 1 → S3 Upload.
+The WebGoat `build.yml` workflow is the reference implementation. The
+`phase1-s3` job runs after the main build succeeds: it verifies the
+taxonomy of the build results via the Phase 1 sidecar, then uploads to S3.
 
 ```yaml
-# S3 Upload Test — Build + Phase 1 → S3
-#
-# Manual-trigger only. Does not interfere with sbom.yml.
-# Builds the project, runs Phase 1 sidecar (build interception),
-# then uploads Phase 1 artifacts + build output to S3.
-# A separate Phase 2 consumer will pull from S3 to generate SPDX.
-
-name: S3 Upload Test
-
+name: "Main / Pull requests build"
 on:
-  workflow_dispatch:
-    inputs:
-      upload_build_output:
-        description: "Include JARs and class files in S3 upload"
-        type: boolean
-        default: true
+    pull_request:
+        paths-ignore:
+            - '.txt'
+            - 'LICENSE'
+            - 'docs/**'
+        branches: [ main ]
+    push:
+        branches:
+            - main
+    workflow_dispatch:
+        inputs:
+            upload_build_output:
+                description: "Include JARs and class files in S3 upload"
+                type: boolean
+                default: false
+
+concurrency:
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
 
 permissions:
-  id-token: write   # OIDC for AWS
-  contents: read
-  packages: read
+    id-token: write   # OIDC for AWS
+    contents: read
+    packages: read
 
 env:
-  SIDECAR_IMAGE: ghcr.io/tedg-dev/omnibor-sidecar:latest
-  MVN_VER: "3.9.8"
-  S3_BUCKET: omnibor-spdx-artifacts
-  S3_PREFIX: java/omnibor-java-testapp
+    SIDECAR_IMAGE: ghcr.io/kkaple/omnibor-sidecar:dev
+    MVN_VER: "3.9.8"
+    S3_BUCKET: omnibor-spdx-artifacts
+    S3_REPO: ${{ github.repository }}
 
 jobs:
-  build-phase1-s3:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+    # ... pre-commit and build jobs omitted for brevity ...
 
-      # ── Build ──
-      - name: Build on Amazon Linux 2023
-        run: |
-          docker run --rm \
-            -v "${{ github.workspace }}:/project" \
-            -w /project \
-            -e MVN_VER="${{ env.MVN_VER }}" \
-            amazoncorretto:21-al2023 \
-            bash -c '
-              dnf install -y tar gzip &&
-              curl -fsSL "https://archive.apache.org/dist/maven/maven-3/${MVN_VER}/binaries/apache-maven-${MVN_VER}-bin.tar.gz" -o /tmp/mvn.tar.gz &&
-              tar xzf /tmp/mvn.tar.gz -C /opt &&
-              export PATH="/opt/apache-maven-${MVN_VER}/bin:$PATH" &&
-              mvn --version &&
-              mvn package -q
-            '
+    # ── Phase 1 + S3 Upload (push to main or manual dispatch only) ──
+    phase1-s3:
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        needs: [ build ]
+        runs-on: ubuntu-latest
+        steps:
+            -   name: Checkout
+                uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
 
-      # ── Phase 1: Build interception ──
-      - name: Login to GHCR
-        uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772  # v3.4.0
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+            -   name: Set timestamp
+                run: echo "TS=$(date -u +'%Y%m%d-%H%M%S')" >> "$GITHUB_ENV"
 
-      - name: Pull sidecar image
-        run: docker pull "$SIDECAR_IMAGE"
+            -   name: Build with Temurin JDK 25
+                run: |
+                    docker run --rm \
+                      -v "${{ github.workspace }}:/project" \
+                      -w /project \
+                      -e MVN_VER="${{ env.MVN_VER }}" \
+                      eclipse-temurin:25-jdk-jammy \
+                      bash -c '
+                        apt-get update -qq && apt-get install -y -qq curl > /dev/null &&
+                        curl -fsSL "https://archive.apache.org/dist/maven/maven-3/${MVN_VER}/binaries/apache-maven-${MVN_VER}-bin.tar.gz" -o /tmp/mvn.tar.gz &&
+                        tar xzf /tmp/mvn.tar.gz -C /opt &&
+                        export PATH="/opt/apache-maven-${MVN_VER}/bin:$PATH" &&
+                        mvn --version &&
+                        mvn package -DskipTests -q
+                      '
 
-      - name: "Phase 1: Build interception via sidecar"
-        run: |
-          mkdir -p "${{ github.workspace }}/spdx-output"
-          docker run --rm \
-            -v "${{ github.workspace }}:/workspace/repos/omnibor-java-testapp" \
-            -v "${{ github.workspace }}/spdx-output:/workspace/output" \
-            -e OMNIBOR_MODE=sidecar \
-            "$SIDECAR_IMAGE" \
-            python3 /workspace/app/analyze.py \
-              --repo omnibor-java-testapp \
-              --mode sidecar \
-              --phase build \
-              --skip-clone
+            -   name: Login to GHCR
+                uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772  # v3.4.0
+                with:
+                    registry: ghcr.io
+                    username: ${{ github.actor }}
+                    password: ${{ secrets.GITHUB_TOKEN }}
 
-      # ── Upload to S3 ──
-      - name: Configure AWS credentials (OIDC)
-        uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502  # v4
-        with:
-          role-to-assume: arn:aws:iam::930218373905:role/github-actions-s3
-          aws-region: us-east-1
+            -   name: Pull sidecar image
+                run: docker pull "$SIDECAR_IMAGE"
 
-      - name: Upload Phase 1 artifacts to S3
-        run: |
-          S3_PATH="s3://${{ env.S3_BUCKET }}/${{ env.S3_PREFIX }}/${{ github.sha }}/${{ github.run_id }}"
-          echo "[INFO] Uploading Phase 1 artifacts to ${S3_PATH}/phase1/"
-          aws s3 cp spdx-output/ "${S3_PATH}/phase1/" --recursive
+            -   name: "Phase 1: Build result processing via sidecar"
+                run: |
+                    mkdir -p "${{ github.workspace }}/spdx-output"
+                    docker run --rm \
+                      -v "${{ github.workspace }}:/workspace/repos/WebGoat" \
+                      -v "${{ github.workspace }}/spdx-output:/workspace/output" \
+                      -e OMNIBOR_MODE=sidecar \
+                      "$SIDECAR_IMAGE" \
+                      python3 /workspace/app/analyze.py \
+                        --repo WebGoat \
+                        --mode sidecar \
+                        --phase build \
+                        --skip-clone
 
-      - name: Upload build output to S3
-        if: inputs.upload_build_output
-        run: |
-          S3_PATH="s3://${{ env.S3_BUCKET }}/${{ env.S3_PREFIX }}/${{ github.sha }}/${{ github.run_id }}"
-          echo "[INFO] Uploading build output to ${S3_PATH}/build/"
-          aws s3 cp target/ "${S3_PATH}/build/" --recursive
+            -   name: Configure AWS credentials (OIDC)
+                uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502  # v4
+                with:
+                    role-to-assume: arn:aws:iam::930218373905:role/github-actions-s3
+                    aws-region: us-east-1
 
-      - name: Verify S3 upload
-        run: |
-          S3_PATH="s3://${{ env.S3_BUCKET }}/${{ env.S3_PREFIX }}/${{ github.sha }}/${{ github.run_id }}"
-          echo "=== S3 contents ==="
-          aws s3 ls "${S3_PATH}/" --recursive
-          echo ""
-          echo "=== Phase 2 can pull from ==="
-          echo "  Phase 1: ${S3_PATH}/phase1/"
-          echo "  Build:   ${S3_PATH}/build/"
+            -   name: Upload Phase 1 artifacts to S3
+                run: |
+                    SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-12)
+                    JOB_ID="${{ env.TS }}_${SHORT_SHA}_${{ github.run_id }}"
+                    S3_PATH="s3://${{ env.S3_BUCKET }}/${{ env.S3_REPO }}/${JOB_ID}"
+                    echo "JOB_ID=${JOB_ID}" >> "$GITHUB_ENV"
+                    echo "S3_PATH=${S3_PATH}" >> "$GITHUB_ENV"
+                    echo "[INFO] Uploading Phase 1 artifacts to ${S3_PATH}/phase1/"
+                    aws s3 cp spdx-output/ "${S3_PATH}/phase1/" --recursive
+
+            -   name: Upload build output to S3
+                if: ${{ github.event_name == 'push' || inputs.upload_build_output }}
+                run: |
+                    echo "[INFO] Uploading build output to ${{ env.S3_PATH }}/build/"
+                    aws s3 cp target/ "${{ env.S3_PATH }}/build/" --recursive
+
+            -   name: Verify S3 upload
+                run: |
+                    echo "=== S3 contents ==="
+                    aws s3 ls "${{ env.S3_PATH }}/" --recursive
+                    echo ""
+                    echo "=== Phase 2 can pull from ==="
+                    echo "  Phase 1: ${{ env.S3_PATH }}/phase1/"
+                    echo "  Build:   ${{ env.S3_PATH }}/build/"
 ```
+
+### What's OmniBOR-specific?
+
+The standard Maven build (`mvn package`) is unchanged. The following
+steps are additions for OmniBOR SBOM generation and are not part of
+a typical Java CI workflow:
+
+| Lines | Step | Purpose |
+|-------|------|---------|
+| 23–26 | `permissions: id-token: write` | OIDC token for AWS — not needed by a standard build |
+| 28–32 | `env: SIDECAR_IMAGE`, `S3_BUCKET`, `S3_REPO` | OmniBOR sidecar image and S3 destination |
+| 80–81 | Set timestamp | Generates the `TS` component of the S3 job ID |
+| 99–107 | Login to GHCR + pull sidecar | Fetches the OmniBOR sidecar container image |
+| 109–121 | Phase 1: Build result processing | Runs the sidecar to extract dependency tree, treedb, and manifest |
+| 123–127 | Configure AWS credentials (OIDC) | Assumes the `github-actions-s3` IAM role via OIDC federation |
+| 129–137 | Upload Phase 1 artifacts to S3 | Constructs the 3-part job ID and uploads to `s3://<bucket>/<owner>/<repo>/<job_id>/phase1/` |
+| 139–143 | Upload build output to S3 | Optionally uploads JARs and class files for Phase 2 analysis |
+| 145–152 | Verify S3 upload | Lists uploaded contents for debugging |
+
+A repo that only needs a standard Maven build would have none of
+these steps. They can be added to any existing `build.yml` without
+modifying the build itself.
 
 ### Triggering the Workflow
 
 ```bash
-# Default (includes build output)
-gh workflow run s3fedup.yml -R tedg-dev/omnibor-java-testapp --ref feat/s3-upload-test
-
-# Skip build output
-gh workflow run s3fedup.yml -R tedg-dev/omnibor-java-testapp --ref feat/s3-upload-test -f upload_build_output=false
+# Push to main triggers automatically after build succeeds
+# Manual dispatch:
+gh workflow run build.yml -R kkaple/WebGoat -f upload_build_output=true
 ```
 
 ## Phase 2 Consumer Architecture
@@ -351,7 +395,7 @@ GitHub Actions (Build + Phase 1)
 S3 bucket ──► S3 Event Notification ──► SQS queue
                                             │
                                             ▼
-                                    Go service (long poll SQS)
+                                    Operator microservice (long poll SQS)
                                             │
                                             ▼
                                     Pull Phase 1 artifacts from S3
@@ -363,20 +407,20 @@ S3 bucket ──► S3 Event Notification ──► SQS queue
                                     Write SPDX back to S3
 ```
 
-A Go service monitors S3 via SQS long polling. When Phase 1 artifacts land,
-it launches a Phase 2 container to generate SPDX.
+An operator microservice monitors S3 via SQS long polling. When Phase 1
+artifacts land, it launches a Phase 2 container to generate SPDX.
 
 ### Container Launch Options
 
 - **Docker SDK** (`github.com/docker/docker/client`) — simplest for
   single-host setups. Mount downloaded S3 artifacts into the sidecar.
-- **ECS `RunTask`** — AWS-managed containers. The Go service calls
-  `ecs:RunTask` with the sidecar image and passes the S3 path as an
-  environment variable.
+- **ECS `RunTask`** — AWS-managed containers. The operator microservice
+  calls `ecs:RunTask` with the sidecar image and passes the S3 path as
+  an environment variable.
 - **Local `exec.Command`** — shell out to `docker run` with the same
   sidecar image and volume mounts used in the workflow.
 
-### Go Operator Logic
+### Operator Microservice Logic
 
 ```
 loop:
@@ -421,7 +465,7 @@ S3 bucket
 SQS queue
     │
     ▼
-ECS Fargate Service (Go operator)          ← long-running, 1 task
+ECS Fargate Service (operator microservice) ← long-running, 1 task
     │
     │  calls ecs:RunTask
     ▼
@@ -485,7 +529,7 @@ bucket.addEventNotification(
 const vpc = new ec2.Vpc(this, 'Vpc', { maxAzs: 2 });
 const cluster = new ecs.Cluster(this, 'Cluster', { vpc });
 
-// ── Go operator (long-running service) ──
+// ── Operator microservice (long-running service) ──
 const operatorTaskDef = new ecs.FargateTaskDefinition(this, 'OperatorTask', {
   memoryLimitMiB: 512,
   cpu: 256,
@@ -518,7 +562,7 @@ const phase2TaskDef = new ecs.FargateTaskDefinition(this, 'Phase2Task', {
 
 phase2TaskDef.addContainer('sidecar', {
   image: ecs.ContainerImage.fromRegistry('ghcr.io/tedg-dev/omnibor-sidecar:latest'),
-  // Environment variables set at RunTask time by the Go operator:
+  // Environment variables set at RunTask time by the operator microservice:
   //   S3_INPUT_PATH, S3_OUTPUT_PATH, MANIFEST_PATH, REPO_NAME
   logging: ecs.LogDrivers.awsLogs({
     logGroup: new logs.LogGroup(this, 'Phase2Logs', {
@@ -601,7 +645,7 @@ Phase 2 sidecar writes SPDX to S3
 SQS queue #2 (omnibor-spdx-complete)
     │
     ▼
-Go operator #2 (or same operator, second goroutine)
+Operator microservice #2 (or same operator, second goroutine)
     │
     ▼
 Post-processing actions
@@ -633,6 +677,8 @@ bucket.addEventNotification(
 
 ### Extending the Operator
 
+Currently the operator is a single threaded prototype.  This will need to change in the move to an official ECS platform and real repositories.
+
 **Option A: Single binary, multiple goroutines:**
 
 ```go
@@ -653,8 +699,9 @@ entire event-driven pipeline.
 
 After Phase 2 completes, the `spdx-indexing` service records the S3
 locations of generated SPDX documents in a DynamoDB table, keyed by
-the SHA-256 digest of each artifact binary. This enables downstream
-consumers to answer: "Is there an SPDX SBOM available for this binary?"
+a generic `ArtifactSHA` partition key. Two items are written per
+artifact — one keyed by SHA-256, one by SHA-1 — so downstream
+consumers can look up SPDX locations using whichever hash they have
 with a single `GetItem` call.
 
 ### Data Flow
@@ -664,51 +711,66 @@ Phase 2 completes → SPDX files written to S3
     │
     ▼
 spdx-indexing reads phase1_manifest.json
-    │  (extracts artifact SHA-256 checksums)
+    │  (extracts artifact SHA-1 and SHA-256 checksums)
     │
     ▼
 Lists SPDX files under s3://<bucket>/<jobPrefix>/spdx/
-    │  (matches <jar_stem>_analyzed.spdx.json, <jar_stem>_build.spdx.json)
+    │  (matches <jar_stem>_analyzed.spdx.json, <jar_stem>_build.spdx.json,
+    │   <jar_stem>-sbom-tree.json)
     │
     ▼
-Writes DynamoDB record per artifact
-    Key:   ArtifactSHA256
-    Value: { AnalyzedSpdxS3, BuildSpdxS3, ArtifactPath, RepoName, Language, CommitSHA }
+Writes TWO DynamoDB items per artifact (one per hash algorithm)
+    Key:   ArtifactSHA  (SHA-256 hex or SHA-1 hex)
+    Value: { AnalyzedSpdxS3, BuildSpdxS3, SbomTreeS3, ArtifactPath, RepoName, Language, CommitSHA }
 ```
 
 ### DynamoDB Table Schema
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
-| `ArtifactSHA256` | String (partition key) | SHA-256 hex digest of the binary |
+| `ArtifactSHA` | String (partition key) | SHA hex digest — SHA-256 (64 chars) or SHA-1 (40 chars) |
 | `AnalyzedSpdxS3` | String | S3 URI to the analyzed SPDX document |
 | `BuildSpdxS3` | String | S3 URI to the build SPDX document |
+| `SbomTreeS3` | String | S3 URI to the sbom-tree JSON document |
 | `ArtifactPath` | String | Original artifact path from the manifest |
 | `RepoName` | String | Repository name |
 | `Language` | String | Language (e.g. `java`) |
 | `CommitSHA` | String | Git commit SHA |
 
+Both SHA-1 (40 hex chars) and SHA-256 (64 hex chars) are independently
+unique, so the key is self-discriminating by length. Two items are written
+per artifact — both contain identical S3 URIs and metadata. This doubles
+storage per artifact (~1 KB total) but enables lookup by either hash
+without a GSI.
+
+Because the `SpdxIndexTable` now stores the S3 location of the
+sbom-tree JSON, the `SpdxDependencyGraph` table items can be assigned
+a DynamoDB TTL in the future. Once expired, the dependency graph can
+be reconstructed on demand from the sbom-tree JSON in S3.
+
 ### Client Lookup
 
-A downstream consumer queries by SHA-256 to get SPDX locations:
+A downstream consumer queries by any SHA (SHA-256 or SHA-1) to get
+SPDX locations:
 
 ```go
 result, err := dynamoClient.GetItem(ctx, &dynamodb.GetItemInput{
     TableName: aws.String("SpdxIndexTable"),
     Key: map[string]types.AttributeValue{
-        "ArtifactSHA256": &types.AttributeValueMemberS{Value: sha256hex},
+        "ArtifactSHA": &types.AttributeValueMemberS{Value: shaHex},
     },
 })
 ```
 
-If the item exists, `AnalyzedSpdxS3` and `BuildSpdxS3` contain the full
-S3 URIs. The client can then fetch the SPDX JSON directly from S3.
+The caller does not need to know the hash algorithm — both SHA-1 and
+SHA-256 resolve to the same S3 URIs. If the item exists,
+`AnalyzedSpdxS3`, `BuildSpdxS3`, and `SbomTreeS3` contain full S3 URIs.
 
 ### CDK Table Definition
 
 ```typescript
 const spdxIndexTable = new dynamodb.Table(this, 'SpdxIndexTable', {
-  partitionKey: { name: 'ArtifactSHA256', type: dynamodb.AttributeType.STRING },
+  partitionKey: { name: 'ArtifactSHA', type: dynamodb.AttributeType.STRING },
   encryption: dynamodb.TableEncryption.CUSTOMER_MANAGED,
   encryptionKey: dynamoKey,
   billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
@@ -770,7 +832,7 @@ item size limit. Growth adds more items, not bigger items.
 
 | Attribute | Type | Role |
 |-----------|------|------|
-| `ArtifactSHA256` | String | Partition key — groups all nodes for one artifact |
+| `ArtifactSHA` | String | Partition key — groups all nodes for one artifact |
 | `SK` | String | Sort key — `depth#N#PURL` enables range queries |
 | `purl` | String | Package URL (e.g. `pkg:maven/org.springframework/spring-core@6.2.7`) |
 | `name` | String | Package name |
@@ -785,7 +847,7 @@ item size limit. Growth adds more items, not bigger items.
 
 ```json
 {
-  "ArtifactSHA256": "a88ab4a1...",
+  "ArtifactSHA": "a88ab4a1...",
   "SK": "depth#0#pkg:maven/WebGoat/webgoat@2025.4",
   "purl": "pkg:maven/WebGoat/webgoat@2025.4",
   "name": "webgoat",
@@ -799,7 +861,7 @@ item size limit. Growth adds more items, not bigger items.
 }
 
 {
-  "ArtifactSHA256": "a88ab4a1...",
+  "ArtifactSHA": "a88ab4a1...",
   "SK": "depth#1#pkg:maven/org.springframework.boot/spring-boot-starter-web@3.5.6",
   "purl": "pkg:maven/org.springframework.boot/spring-boot-starter-web@3.5.6",
   "name": "spring-boot-starter-web",
@@ -832,9 +894,9 @@ tree to return:
 result, _ := dynamoClient.Query(ctx, &dynamodb.QueryInput{
     TableName:              aws.String("SpdxDependencyGraph"),
     KeyConditionExpression: aws.String(
-        "ArtifactSHA256 = :sha AND SK BETWEEN :d0 AND :d1"),
+        "ArtifactSHA = :sha AND SK BETWEEN :d0 AND :d1"),
     ExpressionAttributeValues: map[string]types.AttributeValue{
-        ":sha": &types.AttributeValueMemberS{Value: sha256hex},
+        ":sha": &types.AttributeValueMemberS{Value: shaHex},
         ":d0":  &types.AttributeValueMemberS{Value: "depth#0"},
         ":d1":  &types.AttributeValueMemberS{Value: "depth#1\xff"},
     },
@@ -843,9 +905,9 @@ result, _ := dynamoClient.Query(ctx, &dynamodb.QueryInput{
 // depth=0 — full tree (all levels)
 result, _ := dynamoClient.Query(ctx, &dynamodb.QueryInput{
     TableName:              aws.String("SpdxDependencyGraph"),
-    KeyConditionExpression: aws.String("ArtifactSHA256 = :sha"),
+    KeyConditionExpression: aws.String("ArtifactSHA = :sha"),
     ExpressionAttributeValues: map[string]types.AttributeValue{
-        ":sha": &types.AttributeValueMemberS{Value: sha256hex},
+        ":sha": &types.AttributeValueMemberS{Value: shaHex},
     },
 })
 ```
@@ -866,7 +928,7 @@ strings). No single item can exceed the 400 KB limit.
 
 ```typescript
 const spdxGraphTable = new dynamodb.Table(this, 'SpdxDependencyGraph', {
-  partitionKey: { name: 'ArtifactSHA256', type: dynamodb.AttributeType.STRING },
+  partitionKey: { name: 'ArtifactSHA', type: dynamodb.AttributeType.STRING },
   sortKey: { name: 'SK', type: dynamodb.AttributeType.STRING },
   encryption: dynamodb.TableEncryption.CUSTOMER_MANAGED,
   encryptionKey: dynamoKey,
@@ -879,10 +941,10 @@ const spdxGraphTable = new dynamodb.Table(this, 'SpdxDependencyGraph', {
 #### Complete lookup flow
 
 ```
-1. GetItem(SpdxIndexTable, SHA-256)
+1. GetItem(SpdxIndexTable, ArtifactSHA=<any hash>)
    → S3 URIs, repo name, VCS URI        (existence check)
 
-2. Query(SpdxDependencyGraph, SHA-256, depth=N)
+2. Query(SpdxDependencyGraph, ArtifactSHA=<sha256>, depth=N)
    → Package nodes at requested depth   (dependency tree)
 ```
 
@@ -892,11 +954,11 @@ handles pagination automatically for large result sets.
 
 #### Future: SHA-256 enrichment for dependency packages
 
-Currently, only the root artifact has SHA-256 checksums. Dependency
-packages are identified by PURL. A future enhancement will compute
-SHA-256 for each dependency JAR from `.m2/repository` during Phase 1
-and enrich `maven_deps.json`, enabling full SHA-based cross-linking
-between artifacts.
+Currently, only the root artifact has SHA-1 and SHA-256 checksums.
+Dependency packages are identified by PURL. A future enhancement will
+compute checksums for each dependency JAR from `.m2/repository` during
+Phase 1 and enrich `maven_deps.json`, enabling full SHA-based
+cross-linking between artifacts.
 
 ---
 
@@ -958,7 +1020,7 @@ spdx-indexing (inline in operator)
 
 ```json
 {
-  "artifactSHA256": "a614855c7fe1679db2b9cf8bd518e5c52c544b9db4020b38180aca21db2b7ef4",
+  "artifactSHA": "a614855c7fe1679db2b9cf8bd518e5c52c544b9db4020b38180aca21db2b7ef4",
   "artifactName": "webgoat-2025.4-SNAPSHOT",
   "jobPrefix": "java/WebGoat/abc123/42",
   "bucket": "omnibor-spdx-artifacts",
@@ -978,7 +1040,7 @@ relationship field name. Uploaded to
 
 ```json
 {
-  "artifactSHA256": "a614855c...",
+  "artifactSHA": "a614855c...",
   "artifactName": "webgoat-2025.4-SNAPSHOT",
   "generatedAt": "2026-06-02T21:10:12.365219Z",
   "root": {

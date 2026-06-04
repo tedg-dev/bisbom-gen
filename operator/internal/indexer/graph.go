@@ -2,7 +2,7 @@
 // pattern for storing SPDX dependency graphs in DynamoDB.
 //
 // Each package in the dependency tree is stored as its own DynamoDB
-// item keyed by (ArtifactSHA256, depth#N#PURL). This avoids the
+// item keyed by (ArtifactSHA, depth#N#PURL). This avoids the
 // 400 KB item size limit and enables efficient depth-based range
 // queries.
 package indexer
@@ -22,16 +22,16 @@ import (
 
 // GraphNode is a single DynamoDB item in the SpdxDependencyGraph table.
 type GraphNode struct {
-	ArtifactSHA256 string   `dynamodbav:"ArtifactSHA256"`
-	SK             string   `dynamodbav:"SK"`
-	Purl           string   `dynamodbav:"purl"`
-	Name           string   `dynamodbav:"name"`
-	Version        string   `dynamodbav:"version"`
-	Supplier       string   `dynamodbav:"supplier,omitempty"`
-	Scope          string   `dynamodbav:"scope,omitempty"`
-	Depth          int      `dynamodbav:"depth"`
-	Parent         string   `dynamodbav:"parent,omitempty"`
-	Children       []string `dynamodbav:"children,omitempty"`
+	ArtifactSHA string   `dynamodbav:"ArtifactSHA"`
+	SK          string   `dynamodbav:"SK"`
+	Purl        string   `dynamodbav:"purl"`
+	Name        string   `dynamodbav:"name"`
+	Version     string   `dynamodbav:"version"`
+	Supplier    string   `dynamodbav:"supplier,omitempty"`
+	Scope       string   `dynamodbav:"scope,omitempty"`
+	Depth       int      `dynamodbav:"depth"`
+	Parent      string   `dynamodbav:"parent,omitempty"`
+	Children    []string `dynamodbav:"children,omitempty"`
 }
 
 // spdxDoc is the subset of an SPDX 2.3 JSON document we need.
@@ -59,16 +59,16 @@ type externalRef struct {
 
 // spdxRelationship is a single SPDX relationship.
 type spdxRelationship struct {
-	ElementID     string `json:"spdxElementId"`
-	RelatedID     string `json:"relatedSpdxElement"`
-	RelationType  string `json:"relationshipType"`
+	ElementID    string `json:"spdxElementId"`
+	RelatedID    string `json:"relatedSpdxElement"`
+	RelationType string `json:"relationshipType"`
 }
 
 // IndexGraph parses the build SPDX JSON from S3 and writes the
 // dependency graph to the SpdxDependencyGraph table.
 func (ix *Indexer) IndexGraph(
 	ctx context.Context,
-	artifactSHA256 string,
+	artifactSHA string,
 	buildSpdxKey string,
 	graphTable string,
 ) error {
@@ -77,7 +77,7 @@ func (ix *Indexer) IndexGraph(
 		return fmt.Errorf("load spdx doc: %w", err)
 	}
 
-	nodes := buildGraph(artifactSHA256, doc)
+	nodes := buildGraph(artifactSHA, doc)
 	if len(nodes) == 0 {
 		log.Printf("[GRAPH] No dependency nodes found in %s", buildSpdxKey)
 		return nil
@@ -91,7 +91,7 @@ func (ix *Indexer) IndexGraph(
 		written++
 	}
 
-	log.Printf("[GRAPH] Wrote %d dependency nodes for %s", written, artifactSHA256[:12])
+	log.Printf("[GRAPH] Wrote %d dependency nodes for %s", written, artifactSHA[:12])
 	return nil
 }
 
@@ -120,7 +120,7 @@ func (ix *Indexer) loadSpdxDoc(ctx context.Context, s3Key string) (*spdxDoc, err
 
 // buildGraph constructs GraphNode items from SPDX packages and
 // DEPENDS_ON relationships using BFS to compute depth.
-func buildGraph(artifactSHA256 string, doc *spdxDoc) []GraphNode {
+func buildGraph(artifactSHA string, doc *spdxDoc) []GraphNode {
 	// Index packages by SPDXID
 	pkgByID := make(map[string]*spdxPackage, len(doc.Packages))
 	for i := range doc.Packages {
@@ -198,14 +198,14 @@ func buildGraph(artifactSHA256 string, doc *spdxDoc) []GraphNode {
 		}
 
 		node := GraphNode{
-			ArtifactSHA256: artifactSHA256,
-			SK:             fmt.Sprintf("depth#%d#%s", entry.depth, purl),
-			Purl:           purl,
-			Name:           pkg.Name,
-			Version:        pkg.VersionInfo,
-			Supplier:       cleanSupplier(pkg.Supplier),
-			Scope:          extractScope(pkg.Comment),
-			Depth:          entry.depth,
+			ArtifactSHA: artifactSHA,
+			SK:          fmt.Sprintf("depth#%d#%s", entry.depth, purl),
+			Purl:        purl,
+			Name:        pkg.Name,
+			Version:     pkg.VersionInfo,
+			Supplier:    cleanSupplier(pkg.Supplier),
+			Scope:       extractScope(pkg.Comment),
+			Depth:       entry.depth,
 		}
 
 		// Set parent PURL

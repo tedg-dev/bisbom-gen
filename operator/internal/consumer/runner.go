@@ -184,12 +184,12 @@ func (r *Runner) indexSpdx(ctx context.Context, jobPrefix string) error {
 
 // sbomTreeMessage is the SQS message body for sbom-tree generation.
 type sbomTreeMessage struct {
-	ArtifactSHA256 string `json:"artifactSHA256"`
-	ArtifactName   string `json:"artifactName"`
-	JobPrefix      string `json:"jobPrefix"`
-	Bucket         string `json:"bucket"`
-	GraphTable     string `json:"graphTable"`
-	IndexTable     string `json:"indexTable"`
+	ArtifactSHA  string `json:"artifactSHA"`
+	ArtifactName string `json:"artifactName"`
+	JobPrefix    string `json:"jobPrefix"`
+	Bucket       string `json:"bucket"`
+	GraphTable   string `json:"graphTable"`
+	IndexTable   string `json:"indexTable"`
 }
 
 // publishSbomTreeRequest sends an SQS message to trigger tree generation.
@@ -199,12 +199,12 @@ func (r *Runner) publishSbomTreeRequest(
 	jobPrefix string,
 ) error {
 	msg := sbomTreeMessage{
-		ArtifactSHA256: art.SHA256,
-		ArtifactName:   art.Name,
-		JobPrefix:      jobPrefix,
-		Bucket:         r.cfg.S3Bucket,
-		GraphTable:     r.cfg.GraphTable,
-		IndexTable:     r.cfg.DynamoTable,
+		ArtifactSHA:  art.SHA256,
+		ArtifactName: art.Name,
+		JobPrefix:    jobPrefix,
+		Bucket:       r.cfg.S3Bucket,
+		GraphTable:   r.cfg.GraphTable,
+		IndexTable:   r.cfg.DynamoTable,
 	}
 
 	body, err := json.Marshal(msg)

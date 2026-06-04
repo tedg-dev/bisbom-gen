@@ -1,4 +1,4 @@
-// Package indexer writes DynamoDB records that map artifact SHA-256
+// Package indexer writes DynamoDB records that map artifact SHA
 // checksums to the S3 locations of their SPDX documents.
 package indexer
 
@@ -18,7 +18,7 @@ import (
 )
 
 // Indexer reads a Phase 1 manifest from S3 and writes SPDX location
-// records to DynamoDB, keyed by artifact SHA-256.
+// records to DynamoDB, keyed by artifact SHA (SHA-256 and SHA-1).
 type Indexer struct {
 	s3Client     *s3.Client
 	dynamoClient *dynamodb.Client
@@ -40,15 +40,19 @@ func New(awsCfg aws.Config, bucket, table, graphTable string) *Indexer {
 }
 
 // SpdxRecord is the DynamoDB item stored per artifact.
+// Two items are written per binary — one keyed by SHA-256, one by SHA-1.
 type SpdxRecord struct {
-	// Partition key: SHA-256 hex digest of the artifact binary.
-	ArtifactSHA256 string `dynamodbav:"ArtifactSHA256" json:"artifact_sha256"`
+	// Partition key: SHA hex digest (SHA-256 64 chars, or SHA-1 40 chars).
+	ArtifactSHA string `dynamodbav:"ArtifactSHA" json:"artifact_sha"`
 
 	// S3 URI to the analyzed SPDX document.
 	AnalyzedSpdxS3 string `dynamodbav:"AnalyzedSpdxS3,omitempty" json:"analyzed_spdx_s3,omitempty"`
 
 	// S3 URI to the build SPDX document.
 	BuildSpdxS3 string `dynamodbav:"BuildSpdxS3,omitempty" json:"build_spdx_s3,omitempty"`
+
+	// S3 URI to the sbom-tree JSON document.
+	SbomTreeS3 string `dynamodbav:"SbomTreeS3,omitempty" json:"sbom_tree_s3,omitempty"`
 
 	// Original artifact path from the manifest.
 	ArtifactPath string `dynamodbav:"ArtifactPath" json:"artifact_path"`
@@ -128,12 +132,12 @@ func (ix *Indexer) Index(ctx context.Context, jobPrefix string) ([]IndexedArtifa
 
 		stem := jarStem(bin.Path)
 		record := SpdxRecord{
-			ArtifactSHA256: bin.SHA256,
-			ArtifactPath:   bin.Path,
-			RepoName:       manifest.RepoName,
-			Language:       manifest.Language,
-			CommitSHA:      manifest.CommitSHA,
-			VcsURI:         manifest.VcsURI,
+			ArtifactSHA:  bin.SHA256,
+			ArtifactPath: bin.Path,
+			RepoName:     manifest.RepoName,
+			Language:     manifest.Language,
+			CommitSHA:    manifest.CommitSHA,
+			VcsURI:       manifest.VcsURI,
 		}
 
 		// Match SPDX keys by jar stem
@@ -145,6 +149,9 @@ func (ix *Indexer) Index(ctx context.Context, jobPrefix string) ([]IndexedArtifa
 			if strings.HasPrefix(base, stem+"_build") {
 				record.BuildSpdxS3 = fmt.Sprintf("s3://%s/%s", ix.bucket, key)
 			}
+			if base == stem+"-sbom-tree.json" {
+				record.SbomTreeS3 = fmt.Sprintf("s3://%s/%s", ix.bucket, key)
+			}
 		}
 
 		if record.AnalyzedSpdxS3 == "" && record.BuildSpdxS3 == "" {
@@ -152,10 +159,20 @@ func (ix *Indexer) Index(ctx context.Context, jobPrefix string) ([]IndexedArtifa
 			continue
 		}
 
+		// Write SHA-256 keyed record
 		if err := ix.putRecord(ctx, record); err != nil {
 			return nil, fmt.Errorf("put record for %s: %w", bin.SHA256[:12], err)
 		}
-		log.Printf("[INDEX] Indexed %s → %s", bin.SHA256[:12], stem)
+		log.Printf("[INDEX] Indexed SHA-256 %s → %s", bin.SHA256[:12], stem)
+
+		// Write SHA-1 keyed record (same S3 URIs, enables lookup by either hash)
+		if bin.SHA1 != "" {
+			record.ArtifactSHA = bin.SHA1
+			if err := ix.putRecord(ctx, record); err != nil {
+				return nil, fmt.Errorf("put sha1 record for %s: %w", bin.SHA1[:12], err)
+			}
+			log.Printf("[INDEX] Indexed SHA-1   %s → %s", bin.SHA1[:12], stem)
+		}
 
 		result := IndexedArtifact{SHA256: bin.SHA256, Name: stem}
 

@@ -34,21 +34,21 @@ func New(awsCfg aws.Config) *Generator {
 
 // Request describes a single sbom-tree generation job.
 type Request struct {
-	ArtifactSHA256 string `json:"artifactSHA256"`
-	ArtifactName   string `json:"artifactName"`
-	JobPrefix      string `json:"jobPrefix"`
-	Bucket         string `json:"bucket"`
-	GraphTable     string `json:"graphTable"`
-	IndexTable     string `json:"indexTable"`
+	ArtifactSHA  string `json:"artifactSHA"`
+	ArtifactName string `json:"artifactName"`
+	JobPrefix    string `json:"jobPrefix"`
+	Bucket       string `json:"bucket"`
+	GraphTable   string `json:"graphTable"`
+	IndexTable   string `json:"indexTable"`
 }
 
 // TreeOutput is the top-level JSON written to S3.
 type TreeOutput struct {
-	ArtifactSHA256 string    `json:"artifactSHA256"`
-	ArtifactName   string    `json:"artifactName"`
-	GeneratedAt    time.Time `json:"generatedAt"`
-	Root           *TreeNode `json:"root,omitempty"`
-	Stats          TreeStats `json:"stats"`
+	ArtifactSHA  string    `json:"artifactSHA"`
+	ArtifactName string    `json:"artifactName"`
+	GeneratedAt  time.Time `json:"generatedAt"`
+	Root         *TreeNode `json:"root,omitempty"`
+	Stats        TreeStats `json:"stats"`
 }
 
 // TreeNode is a single package in the nested tree.
@@ -71,28 +71,28 @@ type TreeStats struct {
 
 // graphItem mirrors the DynamoDB GraphNode schema.
 type graphItem struct {
-	ArtifactSHA256 string   `dynamodbav:"ArtifactSHA256"`
-	SK             string   `dynamodbav:"SK"`
-	Purl           string   `dynamodbav:"purl"`
-	Name           string   `dynamodbav:"name"`
-	Version        string   `dynamodbav:"version"`
-	Supplier       string   `dynamodbav:"supplier"`
-	Scope          string   `dynamodbav:"scope"`
-	Depth          int      `dynamodbav:"depth"`
-	Parent         string   `dynamodbav:"parent"`
-	Children       []string `dynamodbav:"children"`
+	ArtifactSHA string   `dynamodbav:"ArtifactSHA"`
+	SK          string   `dynamodbav:"SK"`
+	Purl        string   `dynamodbav:"purl"`
+	Name        string   `dynamodbav:"name"`
+	Version     string   `dynamodbav:"version"`
+	Supplier    string   `dynamodbav:"supplier"`
+	Scope       string   `dynamodbav:"scope"`
+	Depth       int      `dynamodbav:"depth"`
+	Parent      string   `dynamodbav:"parent"`
+	Children    []string `dynamodbav:"children"`
 }
 
 // Generate queries DynamoDB for the full dependency graph, builds a
 // nested tree, and uploads it to S3.
 func (g *Generator) Generate(ctx context.Context, req Request) error {
-	items, err := g.queryAllNodes(ctx, req.GraphTable, req.ArtifactSHA256)
+	items, err := g.queryAllNodes(ctx, req.GraphTable, req.ArtifactSHA)
 	if err != nil {
 		return fmt.Errorf("query graph nodes: %w", err)
 	}
 
 	if len(items) == 0 {
-		log.Printf("[TREE] No graph nodes found for %s", req.ArtifactSHA256[:12])
+		log.Printf("[TREE] No graph nodes found for %s", req.ArtifactSHA[:12])
 		return nil
 	}
 
@@ -100,11 +100,11 @@ func (g *Generator) Generate(ctx context.Context, req Request) error {
 	stats := computeStats(items)
 
 	output := TreeOutput{
-		ArtifactSHA256: req.ArtifactSHA256,
-		ArtifactName:   req.ArtifactName,
-		GeneratedAt:    time.Now().UTC(),
-		Root:           tree,
-		Stats:          stats,
+		ArtifactSHA:  req.ArtifactSHA,
+		ArtifactName: req.ArtifactName,
+		GeneratedAt:  time.Now().UTC(),
+		Root:         tree,
+		Stats:        stats,
 	}
 
 	data, err := json.MarshalIndent(output, "", "  ")
@@ -123,7 +123,7 @@ func (g *Generator) Generate(ctx context.Context, req Request) error {
 
 	// Update the SpdxIndexTable record with the tree S3 location
 	if req.IndexTable != "" {
-		if err := g.updateIndexRecord(ctx, req.IndexTable, req.ArtifactSHA256, s3URI); err != nil {
+		if err := g.updateIndexRecord(ctx, req.IndexTable, req.ArtifactSHA, s3URI); err != nil {
 			log.Printf("[TREE] Warning: failed to update index record: %v", err)
 		}
 	}
@@ -135,12 +135,12 @@ func (g *Generator) Generate(ctx context.Context, req Request) error {
 // SpdxIndexTable record for this artifact.
 func (g *Generator) updateIndexRecord(
 	ctx context.Context,
-	table, artifactSHA256, s3URI string,
+	table, artifactSHA, s3URI string,
 ) error {
 	_, err := g.dynamoClient.UpdateItem(ctx, &dynamodb.UpdateItemInput{
 		TableName: &table,
 		Key: map[string]dbtypes.AttributeValue{
-			"ArtifactSHA256": &dbtypes.AttributeValueMemberS{Value: artifactSHA256},
+			"ArtifactSHA": &dbtypes.AttributeValueMemberS{Value: artifactSHA},
 		},
 		UpdateExpression: aws.String("SET SbomTreeS3 = :uri"),
 		ExpressionAttributeValues: map[string]dbtypes.AttributeValue{
@@ -150,24 +150,24 @@ func (g *Generator) updateIndexRecord(
 	if err != nil {
 		return fmt.Errorf("update item: %w", err)
 	}
-	log.Printf("[TREE] Updated index record %s with SbomTreeS3", artifactSHA256[:12])
+	log.Printf("[TREE] Updated index record %s with SbomTreeS3", artifactSHA[:12])
 	return nil
 }
 
-// queryAllNodes fetches every item for the given ArtifactSHA256
+// queryAllNodes fetches every item for the given ArtifactSHA
 // partition key, paginating as needed.
 func (g *Generator) queryAllNodes(
 	ctx context.Context,
 	table string,
-	artifactSHA256 string,
+	artifactSHA string,
 ) ([]graphItem, error) {
 	var items []graphItem
 
 	paginator := dynamodb.NewQueryPaginator(g.dynamoClient, &dynamodb.QueryInput{
 		TableName:              &table,
-		KeyConditionExpression: aws.String("ArtifactSHA256 = :sha"),
+		KeyConditionExpression: aws.String("ArtifactSHA = :sha"),
 		ExpressionAttributeValues: map[string]dbtypes.AttributeValue{
-			":sha": &dbtypes.AttributeValueMemberS{Value: artifactSHA256},
+			":sha": &dbtypes.AttributeValueMemberS{Value: artifactSHA},
 		},
 	})
 

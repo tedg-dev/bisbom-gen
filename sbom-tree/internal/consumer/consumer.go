@@ -77,7 +77,7 @@ func (c *Consumer) handleMessage(ctx context.Context, msg sqstypes.Message) {
 
 	if err := c.generator.Generate(ctx, req); err != nil {
 		log.Printf("[ERROR] Tree generation failed for %s: %v",
-			req.ArtifactSHA256[:12], err)
+			req.ArtifactSHA[:12], err)
 		// Do NOT delete — SQS will retry after visibility timeout
 		return
 	}

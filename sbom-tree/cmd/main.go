@@ -8,7 +8,7 @@
 // Usage:
 //
 //	sbom-tree                          # SQS consumer mode (default)
-//	sbom-tree -once -sha <sha256> ...  # One-shot mode for debugging
+//	sbom-tree -once -sha <sha> ...     # One-shot mode for debugging
 //
 // Environment variables (SQS consumer mode):
 //
@@ -18,7 +18,7 @@
 // Flags (one-shot mode):
 //
 //	-once         Run once and exit (no SQS polling)
-//	-sha          Artifact SHA-256 to query
+//	-sha          Artifact SHA to query (SHA-256 or SHA-1)
 //	-name         Artifact name (used in output filename)
 //	-prefix       S3 job prefix
 //	-bucket       S3 bucket
@@ -42,7 +42,7 @@ import (
 
 func main() {
 	once := flag.Bool("once", false, "Run once (one-shot mode) instead of polling SQS")
-	sha := flag.String("sha", "", "Artifact SHA-256 (one-shot mode)")
+	sha := flag.String("sha", "", "Artifact SHA (one-shot mode)")
 	name := flag.String("name", "", "Artifact name (one-shot mode)")
 	prefix := flag.String("prefix", "", "S3 job prefix (one-shot mode)")
 	bucket := flag.String("bucket", envOrDefault("S3_BUCKET", ""), "S3 bucket")
@@ -85,11 +85,11 @@ func main() {
 		}
 
 		req := treegen.Request{
-			ArtifactSHA256: *sha,
-			ArtifactName:   *name,
-			JobPrefix:      *prefix,
-			Bucket:         *bucket,
-			GraphTable:     *graphTable,
+			ArtifactSHA:  *sha,
+			ArtifactName: *name,
+			JobPrefix:    *prefix,
+			Bucket:       *bucket,
+			GraphTable:   *graphTable,
 		}
 
 		if err := gen.Generate(ctx, req); err != nil {
