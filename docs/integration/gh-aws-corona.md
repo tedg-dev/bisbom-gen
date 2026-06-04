@@ -1021,6 +1021,7 @@ spdx-indexing (inline in operator)
 ```json
 {
   "artifactSHA": "a614855c7fe1679db2b9cf8bd518e5c52c544b9db4020b38180aca21db2b7ef4",
+  "artifactSHA1": "e3b0c44298fc1c149afbf4c8996fb924",
   "artifactName": "webgoat-2025.4-SNAPSHOT",
   "jobPrefix": "java/WebGoat/abc123/42",
   "bucket": "omnibor-spdx-artifacts",

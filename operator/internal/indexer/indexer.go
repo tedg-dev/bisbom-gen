@@ -91,6 +91,7 @@ type BinaryEntry struct {
 // IndexedArtifact is returned by Index for each successfully indexed artifact.
 type IndexedArtifact struct {
 	SHA256       string // artifact SHA-256
+	SHA1         string // artifact SHA-1 (may be empty)
 	Name         string // jar stem (e.g. "webgoat-2025.4-SNAPSHOT")
 	GraphIndexed bool   // true if dependency graph was written
 }
@@ -174,7 +175,7 @@ func (ix *Indexer) Index(ctx context.Context, jobPrefix string) ([]IndexedArtifa
 			log.Printf("[INDEX] Indexed SHA-1   %s → %s", bin.SHA1[:12], stem)
 		}
 
-		result := IndexedArtifact{SHA256: bin.SHA256, Name: stem}
+		result := IndexedArtifact{SHA256: bin.SHA256, SHA1: bin.SHA1, Name: stem}
 
 		// Write dependency graph if a graph table is configured
 		// and a build SPDX exists (it contains DEPENDS_ON edges).

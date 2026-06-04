@@ -35,6 +35,7 @@ func New(awsCfg aws.Config) *Generator {
 // Request describes a single sbom-tree generation job.
 type Request struct {
 	ArtifactSHA  string `json:"artifactSHA"`
+	ArtifactSHA1 string `json:"artifactSHA1,omitempty"`
 	ArtifactName string `json:"artifactName"`
 	JobPrefix    string `json:"jobPrefix"`
 	Bucket       string `json:"bucket"`
@@ -121,10 +122,16 @@ func (g *Generator) Generate(ctx context.Context, req Request) error {
 	log.Printf("[TREE] Uploaded %s (%d packages, max depth %d)",
 		s3Key, stats.TotalPackages, stats.MaxDepth)
 
-	// Update the SpdxIndexTable record with the tree S3 location
+	// Update the SpdxIndexTable records with the tree S3 location
+	// (both SHA-256 and SHA-1 keyed records)
 	if req.IndexTable != "" {
 		if err := g.updateIndexRecord(ctx, req.IndexTable, req.ArtifactSHA, s3URI); err != nil {
-			log.Printf("[TREE] Warning: failed to update index record: %v", err)
+			log.Printf("[TREE] Warning: failed to update SHA-256 index record: %v", err)
+		}
+		if req.ArtifactSHA1 != "" {
+			if err := g.updateIndexRecord(ctx, req.IndexTable, req.ArtifactSHA1, s3URI); err != nil {
+				log.Printf("[TREE] Warning: failed to update SHA-1 index record: %v", err)
+			}
 		}
 	}
 
