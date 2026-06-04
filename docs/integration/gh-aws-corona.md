@@ -33,6 +33,12 @@
   - [SQS Queue](#sbom-tree-sqs-queue)
   - [Output Format](#output-format)
   - [Running the sbom-tree Worker](#running-the-sbom-tree-worker)
+- [GitHub Actions → Jenkins: What Changes](#github-actions--jenkins-what-changes)
+  - [What the GHA Workflow Does Today](#what-the-gha-workflow-does-today)
+  - [Changes Needed for Jenkins](#changes-needed-for-jenkins)
+  - [What Does NOT Change](#what-does-not-change)
+  - [Minimal Jenkinsfile Skeleton](#minimal-jenkinsfile-skeleton)
+  - [Diagram Recommendation](#diagram-recommendation)
 - [Appendix: Multiple OIDC Providers (GitHub.com + GitHub Enterprise)](#appendix-multiple-oidc-providers-githubcom--github-enterprise)
 
 ## Overview
@@ -1139,6 +1145,182 @@ The operator logs confirmation at startup:
 [INFO] Dependency graph indexing enabled (table: SpdxDependencyGraph)
 [INFO] sbom-tree publishing enabled (queue: https://sqs...omnibor-sbom-tree-requests)
 ```
+
+---
+
+## GitHub Actions → Jenkins: What Changes
+
+This section documents what would change if a target repository (e.g.,
+WebGoat) used **Jenkins** instead of GitHub Actions as its build system.
+The key takeaway is that the entire downstream pipeline (S3 → operator →
+Phase 2 → indexing → sbom-tree) is **CI-system-agnostic by design** — it
+triggers off S3 events, not CI webhooks.
+
+### What the GHA Workflow Does Today
+
+The `phase1-s3` job in the WebGoat workflow performs:
+
+1. **Build** — Maven package inside a Temurin JDK 25 Docker container
+2. **GHCR login** — pull the `omnibor-sidecar` image
+3. **Phase 1** — run the sidecar container to generate SPDX + manifest
+4. **AWS auth** — OIDC federation (`id-token: write` → `role-to-assume`)
+5. **S3 upload** — push Phase 1 artifacts to
+   `s3://omnibor-spdx-artifacts/{repo}/{jobId}/phase1/`
+
+Phase 2 is then triggered by the operator consuming S3 event
+notifications — it has no awareness of which CI system produced the
+artifacts.
+
+### Changes Needed for Jenkins
+
+#### Jenkinsfile replaces the GHA workflow
+
+A mechanical translation of GHA YAML to Jenkinsfile Groovy:
+
+| GHA concept | Jenkins equivalent |
+|---|---|
+| `on: push/pull_request` | Multibranch pipeline + webhook trigger |
+| `workflow_dispatch` | `parameters { booleanParam(...) }` |
+| `concurrency` group | `options { disableConcurrentBuilds() }` |
+| Matrix builds | `parallel` stages or matrix directive (Declarative) |
+| `actions/checkout` | `checkout scm` (automatic in multibranch) |
+| `actions/setup-java` | `tools { jdk 'temurin-25' }` or Docker agent |
+
+#### AWS authentication — the biggest change
+
+GHA uses OIDC federation (`id-token: write`). Jenkins options:
+
+- **Jenkins OIDC plugin** — Jenkins can also federate via OIDC to AWS
+  IAM, but requires the Jenkins instance to be registered as an OIDC
+  identity provider in IAM (new IAM OIDC provider + trust policy
+  statement, similar to the GHE pattern in the Appendix)
+- **IAM instance profile** — if Jenkins runs on EC2, attach the S3
+  role directly to the instance (simplest, no credentials to manage)
+- **Stored credentials** — `withCredentials([[$class:
+  'AmazonWebServicesCredentialsBinding']])` using the AWS Credentials
+  plugin (least ideal, requires static access keys)
+
+#### GHCR image pull
+
+Jenkins needs a Docker registry credential:
+
+- Store GHCR PAT in Jenkins Credentials store
+- Use `docker.withRegistry('https://ghcr.io', 'ghcr-cred-id')` or
+  `withCredentials` to authenticate before pulling
+
+#### S3 upload
+
+Two options:
+
+- **AWS CLI** — same `aws s3 cp` commands as GHA, if credentials are
+  available in the shell environment
+- **Pipeline AWS Steps plugin** — `s3Upload` step for a more
+  Jenkins-native approach
+
+#### Job ID construction
+
+GHA uses `${{ github.sha }}` and `${{ github.run_id }}`. Jenkins
+equivalents:
+
+- `env.GIT_COMMIT` (or `sh(returnStdout: true, script: 'git rev-parse HEAD')`)
+- `env.BUILD_NUMBER`
+
+The S3 path convention `{datetime}_{sha12}_{buildId}` is preserved.
+
+### What Does NOT Change
+
+- **Sidecar image** — identical `docker run`, same `analyze.py`
+  invocation and arguments
+- **S3 path structure** — same `{repo}/{jobId}/phase1/` convention;
+  the operator parses this, not CI metadata
+- **Phase 2 / operator** — completely decoupled; watches S3 events
+- **DynamoDB indexing, sbom-tree** — no changes at all
+- **Phase 1 manifest format** — `phase1_manifest.json` is unchanged
+- **REST API** — queries by `ArtifactSHA`, CI-agnostic
+
+### Minimal Jenkinsfile Skeleton
+
+```groovy
+pipeline {
+    agent { label 'docker' }
+    options { disableConcurrentBuilds() }
+    environment {
+        SIDECAR_IMAGE = 'ghcr.io/kkaple/omnibor-sidecar:dev'
+        S3_BUCKET     = 'omnibor-spdx-artifacts'
+        S3_REPO       = 'kkaple/WebGoat'
+    }
+    stages {
+        stage('Build') {
+            steps {
+                sh '''
+                    docker run --rm \
+                      -v "$WORKSPACE:/project" -w /project \
+                      eclipse-temurin:25-jdk-jammy \
+                      bash -c 'mvn package -DskipTests -q'
+                '''
+            }
+        }
+        stage('Phase 1') {
+            steps {
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'ghcr',
+                        usernameVariable: 'GHCR_USER',
+                        passwordVariable: 'GHCR_TOKEN'
+                    )
+                ]) {
+                    sh 'echo $GHCR_TOKEN | docker login ghcr.io -u $GHCR_USER --password-stdin'
+                    sh 'docker pull $SIDECAR_IMAGE'
+                }
+                sh '''
+                    mkdir -p spdx-output
+                    docker run --rm \
+                      -v "$WORKSPACE:/workspace/repos/WebGoat" \
+                      -v "$WORKSPACE/spdx-output:/workspace/output" \
+                      -e OMNIBOR_MODE=sidecar \
+                      $SIDECAR_IMAGE \
+                      python3 /workspace/app/analyze.py \
+                        --repo WebGoat --mode sidecar \
+                        --phase build --skip-clone
+                '''
+            }
+        }
+        stage('S3 Upload') {
+            steps {
+                // Option A: IAM instance profile (no explicit credentials)
+                // Option B: withAWS(role:...) or withCredentials([...])
+                sh '''
+                    SHORT_SHA=$(git rev-parse --short=12 HEAD)
+                    TS=$(date -u +%Y%m%d-%H%M%S)
+                    JOB_ID="${TS}_${SHORT_SHA}_${BUILD_NUMBER}"
+                    S3_PATH="s3://$S3_BUCKET/$S3_REPO/${JOB_ID}"
+                    echo "[INFO] Uploading to ${S3_PATH}/phase1/"
+                    aws s3 cp spdx-output/ "${S3_PATH}/phase1/" --recursive
+                '''
+            }
+        }
+    }
+}
+```
+
+### Diagram Recommendation
+
+A separate draw.io diagram is **not required**. The existing diagram
+(`gh-aws-corona.drawio`) already separates the "Build Site" swim lane
+from the "AWS Cloud" swim lane. The only difference for Jenkins is the
+contents of the Build Site lane:
+
+- The lane title changes from "Build Site (GitHub Actions)" to
+  "Build Site (Jenkins)"
+- The "OIDC Auth" box changes to the Jenkins-appropriate credential
+  mechanism (instance profile, OIDC plugin, or stored credentials)
+- All boxes inside the "AWS Cloud" lane remain identical
+
+If a Jenkins-specific diagram is desired in the future, the recommended
+approach is to add a **second page (tab)** within the same
+`gh-aws-corona.drawio` file named "Jenkins Variant" that duplicates only
+the Build Site lane with Jenkins-specific labels. This avoids
+maintaining two separate files while keeping both variants accessible.
 
 ---
 
