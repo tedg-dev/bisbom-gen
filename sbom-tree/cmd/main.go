@@ -48,6 +48,7 @@ func main() {
 	bucket := flag.String("bucket", envOrDefault("S3_BUCKET", ""), "S3 bucket")
 	graphTable := flag.String("graph-table", envOrDefault("DYNAMO_GRAPH_TABLE", "SpdxDependencyGraph"), "DynamoDB graph table")
 	region := flag.String("region", envOrDefault("AWS_REGION", "us-east-1"), "AWS region")
+	scanOutputBucket := envOrDefault("SCAN_OUTPUT_BUCKET", "")
 
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, "sbom-tree — Generate nested dependency tree JSON from DynamoDB graph\n\n")
@@ -61,6 +62,7 @@ func main() {
 		fmt.Fprintf(os.Stderr, "  S3_BUCKET           Default for -bucket\n")
 		fmt.Fprintf(os.Stderr, "  DYNAMO_GRAPH_TABLE  Default for -graph-table\n")
 		fmt.Fprintf(os.Stderr, "  AWS_REGION          Default for -region\n")
+		fmt.Fprintf(os.Stderr, "  SCAN_OUTPUT_BUCKET  Override bucket for tree JSON output\n")
 	}
 
 	flag.Parse()
@@ -85,11 +87,12 @@ func main() {
 		}
 
 		req := treegen.Request{
-			ArtifactSHA:  *sha,
-			ArtifactName: *name,
-			JobPrefix:    *prefix,
-			Bucket:       *bucket,
-			GraphTable:   *graphTable,
+			ArtifactSHA:      *sha,
+			ArtifactName:     *name,
+			JobPrefix:        *prefix,
+			Bucket:           *bucket,
+			GraphTable:       *graphTable,
+			ScanOutputBucket: scanOutputBucket,
 		}
 
 		if err := gen.Generate(ctx, req); err != nil {
@@ -107,7 +110,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	c := consumer.New(awsCfg, queueURL, gen)
+	c := consumer.New(awsCfg, queueURL, gen, scanOutputBucket)
 	if err := c.Run(ctx); err != nil && ctx.Err() == nil {
 		log.Fatalf("[FATAL] Consumer error: %v", err)
 	}

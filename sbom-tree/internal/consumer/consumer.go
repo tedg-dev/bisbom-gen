@@ -17,17 +17,21 @@ import (
 
 // Consumer polls SQS for tree generation requests.
 type Consumer struct {
-	sqsClient *sqs.Client
-	queueURL  string
-	generator *treegen.Generator
+	sqsClient        *sqs.Client
+	queueURL         string
+	generator        *treegen.Generator
+	scanOutputBucket string // override upload bucket (from SCAN_OUTPUT_BUCKET)
 }
 
 // New creates a Consumer that polls the given SQS queue.
-func New(awsCfg aws.Config, queueURL string, gen *treegen.Generator) *Consumer {
+// scanOutputBucket may be empty; when set, tree JSON is uploaded there
+// instead of the bucket specified in the SQS message.
+func New(awsCfg aws.Config, queueURL string, gen *treegen.Generator, scanOutputBucket string) *Consumer {
 	return &Consumer{
-		sqsClient: sqs.NewFromConfig(awsCfg),
-		queueURL:  queueURL,
-		generator: gen,
+		sqsClient:        sqs.NewFromConfig(awsCfg),
+		queueURL:         queueURL,
+		generator:        gen,
+		scanOutputBucket: scanOutputBucket,
 	}
 }
 
@@ -73,6 +77,10 @@ func (c *Consumer) handleMessage(ctx context.Context, msg sqstypes.Message) {
 		log.Printf("[ERROR] Invalid message body: %v", err)
 		c.deleteMessage(ctx, msg)
 		return
+	}
+
+	if c.scanOutputBucket != "" {
+		req.ScanOutputBucket = c.scanOutputBucket
 	}
 
 	if err := c.generator.Generate(ctx, req); err != nil {

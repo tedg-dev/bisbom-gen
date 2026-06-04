@@ -34,13 +34,14 @@ func New(awsCfg aws.Config) *Generator {
 
 // Request describes a single sbom-tree generation job.
 type Request struct {
-	ArtifactSHA  string `json:"artifactSHA"`
-	ArtifactSHA1 string `json:"artifactSHA1,omitempty"`
-	ArtifactName string `json:"artifactName"`
-	JobPrefix    string `json:"jobPrefix"`
-	Bucket       string `json:"bucket"`
-	GraphTable   string `json:"graphTable"`
-	IndexTable   string `json:"indexTable"`
+	ArtifactSHA      string `json:"artifactSHA"`
+	ArtifactSHA1     string `json:"artifactSHA1,omitempty"`
+	ArtifactName     string `json:"artifactName"`
+	JobPrefix        string `json:"jobPrefix"`
+	Bucket           string `json:"bucket"`
+	GraphTable       string `json:"graphTable"`
+	IndexTable       string `json:"indexTable"`
+	ScanOutputBucket string `json:"scanOutputBucket,omitempty"`
 }
 
 // TreeOutput is the top-level JSON written to S3.
@@ -114,11 +115,15 @@ func (g *Generator) Generate(ctx context.Context, req Request) error {
 	}
 
 	s3Key := fmt.Sprintf("%s/spdx/%s-sbom-tree.json", req.JobPrefix, req.ArtifactName)
-	if err := g.uploadToS3(ctx, req.Bucket, s3Key, data); err != nil {
+	uploadBucket := req.Bucket
+	if req.ScanOutputBucket != "" {
+		uploadBucket = req.ScanOutputBucket
+	}
+	if err := g.uploadToS3(ctx, uploadBucket, s3Key, data); err != nil {
 		return fmt.Errorf("upload tree: %w", err)
 	}
 
-	s3URI := fmt.Sprintf("s3://%s/%s", req.Bucket, s3Key)
+	s3URI := fmt.Sprintf("s3://%s/%s", uploadBucket, s3Key)
 	log.Printf("[TREE] Uploaded %s (%d packages, max depth %d)",
 		s3Key, stats.TotalPackages, stats.MaxDepth)
 
