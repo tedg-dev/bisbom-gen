@@ -239,6 +239,28 @@ The WebGoat `build.yml` workflow is the reference implementation. The
 `phase1-s3` job runs after the main build succeeds: it verifies the
 taxonomy of the build results via the Phase 1 sidecar, then uploads to S3.
 
+### What's OmniBOR-specific?
+
+The standard Maven build (`mvn package`) is unchanged. The following
+steps are additions for OmniBOR SBOM generation and are not part of
+a typical Java CI workflow:
+
+| Lines | Step | Purpose |
+|-------|------|---------|
+| 23–26 | `permissions: id-token: write` | OIDC token for AWS — not needed by a standard build |
+| 28–32 | `env: SIDECAR_IMAGE`, `S3_BUCKET`, `S3_REPO` | OmniBOR sidecar image and S3 destination |
+| 80–81 | Set timestamp | Generates the `TS` component of the S3 job ID |
+| 99–107 | Login to GHCR + pull sidecar | Fetches the OmniBOR sidecar container image |
+| 109–121 | Phase 1: Build result processing | Runs the sidecar to extract dependency tree, treedb, and manifest |
+| 123–127 | Configure AWS credentials (OIDC) | Assumes the `github-actions-s3` IAM role via OIDC federation |
+| 129–137 | Upload Phase 1 artifacts to S3 | Constructs the 3-part job ID and uploads to `s3://<bucket>/<owner>/<repo>/<job_id>/phase1/` |
+| 139–143 | Upload build output to S3 | Optionally uploads JARs and class files for Phase 2 analysis |
+| 145–152 | Verify S3 upload | Lists uploaded contents for debugging |
+
+A repo that only needs a standard Maven build would have none of
+these steps. They can be added to any existing `build.yml` without
+modifying the build itself.
+
 ```yaml
 name: "Main / Pull requests build"
 on:
@@ -359,28 +381,6 @@ jobs:
                     echo "  Phase 1: ${{ env.S3_PATH }}/phase1/"
                     echo "  Build:   ${{ env.S3_PATH }}/build/"       # L152
 ```
-
-### What's OmniBOR-specific?
-
-The standard Maven build (`mvn package`) is unchanged. The following
-steps are additions for OmniBOR SBOM generation and are not part of
-a typical Java CI workflow:
-
-| Lines | Step | Purpose |
-|-------|------|---------|
-| 23–26 | `permissions: id-token: write` | OIDC token for AWS — not needed by a standard build |
-| 28–32 | `env: SIDECAR_IMAGE`, `S3_BUCKET`, `S3_REPO` | OmniBOR sidecar image and S3 destination |
-| 80–81 | Set timestamp | Generates the `TS` component of the S3 job ID |
-| 99–107 | Login to GHCR + pull sidecar | Fetches the OmniBOR sidecar container image |
-| 109–121 | Phase 1: Build result processing | Runs the sidecar to extract dependency tree, treedb, and manifest |
-| 123–127 | Configure AWS credentials (OIDC) | Assumes the `github-actions-s3` IAM role via OIDC federation |
-| 129–137 | Upload Phase 1 artifacts to S3 | Constructs the 3-part job ID and uploads to `s3://<bucket>/<owner>/<repo>/<job_id>/phase1/` |
-| 139–143 | Upload build output to S3 | Optionally uploads JARs and class files for Phase 2 analysis |
-| 145–152 | Verify S3 upload | Lists uploaded contents for debugging |
-
-A repo that only needs a standard Maven build would have none of
-these steps. They can be added to any existing `build.yml` without
-modifying the build itself.
 
 ### Triggering the Workflow
 
