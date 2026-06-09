@@ -1,220 +1,140 @@
-<mxfile host="app.diagrams.net" modified="2026-06-03T17:24:00.000Z" agent="Cascade" version="24.0.0" type="device">
+<mxfile host="app.diagrams.net" agent="Cascade" pages="2">
   <diagram id="gh-aws-corona" name="Architecture">
-    <mxGraphModel dx="1800" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1800" pageHeight="1200" math="0" shadow="0">
+    <mxGraphModel dx="2023" dy="710" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1800" pageHeight="1200" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-
-        <!-- ═══════════════════════════════════════ -->
-        <!-- Title                                    -->
-        <!-- ═══════════════════════════════════════ -->
-        <mxCell id="title" value="OmniBOR Integration — GitHub Actions → AWS (S3 + SQS + DynamoDB + ECS)" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=18;fontStyle=1;fontColor=#333333;" vertex="1" parent="1">
-          <mxGeometry x="350" y="15" width="700" height="40" as="geometry" />
+        <mxCell id="title" parent="1" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=18;fontStyle=1;fontColor=#333333;" value="OmniBOR Integration — GitHub Actions → AWS (S3 + SQS + DynamoDB + ECS)" vertex="1">
+          <mxGeometry height="40" width="700" x="350" y="15" as="geometry" />
         </mxCell>
-
-        <!-- ═══════════════════════════════════════ -->
-        <!-- Swim Lane: Build Site (GitHub Actions)   -->
-        <!-- ═══════════════════════════════════════ -->
-        <mxCell id="lane_build" value="Build Site (GitHub Actions)" style="shape=swimlane;startSize=30;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=14;fontStyle=1;horizontal=1;collapsible=0;rounded=1;" vertex="1" parent="1">
-          <mxGeometry x="30" y="70" width="310" height="470" as="geometry" />
+        <mxCell id="lane_build" parent="1" style="shape=swimlane;startSize=30;fillColor=#fa6800;strokeColor=#C73500;fontSize=14;fontStyle=1;horizontal=1;collapsible=0;rounded=1;fontColor=#000000;" value="Build Site (GitHub Actions)" vertex="1">
+          <mxGeometry height="470" width="310" x="30" y="70" as="geometry" />
         </mxCell>
-
-        <mxCell id="checkout" value="Checkout&#xa;Repository" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;fontSize=12;" vertex="1" parent="lane_build">
-          <mxGeometry x="85" y="50" width="140" height="45" as="geometry" />
+        <mxCell id="checkout" parent="lane_build" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;fontSize=12;" value="Checkout&#xa;Repository" vertex="1">
+          <mxGeometry height="45" width="140" x="85" y="50" as="geometry" />
         </mxCell>
-
-        <mxCell id="build" value="Maven Build&#xa;(Amazon Corretto 21)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;" vertex="1" parent="lane_build">
-          <mxGeometry x="85" y="115" width="140" height="45" as="geometry" />
+        <mxCell id="build" parent="lane_build" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;" value="Maven Build&#xa;(Amazon Corretto 21)" vertex="1">
+          <mxGeometry height="45" width="140" x="85" y="115" as="geometry" />
         </mxCell>
-
-        <mxCell id="phase1" value="Phase 1: Build Result&#xa;Processing&#xa;(omnibor-sidecar)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;fontStyle=1;" vertex="1" parent="lane_build">
-          <mxGeometry x="85" y="185" width="140" height="55" as="geometry" />
+        <mxCell id="phase1" parent="lane_build" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;fontStyle=1;" value="Phase 1: Build Result&#xa;Processing&#xa;(omnibor-sidecar)" vertex="1">
+          <mxGeometry height="55" width="140" x="85" y="185" as="geometry" />
         </mxCell>
-
-        <mxCell id="phase1_outputs" value="Phase 1 Outputs:&#xa;• maven_deps.json&#xa;• bomsh treedb&#xa;• phase1_manifest.json&#xa;• JARs / class files" style="shape=note;whiteSpace=wrap;html=1;size=14;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;align=left;spacingLeft=8;" vertex="1" parent="lane_build">
-          <mxGeometry x="55" y="265" width="200" height="95" as="geometry" />
+        <mxCell id="phase1_outputs" parent="lane_build" style="shape=note;whiteSpace=wrap;html=1;size=14;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;align=left;spacingLeft=8;" value="Phase 1 Outputs:&#xa;• maven_deps.json&#xa;• bomsh treedb&#xa;• phase1_manifest.json&#xa;• JARs / class files" vertex="1">
+          <mxGeometry height="95" width="200" x="55" y="265" as="geometry" />
         </mxCell>
-
-        <mxCell id="oidc_auth" value="OIDC Auth&#xa;(no long-lived keys)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;" vertex="1" parent="lane_build">
-          <mxGeometry x="85" y="385" width="140" height="40" as="geometry" />
+        <mxCell id="oidc_auth" parent="lane_build" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;" value="OIDC Auth&#xa;(no long-lived keys)" vertex="1">
+          <mxGeometry height="40" width="140" x="85" y="385" as="geometry" />
         </mxCell>
-
-        <mxCell id="s3_upload_step" value="aws s3 cp → S3&#xa;path: &lt;owner&gt;/&lt;repo&gt;/&lt;job_id&gt;/" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;" vertex="1" parent="lane_build">
-          <mxGeometry x="55" y="430" width="200" height="30" as="geometry" />
+        <mxCell id="s3_upload_step" parent="lane_build" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;" value="aws s3 cp → S3&#xa;path: &lt;owner&gt;/&lt;repo&gt;/&lt;job_id&gt;/" vertex="1">
+          <mxGeometry height="30" width="200" x="55" y="430" as="geometry" />
         </mxCell>
-
-        <!-- Build site internal arrows -->
-        <mxCell id="e_checkout_build" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#666666;" edge="1" source="checkout" target="build" parent="lane_build">
+        <mxCell id="e_checkout_build" edge="1" parent="lane_build" source="checkout" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#666666;" target="build">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e_build_phase1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#666666;" edge="1" source="build" target="phase1" parent="lane_build">
+        <mxCell id="e_build_phase1" edge="1" parent="lane_build" source="build" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#666666;" target="phase1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e_phase1_outputs" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#666666;" edge="1" source="phase1" target="phase1_outputs" parent="lane_build">
+        <mxCell id="e_phase1_outputs" edge="1" parent="lane_build" source="phase1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#666666;" target="phase1_outputs">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-
-        <!-- ═══════════════════════════════════════ -->
-        <!-- Swim Lane: AWS                           -->
-        <!-- ═══════════════════════════════════════ -->
-        <mxCell id="lane_aws" value="AWS Cloud" style="shape=swimlane;startSize=30;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=14;fontStyle=1;horizontal=1;collapsible=0;rounded=1;" vertex="1" parent="1">
-          <mxGeometry x="390" y="70" width="1380" height="1100" as="geometry" />
+        <mxCell id="lane_aws" parent="1" style="shape=swimlane;startSize=30;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=14;fontStyle=1;horizontal=1;collapsible=0;rounded=1;" value="AWS Cloud" vertex="1">
+          <mxGeometry height="1100" width="1380" x="390" y="70" as="geometry" />
         </mxCell>
-
-        <!-- S3 Bucket -->
-        <mxCell id="s3_bucket" value="S3: omnibor-spdx-artifacts" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=12;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=13;fontStyle=1;" vertex="1" parent="lane_aws">
-          <mxGeometry x="60" y="50" width="220" height="65" as="geometry" />
+        <mxCell id="s3_bucket" parent="lane_aws" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=12;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=13;fontStyle=1;" value="S3: omnibor-spdx-artifacts" vertex="1">
+          <mxGeometry height="65" width="220" x="60" y="50" as="geometry" />
         </mxCell>
-
-        <!-- S3 path structure (updated) -->
-        <mxCell id="s3_paths" value="&lt;owner&gt;/&lt;repo&gt;/&lt;datetime&gt;_&lt;sha12&gt;_&lt;run_id&gt;/&#xa;├── phase1/  (treedb, deps, manifest)&#xa;├── build/   (JARs, class files)&#xa;└── spdx/    (flat: .spdx.json, .html, sbom-tree)" style="shape=note;whiteSpace=wrap;html=1;size=14;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;align=left;spacingLeft=8;fontFamily=Courier New;" vertex="1" parent="lane_aws">
-          <mxGeometry x="30" y="130" width="280" height="80" as="geometry" />
+        <mxCell id="s3_paths" parent="lane_aws" style="shape=note;whiteSpace=wrap;html=1;size=14;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;align=left;spacingLeft=8;fontFamily=Courier New;" value="&lt;owner&gt;/&lt;repo&gt;/&lt;datetime&gt;_&lt;sha12&gt;_&lt;run_id&gt;/&#xa;├── phase1/  (treedb, deps, manifest)&#xa;├── build/   (JARs, class files)&#xa;└── spdx/    (flat: .spdx.json, .html, sbom-tree)" vertex="1">
+          <mxGeometry height="80" width="280" x="30" y="130" as="geometry" />
         </mxCell>
-
-        <!-- S3 Event Notification -->
-        <mxCell id="s3_event" value="S3 Event Notification&#xa;(suffix: phase1_manifest.json)" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;size=16;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;" vertex="1" parent="lane_aws">
-          <mxGeometry x="70" y="240" width="200" height="55" as="geometry" />
+        <mxCell id="s3_event" parent="lane_aws" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;size=16;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;" value="S3 Event Notification&#xa;(suffix: phase1_manifest.json)" vertex="1">
+          <mxGeometry height="55" width="200" x="70" y="240" as="geometry" />
         </mxCell>
-
-        <!-- SQS Phase 1 Queue -->
-        <mxCell id="sqs_phase1" value="SQS: omnibor-phase1-notifications&#xa;(visibility: 15 min, retention: 7 days)" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;size=0.05;" vertex="1" parent="lane_aws">
-          <mxGeometry x="40" y="330" width="260" height="50" as="geometry" />
+        <mxCell id="sqs_phase1" parent="lane_aws" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;size=0.05;" value="SQS: omnibor-phase1-notifications&#xa;(visibility: 15 min, retention: 7 days)" vertex="1">
+          <mxGeometry height="50" width="260" x="40" y="330" as="geometry" />
         </mxCell>
-
-        <!-- DLQ -->
-        <mxCell id="dlq" value="DLQ&#xa;(3 retries)" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;size=0.08;" vertex="1" parent="lane_aws">
-          <mxGeometry x="340" y="330" width="100" height="50" as="geometry" />
+        <mxCell id="dlq" parent="lane_aws" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;size=0.08;" value="DLQ&#xa;(3 retries)" vertex="1">
+          <mxGeometry height="50" width="100" x="340" y="330" as="geometry" />
         </mxCell>
-
-        <!-- SQS sbom-tree Queue -->
-        <mxCell id="sqs_sbomtree" value="SQS: omnibor-sbom-tree-requests" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;size=0.05;" vertex="1" parent="lane_aws">
-          <mxGeometry x="730" y="730" width="250" height="45" as="geometry" />
+        <mxCell id="sqs_sbomtree" parent="lane_aws" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;size=0.05;" value="SQS: omnibor-sbom-tree-requests" vertex="1">
+          <mxGeometry height="45" width="250" x="730" y="730" as="geometry" />
         </mxCell>
-
-        <!-- ═══════════════════════════════════════ -->
-        <!-- DynamoDB Tables                           -->
-        <!-- ═══════════════════════════════════════ -->
-        <mxCell id="dynamo_group" value="DynamoDB" style="shape=swimlane;startSize=22;fillColor=#f5f5f5;strokeColor=#666666;fontSize=12;fontStyle=1;horizontal=1;collapsible=0;rounded=1;dashed=1;dashPattern=5 5;" vertex="1" parent="lane_aws">
-          <mxGeometry x="530" y="50" width="420" height="190" as="geometry" />
+        <mxCell id="dynamo_group" parent="lane_aws" style="shape=swimlane;startSize=22;fillColor=#f5f5f5;strokeColor=#666666;fontSize=12;fontStyle=1;horizontal=1;collapsible=0;rounded=1;dashed=1;dashPattern=5 5;" value="DynamoDB" vertex="1">
+          <mxGeometry height="190" width="420" x="530" y="50" as="geometry" />
         </mxCell>
-
-        <mxCell id="dynamo_index" value="SpdxIndexTable&#xa;&#xa;PK: ArtifactSHA&#xa;→ S3 URIs, repo, commit&#xa;(SHA-256 or SHA-1)" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=10;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;align=left;spacingLeft=10;" vertex="1" parent="dynamo_group">
-          <mxGeometry x="20" y="35" width="180" height="80" as="geometry" />
+        <mxCell id="dynamo_index" parent="dynamo_group" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=10;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;align=left;spacingLeft=10;" value="SpdxIndexTable&#xa;&#xa;PK: ArtifactSHA&#xa;→ S3 URIs, repo, commit&#xa;(SHA-256 or SHA-1)" vertex="1">
+          <mxGeometry height="80" width="180" x="20" y="35" as="geometry" />
         </mxCell>
-
-        <mxCell id="dynamo_graph" value="SpdxDependencyGraph&#xa;&#xa;PK: ArtifactSHA&#xa;SK: depth#N#PURL&#xa;→ adjacency list nodes" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=10;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;align=left;spacingLeft=10;" vertex="1" parent="dynamo_group">
-          <mxGeometry x="220" y="35" width="180" height="95" as="geometry" />
+        <mxCell id="dynamo_graph" parent="dynamo_group" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=10;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;align=left;spacingLeft=10;" value="SpdxDependencyGraph&#xa;&#xa;PK: ArtifactSHA&#xa;SK: depth#N#PURL&#xa;→ adjacency list nodes" vertex="1">
+          <mxGeometry height="95" width="180" x="220" y="35" as="geometry" />
         </mxCell>
-
-        <mxCell id="dynamo_note" value="KMS encrypted&#xa;on-demand billing&#xa;PITR enabled" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=9;fontColor=#666666;fontStyle=2;" vertex="1" parent="dynamo_group">
-          <mxGeometry x="20" y="140" width="100" height="50" as="geometry" />
+        <mxCell id="dynamo_note" parent="dynamo_group" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=9;fontColor=#666666;fontStyle=2;" value="KMS encrypted&#xa;on-demand billing&#xa;PITR enabled" vertex="1">
+          <mxGeometry height="50" width="100" x="20" y="140" as="geometry" />
         </mxCell>
-
-        <!-- ═══════════════════════════════════════ -->
-        <!-- ECS Fargate Cluster                       -->
-        <!-- ═══════════════════════════════════════ -->
-        <mxCell id="ecs_group" value="ECS Fargate Cluster" style="shape=swimlane;startSize=24;fillColor=#f5f5f5;strokeColor=#666666;fontSize=12;fontStyle=1;horizontal=1;collapsible=0;rounded=1;dashed=1;dashPattern=5 5;" vertex="1" parent="lane_aws">
-          <mxGeometry x="30" y="420" width="1320" height="280" as="geometry" />
+        <mxCell id="ecs_group" parent="lane_aws" style="shape=swimlane;startSize=24;fillColor=#f5f5f5;strokeColor=#666666;fontSize=12;fontStyle=1;horizontal=1;collapsible=0;rounded=1;dashed=1;dashPattern=5 5;" value="ECS Fargate Cluster or Existing Corona / Scan Service Infra" vertex="1">
+          <mxGeometry height="290" width="1320" x="40" y="420" as="geometry" />
         </mxCell>
-
-        <!-- Go Operator -->
-        <mxCell id="operator" value="Go Operator&#xa;(long-running service)&#xa;&#xa;• SQS long poll (phase1 queue)&#xa;• Download Phase 1 from S3&#xa;• Launch Phase 2 container&#xa;• Upload SPDX flat to spdx/&#xa;• SPDX indexing → DynamoDB&#xa;• Publish sbom-tree SQS msg&#xa;• REST API :8080" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;fontStyle=0;align=left;spacingLeft=10;verticalAlign=top;spacingTop=4;" vertex="1" parent="ecs_group">
-          <mxGeometry x="20" y="35" width="230" height="160" as="geometry" />
+        <mxCell id="operator" parent="ecs_group" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;fontStyle=0;align=left;spacingLeft=10;verticalAlign=top;spacingTop=4;" value="Go Operator&#xa;(long-running service)&#xa;&#xa;• SQS long poll (phase1 queue)&#xa;• Download Phase 1 from S3&#xa;• Launch Phase 2 container&#xa;• Upload SPDX flat to spdx/&#xa;• SPDX indexing → DynamoDB&#xa;• Publish sbom-tree SQS msg&#xa;• REST API :8080" vertex="1">
+          <mxGeometry height="160" width="230" x="20" y="35" as="geometry" />
         </mxCell>
-
-        <mxCell id="oper_spec" value="256 CPU / 512 MB&#xa;~$9/month" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=10;fontColor=#666666;fontStyle=2;" vertex="1" parent="ecs_group">
-          <mxGeometry x="60" y="200" width="110" height="40" as="geometry" />
+        <mxCell id="oper_spec" parent="ecs_group" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=10;fontColor=#666666;fontStyle=2;" value="256 CPU / 512 MB&#xa;~$9/month" vertex="1">
+          <mxGeometry height="40" width="110" x="60" y="200" as="geometry" />
         </mxCell>
-
-        <!-- REST API endpoint -->
-        <mxCell id="rest_api" value="GET /artifact-s3/&lt;sha&gt;&#xa;GET /healthz" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;fontFamily=Courier New;" vertex="1" parent="ecs_group">
-          <mxGeometry x="20" y="240" width="230" height="30" as="geometry" />
+        <mxCell id="rest_api" parent="ecs_group" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;fontFamily=Courier New;" value="GET /artifact-s3/&lt;sha&gt;&#xa;GET /healthz" vertex="1">
+          <mxGeometry height="30" width="230" x="20" y="240" as="geometry" />
         </mxCell>
-
-        <!-- Phase 2 Sidecar -->
-        <mxCell id="phase2" value="Phase 2: SPDX Generation&#xa;(omnibor-sidecar)&#xa;&#xa;• Read maven_deps.json&#xa;• Parse bomsh treedb&#xa;• Generate SPDX 2.3&#xa;• Validate SPDX" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;fontStyle=0;align=left;spacingLeft=10;verticalAlign=top;spacingTop=4;" vertex="1" parent="ecs_group">
-          <mxGeometry x="340" y="35" width="210" height="120" as="geometry" />
+        <mxCell id="phase2" parent="ecs_group" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;fontStyle=0;align=left;spacingLeft=10;verticalAlign=top;spacingTop=4;" value="Phase 2: SPDX Generation&#xa;(omnibor-sidecar)&#xa;&#xa;• Read maven_deps.json&#xa;• Parse bomsh treedb&#xa;• Generate SPDX 2.3&#xa;• Validate SPDX" vertex="1">
+          <mxGeometry height="120" width="210" x="340" y="35" as="geometry" />
         </mxCell>
-
-        <mxCell id="phase2_spec" value="2 vCPU / 4 GB&#xa;~$0.04/run (ephemeral)" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=10;fontColor=#666666;fontStyle=2;" vertex="1" parent="ecs_group">
-          <mxGeometry x="370" y="155" width="140" height="40" as="geometry" />
+        <mxCell id="phase2_spec" parent="ecs_group" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=10;fontColor=#666666;fontStyle=2;" value="2 vCPU / 4 GB&#xa;~$0.04/run (ephemeral)" vertex="1">
+          <mxGeometry height="40" width="140" x="370" y="155" as="geometry" />
         </mxCell>
-
-        <!-- SPDX Output note -->
-        <mxCell id="spdx_output" value="Flat spdx/ output:&#xa;• _build.spdx.json&#xa;• _analyzed.spdx.json&#xa;• .spdx.html&#xa;• -sbom-tree.json" style="shape=note;whiteSpace=wrap;html=1;size=14;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;align=left;spacingLeft=8;" vertex="1" parent="ecs_group">
-          <mxGeometry x="340" y="200" width="170" height="70" as="geometry" />
+        <mxCell id="spdx_output" parent="ecs_group" style="shape=note;whiteSpace=wrap;html=1;size=14;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;align=left;spacingLeft=8;" value="Flat spdx/ output:&#xa;• _build.spdx.json&#xa;• _analyzed.spdx.json&#xa;• .spdx.html&#xa;• -sbom-tree.json" vertex="1">
+          <mxGeometry height="70" width="170" x="360" y="190" as="geometry" />
         </mxCell>
-
-        <!-- spdx-indexing (inline in operator) -->
-        <mxCell id="spdx_indexing" value="spdx-indexing&#xa;(inline in operator)&#xa;&#xa;• Read manifest&#xa;• Match SPDX files&#xa;• Write SpdxIndexTable&#xa;• BFS → SpdxDependencyGraph" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;fontStyle=0;align=left;spacingLeft=10;verticalAlign=top;spacingTop=4;" vertex="1" parent="ecs_group">
-          <mxGeometry x="640" y="35" width="220" height="120" as="geometry" />
+        <mxCell id="spdx_indexing" parent="ecs_group" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;fontStyle=0;align=left;spacingLeft=10;verticalAlign=top;spacingTop=4;" value="spdx-indexing&#xa;(inline in operator)&#xa;&#xa;• Read manifest&#xa;• Match SPDX files&#xa;• Write SpdxIndexTable&#xa;• BFS → SpdxDependencyGraph" vertex="1">
+          <mxGeometry height="120" width="220" x="640" y="35" as="geometry" />
         </mxCell>
-
-        <!-- sbom-tree worker -->
-        <mxCell id="sbomtree" value="sbom-tree worker&#xa;(separate process)&#xa;&#xa;• SQS long poll (tree queue)&#xa;• Query DependencyGraph&#xa;• Build nested JSON tree&#xa;• Upload to S3 spdx/" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;fontStyle=0;align=left;spacingLeft=10;verticalAlign=top;spacingTop=4;" vertex="1" parent="ecs_group">
-          <mxGeometry x="960" y="35" width="220" height="120" as="geometry" />
+        <mxCell id="sbomtree" parent="ecs_group" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;fontStyle=0;align=left;spacingLeft=10;verticalAlign=top;spacingTop=4;" value="sbom-tree worker&#xa;(separate process)&#xa;&#xa;• SQS long poll (tree queue)&#xa;• Query DependencyGraph&#xa;• Build nested JSON tree&#xa;• Upload to S3 spdx/" vertex="1">
+          <mxGeometry height="120" width="220" x="960" y="35" as="geometry" />
         </mxCell>
-
-        <mxCell id="sbomtree_spec" value="256 CPU / 512 MB&#xa;auto-scaled by SQS depth" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=10;fontColor=#666666;fontStyle=2;" vertex="1" parent="ecs_group">
-          <mxGeometry x="990" y="155" width="150" height="40" as="geometry" />
+        <mxCell id="sbomtree_spec" parent="ecs_group" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=10;fontColor=#666666;fontStyle=2;" value="256 CPU / 512 MB&#xa;auto-scaled by SQS depth" vertex="1">
+          <mxGeometry height="40" width="150" x="990" y="155" as="geometry" />
         </mxCell>
-
-        <!-- Launch modes note -->
-        <mxCell id="launch_modes" value="Launch Modes:&#xa;• docker run (local/EC2)&#xa;• ecs:RunTask (Fargate)" style="shape=note;whiteSpace=wrap;html=1;size=14;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;align=left;spacingLeft=8;" vertex="1" parent="ecs_group">
-          <mxGeometry x="560" y="195" width="160" height="65" as="geometry" />
+        <mxCell id="launch_modes" parent="ecs_group" style="shape=note;whiteSpace=wrap;html=1;size=14;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;align=left;spacingLeft=8;" value="Launch Modes:&#xa;• docker run (local/EC2)&#xa;• ecs:RunTask (Fargate)" vertex="1">
+          <mxGeometry height="65" width="160" x="660" y="190" as="geometry" />
         </mxCell>
-
-        <!-- Arrow: Operator → Phase 2 -->
-        <mxCell id="e_oper_phase2" value="ecs:RunTask&#xa;or docker run" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#82b366;strokeWidth=2;fontSize=10;fontColor=#82b366;" edge="1" source="operator" target="phase2" parent="ecs_group">
+        <mxCell id="e_oper_phase2" edge="1" parent="ecs_group" source="operator" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#82b366;strokeWidth=2;fontSize=10;fontColor=#82b366;exitX=1.005;exitY=0.124;exitDx=0;exitDy=0;exitPerimeter=0;entryX=-0.013;entryY=0.315;entryDx=0;entryDy=0;entryPerimeter=0;" target="phase2" value="ecs:RunTask&#xa;or docker run">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-
-        <!-- Arrow: Operator → spdx-indexing -->
-        <mxCell id="e_oper_indexing" value="after Phase 2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#d6b656;strokeWidth=2;fontSize=10;fontColor=#d6b656;" edge="1" source="operator" target="spdx_indexing" parent="ecs_group">
+        <mxCell id="e_oper_indexing" edge="1" parent="ecs_group" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#d6b656;strokeWidth=2;fontSize=10;fontColor=#d6b656;" value="after Phase 2">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="300" y="95" />
-              <mxPoint x="300" y="95" />
+              <mxPoint x="300" y="140" />
+              <mxPoint x="300" y="140" />
             </Array>
+            <mxPoint x="250.00000000000045" y="140" as="sourcePoint" />
+            <mxPoint x="640" y="140" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-
-        <!-- IAM Role -->
-        <mxCell id="iam_role" value="IAM: github-actions-s3&#xa;(OIDC trust policy)" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;size=14;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;" vertex="1" parent="lane_aws">
-          <mxGeometry x="1000" y="55" width="180" height="50" as="geometry" />
+        <mxCell id="iam_role" parent="lane_aws" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;size=14;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;" value="IAM: github-actions-s3&#xa;(OIDC trust policy)" vertex="1">
+          <mxGeometry height="50" width="180" x="1000" y="55" as="geometry" />
         </mxCell>
-
-        <!-- OIDC Providers -->
-        <mxCell id="oidc_providers" value="OIDC Providers:&#xa;• token.actions.githubusercontent.com&#xa;• gh-xr.scm.engit.cisco.com (GHE)" style="shape=note;whiteSpace=wrap;html=1;size=14;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;align=left;spacingLeft=8;" vertex="1" parent="lane_aws">
-          <mxGeometry x="1000" y="120" width="240" height="60" as="geometry" />
+        <mxCell id="oidc_providers" parent="lane_aws" style="shape=note;whiteSpace=wrap;html=1;size=14;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;align=left;spacingLeft=8;" value="OIDC Providers:&#xa;• token.actions.githubusercontent.com&#xa;• gh-xr.scm.engit.cisco.com (GHE)" vertex="1">
+          <mxGeometry height="60" width="240" x="1000" y="120" as="geometry" />
         </mxCell>
-
-        <!-- ═══════════════════════════════════════ -->
-        <!-- Arrows: AWS internal                      -->
-        <!-- ═══════════════════════════════════════ -->
-
-        <!-- S3 → S3 Event Notification -->
-        <mxCell id="e_s3_event" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#9673a6;strokeWidth=1;" edge="1" source="s3_bucket" target="s3_event" parent="lane_aws">
+        <mxCell id="e_s3_event" edge="1" parent="lane_aws" source="s3_bucket" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#9673a6;strokeWidth=1;" target="s3_event">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-
-        <!-- S3 Event → SQS Phase 1 -->
-        <mxCell id="e_event_sqs" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#6c8ebf;strokeWidth=2;" edge="1" source="s3_event" target="sqs_phase1" parent="lane_aws">
+        <mxCell id="e_event_sqs" edge="1" parent="lane_aws" source="s3_event" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#6c8ebf;strokeWidth=2;" target="sqs_phase1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-
-        <!-- SQS Phase 1 → DLQ -->
-        <mxCell id="e_sqs_dlq" value="failed (3x)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#b85450;strokeWidth=1;dashed=1;fontSize=9;fontColor=#b85450;" edge="1" source="sqs_phase1" target="dlq" parent="lane_aws">
+        <mxCell id="e_sqs_dlq" edge="1" parent="lane_aws" source="sqs_phase1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#b85450;strokeWidth=1;dashed=1;fontSize=9;fontColor=#b85450;" target="dlq" value="failed (3x)">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-
-        <!-- SQS Phase 1 → Operator -->
-        <mxCell id="e_sqs_oper" value="long poll" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#6c8ebf;strokeWidth=2;fontSize=10;fontColor=#6c8ebf;" edge="1" source="sqs_phase1" target="operator" parent="lane_aws">
+        <mxCell id="e_sqs_oper" edge="1" parent="lane_aws" source="sqs_phase1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#6c8ebf;strokeWidth=2;fontSize=10;fontColor=#6c8ebf;" target="operator" value="long poll">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-
-        <!-- spdx-indexing → DynamoDB Index -->
-        <mxCell id="e_idx_dynamo" value="write records" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#6c8ebf;strokeWidth=1;dashed=1;fontSize=9;fontColor=#6c8ebf;" edge="1" source="spdx_indexing" target="dynamo_index" parent="lane_aws">
+        <mxCell id="e_idx_dynamo" edge="1" parent="lane_aws" source="spdx_indexing" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#6c8ebf;strokeWidth=1;dashed=1;fontSize=9;fontColor=#6c8ebf;" target="dynamo_index" value="write records">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="780" y="410" />
@@ -224,9 +144,7 @@
             </Array>
           </mxGeometry>
         </mxCell>
-
-        <!-- spdx-indexing → DynamoDB Graph -->
-        <mxCell id="e_idx_graph" value="BFS graph" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#6c8ebf;strokeWidth=1;dashed=1;fontSize=9;fontColor=#6c8ebf;" edge="1" source="spdx_indexing" target="dynamo_graph" parent="lane_aws">
+        <mxCell id="e_idx_graph" edge="1" parent="lane_aws" source="spdx_indexing" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#6c8ebf;strokeWidth=1;dashed=1;fontSize=9;fontColor=#6c8ebf;" target="dynamo_graph" value="BFS graph">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="880" y="410" />
@@ -234,18 +152,14 @@
             </Array>
           </mxGeometry>
         </mxCell>
-
-        <!-- Operator → SQS sbom-tree (publish) -->
-        <mxCell id="e_oper_sbomtree_sqs" value="publish msg" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#d6b656;strokeWidth=2;fontSize=10;fontColor=#d6b656;" edge="1" source="operator" target="sqs_sbomtree" parent="lane_aws">
+        <mxCell id="e_oper_sbomtree_sqs" edge="1" parent="lane_aws" source="operator" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#d6b656;strokeWidth=2;fontSize=10;fontColor=#d6b656;" target="sqs_sbomtree" value="publish msg">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="160" y="750" />
             </Array>
           </mxGeometry>
         </mxCell>
-
-        <!-- SQS sbom-tree → sbom-tree worker -->
-        <mxCell id="e_sbomtree_sqs_worker" value="long poll" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#6c8ebf;strokeWidth=2;fontSize=10;fontColor=#6c8ebf;" edge="1" source="sqs_sbomtree" target="sbomtree" parent="lane_aws">
+        <mxCell id="e_sbomtree_sqs_worker" edge="1" parent="lane_aws" source="sqs_sbomtree" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#6c8ebf;strokeWidth=2;fontSize=10;fontColor=#6c8ebf;" target="sbomtree" value="long poll">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="1100" y="750" />
@@ -253,9 +167,7 @@
             </Array>
           </mxGeometry>
         </mxCell>
-
-        <!-- sbom-tree → DynamoDB Graph (query) -->
-        <mxCell id="e_sbomtree_graph" value="query tree" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#6c8ebf;strokeWidth=1;dashed=1;fontSize=9;fontColor=#6c8ebf;" edge="1" source="sbomtree" target="dynamo_graph" parent="lane_aws">
+        <mxCell id="e_sbomtree_graph" edge="1" parent="lane_aws" source="sbomtree" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#6c8ebf;strokeWidth=1;dashed=1;fontSize=9;fontColor=#6c8ebf;" target="dynamo_graph" value="query tree">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="1250" y="510" />
@@ -263,9 +175,7 @@
             </Array>
           </mxGeometry>
         </mxCell>
-
-        <!-- sbom-tree → S3 (upload tree JSON) -->
-        <mxCell id="e_sbomtree_s3" value="upload&#xa;sbom-tree.json" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#82b366;strokeWidth=2;fontSize=9;fontColor=#82b366;" edge="1" source="sbomtree" target="s3_bucket" parent="lane_aws">
+        <mxCell id="e_sbomtree_s3" edge="1" parent="lane_aws" source="sbomtree" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#82b366;strokeWidth=2;fontSize=9;fontColor=#82b366;" target="s3_bucket" value="upload&#xa;sbom-tree.json">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="1300" y="510" />
@@ -274,9 +184,7 @@
             </Array>
           </mxGeometry>
         </mxCell>
-
-        <!-- Phase 2 → S3 (write SPDX back via operator) -->
-        <mxCell id="e_phase2_s3" value="upload flat SPDX&#xa;to spdx/" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#82b366;strokeWidth=2;fontSize=9;fontColor=#82b366;" edge="1" source="phase2" target="s3_bucket" parent="lane_aws">
+        <mxCell id="e_phase2_s3" edge="1" parent="lane_aws" source="phase2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#82b366;strokeWidth=2;fontSize=9;fontColor=#82b366;" target="s3_bucket" value="upload flat SPDX&#xa;to spdx/">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="480" y="410" />
@@ -284,9 +192,7 @@
             </Array>
           </mxGeometry>
         </mxCell>
-
-        <!-- S3 → Operator (download Phase 1) -->
-        <mxCell id="e_s3_download" value="download&#xa;Phase 1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#d6b656;strokeWidth=1;dashed=1;fontSize=9;fontColor=#d6b656;" edge="1" source="s3_paths" target="operator" parent="lane_aws">
+        <mxCell id="e_s3_download" edge="1" parent="lane_aws" source="s3_paths" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#d6b656;strokeWidth=1;dashed=1;fontSize=9;fontColor=#d6b656;" target="operator" value="download&#xa;Phase 1">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="20" y="200" />
@@ -294,23 +200,18 @@
             </Array>
           </mxGeometry>
         </mxCell>
-
-        <!-- REST API → DynamoDB Index (query) -->
-        <mxCell id="e_rest_dynamo" value="GetItem" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#9673a6;strokeWidth=1;dashed=1;fontSize=9;fontColor=#9673a6;" edge="1" source="rest_api" target="dynamo_index" parent="lane_aws">
-          <mxGeometry relative="1" as="geometry">
+        <mxCell id="e_rest_dynamo" edge="1" parent="lane_aws" source="rest_api" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#9673a6;strokeWidth=1;dashed=1;fontSize=9;fontColor=#9673a6;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" target="dynamo_index" value="GetItem">
+          <mxGeometry relative="1" x="0.2824" as="geometry">
+            <mxPoint as="offset" />
             <Array as="points">
-              <mxPoint x="510" y="690" />
-              <mxPoint x="510" y="115" />
+              <mxPoint x="300" y="675" />
+              <mxPoint x="300" y="690" />
+              <mxPoint x="520" y="690" />
+              <mxPoint x="520" y="115" />
             </Array>
           </mxGeometry>
         </mxCell>
-
-        <!-- ═══════════════════════════════════════ -->
-        <!-- Arrows between swim lanes                -->
-        <!-- ═══════════════════════════════════════ -->
-
-        <!-- GitHub Actions → S3 (upload) -->
-        <mxCell id="e_upload" value="aws s3 cp&#xa;(Phase 1 + build)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#82b366;strokeWidth=2;fontSize=10;fontColor=#82b366;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="phase1_outputs" target="s3_bucket">
+        <mxCell id="e_upload" edge="1" parent="1" source="phase1_outputs" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#82b366;strokeWidth=2;fontSize=10;fontColor=#82b366;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="s3_bucket" value="aws s3 cp&#xa;(Phase 1 + build)">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="370" y="382" />
@@ -318,9 +219,7 @@
             </Array>
           </mxGeometry>
         </mxCell>
-
-        <!-- OIDC Auth → IAM Role -->
-        <mxCell id="e_oidc" value="AssumeRoleWithWebIdentity" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#9673a6;strokeWidth=1;dashed=1;fontSize=9;fontColor=#9673a6;" edge="1" parent="1" source="oidc_auth" target="iam_role">
+        <mxCell id="e_oidc" edge="1" parent="1" source="oidc_auth" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#9673a6;strokeWidth=1;dashed=1;fontSize=9;fontColor=#9673a6;" target="iam_role" value="AssumeRoleWithWebIdentity">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="370" y="475" />
@@ -328,244 +227,166 @@
             </Array>
           </mxGeometry>
         </mxCell>
-
-        <!-- ═══════════════════════════════════════ -->
-        <!-- Legend                                    -->
-        <!-- ═══════════════════════════════════════ -->
-        <mxCell id="legend" value="Legend" style="shape=swimlane;startSize=20;fillColor=#f5f5f5;strokeColor=#666666;fontSize=11;fontStyle=1;horizontal=1;collapsible=0;rounded=1;" vertex="1" parent="1">
-          <mxGeometry x="30" y="600" width="320" height="270" as="geometry" />
+        <mxCell id="legend" parent="1" style="shape=swimlane;startSize=20;fillColor=#f5f5f5;strokeColor=#666666;fontSize=11;fontStyle=1;horizontal=1;collapsible=0;rounded=1;" value="Legend" vertex="1">
+          <mxGeometry height="270" width="320" x="30" y="600" as="geometry" />
         </mxCell>
-
-        <mxCell id="leg_phase1" value="Phase 1 (Build Result Processing)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;" vertex="1" parent="legend">
-          <mxGeometry x="20" y="30" width="130" height="30" as="geometry" />
+        <mxCell id="leg_phase1" parent="legend" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;" value="Phase 1 (Build Result Processing)" vertex="1">
+          <mxGeometry height="30" width="130" x="20" y="30" as="geometry" />
         </mxCell>
-
-        <mxCell id="leg_operator" value="Operator / Phase 2" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;" vertex="1" parent="legend">
-          <mxGeometry x="170" y="30" width="130" height="30" as="geometry" />
+        <mxCell id="leg_operator" parent="legend" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;" value="Operator / Phase 2" vertex="1">
+          <mxGeometry height="30" width="130" x="170" y="30" as="geometry" />
         </mxCell>
-
-        <mxCell id="leg_auth" value="Authentication / API" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;" vertex="1" parent="legend">
-          <mxGeometry x="20" y="70" width="130" height="30" as="geometry" />
+        <mxCell id="leg_auth" parent="legend" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;" value="Authentication / API" vertex="1">
+          <mxGeometry height="30" width="130" x="20" y="70" as="geometry" />
         </mxCell>
-
-        <mxCell id="leg_postproc" value="Post-Processing" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;" vertex="1" parent="legend">
-          <mxGeometry x="170" y="70" width="130" height="30" as="geometry" />
+        <mxCell id="leg_postproc" parent="legend" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;" value="Post-Processing" vertex="1">
+          <mxGeometry height="30" width="130" x="170" y="70" as="geometry" />
         </mxCell>
-
-        <mxCell id="leg_data" value="Data Flow (solid)" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=10;" vertex="1" parent="legend">
-          <mxGeometry x="20" y="115" width="110" height="30" as="geometry" />
+        <mxCell id="leg_data" parent="legend" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=10;" value="Data Flow (solid)" vertex="1">
+          <mxGeometry height="30" width="110" x="20" y="115" as="geometry" />
         </mxCell>
-
-        <mxCell id="leg_control" value="Control Flow (dashed)" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=10;" vertex="1" parent="legend">
-          <mxGeometry x="20" y="140" width="130" height="30" as="geometry" />
+        <mxCell id="leg_control" parent="legend" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=10;" value="Control Flow (dashed)" vertex="1">
+          <mxGeometry height="30" width="130" x="20" y="140" as="geometry" />
         </mxCell>
-
-        <mxCell id="leg_note1" value="Phase 1 runs in GitHub Actions.&#xa;Phase 2 + operator run in ECS Fargate (or local Docker).&#xa;S3 is the data bus between all stages.&#xa;Two SQS queues: phase1-notifications, sbom-tree-requests.&#xa;Two DynamoDB tables: SpdxIndexTable, SpdxDependencyGraph.&#xa;REST API on :8080 for artifact S3 lookups." style="text;html=1;align=left;verticalAlign=top;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=10;fontColor=#666666;" vertex="1" parent="legend">
-          <mxGeometry x="20" y="170" width="290" height="90" as="geometry" />
+        <mxCell id="leg_note1" parent="legend" style="text;html=1;align=left;verticalAlign=top;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=10;fontColor=#666666;" value="Phase 1 runs in GitHub Actions.&#xa;Phase 2 + operator run in ECS Fargate (or local Docker).&#xa;S3 is the data bus between all stages.&#xa;Two SQS queues: phase1-notifications, sbom-tree-requests.&#xa;Two DynamoDB tables: SpdxIndexTable, SpdxDependencyGraph.&#xa;REST API on :8080 for artifact S3 lookups." vertex="1">
+          <mxGeometry height="90" width="290" x="20" y="170" as="geometry" />
         </mxCell>
-
       </root>
     </mxGraphModel>
   </diagram>
   <diagram id="jenkins-variant" name="Jenkins Variant">
-    <mxGraphModel dx="1800" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1800" pageHeight="1200" math="0" shadow="0">
+    <mxGraphModel dx="2023" dy="710" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1800" pageHeight="1200" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-
-        <!-- ═══════════════════════════════════════ -->
-        <!-- Title                                    -->
-        <!-- ═══════════════════════════════════════ -->
-        <mxCell id="j_title" value="OmniBOR Integration — Jenkins → AWS (S3 + SQS + DynamoDB + ECS)" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=18;fontStyle=1;fontColor=#333333;" vertex="1" parent="1">
-          <mxGeometry x="350" y="15" width="700" height="40" as="geometry" />
+        <mxCell id="j_title" parent="1" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=18;fontStyle=1;fontColor=#333333;" value="OmniBOR Integration — Jenkins → AWS (S3 + SQS + DynamoDB + ECS)" vertex="1">
+          <mxGeometry height="40" width="700" x="350" y="15" as="geometry" />
         </mxCell>
-
-        <!-- ═══════════════════════════════════════ -->
-        <!-- Swim Lane: Build Site (Jenkins)          -->
-        <!-- ═══════════════════════════════════════ -->
-        <mxCell id="j_lane_build" value="Build Site (Jenkins)" style="shape=swimlane;startSize=30;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=14;fontStyle=1;horizontal=1;collapsible=0;rounded=1;" vertex="1" parent="1">
-          <mxGeometry x="30" y="70" width="310" height="470" as="geometry" />
+        <mxCell id="j_lane_build" parent="1" style="shape=swimlane;startSize=30;fillColor=#fa6800;strokeColor=#C73500;fontSize=14;fontStyle=1;horizontal=1;collapsible=0;rounded=1;fontColor=#000000;" value="Build Site (Jenkins)" vertex="1">
+          <mxGeometry height="470" width="310" x="30" y="70" as="geometry" />
         </mxCell>
-
-        <mxCell id="j_checkout" value="checkout scm&#xa;(Multibranch Pipeline)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;fontSize=12;" vertex="1" parent="j_lane_build">
-          <mxGeometry x="85" y="50" width="140" height="45" as="geometry" />
+        <mxCell id="j_checkout" parent="j_lane_build" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;fontSize=12;" value="checkout scm&#xa;(Multibranch Pipeline)" vertex="1">
+          <mxGeometry height="45" width="140" x="85" y="50" as="geometry" />
         </mxCell>
-
-        <mxCell id="j_build" value="Maven Build&#xa;(Docker agent or&#xa;tools { jdk })" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;" vertex="1" parent="j_lane_build">
-          <mxGeometry x="85" y="115" width="140" height="45" as="geometry" />
+        <mxCell id="j_build" parent="j_lane_build" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;" value="Maven Build&#xa;(Docker agent or&#xa;tools { jdk })" vertex="1">
+          <mxGeometry height="45" width="140" x="85" y="115" as="geometry" />
         </mxCell>
-
-        <mxCell id="j_phase1" value="Phase 1: Build Result&#xa;Processing&#xa;(omnibor-sidecar)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;fontStyle=1;" vertex="1" parent="j_lane_build">
-          <mxGeometry x="85" y="185" width="140" height="55" as="geometry" />
+        <mxCell id="j_phase1" parent="j_lane_build" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;fontStyle=1;" value="Phase 1: Build Result&#xa;Processing&#xa;(omnibor-sidecar)" vertex="1">
+          <mxGeometry height="55" width="140" x="85" y="185" as="geometry" />
         </mxCell>
-
-        <mxCell id="j_phase1_outputs" value="Phase 1 Outputs:&#xa;• maven_deps.json&#xa;• bomsh treedb&#xa;• phase1_manifest.json&#xa;• JARs / class files" style="shape=note;whiteSpace=wrap;html=1;size=14;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;align=left;spacingLeft=8;" vertex="1" parent="j_lane_build">
-          <mxGeometry x="55" y="265" width="200" height="95" as="geometry" />
+        <mxCell id="j_phase1_outputs" parent="j_lane_build" style="shape=note;whiteSpace=wrap;html=1;size=14;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;align=left;spacingLeft=8;" value="Phase 1 Outputs:&#xa;• maven_deps.json&#xa;• bomsh treedb&#xa;• phase1_manifest.json&#xa;• JARs / class files" vertex="1">
+          <mxGeometry height="95" width="200" x="55" y="265" as="geometry" />
         </mxCell>
-
-        <mxCell id="j_aws_auth" value="AWS Auth&#xa;(instance profile, OIDC,&#xa;or stored credentials)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;" vertex="1" parent="j_lane_build">
-          <mxGeometry x="70" y="380" width="170" height="45" as="geometry" />
+        <mxCell id="j_aws_auth" parent="j_lane_build" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;" value="AWS Auth&#xa;(instance profile, OIDC,&#xa;or stored credentials)" vertex="1">
+          <mxGeometry height="45" width="170" x="70" y="380" as="geometry" />
         </mxCell>
-
-        <mxCell id="j_s3_upload_step" value="aws s3 cp → S3&#xa;path: &lt;owner&gt;/&lt;repo&gt;/&lt;job_id&gt;/" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;" vertex="1" parent="j_lane_build">
-          <mxGeometry x="55" y="430" width="200" height="30" as="geometry" />
+        <mxCell id="j_s3_upload_step" parent="j_lane_build" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;" value="aws s3 cp → S3&#xa;path: &lt;owner&gt;/&lt;repo&gt;/&lt;job_id&gt;/" vertex="1">
+          <mxGeometry height="30" width="200" x="55" y="430" as="geometry" />
         </mxCell>
-
-        <!-- Build site internal arrows -->
-        <mxCell id="j_e_checkout_build" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#666666;" edge="1" source="j_checkout" target="j_build" parent="j_lane_build">
+        <mxCell id="j_e_checkout_build" edge="1" parent="j_lane_build" source="j_checkout" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#666666;" target="j_build">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="j_e_build_phase1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#666666;" edge="1" source="j_build" target="j_phase1" parent="j_lane_build">
+        <mxCell id="j_e_build_phase1" edge="1" parent="j_lane_build" source="j_build" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#666666;" target="j_phase1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="j_e_phase1_outputs" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#666666;" edge="1" source="j_phase1" target="j_phase1_outputs" parent="j_lane_build">
+        <mxCell id="j_e_phase1_outputs" edge="1" parent="j_lane_build" source="j_phase1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#666666;" target="j_phase1_outputs">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-
-        <!-- ═══════════════════════════════════════ -->
-        <!-- Swim Lane: AWS (identical to page 1)     -->
-        <!-- ═══════════════════════════════════════ -->
-        <mxCell id="j_lane_aws" value="AWS Cloud" style="shape=swimlane;startSize=30;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=14;fontStyle=1;horizontal=1;collapsible=0;rounded=1;" vertex="1" parent="1">
-          <mxGeometry x="390" y="70" width="1380" height="1100" as="geometry" />
+        <mxCell id="j_lane_aws" parent="1" style="shape=swimlane;startSize=30;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=14;fontStyle=1;horizontal=1;collapsible=0;rounded=1;" value="AWS Cloud" vertex="1">
+          <mxGeometry height="1100" width="1380" x="390" y="70" as="geometry" />
         </mxCell>
-
-        <!-- S3 Bucket -->
-        <mxCell id="j_s3_bucket" value="S3: omnibor-spdx-artifacts" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=12;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=13;fontStyle=1;" vertex="1" parent="j_lane_aws">
-          <mxGeometry x="60" y="50" width="220" height="65" as="geometry" />
+        <mxCell id="j_s3_bucket" parent="j_lane_aws" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=12;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=13;fontStyle=1;" value="S3: omnibor-spdx-artifacts" vertex="1">
+          <mxGeometry height="65" width="220" x="60" y="50" as="geometry" />
         </mxCell>
-
-        <!-- S3 path structure -->
-        <mxCell id="j_s3_paths" value="&lt;owner&gt;/&lt;repo&gt;/&lt;datetime&gt;_&lt;sha12&gt;_&lt;build_num&gt;/&#xa;├── phase1/  (treedb, deps, manifest)&#xa;├── build/   (JARs, class files)&#xa;└── spdx/    (flat: .spdx.json, .html, sbom-tree)" style="shape=note;whiteSpace=wrap;html=1;size=14;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;align=left;spacingLeft=8;fontFamily=Courier New;" vertex="1" parent="j_lane_aws">
-          <mxGeometry x="30" y="130" width="280" height="80" as="geometry" />
+        <mxCell id="j_s3_paths" parent="j_lane_aws" style="shape=note;whiteSpace=wrap;html=1;size=14;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;align=left;spacingLeft=8;fontFamily=Courier New;" value="&lt;owner&gt;/&lt;repo&gt;/&lt;datetime&gt;_&lt;sha12&gt;_&lt;build_num&gt;/&#xa;├── phase1/  (treedb, deps, manifest)&#xa;├── build/   (JARs, class files)&#xa;└── spdx/    (flat: .spdx.json, .html, sbom-tree)" vertex="1">
+          <mxGeometry height="80" width="280" x="30" y="130" as="geometry" />
         </mxCell>
-
-        <!-- S3 Event Notification -->
-        <mxCell id="j_s3_event" value="S3 Event Notification&#xa;(suffix: phase1_manifest.json)" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;size=16;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;" vertex="1" parent="j_lane_aws">
-          <mxGeometry x="70" y="240" width="200" height="55" as="geometry" />
+        <mxCell id="j_s3_event" parent="j_lane_aws" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;size=16;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;" value="S3 Event Notification&#xa;(suffix: phase1_manifest.json)" vertex="1">
+          <mxGeometry height="55" width="200" x="70" y="240" as="geometry" />
         </mxCell>
-
-        <!-- SQS Phase 1 Queue -->
-        <mxCell id="j_sqs_phase1" value="SQS: omnibor-phase1-notifications&#xa;(visibility: 15 min, retention: 7 days)" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;size=0.05;" vertex="1" parent="j_lane_aws">
-          <mxGeometry x="40" y="330" width="260" height="50" as="geometry" />
+        <mxCell id="j_sqs_phase1" parent="j_lane_aws" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;size=0.05;" value="SQS: omnibor-phase1-notifications&#xa;(visibility: 15 min, retention: 7 days)" vertex="1">
+          <mxGeometry height="50" width="260" x="40" y="330" as="geometry" />
         </mxCell>
-
-        <!-- DLQ -->
-        <mxCell id="j_dlq" value="DLQ&#xa;(3 retries)" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;size=0.08;" vertex="1" parent="j_lane_aws">
-          <mxGeometry x="340" y="330" width="100" height="50" as="geometry" />
+        <mxCell id="j_dlq" parent="j_lane_aws" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;size=0.08;" value="DLQ&#xa;(3 retries)" vertex="1">
+          <mxGeometry height="50" width="100" x="340" y="330" as="geometry" />
         </mxCell>
-
-        <!-- SQS sbom-tree Queue -->
-        <mxCell id="j_sqs_sbomtree" value="SQS: omnibor-sbom-tree-requests" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;size=0.05;" vertex="1" parent="j_lane_aws">
-          <mxGeometry x="730" y="730" width="250" height="45" as="geometry" />
+        <mxCell id="j_sqs_sbomtree" parent="j_lane_aws" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;size=0.05;" value="SQS: omnibor-sbom-tree-requests" vertex="1">
+          <mxGeometry height="45" width="250" x="730" y="800" as="geometry" />
         </mxCell>
-
-        <!-- DynamoDB Tables -->
-        <mxCell id="j_dynamo_group" value="DynamoDB" style="shape=swimlane;startSize=22;fillColor=#f5f5f5;strokeColor=#666666;fontSize=12;fontStyle=1;horizontal=1;collapsible=0;rounded=1;dashed=1;dashPattern=5 5;" vertex="1" parent="j_lane_aws">
-          <mxGeometry x="530" y="50" width="420" height="190" as="geometry" />
+        <mxCell id="j_dynamo_group" parent="j_lane_aws" style="shape=swimlane;startSize=22;fillColor=#f5f5f5;strokeColor=#666666;fontSize=12;fontStyle=1;horizontal=1;collapsible=0;rounded=1;dashed=1;dashPattern=5 5;" value="DynamoDB" vertex="1">
+          <mxGeometry height="190" width="420" x="530" y="50" as="geometry" />
         </mxCell>
-
-        <mxCell id="j_dynamo_index" value="SpdxIndexTable&#xa;&#xa;PK: ArtifactSHA&#xa;→ S3 URIs, repo, commit&#xa;(SHA-256 or SHA-1)" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=10;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;align=left;spacingLeft=10;" vertex="1" parent="j_dynamo_group">
-          <mxGeometry x="20" y="35" width="180" height="80" as="geometry" />
+        <mxCell id="j_dynamo_index" parent="j_dynamo_group" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=10;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;align=left;spacingLeft=10;" value="SpdxIndexTable&#xa;&#xa;PK: ArtifactSHA&#xa;→ S3 URIs, repo, commit&#xa;(SHA-256 or SHA-1)" vertex="1">
+          <mxGeometry height="80" width="180" x="20" y="35" as="geometry" />
         </mxCell>
-
-        <mxCell id="j_dynamo_graph" value="SpdxDependencyGraph&#xa;&#xa;PK: ArtifactSHA&#xa;SK: depth#N#PURL&#xa;→ adjacency list nodes" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=10;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;align=left;spacingLeft=10;" vertex="1" parent="j_dynamo_group">
-          <mxGeometry x="220" y="35" width="180" height="95" as="geometry" />
+        <mxCell id="j_dynamo_graph" parent="j_dynamo_group" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=10;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;align=left;spacingLeft=10;" value="SpdxDependencyGraph&#xa;&#xa;PK: ArtifactSHA&#xa;SK: depth#N#PURL&#xa;→ adjacency list nodes" vertex="1">
+          <mxGeometry height="95" width="180" x="220" y="35" as="geometry" />
         </mxCell>
-
-        <mxCell id="j_dynamo_note" value="KMS encrypted&#xa;on-demand billing&#xa;PITR enabled" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=9;fontColor=#666666;fontStyle=2;" vertex="1" parent="j_dynamo_group">
-          <mxGeometry x="20" y="140" width="100" height="50" as="geometry" />
+        <mxCell id="j_dynamo_note" parent="j_dynamo_group" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=9;fontColor=#666666;fontStyle=2;" value="KMS encrypted&#xa;on-demand billing&#xa;PITR enabled" vertex="1">
+          <mxGeometry height="50" width="100" x="20" y="140" as="geometry" />
         </mxCell>
-
-        <!-- ECS Fargate Cluster -->
-        <mxCell id="j_ecs_group" value="ECS Fargate Cluster" style="shape=swimlane;startSize=24;fillColor=#f5f5f5;strokeColor=#666666;fontSize=12;fontStyle=1;horizontal=1;collapsible=0;rounded=1;dashed=1;dashPattern=5 5;" vertex="1" parent="j_lane_aws">
-          <mxGeometry x="30" y="420" width="1320" height="280" as="geometry" />
+        <mxCell id="j_ecs_group" parent="j_lane_aws" style="shape=swimlane;startSize=24;fillColor=#f5f5f5;strokeColor=#666666;fontSize=12;fontStyle=1;horizontal=1;collapsible=0;rounded=1;dashed=1;dashPattern=5 5;" value="ECS Fargate Cluster or Existing Corona / Scan Service Infra" vertex="1">
+          <mxGeometry height="350" width="1320" x="30" y="420" as="geometry" />
         </mxCell>
-
-        <mxCell id="j_operator" value="Go Operator&#xa;(long-running service)&#xa;&#xa;• SQS long poll (phase1 queue)&#xa;• Download Phase 1 from S3&#xa;• Launch Phase 2 container&#xa;• Upload SPDX flat to spdx/&#xa;• SPDX indexing → DynamoDB&#xa;• Publish sbom-tree SQS msg&#xa;• REST API :8080" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;fontStyle=0;align=left;spacingLeft=10;verticalAlign=top;spacingTop=4;" vertex="1" parent="j_ecs_group">
-          <mxGeometry x="20" y="35" width="230" height="160" as="geometry" />
+        <mxCell id="j_operator" parent="j_ecs_group" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;fontStyle=0;align=left;spacingLeft=10;verticalAlign=top;spacingTop=4;" value="Go Operator&#xa;(long-running service)&#xa;&#xa;• SQS long poll (phase1 queue)&#xa;• Download Phase 1 from S3&#xa;• Launch Phase 2 container&#xa;• Upload SPDX flat to spdx/&#xa;• SPDX indexing → DynamoDB&#xa;• Publish sbom-tree SQS msg&#xa;• REST API :8080" vertex="1">
+          <mxGeometry height="160" width="230" x="20" y="35" as="geometry" />
         </mxCell>
-
-        <mxCell id="j_oper_spec" value="256 CPU / 512 MB&#xa;~$9/month" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=10;fontColor=#666666;fontStyle=2;" vertex="1" parent="j_ecs_group">
-          <mxGeometry x="60" y="200" width="110" height="40" as="geometry" />
+        <mxCell id="j_oper_spec" parent="j_ecs_group" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=10;fontColor=#666666;fontStyle=2;" value="256 CPU / 512 MB&#xa;~$9/month" vertex="1">
+          <mxGeometry height="40" width="110" x="60" y="200" as="geometry" />
         </mxCell>
-
-        <mxCell id="j_rest_api" value="GET /artifact-s3/&lt;sha&gt;&#xa;GET /healthz" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;fontFamily=Courier New;" vertex="1" parent="j_ecs_group">
-          <mxGeometry x="20" y="240" width="230" height="30" as="geometry" />
+        <mxCell id="j_rest_api" parent="j_ecs_group" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;fontFamily=Courier New;" value="GET /artifact-s3/&lt;sha&gt;&#xa;GET /healthz" vertex="1">
+          <mxGeometry height="30" width="230" x="20" y="240" as="geometry" />
         </mxCell>
-
-        <mxCell id="j_phase2" value="Phase 2: SPDX Generation&#xa;(omnibor-sidecar)&#xa;&#xa;• Read maven_deps.json&#xa;• Parse bomsh treedb&#xa;• Generate SPDX 2.3&#xa;• Validate SPDX" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;fontStyle=0;align=left;spacingLeft=10;verticalAlign=top;spacingTop=4;" vertex="1" parent="j_ecs_group">
-          <mxGeometry x="340" y="35" width="210" height="120" as="geometry" />
+        <mxCell id="j_phase2" parent="j_ecs_group" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;fontStyle=0;align=left;spacingLeft=10;verticalAlign=top;spacingTop=4;" value="Phase 2: SPDX Generation&#xa;(omnibor-sidecar)&#xa;&#xa;• Read maven_deps.json&#xa;• Parse bomsh treedb&#xa;• Generate SPDX 2.3&#xa;• Validate SPDX" vertex="1">
+          <mxGeometry height="120" width="210" x="375" y="35" as="geometry" />
         </mxCell>
-
-        <mxCell id="j_phase2_spec" value="2 vCPU / 4 GB&#xa;~$0.04/run (ephemeral)" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=10;fontColor=#666666;fontStyle=2;" vertex="1" parent="j_ecs_group">
-          <mxGeometry x="370" y="155" width="140" height="40" as="geometry" />
+        <mxCell id="j_spdx_output" parent="j_ecs_group" style="shape=note;whiteSpace=wrap;html=1;size=14;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;align=left;spacingLeft=8;" value="Flat spdx/ output:&#xa;• _build.spdx.json&#xa;• _analyzed.spdx.json&#xa;• .spdx.html&#xa;• -sbom-tree.json" vertex="1">
+          <mxGeometry height="70" width="135" x="600" y="50" as="geometry" />
         </mxCell>
-
-        <mxCell id="j_spdx_output" value="Flat spdx/ output:&#xa;• _build.spdx.json&#xa;• _analyzed.spdx.json&#xa;• .spdx.html&#xa;• -sbom-tree.json" style="shape=note;whiteSpace=wrap;html=1;size=14;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;align=left;spacingLeft=8;" vertex="1" parent="j_ecs_group">
-          <mxGeometry x="340" y="200" width="170" height="70" as="geometry" />
+        <mxCell id="j_spdx_indexing" parent="j_ecs_group" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;fontStyle=0;align=left;spacingLeft=10;verticalAlign=top;spacingTop=4;" value="spdx-indexing&#xa;(inline in operator)&#xa;&#xa;• Read manifest&#xa;• Match SPDX files&#xa;• Write SpdxIndexTable&#xa;• BFS → SpdxDependencyGraph" vertex="1">
+          <mxGeometry height="120" width="220" x="640" y="150" as="geometry" />
         </mxCell>
-
-        <mxCell id="j_spdx_indexing" value="spdx-indexing&#xa;(inline in operator)&#xa;&#xa;• Read manifest&#xa;• Match SPDX files&#xa;• Write SpdxIndexTable&#xa;• BFS → SpdxDependencyGraph" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;fontStyle=0;align=left;spacingLeft=10;verticalAlign=top;spacingTop=4;" vertex="1" parent="j_ecs_group">
-          <mxGeometry x="640" y="35" width="220" height="120" as="geometry" />
+        <mxCell id="j_sbomtree" parent="j_ecs_group" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;fontStyle=0;align=left;spacingLeft=10;verticalAlign=top;spacingTop=4;" value="sbom-tree worker&#xa;(separate process)&#xa;&#xa;• SQS long poll (tree queue)&#xa;• Query DependencyGraph&#xa;• Build nested JSON tree&#xa;• Upload to S3 spdx/" vertex="1">
+          <mxGeometry height="120" width="220" x="960" y="35" as="geometry" />
         </mxCell>
-
-        <mxCell id="j_sbomtree" value="sbom-tree worker&#xa;(separate process)&#xa;&#xa;• SQS long poll (tree queue)&#xa;• Query DependencyGraph&#xa;• Build nested JSON tree&#xa;• Upload to S3 spdx/" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;fontStyle=0;align=left;spacingLeft=10;verticalAlign=top;spacingTop=4;" vertex="1" parent="j_ecs_group">
-          <mxGeometry x="960" y="35" width="220" height="120" as="geometry" />
+        <mxCell id="j_sbomtree_spec" parent="j_ecs_group" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=10;fontColor=#666666;fontStyle=2;" value="256 CPU / 512 MB&#xa;auto-scaled by SQS depth" vertex="1">
+          <mxGeometry height="40" width="150" x="990" y="155" as="geometry" />
         </mxCell>
-
-        <mxCell id="j_sbomtree_spec" value="256 CPU / 512 MB&#xa;auto-scaled by SQS depth" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=10;fontColor=#666666;fontStyle=2;" vertex="1" parent="j_ecs_group">
-          <mxGeometry x="990" y="155" width="150" height="40" as="geometry" />
+        <mxCell id="j_launch_modes" parent="j_ecs_group" style="shape=note;whiteSpace=wrap;html=1;size=14;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;align=left;spacingLeft=8;" value="Launch Modes:&#xa;• docker run (local/EC2)&#xa;• ecs:RunTask (Fargate)" vertex="1">
+          <mxGeometry height="65" width="130" x="870" y="200" as="geometry" />
         </mxCell>
-
-        <mxCell id="j_launch_modes" value="Launch Modes:&#xa;• docker run (local/EC2)&#xa;• ecs:RunTask (Fargate)" style="shape=note;whiteSpace=wrap;html=1;size=14;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;align=left;spacingLeft=8;" vertex="1" parent="j_ecs_group">
-          <mxGeometry x="560" y="195" width="160" height="65" as="geometry" />
-        </mxCell>
-
-        <!-- ECS internal arrows -->
-        <mxCell id="j_e_oper_phase2" value="ecs:RunTask&#xa;or docker run" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#82b366;strokeWidth=2;fontSize=10;fontColor=#82b366;" edge="1" source="j_operator" target="j_phase2" parent="j_ecs_group">
+        <mxCell id="j_e_oper_phase2" edge="1" parent="j_ecs_group" source="j_operator" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#82b366;strokeWidth=2;fontSize=10;fontColor=#82b366;" target="j_phase2" value="ecs:RunTask&#xa;or docker run">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-
-        <mxCell id="j_e_oper_indexing" value="after Phase 2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#d6b656;strokeWidth=2;fontSize=10;fontColor=#d6b656;" edge="1" source="j_operator" target="j_spdx_indexing" parent="j_ecs_group">
+        <mxCell id="j_e_oper_indexing" edge="1" parent="j_ecs_group" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#d6b656;strokeWidth=2;fontSize=10;fontColor=#d6b656;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="j_spdx_indexing" value="after Phase 2">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="300" y="95" />
-              <mxPoint x="300" y="95" />
+              <mxPoint x="280" y="169" />
+              <mxPoint x="280" y="210" />
             </Array>
+            <mxPoint x="250" y="169.31" as="sourcePoint" />
+            <mxPoint x="669.9999999999995" y="169.31" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-
-        <!-- IAM Role (Jenkins variant) -->
-        <mxCell id="j_iam_role" value="IAM Role&#xa;(instance profile, OIDC,&#xa;or access keys)" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;size=14;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;" vertex="1" parent="j_lane_aws">
-          <mxGeometry x="1000" y="55" width="180" height="50" as="geometry" />
+        <mxCell id="j_iam_role" parent="j_lane_aws" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;size=14;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;" value="IAM Role&#xa;(instance profile, OIDC,&#xa;or access keys)" vertex="1">
+          <mxGeometry height="50" width="180" x="1000" y="55" as="geometry" />
         </mxCell>
-
-        <!-- Auth options note (Jenkins) -->
-        <mxCell id="j_auth_options" value="Jenkins Auth Options:&#xa;• EC2 instance profile (simplest)&#xa;• Jenkins OIDC plugin → IAM&#xa;• AWS Credentials plugin (static keys)" style="shape=note;whiteSpace=wrap;html=1;size=14;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;align=left;spacingLeft=8;" vertex="1" parent="j_lane_aws">
-          <mxGeometry x="1000" y="120" width="240" height="70" as="geometry" />
+        <mxCell id="j_auth_options" parent="j_lane_aws" style="shape=note;whiteSpace=wrap;html=1;size=14;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;align=left;spacingLeft=8;" value="Jenkins Auth Options:&#xa;• EC2 instance profile (simplest)&#xa;• Jenkins OIDC plugin → IAM&#xa;• AWS Credentials plugin (static keys)" vertex="1">
+          <mxGeometry height="70" width="240" x="1000" y="120" as="geometry" />
         </mxCell>
-
-        <!-- ═══════════════════════════════════════ -->
-        <!-- Arrows: AWS internal                      -->
-        <!-- ═══════════════════════════════════════ -->
-
-        <mxCell id="j_e_s3_event" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#9673a6;strokeWidth=1;" edge="1" source="j_s3_bucket" target="j_s3_event" parent="j_lane_aws">
+        <mxCell id="j_e_s3_event" edge="1" parent="j_lane_aws" source="j_s3_bucket" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#9673a6;strokeWidth=1;" target="j_s3_event">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-
-        <mxCell id="j_e_event_sqs" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#6c8ebf;strokeWidth=2;" edge="1" source="j_s3_event" target="j_sqs_phase1" parent="j_lane_aws">
+        <mxCell id="j_e_event_sqs" edge="1" parent="j_lane_aws" source="j_s3_event" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#6c8ebf;strokeWidth=2;" target="j_sqs_phase1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-
-        <mxCell id="j_e_sqs_dlq" value="failed (3x)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#b85450;strokeWidth=1;dashed=1;fontSize=9;fontColor=#b85450;" edge="1" source="j_sqs_phase1" target="j_dlq" parent="j_lane_aws">
+        <mxCell id="j_e_sqs_dlq" edge="1" parent="j_lane_aws" source="j_sqs_phase1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#b85450;strokeWidth=1;dashed=1;fontSize=9;fontColor=#b85450;" target="j_dlq" value="failed (3x)">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-
-        <mxCell id="j_e_sqs_oper" value="long poll" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#6c8ebf;strokeWidth=2;fontSize=10;fontColor=#6c8ebf;" edge="1" source="j_sqs_phase1" target="j_operator" parent="j_lane_aws">
+        <mxCell id="j_e_sqs_oper" edge="1" parent="j_lane_aws" source="j_sqs_phase1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#6c8ebf;strokeWidth=2;fontSize=10;fontColor=#6c8ebf;" target="j_operator" value="long poll">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-
-        <mxCell id="j_e_idx_dynamo" value="write records" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#6c8ebf;strokeWidth=1;dashed=1;fontSize=9;fontColor=#6c8ebf;" edge="1" source="j_spdx_indexing" target="j_dynamo_index" parent="j_lane_aws">
+        <mxCell id="j_e_idx_dynamo" edge="1" parent="j_lane_aws" source="j_spdx_indexing" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#6c8ebf;strokeWidth=1;dashed=1;fontSize=9;fontColor=#6c8ebf;" target="j_dynamo_index" value="write records">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="780" y="410" />
@@ -575,8 +396,7 @@
             </Array>
           </mxGeometry>
         </mxCell>
-
-        <mxCell id="j_e_idx_graph" value="BFS graph" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#6c8ebf;strokeWidth=1;dashed=1;fontSize=9;fontColor=#6c8ebf;" edge="1" source="j_spdx_indexing" target="j_dynamo_graph" parent="j_lane_aws">
+        <mxCell id="j_e_idx_graph" edge="1" parent="j_lane_aws" source="j_spdx_indexing" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#6c8ebf;strokeWidth=1;dashed=1;fontSize=9;fontColor=#6c8ebf;" target="j_dynamo_graph" value="BFS graph (breadth first)">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="880" y="410" />
@@ -584,16 +404,14 @@
             </Array>
           </mxGeometry>
         </mxCell>
-
-        <mxCell id="j_e_oper_sbomtree_sqs" value="publish msg" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#d6b656;strokeWidth=2;fontSize=10;fontColor=#d6b656;" edge="1" source="j_operator" target="j_sqs_sbomtree" parent="j_lane_aws">
+        <mxCell id="j_e_oper_sbomtree_sqs" edge="1" parent="j_lane_aws" source="j_operator" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#d6b656;strokeWidth=2;fontSize=10;fontColor=#d6b656;" target="j_sqs_sbomtree" value="publish msg">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="160" y="750" />
+              <mxPoint x="160" y="823" />
             </Array>
           </mxGeometry>
         </mxCell>
-
-        <mxCell id="j_e_sbomtree_sqs_worker" value="long poll" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#6c8ebf;strokeWidth=2;fontSize=10;fontColor=#6c8ebf;" edge="1" source="j_sqs_sbomtree" target="j_sbomtree" parent="j_lane_aws">
+        <mxCell id="j_e_sbomtree_sqs_worker" edge="1" parent="j_lane_aws" source="j_sqs_sbomtree" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#6c8ebf;strokeWidth=2;fontSize=10;fontColor=#6c8ebf;" target="j_sbomtree" value="long poll">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="1100" y="750" />
@@ -601,8 +419,7 @@
             </Array>
           </mxGeometry>
         </mxCell>
-
-        <mxCell id="j_e_sbomtree_graph" value="query tree" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#6c8ebf;strokeWidth=1;dashed=1;fontSize=9;fontColor=#6c8ebf;" edge="1" source="j_sbomtree" target="j_dynamo_graph" parent="j_lane_aws">
+        <mxCell id="j_e_sbomtree_graph" edge="1" parent="j_lane_aws" source="j_sbomtree" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#6c8ebf;strokeWidth=1;dashed=1;fontSize=9;fontColor=#6c8ebf;" target="j_dynamo_graph" value="query tree">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="1250" y="510" />
@@ -610,8 +427,7 @@
             </Array>
           </mxGeometry>
         </mxCell>
-
-        <mxCell id="j_e_sbomtree_s3" value="upload&#xa;sbom-tree.json" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#82b366;strokeWidth=2;fontSize=9;fontColor=#82b366;" edge="1" source="j_sbomtree" target="j_s3_bucket" parent="j_lane_aws">
+        <mxCell id="j_e_sbomtree_s3" edge="1" parent="j_lane_aws" source="j_sbomtree" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#82b366;strokeWidth=2;fontSize=9;fontColor=#82b366;" target="j_s3_bucket" value="upload&#xa;sbom-tree.json">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="1300" y="510" />
@@ -620,8 +436,7 @@
             </Array>
           </mxGeometry>
         </mxCell>
-
-        <mxCell id="j_e_phase2_s3" value="upload flat SPDX&#xa;to spdx/" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#82b366;strokeWidth=2;fontSize=9;fontColor=#82b366;" edge="1" source="j_phase2" target="j_s3_bucket" parent="j_lane_aws">
+        <mxCell id="j_e_phase2_s3" edge="1" parent="j_lane_aws" source="j_phase2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#82b366;strokeWidth=2;fontSize=9;fontColor=#82b366;" target="j_s3_bucket" value="upload flat SPDX&#xa;to spdx/">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="480" y="410" />
@@ -629,8 +444,7 @@
             </Array>
           </mxGeometry>
         </mxCell>
-
-        <mxCell id="j_e_s3_download" value="download&#xa;Phase 1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#d6b656;strokeWidth=1;dashed=1;fontSize=9;fontColor=#d6b656;" edge="1" source="j_s3_paths" target="j_operator" parent="j_lane_aws">
+        <mxCell id="j_e_s3_download" edge="1" parent="j_lane_aws" source="j_s3_paths" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#d6b656;strokeWidth=1;dashed=1;fontSize=9;fontColor=#d6b656;" target="j_operator" value="download&#xa;Phase 1">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="20" y="200" />
@@ -638,8 +452,7 @@
             </Array>
           </mxGeometry>
         </mxCell>
-
-        <mxCell id="j_e_rest_dynamo" value="GetItem" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#9673a6;strokeWidth=1;dashed=1;fontSize=9;fontColor=#9673a6;" edge="1" source="j_rest_api" target="j_dynamo_index" parent="j_lane_aws">
+        <mxCell id="j_e_rest_dynamo" edge="1" parent="j_lane_aws" source="j_rest_api" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#9673a6;strokeWidth=1;dashed=1;fontSize=9;fontColor=#9673a6;" target="j_dynamo_index" value="GetItem">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="510" y="690" />
@@ -647,12 +460,7 @@
             </Array>
           </mxGeometry>
         </mxCell>
-
-        <!-- ═══════════════════════════════════════ -->
-        <!-- Arrows between swim lanes                -->
-        <!-- ═══════════════════════════════════════ -->
-
-        <mxCell id="j_e_upload" value="aws s3 cp&#xa;(Phase 1 + build)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#82b366;strokeWidth=2;fontSize=10;fontColor=#82b366;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="j_phase1_outputs" target="j_s3_bucket">
+        <mxCell id="j_e_upload" edge="1" parent="1" source="j_phase1_outputs" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#82b366;strokeWidth=2;fontSize=10;fontColor=#82b366;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="j_s3_bucket" value="aws s3 cp&#xa;(Phase 1 + build)">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="370" y="382" />
@@ -660,8 +468,7 @@
             </Array>
           </mxGeometry>
         </mxCell>
-
-        <mxCell id="j_e_auth" value="AssumeRole&#xa;(method varies)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#9673a6;strokeWidth=1;dashed=1;fontSize=9;fontColor=#9673a6;" edge="1" parent="1" source="j_aws_auth" target="j_iam_role">
+        <mxCell id="j_e_auth" edge="1" parent="1" source="j_aws_auth" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#9673a6;strokeWidth=1;dashed=1;fontSize=9;fontColor=#9673a6;" target="j_iam_role" value="AssumeRole&#xa;(method varies)">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="370" y="475" />
@@ -669,42 +476,30 @@
             </Array>
           </mxGeometry>
         </mxCell>
-
-        <!-- ═══════════════════════════════════════ -->
-        <!-- Legend                                    -->
-        <!-- ═══════════════════════════════════════ -->
-        <mxCell id="j_legend" value="Legend" style="shape=swimlane;startSize=20;fillColor=#f5f5f5;strokeColor=#666666;fontSize=11;fontStyle=1;horizontal=1;collapsible=0;rounded=1;" vertex="1" parent="1">
-          <mxGeometry x="30" y="600" width="320" height="270" as="geometry" />
+        <mxCell id="j_legend" parent="1" style="shape=swimlane;startSize=20;fillColor=#f5f5f5;strokeColor=#666666;fontSize=11;fontStyle=1;horizontal=1;collapsible=0;rounded=1;" value="Legend" vertex="1">
+          <mxGeometry height="290" width="320" x="30" y="600" as="geometry" />
         </mxCell>
-
-        <mxCell id="j_leg_phase1" value="Phase 1 (Build Result Processing)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;" vertex="1" parent="j_legend">
-          <mxGeometry x="20" y="30" width="130" height="30" as="geometry" />
+        <mxCell id="j_leg_phase1" parent="j_legend" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;" value="Phase 1 (Build Result Processing)" vertex="1">
+          <mxGeometry height="30" width="130" x="20" y="30" as="geometry" />
         </mxCell>
-
-        <mxCell id="j_leg_operator" value="Operator / Phase 2" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;" vertex="1" parent="j_legend">
-          <mxGeometry x="170" y="30" width="130" height="30" as="geometry" />
+        <mxCell id="j_leg_operator" parent="j_legend" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;" value="Operator / Phase 2" vertex="1">
+          <mxGeometry height="30" width="130" x="170" y="30" as="geometry" />
         </mxCell>
-
-        <mxCell id="j_leg_auth" value="Authentication / API" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;" vertex="1" parent="j_legend">
-          <mxGeometry x="20" y="70" width="130" height="30" as="geometry" />
+        <mxCell id="j_leg_auth" parent="j_legend" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;" value="Authentication / API" vertex="1">
+          <mxGeometry height="30" width="130" x="20" y="70" as="geometry" />
         </mxCell>
-
-        <mxCell id="j_leg_postproc" value="Post-Processing" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;" vertex="1" parent="j_legend">
-          <mxGeometry x="170" y="70" width="130" height="30" as="geometry" />
+        <mxCell id="j_leg_postproc" parent="j_legend" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;" value="Post-Processing" vertex="1">
+          <mxGeometry height="30" width="130" x="170" y="70" as="geometry" />
         </mxCell>
-
-        <mxCell id="j_leg_data" value="Data Flow (solid)" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=10;" vertex="1" parent="j_legend">
-          <mxGeometry x="20" y="115" width="110" height="30" as="geometry" />
+        <mxCell id="j_leg_data" parent="j_legend" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=10;" value="Data Flow (solid)" vertex="1">
+          <mxGeometry height="30" width="110" x="20" y="115" as="geometry" />
         </mxCell>
-
-        <mxCell id="j_leg_control" value="Control Flow (dashed)" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=10;" vertex="1" parent="j_legend">
-          <mxGeometry x="20" y="140" width="130" height="30" as="geometry" />
+        <mxCell id="j_leg_control" parent="j_legend" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=10;" value="Control Flow (dashed)" vertex="1">
+          <mxGeometry height="30" width="130" x="20" y="140" as="geometry" />
         </mxCell>
-
-        <mxCell id="j_leg_note1" value="Phase 1 runs in Jenkins.&#xa;Phase 2 + operator run in ECS Fargate (or local Docker).&#xa;S3 is the data bus between all stages.&#xa;Two SQS queues: phase1-notifications, sbom-tree-requests.&#xa;Two DynamoDB tables: SpdxIndexTable, SpdxDependencyGraph.&#xa;REST API on :8080 for artifact S3 lookups.&#xa;&#xa;Only the Build Site lane differs from the GHA variant." style="text;html=1;align=left;verticalAlign=top;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=10;fontColor=#666666;" vertex="1" parent="j_legend">
-          <mxGeometry x="20" y="170" width="290" height="90" as="geometry" />
+        <mxCell id="j_leg_note1" parent="j_legend" style="text;html=1;align=left;verticalAlign=top;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=10;fontColor=#666666;" value="Phase 1 runs in Jenkins.&#xa;Phase 2 + operator run in ECS Fargate (or local Docker).&#xa;S3 is the data bus between all stages.&#xa;Two SQS queues: phase1-notifications, sbom-tree-requests.&#xa;Two DynamoDB tables: SpdxIndexTable, SpdxDependencyGraph.&#xa;REST API on :8080 for artifact S3 lookups.&#xa;&#xa;Only the Build Site lane differs from the GHA variant." vertex="1">
+          <mxGeometry height="90" width="290" x="20" y="170" as="geometry" />
         </mxCell>
-
       </root>
     </mxGraphModel>
   </diagram>

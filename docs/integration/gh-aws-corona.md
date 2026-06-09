@@ -262,16 +262,16 @@ concurrency:
     group: ${{ github.workflow }}-${{ github.ref }}
     cancel-in-progress: true
 
-permissions:
+permissions:                                                          # L23
     id-token: write   # OIDC for AWS
     contents: read
-    packages: read
+    packages: read                                                    # L26
 
-env:
+env:                                                                  # L28
     SIDECAR_IMAGE: ghcr.io/kkaple/omnibor-sidecar:dev
     MVN_VER: "3.9.8"
     S3_BUCKET: omnibor-spdx-artifacts
-    S3_REPO: ${{ github.repository }}
+    S3_REPO: ${{ github.repository }}                                 # L32
 
 jobs:
     # ... pre-commit and build jobs omitted for brevity ...
@@ -285,7 +285,7 @@ jobs:
             -   name: Checkout
                 uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
 
-            -   name: Set timestamp
+            -   name: Set timestamp                                   # L80
                 run: echo "TS=$(date -u +'%Y%m%d-%H%M%S')" >> "$GITHUB_ENV"
 
             -   name: Build with Temurin JDK 25
@@ -304,17 +304,17 @@ jobs:
                         mvn package -DskipTests -q
                       '
 
-            -   name: Login to GHCR
+            -   name: Login to GHCR                                   # L99
                 uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772  # v3.4.0
                 with:
                     registry: ghcr.io
                     username: ${{ github.actor }}
                     password: ${{ secrets.GITHUB_TOKEN }}
 
-            -   name: Pull sidecar image
-                run: docker pull "$SIDECAR_IMAGE"
+            -   name: Pull sidecar image                              # L106
+                run: docker pull "$SIDECAR_IMAGE"                     # L107
 
-            -   name: "Phase 1: Build result processing via sidecar"
+            -   name: "Phase 1: Build result processing via sidecar"   # L109
                 run: |
                     mkdir -p "${{ github.workspace }}/spdx-output"
                     docker run --rm \
@@ -326,15 +326,15 @@ jobs:
                         --repo WebGoat \
                         --mode sidecar \
                         --phase build \
-                        --skip-clone
+                        --skip-clone                                  # L121
 
-            -   name: Configure AWS credentials (OIDC)
+            -   name: Configure AWS credentials (OIDC)                # L123
                 uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502  # v4
                 with:
                     role-to-assume: arn:aws:iam::930218373905:role/github-actions-s3
-                    aws-region: us-east-1
+                    aws-region: us-east-1                              # L127
 
-            -   name: Upload Phase 1 artifacts to S3
+            -   name: Upload Phase 1 artifacts to S3                  # L129
                 run: |
                     SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-12)
                     JOB_ID="${{ env.TS }}_${SHORT_SHA}_${{ github.run_id }}"
@@ -342,22 +342,22 @@ jobs:
                     echo "JOB_ID=${JOB_ID}" >> "$GITHUB_ENV"
                     echo "S3_PATH=${S3_PATH}" >> "$GITHUB_ENV"
                     echo "[INFO] Uploading Phase 1 artifacts to ${S3_PATH}/phase1/"
-                    aws s3 cp spdx-output/ "${S3_PATH}/phase1/" --recursive
+                    aws s3 cp spdx-output/ "${S3_PATH}/phase1/" --recursive  # L137
 
-            -   name: Upload build output to S3
+            -   name: Upload build output to S3                       # L139
                 if: ${{ github.event_name == 'push' || inputs.upload_build_output }}
                 run: |
                     echo "[INFO] Uploading build output to ${{ env.S3_PATH }}/build/"
-                    aws s3 cp target/ "${{ env.S3_PATH }}/build/" --recursive
+                    aws s3 cp target/ "${{ env.S3_PATH }}/build/" --recursive  # L143
 
-            -   name: Verify S3 upload
+            -   name: Verify S3 upload                                # L145
                 run: |
                     echo "=== S3 contents ==="
                     aws s3 ls "${{ env.S3_PATH }}/" --recursive
                     echo ""
                     echo "=== Phase 2 can pull from ==="
                     echo "  Phase 1: ${{ env.S3_PATH }}/phase1/"
-                    echo "  Build:   ${{ env.S3_PATH }}/build/"
+                    echo "  Build:   ${{ env.S3_PATH }}/build/"       # L152
 ```
 
 ### What's OmniBOR-specific?
