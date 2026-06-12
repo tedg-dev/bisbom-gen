@@ -60,7 +60,7 @@ repos:
     - yasm
   nmap:
     url: https://github.com/nmap/nmap.git
-    branch: master  # no stable tags exist
+    branch: master  # EXCEPTION: nmap has no stable release tags; pinning is not possible
     language: c-cpp
     build_steps:
     - ./configure --with-libpcre=/usr --with-libz=/usr --with-libssh2=/usr --with-openssl=/usr --with-libdnet=included --with-liblua=included --with-liblinear=included --without-zenmap --without-ndiff

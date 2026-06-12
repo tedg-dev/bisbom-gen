@@ -113,4 +113,4 @@ Pipeline visualization showing:
 
 ---
 
-*Document version: March 2026*
+*Document version: June 2026*
