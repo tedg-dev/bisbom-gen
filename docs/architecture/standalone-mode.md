@@ -8,8 +8,9 @@ thorough provenance data but requires Linux `SYS_PTRACE` capability.
 **Sidecar mode is the baseline for enterprise deployment.** Standalone
 mode is retained for two purposes:
 
-1. **Golden file generation** — standalone produces the ground-truth
-   SPDX used as regression baselines for all modes and OSes
+1. **Regression reference** — standalone output is compared against
+   golden files (generated from sidecar mode) to verify structural
+   equivalence across modes
 2. **Isolated build environments** — engineering teams whose build
    systems are black-box or lack internet/intranet access
 
@@ -72,7 +73,7 @@ for standalone mode.
 | Criterion | Standalone | Sidecar |
 |-----------|-----------|---------|
 | Enterprise CI/CD | No (`SYS_PTRACE` blocked) | **Yes** |
-| Golden file baseline | **Yes** (authoritative) | No |
+| Golden file baseline | No (compared against) | **Yes** (authoritative) |
 | Phase isolation (separate hosts) | No | **Yes** |
 | Black-box builds without internet | **Yes** | No |
 | RHEL / Alpine / hardened kernels | Limited | **Yes** |

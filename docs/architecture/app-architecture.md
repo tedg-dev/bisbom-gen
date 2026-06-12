@@ -152,9 +152,9 @@ app/spdx/generator.py            # AdgSpdxGenerator (facade)
  ├─ app/spdx/parser.py           # AdgParser — reads bomsh treedb, classifies artifacts
  ├─ app/spdx/resolver.py         # ComponentResolver — maps artifacts to packages
  ├─ app/spdx/emitter.py          # SpdxEmitter — produces SPDX 2.3 JSON
- │   └─ app/version_detection/   # VendoredVersionDetector (14 strategies)
+ │   └─ app/version_detection/   # VendoredVersionDetector (12 strategies)
  │       ├─ detector.py           # Orchestrates strategies in priority order
- │       ├─ strategies.py         # 14 version detection strategies
+ │       ├─ strategies.py         # 12 version detection strategies
  │       └─ patterns.py           # Regex patterns and file name constants
  └─ app/spdx_visualize.py        # generate_html() [called at end of generate()]
      └─ app/viz/                  # Visualization sub-package (see §4)
@@ -396,7 +396,7 @@ app/pipeline/lang_runners.py
  └── app.pipeline.timing (StepTimer, TimingResult)
 
 app/pipeline/interception.py
- └── (ABC + PtraceStrategy, CcWrapperStrategy skeleton)
+ └── (ABC + PtraceStrategy, CcWrapperStrategy, GoToolexecStrategy, RustcWrapperStrategy, etc.)
 
 app/pipeline/timing.py
  └── (StepTimer, StepMetrics, TimingResult dataclasses)
@@ -460,4 +460,4 @@ path detection, build step generation, and config.yaml writing. Used by
 
 ---
 
-*Last updated: May 14, 2026*
+*Last updated: June 10, 2026*
