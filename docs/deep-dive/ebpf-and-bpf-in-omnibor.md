@@ -198,7 +198,7 @@ the build, associating build artifacts with their corresponding gitoids.
 | **Tracee stopped?** | Yes — 2 context switches per traced syscall | No — tracee never stopped |
 | **Overhead** | 20–60% (varies by language and project size) | Expected to be significantly lower (TBD — limited testing) |
 | **Language support** | C/C++, Go, Rust, Java (each with different tracer) | Language-agnostic (C, Rust, Java, Python, Node.js tested) |
-| **Root required?** | No (SYS_PTRACE capability sufficient) | Yes (sudo for eBPF program load) |
+| **Root required?** | No (`SYS_PTRACE` capability sufficient) | Yes (sudo for eBPF program load) |
 | **Build modification** | None (wraps the build command) | None (observes via kernel) |
 | **Platform** | Linux only | Linux only (eBPF is Linux-specific) |
 | **Maturity** | Production — used for all omnibor-analysis runs | Early stage — limited testing |
@@ -396,7 +396,7 @@ generators is the main engineering work.
 |------|----------|--------|
 | **Accuracy vs treedb** | High | Does ebomf's DAG produce equivalent or better provenance chains compared to bomsh's hash_tree / treedb? |
 | **Multi-module builds** | High | Gradle buildSrc caching, Maven multi-module — does ebomf see the same blind spots? |
-| **sudo in enterprise CI** | Medium | Locked-down CI environments may not grant CAP_BPF. In Docker containers, this is likely moot (already root). |
+| **Capability grant on customer build machines** | **High** | The sidecar runs on customer infrastructure, not ours. Enterprise build machines may run RHEL 8 (kernel 4.18, needs `CAP_SYS_ADMIN`), have SELinux enforcing, or prohibit kernel instrumentation via corporate policy. Sidecar must detect and degrade gracefully. |
 | **Kernel version floor** | Medium | eBPF tracepoints require Linux 4.x+. `CAP_BPF` (instead of `CAP_SYS_ADMIN`) requires 5.8+. |
 | **Output format compatibility** | Medium | Unknown whether ebomf produces treedb-compatible JSON, ADG, or a novel format requiring a new adapter. |
 | **Go `-a` flag** | Low | If ebomf sees all file I/O at the kernel level, the mandatory `-a` cache bypass for Go may no longer be needed. Needs verification. |

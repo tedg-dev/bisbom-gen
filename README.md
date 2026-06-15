@@ -44,7 +44,7 @@ For detailed documentation, see the [`docs/`](docs/) directory:
 
 ### What is Build Interception?
 
-Build interception hooks into the compiler and linker during a software build to observe exactly which source files are compiled into which output artifacts. [OmniBOR's Bomtrace](https://github.com/omnibor/bomsh) uses `strace` to intercept these calls and produce an **Artifact Dependency Graph (ADG)** — a cryptographically verifiable record of what was built from what. C/C++ builds use bomtrace3; Rust and Go builds use bomtrace2. Java uses strace-based post-build analysis. See [Go Language Support](docs/features/go-language-support.md), [Analyzed vs Build SBOMs](docs/features/analyzed-vs-build-sboms.md), and [Stable Tag Pinning](docs/features/stable-tag-pinning.md) for details.
+Build interception hooks into the compiler and linker during a software build to observe exactly which source files are compiled into which output artifacts. [OmniBOR's Bomtrace](https://github.com/omnibor/bomsh) uses `strace` to intercept these calls and produce an **Artifact Dependency Graph (ADG)** — a cryptographically verifiable record of what was built from what. C/C++ builds use bomtrace3; Rust and Go builds use bomtrace2. Java uses strace-based post-build analysis. See [Analyzed vs Build SBOMs](docs/features/analyzed-vs-build-sboms.md) and [Stable Tag Pinning](docs/features/stable-tag-pinning.md) for details.
 
 ## Project Structure
 
@@ -54,7 +54,7 @@ omnibor-analysis/
 │   ├── pipeline/           Analysis pipeline (clone, build, instrument, generate SBOMs)
 │   ├── spdx/              Per-binary SPDX 2.3 generation from ADG data
 │   ├── viz/               D3.js visualization package (extract, styles, JS templates)
-│   ├── version_detection/ Root + vendored package version detection (14 strategies)
+│   ├── version_detection/ Root + vendored package version detection (12 strategies)
 │   ├── repo_discovery/    Auto-discover and configure repos from GitHub
 │   └── templates/         Report templates
 ├── docker/                Docker environment (Linux + gcc + Rust + Go + Maven + bomtrace)
@@ -65,7 +65,7 @@ omnibor-analysis/
 │   ├── issues/            Upstream bug tracking and workarounds
 │   └── deep-dive/         Research, performance, enterprise docs
 ├── terraform/             AWS EC2 infrastructure as code
-├── tests/                 Unit tests (1310 tests, 98% coverage)
+├── tests/                 Unit tests (1451+ tests, 98% coverage)
 ├── repos/                 Cloned target repositories (gitignored)
 ├── output/                Generated artifacts: SBOMs, ADGs, binaries (gitignored)
 ├── .windsurf/             Cascade AI rules and workflows
@@ -175,9 +175,9 @@ All Rust crates use STATIC_LINK (compiled into the binary). Each crate gets a `p
 | [dive](https://github.com/wagoodman/dive) | ~15-20 | ~25 | Docker image explorer |
 | [gdu](https://github.com/dundee/gdu) | ~10-15 | ~15-20 | Disk usage analyzer |
 
-Go modules are classified as direct or indirect from `go.mod`. Each gets a `pkg:golang` PURL. For details, see [Go Language Support](docs/features/go-language-support.md).
+Go modules are classified as direct or indirect from `go.mod`. Each gets a `pkg:golang` PURL.
 
-### Java (strace + post-build analysis)
+### Java (sidecar: dep:tree | standalone: strace)
 
 | Repo | Direct deps | Transitive deps | Purpose |
 |------|-------------|-----------------|----------|
@@ -188,8 +188,9 @@ Go modules are classified as direct or indirect from `go.mod`. Each gets a `pkg:
 | [logging-log4j2](https://github.com/apache/logging-log4j2) | ~10 | ~20 | Apache Log4j2 logging framework, Maven multi-module |
 | [spring-boot](https://github.com/spring-projects/spring-boot) | ~50 | ~70 | Spring Boot framework, Gradle multi-module |
 | [bc-java](https://github.com/bcgit/bc-java) | ~10 | ~5 | Bouncy Castle crypto library, Gradle multi-module |
+| [omnibor-java-testapp](https://github.com/tedg-dev/omnibor-java-testapp) | 2 | 3 | Internal test app for pipeline validation |
 
-Java uses strace-based post-build analysis instead of bomtrace. Maven dependencies are classified as direct (depth 1) or transitive (depth 2+) via BFS.
+Java sidecar mode uses `MavenDepTreeStrategy` or `GradleDepTreeStrategy` — no `SYS_PTRACE` needed. Standalone mode uses strace-based post-build analysis. Maven dependencies are classified as direct (depth 1) or transitive (depth 2+) via BFS.
 
 To add a new target repository, see [CONTRIBUTING.md](docs/guides/CONTRIBUTING.md#adding-a-new-target-repository).
 

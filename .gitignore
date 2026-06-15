@@ -12,7 +12,7 @@ output/spdx/*/**
 output/binaries/*/**
 output/binary-scan/*/**
 output/build-logs/*/**
-output/runtime/*/**
+output/runtime/**
 !output/runtime/**/baseline.json
 !output/**/.gitkeep
 

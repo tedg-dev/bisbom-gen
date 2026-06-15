@@ -256,6 +256,45 @@ The `bomsh_hook_raw_logfile` contains `STATIC_LINK` relationships.
 
 ---
 
+## Rule 10: Evaluate Tables for Readability
+
+Before generating or editing ANY markdown table, evaluate whether it
+will render readably. Too many super-narrow, cramped columns make
+documents unreadable.
+
+**When to switch to HTML tables:**
+
+- **4+ columns** where most cells contain short values
+- **Extreme width imbalance** — any column > 60 characters alongside
+  columns < 10 characters
+- **Many rows (>15)** where column alignment is critical for scanning
+- **Nested formatting** inside cells (bold + links + code) that gets
+  squeezed into unreadable widths
+
+**When markdown tables are fine:**
+
+- 2–3 columns with balanced content widths
+- Simple key-value style tables
+- All cells have similar content length
+
+**Decision checklist:**
+
+1. Count columns and estimate typical cell content width
+2. If any column will render < 8 characters wide → **use HTML**
+3. If mixed short/long columns cause extreme imbalance → **use HTML**
+4. Use `<table>` with explicit widths for control
+
+**HTML table template:**
+
+```html
+<table>
+<tr><th style="width:20%">Column A</th><th style="width:30%">Column B</th><th style="width:50%">Column C</th></tr>
+<tr><td>value</td><td>value</td><td>longer value here</td></tr>
+</table>
+```
+
+---
+
 ## Summary of Violations
 
 | Violation | Fix |
@@ -268,3 +307,4 @@ The `bomsh_hook_raw_logfile` contains `STATIC_LINK` relationships.
 | Table converted to image | Revert to markdown table — tables must stay as text |
 | Bare underscores in prose identifiers | Wrap in backticks: `bomsh_hook_raw_logfile` |
 | Consecutive bold lines merge into one | Add blank line between each line (never use `\`) |
+| Cramped table with 4+ narrow columns | Switch to HTML `<table>` with explicit widths |
