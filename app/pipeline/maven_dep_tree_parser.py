@@ -216,6 +216,11 @@ def run_maven_dep_tree(
 ):
     """Run ``mvn dependency:tree -DoutputType=dot``.
 
+    Runs in offline mode (``-o``) because this is called
+    after a successful build — the local ``.m2/repository``
+    cache is guaranteed complete.  Skip flags prevent
+    lifecycle plugins from firing unnecessarily.
+
     Args:
         repo_dir: Path to the repository root (must
             contain ``pom.xml``).
@@ -240,6 +245,11 @@ def run_maven_dep_tree(
     cmd = [
         "mvn", "dependency:tree",
         "-DoutputType=dot",
+        "-o",
+        "-DskipTests",
+        "-Dmaven.javadoc.skip=true",
+        "-Denforcer.skip=true",
+        "-Dcheckstyle.skip=true",
     ]
     if maven_modules:
         cmd.extend(["-pl", maven_modules, "-am"])

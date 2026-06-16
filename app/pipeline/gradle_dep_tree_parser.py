@@ -30,6 +30,12 @@ def run_gradle_dep_tree(
 ):
     """Run ``./gradlew dependencies`` for a project.
 
+    Runs in offline mode (``--offline``) because this is
+    called after a successful build — the Gradle cache is
+    guaranteed complete.  Omits ``--no-daemon`` so the build
+    daemon (if still warm from the build) can serve the
+    query without a cold JVM start.
+
     Args:
         repo_dir: Path to the repository root.
         project: Optional Gradle subproject name.
@@ -56,7 +62,7 @@ def run_gradle_dep_tree(
             [
                 str(gradlew), task,
                 "--configuration", "runtimeClasspath",
-                "--no-daemon", "-q",
+                "--offline", "-q",
             ],
             cwd=str(repo_path),
             capture_output=True,
