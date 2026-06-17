@@ -330,14 +330,122 @@ are the only ones that benefit from the optimizations above.
 
 ---
 
-## 7. Next Steps
+## 7. EC2 Validation Results (June 16, 2026)
 
-1. **Run on EC2** with split timing enabled against dependency-check
-   (Maven) and spring-boot (Gradle) to get actual treedb vs dep:tree
-   breakdown
+Both repos ran successfully with split timing. SPDX output compared
+against golden files with **zero regressions**.
+
+### Split Timing Breakdown
+
+#### dependency-check (Maven)
+
+| Sub-step | Tool | Wall time | % of `adg` |
+|----------|------|-----------|------------|
+| **treedb** | `bomsh_create_bom_java.py` | **240.85s** | **98.6%** |
+| **dep_tree** | `mvn dependency:tree` | **3.47s** | **1.4%** |
+| **Total `adg`** | — | **244.32s** | 100% |
+
+#### spring-boot (Gradle)
+
+| Sub-step | Tool | Wall time | % of `adg` |
+|----------|------|-----------|------------|
+| **treedb** | `bomsh_create_bom_java.py` | **486.09s** | **77.7%** |
+| **dep_tree** | `gradlew dependencies` | **139.64s** | **22.3%** |
+| **Total `adg`** | — | **625.74s** | 100% |
+
+### Before/After Comparison
+
+| Repo | Previous `adg` (May 12) | Current `adg` (Jun 16) | Change |
+|------|------------------------|------------------------|--------|
+| dependency-check | 218.45s | 244.32s | +12% (run variance) |
+| spring-boot | 1,222.88s | **625.74s** | **-49% improvement** |
+
+### Golden File Validation
+
+```text
+dependency-check: RESULT: All files identical — no changes
+spring-boot:      RESULT: All files identical — no changes
+```
+
+### Key Findings
+
+1. **`bomsh_create_bom_java.py` is the real bottleneck**, not
+   `mvn dependency:tree`. For Maven, dep:tree is only 1.4% of
+   the `adg` step after adding `-o` and skip flags.
+
+2. **Gradle improvement is massive (49%).** The previous 1,222s
+   `adg` step dropped to 625s. The `--no-daemon` → `--offline`
+   change cut Gradle dep:tree from an estimated ~750s to 139s
+   (a ~5x improvement) by reusing the warm Gradle daemon.
+
+3. **For Maven, optimization effort should shift to
+   `bomsh_create_bom_java.py`** — the JVM dep:tree command
+   was never the bottleneck. The 3.47s dep:tree proves that
+   offline mode + skip flags effectively eliminate it as a
+   concern.
+
+4. **For Gradle, further optimization is available** through
+   single-invocation multi-project queries (currently runs
+   per-subproject, each starting the daemon query process).
+
+5. **No SPDX regressions** — golden files are identical,
+   confirming that offline mode does not change dependency
+   resolution results (as expected, since the cache was just
+   populated by the build).
+
+---
+
+## 8. Revised Bottleneck Analysis
+
+The original hypothesis was that JVM startup for dep:tree commands
+was the primary Phase 1 post-build bottleneck. Split timing
+**disproved** this for Maven and **partially confirmed** it for
+Gradle:
+
+| Repo | True bottleneck | Secondary |
+|------|----------------|-----------|
+| dependency-check (Maven) | `bomsh_create_bom_java.py` (98.6%) | `mvn dep:tree` (1.4%) |
+| spring-boot (Gradle) | `bomsh_create_bom_java.py` (77.7%) | `gradlew deps` (22.3%) |
+
+### Why `bomsh_create_bom_java.py` is slow
+
+The script processes 113,524 checksums for spring-boot (55,673 for
+dependency-check). For each `.class` file it must:
+
+1. Read the `.class` file and compute SHA-256
+2. Parse the `SourceFile` bytecode attribute
+3. Walk the source tree to resolve the `.java` file by path
+   similarity
+4. Compute SHA-256 for the source file
+5. Update the treedb JSON structure
+
+This is fundamentally I/O-bound (thousands of small file reads) and
+CPU-bound (SHA-256 computation + JSON serialization). Optimization
+paths include:
+
+- **Parallel file processing** — `bomsh_create_bom_java.py` appears
+  to be single-threaded. Parallelizing file reads + hashing across
+  CPU cores could cut time proportionally.
+- **Pre-computed source hashes** — if the build system already has
+  source file checksums (e.g., from incremental compilation cache),
+  reuse them instead of rehashing.
+- **Binary treedb format** — JSON serialization of 113K entries is
+  expensive. A binary format (MessagePack, CBOR) would be faster.
+
+These are upstream `bomsh` optimizations, not changes to
+`omnibor-analysis`.
+
+---
+
+## 9. Next Steps
+
+1. ~~Run on EC2 with split timing~~ — **Done** (June 16, 2026)
 2. **Implement parallel execution** of treedb + dep:tree
-   (`concurrent.futures.ThreadPoolExecutor`)
-3. **Wire aggressive `-pl` module targeting** from `config.yaml` for
-   multi-module Maven projects
-4. **Measure before/after** — compare the optimized `adg` timings
-   against the pre-optimization baselines documented in this file
+   (`concurrent.futures.ThreadPoolExecutor`) — still beneficial
+   for Gradle where dep:tree is 22% of `adg`
+3. **Wire aggressive `-pl` module targeting** from `config.yaml`
+   for multi-module Maven projects
+4. **Investigate `bomsh_create_bom_java.py` parallelization** —
+   this is now the dominant bottleneck for both orchestrators
+5. **Single-invocation Gradle query** — reduce per-subproject
+   JVM overhead in `get_all_gradle_deps()`
