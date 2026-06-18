@@ -95,4 +95,3 @@ class ConfigGenerator:
             lang for lang, _ in top_langs
         )
         return f"~{loc_k:.0f}K LoC, {lang_str}"
-

@@ -1,0 +1,148 @@
+{
+  "spdxVersion": "SPDX-2.3",
+  "dataLicense": "CC0-1.0",
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "name": "dependency-check-dependency-check-9.2.0.jar",
+  "documentNamespace": "https://omnibor.io/spdx/dependency-check/8532fb99-5cee-4acf-8b6e-31e7c533a8f0",
+  "creationInfo": {
+    "created": "2026-06-18T22:13:24Z",
+    "creators": [
+      "Tool: omnibor-analysis",
+      "Tool: bomsh_create_bom_java.py"
+    ],
+    "licenseListVersion": "3.19",
+    "comment": "maven-assembly-plugin detected \u2014 assembled archive may bundle dependencies not listed in dependency:tree"
+  },
+  "packages": [
+    {
+      "SPDXID": "SPDXRef-Package-dependency-check-9.2.0.jar",
+      "name": "dependency-check",
+      "versionInfo": "9.2.0",
+      "downloadLocation": "https://github.com/jeremylong/DependencyCheck/commit/192b4cdb1e8245c1b202287eadd55d9241ea21d2",
+      "filesAnalyzed": true,
+      "primaryPackagePurpose": "APPLICATION",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/dependency-check/dependency-check"
+        }
+      ]
+    }
+  ],
+  "files": [
+    {
+      "SPDXID": "SPDXRef-File-0",
+      "fileName": "cli/src/main/java/org/owasp/dependencycheck/App.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "2b2f0f77520fedd073dd8cb7bbcf98ebc19a75da"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-1",
+      "fileName": "cli/target/classes/org/owasp/dependencycheck/App.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "23f209b89f38f4c0044a214e9528d421a1ed1643"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-2",
+      "fileName": "cli/src/main/java/org/owasp/dependencycheck/CliParser.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "249291c1e2c94e4f51dace2570b2e8dffc407b74"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-3",
+      "fileName": "cli/target/classes/org/owasp/dependencycheck/CliParser$ARGUMENT.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "ddd8130375818d57dd714bdc21c7196ed9d62fc6"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-4",
+      "fileName": "cli/target/classes/org/owasp/dependencycheck/CliParser.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "06e1aef3e5f5e5088b7ab04a0741db1c303e77e3"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-5",
+      "fileName": "cli/src/main/java/org/owasp/dependencycheck/package-info.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "80ca48fa66632bed40f2a4283cfb1fa3ae7c6f14"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-6",
+      "fileName": "cli/target/classes/org/owasp/dependencycheck/package-info.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "f68ea0d4ef45363d57ca84c1d9f3349fdefe091e"
+        }
+      ]
+    }
+  ],
+  "relationships": [
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relatedSpdxElement": "SPDXRef-Package-dependency-check-9.2.0.jar",
+      "relationshipType": "DESCRIBES"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-0",
+      "relatedSpdxElement": "SPDXRef-Package-dependency-check-9.2.0.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-1",
+      "relatedSpdxElement": "SPDXRef-Package-dependency-check-9.2.0.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-2",
+      "relatedSpdxElement": "SPDXRef-Package-dependency-check-9.2.0.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-3",
+      "relatedSpdxElement": "SPDXRef-Package-dependency-check-9.2.0.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-4",
+      "relatedSpdxElement": "SPDXRef-Package-dependency-check-9.2.0.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-5",
+      "relatedSpdxElement": "SPDXRef-Package-dependency-check-9.2.0.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-6",
+      "relatedSpdxElement": "SPDXRef-Package-dependency-check-9.2.0.jar",
+      "relationshipType": "CONTAINED_BY"
+    }
+  ]
+}

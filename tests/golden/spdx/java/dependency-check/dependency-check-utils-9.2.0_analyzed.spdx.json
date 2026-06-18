@@ -3,14 +3,15 @@
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
   "name": "dependency-check-dependency-check-utils-9.2.0.jar",
-  "documentNamespace": "https://omnibor.io/spdx/dependency-check/78fe4504-8b7d-4fe2-9ece-0dbc771fcacb",
+  "documentNamespace": "https://omnibor.io/spdx/dependency-check/7c117f46-3daa-4947-977b-faeaff98af3a",
   "creationInfo": {
-    "created": "2026-05-08T18:32:27Z",
+    "created": "2026-06-18T22:13:30Z",
     "creators": [
       "Tool: omnibor-analysis",
       "Tool: bomsh_create_bom_java.py"
     ],
-    "licenseListVersion": "3.19"
+    "licenseListVersion": "3.19",
+    "comment": "maven-assembly-plugin detected \u2014 assembled archive may bundle dependencies not listed in dependency:tree"
   },
   "packages": [
     {
@@ -33,116 +34,36 @@
   "files": [
     {
       "SPDXID": "SPDXRef-File-0",
-      "fileName": "utils/src/main/java/org/owasp/dependencycheck/utils/ExtractionException.java",
+      "fileName": "utils/src/main/java/org/owasp/dependencycheck/utils/Checksum.java",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "8413e77336efd84d56922faa926affae3634fcc3"
+          "checksumValue": "8ae31f701a3b4ac0bceb2c208a980f3a5794ed9e"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-1",
-      "fileName": "utils/target/classes/org/owasp/dependencycheck/utils/ExtractionException.class",
+      "fileName": "utils/target/classes/org/owasp/dependencycheck/utils/Checksum$FileChecksums.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "0a8c4cac67d827d37302f51fcf7e0245b8b25455"
+          "checksumValue": "8192316a2c36766fd0b61bd4b0b36eff2c1c33d2"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-2",
-      "fileName": "utils/src/main/java/org/owasp/dependencycheck/utils/processing/ProcessReader.java",
+      "fileName": "utils/target/classes/org/owasp/dependencycheck/utils/Checksum.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "38678628d8128a347f5cdb92a2206c66a6b42b08"
+          "checksumValue": "a78be303b1c1ca16d1eb208e25b2babf54accf7f"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-3",
-      "fileName": "utils/target/classes/org/owasp/dependencycheck/utils/processing/ProcessReader.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "76504303a045d6e318313ea871e0ce0ad4cdba15"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-4",
-      "fileName": "utils/src/main/java/org/owasp/dependencycheck/utils/processing/package-info.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "3a0c57d5ac8e6035eea077b91e2751c2a1349114"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-5",
-      "fileName": "utils/target/classes/org/owasp/dependencycheck/utils/processing/package-info.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "a652aa982b3735157d4aef174fb96bf6744e53ad"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-6",
-      "fileName": "utils/src/main/java/org/owasp/dependencycheck/utils/processing/Processor.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "616df86c82a579184b1a32c127f7c24272f2d588"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-7",
-      "fileName": "utils/target/classes/org/owasp/dependencycheck/utils/processing/Processor.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "989a3e088e75c072334a13ae1805d684be955290"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-8",
-      "fileName": "utils/target/classes/org/owasp/dependencycheck/utils/processing/ProcessReader$Gobbler.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "1ecf56720179d5857d0da0fd8572d99a4430e013"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-9",
-      "fileName": "utils/src/main/java/org/owasp/dependencycheck/utils/URLConnectionFactory.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "af954d4247ad148b854e00ad9aa45bdf4c3b6243"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-10",
-      "fileName": "utils/target/classes/org/owasp/dependencycheck/utils/URLConnectionFactory$1.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "75730975cd5e2695cbbffdd10a9b24f761c30b7d"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-11",
       "fileName": "utils/src/main/java/org/owasp/dependencycheck/utils/DownloadFailedException.java",
       "checksums": [
         {
@@ -152,7 +73,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-12",
+      "SPDXID": "SPDXRef-File-4",
       "fileName": "utils/target/classes/org/owasp/dependencycheck/utils/DownloadFailedException.class",
       "checksums": [
         {
@@ -162,62 +83,142 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-13",
-      "fileName": "utils/src/main/java/org/owasp/dependencycheck/utils/SSLSocketFactoryEx.java",
+      "SPDXID": "SPDXRef-File-5",
+      "fileName": "utils/src/main/java/org/owasp/dependencycheck/utils/Downloader.java",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "c2d1b2d4340b1958ba790780e77e387682bc3ba9"
+          "checksumValue": "90c0ab3fc76a995ba3f4dc109a8069ce0ef054ed"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-6",
+      "fileName": "utils/target/classes/org/owasp/dependencycheck/utils/Downloader.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "c702bd20c6015d6a5aaf69bbc18492553f75a7e7"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-7",
+      "fileName": "utils/src/main/java/org/owasp/dependencycheck/utils/ExpectedObjectInputStream.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "cf03b695007a442c6f27e433499e46a578b43d1f"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-8",
+      "fileName": "utils/target/classes/org/owasp/dependencycheck/utils/ExpectedObjectInputStream.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "3549d5d75d37ed47c1dcbf66abb7c9db1a8cde79"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-9",
+      "fileName": "utils/src/main/java/org/owasp/dependencycheck/utils/ExtractionException.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "8413e77336efd84d56922faa926affae3634fcc3"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-10",
+      "fileName": "utils/target/classes/org/owasp/dependencycheck/utils/ExtractionException.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "0a8c4cac67d827d37302f51fcf7e0245b8b25455"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-11",
+      "fileName": "utils/src/main/java/org/owasp/dependencycheck/utils/FileUtils.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "b25179909bb1c5ad409e70b1bc6b8a06a63198ef"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-12",
+      "fileName": "utils/target/classes/org/owasp/dependencycheck/utils/FileUtils.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "e8726507fa71715a89c539399a6723b023461279"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-13",
+      "fileName": "utils/src/main/java/org/owasp/dependencycheck/utils/HttpResourceConnection.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "379032afbc96436d67defd6f4b38cd9c4dedb2ac"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-14",
-      "fileName": "utils/target/classes/org/owasp/dependencycheck/utils/SSLSocketFactoryEx.class",
+      "fileName": "utils/target/classes/org/owasp/dependencycheck/utils/HttpResourceConnection.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "87ceb1a49d54e9d6d2c244e30b9551ad3003c07b"
+          "checksumValue": "59797227513a7956b36411c4576184afe0fee6e8"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-15",
-      "fileName": "utils/src/main/java/org/owasp/dependencycheck/utils/URLConnectionFailureException.java",
+      "fileName": "utils/src/main/java/org/owasp/dependencycheck/utils/InvalidSettingException.java",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "177297c73e159f11f8f6a0613a4eadc55d734046"
+          "checksumValue": "873b46bfbf9f150a4ea98a8379dfb2f282291f9a"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-16",
-      "fileName": "utils/target/classes/org/owasp/dependencycheck/utils/URLConnectionFailureException.class",
+      "fileName": "utils/target/classes/org/owasp/dependencycheck/utils/InvalidSettingException.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "39327817a89fb5a4b7ef864e7a811a8440f15e4a"
+          "checksumValue": "be15626ddafc84d1b76507010dbdfccd26b746d4"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-17",
-      "fileName": "utils/src/main/java/org/owasp/dependencycheck/utils/package-info.java",
+      "fileName": "utils/src/main/java/org/owasp/dependencycheck/utils/JsonArrayFixingInputStream.java",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "dab3e8cb84a2e9d14e1218bd3ee346e5329678d8"
+          "checksumValue": "98bac5f43d641efb7f732270ed19ab17abd4e11b"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-18",
-      "fileName": "utils/target/classes/org/owasp/dependencycheck/utils/package-info.class",
+      "fileName": "utils/target/classes/org/owasp/dependencycheck/utils/JsonArrayFixingInputStream.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "07b10de7536ff778125386c09b9549e99ef1a240"
+          "checksumValue": "25730a15b3a1bdf574ffe2293fcc6f8e8a515de4"
         }
       ]
     },
@@ -243,6 +244,26 @@
     },
     {
       "SPDXID": "SPDXRef-File-21",
+      "fileName": "utils/src/main/java/org/owasp/dependencycheck/utils/SSLSocketFactoryEx.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "c2d1b2d4340b1958ba790780e77e387682bc3ba9"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-22",
+      "fileName": "utils/target/classes/org/owasp/dependencycheck/utils/SSLSocketFactoryEx.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "87ceb1a49d54e9d6d2c244e30b9551ad3003c07b"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-23",
       "fileName": "utils/src/main/java/org/owasp/dependencycheck/utils/Settings.java",
       "checksums": [
         {
@@ -252,97 +273,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-22",
-      "fileName": "utils/target/classes/org/owasp/dependencycheck/utils/Settings.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "6d8bd4fbe2b7df7c6f1b01e52b92da7bb0ae494e"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-23",
-      "fileName": "utils/src/main/java/org/owasp/dependencycheck/utils/XmlUtils.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "0adbab9a073163b55556f557805bd9d12a4537bc"
-        }
-      ]
-    },
-    {
       "SPDXID": "SPDXRef-File-24",
-      "fileName": "utils/target/classes/org/owasp/dependencycheck/utils/XmlUtils.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "4e85b6add1b9791c5cd1670185b3afda4ed92419"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-25",
-      "fileName": "utils/src/main/java/org/owasp/dependencycheck/utils/TooManyRequestsException.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "091f00773fd27adafe449b5c5fd536ef99e56706"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-26",
-      "fileName": "utils/target/classes/org/owasp/dependencycheck/utils/TooManyRequestsException.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "1c265ed64e7c4243919e0e98c59b9c4e8c40c458"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-27",
-      "fileName": "utils/src/main/java/org/owasp/dependencycheck/utils/InvalidSettingException.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "873b46bfbf9f150a4ea98a8379dfb2f282291f9a"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-28",
-      "fileName": "utils/target/classes/org/owasp/dependencycheck/utils/InvalidSettingException.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "be15626ddafc84d1b76507010dbdfccd26b746d4"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-29",
-      "fileName": "utils/src/main/java/org/owasp/dependencycheck/utils/Downloader.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "90c0ab3fc76a995ba3f4dc109a8069ce0ef054ed"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-30",
-      "fileName": "utils/target/classes/org/owasp/dependencycheck/utils/Downloader.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "c702bd20c6015d6a5aaf69bbc18492553f75a7e7"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-31",
       "fileName": "utils/target/classes/org/owasp/dependencycheck/utils/Settings$KEYS.class",
       "checksums": [
         {
@@ -352,67 +283,57 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-32",
-      "fileName": "utils/src/main/java/org/owasp/dependencycheck/utils/search/FileContentSearch.java",
+      "SPDXID": "SPDXRef-File-25",
+      "fileName": "utils/target/classes/org/owasp/dependencycheck/utils/Settings.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "29c342aa96f4526b442ddfee06bfceb8202d05e7"
+          "checksumValue": "6d8bd4fbe2b7df7c6f1b01e52b92da7bb0ae494e"
         }
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-33",
-      "fileName": "utils/target/classes/org/owasp/dependencycheck/utils/search/FileContentSearch.class",
+      "SPDXID": "SPDXRef-File-26",
+      "fileName": "utils/src/main/java/org/owasp/dependencycheck/utils/TooManyRequestsException.java",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "5e311785964712babe7d92067cf61d70e5634ed5"
+          "checksumValue": "091f00773fd27adafe449b5c5fd536ef99e56706"
         }
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-34",
-      "fileName": "utils/src/main/java/org/owasp/dependencycheck/utils/search/package-info.java",
+      "SPDXID": "SPDXRef-File-27",
+      "fileName": "utils/target/classes/org/owasp/dependencycheck/utils/TooManyRequestsException.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "17d2cffae6f8e5ae52bf95e809158901e336db21"
+          "checksumValue": "1c265ed64e7c4243919e0e98c59b9c4e8c40c458"
         }
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-35",
-      "fileName": "utils/target/classes/org/owasp/dependencycheck/utils/search/package-info.class",
+      "SPDXID": "SPDXRef-File-28",
+      "fileName": "utils/src/main/java/org/owasp/dependencycheck/utils/URLConnectionFactory.java",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "6a23cdc1ab9c43e07f40c285522761c60bddf140"
+          "checksumValue": "af954d4247ad148b854e00ad9aa45bdf4c3b6243"
         }
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-36",
-      "fileName": "utils/src/main/java/org/owasp/dependencycheck/utils/Checksum.java",
+      "SPDXID": "SPDXRef-File-29",
+      "fileName": "utils/target/classes/org/owasp/dependencycheck/utils/URLConnectionFactory$1.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "8ae31f701a3b4ac0bceb2c208a980f3a5794ed9e"
+          "checksumValue": "75730975cd5e2695cbbffdd10a9b24f761c30b7d"
         }
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-37",
-      "fileName": "utils/target/classes/org/owasp/dependencycheck/utils/Checksum.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "a78be303b1c1ca16d1eb208e25b2babf54accf7f"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-38",
+      "SPDXID": "SPDXRef-File-30",
       "fileName": "utils/target/classes/org/owasp/dependencycheck/utils/URLConnectionFactory.class",
       "checksums": [
         {
@@ -422,92 +343,172 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-39",
-      "fileName": "utils/src/main/java/org/owasp/dependencycheck/utils/ExpectedObjectInputStream.java",
+      "SPDXID": "SPDXRef-File-31",
+      "fileName": "utils/src/main/java/org/owasp/dependencycheck/utils/URLConnectionFailureException.java",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "cf03b695007a442c6f27e433499e46a578b43d1f"
+          "checksumValue": "177297c73e159f11f8f6a0613a4eadc55d734046"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-32",
+      "fileName": "utils/target/classes/org/owasp/dependencycheck/utils/URLConnectionFailureException.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "39327817a89fb5a4b7ef864e7a811a8440f15e4a"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-33",
+      "fileName": "utils/src/main/java/org/owasp/dependencycheck/utils/XmlUtils.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "0adbab9a073163b55556f557805bd9d12a4537bc"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-34",
+      "fileName": "utils/target/classes/org/owasp/dependencycheck/utils/XmlUtils.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "4e85b6add1b9791c5cd1670185b3afda4ed92419"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-35",
+      "fileName": "core/src/main/java/org/owasp/dependencycheck/utils/package-info.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "8326a22a09ae214cb6ca0db87c56ff0e9dbe24c0"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-36",
+      "fileName": "core/target/classes/org/owasp/dependencycheck/utils/package-info.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "07b10de7536ff778125386c09b9549e99ef1a240"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-37",
+      "fileName": "utils/src/main/java/org/owasp/dependencycheck/utils/processing/ProcessReader.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "38678628d8128a347f5cdb92a2206c66a6b42b08"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-38",
+      "fileName": "utils/target/classes/org/owasp/dependencycheck/utils/processing/ProcessReader$Gobbler.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "1ecf56720179d5857d0da0fd8572d99a4430e013"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-39",
+      "fileName": "utils/target/classes/org/owasp/dependencycheck/utils/processing/ProcessReader.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "76504303a045d6e318313ea871e0ce0ad4cdba15"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-40",
-      "fileName": "utils/target/classes/org/owasp/dependencycheck/utils/ExpectedObjectInputStream.class",
+      "fileName": "utils/src/main/java/org/owasp/dependencycheck/utils/processing/Processor.java",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "3549d5d75d37ed47c1dcbf66abb7c9db1a8cde79"
+          "checksumValue": "616df86c82a579184b1a32c127f7c24272f2d588"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-41",
-      "fileName": "utils/src/main/java/org/owasp/dependencycheck/utils/HttpResourceConnection.java",
+      "fileName": "utils/target/classes/org/owasp/dependencycheck/utils/processing/Processor.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "379032afbc96436d67defd6f4b38cd9c4dedb2ac"
+          "checksumValue": "989a3e088e75c072334a13ae1805d684be955290"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-42",
-      "fileName": "utils/target/classes/org/owasp/dependencycheck/utils/HttpResourceConnection.class",
+      "fileName": "utils/src/main/java/org/owasp/dependencycheck/utils/processing/package-info.java",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "59797227513a7956b36411c4576184afe0fee6e8"
+          "checksumValue": "3a0c57d5ac8e6035eea077b91e2751c2a1349114"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-43",
-      "fileName": "utils/src/main/java/org/owasp/dependencycheck/utils/FileUtils.java",
+      "fileName": "utils/target/classes/org/owasp/dependencycheck/utils/processing/package-info.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "b25179909bb1c5ad409e70b1bc6b8a06a63198ef"
+          "checksumValue": "a652aa982b3735157d4aef174fb96bf6744e53ad"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-44",
-      "fileName": "utils/target/classes/org/owasp/dependencycheck/utils/FileUtils.class",
+      "fileName": "utils/src/main/java/org/owasp/dependencycheck/utils/search/FileContentSearch.java",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "e8726507fa71715a89c539399a6723b023461279"
+          "checksumValue": "29c342aa96f4526b442ddfee06bfceb8202d05e7"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-45",
-      "fileName": "utils/src/main/java/org/owasp/dependencycheck/utils/JsonArrayFixingInputStream.java",
+      "fileName": "utils/target/classes/org/owasp/dependencycheck/utils/search/FileContentSearch.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "98bac5f43d641efb7f732270ed19ab17abd4e11b"
+          "checksumValue": "5e311785964712babe7d92067cf61d70e5634ed5"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-46",
-      "fileName": "utils/target/classes/org/owasp/dependencycheck/utils/JsonArrayFixingInputStream.class",
+      "fileName": "utils/src/main/java/org/owasp/dependencycheck/utils/search/package-info.java",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "25730a15b3a1bdf574ffe2293fcc6f8e8a515de4"
+          "checksumValue": "17d2cffae6f8e5ae52bf95e809158901e336db21"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-47",
-      "fileName": "utils/target/classes/org/owasp/dependencycheck/utils/Checksum$FileChecksums.class",
+      "fileName": "utils/target/classes/org/owasp/dependencycheck/utils/search/package-info.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "8192316a2c36766fd0b61bd4b0b36eff2c1c33d2"
+          "checksumValue": "6a23cdc1ab9c43e07f40c285522761c60bddf140"
         }
       ]
     }

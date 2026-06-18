@@ -19,8 +19,6 @@ from spdx_from_adg import (
 )
 from app.version_detection.strategies import (
     parse_version_file,
-    parse_kv_version_file,
-    parse_package_json,
     parse_configure_ac,
     parse_cmakelists,
     parse_meson_build,

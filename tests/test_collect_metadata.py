@@ -15,9 +15,16 @@ Covers:
 
 import json
 import os
+import subprocess
+import sys
 import tempfile
+from pathlib import Path
+from unittest import mock
 
 from app.collect_metadata import (
+    _detect_distro,
+    _detect_repo_version,
+    _gcc_version,
     _version_from_tag,
     main,
 )
@@ -229,3 +236,148 @@ class TestMainWithResolver:
         assert "pkg_metadata" in result
         assert "file_to_pkg" in result
         assert "unresolved_files" in result
+
+    def test_default_resolver_auto_detected(self):
+        """main() falls back to auto_detect_resolver when none given."""
+        treedb = _make_treedb([])
+        with tempfile.TemporaryDirectory() as tmpdir:
+            treedb_path = os.path.join(tmpdir, "treedb.json")
+            with open(treedb_path, "w", encoding="utf-8") as f:
+                json.dump(treedb, f)
+            out_dir = os.path.join(tmpdir, "out")
+            with mock.patch(
+                "app.spdx.package_resolver.auto_detect_resolver",
+                return_value=FakeResolver({}),
+            ) as auto:
+                main(treedb_path, "/workspace/repos", out_dir)
+            auto.assert_called_once()
+
+    def test_repo_version_printed(self):
+        """repo_name + config_branch flows through to repo_version."""
+        treedb = _make_treedb([])
+        with tempfile.TemporaryDirectory() as tmpdir:
+            treedb_path = os.path.join(tmpdir, "treedb.json")
+            with open(treedb_path, "w", encoding="utf-8") as f:
+                json.dump(treedb, f)
+            out_dir = os.path.join(tmpdir, "out")
+            main(
+                treedb_path, "/workspace/repos", out_dir,
+                repo_name="curl", config_branch="v7.88.0",
+                resolver=FakeResolver({}),
+            )
+            with open(
+                os.path.join(out_dir, "component_metadata.json"),
+                encoding="utf-8",
+            ) as f:
+                result = json.load(f)
+        assert result["repo_version"] == "7.88.0"
+
+
+# ── _detect_distro() ──────────────────────────────────────
+
+
+class TestDetectDistro:
+
+    def test_reads_pretty_name(self):
+        with tempfile.TemporaryDirectory() as td:
+            p = os.path.join(td, "os-release")
+            with open(p, "w", encoding="utf-8") as f:
+                f.write('NAME="Ubuntu"\nPRETTY_NAME="Ubuntu 22.04.3 LTS"\n')
+            assert _detect_distro(p) == "Ubuntu 22.04.3 LTS"
+
+    def test_no_pretty_name(self):
+        with tempfile.TemporaryDirectory() as td:
+            p = os.path.join(td, "os-release")
+            with open(p, "w", encoding="utf-8") as f:
+                f.write("NAME=Foo\n")
+            assert _detect_distro(p) == "unknown"
+
+    def test_missing_file(self):
+        assert _detect_distro("/no/such/os-release") == "unknown"
+
+
+# ── _gcc_version() ────────────────────────────────────────
+
+
+class TestGccVersion:
+
+    def test_first_line(self):
+        with mock.patch(
+            "app.collect_metadata.subprocess.check_output",
+            return_value="gcc (Ubuntu) 11.4.0\nCopyright\n",
+        ):
+            assert _gcc_version() == "gcc (Ubuntu) 11.4.0"
+
+    def test_missing_gcc(self):
+        with mock.patch(
+            "app.collect_metadata.subprocess.check_output",
+            side_effect=FileNotFoundError,
+        ):
+            assert _gcc_version() == "unknown"
+
+    def test_subprocess_error(self):
+        with mock.patch(
+            "app.collect_metadata.subprocess.check_output",
+            side_effect=subprocess.CalledProcessError(1, "gcc"),
+        ):
+            assert _gcc_version() == "unknown"
+
+
+# ── _detect_repo_version() ────────────────────────────────
+
+
+class TestDetectRepoVersion:
+
+    def test_config_branch_wins(self):
+        # Config tag is used without touching the filesystem.
+        assert _detect_repo_version(
+            "curl", "/no/such/dir", config_branch="v7.88.0",
+        ) == "7.88.0"
+
+    def test_missing_repo_dir(self):
+        assert _detect_repo_version("ghost", "/no/such/dir") is None
+
+    def test_import_error_returns_none(self):
+        with mock.patch.dict(
+            sys.modules, {"app.version_detection": None}
+        ):
+            assert _detect_repo_version(
+                "curl", "/no/such/dir",
+            ) is None
+
+    def test_empty_repo_returns_none(self):
+        with tempfile.TemporaryDirectory() as repos:
+            (Path(repos) / "curl").mkdir()
+            assert _detect_repo_version("curl", repos) is None
+
+    def test_collects_root_include_src_files(self):
+        with tempfile.TemporaryDirectory() as repos:
+            repo = Path(repos) / "curl"
+            (repo / "include").mkdir(parents=True)
+            (repo / "src").mkdir()
+            (repo / "VERSION").write_text("1.0\n", encoding="utf-8")
+            (repo / "include" / "v.h").write_text(
+                "#define V 1\n", encoding="utf-8"
+            )
+            (repo / "src" / "s.h").write_text(
+                "#define S 1\n", encoding="utf-8"
+            )
+
+            captured = {}
+
+            class FakeDetector:
+                def detect(self, name, files):
+                    captured["name"] = name
+                    captured["files"] = files
+                    return "9.9.9"
+
+            with mock.patch(
+                "app.version_detection.VendoredVersionDetector",
+                FakeDetector,
+            ):
+                result = _detect_repo_version("curl", repos)
+
+        assert result == "9.9.9"
+        assert captured["name"] == "curl"
+        assert any(f.endswith("include/v.h") for f in captured["files"])
+        assert any(f.endswith("src/s.h") for f in captured["files"])

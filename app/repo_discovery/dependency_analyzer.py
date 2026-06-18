@@ -66,4 +66,3 @@ class DependencyAnalyzer:
                 )
 
         return flags, list(set(apt_packages))
-
