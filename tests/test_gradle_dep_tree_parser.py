@@ -5,6 +5,7 @@ Tests the Gradle dependency tree parser wrapper and
 GradleDepTreeStrategy with realistic fixture data.
 """
 
+import json
 import subprocess
 import tempfile
 import unittest
@@ -322,6 +323,23 @@ class TestGradleDepTreeStrategy(unittest.TestCase):
             self.assertTrue(
                 (bom_dir / "gradle_deps.json").exists()
             )
+            substeps_file = (
+                bom_dir / "adg_substeps.json"
+            )
+            self.assertTrue(substeps_file.exists())
+            substeps = json.loads(
+                substeps_file.read_text()
+            )
+            self.assertEqual(len(substeps), 2)
+            self.assertEqual(
+                substeps[0]["name"], "treedb",
+            )
+            self.assertEqual(
+                substeps[1]["name"], "dep_tree",
+            )
+            self.assertIn(
+                "wall_sec", substeps[0],
+            )
             mock_runner.run.assert_called_once()
 
     @patch(
@@ -382,6 +400,23 @@ class TestRunGradleDepTreeEdge(unittest.TestCase):
         mock_run.side_effect = FileNotFoundError
         result = run_gradle_dep_tree("/repo")
         self.assertIsNone(result)
+
+    @patch(
+        "app.pipeline.gradle_dep_tree_parser"
+        ".subprocess.run"
+    )
+    def test_offline_no_daemon(self, mock_run):
+        """dep:tree must use --offline and omit --no-daemon
+        to reuse the warm Gradle daemon."""
+        mock_run.return_value = MagicMock(
+            returncode=0, stdout="",
+        )
+        with tempfile.TemporaryDirectory() as td:
+            (Path(td) / "gradlew").touch()
+            run_gradle_dep_tree(td)
+        cmd = mock_run.call_args[0][0]
+        self.assertIn("--offline", cmd)
+        self.assertNotIn("--no-daemon", cmd)
 
 
 class TestFindGradleSubprojectsEdge(unittest.TestCase):

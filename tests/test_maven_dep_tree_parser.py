@@ -5,6 +5,7 @@ Tests the Maven ``dependency:tree`` DOT format parser
 with realistic fixture data from real Maven projects.
 """
 
+import json
 import subprocess
 import tempfile
 import unittest
@@ -508,6 +509,30 @@ class TestRunMavenDepTree(unittest.TestCase):
         self.assertNotIn("-pl", cmd)
         self.assertNotIn("-am", cmd)
 
+    @patch("app.pipeline.maven_dep_tree_parser"
+           ".subprocess.run")
+    def test_offline_and_skip_flags(self, mock_run):
+        """dep:tree must run offline with skip flags to
+        minimise Phase 1 build-time impact."""
+        mock_run.return_value = MagicMock(
+            returncode=0, stdout="",
+        )
+        with tempfile.TemporaryDirectory() as td:
+            (Path(td) / "pom.xml").touch()
+            run_maven_dep_tree(td)
+        cmd = mock_run.call_args[0][0]
+        self.assertIn("-o", cmd)
+        self.assertIn("-DskipTests", cmd)
+        self.assertIn(
+            "-Dmaven.javadoc.skip=true", cmd,
+        )
+        self.assertIn(
+            "-Denforcer.skip=true", cmd,
+        )
+        self.assertIn(
+            "-Dcheckstyle.skip=true", cmd,
+        )
+
 
 # ============================================================
 # Tests: InterceptionStrategy / MavenDepTreeStrategy
@@ -550,6 +575,23 @@ class TestMavenDepTreeStrategy(unittest.TestCase):
             self.assertTrue(ok)
             self.assertTrue(
                 (bom_dir / "maven_deps.json").exists()
+            )
+            substeps_file = (
+                bom_dir / "adg_substeps.json"
+            )
+            self.assertTrue(substeps_file.exists())
+            substeps = json.loads(
+                substeps_file.read_text()
+            )
+            self.assertEqual(len(substeps), 2)
+            self.assertEqual(
+                substeps[0]["name"], "treedb",
+            )
+            self.assertEqual(
+                substeps[1]["name"], "dep_tree",
+            )
+            self.assertIn(
+                "wall_sec", substeps[0],
             )
             mock_runner.run.assert_called_once()
 

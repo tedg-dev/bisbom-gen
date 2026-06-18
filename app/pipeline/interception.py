@@ -17,7 +17,27 @@ Design reference:
     Implementation Design §4.4 — Interception Strategy
 """
 
+import json
+import time
 from abc import ABC, abstractmethod
+from pathlib import Path
+
+
+def _write_adg_substeps(bom_path, substeps):
+    """Write ADG sub-step timings to ``adg_substeps.json``.
+
+    Called by ``generate_adg()`` implementations to persist
+    the wall-clock breakdown (treedb vs dep:tree) for
+    performance analysis.
+
+    Args:
+        bom_path: ``Path`` to the OmniBOR output directory.
+        substeps: List of timing dicts with ``name``,
+            ``tool``, and ``wall_sec`` keys.
+    """
+    out = bom_path / "adg_substeps.json"
+    with open(out, "w", encoding="utf-8") as f:
+        json.dump(substeps, f, indent=2)
 
 
 class InterceptionStrategy(ABC):
@@ -294,17 +314,19 @@ class MavenDepTreeStrategy(InterceptionStrategy):
         2. ``mvn dependency:tree`` captures the declared
            Maven dependency graph.
 
+        Sub-step wall-clock timings are written to
+        ``adg_substeps.json`` in *bom_dir* for
+        performance analysis.
+
         Returns:
             True on success, False on failure.
         """
-        import json
-        from pathlib import Path
-
         from app.pipeline.maven_dep_tree_parser import (
             parse_dot_output,
             run_maven_dep_tree,
         )
 
+        substeps = []
         bom_path = Path(bom_dir)
         bom_path.mkdir(parents=True, exist_ok=True)
         meta_dir = bom_path / "metadata" / "bomsh"
@@ -318,6 +340,7 @@ class MavenDepTreeStrategy(InterceptionStrategy):
             "bomsh_create_bom_java.py",
         )
         treedb_file = meta_dir / "bomsh_omnibor_treedb"
+        t0 = time.monotonic()
         rc = self._runner.run(
             f"{create_bom} -r {repo_dir} "
             f"-j {treedb_file}",
@@ -327,24 +350,39 @@ class MavenDepTreeStrategy(InterceptionStrategy):
                 "for Java workspace"
             ),
         )
+        treedb_sec = time.monotonic() - t0
+        substeps.append({
+            "name": "treedb",
+            "tool": "bomsh_create_bom_java.py",
+            "wall_sec": round(treedb_sec, 2),
+        })
         if rc != 0:
             print(
                 "[ERROR] bomsh_create_bom_java.py "
                 "failed"
             )
+            _write_adg_substeps(bom_path, substeps)
             return False
 
         print(
             f"[OK] OmniBOR treedb written to "
-            f"{treedb_file}"
+            f"{treedb_file} ({treedb_sec:.1f}s)"
         )
 
         # Step 2: Capture Maven dependency graph
+        t0 = time.monotonic()
         dot_output = run_maven_dep_tree(
             repo_dir, runner=self._runner,
             maven_modules=self._maven_modules,
         )
+        deptree_sec = time.monotonic() - t0
+        substeps.append({
+            "name": "dep_tree",
+            "tool": "mvn dependency:tree",
+            "wall_sec": round(deptree_sec, 2),
+        })
         if dot_output is None:
+            _write_adg_substeps(bom_path, substeps)
             return False
 
         deps = parse_dot_output(dot_output)
@@ -361,7 +399,9 @@ class MavenDepTreeStrategy(InterceptionStrategy):
         print(
             f"[OK] Maven dep:tree: "
             f"{len(deps)} dependencies → {out_file}"
+            f" ({deptree_sec:.1f}s)"
         )
+        _write_adg_substeps(bom_path, substeps)
         return True
 
 
@@ -409,16 +449,18 @@ class GradleDepTreeStrategy(InterceptionStrategy):
         2. ``./gradlew dependencies`` captures the declared
            Gradle dependency graph per subproject.
 
+        Sub-step wall-clock timings are written to
+        ``adg_substeps.json`` in *bom_dir* for
+        performance analysis.
+
         Returns:
             True on success, False on failure.
         """
-        import json
-        from pathlib import Path
-
         from app.pipeline.gradle_dep_tree_parser import (
             get_all_gradle_deps,
         )
 
+        substeps = []
         bom_path = Path(bom_dir)
         bom_path.mkdir(parents=True, exist_ok=True)
         meta_dir = bom_path / "metadata" / "bomsh"
@@ -432,6 +474,7 @@ class GradleDepTreeStrategy(InterceptionStrategy):
             "bomsh_create_bom_java.py",
         )
         treedb_file = meta_dir / "bomsh_omnibor_treedb"
+        t0 = time.monotonic()
         rc = self._runner.run(
             f"{create_bom} -r {repo_dir} "
             f"-j {treedb_file}",
@@ -441,20 +484,34 @@ class GradleDepTreeStrategy(InterceptionStrategy):
                 "for Java workspace"
             ),
         )
+        treedb_sec = time.monotonic() - t0
+        substeps.append({
+            "name": "treedb",
+            "tool": "bomsh_create_bom_java.py",
+            "wall_sec": round(treedb_sec, 2),
+        })
         if rc != 0:
             print(
                 "[ERROR] bomsh_create_bom_java.py "
                 "failed"
             )
+            _write_adg_substeps(bom_path, substeps)
             return False
 
         print(
             f"[OK] OmniBOR treedb written to "
-            f"{treedb_file}"
+            f"{treedb_file} ({treedb_sec:.1f}s)"
         )
 
         # Step 2: Capture Gradle dependency graph
+        t0 = time.monotonic()
         deps = get_all_gradle_deps(repo_dir)
+        deptree_sec = time.monotonic() - t0
+        substeps.append({
+            "name": "dep_tree",
+            "tool": "gradlew dependencies",
+            "wall_sec": round(deptree_sec, 2),
+        })
         if not deps:
             print(
                 "[WARN] No dependencies found in "
@@ -468,5 +525,7 @@ class GradleDepTreeStrategy(InterceptionStrategy):
         print(
             f"[OK] Gradle dep:tree: "
             f"{len(deps)} dependencies → {out_file}"
+            f" ({deptree_sec:.1f}s)"
         )
+        _write_adg_substeps(bom_path, substeps)
         return True
