@@ -71,4 +71,3 @@ class BinaryDetector:
                 f"src/{repo_name}",
             ]
         return [repo_name]
-

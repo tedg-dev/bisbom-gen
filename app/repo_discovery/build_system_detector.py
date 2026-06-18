@@ -15,4 +15,3 @@ class BuildSystemDetector:
             if indicator in files:
                 return system
         return "unknown"
-

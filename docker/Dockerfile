@@ -11,6 +11,15 @@
 # ============================================================
 
 # ============================================================
+# Pinned upstream versions (global ARGs, available to all stages
+# after re-declaration). omnibor/bomsh publishes no release tags, so
+# we pin the latest official commit on the default branch. Bump this
+# deliberately and re-run EC2 golden validation — see
+# .windsurf/rules/upstream-pinning.md.
+# ============================================================
+ARG BOMSH_COMMIT=5823f7db7e5bd958e4ff868ae6ea79a7d871bb07
+
+# ============================================================
 # Stage: base — common OS, Python, utilities
 # ============================================================
 FROM ubuntu:22.04 AS base
@@ -138,7 +147,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Default to JDK 21 for newer projects like checkstyle
 ENV JAVA_HOME="/usr/lib/jvm/java-21-openjdk-amd64"
 ENV MAVEN_VERSION=3.9.15
-RUN wget -q "https://dlcdn.apache.org/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz" -O /tmp/maven.tar.gz && \
+# Fetch Maven from the fast CDN mirror, falling back to the permanent
+# Apache archive when the mirror has pruned this pinned version
+# (dlcdn.apache.org only retains current releases).
+RUN wget -q "https://dlcdn.apache.org/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz" -O /tmp/maven.tar.gz || \
+    wget -q "https://archive.apache.org/dist/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz" -O /tmp/maven.tar.gz && \
     tar -C /opt -xzf /tmp/maven.tar.gz && \
     rm /tmp/maven.tar.gz
 # Symlink mvn3.9 for explicit version selection; default mvn uses 3.9.15
@@ -217,7 +230,9 @@ ENV PATH="/root/.cargo/bin:${PATH}"
 #
 # ============================================================
 WORKDIR /opt
-RUN git clone https://github.com/omnibor/bomsh.git
+ARG BOMSH_COMMIT
+RUN git clone https://github.com/omnibor/bomsh.git && \
+    git -C /opt/bomsh checkout "$BOMSH_COMMIT"
 
 # Build bomtrace2 (parallel build OK — no custom source files)
 WORKDIR /opt/bomsh-build
@@ -273,6 +288,14 @@ COPY docker/patches/bomsh_java_fast_classreader.py /opt/bomsh/scripts/bomsh_java
 COPY docker/patches/apply_fast_javap.py /tmp/apply_fast_javap.py
 RUN python3 /tmp/apply_fast_javap.py && rm /tmp/apply_fast_javap.py
 
+# Performance: replace remaining subprocess shell-outs in
+# bomsh_create_bom_java.py (git hash-object, diff -q, find, jar -xf, file)
+# with pure-Python equivalents, plus a parallel pre-hash pass. These were
+# the dominant cost after the javap fix (~3N subprocess spawns per JAR).
+COPY docker/patches/bomsh_java_fast_io.py /opt/bomsh/scripts/bomsh_java_fast_io.py
+COPY docker/patches/apply_fast_io.py /tmp/apply_fast_io.py
+RUN python3 /tmp/apply_fast_io.py && rm /tmp/apply_fast_io.py
+
 # Go-specific bomtrace2 config (watches go compile/link tools + openat syscall)
 COPY docker/bomtrace_go.conf /opt/bomsh/bin/bomtrace_go.conf
 
@@ -304,7 +327,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 ENV JAVA_HOME="/usr/lib/jvm/java-21-openjdk-amd64"
 ENV MAVEN_VERSION=3.9.15
-RUN wget -q "https://dlcdn.apache.org/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz" -O /tmp/maven.tar.gz && \
+# Fetch Maven from the fast CDN mirror, falling back to the permanent
+# Apache archive when the mirror has pruned this pinned version
+# (dlcdn.apache.org only retains current releases).
+RUN wget -q "https://dlcdn.apache.org/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz" -O /tmp/maven.tar.gz || \
+    wget -q "https://archive.apache.org/dist/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz" -O /tmp/maven.tar.gz && \
     tar -C /opt -xzf /tmp/maven.tar.gz && \
     rm /tmp/maven.tar.gz
 RUN ln -sf /opt/apache-maven-${MAVEN_VERSION}/bin/mvn /usr/local/bin/mvn && \
@@ -320,10 +347,11 @@ RUN for settings in \
     done
 ENV PATH="${JAVA_HOME}/bin:${PATH}"
 
-# Only need bomsh scripts (no bomtrace binaries)
-RUN git clone --depth 1 \
-    https://github.com/omnibor/bomsh.git \
-    /opt/bomsh
+# Only need bomsh scripts (no bomtrace binaries). Pinned to the same
+# commit as the standalone stage (full clone so the SHA is checkoutable).
+ARG BOMSH_COMMIT
+RUN git clone https://github.com/omnibor/bomsh.git /opt/bomsh && \
+    git -C /opt/bomsh checkout "$BOMSH_COMMIT"
 
 # Patch bomsh_create_bom_java.py (same as standalone)
 COPY docker/patches/bomsh_java_sourcefile.patch \
@@ -339,6 +367,15 @@ COPY docker/patches/apply_fast_javap.py \
     /tmp/apply_fast_javap.py
 RUN python3 /tmp/apply_fast_javap.py && \
     rm /tmp/apply_fast_javap.py
+
+# Fast IO replacements (same as standalone): pure-Python git hash-object,
+# diff, find, jar extraction, archive detection + parallel pre-hash.
+COPY docker/patches/bomsh_java_fast_io.py \
+    /opt/bomsh/scripts/bomsh_java_fast_io.py
+COPY docker/patches/apply_fast_io.py \
+    /tmp/apply_fast_io.py
+RUN python3 /tmp/apply_fast_io.py && \
+    rm /tmp/apply_fast_io.py
 
 ENV PATH="/opt/bomsh/bin:/opt/bomsh/scripts:${PATH}"
 

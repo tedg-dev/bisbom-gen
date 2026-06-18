@@ -3,9 +3,9 @@
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
   "name": "spring-boot-buildSrc.jar",
-  "documentNamespace": "https://omnibor.io/spdx/spring-boot/e11c47e4-5bf5-4580-82f1-b92117111c19",
+  "documentNamespace": "https://omnibor.io/spdx/spring-boot/f2c03d6e-21b5-4c15-91a6-07520c1220a6",
   "creationInfo": {
-    "created": "2026-05-14T17:26:53Z",
+    "created": "2026-06-18T23:20:26Z",
     "creators": [
       "Tool: omnibor-analysis",
       "Tool: bomsh_create_bom_java.py"
@@ -33,586 +33,6 @@
   "files": [
     {
       "SPDXID": "SPDXRef-File-0",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/EclipseConventions.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "bcd00e0a1e6ac26d669563d3ea009bb3bd100f5a"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-1",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/EclipseConventions.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "180aa9d5edf0da41108a759da14d6220ed39f417"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-2",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/classpath/CheckClasspathForProhibitedDependencies.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "70d39f019462b5abc3e0f426b34fefbcf1ab062b"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-3",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/classpath/CheckClasspathForProhibitedDependencies.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "f9e9ce4c108aeaef9b3458531fb12253fb8541ce"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-4",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/classpath/CheckClasspathForUnnecessaryExclusions.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "3f2e0975a198e201d3f51e793eb65b8b401d8a5e"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-5",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/classpath/CheckClasspathForUnnecessaryExclusions.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "6b52d8e394c16e7bbc6b915f448cbd5ba11c35f5"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-6",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/classpath/CheckClasspathForConflicts.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "3f30319aa3625087afedb03c42aab925a46fb567"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-7",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/classpath/CheckClasspathForConflicts$ClasspathContents.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "ff29b0503b5f142043abb5c8f90496508f1ffd6f"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-8",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/classpath/CheckClasspathForConflicts.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "49e81dbdbd3f6951a4081fa666c30af9882bd20a"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-9",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/classpath/CheckClasspathForUnconstrainedDirectDependencies.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "d10c844208f055a6798f2b83a20a2cefb4857234"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-10",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/classpath/CheckClasspathForUnconstrainedDirectDependencies.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "6a2cb1fb1efdedfc50c7df151757e13788d94442"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-11",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/test/IntegrationTestPlugin.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "5ad3ab63f63370648e361d60e174003125ee3c73"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-12",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/test/IntegrationTestPlugin.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "5df77d55841fd59e1279cf6715fdf3f3f8feb70d"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-13",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/test/DockerTestPlugin.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "d614c388c9602856142fc21cfbda612e726746ae"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-14",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/test/DockerTestPlugin.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "41864c3268e1e5ec4823834de812c991204d9ac5"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-15",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/test/autoconfigure/TestSliceMetadata.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "f8fec31b50e86ba318488027ab2d5d0c0191a5aa"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-16",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/test/autoconfigure/TestSliceMetadata.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "68dce3ca38061274bf8abe763aec363da4fb2041"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-17",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/test/autoconfigure/DocumentTestSlices.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "ffd895d6472a0ba13ca51ad1f99d19bac4157e93"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-18",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/test/autoconfigure/DocumentTestSlices.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "0ffef6e0d8f4c1b512cfe6bec39a1f78c33ce01a"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-19",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/test/autoconfigure/DocumentTestSlices$TestSlice.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "88475e2753dd6068075a28e026f439febf1b8189"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-20",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/test/DockerTestBuildService.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "2f70a735513c5036052c4e9410fe60156de0f6b4"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-21",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/test/DockerTestBuildService.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "82da4587144f0623576bb9afdbc96cd735c8ef2b"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-22",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/test/SystemTestPlugin.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "1fb2e5330cd6d7abe7083b42652ef1f9d8df54b0"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-23",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/test/SystemTestPlugin.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "c98f1d296aa2e5c05a514bc9c2ac7d626aebe1c1"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-24",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/springframework/CheckSpringFactories.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "6436b8756e1a690700c06ce364a8d88ad1dedeac"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-25",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/springframework/CheckSpringFactories.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "d47d4de1b63ff23a888866197ec2331ece600e77"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-26",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/springframework/CheckAotFactories.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "643f293025337b34cf3221725b111a106b041a1f"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-27",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/springframework/CheckAotFactories.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "b89da4365a10256038f641fa72f350f2ee4c3e33"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-28",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/springframework/CheckFactoriesFile.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "9c4227fd1b5c1b2e47f9f12d31fe767d050e93c8"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-29",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/springframework/CheckFactoriesFile.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "26998228e0adbed37302e5ee181c1c8541473f52"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-30",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/mavenplugin/PrepareMavenBinaries.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "017f87322bab63995965e9379aadb118be286c1e"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-31",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/mavenplugin/PrepareMavenBinaries.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "271abadf32601abb22c6b13b60a90098d8ab4800"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-32",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/mavenplugin/MavenPluginPlugin.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "ce576a1057da11a28234cb4a7635b3bae8b89bd4"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-33",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/mavenplugin/MavenPluginPlugin$FormatHelpMojoSource.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "2e3b12a31c35616907ae624dd52bc180cf1c50e6"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-34",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/mavenplugin/MavenExec.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "d8ffb743beb33a5f1ed75ce5f687e3100bcb6cbe"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-35",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/mavenplugin/MavenExec.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "fa56c700c893d355291e5da4bbffb70fca56a791"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-36",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/mavenplugin/MavenPluginPlugin.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "aa64ea9338993ac1f7043d6973edcace6e25a3e8"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-37",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/mavenplugin/DocumentPluginGoals.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "414ae145700752989be265802d0eca920abd08c9"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-38",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/mavenplugin/DocumentPluginGoals.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "307c0f94de7534bb14aab24d9a15d8e37b954fc6"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-39",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/mavenplugin/MavenPluginPlugin$MavenRepositoryComponentMetadataRule.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "1a89473d98a890bab7dfc4e1d471e583795583cf"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-40",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/mavenplugin/PluginXmlParser.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "eac52c64418fba93d310627a232c0de6e0a26e76"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-41",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/mavenplugin/PluginXmlParser$IterableNodeList.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "cdf871b425561549883f665ecea870f0592d2cad"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-42",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/mavenplugin/PluginXmlParser$IterableNodeList$1.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "7ced5bb330ac2f891142fc35436a7bec972fa82d"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-43",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/mavenplugin/PluginXmlParser$Mojo.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "25e91ff33d1732b8a50707857a97007518821430"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-44",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/mavenplugin/PluginXmlParser.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "8bf50274fe902e7e6fbc208ae880fef8fa7f7c9a"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-45",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/mavenplugin/MavenPluginPlugin$RuntimeClasspathMavenRepository.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "a08fd526c706ba07fece794fb6e99604b3b44547"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-46",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/mavenplugin/PluginXmlParser$Parameter.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "0090dc40d2de7a2158119e837a3e90bb38c39c52"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-47",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/mavenplugin/PluginXmlParser$Plugin.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "5a3a8cfeb31c4288ad09d5d62319d5d041c3de22"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-48",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/mavenplugin/MavenPluginPlugin$EffectiveBom.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "969249fbc0fe3fedc7eb8f539f5508bdbba34b0d"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-49",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/mavenplugin/MavenPluginPlugin$ExtractVersionProperties.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "369d6ad81d744fe8d9203eb5cf8bc85597fe647d"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-50",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/TestFixturesConventions.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "06316d71f9d0bed6ef8735b5e189f0e995479663"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-51",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/TestFixturesConventions.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "8f4217767b0bab9c82998555e54c6a98e9b09895"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-52",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/cli/HomebrewFormula.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "67e5491c6ce287d78effa2f85622a112e34b0af8"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-53",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/cli/HomebrewFormula.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "ec97f1c3497cb42490cff9b3769a0b92d7e8f969"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-54",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/NoHttpConventions.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "7b4847ff2aec130a26abb6b5e50bed30cc16db36"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-55",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/NoHttpConventions.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "8312bf6b1d75a8a6db89171c09632922dbd5187b"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-56",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/MavenPublishingConventions.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "8bc2fb6efdb0ae37d07321f67e22ba2b091d917e"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-57",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/MavenPublishingConventions.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "6ddb0c52e59881b07ccb7178cc93f643f1c0d4fb"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-58",
       "fileName": "buildSrc/src/main/java/org/springframework/boot/build/AntoraConventions.java",
       "checksums": [
         {
@@ -622,7 +42,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-59",
+      "SPDXID": "SPDXRef-File-1",
       "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/AntoraConventions.class",
       "checksums": [
         {
@@ -632,197 +52,67 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-60",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/optional/OptionalDependenciesPlugin.java",
+      "SPDXID": "SPDXRef-File-2",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/ConventionsPlugin.java",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "9dfdfa5176f196f3d2751b14f458f3678b6839e1"
+          "checksumValue": "b8efe10f2df0f121f433e87faccef4f6142a741a"
         }
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-61",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/optional/OptionalDependenciesPlugin.class",
+      "SPDXID": "SPDXRef-File-3",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/ConventionsPlugin.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "d5d4a67f87057018fc53dc7b91076db9c1b6528e"
+          "checksumValue": "ef374cd3093d2376a825520de83bce4d7ce75bbf"
         }
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-62",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/architecture/ArchitectureRules.java",
+      "SPDXID": "SPDXRef-File-4",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/DeployedPlugin.java",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "387b76acc46382e5bd4b85fcba5c40bf1e897264"
+          "checksumValue": "e2aae45f806ca09689707bc560321a1a3d42c0f1"
         }
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-63",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/architecture/ArchitectureRules$1.class",
+      "SPDXID": "SPDXRef-File-5",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/DeployedPlugin.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "90eec4dd31127b51464d7af2022453e81d6cdb11"
+          "checksumValue": "48e602c14dd89f4d0394fe74ca073fb26538f607"
         }
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-64",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/architecture/ArchitectureCheck.java",
+      "SPDXID": "SPDXRef-File-6",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/EclipseConventions.java",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "de967e41762fe16eb0f8d2736e4cc198f7f4ceb6"
+          "checksumValue": "bcd00e0a1e6ac26d669563d3ea009bb3bd100f5a"
         }
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-65",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/architecture/ArchitectureCheck.class",
+      "SPDXID": "SPDXRef-File-7",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/EclipseConventions.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "1e5ad681dafae46f927f8334681d1459397820ee"
+          "checksumValue": "180aa9d5edf0da41108a759da14d6220ed39f417"
         }
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-66",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/architecture/ArchitecturePlugin.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "44bf79a32d46cba125b287c6dbb943968247b9ef"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-67",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/architecture/ArchitecturePlugin.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "59c159f56fd4e963eea23abd7f07cb2c5d4aed7f"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-68",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/architecture/ArchitectureRules.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "64a7ef1c116f637759ae6deb075f5bde861d7aad"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-69",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/artifacts/ArtifactRelease.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "d0c28ccafdb11dbdbec31ed8ae8f057516721b45"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-70",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/artifacts/ArtifactRelease$Type.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "0f106fec0acc1b2603838e3ce5c3f0aff7aaa1c6"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-71",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/artifacts/ArtifactRelease.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "0d0eba0df2fcb7d32244687200c402655a309772"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-72",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/starters/DocumentStarters.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "fabbd7a93aad62f5cb20958f928dbbe2ee938c3e"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-73",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/starters/DocumentStarters$Starter.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "0154b6cd179dd69589444055c9ac7185d7e9cf73"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-74",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/starters/StarterMetadata.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "fc6fa76c5e6ff3386dad2e615a1daa6776e97bb9"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-75",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/starters/StarterMetadata.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "a55db99f95a3d6ee6b2e7066928b0e3f9d73e68a"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-76",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/starters/DocumentStarters.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "ded4b39a60c818ef126cb29fbc996c3f34c252fd"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-77",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/starters/StarterPlugin.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "cdf289de50b8984eedc39e51b00d19251e00aa37"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-78",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/starters/StarterPlugin.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "a606a1c23061ba5ffd1cc9b3aac4ff7b41b92d2a"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-79",
+      "SPDXID": "SPDXRef-File-8",
       "fileName": "buildSrc/src/main/java/org/springframework/boot/build/ExtractResources.java",
       "checksums": [
         {
@@ -832,7 +122,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-80",
+      "SPDXID": "SPDXRef-File-9",
       "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/ExtractResources.class",
       "checksums": [
         {
@@ -842,7 +132,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-81",
+      "SPDXID": "SPDXRef-File-10",
       "fileName": "buildSrc/src/main/java/org/springframework/boot/build/JavaConventions.java",
       "checksums": [
         {
@@ -852,7 +142,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-82",
+      "SPDXID": "SPDXRef-File-11",
       "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/JavaConventions.class",
       "checksums": [
         {
@@ -862,62 +152,772 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-83",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/docs/ApplicationRunner.java",
+      "SPDXID": "SPDXRef-File-12",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/KotlinConventions.java",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "9f43c059d50e2ae083b70216f7e3db73a54779c7"
+          "checksumValue": "32b38af396defeecbf5f48881985d2820a4e16d0"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-13",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/KotlinConventions.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "ff879df2bd020902f11ad225b553e0709f250065"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-14",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/MavenPublishingConventions.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "8bc2fb6efdb0ae37d07321f67e22ba2b091d917e"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-15",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/MavenPublishingConventions.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "6ddb0c52e59881b07ccb7178cc93f643f1c0d4fb"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-16",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/MavenRepositoryPlugin.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "1cd9570d30de989171abc0dc24724d8247d715ac"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-17",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/MavenRepositoryPlugin$CleanAction.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "2f8acb12a994b36f04cdfe9996680e20e7b947d2"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-18",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/MavenRepositoryPlugin.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "3f4993cacdeca2ec9333a064a3e4b9c307bc0116"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-19",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/NoHttpConventions.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "7b4847ff2aec130a26abb6b5e50bed30cc16db36"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-20",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/NoHttpConventions.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "8312bf6b1d75a8a6db89171c09632922dbd5187b"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-21",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/RepositoryTransformersExtension.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "1fa642cbf0e3ff7ebe244324521032b0299f94b6"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-22",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/RepositoryTransformersExtension.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "64b7abc4e8a51d931aa0a5e6c19e0b65c90e9081"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-23",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/SyncAppSource.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "0281f2896e91eb25614fc38ec40299ae19fbb615"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-24",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/SyncAppSource.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "17764b3666f787961be7d60e29937410647f4838"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-25",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/TestFixturesConventions.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "06316d71f9d0bed6ef8735b5e189f0e995479663"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-26",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/TestFixturesConventions.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "8f4217767b0bab9c82998555e54c6a98e9b09895"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-27",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/WarConventions.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "6411a791f3e5c5d8aefe38ab1e2c4832db613113"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-28",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/WarConventions.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "8061670a96b8b7d19c1c342452b06e40d7479a08"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-29",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/antora/AggregateContentContribution.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "d29b398f0ef95cf4ff57b0182e2680d2fcbcbf9b"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-30",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/antora/AggregateContentContribution.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "46c54e282a51ce7570a662b5f331864a186d0e2d"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-31",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/antora/AntoraAsciidocAttributes.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "d32004c8794a6a51adfb3e95b8c1d4caa21b1ccc"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-32",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/antora/AntoraAsciidocAttributes$1.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "2ed576f2d672d7ee9b2793bed90343a41a3f9707"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-33",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/antora/AntoraAsciidocAttributes.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "dcd9a74fd3dd9b36b8f9b35002866124dd759cfd"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-34",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/antora/AntoraContributorPlugin.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "d7513b56382956121a1527035f53d3ce570aee26"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-35",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/antora/AntoraContributorPlugin$Contribution.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "4fa457cac3030f6cbb2ac3b3bf81b8eaef25e700"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-36",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/antora/AntoraContributorPlugin.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "8f40082a3eaa468f5ad7d3894677b10f47063843"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-37",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/antora/AntoraDependenciesPlugin.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "cbb0f3b250f78c805ff9e95ad2a8015060691ddc"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-38",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/antora/AntoraDependenciesPlugin$AntoraDependency.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "34ce67f9e8ebcd9b627418a1c7faf48477d5bbc3"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-39",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/antora/AntoraDependenciesPlugin.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "51bd26181ccc6e13b35186437449ed4608dbd6e2"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-40",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/antora/CatalogContentContribution.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "d8861335d3d873dfbd65bf648d4f86ee61b249e6"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-41",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/antora/CatalogContentContribution.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "bde3280069de636996a1b59981a372626bdea436"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-42",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/antora/ConsumableContentContribution.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "ec84fcd4dde60126061fe137efba6240c58f317c"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-43",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/antora/ConsumableContentContribution.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "045d54651ce6df45e4045ec15deac4bf4f69e030"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-44",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/antora/ContentContribution.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "a9ba63c6ec423c2f3a90ab414144a34e299fb23b"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-45",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/antora/ContentContribution.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "6ab9ded41faa57f3211d8c00601b64615a03b50a"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-46",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/antora/Contribution.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "37a9d5b45c39f20d3a5766c842bf1cfebda79d76"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-47",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/antora/Contribution.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "c0346b54d0e5fbbfcd23adf39a03f40998c772c6"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-48",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/antora/CopyAntoraContent.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "024fc00586371ad392df05a129cde635ef66bd50"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-49",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/antora/CopyAntoraContent.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "40f0f60d21730ce21e4ef3fc644a78c07cb30139"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-50",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/antora/Extensions.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "608cb2f7010e2a6bc2cb3d41a580804a9fa8db59"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-51",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/antora/Extensions$AntoraExtensionsConfiguration$Customizer.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "252242fe0c2bc4ef6217e51051be3b33f154b788"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-52",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/antora/Extensions$AntoraExtensionsConfiguration$RootComponent.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "680f3628f8f69bf6e67106e9793b3f1f2dccd708"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-53",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/antora/Extensions$AntoraExtensionsConfiguration$Xref.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "fda1d5324632cb3f2e781d865277231148bbcc18"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-54",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/antora/Extensions$AntoraExtensionsConfiguration$ZipContentsCollector$AlwaysInclude.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "46fa8381dde65076b3d809c6240e06982c701d7b"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-55",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/antora/Extensions$AntoraExtensionsConfiguration$ZipContentsCollector.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "64d3c52764982701e2308f9c7e618d9f3b5e17b8"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-56",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/antora/Extensions$AntoraExtensionsConfiguration.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "26783b32718d38b9dc3e3cd145b371bad2b000bd"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-57",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/antora/Extensions$Extension.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "dd9baab235bc026affe7709a013fdd4ff4bd7308"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-58",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/antora/Extensions.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "2da1a5965cac14b40cae267794e4f2a8c247c85c"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-59",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/antora/GenerateAntoraPlaybook.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "92127aced3ac2cd21cf35b86b5b641680e4f0cb7"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-60",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/antora/GenerateAntoraPlaybook$AntoraExtensions$Xref.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "5bac2e082e2422e4c2a380f30e882e6c0cee7b16"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-61",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/antora/GenerateAntoraPlaybook$AntoraExtensions$ZipContentsCollector.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "4c3589438ed86de789f4c2706414bb83e6ec5a3e"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-62",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/antora/GenerateAntoraPlaybook$AntoraExtensions.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "048b771227dd57c200e82a7276300fcbab6bf8f5"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-63",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/antora/GenerateAntoraPlaybook$AsciidocExtensions.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "e5e7fb4314a6452bf26ddf1c415b1e7d6bda5787"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-64",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/antora/GenerateAntoraPlaybook$ContentSource.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "779806b6aa67238d66a32bd9e99df7dbd48d10b8"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-65",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/antora/GenerateAntoraPlaybook.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "a47f912041781f5fea28651a7c966907fc9b167b"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-66",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/antora/LocalAggregateContentContribution.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "a3cac6242a1301d1cd8be74bf910e08b5cd40025"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-67",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/antora/LocalAggregateContentContribution.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "93ba9b0a7ac5f05a7670b56ec958025fbaa04f0e"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-68",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/antora/SourceContribution.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "bd793cc1c03c11db87df051164b7ec850efbfd82"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-69",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/antora/SourceContribution.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "352ef7bc8c65561c3946bf3a873b034dec90e37f"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-70",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/antora/SyncAntoraSource.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "6e955c8a38c4574ad7735ae2b5ab6328b4bc8034"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-71",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/antora/SyncAntoraSource.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "6b8306d398b9a08edb7d21229864b26cd9f60a80"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-72",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/architecture/ArchitectureCheck.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "de967e41762fe16eb0f8d2736e4cc198f7f4ceb6"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-73",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/architecture/ArchitectureCheck.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "1e5ad681dafae46f927f8334681d1459397820ee"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-74",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/architecture/ArchitecturePlugin.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "44bf79a32d46cba125b287c6dbb943968247b9ef"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-75",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/architecture/ArchitecturePlugin.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "59c159f56fd4e963eea23abd7f07cb2c5d4aed7f"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-76",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/architecture/ArchitectureRules.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "387b76acc46382e5bd4b85fcba5c40bf1e897264"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-77",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/architecture/ArchitectureRules$1.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "90eec4dd31127b51464d7af2022453e81d6cdb11"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-78",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/architecture/ArchitectureRules.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "64a7ef1c116f637759ae6deb075f5bde861d7aad"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-79",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/artifacts/ArtifactRelease.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "d0c28ccafdb11dbdbec31ed8ae8f057516721b45"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-80",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/artifacts/ArtifactRelease$Type.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "0f106fec0acc1b2603838e3ce5c3f0aff7aaa1c6"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-81",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/artifacts/ArtifactRelease.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "0d0eba0df2fcb7d32244687200c402655a309772"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-82",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/autoconfigure/AutoConfigurationMetadata.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "bf24d219dd252ad60c02d7165469daada72b02d5"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-83",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/autoconfigure/AutoConfigurationMetadata.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "34cd50511438f7addbee694e29feb97edfc0ebbf"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-84",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/docs/ApplicationRunner.class",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/autoconfigure/AutoConfigurationPlugin.java",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "4079b1e8aa0bc68c623eeaa004f1906930123d40"
+          "checksumValue": "86a552466b8a1ac90595a561823a2cc603fb08c0"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-85",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/processors/AnnotationProcessorPlugin.java",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/autoconfigure/AutoConfigurationPlugin$1.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "bb10dc0734eace9dc50c55239fa9971b8ac6cf00"
+          "checksumValue": "fc45abb450f9e4f02d41a11a5389c562a99355ba"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-86",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/processors/AnnotationProcessorPlugin.class",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/autoconfigure/AutoConfigurationPlugin$AutoConfigurationImports.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "5d2dc8e672b3eba5f272dbfa7f7449446d807b95"
+          "checksumValue": "659fcbf68c77c2a2eded0f16e776e40772de117d"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-87",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/autoconfigure/DocumentAutoConfigurationClasses.java",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/autoconfigure/AutoConfigurationPlugin.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "4d34cba44d91232eb1c0370c5b18c37d124b23c1"
+          "checksumValue": "df1fd9f5b7c9d512bbb7296b63898425e13c2735"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-88",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/autoconfigure/DocumentAutoConfigurationClasses$AutoConfigurationClass.class",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/autoconfigure/DocumentAutoConfigurationClasses.java",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "6ea207dac3930da3268cea355ba5cbce13b36a1b"
+          "checksumValue": "4d34cba44d91232eb1c0370c5b18c37d124b23c1"
         }
       ]
     },
@@ -933,66 +933,16 @@
     },
     {
       "SPDXID": "SPDXRef-File-90",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/autoconfigure/AutoConfigurationPlugin.java",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/autoconfigure/DocumentAutoConfigurationClasses$AutoConfigurationClass.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "86a552466b8a1ac90595a561823a2cc603fb08c0"
+          "checksumValue": "6ea207dac3930da3268cea355ba5cbce13b36a1b"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-91",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/autoconfigure/AutoConfigurationPlugin.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "df1fd9f5b7c9d512bbb7296b63898425e13c2735"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-92",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/autoconfigure/AutoConfigurationPlugin$1.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "fc45abb450f9e4f02d41a11a5389c562a99355ba"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-93",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/autoconfigure/AutoConfigurationPlugin$AutoConfigurationImports.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "659fcbf68c77c2a2eded0f16e776e40772de117d"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-94",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/autoconfigure/AutoConfigurationMetadata.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "bf24d219dd252ad60c02d7165469daada72b02d5"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-95",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/autoconfigure/AutoConfigurationMetadata.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "34cd50511438f7addbee694e29feb97edfc0ebbf"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-96",
       "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/autoconfigure/DocumentAutoConfigurationClasses.class",
       "checksums": [
         {
@@ -1002,757 +952,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-97",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/constraints/ExtractVersionConstraints.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "e1147c672d3ea54bda7f2f2cb54265d6c67c1ace"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-98",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/constraints/ExtractVersionConstraints.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "22200834e03f7629469fdd66c7a34f9212b7c99a"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-99",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/constraints/DocumentConstrainedVersions.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "e70502f785fcd8b6551453270b756c1068be7b7a"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-100",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/constraints/DocumentConstrainedVersions.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "f1e4112c3f9d80a494c7ac081a6b0a481d57ce8c"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-101",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/constraints/DocumentVersionProperties.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "ef1c7c8647adb1878b04136e21e2ed7124913950"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-102",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/constraints/DocumentVersionProperties.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "a4128961a6da3f92980a715516d360c5e6dd17f9"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-103",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/constraints/ExtractVersionConstraints$ConstrainedVersion.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "32fc934dfbfee3b56127c3a52a6a8d4c854a8b83"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-104",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/constraints/ExtractVersionConstraints$VersionProperty.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "2b662c4c8fe14fd65d42dd1635b0d20fd740b758"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-105",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/testing/TestResultsOverview.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "56618f05c41b3e6f956f281ba2f10ebc17a85da8"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-106",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/testing/TestResultsOverview$TestFailure.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "4137c15231b8d70f4d460d78c9038836b66e8562"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-107",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/testing/TestFailuresPlugin.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "77f7dcf700717c04eea23cf81434588ae9e9a28c"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-108",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/testing/TestFailuresPlugin$FailureRecordingTestListener.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "06aeee83c9dc5cf01640bb7eb2d4c470bf20e77f"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-109",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/testing/TestResultsOverview.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "ff489bdb69544837e5f9232601f88f14b8a13e78"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-110",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/testing/TestFailuresPlugin.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "18ad0afc5104c0c08ee75cacc732661e4f7c5db1"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-111",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/properties/BuildProperties.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "81cac24c18909be1b8c960e72689584f72d79a75"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-112",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/properties/BuildProperties.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "1a568aa02d9a23a68ba3e125c9026e668fe2f4a5"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-113",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/properties/BuildProperties$GitHub.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "7cee6866ccaac7126aa408e7bad35ddf23cd836c"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-114",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/properties/BuildProperties$1.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "952fbcabd8748101b6b843a250a8023d3a82ad41"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-115",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/properties/BuildType.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "428b7b423ca09c49890f260fe2336550c61c7a56"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-116",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/properties/BuildType.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "905becaff19ea4b2669be14db7a786076165d797"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-117",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/devtools/DocumentDevtoolsPropertyDefaults.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "106e53465743e6597ac1c6dd742f21d9313040d2"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-118",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/devtools/DocumentDevtoolsPropertyDefaults.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "e476c580a59a14bf69974155b61624f813861ba1"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-119",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/MavenRepositoryPlugin.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "1cd9570d30de989171abc0dc24724d8247d715ac"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-120",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/MavenRepositoryPlugin$CleanAction.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "2f8acb12a994b36f04cdfe9996680e20e7b947d2"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-121",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/DeployedPlugin.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "e2aae45f806ca09689707bc560321a1a3d42c0f1"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-122",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/DeployedPlugin.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "48e602c14dd89f4d0394fe74ca073fb26538f607"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-123",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/WarConventions.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "6411a791f3e5c5d8aefe38ab1e2c4832db613113"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-124",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/WarConventions.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "8061670a96b8b7d19c1c342452b06e40d7479a08"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-125",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/ConventionsPlugin.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "b8efe10f2df0f121f433e87faccef4f6142a741a"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-126",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/ConventionsPlugin.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "ef374cd3093d2376a825520de83bce4d7ce75bbf"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-127",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/antora/CatalogContentContribution.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "d8861335d3d873dfbd65bf648d4f86ee61b249e6"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-128",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/antora/CatalogContentContribution.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "bde3280069de636996a1b59981a372626bdea436"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-129",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/antora/AntoraDependenciesPlugin.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "cbb0f3b250f78c805ff9e95ad2a8015060691ddc"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-130",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/antora/AntoraDependenciesPlugin.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "51bd26181ccc6e13b35186437449ed4608dbd6e2"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-131",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/antora/GenerateAntoraPlaybook.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "92127aced3ac2cd21cf35b86b5b641680e4f0cb7"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-132",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/antora/GenerateAntoraPlaybook$AsciidocExtensions.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "e5e7fb4314a6452bf26ddf1c415b1e7d6bda5787"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-133",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/antora/LocalAggregateContentContribution.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "a3cac6242a1301d1cd8be74bf910e08b5cd40025"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-134",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/antora/LocalAggregateContentContribution.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "93ba9b0a7ac5f05a7670b56ec958025fbaa04f0e"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-135",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/antora/Extensions.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "608cb2f7010e2a6bc2cb3d41a580804a9fa8db59"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-136",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/antora/Extensions$AntoraExtensionsConfiguration$RootComponent.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "680f3628f8f69bf6e67106e9793b3f1f2dccd708"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-137",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/antora/GenerateAntoraPlaybook$ContentSource.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "779806b6aa67238d66a32bd9e99df7dbd48d10b8"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-138",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/antora/Extensions$AntoraExtensionsConfiguration$ZipContentsCollector.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "64d3c52764982701e2308f9c7e618d9f3b5e17b8"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-139",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/antora/AntoraAsciidocAttributes.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "d32004c8794a6a51adfb3e95b8c1d4caa21b1ccc"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-140",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/antora/AntoraAsciidocAttributes.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "dcd9a74fd3dd9b36b8f9b35002866124dd759cfd"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-141",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/antora/Extensions$AntoraExtensionsConfiguration$ZipContentsCollector$AlwaysInclude.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "46fa8381dde65076b3d809c6240e06982c701d7b"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-142",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/antora/Extensions$AntoraExtensionsConfiguration.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "26783b32718d38b9dc3e3cd145b371bad2b000bd"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-143",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/antora/SyncAntoraSource.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "6e955c8a38c4574ad7735ae2b5ab6328b4bc8034"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-144",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/antora/SyncAntoraSource.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "6b8306d398b9a08edb7d21229864b26cd9f60a80"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-145",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/antora/ConsumableContentContribution.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "ec84fcd4dde60126061fe137efba6240c58f317c"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-146",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/antora/ConsumableContentContribution.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "045d54651ce6df45e4045ec15deac4bf4f69e030"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-147",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/antora/GenerateAntoraPlaybook$AntoraExtensions.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "048b771227dd57c200e82a7276300fcbab6bf8f5"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-148",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/antora/Contribution.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "37a9d5b45c39f20d3a5766c842bf1cfebda79d76"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-149",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/antora/Contribution.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "c0346b54d0e5fbbfcd23adf39a03f40998c772c6"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-150",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/antora/ContentContribution.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "a9ba63c6ec423c2f3a90ab414144a34e299fb23b"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-151",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/antora/ContentContribution.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "6ab9ded41faa57f3211d8c00601b64615a03b50a"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-152",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/antora/GenerateAntoraPlaybook$AntoraExtensions$ZipContentsCollector.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "4c3589438ed86de789f4c2706414bb83e6ec5a3e"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-153",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/antora/Extensions$Extension.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "dd9baab235bc026affe7709a013fdd4ff4bd7308"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-154",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/antora/GenerateAntoraPlaybook$AntoraExtensions$Xref.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "5bac2e082e2422e4c2a380f30e882e6c0cee7b16"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-155",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/antora/AggregateContentContribution.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "d29b398f0ef95cf4ff57b0182e2680d2fcbcbf9b"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-156",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/antora/AggregateContentContribution.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "46c54e282a51ce7570a662b5f331864a186d0e2d"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-157",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/antora/Extensions$AntoraExtensionsConfiguration$Xref.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "fda1d5324632cb3f2e781d865277231148bbcc18"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-158",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/antora/AntoraContributorPlugin.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "d7513b56382956121a1527035f53d3ce570aee26"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-159",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/antora/AntoraContributorPlugin$Contribution.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "4fa457cac3030f6cbb2ac3b3bf81b8eaef25e700"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-160",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/antora/Extensions.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "2da1a5965cac14b40cae267794e4f2a8c247c85c"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-161",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/antora/Extensions$AntoraExtensionsConfiguration$Customizer.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "252242fe0c2bc4ef6217e51051be3b33f154b788"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-162",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/antora/CopyAntoraContent.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "024fc00586371ad392df05a129cde635ef66bd50"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-163",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/antora/CopyAntoraContent.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "40f0f60d21730ce21e4ef3fc644a78c07cb30139"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-164",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/antora/AntoraAsciidocAttributes$1.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "2ed576f2d672d7ee9b2793bed90343a41a3f9707"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-165",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/antora/AntoraDependenciesPlugin$AntoraDependency.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "34ce67f9e8ebcd9b627418a1c7faf48477d5bbc3"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-166",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/antora/SourceContribution.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "bd793cc1c03c11db87df051164b7ec850efbfd82"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-167",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/antora/SourceContribution.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "352ef7bc8c65561c3946bf3a873b034dec90e37f"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-168",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/antora/GenerateAntoraPlaybook.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "a47f912041781f5fea28651a7c966907fc9b167b"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-169",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/antora/AntoraContributorPlugin.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "8f40082a3eaa468f5ad7d3894677b10f47063843"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-170",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/bom/BomPlugin.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "edb4154582411303a8509adb52ec63d6d71bd833"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-171",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/BomPlugin.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "5a93f7c98c44784370ac43f453cb519414713970"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-172",
+      "SPDXID": "SPDXRef-File-92",
       "fileName": "buildSrc/src/main/java/org/springframework/boot/build/bom/BomExtension.java",
       "checksums": [
         {
@@ -1762,987 +962,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-173",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/BomExtension$Upgrade.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "108d9f6ff8df61abb2ccb22397f81e6a2f2a52da"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-174",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/bom/Library.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "6a99a434038fbbb46e7bcac589a9c19ce0242143"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-175",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/Library$LibraryVersion.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "2a2b325cc30e19f3321e205f2e791465d7de0a77"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-176",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/BomExtension$UpgradeHandler.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "11d1bdacdf240e145962bacb45d154474c1e526d"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-177",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/BomExtension$LinksHandler.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "a8ead87973da617eaf17f55aec6ce74ea60e305a"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-178",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/Library$Module.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "6502a9277c830077d21bb0eca7bb9f5751489665"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-179",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/bom/CheckLinks.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "7975ef6c7a3125d815fcbced90f251506ff15165"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-180",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/CheckLinks.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "3f7e5a5c84acc4497ef0d2d0a0dac8b651352a7d"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-181",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/bom/UpgradePolicy.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "340c29a7a1c624bc4a01c81b50b5bd7122e1fc1f"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-182",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/UpgradePolicy.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "8264e58d5cf524d37b993bab6fb8938df5b6fefc"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-183",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/Library$ProhibitedVersion.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "c2e09f4dab6bafb7d3c70bcc6427ccbc123eecaf"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-184",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/Library.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "05ee55f284bc25eceaa1f4a4d7e1add2c85dc46a"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-185",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/Library$Link.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "040cf9f458befaa26781bafd6224ea8576588b69"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-186",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/BomExtension$LibraryHandler$AlignWithHandler$VersionHandler.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "d0316554da4c8c9fadc8c04e72cdd27b4f7ebd8a"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-187",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/bom/ManagedDependencies.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "cb6ca9581c3e89924b5b8d40746eabcd67fb77b0"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-188",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/ManagedDependencies.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "ea63cbceacd3d20cf40a7e601dc9ceefc7d4a728"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-189",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/Library$Group.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "b7f0a1cace19d4049aade5665de376a9c1f83bcf"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-190",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/bom/bomr/MoveToSnapshots.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "a4147a74ee52c2fd072166f27a6a995a9bed263e"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-191",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/bomr/MoveToSnapshots$1.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "ac87c77eb8eed0d52ec5f3d314aa933e439afe19"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-192",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/bom/bomr/github/StandardGitHub.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "1c880fb99c829134bfe4ee1736cfb22a0076a028"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-193",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/bomr/github/StandardGitHub.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "9323053870103d513fef9ac2b25c481828ce8029"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-194",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/bom/bomr/github/GitHubRepository.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "d1460a9506ff0c576d56f530c0ebd50e891a918a"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-195",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/bomr/github/GitHubRepository.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "9b32d1a12441ecf79e70b6711df29ab233962ccc"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-196",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/bom/bomr/github/Milestone.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "38d3f1dd5e27cf1180bf631f31124d1f225d6e3f"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-197",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/bomr/github/Milestone.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "c50ad911e5b2554571a765ddb3efb997412f1e04"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-198",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/bom/bomr/github/Issue.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "4eda2647fa9de0c7f182d9463e972953b7e9343a"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-199",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/bomr/github/Issue$State.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "760a8a3f2ec85b505520cf89aea496cea135de03"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-200",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/bom/bomr/github/GitHub.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "879caec26ef21cacbb555632fb7d932b7288cf65"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-201",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/bomr/github/GitHub.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "a1375736e6aa6387773796178847dc2694dbd55b"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-202",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/bom/bomr/github/StandardGitHubRepository.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "2a5fb9ba527f0d5bc622309b1add42fe290990fa"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-203",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/bomr/github/StandardGitHubRepository.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "1bf58892d9060d07a65a8fe4e434cf2cb2395b00"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-204",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/bomr/github/Issue.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "b93f2162ef38c8db119d3cf49ca1d1d17d0bfd72"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-205",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/bom/bomr/UpgradeDependencies.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "713a6b51e0deb9d018d3b75e285ec0d8f30a6d0c"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-206",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/bomr/UpgradeDependencies.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "1416d78393a6b4cedb4821d9ce42e32b6c040889"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-207",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/bom/bomr/MavenMetadataVersionResolver.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "f7b5c581914584edbfeeda7e3f31b9f0432d6f1d"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-208",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/bomr/MavenMetadataVersionResolver.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "4409316752ad8791c5ce43ad238b30c8957836fd"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-209",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/bom/bomr/VersionOption.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "d1d33fd82389739dc83c609a53c40c4cab4e3e18"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-210",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/bomr/VersionOption$AlignedVersionOption.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "7d3fa738b976693950ed6e112d2f22ff02734b5d"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-211",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/bom/bomr/LibraryUpdateResolver.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "13c32c0033a686f777642e979b4b9f6e93d9224c"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-212",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/bomr/LibraryUpdateResolver.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "072014711b0e78ffbd3a1e8cf7f106088d53a3b0"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-213",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/bom/bomr/UpgradeBom.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "c6d486e728d6d78eec8d46ce20ca3004eb0ebc57"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-214",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/bomr/UpgradeBom.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "9972e76bc6317aa1e2401daa84e2967a2ed98b49"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-215",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/bomr/UpgradeBom$1.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "73153d45918236071a7f905f882c453411b1e780"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-216",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/bom/bomr/Upgrade.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "4ce6a8cfbefd236ec26e21912127debefb827a8c"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-217",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/bomr/Upgrade.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "27c64acf8500625daee6adb04625e4ef62ff068d"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-218",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/bom/bomr/InteractiveUpgradeResolver.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "7b8b6e2492cc33c701a6df00c236a0dea0161bc0"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-219",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/bomr/InteractiveUpgradeResolver.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "3ed01d600b138ee161ff9e5bb932b625607b7cac"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-220",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/bom/bomr/UpgradeApplicator.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "7f818839157eca20d2ccc973a2a2aeadfc86d37c"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-221",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/bomr/UpgradeApplicator.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "824f68fe03b7c013c2607b3695467faf2a24e9a4"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-222",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/bomr/MoveToSnapshots.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "5616662c1ccdad97a03eb157c216e37dc795907c"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-223",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/bom/bomr/VersionResolver.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "70b1c9298cf8fa99528d6347223e1facdb084857"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-224",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/bomr/VersionResolver.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "fa5fcfd20fcb40993fcb2654a1550afc462151b8"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-225",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/bomr/InteractiveUpgradeResolver$UpgradesInterruptedException.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "07f975f86daf9054b7ce8c44a059c7002e2155bd"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-226",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/bom/bomr/StandardLibraryUpdateResolver.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "adc16dd0c0da1d2b880d651a4870f828d8a24832"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-227",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/bomr/StandardLibraryUpdateResolver.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "34ddaeea904c5d55c106ad459d076f7c36ddc71b"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-228",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/bom/bomr/LibraryWithVersionOptions.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "4dbb097bea61f0f18ec731e34ff3af3fa8711f91"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-229",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/bomr/LibraryWithVersionOptions.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "ea01a044ec6a527a2fc62491354bf5370b6fca50"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-230",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/bom/bomr/ReleaseSchedule.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "c32518b46246cdb1379267034cf0d60df18258e2"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-231",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/bomr/ReleaseSchedule.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "0e94d4de484d4741e79a0b7100828b5a3b802301"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-232",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/bom/bomr/version/CalendarVersionDependencyVersion.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "475e2149f90bae9de19e6dec9808e11cfec3346f"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-233",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/bomr/version/CalendarVersionDependencyVersion.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "2b598425edb45123f30260125b44ec4a6b92f8fc"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-234",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/bom/bomr/version/DependencyVersion.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "d82d5b8a50f520a16491f8099053bdb497b1f62a"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-235",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/bomr/version/DependencyVersion.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "8cd5d991f3ade48b882ef4ea320a4af70327ee1f"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-236",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/bom/bomr/version/CombinedPatchAndQualifierDependencyVersion.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "8a910d6b60b7b103fd3012783e2ae5c04765217f"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-237",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/bomr/version/CombinedPatchAndQualifierDependencyVersion.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "068736f7eaf66b060f7eea904d3c766b9c348a06"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-238",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/bom/bomr/version/MultipleComponentsDependencyVersion.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "7024574bc83d1a6b14ca0b34b0742f9e3172e44d"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-239",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/bomr/version/MultipleComponentsDependencyVersion.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "8c6fad0bf62556915b04385a9ceb2842ec1292e2"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-240",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/bom/bomr/version/ReleaseTrainDependencyVersion.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "e43c1b05d9decd1792563f8c42a4b6ae8b5954a9"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-241",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/bomr/version/ReleaseTrainDependencyVersion.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "bb07b8dddc6b6d16312a72597a8cb183b8f331d6"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-242",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/bom/bomr/version/AbstractDependencyVersion.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "c602347ef97c159f13abaa53e383a49f111366b0"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-243",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/bomr/version/AbstractDependencyVersion.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "a55c0621be4bfe6fad0c8ee9b65a3a796bbe128c"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-244",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/bom/bomr/version/ArtifactVersionDependencyVersion.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "288da5a521166b932a66d2dbc0ace4a732627aae"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-245",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/bomr/version/ArtifactVersionDependencyVersion.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "16668f953cb0e21d3aad74e0447e8a03ecdab2c8"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-246",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/bom/bomr/version/LeadingZeroesDependencyVersion.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "5514b8b652a790a9fd3d18f6cdce156c8c9ab4a1"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-247",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/bomr/version/LeadingZeroesDependencyVersion.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "27bcc408c63a34ffaa1572ece04ca88675960b0a"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-248",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/bom/bomr/version/UnstructuredDependencyVersion.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "5799225958bfee14f67667230d19c4e2fa5a91a4"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-249",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/bomr/version/UnstructuredDependencyVersion.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "2cc63e84e74779e1f746b6d246c640e0479257aa"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-250",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/bomr/VersionOption.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "a8ec509728afb3e6456302c3f8f7c091732026ae"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-251",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/bomr/ReleaseSchedule$Release.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "8d48b0be30010686ae3648f9bf6cac7f4e80ac03"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-252",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/bom/bomr/MultithreadedLibraryUpdateResolver.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "10edc7e644f251662070514631a881c433ce6160"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-253",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/bomr/MultithreadedLibraryUpdateResolver.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "8774f0ea2eb6b18444d7335d4c3d4c90df1ad710"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-254",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/bomr/VersionOption$ResolvedVersionOption.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "094a3596c2fb67cfa05305a5677e13927ff252ec"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-255",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/bom/bomr/UpgradeResolver.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "ae26ded8d659186e2b49529064fb6ba0c96eb6ba"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-256",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/bomr/UpgradeResolver.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "89f8383fe8db7b7c8671be14c972f678cabaafb2"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-257",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/ManagedDependencies$Difference.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "16853d8135ad45d60216d3cd34a22cf96b3be9ae"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-258",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/Library$Exclusion.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "4506128a046395452f80bf7f65a3894de83da6a5"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-259",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/BomExtension.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "f73f056b77759229d2c9be6fc9a47f20385418f9"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-260",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/BomExtension$LibraryHandler$ProhibitedHandler.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "35f6e6d9fd2d26e3b2880763a1cf2594e6603f28"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-261",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/BomExtension$LibraryHandler$AlignWithHandler.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "de77206c9866acba11263ed9096e471e1c74319e"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-262",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/BomExtension$GitHubHandler.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "19a71080cfab61be0c295e584f5f646bc8ecaac0"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-263",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/BomExtension$StripUnrepeatableOutputAction.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "bb088908fb5780e91c80bc3d88961a97430e868d"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-264",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/BomPlugin$PublishingCustomizer.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "2e93130b65d956fbe5fff057ef7d9da07d44b9d6"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-265",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/BomExtension$LibraryHandler$GroupHandler.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "aeaeb0654e87e740d06375eacbd351bf2f4f3d56"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-266",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/BomExtension$LibraryHandler.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "64547824819dbf7f3578473df6588eaccee4e36d"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-267",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/BomExtension$LibraryHandler$GroupHandler$ModuleHandler.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "01bcf1af05c47e8e0ce50d762902dc79e357fe98"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-268",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/bom/CheckBom.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "365e67c6784cd8fa18fa2e5df05f7b46355d3b7e"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-269",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/CheckBom.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "c0d42a54ff25f984831aa79b2fade90c4b5b17b5"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-270",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/Library$VersionAlignment.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "3f3a58843327a391c728d61b9fab335c229a0604"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-271",
+      "SPDXID": "SPDXRef-File-93",
       "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/BomExtension$GitHub.class",
       "checksums": [
         {
@@ -2752,167 +972,1197 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-272",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/RepositoryTransformersExtension.java",
+      "SPDXID": "SPDXRef-File-94",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/BomExtension$GitHubHandler.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "1fa642cbf0e3ff7ebe244324521032b0299f94b6"
+          "checksumValue": "19a71080cfab61be0c295e584f5f646bc8ecaac0"
         }
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-273",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/RepositoryTransformersExtension.class",
+      "SPDXID": "SPDXRef-File-95",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/BomExtension$LibraryHandler$AlignWithHandler$VersionHandler.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "64b7abc4e8a51d931aa0a5e6c19e0b65c90e9081"
+          "checksumValue": "d0316554da4c8c9fadc8c04e72cdd27b4f7ebd8a"
         }
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-274",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/SyncAppSource.java",
+      "SPDXID": "SPDXRef-File-96",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/BomExtension$LibraryHandler$AlignWithHandler.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "0281f2896e91eb25614fc38ec40299ae19fbb615"
+          "checksumValue": "de77206c9866acba11263ed9096e471e1c74319e"
         }
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-275",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/SyncAppSource.class",
+      "SPDXID": "SPDXRef-File-97",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/BomExtension$LibraryHandler$GroupHandler$ModuleHandler.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "17764b3666f787961be7d60e29937410647f4838"
+          "checksumValue": "01bcf1af05c47e8e0ce50d762902dc79e357fe98"
         }
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-276",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/toolchain/ToolchainPlugin.java",
+      "SPDXID": "SPDXRef-File-98",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/BomExtension$LibraryHandler$GroupHandler.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "b5e602d7fa083c0f78fc30323e0af971b0ed4975"
+          "checksumValue": "aeaeb0654e87e740d06375eacbd351bf2f4f3d56"
         }
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-277",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/toolchain/ToolchainPlugin.class",
+      "SPDXID": "SPDXRef-File-99",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/BomExtension$LibraryHandler$ProhibitedHandler.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "3109370aeb36a9a00e2e3da3ef65ac13833a3094"
+          "checksumValue": "35f6e6d9fd2d26e3b2880763a1cf2594e6603f28"
         }
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-278",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/toolchain/ToolchainExtension.java",
+      "SPDXID": "SPDXRef-File-100",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/BomExtension$LibraryHandler.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "0de3303cb1519faaa3eeef12dcff89255e6b1fe3"
+          "checksumValue": "64547824819dbf7f3578473df6588eaccee4e36d"
         }
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-279",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/toolchain/ToolchainExtension.class",
+      "SPDXID": "SPDXRef-File-101",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/BomExtension$LinksHandler.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "c31f58da68869be4d4b72cee6aa40a076978e4a1"
+          "checksumValue": "a8ead87973da617eaf17f55aec6ce74ea60e305a"
         }
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-280",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/context/properties/CheckAdditionalSpringConfigurationMetadata.java",
+      "SPDXID": "SPDXRef-File-102",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/BomExtension$StripUnrepeatableOutputAction.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "8405dc445f082775bf5b39aed7286892ddff27ce"
+          "checksumValue": "bb088908fb5780e91c80bc3d88961a97430e868d"
         }
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-281",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/context/properties/CheckAdditionalSpringConfigurationMetadata.class",
+      "SPDXID": "SPDXRef-File-103",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/BomExtension$Upgrade.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "45168085e034611868d308f41582ff68d2194f40"
+          "checksumValue": "108d9f6ff8df61abb2ccb22397f81e6a2f2a52da"
         }
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-282",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/context/properties/Snippet.java",
+      "SPDXID": "SPDXRef-File-104",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/BomExtension$UpgradeHandler.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "bfb3232d81482c9671d4e7e3cf0dc3809a360722"
+          "checksumValue": "11d1bdacdf240e145962bacb45d154474c1e526d"
         }
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-283",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/context/properties/Snippet$1.class",
+      "SPDXID": "SPDXRef-File-105",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/BomExtension.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "5307ff58aa6d4337af6826e15aa33ba851d6cf9d"
+          "checksumValue": "f73f056b77759229d2c9be6fc9a47f20385418f9"
         }
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-284",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/context/properties/Snippet$Config.class",
+      "SPDXID": "SPDXRef-File-106",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/bom/BomPlugin.java",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "a73a5d30851d9545b27ed891a62ad5a0635f25d1"
+          "checksumValue": "edb4154582411303a8509adb52ec63d6d71bd833"
         }
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-285",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/context/properties/ConfigurationPropertiesPlugin.java",
+      "SPDXID": "SPDXRef-File-107",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/BomPlugin$PublishingCustomizer.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "5836cf0f4eb6652a11bebfa6641821d28af3099a"
+          "checksumValue": "2e93130b65d956fbe5fff057ef7d9da07d44b9d6"
         }
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-286",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/context/properties/ConfigurationPropertiesPlugin.class",
+      "SPDXID": "SPDXRef-File-108",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/BomPlugin.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "9e683937e0504998cdd3c79f8fc5f1e05edf0eb3"
+          "checksumValue": "5a93f7c98c44784370ac43f453cb519414713970"
         }
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-287",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/context/properties/Snippet.class",
+      "SPDXID": "SPDXRef-File-109",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/bom/CheckBom.java",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "5206970ad76d3f4c4bb95e6b01c93733f97ebb59"
+          "checksumValue": "365e67c6784cd8fa18fa2e5df05f7b46355d3b7e"
         }
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-288",
+      "SPDXID": "SPDXRef-File-110",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/CheckBom.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "c0d42a54ff25f984831aa79b2fade90c4b5b17b5"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-111",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/bom/CheckLinks.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "7975ef6c7a3125d815fcbced90f251506ff15165"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-112",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/CheckLinks.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "3f7e5a5c84acc4497ef0d2d0a0dac8b651352a7d"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-113",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/bom/Library.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "6a99a434038fbbb46e7bcac589a9c19ce0242143"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-114",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/Library$Exclusion.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "4506128a046395452f80bf7f65a3894de83da6a5"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-115",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/Library$Group.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "b7f0a1cace19d4049aade5665de376a9c1f83bcf"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-116",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/Library$LibraryVersion.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "2a2b325cc30e19f3321e205f2e791465d7de0a77"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-117",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/Library$Link.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "040cf9f458befaa26781bafd6224ea8576588b69"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-118",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/Library$Module.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "6502a9277c830077d21bb0eca7bb9f5751489665"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-119",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/Library$ProhibitedVersion.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "c2e09f4dab6bafb7d3c70bcc6427ccbc123eecaf"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-120",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/Library$VersionAlignment.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "3f3a58843327a391c728d61b9fab335c229a0604"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-121",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/Library.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "05ee55f284bc25eceaa1f4a4d7e1add2c85dc46a"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-122",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/bom/ManagedDependencies.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "cb6ca9581c3e89924b5b8d40746eabcd67fb77b0"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-123",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/ManagedDependencies$Difference.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "16853d8135ad45d60216d3cd34a22cf96b3be9ae"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-124",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/ManagedDependencies.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "ea63cbceacd3d20cf40a7e601dc9ceefc7d4a728"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-125",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/bom/UpgradePolicy.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "340c29a7a1c624bc4a01c81b50b5bd7122e1fc1f"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-126",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/UpgradePolicy.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "8264e58d5cf524d37b993bab6fb8938df5b6fefc"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-127",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/bom/bomr/InteractiveUpgradeResolver.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "7b8b6e2492cc33c701a6df00c236a0dea0161bc0"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-128",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/bomr/InteractiveUpgradeResolver$UpgradesInterruptedException.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "07f975f86daf9054b7ce8c44a059c7002e2155bd"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-129",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/bomr/InteractiveUpgradeResolver.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "3ed01d600b138ee161ff9e5bb932b625607b7cac"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-130",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/bom/bomr/LibraryUpdateResolver.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "13c32c0033a686f777642e979b4b9f6e93d9224c"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-131",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/bomr/LibraryUpdateResolver.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "072014711b0e78ffbd3a1e8cf7f106088d53a3b0"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-132",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/bom/bomr/LibraryWithVersionOptions.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "4dbb097bea61f0f18ec731e34ff3af3fa8711f91"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-133",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/bomr/LibraryWithVersionOptions.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "ea01a044ec6a527a2fc62491354bf5370b6fca50"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-134",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/bom/bomr/MavenMetadataVersionResolver.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "f7b5c581914584edbfeeda7e3f31b9f0432d6f1d"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-135",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/bomr/MavenMetadataVersionResolver.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "4409316752ad8791c5ce43ad238b30c8957836fd"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-136",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/bom/bomr/MoveToSnapshots.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "a4147a74ee52c2fd072166f27a6a995a9bed263e"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-137",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/bomr/MoveToSnapshots$1.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "ac87c77eb8eed0d52ec5f3d314aa933e439afe19"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-138",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/bomr/MoveToSnapshots.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "5616662c1ccdad97a03eb157c216e37dc795907c"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-139",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/bom/bomr/MultithreadedLibraryUpdateResolver.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "10edc7e644f251662070514631a881c433ce6160"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-140",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/bomr/MultithreadedLibraryUpdateResolver.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "8774f0ea2eb6b18444d7335d4c3d4c90df1ad710"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-141",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/bom/bomr/ReleaseSchedule.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "c32518b46246cdb1379267034cf0d60df18258e2"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-142",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/bomr/ReleaseSchedule$Release.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "8d48b0be30010686ae3648f9bf6cac7f4e80ac03"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-143",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/bomr/ReleaseSchedule.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "0e94d4de484d4741e79a0b7100828b5a3b802301"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-144",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/bom/bomr/StandardLibraryUpdateResolver.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "adc16dd0c0da1d2b880d651a4870f828d8a24832"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-145",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/bomr/StandardLibraryUpdateResolver.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "34ddaeea904c5d55c106ad459d076f7c36ddc71b"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-146",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/bom/bomr/Upgrade.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "4ce6a8cfbefd236ec26e21912127debefb827a8c"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-147",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/bomr/Upgrade.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "27c64acf8500625daee6adb04625e4ef62ff068d"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-148",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/bom/bomr/UpgradeApplicator.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "7f818839157eca20d2ccc973a2a2aeadfc86d37c"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-149",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/bomr/UpgradeApplicator.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "824f68fe03b7c013c2607b3695467faf2a24e9a4"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-150",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/bom/bomr/UpgradeBom.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "c6d486e728d6d78eec8d46ce20ca3004eb0ebc57"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-151",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/bomr/UpgradeBom$1.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "73153d45918236071a7f905f882c453411b1e780"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-152",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/bomr/UpgradeBom.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "9972e76bc6317aa1e2401daa84e2967a2ed98b49"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-153",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/bom/bomr/UpgradeDependencies.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "713a6b51e0deb9d018d3b75e285ec0d8f30a6d0c"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-154",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/bomr/UpgradeDependencies.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "1416d78393a6b4cedb4821d9ce42e32b6c040889"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-155",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/bom/bomr/UpgradeResolver.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "ae26ded8d659186e2b49529064fb6ba0c96eb6ba"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-156",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/bomr/UpgradeResolver.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "89f8383fe8db7b7c8671be14c972f678cabaafb2"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-157",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/bom/bomr/VersionOption.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "d1d33fd82389739dc83c609a53c40c4cab4e3e18"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-158",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/bomr/VersionOption$AlignedVersionOption.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "7d3fa738b976693950ed6e112d2f22ff02734b5d"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-159",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/bomr/VersionOption$ResolvedVersionOption.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "094a3596c2fb67cfa05305a5677e13927ff252ec"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-160",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/bomr/VersionOption.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "a8ec509728afb3e6456302c3f8f7c091732026ae"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-161",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/bom/bomr/VersionResolver.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "70b1c9298cf8fa99528d6347223e1facdb084857"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-162",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/bomr/VersionResolver.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "fa5fcfd20fcb40993fcb2654a1550afc462151b8"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-163",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/bom/bomr/github/GitHub.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "879caec26ef21cacbb555632fb7d932b7288cf65"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-164",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/bomr/github/GitHub.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "a1375736e6aa6387773796178847dc2694dbd55b"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-165",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/bom/bomr/github/GitHubRepository.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "d1460a9506ff0c576d56f530c0ebd50e891a918a"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-166",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/bomr/github/GitHubRepository.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "9b32d1a12441ecf79e70b6711df29ab233962ccc"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-167",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/bom/bomr/github/Issue.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "4eda2647fa9de0c7f182d9463e972953b7e9343a"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-168",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/bomr/github/Issue$State.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "760a8a3f2ec85b505520cf89aea496cea135de03"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-169",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/bomr/github/Issue.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "b93f2162ef38c8db119d3cf49ca1d1d17d0bfd72"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-170",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/bom/bomr/github/Milestone.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "38d3f1dd5e27cf1180bf631f31124d1f225d6e3f"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-171",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/bomr/github/Milestone.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "c50ad911e5b2554571a765ddb3efb997412f1e04"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-172",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/bom/bomr/github/StandardGitHub.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "1c880fb99c829134bfe4ee1736cfb22a0076a028"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-173",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/bomr/github/StandardGitHub.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "9323053870103d513fef9ac2b25c481828ce8029"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-174",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/bom/bomr/github/StandardGitHubRepository.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "2a5fb9ba527f0d5bc622309b1add42fe290990fa"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-175",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/bomr/github/StandardGitHubRepository.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "1bf58892d9060d07a65a8fe4e434cf2cb2395b00"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-176",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/bom/bomr/version/AbstractDependencyVersion.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "c602347ef97c159f13abaa53e383a49f111366b0"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-177",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/bomr/version/AbstractDependencyVersion.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "a55c0621be4bfe6fad0c8ee9b65a3a796bbe128c"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-178",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/bom/bomr/version/ArtifactVersionDependencyVersion.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "288da5a521166b932a66d2dbc0ace4a732627aae"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-179",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/bomr/version/ArtifactVersionDependencyVersion.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "16668f953cb0e21d3aad74e0447e8a03ecdab2c8"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-180",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/bom/bomr/version/CalendarVersionDependencyVersion.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "475e2149f90bae9de19e6dec9808e11cfec3346f"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-181",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/bomr/version/CalendarVersionDependencyVersion.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "2b598425edb45123f30260125b44ec4a6b92f8fc"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-182",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/bom/bomr/version/CombinedPatchAndQualifierDependencyVersion.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "8a910d6b60b7b103fd3012783e2ae5c04765217f"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-183",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/bomr/version/CombinedPatchAndQualifierDependencyVersion.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "068736f7eaf66b060f7eea904d3c766b9c348a06"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-184",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/bom/bomr/version/DependencyVersion.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "d82d5b8a50f520a16491f8099053bdb497b1f62a"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-185",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/bomr/version/DependencyVersion.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "8cd5d991f3ade48b882ef4ea320a4af70327ee1f"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-186",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/bom/bomr/version/LeadingZeroesDependencyVersion.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "5514b8b652a790a9fd3d18f6cdce156c8c9ab4a1"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-187",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/bomr/version/LeadingZeroesDependencyVersion.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "27bcc408c63a34ffaa1572ece04ca88675960b0a"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-188",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/bom/bomr/version/MultipleComponentsDependencyVersion.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "7024574bc83d1a6b14ca0b34b0742f9e3172e44d"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-189",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/bomr/version/MultipleComponentsDependencyVersion.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "8c6fad0bf62556915b04385a9ceb2842ec1292e2"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-190",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/bom/bomr/version/ReleaseTrainDependencyVersion.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "e43c1b05d9decd1792563f8c42a4b6ae8b5954a9"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-191",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/bomr/version/ReleaseTrainDependencyVersion.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "bb07b8dddc6b6d16312a72597a8cb183b8f331d6"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-192",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/bom/bomr/version/UnstructuredDependencyVersion.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "5799225958bfee14f67667230d19c4e2fa5a91a4"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-193",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/bom/bomr/version/UnstructuredDependencyVersion.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "2cc63e84e74779e1f746b6d246c640e0479257aa"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-194",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/classpath/CheckClasspathForConflicts.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "3f30319aa3625087afedb03c42aab925a46fb567"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-195",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/classpath/CheckClasspathForConflicts$ClasspathContents.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "ff29b0503b5f142043abb5c8f90496508f1ffd6f"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-196",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/classpath/CheckClasspathForConflicts.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "49e81dbdbd3f6951a4081fa666c30af9882bd20a"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-197",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/classpath/CheckClasspathForProhibitedDependencies.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "70d39f019462b5abc3e0f426b34fefbcf1ab062b"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-198",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/classpath/CheckClasspathForProhibitedDependencies.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "f9e9ce4c108aeaef9b3458531fb12253fb8541ce"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-199",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/classpath/CheckClasspathForUnconstrainedDirectDependencies.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "d10c844208f055a6798f2b83a20a2cefb4857234"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-200",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/classpath/CheckClasspathForUnconstrainedDirectDependencies.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "6a2cb1fb1efdedfc50c7df151757e13788d94442"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-201",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/classpath/CheckClasspathForUnnecessaryExclusions.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "3f2e0975a198e201d3f51e793eb65b8b401d8a5e"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-202",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/classpath/CheckClasspathForUnnecessaryExclusions.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "6b52d8e394c16e7bbc6b915f448cbd5ba11c35f5"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-203",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/cli/HomebrewFormula.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "67e5491c6ce287d78effa2f85622a112e34b0af8"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-204",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/cli/HomebrewFormula.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "ec97f1c3497cb42490cff9b3769a0b92d7e8f969"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-205",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/constraints/DocumentConstrainedVersions.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "e70502f785fcd8b6551453270b756c1068be7b7a"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-206",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/constraints/DocumentConstrainedVersions.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "f1e4112c3f9d80a494c7ac081a6b0a481d57ce8c"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-207",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/constraints/DocumentVersionProperties.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "ef1c7c8647adb1878b04136e21e2ed7124913950"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-208",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/constraints/DocumentVersionProperties.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "a4128961a6da3f92980a715516d360c5e6dd17f9"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-209",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/constraints/ExtractVersionConstraints.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "e1147c672d3ea54bda7f2f2cb54265d6c67c1ace"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-210",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/constraints/ExtractVersionConstraints$ConstrainedVersion.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "32fc934dfbfee3b56127c3a52a6a8d4c854a8b83"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-211",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/constraints/ExtractVersionConstraints$VersionProperty.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "2b662c4c8fe14fd65d42dd1635b0d20fd740b758"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-212",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/constraints/ExtractVersionConstraints.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "22200834e03f7629469fdd66c7a34f9212b7c99a"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-213",
       "fileName": "buildSrc/src/main/java/org/springframework/boot/build/context/properties/Asciidoc.java",
       "checksums": [
         {
@@ -2922,7 +2172,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-289",
+      "SPDXID": "SPDXRef-File-214",
       "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/context/properties/Asciidoc.class",
       "checksums": [
         {
@@ -2932,67 +2182,17 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-290",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/context/properties/ConfigurationProperty.java",
+      "SPDXID": "SPDXRef-File-215",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/context/properties/CheckAdditionalSpringConfigurationMetadata.java",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "268d7ac80a1de032d75615cd3a0c57d3fd947f26"
+          "checksumValue": "8405dc445f082775bf5b39aed7286892ddff27ce"
         }
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-291",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/context/properties/ConfigurationProperty.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "65ed38263d332516d770b25a5d2a4a0270fde020"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-292",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/context/properties/CheckSpringConfigurationMetadata.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "f1bff685cd8627eeccd624098b3d91e48a1ac8ce"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-293",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/context/properties/CheckSpringConfigurationMetadata$Report.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "3e0649f9549e280b6d180e4d6a9876ca4f0dad6b"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-294",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/context/properties/CompoundRow.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "ffa9f5687b5fd94eb6accb84ac3ec99e1c4d4c68"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-295",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/context/properties/CompoundRow.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "58be51891517c6b0708ae06d69e5130535cde15d"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-296",
+      "SPDXID": "SPDXRef-File-216",
       "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/context/properties/CheckAdditionalSpringConfigurationMetadata$Analysis.class",
       "checksums": [
         {
@@ -3002,47 +2202,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-297",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/context/properties/ConfigurationProperties.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "56278dcb5c3de3f20ba669599c2a4041ad0d7004"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-298",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/context/properties/ConfigurationProperties.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "de72a61fc2874ed7bd121e6a075bd7b631fc52c5"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-299",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/context/properties/Snippets.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "a86560c2d6a7dd53291c4a2a29e4f42b3ab650f5"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-300",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/context/properties/Snippets.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "50c2d35ab6b6b6280bd5d4844cbd6a5b885a0a91"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-301",
+      "SPDXID": "SPDXRef-File-217",
       "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/context/properties/CheckAdditionalSpringConfigurationMetadata$Report.class",
       "checksums": [
         {
@@ -3052,67 +2212,37 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-302",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/context/properties/SingleRow.java",
+      "SPDXID": "SPDXRef-File-218",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/context/properties/CheckAdditionalSpringConfigurationMetadata.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "c81f57c9f4e2722df8ddbb1b5d5538073cb141ca"
+          "checksumValue": "45168085e034611868d308f41582ff68d2194f40"
         }
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-303",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/context/properties/SingleRow.class",
+      "SPDXID": "SPDXRef-File-219",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/context/properties/CheckSpringConfigurationMetadata.java",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "c85237ee64d2762612628bf6bc2f491efcee7701"
+          "checksumValue": "f1bff685cd8627eeccd624098b3d91e48a1ac8ce"
         }
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-304",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/context/properties/DocumentConfigurationProperties.java",
+      "SPDXID": "SPDXRef-File-220",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/context/properties/CheckSpringConfigurationMetadata$Report.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "a7ac94f60ced0579239875b105cc7f5436b2c8fa"
+          "checksumValue": "3e0649f9549e280b6d180e4d6a9876ca4f0dad6b"
         }
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-305",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/context/properties/DocumentConfigurationProperties.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "10ce966a2112e5d4c81e76d852f23b61bc9ee67e"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-306",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/context/properties/Row.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "1b01421b019227c1066b7beb9e6b831d0a7b9088"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-307",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/context/properties/Row.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "16fa35115a35e09d5ed89deac1f5e348a1ba4caa"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-308",
+      "SPDXID": "SPDXRef-File-221",
       "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/context/properties/CheckSpringConfigurationMetadata.class",
       "checksums": [
         {
@@ -3122,7 +2252,207 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-309",
+      "SPDXID": "SPDXRef-File-222",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/context/properties/CompoundRow.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "ffa9f5687b5fd94eb6accb84ac3ec99e1c4d4c68"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-223",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/context/properties/CompoundRow.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "58be51891517c6b0708ae06d69e5130535cde15d"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-224",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/context/properties/ConfigurationProperties.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "56278dcb5c3de3f20ba669599c2a4041ad0d7004"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-225",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/context/properties/ConfigurationProperties.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "de72a61fc2874ed7bd121e6a075bd7b631fc52c5"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-226",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/context/properties/ConfigurationPropertiesPlugin.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "5836cf0f4eb6652a11bebfa6641821d28af3099a"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-227",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/context/properties/ConfigurationPropertiesPlugin.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "9e683937e0504998cdd3c79f8fc5f1e05edf0eb3"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-228",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/context/properties/ConfigurationProperty.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "268d7ac80a1de032d75615cd3a0c57d3fd947f26"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-229",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/context/properties/ConfigurationProperty.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "65ed38263d332516d770b25a5d2a4a0270fde020"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-230",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/context/properties/DocumentConfigurationProperties.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "a7ac94f60ced0579239875b105cc7f5436b2c8fa"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-231",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/context/properties/DocumentConfigurationProperties.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "10ce966a2112e5d4c81e76d852f23b61bc9ee67e"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-232",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/context/properties/Row.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "1b01421b019227c1066b7beb9e6b831d0a7b9088"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-233",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/context/properties/Row.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "16fa35115a35e09d5ed89deac1f5e348a1ba4caa"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-234",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/context/properties/SingleRow.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "c81f57c9f4e2722df8ddbb1b5d5538073cb141ca"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-235",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/context/properties/SingleRow.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "c85237ee64d2762612628bf6bc2f491efcee7701"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-236",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/context/properties/Snippet.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "bfb3232d81482c9671d4e7e3cf0dc3809a360722"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-237",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/context/properties/Snippet$1.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "5307ff58aa6d4337af6826e15aa33ba851d6cf9d"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-238",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/context/properties/Snippet$Config.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "a73a5d30851d9545b27ed891a62ad5a0635f25d1"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-239",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/context/properties/Snippet.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "5206970ad76d3f4c4bb95e6b01c93733f97ebb59"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-240",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/context/properties/Snippets.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "a86560c2d6a7dd53291c4a2a29e4f42b3ab650f5"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-241",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/context/properties/Snippets.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "50c2d35ab6b6b6280bd5d4844cbd6a5b885a0a91"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-242",
       "fileName": "buildSrc/src/main/java/org/springframework/boot/build/context/properties/Table.java",
       "checksums": [
         {
@@ -3132,7 +2462,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-310",
+      "SPDXID": "SPDXRef-File-243",
       "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/context/properties/Table.class",
       "checksums": [
         {
@@ -3142,32 +2472,702 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-311",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/MavenRepositoryPlugin.class",
+      "SPDXID": "SPDXRef-File-244",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/devtools/DocumentDevtoolsPropertyDefaults.java",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "3f4993cacdeca2ec9333a064a3e4b9c307bc0116"
+          "checksumValue": "106e53465743e6597ac1c6dd742f21d9313040d2"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-245",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/devtools/DocumentDevtoolsPropertyDefaults.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "e476c580a59a14bf69974155b61624f813861ba1"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-246",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/docs/ApplicationRunner.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "9f43c059d50e2ae083b70216f7e3db73a54779c7"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-247",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/docs/ApplicationRunner.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "4079b1e8aa0bc68c623eeaa004f1906930123d40"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-248",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/mavenplugin/DocumentPluginGoals.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "414ae145700752989be265802d0eca920abd08c9"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-249",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/mavenplugin/DocumentPluginGoals.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "307c0f94de7534bb14aab24d9a15d8e37b954fc6"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-250",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/mavenplugin/MavenExec.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "d8ffb743beb33a5f1ed75ce5f687e3100bcb6cbe"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-251",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/mavenplugin/MavenExec.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "fa56c700c893d355291e5da4bbffb70fca56a791"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-252",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/mavenplugin/MavenPluginPlugin.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "ce576a1057da11a28234cb4a7635b3bae8b89bd4"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-253",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/mavenplugin/MavenPluginPlugin$EffectiveBom.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "969249fbc0fe3fedc7eb8f539f5508bdbba34b0d"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-254",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/mavenplugin/MavenPluginPlugin$ExtractVersionProperties.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "369d6ad81d744fe8d9203eb5cf8bc85597fe647d"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-255",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/mavenplugin/MavenPluginPlugin$FormatHelpMojoSource.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "2e3b12a31c35616907ae624dd52bc180cf1c50e6"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-256",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/mavenplugin/MavenPluginPlugin$MavenRepositoryComponentMetadataRule.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "1a89473d98a890bab7dfc4e1d471e583795583cf"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-257",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/mavenplugin/MavenPluginPlugin$RuntimeClasspathMavenRepository.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "a08fd526c706ba07fece794fb6e99604b3b44547"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-258",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/mavenplugin/MavenPluginPlugin.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "aa64ea9338993ac1f7043d6973edcace6e25a3e8"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-259",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/mavenplugin/PluginXmlParser.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "eac52c64418fba93d310627a232c0de6e0a26e76"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-260",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/mavenplugin/PluginXmlParser$IterableNodeList$1.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "7ced5bb330ac2f891142fc35436a7bec972fa82d"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-261",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/mavenplugin/PluginXmlParser$IterableNodeList.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "cdf871b425561549883f665ecea870f0592d2cad"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-262",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/mavenplugin/PluginXmlParser$Mojo.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "25e91ff33d1732b8a50707857a97007518821430"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-263",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/mavenplugin/PluginXmlParser$Parameter.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "0090dc40d2de7a2158119e837a3e90bb38c39c52"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-264",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/mavenplugin/PluginXmlParser$Plugin.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "5a3a8cfeb31c4288ad09d5d62319d5d041c3de22"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-265",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/mavenplugin/PluginXmlParser.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "8bf50274fe902e7e6fbc208ae880fef8fa7f7c9a"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-266",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/mavenplugin/PrepareMavenBinaries.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "017f87322bab63995965e9379aadb118be286c1e"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-267",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/mavenplugin/PrepareMavenBinaries.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "271abadf32601abb22c6b13b60a90098d8ab4800"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-268",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/optional/OptionalDependenciesPlugin.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "9dfdfa5176f196f3d2751b14f458f3678b6839e1"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-269",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/optional/OptionalDependenciesPlugin.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "d5d4a67f87057018fc53dc7b91076db9c1b6528e"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-270",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/processors/AnnotationProcessorPlugin.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "bb10dc0734eace9dc50c55239fa9971b8ac6cf00"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-271",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/processors/AnnotationProcessorPlugin.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "5d2dc8e672b3eba5f272dbfa7f7449446d807b95"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-272",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/properties/BuildProperties.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "81cac24c18909be1b8c960e72689584f72d79a75"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-273",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/properties/BuildProperties$1.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "952fbcabd8748101b6b843a250a8023d3a82ad41"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-274",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/properties/BuildProperties$GitHub.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "7cee6866ccaac7126aa408e7bad35ddf23cd836c"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-275",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/properties/BuildProperties.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "1a568aa02d9a23a68ba3e125c9026e668fe2f4a5"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-276",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/properties/BuildType.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "428b7b423ca09c49890f260fe2336550c61c7a56"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-277",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/properties/BuildType.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "905becaff19ea4b2669be14db7a786076165d797"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-278",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/springframework/CheckAotFactories.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "643f293025337b34cf3221725b111a106b041a1f"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-279",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/springframework/CheckAotFactories.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "b89da4365a10256038f641fa72f350f2ee4c3e33"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-280",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/springframework/CheckFactoriesFile.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "9c4227fd1b5c1b2e47f9f12d31fe767d050e93c8"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-281",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/springframework/CheckFactoriesFile.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "26998228e0adbed37302e5ee181c1c8541473f52"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-282",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/springframework/CheckSpringFactories.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "6436b8756e1a690700c06ce364a8d88ad1dedeac"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-283",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/springframework/CheckSpringFactories.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "d47d4de1b63ff23a888866197ec2331ece600e77"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-284",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/starters/DocumentStarters.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "fabbd7a93aad62f5cb20958f928dbbe2ee938c3e"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-285",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/starters/DocumentStarters$Starter.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "0154b6cd179dd69589444055c9ac7185d7e9cf73"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-286",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/starters/DocumentStarters.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "ded4b39a60c818ef126cb29fbc996c3f34c252fd"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-287",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/starters/StarterMetadata.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "fc6fa76c5e6ff3386dad2e615a1daa6776e97bb9"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-288",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/starters/StarterMetadata.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "a55db99f95a3d6ee6b2e7066928b0e3f9d73e68a"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-289",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/starters/StarterPlugin.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "cdf289de50b8984eedc39e51b00d19251e00aa37"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-290",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/starters/StarterPlugin.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "a606a1c23061ba5ffd1cc9b3aac4ff7b41b92d2a"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-291",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/test/DockerTestBuildService.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "2f70a735513c5036052c4e9410fe60156de0f6b4"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-292",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/test/DockerTestBuildService.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "82da4587144f0623576bb9afdbc96cd735c8ef2b"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-293",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/test/DockerTestPlugin.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "d614c388c9602856142fc21cfbda612e726746ae"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-294",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/test/DockerTestPlugin.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "41864c3268e1e5ec4823834de812c991204d9ac5"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-295",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/test/IntegrationTestPlugin.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "5ad3ab63f63370648e361d60e174003125ee3c73"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-296",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/test/IntegrationTestPlugin.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "5df77d55841fd59e1279cf6715fdf3f3f8feb70d"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-297",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/test/SystemTestPlugin.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "1fb2e5330cd6d7abe7083b42652ef1f9d8df54b0"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-298",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/test/SystemTestPlugin.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "c98f1d296aa2e5c05a514bc9c2ac7d626aebe1c1"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-299",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/test/autoconfigure/DocumentTestSlices.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "ffd895d6472a0ba13ca51ad1f99d19bac4157e93"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-300",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/test/autoconfigure/DocumentTestSlices$TestSlice.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "88475e2753dd6068075a28e026f439febf1b8189"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-301",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/test/autoconfigure/DocumentTestSlices.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "0ffef6e0d8f4c1b512cfe6bec39a1f78c33ce01a"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-302",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/test/autoconfigure/TestSliceMetadata.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "f8fec31b50e86ba318488027ab2d5d0c0191a5aa"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-303",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/test/autoconfigure/TestSliceMetadata.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "68dce3ca38061274bf8abe763aec363da4fb2041"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-304",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/testing/TestFailuresPlugin.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "77f7dcf700717c04eea23cf81434588ae9e9a28c"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-305",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/testing/TestFailuresPlugin$FailureRecordingTestListener.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "06aeee83c9dc5cf01640bb7eb2d4c470bf20e77f"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-306",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/testing/TestFailuresPlugin.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "18ad0afc5104c0c08ee75cacc732661e4f7c5db1"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-307",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/testing/TestResultsOverview.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "56618f05c41b3e6f956f281ba2f10ebc17a85da8"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-308",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/testing/TestResultsOverview$TestFailure.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "4137c15231b8d70f4d460d78c9038836b66e8562"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-309",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/testing/TestResultsOverview.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "ff489bdb69544837e5f9232601f88f14b8a13e78"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-310",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/toolchain/ToolchainExtension.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "0de3303cb1519faaa3eeef12dcff89255e6b1fe3"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-311",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/toolchain/ToolchainExtension.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "c31f58da68869be4d4b72cee6aa40a076978e4a1"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-312",
-      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/KotlinConventions.java",
+      "fileName": "buildSrc/src/main/java/org/springframework/boot/build/toolchain/ToolchainPlugin.java",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "32b38af396defeecbf5f48881985d2820a4e16d0"
+          "checksumValue": "b5e602d7fa083c0f78fc30323e0af971b0ed4975"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-313",
-      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/KotlinConventions.class",
+      "fileName": "buildSrc/build/classes/java/main/org/springframework/boot/build/toolchain/ToolchainPlugin.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "ff879df2bd020902f11ad225b553e0709f250065"
+          "checksumValue": "3109370aeb36a9a00e2e3da3ef65ac13833a3094"
         }
       ]
     }

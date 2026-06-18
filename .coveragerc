@@ -1,11 +1,13 @@
 [run]
-# Exclude build-time patch scripts from coverage — they generate C code
-# and are not testable as Python application logic.
+# Only apply_qemu_fallback.py is excluded: it performs large, brittle
+# string-surgery to emit C source into bomsh_hook.c/strace.c, and is
+# validated solely by the Docker build under QEMU — testing it as Python
+# would mean huge golden-string assertions with near-zero defect value.
+# All other modules (incl. docker/patches and the metadata/lib collectors)
+# are testable and are covered.
 omit =
     app/apply_qemu_fallback.py
-    app/collect_metadata.py
-    app/collect_dynamic_libs.py
-    docker/patches/*
+    docker/patches/apply_qemu_fallback.py
 
 [report]
 exclude_lines =

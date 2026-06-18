@@ -15,14 +15,17 @@ creating a PR, or declaring work complete. No exceptions.
    `.venv/bin/python3 -c "import app"`
 
 2. **Lint clean** — zero warnings treated as errors
-   `.venv/bin/python3 -m flake8 app/ tests/`
+   `.venv/bin/python3 -m flake8 app/ tests/ docker/patches/`
 
 3. **Tests pass** — full suite, no skips
    `.venv/bin/python3 -m pytest tests/ -x -q`
 
 4. **Coverage check** — meets project threshold
+   `.venv/bin/python3 -m pytest tests/ --cov=app --cov=docker/patches --cov-report=term-missing`
    - **Overall project**: ≥97% line coverage
    - **Individual source files**: ≥95% line coverage
+   - Coverage MUST include `docker/patches` (the bomsh appliers and
+     pure-Python fast-IO/classreader modules), not just `app/`
    - Report per-file and overall coverage to the user
    - If any file drops below threshold, add tests before committing
 

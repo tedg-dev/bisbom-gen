@@ -1,10 +1,22 @@
 # `bomsh_create_bom_java.py` Performance Optimization
 
-| **Status** | TODO — analysis complete, implementation pending |
+| **Status** | IMPLEMENTED (pending EC2 golden validation) — see Implementation Status |
 |---|---|
-| **Date** | June 16, 2026 |
+| **Date** | June 16, 2026 (analysis); June 18, 2026 (implementation) |
 | **Author** | OmniBOR Analysis project |
 | **Related** | `docs/deep-dive/phase-isolation-build-time-analysis.md` |
+
+> **Implementation status (June 18, 2026):** Optimizations #1–#5 are
+> implemented in `docker/patches/bomsh_java_fast_io.py` and applied via
+> `docker/patches/apply_fast_io.py` (mirrors the existing
+> `bomsh_java_fast_classreader.py` + `apply_fast_javap.py` pattern). The
+> fully in-memory JAR variant (read `.class` bytes from the zip, hash with
+> `git_blob_hash_data`, never extract to disk) is **deferred** to a
+> follow-up PR after the extract-to-disk variant is validated against
+> golden files on EC2. The appliers fail-fast on upstream drift, and
+> `omnibor/bomsh` is now pinned by commit SHA in the Dockerfile
+> (`ARG BOMSH_COMMIT`). **Not yet EC2-validated** — no commit until the
+> two largest Java repos are golden-clean.
 
 ---
 

@@ -54,8 +54,8 @@ description: Python-specific best practices, tooling, and conventions
 
 - **Setup**: `actions/setup-python` with pinned version (e.g., `3.13`)
 - **Cache**: `~/.cache/pip` and `.venv/` keyed on `requirements.txt` hash
-- **Lint job**: `flake8 app/ tests/ && pylint app/`
-- **Test job**: `.venv/bin/python3 -m pytest tests/ -x -q --cov=app`
+- **Lint job**: `flake8 app/ tests/ docker/patches/ && pylint app/`
+- **Test job**: `.venv/bin/python3 -m pytest tests/ -x -q --cov=app --cov=docker/patches`
 - **Warnings as errors**: `pytest -W error` to catch deprecation warnings
 
 ## Dependency Audit

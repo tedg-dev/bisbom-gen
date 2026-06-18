@@ -20,7 +20,6 @@ from app.pipeline.version_checker import (
     save_cache,
     should_skip_check,
     _get_latest_commit,
-    CACHE_FILE,
 )
 
 

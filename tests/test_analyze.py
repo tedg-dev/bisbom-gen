@@ -1359,7 +1359,6 @@ class TestSpdxGeneratorMetadata(unittest.TestCase):
             Path(path).unlink()
 
     def test_patch_no_creation_info(self):
-        import json
         with tempfile.TemporaryDirectory() as td:
             doc = {"spdxVersion": "SPDX-2.3"}
             path = self._write_spdx(td, doc)
@@ -1697,7 +1696,6 @@ class TestSpdxGeneratorMetadata(unittest.TestCase):
 
     def test_inject_refs_bad_mapping_json(self):
         """Graceful when mapping file has invalid JSON."""
-        import json
         with tempfile.TemporaryDirectory() as td:
             meta = (
                 Path(td) / "bom" / "metadata" / "bomsh"
@@ -1741,7 +1739,6 @@ class TestSpdxGeneratorMetadata(unittest.TestCase):
 
     def test_inject_refs_logfile_only(self):
         """Graceful when mapping file is missing."""
-        import json
         with tempfile.TemporaryDirectory() as td:
             meta = (
                 Path(td) / "bom" / "metadata" / "bomsh"
@@ -1876,7 +1873,6 @@ class TestSpdxValidator(unittest.TestCase):
         )
 
     def test_validate_invalid_json(self):
-        import json
         v = SpdxValidator()
         with tempfile.NamedTemporaryFile(
             suffix=".spdx.json", mode="w",
@@ -2167,7 +2163,7 @@ class TestSyftGenerator(unittest.TestCase):
                 with patch(
                     "spdx_visualize.generate_html"
                 ) as mock_viz:
-                    result = gen.generate(
+                    gen.generate(
                         "curl", repo_cfg, paths,
                         run_ts="2026-02-12_1300",
                     )

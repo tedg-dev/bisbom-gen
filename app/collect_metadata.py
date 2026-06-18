@@ -85,6 +85,30 @@ def _detect_repo_version(
     return detector.detect(repo_name, files)
 
 
+def _detect_distro(os_release_path="/etc/os-release"):
+    """Return the distro PRETTY_NAME, or 'unknown' if unavailable."""
+    try:
+        with open(os_release_path, encoding="utf-8") as f:
+            for line in f:
+                if line.startswith("PRETTY_NAME="):
+                    return (
+                        line.split("=", 1)[1].strip().strip('"')
+                    )
+    except OSError:
+        pass
+    return "unknown"
+
+
+def _gcc_version():
+    """Return the first line of 'gcc --version', or 'unknown'."""
+    try:
+        return subprocess.check_output(
+            ["gcc", "--version"], text=True,
+        ).splitlines()[0]
+    except (OSError, subprocess.SubprocessError):
+        return "unknown"
+
+
 def main(
     treedb_path, repos_dir, out_dir,
     repo_name=None, config_branch=None,
@@ -175,28 +199,9 @@ def main(
             config_branch=config_branch,
         )
 
-    # Distro info
-    distro = "unknown"
-    try:
-        with open("/etc/os-release") as f:
-            for line in f:
-                if line.startswith("PRETTY_NAME="):
-                    distro = (
-                        line.split("=", 1)[1]
-                        .strip().strip('"')
-                    )
-                    break
-    except Exception:
-        pass
-
-    # GCC version
-    gcc_version = "unknown"
-    try:
-        gcc_version = subprocess.check_output(
-            ["gcc", "--version"], text=True,
-        ).splitlines()[0]
-    except Exception:
-        pass
+    # Distro and GCC info
+    distro = _detect_distro()
+    gcc_version = _gcc_version()
 
     result = {
         "distro": distro,

@@ -34,9 +34,12 @@ RUN dnf install -y --setopt=install_weak_deps=False \
 
 # Install Maven 3.9 (dnf maven is 3.6, too old for many projects)
 ENV MAVEN_VERSION=3.9.15
-RUN wget -q "https://dlcdn.apache.org/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz" \
-    -O /tmp/maven.tar.gz \
-    && tar -C /opt -xzf /tmp/maven.tar.gz \
+# Fetch Maven from the fast CDN mirror, falling back to the permanent
+# Apache archive when the mirror has pruned this pinned version
+# (dlcdn.apache.org only retains current releases).
+RUN wget -q "https://dlcdn.apache.org/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz" -O /tmp/maven.tar.gz || \
+    wget -q "https://archive.apache.org/dist/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz" -O /tmp/maven.tar.gz && \
+    tar -C /opt -xzf /tmp/maven.tar.gz \
     && ln -sf /opt/apache-maven-${MAVEN_VERSION}/bin/mvn \
        /usr/local/bin/mvn \
     && rm /tmp/maven.tar.gz

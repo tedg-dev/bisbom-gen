@@ -77,4 +77,3 @@ class BuildStepGenerator:
             "# TODO: determine build steps manually",
             "make -j$(nproc)",
         ]
-

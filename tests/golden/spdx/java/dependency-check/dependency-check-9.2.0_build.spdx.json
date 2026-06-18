@@ -1,0 +1,412 @@
+{
+  "spdxVersion": "SPDX-2.3",
+  "dataLicense": "CC0-1.0",
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "name": "dependency-check-dependency-check-9.2.0.jar",
+  "documentNamespace": "https://omnibor.io/spdx/dependency-check/f11c48fa-3c3d-409e-a3b8-4b248bb23e35",
+  "creationInfo": {
+    "created": "2026-06-18T22:13:27Z",
+    "creators": [
+      "Tool: omnibor-analysis",
+      "Tool: bomsh_create_bom_java.py"
+    ],
+    "licenseListVersion": "3.19",
+    "comment": "maven-assembly-plugin detected \u2014 assembled archive may bundle dependencies not listed in dependency:tree"
+  },
+  "packages": [
+    {
+      "SPDXID": "SPDXRef-Package-dependency-check-9.2.0.jar",
+      "name": "dependency-check",
+      "versionInfo": "9.2.0",
+      "downloadLocation": "https://github.com/jeremylong/DependencyCheck/commit/192b4cdb1e8245c1b202287eadd55d9241ea21d2",
+      "filesAnalyzed": true,
+      "primaryPackagePurpose": "APPLICATION",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/dependency-check/dependency-check"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-BuildTool-javac",
+      "name": "javac",
+      "versionInfo": "21.0.11",
+      "supplier": "Organization: Oracle",
+      "downloadLocation": "https://jdk.java.net/",
+      "filesAnalyzed": false,
+      "primaryPackagePurpose": "APPLICATION",
+      "externalRefs": [
+        {
+          "referenceCategory": "SECURITY",
+          "referenceType": "cpe23Type",
+          "referenceLocator": "cpe:2.3:a:oracle:jdk:21.0.11:*:*:*:*:*:*:*"
+        }
+      ],
+      "comment": "Java compiler (JDK 21.0.11) used to compile .java sources into .class bytecode."
+    },
+    {
+      "SPDXID": "SPDXRef-BuildTool-maven",
+      "name": "maven",
+      "versionInfo": "3.9.15",
+      "supplier": "Organization: Apache Software Foundation",
+      "downloadLocation": "https://maven.apache.org/",
+      "filesAnalyzed": false,
+      "primaryPackagePurpose": "APPLICATION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.apache.maven/maven@3.9.15"
+        }
+      ],
+      "comment": "Apache Maven 3.9.15 build system used to orchestrate compilation and packaging."
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-0",
+      "name": "logback-core",
+      "versionInfo": "1.2.11",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/ch/qos/logback/logback-core/1.2.11/logback-core-1.2.11.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: ch.qos.logback",
+      "comment": "Maven scope: compile. Direct dependency",
+      "sourceInfo": "Maven Central: ch.qos.logback:logback-core:1.2.11",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/ch.qos.logback/logback-core@1.2.11"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-1",
+      "name": "logback-classic",
+      "versionInfo": "1.2.11",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/ch/qos/logback/logback-classic/1.2.11/logback-classic-1.2.11.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: ch.qos.logback",
+      "comment": "Maven scope: compile. Direct dependency",
+      "sourceInfo": "Maven Central: ch.qos.logback:logback-classic:1.2.11",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/ch.qos.logback/logback-classic@1.2.11"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-2",
+      "name": "commons-cli",
+      "versionInfo": "1.7.0",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/commons-cli/commons-cli/1.7.0/commons-cli-1.7.0.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: commons-cli",
+      "comment": "Maven scope: compile. Direct dependency",
+      "sourceInfo": "Maven Central: commons-cli:commons-cli:1.7.0",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/commons-cli/commons-cli@1.7.0"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-3",
+      "name": "dependency-check-core",
+      "versionInfo": "9.2.0",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/owasp/dependency-check-core/9.2.0/dependency-check-core-9.2.0.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.owasp",
+      "comment": "Sibling module. See: dependency-check-core-9.2.0_build.spdx.json. Maven scope: compile. Direct dependency",
+      "sourceInfo": "Maven Central: org.owasp:dependency-check-core:9.2.0",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.owasp/dependency-check-core@9.2.0"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-4",
+      "name": "dependency-check-utils",
+      "versionInfo": "9.2.0",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/owasp/dependency-check-utils/9.2.0/dependency-check-utils-9.2.0.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.owasp",
+      "comment": "Sibling module. See: dependency-check-utils-9.2.0_build.spdx.json. Maven scope: compile. Direct dependency",
+      "sourceInfo": "Maven Central: org.owasp:dependency-check-utils:9.2.0",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.owasp/dependency-check-utils@9.2.0"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-5",
+      "name": "slf4j-api",
+      "versionInfo": "1.7.36",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/slf4j/slf4j-api/1.7.36/slf4j-api-1.7.36.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.slf4j",
+      "comment": "Maven scope: compile. Direct dependency",
+      "sourceInfo": "Maven Central: org.slf4j:slf4j-api:1.7.36",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.slf4j/slf4j-api@1.7.36"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-6",
+      "name": "ant",
+      "versionInfo": "1.10.14",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/apache/ant/ant/1.10.14/ant-1.10.14.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.apache.ant",
+      "comment": "Maven scope: compile. Direct dependency",
+      "sourceInfo": "Maven Central: org.apache.ant:ant:1.10.14",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.apache.ant/ant@1.10.14"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-7",
+      "name": "jsr305",
+      "versionInfo": "3.0.2",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/com/google/code/findbugs/jsr305/3.0.2/jsr305-3.0.2.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: com.google.code.findbugs",
+      "comment": "Maven scope: compile. Transitive dependency. Required by: jmockit",
+      "sourceInfo": "Maven Central: com.google.code.findbugs:jsr305:3.0.2",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/com.google.code.findbugs/jsr305@3.0.2"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-8",
+      "name": "annotations",
+      "versionInfo": "24.1.0",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/org/jetbrains/annotations/24.1.0/annotations-24.1.0.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: org.jetbrains",
+      "comment": "Maven scope: compile. Direct dependency",
+      "sourceInfo": "Maven Central: org.jetbrains:annotations:24.1.0",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/org.jetbrains/annotations@24.1.0"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Dep-9",
+      "name": "spotbugs-annotations",
+      "versionInfo": "4.8.5",
+      "downloadLocation": "https://repo.maven.apache.org/maven2/com/github/spotbugs/spotbugs-annotations/4.8.5/spotbugs-annotations-4.8.5.jar",
+      "filesAnalyzed": false,
+      "supplier": "Organization: com.github.spotbugs",
+      "comment": "Maven scope: compile. Direct dependency",
+      "sourceInfo": "Maven Central: com.github.spotbugs:spotbugs-annotations:4.8.5",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/com.github.spotbugs/spotbugs-annotations@4.8.5"
+        }
+      ]
+    }
+  ],
+  "files": [
+    {
+      "SPDXID": "SPDXRef-File-0",
+      "fileName": "cli/src/main/java/org/owasp/dependencycheck/App.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "2b2f0f77520fedd073dd8cb7bbcf98ebc19a75da"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-1",
+      "fileName": "cli/target/classes/org/owasp/dependencycheck/App.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "23f209b89f38f4c0044a214e9528d421a1ed1643"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-2",
+      "fileName": "cli/src/main/java/org/owasp/dependencycheck/CliParser.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "249291c1e2c94e4f51dace2570b2e8dffc407b74"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-3",
+      "fileName": "cli/target/classes/org/owasp/dependencycheck/CliParser$ARGUMENT.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "ddd8130375818d57dd714bdc21c7196ed9d62fc6"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-4",
+      "fileName": "cli/target/classes/org/owasp/dependencycheck/CliParser.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "06e1aef3e5f5e5088b7ab04a0741db1c303e77e3"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-5",
+      "fileName": "cli/src/main/java/org/owasp/dependencycheck/package-info.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "80ca48fa66632bed40f2a4283cfb1fa3ae7c6f14"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-6",
+      "fileName": "cli/target/classes/org/owasp/dependencycheck/package-info.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "f68ea0d4ef45363d57ca84c1d9f3349fdefe091e"
+        }
+      ]
+    }
+  ],
+  "relationships": [
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relatedSpdxElement": "SPDXRef-Package-dependency-check-9.2.0.jar",
+      "relationshipType": "DESCRIBES"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-0",
+      "relatedSpdxElement": "SPDXRef-Package-dependency-check-9.2.0.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-1",
+      "relatedSpdxElement": "SPDXRef-Package-dependency-check-9.2.0.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-2",
+      "relatedSpdxElement": "SPDXRef-Package-dependency-check-9.2.0.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-3",
+      "relatedSpdxElement": "SPDXRef-Package-dependency-check-9.2.0.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-4",
+      "relatedSpdxElement": "SPDXRef-Package-dependency-check-9.2.0.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-5",
+      "relatedSpdxElement": "SPDXRef-Package-dependency-check-9.2.0.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-6",
+      "relatedSpdxElement": "SPDXRef-Package-dependency-check-9.2.0.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-BuildTool-javac",
+      "relatedSpdxElement": "SPDXRef-Package-dependency-check-9.2.0.jar",
+      "relationshipType": "BUILD_TOOL_OF"
+    },
+    {
+      "spdxElementId": "SPDXRef-BuildTool-maven",
+      "relatedSpdxElement": "SPDXRef-Package-dependency-check-9.2.0.jar",
+      "relationshipType": "BUILD_TOOL_OF"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-dependency-check-9.2.0.jar",
+      "relatedSpdxElement": "SPDXRef-Dep-0",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-dependency-check-9.2.0.jar",
+      "relatedSpdxElement": "SPDXRef-Dep-1",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-dependency-check-9.2.0.jar",
+      "relatedSpdxElement": "SPDXRef-Dep-2",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-dependency-check-9.2.0.jar",
+      "relatedSpdxElement": "SPDXRef-Dep-3",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-dependency-check-9.2.0.jar",
+      "relatedSpdxElement": "SPDXRef-Dep-4",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-dependency-check-9.2.0.jar",
+      "relatedSpdxElement": "SPDXRef-Dep-5",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-dependency-check-9.2.0.jar",
+      "relatedSpdxElement": "SPDXRef-Dep-6",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-dependency-check-9.2.0.jar",
+      "relatedSpdxElement": "SPDXRef-Dep-7",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-dependency-check-9.2.0.jar",
+      "relatedSpdxElement": "SPDXRef-Dep-8",
+      "relationshipType": "DEPENDS_ON"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-dependency-check-9.2.0.jar",
+      "relatedSpdxElement": "SPDXRef-Dep-9",
+      "relationshipType": "DEPENDS_ON"
+    }
+  ]
+}

@@ -481,6 +481,164 @@ class TestJarMapFallbackMatching(unittest.TestCase):
             mock_gen.generate.assert_not_called()
 
 
+class TestGenerateJavaAdgSpdxBranches(unittest.TestCase):
+    """Cover remaining branches of _generate_java_adg_spdx."""
+
+    @patch("app.spdx.parser.AdgParser")
+    def test_missing_treedb_returns_empty(
+        self, mock_parser_cls,
+    ):
+        """get_jar_source_files raises -> empty result."""
+        mock_parser = MagicMock()
+        mock_parser.get_jar_source_files.side_effect = (
+            FileNotFoundError("no treedb")
+        )
+        mock_parser_cls.return_value = mock_parser
+
+        with tempfile.TemporaryDirectory() as td:
+            paths_cfg = {
+                "output_dir": str(Path(td) / "output"),
+                "repos_dir": str(Path(td) / "repos"),
+            }
+            repo_cfg = {
+                "language": "java",
+                "output_binaries": ["target/myapp-1.0.jar"],
+            }
+            result = _generate_java_adg_spdx(
+                "myapp", repo_cfg, paths_cfg, "ts1",
+            )
+        self.assertEqual(result, [])
+
+    @patch("app.spdx.parser.AdgParser")
+    @patch("app.spdx.java_generator.JavaSpdxGenerator")
+    def test_glob_pattern_resolves_jars(
+        self, mock_gen_cls, mock_parser_cls,
+    ):
+        """A wildcard output_binaries pattern is globbed."""
+        mock_gen = MagicMock()
+        mock_gen.generate.side_effect = [
+            "/tmp/analyzed.spdx.json",
+            "/tmp/build.spdx.json",
+        ]
+        mock_gen_cls.return_value = mock_gen
+
+        mock_parser = MagicMock()
+        mock_parser.get_jar_source_files.return_value = {
+            "myapp/target/myapp-1.0.jar": [
+                {"sha1": "a", "file_path": "a.java"},
+            ],
+        }
+        mock_parser.parse_strace_openat_log.return_value = (
+            set()
+        )
+        mock_parser_cls.return_value = mock_parser
+
+        with tempfile.TemporaryDirectory() as td:
+            paths_cfg = {
+                "output_dir": str(Path(td) / "output"),
+                "repos_dir": str(Path(td) / "repos"),
+            }
+            repo_cfg = {
+                "language": "java",
+                "output_binaries": ["target/*.jar"],
+            }
+            jar = (
+                Path(td) / "repos" / "myapp"
+                / "target" / "myapp-1.0.jar"
+            )
+            jar.parent.mkdir(parents=True)
+            jar.write_bytes(b"PK")
+
+            result = _generate_java_adg_spdx(
+                "myapp", repo_cfg, paths_cfg, "ts1",
+            )
+        self.assertEqual(len(result), 2)
+
+    @patch("app.spdx.parser.AdgParser")
+    def test_no_output_jars_returns_empty(
+        self, mock_parser_cls,
+    ):
+        """No resolved JARs -> warn and return empty."""
+        mock_parser = MagicMock()
+        mock_parser.get_jar_source_files.return_value = {}
+        mock_parser.parse_strace_openat_log.return_value = (
+            set()
+        )
+        mock_parser_cls.return_value = mock_parser
+
+        with tempfile.TemporaryDirectory() as td:
+            paths_cfg = {
+                "output_dir": str(Path(td) / "output"),
+                "repos_dir": str(Path(td) / "repos"),
+            }
+            repo_cfg = {
+                "language": "java",
+                "output_binaries": [],
+            }
+            result = _generate_java_adg_spdx(
+                "myapp", repo_cfg, paths_cfg, "ts1",
+            )
+        self.assertEqual(result, [])
+
+    @patch(
+        "app.pipeline.maven_plugin_detector"
+        ".detect_repackaging_plugins"
+    )
+    @patch("app.spdx.parser.AdgParser")
+    @patch("app.spdx.java_generator.JavaSpdxGenerator")
+    def test_uber_jar_warns_and_finds_module_pom(
+        self, mock_gen_cls, mock_parser_cls, mock_detect,
+    ):
+        """Uber-JAR warnings emitted; module pom located."""
+        mock_gen = MagicMock()
+        mock_gen.generate.side_effect = [
+            "/tmp/analyzed.spdx.json",
+            "/tmp/build.spdx.json",
+        ]
+        mock_gen_cls.return_value = mock_gen
+
+        mock_parser = MagicMock()
+        mock_parser.get_jar_source_files.return_value = {
+            "myapp/target/myapp-1.0.jar": [
+                {"sha1": "a", "file_path": "a.java"},
+            ],
+        }
+        mock_parser.parse_strace_openat_log.return_value = (
+            set()
+        )
+        mock_parser_cls.return_value = mock_parser
+
+        detection = MagicMock()
+        detection.warning = "shade plugin bundles deps"
+        plugin_result = MagicMock()
+        plugin_result.is_uber_jar = True
+        plugin_result.detections = [detection]
+        mock_detect.return_value = plugin_result
+
+        with tempfile.TemporaryDirectory() as td:
+            paths_cfg = {
+                "output_dir": str(Path(td) / "output"),
+                "repos_dir": str(Path(td) / "repos"),
+            }
+            repo_cfg = {
+                "language": "java",
+                "output_binaries": ["target/myapp-1.0.jar"],
+            }
+            repo_dir = Path(td) / "repos" / "myapp"
+            jar = repo_dir / "target" / "myapp-1.0.jar"
+            jar.parent.mkdir(parents=True)
+            jar.write_bytes(b"PK")
+            # pom.xml in the module root so the walk-up
+            # from target/ locates pom_dir.
+            (repo_dir / "pom.xml").write_text("<project/>")
+
+            result = _generate_java_adg_spdx(
+                "myapp", repo_cfg, paths_cfg, "ts1",
+            )
+        self.assertEqual(len(result), 2)
+        mock_detect.assert_called_once()
+
+
 class TestMainJavaDispatch(unittest.TestCase):
     """Test that main() dispatches to Java pipeline."""
 
