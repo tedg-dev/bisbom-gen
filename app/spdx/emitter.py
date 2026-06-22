@@ -307,7 +307,7 @@ class SpdxEmitter:
                             f"sonames: "
                             f"{', '.join(sonames)}"
                         ),
-                        "packageSourceInfo": (
+                        "sourceInfo": (
                             f"Built from project "
                             f"source as part of "
                             f"{self.repo_name} build."
@@ -395,7 +395,7 @@ class SpdxEmitter:
                         if dpkg_pkgs
                         else comp["name"]
                     )
-                    pkg["packageSourceInfo"] = (
+                    pkg["sourceInfo"] = (
                         f"Installed via dpkg package "
                         f"{dpkg_desc} on "
                         f"{self.distro}."
@@ -442,7 +442,7 @@ class SpdxEmitter:
                         f"{go_ver}:*:*:*:*:*:*:*"
                     ),
                 }],
-                "packageSourceInfo": (
+                "sourceInfo": (
                     "System-installed Go toolchain "
                     "at /usr/local/go/."
                 ),
@@ -497,7 +497,7 @@ class SpdxEmitter:
                     f"compiled into "
                     f"{self.binary_name}."
                 ),
-                "packageSourceInfo": (
+                "sourceInfo": (
                     f"Bundled with Go toolchain "
                     f"{go_ver}. Source at "
                     f"/usr/local/go/src/."
@@ -541,7 +541,7 @@ class SpdxEmitter:
                     f":*:*:*:*:*:*:*"
                 ),
             }],
-            "packageSourceInfo": (
+            "sourceInfo": (
                 f"System-installed build toolchain "
                 f"on {self.distro}."
             ),
@@ -669,7 +669,7 @@ class SpdxEmitter:
                         f"compiled into "
                         f"{self.binary_name}."
                     ),
-                    "packageSourceInfo": src_info,
+                    "sourceInfo": src_info,
                 }
             elif is_rust_crate:
                 dl = (
@@ -709,7 +709,7 @@ class SpdxEmitter:
                         f"compiled into "
                         f"{self.binary_name}"
                     ),
-                    "packageSourceInfo": src_info,
+                    "sourceInfo": src_info,
                 }
             else:
                 # Determine vendored dir pattern
@@ -738,7 +738,7 @@ class SpdxEmitter:
                         f"into {self.binary_name}. "
                         f"{src_count} source files."
                     ),
-                    "packageSourceInfo": (
+                    "sourceInfo": (
                         f"Vendored from "
                         f"{self.repo_name}/"
                         f"{vdir_label}/{lib_name}/. "

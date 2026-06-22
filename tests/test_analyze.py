@@ -3926,8 +3926,7 @@ class TestSpdxValidatorCoverage(unittest.TestCase):
     """Cover schema validation success and >10 error paths."""
 
     def test_schema_validation_pass(self):
-        """Lines 790, 798-810: schema fetch succeeds,
-        validation passes."""
+        """Vendored schema loads and validation passes."""
         import json as json_mod
         doc = {
             "spdxVersion": "SPDX-2.3",
@@ -3946,34 +3945,82 @@ class TestSpdxValidatorCoverage(unittest.TestCase):
             path = Path(td) / "test.spdx.json"
             path.write_text(json_mod.dumps(doc))
 
-            # Mock schema fetch to return a permissive schema
+            # Vendored schema replaced with a permissive one
             schema = {"type": "object"}
-            mock_resp = MagicMock()
-            mock_resp.read.return_value = (
-                json_mod.dumps(schema).encode()
-            )
-            mock_resp.__enter__ = (
-                lambda s: mock_resp
-            )
-            mock_resp.__exit__ = (
-                lambda s, *a: None
+            (Path(td) / "schema.json").write_text(
+                json_mod.dumps(schema)
             )
 
             v = SpdxValidator()
-            with patch(
-                "urllib.request.urlopen",
-                return_value=mock_resp,
+            with patch.object(
+                SpdxValidator, "SCHEMA_DIR", Path(td),
+            ), patch.object(
+                SpdxValidator, "SCHEMA_FILES",
+                {"SPDX-2.3": "schema.json"},
             ), patch(
                 "builtins.print",
             ):
                 result = v.validate(str(path))
             self.assertTrue(result["schema_ok"])
 
+    def test_unreadable_schema_skips_validation(self):
+        """Missing schema file skips schema validation."""
+        import json as json_mod
+        doc = {
+            "spdxVersion": "SPDX-2.3",
+            "SPDXID": "SPDXRef-DOCUMENT",
+            "name": "test",
+            "packages": [],
+            "relationships": [],
+        }
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / "test.spdx.json"
+            path.write_text(json_mod.dumps(doc))
+
+            v = SpdxValidator()
+            with patch.object(
+                SpdxValidator, "SCHEMA_DIR", Path(td),
+            ), patch.object(
+                SpdxValidator, "SCHEMA_FILES",
+                {"SPDX-2.3": "missing-schema.json"},
+            ), patch.object(
+                v, "_validate_semantic",
+                side_effect=lambda p, r: r,
+            ), patch(
+                "builtins.print",
+            ):
+                result = v.validate(str(path))
+            self.assertIsNone(result["schema_ok"])
+
+    def test_unsupported_version_skips_schema(self):
+        """Unknown SPDX version skips schema validation."""
+        import json as json_mod
+        doc = {
+            "spdxVersion": "SPDX-9.9",
+            "SPDXID": "SPDXRef-DOCUMENT",
+            "name": "test",
+            "packages": [],
+            "relationships": [],
+        }
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / "test.spdx.json"
+            path.write_text(json_mod.dumps(doc))
+
+            v = SpdxValidator()
+            with patch.object(
+                v, "_validate_semantic",
+                side_effect=lambda p, r: r,
+            ), patch(
+                "builtins.print",
+            ):
+                result = v.validate(str(path))
+            self.assertIsNone(result["schema_ok"])
+
     def test_validation_many_schema_errors(self):
         """Lines 868-869, 881-882: >10 errors truncated."""
         import json as json_mod
 
-        doc = {"bad": "doc"}
+        doc = {"spdxVersion": "SPDX-2.3", "bad": "doc"}
         with tempfile.TemporaryDirectory() as td:
             path = Path(td) / "test.spdx.json"
             path.write_text(json_mod.dumps(doc))
@@ -3984,21 +4031,16 @@ class TestSpdxValidatorCoverage(unittest.TestCase):
                 "type": "object",
                 "required": required,
             }
-            mock_resp = MagicMock()
-            mock_resp.read.return_value = (
-                json_mod.dumps(schema).encode()
-            )
-            mock_resp.__enter__ = (
-                lambda s: mock_resp
-            )
-            mock_resp.__exit__ = (
-                lambda s, *a: None
+            (Path(td) / "schema.json").write_text(
+                json_mod.dumps(schema)
             )
 
             v = SpdxValidator()
-            with patch(
-                "urllib.request.urlopen",
-                return_value=mock_resp,
+            with patch.object(
+                SpdxValidator, "SCHEMA_DIR", Path(td),
+            ), patch.object(
+                SpdxValidator, "SCHEMA_FILES",
+                {"SPDX-2.3": "schema.json"},
             ), patch(
                 "builtins.print",
             ):
@@ -4035,9 +4077,9 @@ class TestSpdxValidatorCoverage(unittest.TestCase):
             with patch.object(
                 v, "_validate_semantic",
                 side_effect=_inject_errors,
-            ), patch(
-                "urllib.request.urlopen",
-                side_effect=Exception("no net"),
+            ), patch.object(
+                v, "_schema_path_for",
+                return_value=(None, "SPDX-2.3"),
             ), patch(
                 "builtins.print",
             ):
