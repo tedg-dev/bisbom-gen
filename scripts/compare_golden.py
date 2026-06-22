@@ -25,6 +25,25 @@ def _normalize_ref(ref):
     return ref
 
 
+def _file_checksum(f):
+    """Return a file's SHA1 checksum (or first available)."""
+    checksums = f.get("checksums", [])
+    for c in checksums:
+        if c.get("algorithm") == "SHA1":
+            return c.get("checksumValue", "")
+    return checksums[0].get("checksumValue", "") if checksums else ""
+
+
+def _capped_list(diffs, label, items, marker, cap=20):
+    """Append a capped, labeled list of items to ``diffs``."""
+    n = len(items)
+    diffs.append(f"  {label} ({n}):")
+    for item in sorted(items)[:cap]:
+        diffs.append(f"    {marker} {item}")
+    if n > cap:
+        diffs.append(f"    ... and {n - cap} more")
+
+
 def rel_counts(rels):
     c = {}
     for r in rels:
@@ -81,11 +100,58 @@ def compare(golden_path, new_path):
                 f"({sid})]: '{gv}' -> '{nv}'"
             )
 
-    # File counts
+    # Other scalar package fields (name, license, supplier,
+    # download location, purpose, filesAnalyzed).  A change
+    # in any of these is a real difference that version/ref
+    # comparison alone would miss.
+    _pkg_fields = (
+        "name", "downloadLocation", "supplier",
+        "primaryPackagePurpose", "filesAnalyzed",
+        "licenseConcluded", "licenseDeclared",
+        "copyrightText",
+    )
+    for sid in sorted(set(g_by_id) & set(n_by_id)):
+        for field in _pkg_fields:
+            gvf = g_by_id[sid].get(field)
+            nvf = n_by_id[sid].get(field)
+            if gvf != nvf:
+                name = g_by_id[sid]["name"]
+                diffs.append(
+                    f"  Field '{field}' changed "
+                    f"[{name} ({sid})]: "
+                    f"{gvf!r} -> {nvf!r}"
+                )
+
+    # Files — identity (by fileName) and content (checksum).
+    # fileName is stable across runs; comparing checksums
+    # catches content changes (and file swaps) that an equal
+    # file COUNT would otherwise hide.
     if len(gf) != len(nf):
         diffs.append(
             f"  File count: {len(gf)} -> {len(nf)}"
         )
+    g_files = {f["fileName"]: _file_checksum(f) for f in gf}
+    n_files = {f["fileName"]: _file_checksum(f) for f in nf}
+    missing_files = set(g_files) - set(n_files)
+    added_files = set(n_files) - set(g_files)
+    if missing_files:
+        _capped_list(diffs, "Missing files", missing_files, "-")
+    if added_files:
+        _capped_list(diffs, "Added files", added_files, "+")
+    changed_files = [
+        fn for fn in (set(g_files) & set(n_files))
+        if g_files[fn] != n_files[fn]
+    ]
+    if changed_files:
+        n_chg = len(changed_files)
+        diffs.append(f"  Changed file checksums ({n_chg}):")
+        for fn in sorted(changed_files)[:20]:
+            diffs.append(
+                f"    ~ {fn}: {g_files[fn][:12]} -> "
+                f"{n_files[fn][:12]}"
+            )
+        if n_chg > 20:
+            diffs.append(f"    ... and {n_chg - 20} more")
 
     # Relationship total count
     if len(gr) != len(nr):
@@ -115,19 +181,13 @@ def compare(golden_path, new_path):
     removed_rels = set(g_pairs) - set(n_pairs)
     added_rels = set(n_pairs) - set(g_pairs)
     if removed_rels:
-        n = len(removed_rels)
-        diffs.append(f"  Removed relationships ({n}):")
-        for r in sorted(removed_rels)[:20]:
-            diffs.append(f"    - {r}")
-        if n > 20:
-            diffs.append(f"    ... and {n - 20} more")
+        _capped_list(
+            diffs, "Removed relationships", removed_rels, "-",
+        )
     if added_rels:
-        n = len(added_rels)
-        diffs.append(f"  Added relationships ({n}):")
-        for r in sorted(added_rels)[:20]:
-            diffs.append(f"    + {r}")
-        if n > 20:
-            diffs.append(f"    ... and {n - 20} more")
+        _capped_list(
+            diffs, "Added relationships", added_rels, "+",
+        )
 
     # External references — matched by SPDXID
     # Normalize gitoid refs (compiled binary hashes
