@@ -1,0 +1,72 @@
+{
+  "spdxVersion": "SPDX-2.3",
+  "dataLicense": "CC0-1.0",
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "name": "omnibor-java-testapp-omnibor-java-testapp-1.0.0.jar",
+  "documentNamespace": "https://omnibor.io/spdx/omnibor-java-testapp/94a64ce9-b044-4859-8194-06b85c9ccc0a",
+  "creationInfo": {
+    "created": "2026-06-22T21:55:50Z",
+    "creators": [
+      "Tool: omnibor-analysis",
+      "Tool: bomsh_create_bom_java.py"
+    ],
+    "licenseListVersion": "3.19"
+  },
+  "packages": [
+    {
+      "SPDXID": "SPDXRef-Package-omnibor-java-testapp-1.0.0.jar",
+      "name": "omnibor-java-testapp",
+      "versionInfo": "1.0.0",
+      "downloadLocation": "https://github.com/tedg-dev/omnibor-java-testapp/commit/93058e537cb8c6b0a32f20f761aaf87822626355",
+      "filesAnalyzed": true,
+      "primaryPackagePurpose": "APPLICATION",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/omnibor-java-testapp/omnibor-java-testapp"
+        }
+      ]
+    }
+  ],
+  "files": [
+    {
+      "SPDXID": "SPDXRef-File-0",
+      "fileName": "src/main/java/com/example/omnibor/testapp/App.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "ab385c089c35c8b19da6a82cf3af35e449b413cf"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-1",
+      "fileName": "target/classes/com/example/omnibor/testapp/App.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "2ff98ec83fb7cbf16ae056ebbf76043d51606179"
+        }
+      ]
+    }
+  ],
+  "relationships": [
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relatedSpdxElement": "SPDXRef-Package-omnibor-java-testapp-1.0.0.jar",
+      "relationshipType": "DESCRIBES"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-0",
+      "relatedSpdxElement": "SPDXRef-Package-omnibor-java-testapp-1.0.0.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-1",
+      "relatedSpdxElement": "SPDXRef-Package-omnibor-java-testapp-1.0.0.jar",
+      "relationshipType": "CONTAINED_BY"
+    }
+  ]
+}
