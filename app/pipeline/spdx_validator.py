@@ -22,11 +22,42 @@ class SpdxValidator:
     with a warning printed instead of a hard failure.
     """
 
-    SCHEMA_URL = (
-        "https://raw.githubusercontent.com/spdx/"
-        "spdx-spec/development/v2.3.1/"
-        "schemas/spdx-schema.json"
-    )
+    # Directory holding vendored SPDX JSON Schemas. Validating
+    # against bundled copies avoids a network fetch (the upstream
+    # raw URL has returned 404 when the spec layout changes) and
+    # makes validation deterministic and offline-capable.
+    SCHEMA_DIR = Path(__file__).parent
+
+    # Maps an SPDX document's declared version to its vendored
+    # JSON Schema file. Version-keyed selection keeps the
+    # validator forward-compatible: support a new SPDX release
+    # (e.g. SPDX 3.x) by vendoring its schema here and adding an
+    # entry — no change to the validation logic is required.
+    # The JSON Schema draft is auto-detected per schema via
+    # ``validator_for`` (2.3.1 uses draft 2019-09; 3.x may differ).
+    SCHEMA_FILES = {
+        "SPDX-2.3": "spdx-2.3.1.schema.json",
+    }
+
+    def _schema_path_for(self, doc_json):
+        """Resolve the vendored schema for a document's version.
+
+        Reads the SPDX version from the document (``spdxVersion``
+        for 2.x, ``specVersion`` for 3.x) and returns
+        ``(Path, version)`` for the matching vendored schema, or
+        ``(None, version)`` when the version is unsupported so the
+        caller can skip schema validation rather than validate
+        against the wrong schema.
+        """
+        version = (
+            doc_json.get("spdxVersion")
+            or doc_json.get("specVersion")
+            or ""
+        )
+        filename = self.SCHEMA_FILES.get(version)
+        if filename is None:
+            return None, version
+        return self.SCHEMA_DIR / filename, version
 
     def validate(self, spdx_path):
         """Run both validation phases on *spdx_path*.
@@ -81,10 +112,14 @@ class SpdxValidator:
     def _validate_schema(
         self, doc_json, spdx_path, result
     ):
-        """Validate against SPDX 2.3 JSON Schema."""
+        """Validate against the vendored SPDX JSON Schema.
+
+        The schema is chosen from the document's declared SPDX
+        version, so the same validator handles both current
+        (2.3) and future (3.x) documents.
+        """
         try:
-            import jsonschema
-            import urllib.request
+            from jsonschema.validators import validator_for
         except ImportError:
             print(
                 "[WARN] jsonschema not installed — "
@@ -92,20 +127,32 @@ class SpdxValidator:
             )
             return result
 
+        schema_path, version = self._schema_path_for(doc_json)
+        if schema_path is None:
+            print(
+                f"[WARN] No vendored schema for SPDX version "
+                f"'{version}' — skipping schema validation"
+            )
+            return result
+
         try:
             import json
-            with urllib.request.urlopen(
-                self.SCHEMA_URL, timeout=30
-            ) as resp:
-                schema = json.loads(resp.read())
-        except Exception as e:
+            with open(
+                schema_path, "r", encoding="utf-8"
+            ) as f:
+                schema = json.load(f)
+        except (OSError, json.JSONDecodeError) as e:
             print(
-                f"[WARN] Could not fetch SPDX schema: "
+                f"[WARN] Could not load vendored SPDX schema: "
                 f"{e} — skipping schema validation"
             )
             return result
 
-        validator = jsonschema.Draft7Validator(schema)
+        # Auto-select the validator draft declared in the
+        # schema's $schema field (SPDX 2.3.1 uses 2019-09;
+        # a future 3.x schema may declare a newer draft).
+        validator_cls = validator_for(schema)
+        validator = validator_cls(schema)
         errors = sorted(
             validator.iter_errors(doc_json),
             key=lambda e: list(e.absolute_path),

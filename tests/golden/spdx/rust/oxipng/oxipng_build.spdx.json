@@ -3,9 +3,9 @@
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
   "name": "oxipng",
-  "documentNamespace": "https://omnibor.io/omnibor-analysis/oxipng-9cb0071b-5d57-4545-9b5f-6787ea229681",
+  "documentNamespace": "https://omnibor.io/omnibor-analysis/oxipng-44a47cbf-0473-47dd-90a5-e29372e88cb8",
   "creationInfo": {
-    "created": "2026-05-05T16:33:12Z",
+    "created": "2026-06-22T20:17:14Z",
     "creators": [
       "Tool: bomtrace3-unknown",
       "Tool: bomsh-unknown",
@@ -17,10 +17,10 @@
     {
       "SPDXID": "SPDXRef-Package-root",
       "name": "oxipng",
-      "downloadLocation": "NOASSERTION",
+      "downloadLocation": "https://github.com/oxipng/oxipng/commit/d54e7c04ea58170167d95d9b2b2ec07571602fe2",
       "filesAnalyzed": true,
       "primaryPackagePurpose": "APPLICATION",
-      "builtDate": "2026-05-05T16:33:12Z",
+      "builtDate": "2026-06-22T20:17:14Z",
       "externalRefs": [],
       "checksums": [],
       "comment": "Built on Ubuntu 22.04.5 LTS with gcc (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0",
@@ -48,7 +48,7 @@
       "versionInfo": "12.3.0-1ubuntu1~22.04.3",
       "supplier": "Organization: Ubuntu Core developers <ubuntu-devel-discuss@lists.ubuntu.com>",
       "homepage": "http://gcc.gnu.org/",
-      "packageSourceInfo": "Installed via dpkg package libgcc-s1 on Ubuntu 22.04.5 LTS."
+      "sourceInfo": "Installed via dpkg package libgcc-s1 on Ubuntu 22.04.5 LTS."
     },
     {
       "SPDXID": "SPDXRef-libc6-2",
@@ -72,7 +72,7 @@
       "versionInfo": "2.35-0ubuntu3.13",
       "supplier": "Organization: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>",
       "homepage": "https://www.gnu.org/software/libc/libc.html",
-      "packageSourceInfo": "Installed via dpkg package libc6 on Ubuntu 22.04.5 LTS."
+      "sourceInfo": "Installed via dpkg package libc6 on Ubuntu 22.04.5 LTS."
     },
     {
       "SPDXID": "SPDXRef-gcc-3",
@@ -90,7 +90,7 @@
           "referenceLocator": "cpe:2.3:a:gnu:gcc:11.4.0:*:*:*:*:*:*:*"
         }
       ],
-      "packageSourceInfo": "System-installed build toolchain on Ubuntu 22.04.5 LTS."
+      "sourceInfo": "System-installed build toolchain on Ubuntu 22.04.5 LTS."
     },
     {
       "SPDXID": "SPDXRef-anstream-4",
@@ -106,7 +106,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 1 source files compiled into oxipng",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "0.6.20"
     },
     {
@@ -123,7 +123,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 1 source files compiled into oxipng",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "1.0.11"
     },
     {
@@ -140,7 +140,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 1 source files compiled into oxipng",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "0.2.7"
     },
     {
@@ -157,7 +157,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 1 source files compiled into oxipng",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "1.1.4"
     },
     {
@@ -174,7 +174,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 1 source files compiled into oxipng",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "2.9.4"
     },
     {
@@ -191,7 +191,7 @@
         }
       ],
       "comment": "Rust crate (direct, statically linked). 1 source files compiled into oxipng",
-      "packageSourceInfo": "Downloaded from crates.io registry. Source at ~/.cargo/registry/src/.",
+      "sourceInfo": "Downloaded from crates.io registry. Source at ~/.cargo/registry/src/.",
       "versionInfo": "1.0.1"
     },
     {
@@ -208,7 +208,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 1 source files compiled into oxipng",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "3.19.0"
     },
     {
@@ -225,7 +225,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 1 source files compiled into oxipng",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "1.23.2"
     },
     {
@@ -242,7 +242,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 1 source files compiled into oxipng",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "1.2.38"
     },
     {
@@ -259,7 +259,7 @@
         }
       ],
       "comment": "Rust crate (direct, statically linked). 1 source files compiled into oxipng",
-      "packageSourceInfo": "Downloaded from crates.io registry. Source at ~/.cargo/registry/src/.",
+      "sourceInfo": "Downloaded from crates.io registry. Source at ~/.cargo/registry/src/.",
       "versionInfo": "4.5.54"
     },
     {
@@ -276,7 +276,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 1 source files compiled into oxipng",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "4.5.54"
     },
     {
@@ -293,7 +293,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 1 source files compiled into oxipng",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "0.7.5"
     },
     {
@@ -310,7 +310,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 1 source files compiled into oxipng",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "1.0.4"
     },
     {
@@ -327,7 +327,7 @@
         }
       ],
       "comment": "Rust crate (direct, statically linked). 1 source files compiled into oxipng",
-      "packageSourceInfo": "Downloaded from crates.io registry. Source at ~/.cargo/registry/src/.",
+      "sourceInfo": "Downloaded from crates.io registry. Source at ~/.cargo/registry/src/.",
       "versionInfo": "0.5.15"
     },
     {
@@ -344,7 +344,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 1 source files compiled into oxipng",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "0.8.6"
     },
     {
@@ -361,7 +361,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 1 source files compiled into oxipng",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "0.9.18"
     },
     {
@@ -378,7 +378,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 2 source files compiled into oxipng",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "0.8.21"
     },
     {
@@ -395,7 +395,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 1 source files compiled into oxipng",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "1.15.0"
     },
     {
@@ -412,7 +412,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 1 source files compiled into oxipng",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "0.1.3"
     },
     {
@@ -429,7 +429,7 @@
         }
       ],
       "comment": "Rust crate (direct, statically linked). 1 source files compiled into oxipng",
-      "packageSourceInfo": "Downloaded from crates.io registry. Source at ~/.cargo/registry/src/.",
+      "sourceInfo": "Downloaded from crates.io registry. Source at ~/.cargo/registry/src/.",
       "versionInfo": "0.11.8"
     },
     {
@@ -446,7 +446,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 1 source files compiled into oxipng",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "1.0.2"
     },
     {
@@ -463,7 +463,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 1 source files compiled into oxipng",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "0.1.2"
     },
     {
@@ -480,7 +480,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 1 source files compiled into oxipng",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "2.0.0"
     },
     {
@@ -497,7 +497,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 1 source files compiled into oxipng",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "0.16.1"
     },
     {
@@ -514,7 +514,7 @@
         }
       ],
       "comment": "Rust crate (direct, statically linked). 1 source files compiled into oxipng",
-      "packageSourceInfo": "Downloaded from crates.io registry. Source at ~/.cargo/registry/src/.",
+      "sourceInfo": "Downloaded from crates.io registry. Source at ~/.cargo/registry/src/.",
       "versionInfo": "2.13.0"
     },
     {
@@ -531,7 +531,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 1 source files compiled into oxipng",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "1.70.1"
     },
     {
@@ -548,7 +548,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 2 source files compiled into oxipng",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "1.25.0"
     },
     {
@@ -565,7 +565,7 @@
         }
       ],
       "comment": "Rust crate (direct, statically linked). 1 source files compiled into oxipng",
-      "packageSourceInfo": "Downloaded from crates.io registry. Source at ~/.cargo/registry/src/.",
+      "sourceInfo": "Downloaded from crates.io registry. Source at ~/.cargo/registry/src/.",
       "versionInfo": "1.25.0"
     },
     {
@@ -582,7 +582,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 1 source files compiled into oxipng",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "0.11.0"
     },
     {
@@ -599,7 +599,7 @@
         }
       ],
       "comment": "Rust crate (direct, statically linked). 1 source files compiled into oxipng",
-      "packageSourceInfo": "Downloaded from crates.io registry. Source at ~/.cargo/registry/src/.",
+      "sourceInfo": "Downloaded from crates.io registry. Source at ~/.cargo/registry/src/.",
       "versionInfo": "0.4.29"
     },
     {
@@ -616,7 +616,7 @@
         }
       ],
       "comment": "Rust crate (direct, statically linked). 1 source files compiled into oxipng",
-      "packageSourceInfo": "Downloaded from crates.io registry. Source at ~/.cargo/registry/src/.",
+      "sourceInfo": "Downloaded from crates.io registry. Source at ~/.cargo/registry/src/.",
       "versionInfo": "1.1.0"
     },
     {
@@ -633,7 +633,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 2 source files compiled into oxipng",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "0.7.0"
     },
     {
@@ -650,7 +650,7 @@
         }
       ],
       "comment": "Rust crate (direct, statically linked). 1 source files compiled into oxipng",
-      "packageSourceInfo": "Downloaded from crates.io registry. Source at ~/.cargo/registry/src/.",
+      "sourceInfo": "Downloaded from crates.io registry. Source at ~/.cargo/registry/src/.",
       "versionInfo": "1.11.0"
     },
     {
@@ -667,7 +667,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 2 source files compiled into oxipng",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "1.13.0"
     },
     {
@@ -684,7 +684,7 @@
         }
       ],
       "comment": "Rust crate (direct, statically linked). 1 source files compiled into oxipng",
-      "packageSourceInfo": "Downloaded from crates.io registry. Source at ~/.cargo/registry/src/.",
+      "sourceInfo": "Downloaded from crates.io registry. Source at ~/.cargo/registry/src/.",
       "versionInfo": "0.8.52"
     },
     {
@@ -701,7 +701,7 @@
         }
       ],
       "comment": "Rust crate (direct, statically linked). 1 source files compiled into oxipng",
-      "packageSourceInfo": "Downloaded from crates.io registry. Source at ~/.cargo/registry/src/.",
+      "sourceInfo": "Downloaded from crates.io registry. Source at ~/.cargo/registry/src/.",
       "versionInfo": "2.1.1"
     },
     {
@@ -718,7 +718,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 2 source files compiled into oxipng",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "1.1.2"
     },
     {
@@ -735,7 +735,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 1 source files compiled into oxipng",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "1.3.0"
     },
     {
@@ -752,7 +752,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 1 source files compiled into oxipng",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "0.3.7"
     },
     {
@@ -769,7 +769,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 1 source files compiled into oxipng",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "0.11.1"
     },
     {
@@ -786,7 +786,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 1 source files compiled into oxipng",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "1.0.1"
     },
     {
@@ -803,7 +803,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 1 source files compiled into oxipng",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "0.4.3"
     },
     {
@@ -820,7 +820,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 1 source files compiled into oxipng",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "0.2.2"
     },
     {
@@ -837,7 +837,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 1 source files compiled into oxipng",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "0.5.1"
     },
     {
@@ -854,7 +854,7 @@
         }
       ],
       "comment": "Rust crate (direct, statically linked). 1 source files compiled into oxipng",
-      "packageSourceInfo": "Downloaded from crates.io registry. Source at ~/.cargo/registry/src/.",
+      "sourceInfo": "Downloaded from crates.io registry. Source at ~/.cargo/registry/src/.",
       "versionInfo": "0.8.3"
     }
   ],

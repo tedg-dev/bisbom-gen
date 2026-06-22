@@ -11,12 +11,18 @@ services:
       dockerfile: docker/Dockerfile
       target: standalone
     image: omnibor-env:standalone
-    container_name: omnibor-analysis
+    # No fixed container_name: with `run --rm` it is unnecessary,
+    # blocks concurrent runs, and collides with the omnibor-env
+    # alias that extends this service.
     volumes:
       - ../repos:/workspace/repos
       - ../output:/workspace/output
       - ../app:/workspace/app
       - ../docs:/workspace/docs
+      # Persist Maven/Gradle caches across ephemeral runs so
+      # dependencies/plugins are downloaded once, not per run.
+      - maven-cache:/root/.m2
+      - gradle-cache:/root/.gradle
     working_dir: /workspace
     stdin_open: true
     tty: true
@@ -36,12 +42,15 @@ services:
       dockerfile: docker/Dockerfile
       target: sidecar
     image: omnibor-env:sidecar
-    container_name: omnibor-sidecar
     volumes:
       - ../repos:/workspace/repos
       - ../output:/workspace/output
       - ../app:/workspace/app
       - ../docs:/workspace/docs
+      # Persist Maven/Gradle caches across ephemeral runs so
+      # dependencies/plugins are downloaded once, not per run.
+      - maven-cache:/root/.m2
+      - gradle-cache:/root/.gradle
     working_dir: /workspace
     stdin_open: true
     tty: true
@@ -87,3 +96,10 @@ services:
       - ../repos:/workspace/repos
       - ../output:/workspace/output
     working_dir: /workspace
+
+# Named volumes for build-tool dependency caches.  Shared by
+# the standalone and sidecar services so Maven/Gradle artifacts
+# persist across ephemeral `docker compose run --rm` invocations.
+volumes:
+  maven-cache:
+  gradle-cache:

@@ -216,9 +216,15 @@ def run_maven_dep_tree(
 ):
     """Run ``mvn dependency:tree -DoutputType=dot``.
 
-    Runs in offline mode (``-o``) because this is called
-    after a successful build — the local ``.m2/repository``
-    cache is guaranteed complete.  Skip flags prevent
+    Attempts offline mode (``-o``) first: when the local
+    ``.m2/repository`` cache is warm, this avoids redundant
+    remote metadata checks.  If the offline run fails — for
+    example because a required plugin (the
+    ``maven-dependency-plugin`` itself) was not cached by
+    the preceding build — it falls back to an online run.
+    The build step runs online, so the network is
+    available and the online ``dependency:tree`` is the
+    authoritative dependency graph.  Skip flags prevent
     lifecycle plugins from firing unnecessarily.
 
     Args:
@@ -242,45 +248,71 @@ def run_maven_dep_tree(
         )
         return None
 
-    cmd = [
+    base_cmd = [
         "mvn", "dependency:tree",
         "-DoutputType=dot",
-        "-o",
         "-DskipTests",
         "-Dmaven.javadoc.skip=true",
         "-Denforcer.skip=true",
         "-Dcheckstyle.skip=true",
     ]
     if maven_modules:
-        cmd.extend(["-pl", maven_modules, "-am"])
+        base_cmd.extend(["-pl", maven_modules, "-am"])
 
     # runner is accepted for interface consistency
     # with other pipeline functions but not yet used
     # for dep:tree (subprocess.run is sufficient).
     _ = runner
 
-    try:
-        result = subprocess.run(
-            cmd,
-            cwd=str(repo_path),
-            capture_output=True,
-            text=True,
-            timeout=120,
-            check=False,
-        )
-        if result.returncode != 0:
+    # Offline-first, then online fallback.  Each attempt is
+    # the same command; the offline attempt inserts ``-o``.
+    last_output = ""
+    for offline in (True, False):
+        cmd = list(base_cmd)
+        if offline:
+            cmd.insert(2, "-o")
+        try:
+            result = subprocess.run(
+                cmd,
+                cwd=str(repo_path),
+                capture_output=True,
+                text=True,
+                timeout=120,
+                check=False,
+            )
+        except subprocess.TimeoutExpired:
             print(
-                "[WARN] mvn dependency:tree failed: "
-                f"{result.stderr[:200]}"
+                "[WARN] mvn dependency:tree timed out "
+                "(120s)"
             )
             return None
-        return result.stdout
-    except subprocess.TimeoutExpired:
-        print(
-            "[WARN] mvn dependency:tree timed out "
-            "(120s)"
+        except FileNotFoundError:
+            print("[WARN] mvn not found on PATH")
+            return None
+
+        if result.returncode == 0:
+            if not offline:
+                print(
+                    "[INFO] mvn dependency:tree "
+                    "succeeded online (offline .m2 "
+                    "cache incomplete)"
+                )
+            return result.stdout
+
+        # Maven writes resolution errors to stdout, not
+        # stderr — capture both so failures are visible.
+        last_output = (
+            (result.stdout or "")
+            + (result.stderr or "")
         )
-        return None
-    except FileNotFoundError:
-        print("[WARN] mvn not found on PATH")
-        return None
+        if offline:
+            print(
+                "[WARN] offline mvn dependency:tree "
+                "failed; retrying online"
+            )
+
+    print(
+        "[ERROR] mvn dependency:tree failed:\n"
+        f"{last_output[-500:]}"
+    )
+    return None

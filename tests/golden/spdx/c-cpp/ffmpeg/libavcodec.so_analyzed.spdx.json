@@ -3,9 +3,9 @@
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
   "name": "libavcodec.so",
-  "documentNamespace": "https://omnibor.io/omnibor-analysis/libavcodec.so-c04ee499-6e44-4fc8-bdf1-a425bf865c2e",
+  "documentNamespace": "https://omnibor.io/omnibor-analysis/libavcodec.so-927ae35a-9e4e-4998-a127-5ac2067c7d30",
   "creationInfo": {
-    "created": "2026-05-14T18:00:07Z",
+    "created": "2026-06-22T20:52:35Z",
     "creators": [
       "Tool: bomtrace3-unknown",
       "Tool: bomsh-unknown",
@@ -20,7 +20,7 @@
       "downloadLocation": "https://github.com/FFmpeg/FFmpeg/commit/9047fa1b084f76b1b4d065af2d743df1b40dfb56",
       "filesAnalyzed": true,
       "primaryPackagePurpose": "LIBRARY",
-      "builtDate": "2026-05-14T18:00:07Z",
+      "builtDate": "2026-06-22T20:52:35Z",
       "externalRefs": [],
       "checksums": [],
       "comment": "Built on Ubuntu 22.04.5 LTS with gcc (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0",

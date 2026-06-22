@@ -3,9 +3,9 @@
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
   "name": "libcurl.so",
-  "documentNamespace": "https://omnibor.io/omnibor-analysis/libcurl.so-6f95886b-0862-4bb7-9f70-1636d130f2fd",
+  "documentNamespace": "https://omnibor.io/omnibor-analysis/libcurl.so-eaf86f96-9fdf-4560-8b72-eb31c8cfe76a",
   "creationInfo": {
-    "created": "2026-05-14T17:47:23Z",
+    "created": "2026-06-22T20:38:47Z",
     "creators": [
       "Tool: bomtrace3-unknown",
       "Tool: bomsh-unknown",
@@ -20,7 +20,7 @@
       "downloadLocation": "https://github.com/curl/curl/commit/8c908d2d0a6d32abdedda2c52e90bd56ec76c24d",
       "filesAnalyzed": true,
       "primaryPackagePurpose": "LIBRARY",
-      "builtDate": "2026-05-14T17:47:23Z",
+      "builtDate": "2026-06-22T20:38:47Z",
       "externalRefs": [],
       "checksums": [],
       "comment": "Built on Ubuntu 22.04.5 LTS with gcc (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0",
@@ -48,7 +48,7 @@
       "versionInfo": "1.0.9-2build6",
       "supplier": "Organization: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>",
       "homepage": "https://github.com/google/brotli",
-      "packageSourceInfo": "Installed via dpkg package libbrotli1 on Ubuntu 22.04.5 LTS."
+      "sourceInfo": "Installed via dpkg package libbrotli1 on Ubuntu 22.04.5 LTS."
     },
     {
       "SPDXID": "SPDXRef-libc6-2",
@@ -72,7 +72,7 @@
       "versionInfo": "2.35-0ubuntu3.13",
       "supplier": "Organization: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>",
       "homepage": "https://www.gnu.org/software/libc/libc.html",
-      "packageSourceInfo": "Installed via dpkg package libc6 on Ubuntu 22.04.5 LTS."
+      "sourceInfo": "Installed via dpkg package libc6 on Ubuntu 22.04.5 LTS."
     },
     {
       "SPDXID": "SPDXRef-libidn2-0-3",
@@ -96,7 +96,7 @@
       "versionInfo": "2.3.2-2build1",
       "supplier": "Organization: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>",
       "homepage": "https://www.gnu.org/software/libidn/#libidn2",
-      "packageSourceInfo": "Installed via dpkg package libidn2-0 on Ubuntu 22.04.5 LTS."
+      "sourceInfo": "Installed via dpkg package libidn2-0 on Ubuntu 22.04.5 LTS."
     },
     {
       "SPDXID": "SPDXRef-libpsl5-4",
@@ -120,7 +120,7 @@
       "versionInfo": "0.21.0-1.2build2",
       "supplier": "Organization: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>",
       "homepage": "https://github.com/rockdaboot/libpsl",
-      "packageSourceInfo": "Installed via dpkg package libpsl5 on Ubuntu 22.04.5 LTS."
+      "sourceInfo": "Installed via dpkg package libpsl5 on Ubuntu 22.04.5 LTS."
     },
     {
       "SPDXID": "SPDXRef-libssh2-1-5",
@@ -144,7 +144,7 @@
       "versionInfo": "1.10.0-3",
       "supplier": "Organization: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>",
       "homepage": "https://libssh2.org/",
-      "packageSourceInfo": "Installed via dpkg package libssh2-1 on Ubuntu 22.04.5 LTS."
+      "sourceInfo": "Installed via dpkg package libssh2-1 on Ubuntu 22.04.5 LTS."
     },
     {
       "SPDXID": "SPDXRef-libunistring2-6",
@@ -168,7 +168,7 @@
       "versionInfo": "1.0-1",
       "supplier": "Organization: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>",
       "homepage": "https://www.gnu.org/software/libunistring/",
-      "packageSourceInfo": "Installed via dpkg package libunistring2 on Ubuntu 22.04.5 LTS."
+      "sourceInfo": "Installed via dpkg package libunistring2 on Ubuntu 22.04.5 LTS."
     },
     {
       "SPDXID": "SPDXRef-libzstd1-7",
@@ -192,7 +192,7 @@
       "versionInfo": "1.4.8+dfsg-3build1",
       "supplier": "Organization: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>",
       "homepage": "https://github.com/facebook/zstd",
-      "packageSourceInfo": "Installed via dpkg package libzstd1 on Ubuntu 22.04.5 LTS."
+      "sourceInfo": "Installed via dpkg package libzstd1 on Ubuntu 22.04.5 LTS."
     },
     {
       "SPDXID": "SPDXRef-libnghttp2-14-8",
@@ -216,7 +216,7 @@
       "versionInfo": "1.43.0-1ubuntu0.3",
       "supplier": "Organization: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>",
       "homepage": "https://nghttp2.org/",
-      "packageSourceInfo": "Installed via dpkg package libnghttp2-14 on Ubuntu 22.04.5 LTS."
+      "sourceInfo": "Installed via dpkg package libnghttp2-14 on Ubuntu 22.04.5 LTS."
     },
     {
       "SPDXID": "SPDXRef-libssl3-9",
@@ -228,7 +228,7 @@
         {
           "referenceCategory": "PACKAGE-MANAGER",
           "referenceType": "purl",
-          "referenceLocator": "pkg:deb/ubuntu/libssl3@3.0.2-0ubuntu1.23?arch=amd64&distro=ubuntu-22.04"
+          "referenceLocator": "pkg:deb/ubuntu/libssl3@3.0.2-0ubuntu1.25?arch=amd64&distro=ubuntu-22.04"
         },
         {
           "referenceCategory": "SECURITY",
@@ -237,10 +237,10 @@
         }
       ],
       "comment": "Dynamically linked (direct). sonames: libcrypto.so.3, libssl.so.3. dpkg: libssl3 (amd64)",
-      "versionInfo": "3.0.2-0ubuntu1.23",
+      "versionInfo": "3.0.2-0ubuntu1.25",
       "supplier": "Organization: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>",
       "homepage": "https://www.openssl.org/",
-      "packageSourceInfo": "Installed via dpkg package libssl3 on Ubuntu 22.04.5 LTS."
+      "sourceInfo": "Installed via dpkg package libssl3 on Ubuntu 22.04.5 LTS."
     },
     {
       "SPDXID": "SPDXRef-zlib1g-10",
@@ -264,7 +264,7 @@
       "versionInfo": "1:1.2.11.dfsg-2ubuntu9.2",
       "supplier": "Organization: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>",
       "homepage": "http://zlib.net/",
-      "packageSourceInfo": "Installed via dpkg package zlib1g on Ubuntu 22.04.5 LTS."
+      "sourceInfo": "Installed via dpkg package zlib1g on Ubuntu 22.04.5 LTS."
     },
     {
       "SPDXID": "SPDXRef-gcc-11",
@@ -282,7 +282,7 @@
           "referenceLocator": "cpe:2.3:a:gnu:gcc:11.4.0:*:*:*:*:*:*:*"
         }
       ],
-      "packageSourceInfo": "System-installed build toolchain on Ubuntu 22.04.5 LTS."
+      "sourceInfo": "System-installed build toolchain on Ubuntu 22.04.5 LTS."
     }
   ],
   "files": [

@@ -3,9 +3,9 @@
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
   "name": "dura",
-  "documentNamespace": "https://omnibor.io/omnibor-analysis/dura-75b18f68-5e4c-4c28-9c1d-6630f648ea3c",
+  "documentNamespace": "https://omnibor.io/omnibor-analysis/dura-823d9d72-0577-4a10-8774-e0f72a056525",
   "creationInfo": {
-    "created": "2026-05-04T22:24:21Z",
+    "created": "2026-06-22T20:20:51Z",
     "creators": [
       "Tool: bomtrace3-unknown",
       "Tool: bomsh-unknown",
@@ -17,10 +17,10 @@
     {
       "SPDXID": "SPDXRef-Package-root",
       "name": "dura",
-      "downloadLocation": "NOASSERTION",
+      "downloadLocation": "https://github.com/tkellogg/dura/commit/33362943d7993bd85d978c62b3d230d55c702f47",
       "filesAnalyzed": true,
       "primaryPackagePurpose": "APPLICATION",
-      "builtDate": "2026-05-04T22:24:21Z",
+      "builtDate": "2026-06-22T20:20:51Z",
       "externalRefs": [],
       "checksums": [],
       "comment": "Built on Ubuntu 22.04.5 LTS with gcc (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0",
@@ -40,7 +40,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 1 source files compiled into dura",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "0.12.1"
     },
     {
@@ -57,7 +57,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 1 source files compiled into dura",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "0.2.14"
     },
     {
@@ -74,7 +74,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 1 source files compiled into dura",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "1.0.1"
     },
     {
@@ -91,7 +91,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 1 source files compiled into dura",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "1.3.2"
     },
     {
@@ -108,7 +108,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 1 source files compiled into dura",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "1.1.0"
     },
     {
@@ -125,7 +125,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 1 source files compiled into dura",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "1.0.72"
     },
     {
@@ -142,7 +142,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 1 source files compiled into dura",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "1.0.0"
     },
     {
@@ -159,7 +159,7 @@
         }
       ],
       "comment": "Rust crate (direct, statically linked). 1 source files compiled into dura",
-      "packageSourceInfo": "Downloaded from crates.io registry. Source at ~/.cargo/registry/src/.",
+      "sourceInfo": "Downloaded from crates.io registry. Source at ~/.cargo/registry/src/.",
       "versionInfo": "0.4.19"
     },
     {
@@ -176,7 +176,7 @@
         }
       ],
       "comment": "Rust crate (direct, statically linked). 1 source files compiled into dura",
-      "packageSourceInfo": "Downloaded from crates.io registry. Source at ~/.cargo/registry/src/.",
+      "sourceInfo": "Downloaded from crates.io registry. Source at ~/.cargo/registry/src/.",
       "versionInfo": "3.1.6"
     },
     {
@@ -193,7 +193,7 @@
         }
       ],
       "comment": "Rust crate (direct, statically linked). 1 source files compiled into dura",
-      "packageSourceInfo": "Downloaded from crates.io registry. Source at ~/.cargo/registry/src/.",
+      "sourceInfo": "Downloaded from crates.io registry. Source at ~/.cargo/registry/src/.",
       "versionInfo": "4.0.0"
     },
     {
@@ -210,7 +210,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 1 source files compiled into dura",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "0.3.6"
     },
     {
@@ -227,7 +227,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 1 source files compiled into dura",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "1.0.1"
     },
     {
@@ -244,7 +244,7 @@
         }
       ],
       "comment": "Rust crate (direct, statically linked). 1 source files compiled into dura",
-      "packageSourceInfo": "Downloaded from crates.io registry. Source at ~/.cargo/registry/src/.",
+      "sourceInfo": "Downloaded from crates.io registry. Source at ~/.cargo/registry/src/.",
       "versionInfo": "0.13.25"
     },
     {
@@ -261,7 +261,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 1 source files compiled into dura",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "0.11.2"
     },
     {
@@ -278,7 +278,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 1 source files compiled into dura",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "0.2.3"
     },
     {
@@ -295,7 +295,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 2 source files compiled into dura",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "1.8.0"
     },
     {
@@ -312,7 +312,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 1 source files compiled into dura",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "0.1.12"
     },
     {
@@ -329,7 +329,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 1 source files compiled into dura",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "1.0.1"
     },
     {
@@ -346,7 +346,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 1 source files compiled into dura",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "0.1.24"
     },
     {
@@ -363,7 +363,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 1 source files compiled into dura",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "1.4.0"
     },
     {
@@ -380,7 +380,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 2 source files compiled into dura",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "0.2.112"
     },
     {
@@ -397,7 +397,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 2 source files compiled into dura",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "0.12.26+1.3.0"
     },
     {
@@ -414,7 +414,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 2 source files compiled into dura",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "0.2.23"
     },
     {
@@ -431,7 +431,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 2 source files compiled into dura",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "1.1.3"
     },
     {
@@ -448,7 +448,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 1 source files compiled into dura",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "0.4.5"
     },
     {
@@ -465,7 +465,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 2 source files compiled into dura",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "0.4.14"
     },
     {
@@ -482,7 +482,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 1 source files compiled into dura",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "0.1.0"
     },
     {
@@ -499,7 +499,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 1 source files compiled into dura",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "0.1.9"
     },
     {
@@ -516,7 +516,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 2 source files compiled into dura",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "2.4.1"
     },
     {
@@ -533,7 +533,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 1 source files compiled into dura",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "0.7.14"
     },
     {
@@ -550,7 +550,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 2 source files compiled into dura",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "0.1.44"
     },
     {
@@ -567,7 +567,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 2 source files compiled into dura",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "0.2.14"
     },
     {
@@ -584,7 +584,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 1 source files compiled into dura",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "1.13.1"
     },
     {
@@ -601,7 +601,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 1 source files compiled into dura",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "1.9.0"
     },
     {
@@ -618,7 +618,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 1 source files compiled into dura",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "0.1.4"
     },
     {
@@ -635,7 +635,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 2 source files compiled into dura",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "0.9.72"
     },
     {
@@ -652,7 +652,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 1 source files compiled into dura",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "6.0.0"
     },
     {
@@ -669,7 +669,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 1 source files compiled into dura",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "0.11.2"
     },
     {
@@ -686,7 +686,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 2 source files compiled into dura",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "0.8.5"
     },
     {
@@ -703,7 +703,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 1 source files compiled into dura",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "2.1.0"
     },
     {
@@ -720,7 +720,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 1 source files compiled into dura",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "0.2.8"
     },
     {
@@ -737,7 +737,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 1 source files compiled into dura",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "0.3.24"
     },
     {
@@ -754,7 +754,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 2 source files compiled into dura",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "1.0.36"
     },
     {
@@ -771,7 +771,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 1 source files compiled into dura",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "1.0.14"
     },
     {
@@ -788,7 +788,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 1 source files compiled into dura",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "1.5.5"
     },
     {
@@ -805,7 +805,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 1 source files compiled into dura",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "0.1.10"
     },
     {
@@ -822,7 +822,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 1 source files compiled into dura",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "0.6.25"
     },
     {
@@ -839,7 +839,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 1 source files compiled into dura",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "1.0.9"
     },
     {
@@ -856,7 +856,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 1 source files compiled into dura",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "1.1.0"
     },
     {
@@ -873,7 +873,7 @@
         }
       ],
       "comment": "Rust crate (direct, statically linked). 2 source files compiled into dura",
-      "packageSourceInfo": "Downloaded from crates.io registry. Source at ~/.cargo/registry/src/.",
+      "sourceInfo": "Downloaded from crates.io registry. Source at ~/.cargo/registry/src/.",
       "versionInfo": "1.0.133"
     },
     {
@@ -890,7 +890,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 2 source files compiled into dura",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "1.0.133"
     },
     {
@@ -907,7 +907,7 @@
         }
       ],
       "comment": "Rust crate (direct, statically linked). 2 source files compiled into dura",
-      "packageSourceInfo": "Downloaded from crates.io registry. Source at ~/.cargo/registry/src/.",
+      "sourceInfo": "Downloaded from crates.io registry. Source at ~/.cargo/registry/src/.",
       "versionInfo": "1.0.74"
     },
     {
@@ -924,7 +924,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 1 source files compiled into dura",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "0.1.4"
     },
     {
@@ -941,7 +941,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 1 source files compiled into dura",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "1.4.0"
     },
     {
@@ -958,7 +958,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 1 source files compiled into dura",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "1.7.0"
     },
     {
@@ -975,7 +975,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 1 source files compiled into dura",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "0.10.0"
     },
     {
@@ -992,7 +992,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 2 source files compiled into dura",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "1.0.85"
     },
     {
@@ -1009,7 +1009,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 1 source files compiled into dura",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "1.1.2"
     },
     {
@@ -1026,7 +1026,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 1 source files compiled into dura",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "0.15.0"
     },
     {
@@ -1043,7 +1043,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 1 source files compiled into dura",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "1.1.4"
     },
     {
@@ -1060,7 +1060,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 1 source files compiled into dura",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "0.1.44"
     },
     {
@@ -1077,7 +1077,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 1 source files compiled into dura",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "1.5.1"
     },
     {
@@ -1094,7 +1094,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 1 source files compiled into dura",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "0.1.0"
     },
     {
@@ -1111,7 +1111,7 @@
         }
       ],
       "comment": "Rust crate (direct, statically linked). 1 source files compiled into dura",
-      "packageSourceInfo": "Downloaded from crates.io registry. Source at ~/.cargo/registry/src/.",
+      "sourceInfo": "Downloaded from crates.io registry. Source at ~/.cargo/registry/src/.",
       "versionInfo": "1.15.0"
     },
     {
@@ -1128,7 +1128,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 1 source files compiled into dura",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "1.7.0"
     },
     {
@@ -1145,7 +1145,7 @@
         }
       ],
       "comment": "Rust crate (direct, statically linked). 1 source files compiled into dura",
-      "packageSourceInfo": "Downloaded from crates.io registry. Source at ~/.cargo/registry/src/.",
+      "sourceInfo": "Downloaded from crates.io registry. Source at ~/.cargo/registry/src/.",
       "versionInfo": "0.5.8"
     },
     {
@@ -1162,7 +1162,7 @@
         }
       ],
       "comment": "Rust crate (direct, statically linked). 1 source files compiled into dura",
-      "packageSourceInfo": "Downloaded from crates.io registry. Source at ~/.cargo/registry/src/.",
+      "sourceInfo": "Downloaded from crates.io registry. Source at ~/.cargo/registry/src/.",
       "versionInfo": "0.1.29"
     },
     {
@@ -1179,7 +1179,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 1 source files compiled into dura",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "0.1.18"
     },
     {
@@ -1196,7 +1196,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 1 source files compiled into dura",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "0.1.21"
     },
     {
@@ -1213,7 +1213,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 1 source files compiled into dura",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "0.1.2"
     },
     {
@@ -1230,7 +1230,7 @@
         }
       ],
       "comment": "Rust crate (direct, statically linked). 1 source files compiled into dura",
-      "packageSourceInfo": "Downloaded from crates.io registry. Source at ~/.cargo/registry/src/.",
+      "sourceInfo": "Downloaded from crates.io registry. Source at ~/.cargo/registry/src/.",
       "versionInfo": "0.3.5"
     },
     {
@@ -1247,7 +1247,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 1 source files compiled into dura",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "0.3.7"
     },
     {
@@ -1264,7 +1264,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 1 source files compiled into dura",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "0.1.19"
     },
     {
@@ -1281,7 +1281,7 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 1 source files compiled into dura",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "0.2.2"
     },
     {
@@ -1298,14 +1298,14 @@
         }
       ],
       "comment": "Rust crate (transitive, statically linked). 1 source files compiled into dura",
-      "packageSourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
+      "sourceInfo": "Transitive dependency via Cargo. Downloaded from crates.io registry.",
       "versionInfo": "2.2.2"
     }
   ],
   "files": [
     {
       "SPDXID": "SPDXRef-File-filter.h-77",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/filter.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/filter.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1315,7 +1315,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-hashsig.h-78",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/sys/hashsig.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/sys/hashsig.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1325,7 +1325,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-config.h-79",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/sys/config.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/sys/config.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1335,7 +1335,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-cherrypick.h-80",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/cherrypick.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/cherrypick.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1345,7 +1345,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-cert.h-81",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/cert.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/cert.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1355,7 +1355,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-strarray.h-82",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/strarray.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/strarray.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1365,7 +1365,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-rebase.h-83",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/rebase.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/rebase.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1375,7 +1375,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-mempack.h-84",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/sys/mempack.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/sys/mempack.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1385,7 +1385,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-describe.h-85",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/describe.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/describe.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1395,7 +1395,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-index.h-86",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/sys/index.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/sys/index.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1405,7 +1405,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-worktree.h-87",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/worktree.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/worktree.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1415,7 +1415,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-branch.h-88",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/branch.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/branch.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1425,7 +1425,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-git2.h-89",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1435,7 +1435,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-submodule.h-90",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/submodule.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/submodule.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1445,7 +1445,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-path.h-91",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/sys/path.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/sys/path.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1455,7 +1455,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-global.h-92",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/global.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/global.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1465,7 +1465,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-common.h-93",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/common.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/common.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1475,7 +1475,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-pathspec.h-94",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/pathspec.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/pathspec.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1485,7 +1485,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-revert.h-95",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/revert.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/revert.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1495,7 +1495,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-libssh2-config.h-96",
-      "fileName": "repos/dura/target/release/build/libssh2-sys-616b02de60de6da3/out/build/libssh2_config.h",
+      "fileName": "repos/dura/target/release/build/libssh2-sys-fc16cea5bfff609c/out/build/libssh2_config.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1505,7 +1505,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-version.h-97",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/version.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/version.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1515,7 +1515,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-deprecated.h-98",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/deprecated.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/deprecated.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1525,7 +1525,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-attr.h-99",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/attr.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/attr.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1535,7 +1535,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-annotated-commit.h-100",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/annotated_commit.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/annotated_commit.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1545,7 +1545,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-pack.h-101",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/pack.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/pack.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1555,7 +1555,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-clone.h-102",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/clone.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/clone.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1565,7 +1565,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-message.h-103",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/message.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/message.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1575,7 +1575,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-libssh2-sftp.h-104",
-      "fileName": "repos/dura/target/release/build/libssh2-sys-616b02de60de6da3/out/include/libssh2_sftp.h",
+      "fileName": "repos/dura/target/release/build/libssh2-sys-fc16cea5bfff609c/out/include/libssh2_sftp.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1585,7 +1585,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-transaction.h-105",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/transaction.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/transaction.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1595,7 +1595,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-remote.h-106",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/remote.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/remote.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1605,7 +1605,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-commit.h-107",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/commit.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/commit.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1615,7 +1615,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-index.h-108",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/index.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/index.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1625,7 +1625,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-status.h-109",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/status.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/status.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1635,7 +1635,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-oid.h-110",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/oid.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/oid.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1645,7 +1645,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-transport.h-111",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/transport.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/transport.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1655,7 +1655,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-libssh2-publickey.h-112",
-      "fileName": "repos/dura/target/release/build/libssh2-sys-616b02de60de6da3/out/include/libssh2_publickey.h",
+      "fileName": "repos/dura/target/release/build/libssh2-sys-fc16cea5bfff609c/out/include/libssh2_publickey.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1665,7 +1665,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-proxy.h-113",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/proxy.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/proxy.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1675,7 +1675,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-stream.h-114",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/sys/stream.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/sys/stream.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1685,7 +1685,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-graph.h-115",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/graph.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/graph.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1695,7 +1695,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-stash.h-116",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/stash.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/stash.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1705,7 +1705,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-mailmap.h-117",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/mailmap.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/mailmap.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1715,7 +1715,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-config.h-118",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/config.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/config.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1725,7 +1725,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-refs.h-119",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/refs.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/refs.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1735,7 +1735,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-net.h-120",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/net.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/net.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1745,7 +1745,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-repository.h-121",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/sys/repository.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/sys/repository.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1755,7 +1755,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-trace.h-122",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/trace.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/trace.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1765,7 +1765,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-repository.h-123",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/repository.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/repository.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1775,7 +1775,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-blob.h-124",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/blob.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/blob.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1785,7 +1785,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-buffer.h-125",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/buffer.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/buffer.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1795,7 +1795,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-credential.h-126",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/credential.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/credential.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1805,7 +1805,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-oidarray.h-127",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/oidarray.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/oidarray.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1815,7 +1815,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-object.h-128",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/object.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/object.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1825,7 +1825,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-revwalk.h-129",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/revwalk.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/revwalk.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1835,7 +1835,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-credential-helpers.h-130",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/credential_helpers.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/credential_helpers.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1845,7 +1845,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-odb-backend.h-131",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/sys/odb_backend.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/sys/odb_backend.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1855,7 +1855,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-diff.h-132",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/diff.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/diff.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1865,7 +1865,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-refdb.h-133",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/refdb.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/refdb.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1875,7 +1875,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-tag.h-134",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/tag.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/tag.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1885,7 +1885,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-indexer.h-135",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/indexer.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/indexer.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1895,7 +1895,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-types.h-136",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/types.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/types.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1905,7 +1905,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-diff.h-137",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/sys/diff.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/sys/diff.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1915,7 +1915,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-signature.h-138",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/signature.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/signature.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1925,7 +1925,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-filter.h-139",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/sys/filter.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/sys/filter.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1935,7 +1935,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-openssl.h-140",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/sys/openssl.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/sys/openssl.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1945,7 +1945,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-email.h-141",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/email.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/email.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1955,7 +1955,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-commit.h-142",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/sys/commit.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/sys/commit.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1965,7 +1965,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-credential.h-143",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/sys/credential.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/sys/credential.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1975,7 +1975,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-apply.h-144",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/apply.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/apply.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1985,7 +1985,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-reset.h-145",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/reset.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/reset.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -1995,7 +1995,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-notes.h-146",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/notes.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/notes.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -2005,7 +2005,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-alloc.h-147",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/sys/alloc.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/sys/alloc.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -2025,7 +2025,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-refdb-backend.h-149",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/sys/refdb_backend.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/sys/refdb_backend.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -2035,7 +2035,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-odb-backend.h-150",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/odb_backend.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/odb_backend.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -2045,7 +2045,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-checkout.h-151",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/checkout.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/checkout.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -2055,7 +2055,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-reflog.h-152",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/reflog.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/reflog.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -2065,7 +2065,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-reflog.h-153",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/sys/reflog.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/sys/reflog.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -2075,7 +2075,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-blame.h-154",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/blame.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/blame.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -2095,7 +2095,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-refs.h-156",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/sys/refs.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/sys/refs.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -2105,7 +2105,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-odb.h-157",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/odb.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/odb.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -2115,7 +2115,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-errors.h-158",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/errors.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/errors.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -2125,7 +2125,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-revparse.h-159",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/revparse.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/revparse.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -2135,7 +2135,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-midx.h-160",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/sys/midx.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/sys/midx.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -2145,7 +2145,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-refspec.h-161",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/refspec.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/refspec.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -2155,7 +2155,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-merge.h-162",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/sys/merge.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/sys/merge.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -2165,7 +2165,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-libssh2.h-163",
-      "fileName": "repos/dura/target/release/build/libssh2-sys-616b02de60de6da3/out/include/libssh2.h",
+      "fileName": "repos/dura/target/release/build/libssh2-sys-fc16cea5bfff609c/out/include/libssh2.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -2175,7 +2175,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-tree.h-164",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/tree.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/tree.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -2185,7 +2185,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-features.h-165",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/sys/features.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/sys/features.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -2195,7 +2195,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-ignore.h-166",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/ignore.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/ignore.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -2205,7 +2205,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-commit-graph.h-167",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/sys/commit_graph.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/sys/commit_graph.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -2215,7 +2215,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-merge.h-168",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/merge.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/merge.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -2225,7 +2225,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-patch.h-169",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/patch.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/patch.h",
       "checksums": [
         {
           "algorithm": "SHA1",
@@ -2235,7 +2235,7 @@
     },
     {
       "SPDXID": "SPDXRef-File-transport.h-170",
-      "fileName": "repos/dura/target/release/build/libgit2-sys-7580a15d78db2459/out/include/git2/sys/transport.h",
+      "fileName": "repos/dura/target/release/build/libgit2-sys-3b1ba35bf8c02121/out/include/git2/sys/transport.h",
       "checksums": [
         {
           "algorithm": "SHA1",

@@ -1004,17 +1004,17 @@ class TestSpdxEmitter(unittest.TestCase):
         ]
         self.assertIn("purl", ref_types)
         self.assertIn("cpe23Type", ref_types)
-        # packageSourceInfo for dpkg library
+        # sourceInfo for dpkg library
         self.assertIn(
-            "packageSourceInfo", ssl_pkg
+            "sourceInfo", ssl_pkg
         )
         self.assertIn(
             "Installed via dpkg",
-            ssl_pkg["packageSourceInfo"],
+            ssl_pkg["sourceInfo"],
         )
         self.assertIn(
             "libssl3",
-            ssl_pkg["packageSourceInfo"],
+            ssl_pkg["sourceInfo"],
         )
         # DYNAMIC_LINK relationship
         rels = [
@@ -1404,12 +1404,12 @@ class TestSpdxEmitterVendored(unittest.TestCase):
                     pkg["comment"],
                 )
                 self.assertIn(
-                    "packageSourceInfo",
+                    "sourceInfo",
                     pkg,
                 )
                 self.assertIn(
                     "Vendored from",
-                    pkg["packageSourceInfo"],
+                    pkg["sourceInfo"],
                 )
 
     def test_vendored_files_owned_by_lib_package(self):
@@ -2585,17 +2585,17 @@ class TestProjectBuiltLibs(unittest.TestCase):
             avcodec["downloadLocation"],
             "NOASSERTION",
         )
-        # packageSourceInfo for project-built lib
+        # sourceInfo for project-built lib
         self.assertIn(
-            "packageSourceInfo", avcodec
+            "sourceInfo", avcodec
         )
         self.assertIn(
             "Built from project source",
-            avcodec["packageSourceInfo"],
+            avcodec["sourceInfo"],
         )
         self.assertIn(
             "ffmpeg",
-            avcodec["packageSourceInfo"],
+            avcodec["sourceInfo"],
         )
 
     def test_emit_project_built_no_version(self):
@@ -3298,13 +3298,13 @@ class TestGoModuleEmission(unittest.TestCase):
             and r["relationshipType"] == "BUILD_TOOL_OF"
         ]
         self.assertEqual(len(build_rels), 1)
-        # Go compiler packageSourceInfo
+        # Go compiler sourceInfo
         self.assertIn(
-            "packageSourceInfo", go_pkg
+            "sourceInfo", go_pkg
         )
         self.assertIn(
             "Go toolchain",
-            go_pkg["packageSourceInfo"],
+            go_pkg["sourceInfo"],
         )
 
         # Stdlib is DEPENDS_ON from root
@@ -3328,13 +3328,13 @@ class TestGoModuleEmission(unittest.TestCase):
         ]
         self.assertEqual(len(purls), 1)
         self.assertIn("pkg:golang/stdlib", purls[0])
-        # Stdlib packageSourceInfo
+        # Stdlib sourceInfo
         self.assertIn(
-            "packageSourceInfo", stdlib_pkg
+            "sourceInfo", stdlib_pkg
         )
         self.assertIn(
             "Bundled with Go toolchain",
-            stdlib_pkg["packageSourceInfo"],
+            stdlib_pkg["sourceInfo"],
         )
 
     def test_go_module_vendored_package(self):
@@ -3556,19 +3556,19 @@ class TestGoModuleEmission(unittest.TestCase):
                 "indirect",
                 indirect_pkg["comment"],
             )
-            # packageSourceInfo for Go modules
+            # sourceInfo for Go modules
             self.assertIn(
                 "go mod vendor",
-                direct_pkg["packageSourceInfo"],
+                direct_pkg["sourceInfo"],
             )
             self.assertIn(
                 "vendor/github.com/direct/pkg/",
-                direct_pkg["packageSourceInfo"],
+                direct_pkg["sourceInfo"],
             )
             self.assertIn(
                 "Indirect dependency",
                 indirect_pkg[
-                    "packageSourceInfo"
+                    "sourceInfo"
                 ],
             )
 
@@ -4037,12 +4037,12 @@ class TestRustCrateEmission(unittest.TestCase):
         self.assertIn(
             "statically linked", pkg["comment"]
         )
-        # packageSourceInfo mentions crates.io
+        # sourceInfo mentions crates.io
         self.assertIn(
-            "packageSourceInfo", pkg
+            "sourceInfo", pkg
         )
         self.assertIn(
-            "crates.io", pkg["packageSourceInfo"]
+            "crates.io", pkg["sourceInfo"]
         )
 
     def test_rust_crate_purl_with_version(self):

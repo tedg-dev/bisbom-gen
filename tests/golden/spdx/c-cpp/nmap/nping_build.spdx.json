@@ -3,9 +3,9 @@
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
   "name": "nping",
-  "documentNamespace": "https://omnibor.io/omnibor-analysis/nping-21a716ef-3f98-40ab-9778-7903eaabb6eb",
+  "documentNamespace": "https://omnibor.io/omnibor-analysis/nping-c7e9f28f-f217-4fb2-be5f-16ffc8047260",
   "creationInfo": {
-    "created": "2026-03-12T21:44:14Z",
+    "created": "2026-06-22T20:39:56Z",
     "creators": [
       "Tool: bomtrace3-unknown",
       "Tool: bomsh-unknown",
@@ -17,25 +17,25 @@
     {
       "SPDXID": "SPDXRef-Package-root",
       "name": "nping",
-      "downloadLocation": "NOASSERTION",
+      "downloadLocation": "https://github.com/nmap/nmap/commit/8f0ebd84ad3b211d9f25f47d69fb81da722b38c1",
       "filesAnalyzed": true,
       "primaryPackagePurpose": "APPLICATION",
-      "builtDate": "2026-03-12T21:44:14Z",
+      "builtDate": "2026-06-22T20:39:56Z",
       "externalRefs": [
         {
           "referenceCategory": "PERSISTENT-ID",
           "referenceType": "gitoid",
-          "referenceLocator": "gitoid:blob:sha1:1f917911e25b08e6a6a4466cd9452d8e11743301"
+          "referenceLocator": "gitoid:blob:sha1:7af1722585ec3da30e4c3f03d5c8df0a338b98a0"
         }
       ],
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "00c224b6553e09ba42707058d2053c92b3c63633"
+          "checksumValue": "eed467c9bd5282e0fa27780d13d9acae1d2ca146"
         }
       ],
       "comment": "Built on Ubuntu 22.04.5 LTS with gcc (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0",
-      "versionInfo": "8.19.0-DEV"
+      "versionInfo": "7.99.1"
     },
     {
       "SPDXID": "SPDXRef-libdbus-1-3-1",
@@ -59,7 +59,7 @@
       "versionInfo": "1.12.20-2ubuntu4.1",
       "supplier": "Organization: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>",
       "homepage": "https://dbus.freedesktop.org/",
-      "packageSourceInfo": "Installed via dpkg package libdbus-1-3 on Ubuntu 22.04.5 LTS."
+      "sourceInfo": "Installed via dpkg package libdbus-1-3 on Ubuntu 22.04.5 LTS."
     },
     {
       "SPDXID": "SPDXRef-libgcc-s1-2",
@@ -83,7 +83,7 @@
       "versionInfo": "12.3.0-1ubuntu1~22.04.3",
       "supplier": "Organization: Ubuntu Core developers <ubuntu-devel-discuss@lists.ubuntu.com>",
       "homepage": "http://gcc.gnu.org/",
-      "packageSourceInfo": "Installed via dpkg package libgcc-s1, libstdc++6 on Ubuntu 22.04.5 LTS."
+      "sourceInfo": "Installed via dpkg package libgcc-s1, libstdc++6 on Ubuntu 22.04.5 LTS."
     },
     {
       "SPDXID": "SPDXRef-libc6-3",
@@ -107,7 +107,7 @@
       "versionInfo": "2.35-0ubuntu3.13",
       "supplier": "Organization: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>",
       "homepage": "https://www.gnu.org/software/libc/libc.html",
-      "packageSourceInfo": "Installed via dpkg package libc6 on Ubuntu 22.04.5 LTS."
+      "sourceInfo": "Installed via dpkg package libc6 on Ubuntu 22.04.5 LTS."
     },
     {
       "SPDXID": "SPDXRef-libcap2-4",
@@ -119,7 +119,7 @@
         {
           "referenceCategory": "PACKAGE-MANAGER",
           "referenceType": "purl",
-          "referenceLocator": "pkg:deb/ubuntu/libcap2@1:2.44-1ubuntu0.22.04.2?arch=amd64&distro=ubuntu-22.04"
+          "referenceLocator": "pkg:deb/ubuntu/libcap2@1:2.44-1ubuntu0.22.04.3?arch=amd64&distro=ubuntu-22.04"
         },
         {
           "referenceCategory": "SECURITY",
@@ -128,10 +128,10 @@
         }
       ],
       "comment": "Dynamically linked (transitive). sonames: libcap.so.2. dpkg: libcap2 (amd64)",
-      "versionInfo": "1:2.44-1ubuntu0.22.04.2",
+      "versionInfo": "1:2.44-1ubuntu0.22.04.3",
       "supplier": "Organization: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>",
       "homepage": "https://sites.google.com/site/fullycapable/",
-      "packageSourceInfo": "Installed via dpkg package libcap2 on Ubuntu 22.04.5 LTS."
+      "sourceInfo": "Installed via dpkg package libcap2 on Ubuntu 22.04.5 LTS."
     },
     {
       "SPDXID": "SPDXRef-libgcrypt20-5",
@@ -155,7 +155,7 @@
       "versionInfo": "1.9.4-3ubuntu3",
       "supplier": "Organization: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>",
       "homepage": "https://directory.fsf.org/project/libgcrypt/",
-      "packageSourceInfo": "Installed via dpkg package libgcrypt20 on Ubuntu 22.04.5 LTS."
+      "sourceInfo": "Installed via dpkg package libgcrypt20 on Ubuntu 22.04.5 LTS."
     },
     {
       "SPDXID": "SPDXRef-libgpg-error0-6",
@@ -179,7 +179,7 @@
       "versionInfo": "1.43-3",
       "supplier": "Organization: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>",
       "homepage": "https://www.gnupg.org/related_software/libgpg-error/",
-      "packageSourceInfo": "Installed via dpkg package libgpg-error0 on Ubuntu 22.04.5 LTS."
+      "sourceInfo": "Installed via dpkg package libgpg-error0 on Ubuntu 22.04.5 LTS."
     },
     {
       "SPDXID": "SPDXRef-libpcap0.8-7",
@@ -203,7 +203,7 @@
       "versionInfo": "1.10.1-4ubuntu1.22.04.1",
       "supplier": "Organization: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>",
       "homepage": "https://www.tcpdump.org/",
-      "packageSourceInfo": "Installed via dpkg package libpcap0.8 on Ubuntu 22.04.5 LTS."
+      "sourceInfo": "Installed via dpkg package libpcap0.8 on Ubuntu 22.04.5 LTS."
     },
     {
       "SPDXID": "SPDXRef-libzstd1-8",
@@ -227,7 +227,7 @@
       "versionInfo": "1.4.8+dfsg-3build1",
       "supplier": "Organization: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>",
       "homepage": "https://github.com/facebook/zstd",
-      "packageSourceInfo": "Installed via dpkg package libzstd1 on Ubuntu 22.04.5 LTS."
+      "sourceInfo": "Installed via dpkg package libzstd1 on Ubuntu 22.04.5 LTS."
     },
     {
       "SPDXID": "SPDXRef-liblz4-1-9",
@@ -251,7 +251,7 @@
       "versionInfo": "1.9.3-2build2",
       "supplier": "Organization: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>",
       "homepage": "https://github.com/Cyan4973/lz4",
-      "packageSourceInfo": "Installed via dpkg package liblz4-1 on Ubuntu 22.04.5 LTS."
+      "sourceInfo": "Installed via dpkg package liblz4-1 on Ubuntu 22.04.5 LTS."
     },
     {
       "SPDXID": "SPDXRef-libssl3-10",
@@ -263,7 +263,7 @@
         {
           "referenceCategory": "PACKAGE-MANAGER",
           "referenceType": "purl",
-          "referenceLocator": "pkg:deb/ubuntu/libssl3@3.0.2-0ubuntu1.21?arch=amd64&distro=ubuntu-22.04"
+          "referenceLocator": "pkg:deb/ubuntu/libssl3@3.0.2-0ubuntu1.25?arch=amd64&distro=ubuntu-22.04"
         },
         {
           "referenceCategory": "SECURITY",
@@ -272,10 +272,10 @@
         }
       ],
       "comment": "Dynamically linked (direct). sonames: libcrypto.so.3, libssl.so.3. dpkg: libssl3 (amd64)",
-      "versionInfo": "3.0.2-0ubuntu1.21",
+      "versionInfo": "3.0.2-0ubuntu1.25",
       "supplier": "Organization: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>",
       "homepage": "https://www.openssl.org/",
-      "packageSourceInfo": "Installed via dpkg package libssl3 on Ubuntu 22.04.5 LTS."
+      "sourceInfo": "Installed via dpkg package libssl3 on Ubuntu 22.04.5 LTS."
     },
     {
       "SPDXID": "SPDXRef-libsystemd0-11",
@@ -287,7 +287,7 @@
         {
           "referenceCategory": "PACKAGE-MANAGER",
           "referenceType": "purl",
-          "referenceLocator": "pkg:deb/ubuntu/libsystemd0@249.11-0ubuntu3.17?arch=amd64&distro=ubuntu-22.04"
+          "referenceLocator": "pkg:deb/ubuntu/libsystemd0@249.11-0ubuntu3.21?arch=amd64&distro=ubuntu-22.04"
         },
         {
           "referenceCategory": "SECURITY",
@@ -296,10 +296,10 @@
         }
       ],
       "comment": "Dynamically linked (transitive). sonames: libsystemd.so.0. dpkg: libsystemd0 (amd64)",
-      "versionInfo": "249.11-0ubuntu3.17",
+      "versionInfo": "249.11-0ubuntu3.21",
       "supplier": "Organization: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>",
       "homepage": "https://www.freedesktop.org/wiki/Software/systemd",
-      "packageSourceInfo": "Installed via dpkg package libsystemd0 on Ubuntu 22.04.5 LTS."
+      "sourceInfo": "Installed via dpkg package libsystemd0 on Ubuntu 22.04.5 LTS."
     },
     {
       "SPDXID": "SPDXRef-liblzma5-12",
@@ -323,7 +323,7 @@
       "versionInfo": "5.2.5-2ubuntu1",
       "supplier": "Organization: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>",
       "homepage": "https://tukaani.org/xz/",
-      "packageSourceInfo": "Installed via dpkg package liblzma5 on Ubuntu 22.04.5 LTS."
+      "sourceInfo": "Installed via dpkg package liblzma5 on Ubuntu 22.04.5 LTS."
     },
     {
       "SPDXID": "SPDXRef-gcc-13",
@@ -341,7 +341,7 @@
           "referenceLocator": "cpe:2.3:a:gnu:gcc:11.4.0:*:*:*:*:*:*:*"
         }
       ],
-      "packageSourceInfo": "System-installed build toolchain on Ubuntu 22.04.5 LTS."
+      "sourceInfo": "System-installed build toolchain on Ubuntu 22.04.5 LTS."
     },
     {
       "SPDXID": "SPDXRef-libdnet-stripped-14",
@@ -351,7 +351,7 @@
       "primaryPackagePurpose": "LIBRARY",
       "externalRefs": [],
       "comment": "Vendored source compiled into nping. 36 source files.",
-      "packageSourceInfo": "Vendored from nmap/libdnet-stripped/libdnet-stripped/. Source compiled into static archive and linked.",
+      "sourceInfo": "Vendored from nmap/libdnet-stripped/libdnet-stripped/. Source compiled into static archive and linked.",
       "versionInfo": "1.18.0"
     },
     {
@@ -362,7 +362,7 @@
       "primaryPackagePurpose": "LIBRARY",
       "externalRefs": [],
       "comment": "Vendored source compiled into nping. 4 source files.",
-      "packageSourceInfo": "Vendored from nmap/liblinear/liblinear/. Source compiled into static archive and linked."
+      "sourceInfo": "Vendored from nmap/liblinear/liblinear/. Source compiled into static archive and linked."
     },
     {
       "SPDXID": "SPDXRef-liblua-16",
@@ -372,7 +372,7 @@
       "primaryPackagePurpose": "LIBRARY",
       "externalRefs": [],
       "comment": "Vendored source compiled into nping. 55 source files.",
-      "packageSourceInfo": "Vendored from nmap/liblua/liblua/. Source compiled into static archive and linked.",
+      "sourceInfo": "Vendored from nmap/liblua/liblua/. Source compiled into static archive and linked.",
       "versionInfo": "5.4.8"
     },
     {
@@ -383,7 +383,7 @@
       "primaryPackagePurpose": "LIBRARY",
       "externalRefs": [],
       "comment": "Vendored source compiled into nping. 43 source files.",
-      "packageSourceInfo": "Vendored from nmap/libnetutil/libnetutil/. Source compiled into static archive and linked."
+      "sourceInfo": "Vendored from nmap/libnetutil/libnetutil/. Source compiled into static archive and linked."
     },
     {
       "SPDXID": "SPDXRef-libssh2-18",
@@ -393,7 +393,7 @@
       "primaryPackagePurpose": "LIBRARY",
       "externalRefs": [],
       "comment": "Vendored source compiled into nping. 51 source files.",
-      "packageSourceInfo": "Vendored from nmap/libssh2/libssh2/. Source compiled into static archive and linked.",
+      "sourceInfo": "Vendored from nmap/libssh2/libssh2/. Source compiled into static archive and linked.",
       "versionInfo": "1.11.1"
     },
     {
@@ -404,7 +404,7 @@
       "primaryPackagePurpose": "LIBRARY",
       "externalRefs": [],
       "comment": "Vendored source compiled into nping. 12 source files.",
-      "packageSourceInfo": "Vendored from nmap/nbase/nbase/. Source compiled into static archive and linked."
+      "sourceInfo": "Vendored from nmap/nbase/nbase/. Source compiled into static archive and linked."
     },
     {
       "SPDXID": "SPDXRef-nsock-20",
@@ -414,7 +414,7 @@
       "primaryPackagePurpose": "LIBRARY",
       "externalRefs": [],
       "comment": "Vendored source compiled into nping. 35 source files.",
-      "packageSourceInfo": "Vendored from nmap/nsock/nsock/. Source compiled into static archive and linked.",
+      "sourceInfo": "Vendored from nmap/nsock/nsock/. Source compiled into static archive and linked.",
       "versionInfo": "0.02"
     }
   ],
@@ -430,17 +430,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-osscan2.h-22",
-      "fileName": "repos/nmap/osscan2.h",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "04731e260318b43d68c6d3df9094c62541f96a39"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-nmap-error.cc-23",
+      "SPDXID": "SPDXRef-File-nmap-error.cc-22",
       "fileName": "repos/nmap/nmap_error.cc",
       "checksums": [
         {
@@ -450,7 +440,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-nse-libssh2.cc-24",
+      "SPDXID": "SPDXRef-File-nse-libssh2.cc-23",
       "fileName": "repos/nmap/nse_libssh2.cc",
       "checksums": [
         {
@@ -460,7 +450,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-protocols.h-25",
+      "SPDXID": "SPDXRef-File-protocols.h-24",
       "fileName": "repos/nmap/protocols.h",
       "checksums": [
         {
@@ -470,17 +460,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-scan-engine.cc-26",
-      "fileName": "repos/nmap/scan_engine.cc",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "098115d2e20a6919db177570ffc483ef020956b9"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-xml.h-27",
+      "SPDXID": "SPDXRef-File-xml.h-25",
       "fileName": "repos/nmap/xml.h",
       "checksums": [
         {
@@ -490,7 +470,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-ncat-core.h-28",
+      "SPDXID": "SPDXRef-File-ncat-core.h-26",
       "fileName": "repos/nmap/ncat/ncat_core.h",
       "checksums": [
         {
@@ -500,7 +480,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-nmap-config.h-29",
+      "SPDXID": "SPDXRef-File-nmap-config.h-27",
       "fileName": "repos/nmap/libnetutil/../nmap_config.h",
       "checksums": [
         {
@@ -510,7 +490,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-nse-utility.cc-30",
+      "SPDXID": "SPDXRef-File-nse-utility.cc-28",
       "fileName": "repos/nmap/nse_utility.cc",
       "checksums": [
         {
@@ -520,7 +500,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-FPEngine.h-31",
+      "SPDXID": "SPDXRef-File-FPEngine.h-29",
       "fileName": "repos/nmap/FPEngine.h",
       "checksums": [
         {
@@ -530,7 +510,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-osscan.h-32",
+      "SPDXID": "SPDXRef-File-osscan.h-30",
       "fileName": "repos/nmap/osscan.h",
       "checksums": [
         {
@@ -540,17 +520,17 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-idle-scan.cc-33",
-      "fileName": "repos/nmap/idle_scan.cc",
+      "SPDXID": "SPDXRef-File-osscan2.h-31",
+      "fileName": "repos/nmap/osscan2.h",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "103d6fb047f264356dbc996af348c4bab6bf7d40"
+          "checksumValue": "105930ad3c37a43607145d5d61965a4e5cf4ac33"
         }
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-http-digest.c-34",
+      "SPDXID": "SPDXRef-File-http-digest.c-32",
       "fileName": "repos/nmap/ncat/http_digest.c",
       "checksums": [
         {
@@ -560,7 +540,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-NmapOps.cc-35",
+      "SPDXID": "SPDXRef-File-NmapOps.cc-33",
       "fileName": "repos/nmap/NmapOps.cc",
       "checksums": [
         {
@@ -570,7 +550,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-NpingTarget.h-36",
+      "SPDXID": "SPDXRef-File-NpingTarget.h-34",
       "fileName": "repos/nmap/nping/NpingTarget.h",
       "checksums": [
         {
@@ -580,7 +560,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-charpool.cc-37",
+      "SPDXID": "SPDXRef-File-charpool.cc-35",
       "fileName": "repos/nmap/charpool.cc",
       "checksums": [
         {
@@ -590,17 +570,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-nse-dnet.cc-38",
-      "fileName": "repos/nmap/nse_dnet.cc",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "16ac63af87a96b71dc3f92dd0ac9e31e3572c81f"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-nse-libssh2.h-39",
+      "SPDXID": "SPDXRef-File-nse-libssh2.h-36",
       "fileName": "repos/nmap/nse_libssh2.h",
       "checksums": [
         {
@@ -610,7 +580,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-nse-nmaplib.cc-40",
+      "SPDXID": "SPDXRef-File-nse-nmaplib.cc-37",
       "fileName": "repos/nmap/nse_nmaplib.cc",
       "checksums": [
         {
@@ -620,7 +590,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-nping.cc-41",
+      "SPDXID": "SPDXRef-File-nping.cc-38",
       "fileName": "repos/nmap/nping/nping.cc",
       "checksums": [
         {
@@ -630,17 +600,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-portlist.cc-42",
-      "fileName": "repos/nmap/portlist.cc",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "1d958d3341f35211fac297b802096b697c6078c5"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-targets.h-43",
+      "SPDXID": "SPDXRef-File-targets.h-39",
       "fileName": "repos/nmap/targets.h",
       "checksums": [
         {
@@ -650,17 +610,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-FPEngine.cc-44",
-      "fileName": "repos/nmap/FPEngine.cc",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "1fd4e0192506fad8d45f5f4e39d7c22768f5c950"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-sys-wrap.c-45",
+      "SPDXID": "SPDXRef-File-sys-wrap.c-40",
       "fileName": "repos/nmap/ncat/sys_wrap.c",
       "checksums": [
         {
@@ -670,7 +620,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-scan-engine-connect.h-46",
+      "SPDXID": "SPDXRef-File-scan-engine-connect.h-41",
       "fileName": "repos/nmap/scan_engine_connect.h",
       "checksums": [
         {
@@ -680,7 +630,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-EchoServer.h-47",
+      "SPDXID": "SPDXRef-File-EchoServer.h-42",
       "fileName": "repos/nmap/nping/EchoServer.h",
       "checksums": [
         {
@@ -690,17 +640,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-nse-openssl.cc-48",
-      "fileName": "repos/nmap/nse_openssl.cc",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "218b193d2d5e9658250aeb7e04db801452ea24ab"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-nse-main.cc-49",
+      "SPDXID": "SPDXRef-File-nse-main.cc-43",
       "fileName": "repos/nmap/nse_main.cc",
       "checksums": [
         {
@@ -710,7 +650,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-portreasons.cc-50",
+      "SPDXID": "SPDXRef-File-portreasons.cc-44",
       "fileName": "repos/nmap/portreasons.cc",
       "checksums": [
         {
@@ -720,27 +660,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-tcpip.cc-51",
-      "fileName": "repos/nmap/tcpip.cc",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "280a60be3cf206a7ec880cc34b69793b4e0b15c8"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-ncat.h-52",
-      "fileName": "repos/nmap/ncat/ncat.h",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "2870197e84d96f88dcf8e54c711df92663da7f9d"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-base64.h-53",
+      "SPDXID": "SPDXRef-File-base64.h-45",
       "fileName": "repos/nmap/ncat/base64.h",
       "checksums": [
         {
@@ -750,17 +670,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-traceroute.cc-54",
-      "fileName": "repos/nmap/traceroute.cc",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "2a330f50b7517076681b6ac06b908eed4986113d"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-Crypto.h-55",
+      "SPDXID": "SPDXRef-File-Crypto.h-46",
       "fileName": "repos/nmap/nping/Crypto.h",
       "checksums": [
         {
@@ -770,17 +680,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-EchoClient.cc-56",
-      "fileName": "repos/nmap/nping/EchoClient.cc",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "2ea2baf3ba54c961602efef282ca12f11f6f9588"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-ncat-lua.h-57",
+      "SPDXID": "SPDXRef-File-ncat-lua.h-47",
       "fileName": "repos/nmap/ncat/ncat_lua.h",
       "checksums": [
         {
@@ -790,7 +690,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-output.h-58",
+      "SPDXID": "SPDXRef-File-output.h-48",
       "fileName": "repos/nmap/output.h",
       "checksums": [
         {
@@ -800,7 +700,17 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-struct-ip.h-59",
+      "SPDXID": "SPDXRef-File-NpingTarget.cc-49",
+      "fileName": "repos/nmap/nping/NpingTarget.cc",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "34abef648c97d67c8246d3643f15dfd6230999ba"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-struct-ip.h-50",
       "fileName": "repos/nmap/struct_ip.h",
       "checksums": [
         {
@@ -810,7 +720,17 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-NpingTargets.cc-60",
+      "SPDXID": "SPDXRef-File-nping.h-51",
+      "fileName": "repos/nmap/nping/nping.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "34eb5f98b2b8f779ea44d62561585198ae903126"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-NpingTargets.cc-52",
       "fileName": "repos/nmap/nping/NpingTargets.cc",
       "checksums": [
         {
@@ -820,17 +740,17 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-EchoServer.cc-61",
-      "fileName": "repos/nmap/nping/EchoServer.cc",
+      "SPDXID": "SPDXRef-File-ncat.h-53",
+      "fileName": "repos/nmap/ncat/ncat.h",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "3a3807f74d0b383b84bb16178ca1ed456a5c96f6"
+          "checksumValue": "392ecba02db48e7f206e2295089297c0be91932f"
         }
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-config.h-62",
+      "SPDXID": "SPDXRef-File-config.h-54",
       "fileName": "repos/nmap/ncat/config.h",
       "checksums": [
         {
@@ -840,7 +760,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-NewTargets.h-63",
+      "SPDXID": "SPDXRef-File-NewTargets.h-55",
       "fileName": "repos/nmap/NewTargets.h",
       "checksums": [
         {
@@ -850,7 +770,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-FingerPrintResults.cc-64",
+      "SPDXID": "SPDXRef-File-FingerPrintResults.cc-56",
       "fileName": "repos/nmap/FingerPrintResults.cc",
       "checksums": [
         {
@@ -860,7 +780,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-nse-lpeg.h-65",
+      "SPDXID": "SPDXRef-File-nse-lpeg.h-57",
       "fileName": "repos/nmap/nse_lpeg.h",
       "checksums": [
         {
@@ -870,7 +790,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-services.cc-66",
+      "SPDXID": "SPDXRef-File-services.cc-58",
       "fileName": "repos/nmap/services.cc",
       "checksums": [
         {
@@ -880,7 +800,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-ncat-ssl.h-67",
+      "SPDXID": "SPDXRef-File-ncat-ssl.h-59",
       "fileName": "repos/nmap/ncat/ncat_ssl.h",
       "checksums": [
         {
@@ -890,17 +810,17 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-nping.h-68",
-      "fileName": "repos/nmap/nping/nping.h",
+      "SPDXID": "SPDXRef-File-nmap.cc-60",
+      "fileName": "repos/nmap/nmap.cc",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "3fc17a7bea66e4285930ae728632ab0da0147b18"
+          "checksumValue": "3f49f5721007314d63df051d53ebe43837902724"
         }
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-nse-nsock.cc-69",
+      "SPDXID": "SPDXRef-File-nse-nsock.cc-61",
       "fileName": "repos/nmap/nse_nsock.cc",
       "checksums": [
         {
@@ -910,7 +830,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-NewTargets.cc-70",
+      "SPDXID": "SPDXRef-File-NewTargets.cc-62",
       "fileName": "repos/nmap/NewTargets.cc",
       "checksums": [
         {
@@ -920,7 +840,17 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-utils.h-71",
+      "SPDXID": "SPDXRef-File-targets.cc-63",
+      "fileName": "repos/nmap/targets.cc",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "4228dcaa512cd75c228e88ae98292cc732c7b7ef"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-utils.h-64",
       "fileName": "repos/nmap/utils.h",
       "checksums": [
         {
@@ -930,7 +860,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-utils-net.cc-72",
+      "SPDXID": "SPDXRef-File-utils-net.cc-65",
       "fileName": "repos/nmap/nping/utils_net.cc",
       "checksums": [
         {
@@ -940,7 +870,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-MACLookup.h-73",
+      "SPDXID": "SPDXRef-File-MACLookup.h-66",
       "fileName": "repos/nmap/MACLookup.h",
       "checksums": [
         {
@@ -950,17 +880,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-tcpip.h-74",
-      "fileName": "repos/nmap/tcpip.h",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "47b585d64dab189fa03782cb4c3bef1db80379e3"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-idle-scan.h-75",
+      "SPDXID": "SPDXRef-File-idle-scan.h-67",
       "fileName": "repos/nmap/idle_scan.h",
       "checksums": [
         {
@@ -970,7 +890,27 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-ncat-main.c-76",
+      "SPDXID": "SPDXRef-File-tcpip.cc-68",
+      "fileName": "repos/nmap/tcpip.cc",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "48de9c722c798fd05d9479e5602cf7b57dd345f2"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-EchoClient.cc-69",
+      "fileName": "repos/nmap/nping/EchoClient.cc",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "494ad007fcd5e8f8dcd44ceddd010bcea7c7a842"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-ncat-main.c-70",
       "fileName": "repos/nmap/ncat/ncat_main.c",
       "checksums": [
         {
@@ -980,7 +920,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-util.c-77",
+      "SPDXID": "SPDXRef-File-util.c-71",
       "fileName": "repos/nmap/ncat/util.c",
       "checksums": [
         {
@@ -990,17 +930,17 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-scan-engine-raw.cc-78",
-      "fileName": "repos/nmap/scan_engine_raw.cc",
+      "SPDXID": "SPDXRef-File-nse-dnet.cc-72",
+      "fileName": "repos/nmap/nse_dnet.cc",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "4c4b630ebd0a7216f71e265858f80448e5ad6ffc"
+          "checksumValue": "4fafe2c6f09c4848d82e64794282f2a259c76bad"
         }
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-output.h-79",
+      "SPDXID": "SPDXRef-File-output.h-73",
       "fileName": "repos/nmap/nping/output.h",
       "checksums": [
         {
@@ -1010,7 +950,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-portreasons.h-80",
+      "SPDXID": "SPDXRef-File-portreasons.h-74",
       "fileName": "repos/nmap/portreasons.h",
       "checksums": [
         {
@@ -1020,7 +960,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-ProbeMode.h-81",
+      "SPDXID": "SPDXRef-File-ProbeMode.h-75",
       "fileName": "repos/nmap/nping/ProbeMode.h",
       "checksums": [
         {
@@ -1030,7 +970,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-utils-net.h-82",
+      "SPDXID": "SPDXRef-File-utils-net.h-76",
       "fileName": "repos/nmap/nping/utils_net.h",
       "checksums": [
         {
@@ -1040,17 +980,17 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-nmap-dns.cc-83",
-      "fileName": "repos/nmap/nmap_dns.cc",
+      "SPDXID": "SPDXRef-File-FPModel.cc-77",
+      "fileName": "repos/nmap/FPModel.cc",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "56bdafb8b242203fa575530f88bb2ff9bee8aebb"
+          "checksumValue": "587f263a1f3f33a37ae80802e65de24f1de40712"
         }
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-string-pool.h-84",
+      "SPDXID": "SPDXRef-File-string-pool.h-78",
       "fileName": "repos/nmap/string_pool.h",
       "checksums": [
         {
@@ -1060,7 +1000,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-nse-utility.h-85",
+      "SPDXID": "SPDXRef-File-nse-utility.h-79",
       "fileName": "repos/nmap/nse_utility.h",
       "checksums": [
         {
@@ -1070,7 +1010,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-nmap-ftp.h-86",
+      "SPDXID": "SPDXRef-File-nmap-ftp.h-80",
       "fileName": "repos/nmap/nmap_ftp.h",
       "checksums": [
         {
@@ -1080,7 +1020,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-portlist.h-87",
+      "SPDXID": "SPDXRef-File-portlist.h-81",
       "fileName": "repos/nmap/portlist.h",
       "checksums": [
         {
@@ -1090,7 +1030,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-output.cc-88",
+      "SPDXID": "SPDXRef-File-output.cc-82",
       "fileName": "repos/nmap/output.cc",
       "checksums": [
         {
@@ -1100,17 +1040,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-osscan2.cc-89",
-      "fileName": "repos/nmap/osscan2.cc",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "5db94425b3e627c78480229086c641acfd877cca"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-ArgParser.h-90",
+      "SPDXID": "SPDXRef-File-ArgParser.h-83",
       "fileName": "repos/nmap/nping/ArgParser.h",
       "checksums": [
         {
@@ -1120,7 +1050,17 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-timing.h-91",
+      "SPDXID": "SPDXRef-File-EchoHeader.cc-84",
+      "fileName": "repos/nmap/nping/EchoHeader.cc",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "5ed7d2af3ebb90a571fb862d7287c823f4d71895"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-timing.h-85",
       "fileName": "repos/nmap/timing.h",
       "checksums": [
         {
@@ -1130,7 +1070,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-nse-zlib.h-92",
+      "SPDXID": "SPDXRef-File-nse-zlib.h-86",
       "fileName": "repos/nmap/nse_zlib.h",
       "checksums": [
         {
@@ -1140,7 +1080,17 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-nse-dnet.h-93",
+      "SPDXID": "SPDXRef-File-http.c-87",
+      "fileName": "repos/nmap/ncat/http.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "632db0207e4837928db194a58239e87bcdd845d2"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-nse-dnet.h-88",
       "fileName": "repos/nmap/nse_dnet.h",
       "checksums": [
         {
@@ -1150,27 +1100,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-ncat-listen.c-94",
-      "fileName": "repos/nmap/ncat/ncat_listen.c",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "644555963ec0014880a0a1d2fd186d36b8cc917b"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-EchoHeader.cc-95",
-      "fileName": "repos/nmap/nping/EchoHeader.cc",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "65c5cb3291f1e3295b9cbae23db37bb693018f2e"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-utils.cc-96",
+      "SPDXID": "SPDXRef-File-utils.cc-89",
       "fileName": "repos/nmap/nping/utils.cc",
       "checksums": [
         {
@@ -1180,17 +1110,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-ProbeMode.cc-97",
-      "fileName": "repos/nmap/nping/ProbeMode.cc",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "6992d866e0d9555d8732a42642b3791daca9b6c7"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-ncat-proxy.h-98",
+      "SPDXID": "SPDXRef-File-ncat-proxy.h-90",
       "fileName": "repos/nmap/ncat/ncat_proxy.h",
       "checksums": [
         {
@@ -1200,7 +1120,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-nse-nsock.h-99",
+      "SPDXID": "SPDXRef-File-nse-nsock.h-91",
       "fileName": "repos/nmap/nse_nsock.h",
       "checksums": [
         {
@@ -1210,7 +1130,17 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-nse-db.cc-100",
+      "SPDXID": "SPDXRef-File-nmap.h-92",
+      "fileName": "repos/nmap/nmap.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "72f2a75fe0c4833eba2da0db7bd19fb2c0c5a515"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-nse-db.cc-93",
       "fileName": "repos/nmap/nse_db.cc",
       "checksums": [
         {
@@ -1220,7 +1150,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-nse-lua.h-101",
+      "SPDXID": "SPDXRef-File-nse-lua.h-94",
       "fileName": "repos/nmap/nse_lua.h",
       "checksums": [
         {
@@ -1230,7 +1160,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-nse-zlib.cc-102",
+      "SPDXID": "SPDXRef-File-nse-zlib.cc-95",
       "fileName": "repos/nmap/nse_zlib.cc",
       "checksums": [
         {
@@ -1240,17 +1170,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-FPModel.cc-103",
-      "fileName": "repos/nmap/FPModel.cc",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "7663e023a1be4bcec8ce7e5c6c76f84213e9b620"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-lpeg.c-104",
+      "SPDXID": "SPDXRef-File-lpeg.c-96",
       "fileName": "repos/nmap/lpeg.c",
       "checksums": [
         {
@@ -1260,7 +1180,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-common.h-105",
+      "SPDXID": "SPDXRef-File-common.h-97",
       "fileName": "repos/nmap/nping/common.h",
       "checksums": [
         {
@@ -1270,7 +1190,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-nse-ssl-cert.h-106",
+      "SPDXID": "SPDXRef-File-nse-ssl-cert.h-98",
       "fileName": "repos/nmap/nse_ssl_cert.h",
       "checksums": [
         {
@@ -1280,7 +1200,17 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-main.cc-107",
+      "SPDXID": "SPDXRef-File-tcpip.h-99",
+      "fileName": "repos/nmap/tcpip.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "79eb4368323378efe0a75eec6c8bdcfab7ce0cc2"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-main.cc-100",
       "fileName": "repos/nmap/main.cc",
       "checksums": [
         {
@@ -1290,7 +1220,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-output.cc-108",
+      "SPDXID": "SPDXRef-File-output.cc-101",
       "fileName": "repos/nmap/nping/output.cc",
       "checksums": [
         {
@@ -1300,7 +1230,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-traceroute.h-109",
+      "SPDXID": "SPDXRef-File-traceroute.h-102",
       "fileName": "repos/nmap/traceroute.h",
       "checksums": [
         {
@@ -1310,7 +1240,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-nmap-error.h-110",
+      "SPDXID": "SPDXRef-File-nmap-error.h-103",
       "fileName": "repos/nmap/nmap_error.h",
       "checksums": [
         {
@@ -1320,7 +1250,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-common.cc-111",
+      "SPDXID": "SPDXRef-File-common.cc-104",
       "fileName": "repos/nmap/nping/common.cc",
       "checksums": [
         {
@@ -1330,7 +1260,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-http.h-112",
+      "SPDXID": "SPDXRef-File-http.h-105",
       "fileName": "repos/nmap/ncat/http.h",
       "checksums": [
         {
@@ -1340,7 +1270,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-scan-engine-connect.cc-113",
+      "SPDXID": "SPDXRef-File-scan-engine-connect.cc-106",
       "fileName": "repos/nmap/scan_engine_connect.cc",
       "checksums": [
         {
@@ -1350,7 +1280,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-payload.cc-114",
+      "SPDXID": "SPDXRef-File-payload.cc-107",
       "fileName": "repos/nmap/payload.cc",
       "checksums": [
         {
@@ -1360,7 +1290,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-nse-nmaplib.h-115",
+      "SPDXID": "SPDXRef-File-nse-nmaplib.h-108",
       "fileName": "repos/nmap/nse_nmaplib.h",
       "checksums": [
         {
@@ -1370,7 +1300,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-nse-openssl.h-116",
+      "SPDXID": "SPDXRef-File-nse-openssl.h-109",
       "fileName": "repos/nmap/nse_openssl.h",
       "checksums": [
         {
@@ -1380,7 +1310,17 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-FingerPrintResults.h-117",
+      "SPDXID": "SPDXRef-File-idle-scan.cc-110",
+      "fileName": "repos/nmap/idle_scan.cc",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "84ef09e3f8825ade72b2ff0e1baf61a73b3a9542"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-FingerPrintResults.h-111",
       "fileName": "repos/nmap/FingerPrintResults.h",
       "checksums": [
         {
@@ -1390,7 +1330,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-TargetGroup.h-118",
+      "SPDXID": "SPDXRef-File-TargetGroup.h-112",
       "fileName": "repos/nmap/TargetGroup.h",
       "checksums": [
         {
@@ -1400,7 +1340,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-ncat-posix.c-119",
+      "SPDXID": "SPDXRef-File-ncat-posix.c-113",
       "fileName": "repos/nmap/ncat/ncat_posix.c",
       "checksums": [
         {
@@ -1410,7 +1350,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-ncat-config.h-120",
+      "SPDXID": "SPDXRef-File-ncat-config.h-114",
       "fileName": "repos/nmap/ncat/ncat_config.h",
       "checksums": [
         {
@@ -1420,17 +1360,27 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-Crypto.cc-121",
-      "fileName": "repos/nmap/nping/Crypto.cc",
+      "SPDXID": "SPDXRef-File-ncat-listen.c-115",
+      "fileName": "repos/nmap/ncat/ncat_listen.c",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "8b1d11a22f39d97bc3e44d87dc4071e2416e44a1"
+          "checksumValue": "898f9a6db7a150b943c025a8e538dacd0d674bc5"
         }
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-scan-engine.h-122",
+      "SPDXID": "SPDXRef-File-scan-engine-raw.cc-116",
+      "fileName": "repos/nmap/scan_engine_raw.cc",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "8bc3602cfea4eecbbfc309eb2a6206d1bb1acc4e"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-scan-engine.h-117",
       "fileName": "repos/nmap/scan_engine.h",
       "checksums": [
         {
@@ -1440,7 +1390,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-TargetGroup.cc-123",
+      "SPDXID": "SPDXRef-File-TargetGroup.cc-118",
       "fileName": "repos/nmap/TargetGroup.cc",
       "checksums": [
         {
@@ -1450,17 +1400,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-NpingOps.cc-124",
-      "fileName": "repos/nmap/nping/NpingOps.cc",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "933815c8b8dc7336d0474161880f59566c4f4e89"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-ncat-connect.h-125",
+      "SPDXID": "SPDXRef-File-ncat-connect.h-119",
       "fileName": "repos/nmap/ncat/ncat_connect.h",
       "checksums": [
         {
@@ -1470,7 +1410,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-stats.h-126",
+      "SPDXID": "SPDXRef-File-stats.h-120",
       "fileName": "repos/nmap/nping/stats.h",
       "checksums": [
         {
@@ -1480,7 +1420,17 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-NEPContext.cc-127",
+      "SPDXID": "SPDXRef-File-Crypto.cc-121",
+      "fileName": "repos/nmap/nping/Crypto.cc",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "97375a17b2b72c7a046c08a8e8a9f0ebf0981116"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-NEPContext.cc-122",
       "fileName": "repos/nmap/nping/NEPContext.cc",
       "checksums": [
         {
@@ -1490,7 +1440,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-sys-wrap.h-128",
+      "SPDXID": "SPDXRef-File-sys-wrap.h-123",
       "fileName": "repos/nmap/ncat/sys_wrap.h",
       "checksums": [
         {
@@ -1500,7 +1450,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-timing.cc-129",
+      "SPDXID": "SPDXRef-File-timing.cc-124",
       "fileName": "repos/nmap/timing.cc",
       "checksums": [
         {
@@ -1510,7 +1460,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-nping-config.h-130",
+      "SPDXID": "SPDXRef-File-nping-config.h-125",
       "fileName": "repos/nmap/nping/nping_config.h",
       "checksums": [
         {
@@ -1520,7 +1470,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-charpool.h-131",
+      "SPDXID": "SPDXRef-File-charpool.h-126",
       "fileName": "repos/nmap/charpool.h",
       "checksums": [
         {
@@ -1530,7 +1480,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-stats.cc-132",
+      "SPDXID": "SPDXRef-File-stats.cc-127",
       "fileName": "repos/nmap/nping/stats.cc",
       "checksums": [
         {
@@ -1540,17 +1490,27 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-http.c-133",
-      "fileName": "repos/nmap/ncat/http.c",
+      "SPDXID": "SPDXRef-File-scan-engine.cc-128",
+      "fileName": "repos/nmap/scan_engine.cc",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "a13c83d9233fa0d8f30259a5f4e8931d6018abfb"
+          "checksumValue": "a0447b5469247fc60b021c26d4bdce933099f87f"
         }
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-ncat-exec.h-134",
+      "SPDXID": "SPDXRef-File-ProbeMode.cc-129",
+      "fileName": "repos/nmap/nping/ProbeMode.cc",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "a1991a688e7aaf103e4074eb7b5f36d53f9d9d6d"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-ncat-exec.h-130",
       "fileName": "repos/nmap/ncat/ncat_exec.h",
       "checksums": [
         {
@@ -1560,7 +1520,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-nmap-tty.cc-135",
+      "SPDXID": "SPDXRef-File-nmap-tty.cc-131",
       "fileName": "repos/nmap/nmap_tty.cc",
       "checksums": [
         {
@@ -1570,7 +1530,27 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-service-scan.cc-136",
+      "SPDXID": "SPDXRef-File-ncat-connect.c-132",
+      "fileName": "repos/nmap/ncat/ncat_connect.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "a543072b2deffefe44d90518aa8adef3a0a414cc"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-ArgParser.cc-133",
+      "fileName": "repos/nmap/nping/ArgParser.cc",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "a54516a25b36e58aa2f2c404ed3ef032610290c1"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-service-scan.cc-134",
       "fileName": "repos/nmap/service_scan.cc",
       "checksums": [
         {
@@ -1580,7 +1560,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-EchoClient.h-137",
+      "SPDXID": "SPDXRef-File-EchoClient.h-135",
       "fileName": "repos/nmap/nping/EchoClient.h",
       "checksums": [
         {
@@ -1590,7 +1570,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-nse-ssl-cert.cc-138",
+      "SPDXID": "SPDXRef-File-nse-ssl-cert.cc-136",
       "fileName": "repos/nmap/nse_ssl_cert.cc",
       "checksums": [
         {
@@ -1600,17 +1580,17 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-ncat-ssl.c-139",
-      "fileName": "repos/nmap/ncat/ncat_ssl.c",
+      "SPDXID": "SPDXRef-File-NEPContext.h-137",
+      "fileName": "repos/nmap/nping/NEPContext.h",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "a9c34d4047fb67708c1f319ca4afb3b1f569c03d"
+          "checksumValue": "a9cf9cde8ef9c34c23fac73ff46fe3001fa0deb2"
         }
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-common-modified.cc-140",
+      "SPDXID": "SPDXRef-File-common-modified.cc-138",
       "fileName": "repos/nmap/nping/common_modified.cc",
       "checksums": [
         {
@@ -1620,7 +1600,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-ncat-lua.c-141",
+      "SPDXID": "SPDXRef-File-ncat-lua.c-139",
       "fileName": "repos/nmap/ncat/ncat_lua.c",
       "checksums": [
         {
@@ -1630,7 +1610,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-protocols.cc-142",
+      "SPDXID": "SPDXRef-File-protocols.cc-140",
       "fileName": "repos/nmap/protocols.cc",
       "checksums": [
         {
@@ -1640,7 +1620,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-NpingOps.h-143",
+      "SPDXID": "SPDXRef-File-NpingOps.h-141",
       "fileName": "repos/nmap/nping/NpingOps.h",
       "checksums": [
         {
@@ -1650,7 +1630,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-global-structures.h-144",
+      "SPDXID": "SPDXRef-File-global-structures.h-142",
       "fileName": "repos/nmap/nping/global_structures.h",
       "checksums": [
         {
@@ -1660,7 +1640,17 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-services.h-145",
+      "SPDXID": "SPDXRef-File-EchoServer.cc-143",
+      "fileName": "repos/nmap/nping/EchoServer.cc",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "b0f51dabe13a09a84a777e9df88ed4ab2c54df0a"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-services.h-144",
       "fileName": "repos/nmap/services.h",
       "checksums": [
         {
@@ -1670,7 +1660,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-xml.cc-146",
+      "SPDXID": "SPDXRef-File-xml.cc-145",
       "fileName": "repos/nmap/xml.cc",
       "checksums": [
         {
@@ -1680,7 +1670,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-nse-main.h-147",
+      "SPDXID": "SPDXRef-File-nse-main.h-146",
       "fileName": "repos/nmap/nse_main.h",
       "checksums": [
         {
@@ -1690,7 +1680,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-utils.cc-148",
+      "SPDXID": "SPDXRef-File-utils.cc-147",
       "fileName": "repos/nmap/utils.cc",
       "checksums": [
         {
@@ -1700,7 +1690,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-scan-lists.h-149",
+      "SPDXID": "SPDXRef-File-scan-lists.h-148",
       "fileName": "repos/nmap/scan_lists.h",
       "checksums": [
         {
@@ -1710,7 +1700,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-NmapOps.h-150",
+      "SPDXID": "SPDXRef-File-NmapOps.h-149",
       "fileName": "repos/nmap/NmapOps.h",
       "checksums": [
         {
@@ -1720,7 +1710,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-Target.cc-151",
+      "SPDXID": "SPDXRef-File-Target.cc-150",
       "fileName": "repos/nmap/Target.cc",
       "checksums": [
         {
@@ -1730,7 +1720,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-utils.h-152",
+      "SPDXID": "SPDXRef-File-utils.h-151",
       "fileName": "repos/nmap/nping/utils.h",
       "checksums": [
         {
@@ -1740,7 +1730,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-util.h-153",
+      "SPDXID": "SPDXRef-File-util.h-152",
       "fileName": "repos/nmap/ncat/util.h",
       "checksums": [
         {
@@ -1750,12 +1740,22 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-nse-debug.cc-154",
+      "SPDXID": "SPDXRef-File-nse-debug.cc-153",
       "fileName": "repos/nmap/nse_debug.cc",
       "checksums": [
         {
           "algorithm": "SHA1",
           "checksumValue": "c0379a90bdc9f38db49a0393f018d75b0487f5af"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-ncat-ssl.c-154",
+      "fileName": "repos/nmap/ncat/ncat_ssl.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "c24f3c8b560d50c92cb49a706c36712421ea482b"
         }
       ]
     },
@@ -1790,12 +1790,12 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-ncat-proxy.c-158",
-      "fileName": "repos/nmap/ncat/ncat_proxy.c",
+      "SPDXID": "SPDXRef-File-nse-openssl.cc-158",
+      "fileName": "repos/nmap/nse_openssl.cc",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "c6577e1280b776983ba67d40371974bcd71be884"
+          "checksumValue": "c89a4e87c6068c9c3aff9d45ba8e707b218b22b8"
         }
       ]
     },
@@ -1840,12 +1840,12 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-NEPContext.h-163",
-      "fileName": "repos/nmap/nping/NEPContext.h",
+      "SPDXID": "SPDXRef-File-nmap-dns.cc-163",
+      "fileName": "repos/nmap/nmap_dns.cc",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "d149f1a7a96b60745eeb1ee3c5a2b8550cdc52fe"
+          "checksumValue": "d3731d9fcec9f4aa8a37c45b0e3ea9a01cfffa0a"
         }
       ]
     },
@@ -1920,7 +1920,27 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-NpingTargets.h-171",
+      "SPDXID": "SPDXRef-File-traceroute.cc-171",
+      "fileName": "repos/nmap/traceroute.cc",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "e4b24ff13674f24e2242e802cdae0218e75849cb"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-ncat-proxy.c-172",
+      "fileName": "repos/nmap/ncat/ncat_proxy.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "e58f785cac55a2fe41e0bc3d1337a8db4b1fc766"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-NpingTargets.h-173",
       "fileName": "repos/nmap/nping/NpingTargets.h",
       "checksums": [
         {
@@ -1930,7 +1950,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-Target.h-172",
+      "SPDXID": "SPDXRef-File-Target.h-174",
       "fileName": "repos/nmap/Target.h",
       "checksums": [
         {
@@ -1940,7 +1960,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-nse-fs.h-173",
+      "SPDXID": "SPDXRef-File-nse-fs.h-175",
       "fileName": "repos/nmap/nse_fs.h",
       "checksums": [
         {
@@ -1950,17 +1970,17 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-nmap.h-174",
-      "fileName": "repos/nmap/nmap.h",
+      "SPDXID": "SPDXRef-File-NpingOps.cc-176",
+      "fileName": "repos/nmap/nping/NpingOps.cc",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "eb9efa94ee509b221b2a11065b43e9b7a1ebaaee"
+          "checksumValue": "eb677f5f8a35b9fcd61e9160ce0df3088278c0b5"
         }
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-nse-lpeg.cc-175",
+      "SPDXID": "SPDXRef-File-nse-lpeg.cc-177",
       "fileName": "repos/nmap/nse_lpeg.cc",
       "checksums": [
         {
@@ -1970,17 +1990,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-ncat-connect.c-176",
-      "fileName": "repos/nmap/ncat/ncat_connect.c",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "ee04695fcd5dd25288d0a170fc328e960b3f7b7d"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-ncat-core.c-177",
+      "SPDXID": "SPDXRef-File-ncat-core.c-178",
       "fileName": "repos/nmap/ncat/ncat_core.c",
       "checksums": [
         {
@@ -1990,7 +2000,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-FPModel.h-178",
+      "SPDXID": "SPDXRef-File-FPModel.h-179",
       "fileName": "repos/nmap/FPModel.h",
       "checksums": [
         {
@@ -2000,17 +2010,17 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-targets.cc-179",
-      "fileName": "repos/nmap/targets.cc",
+      "SPDXID": "SPDXRef-File-portlist.cc-180",
+      "fileName": "repos/nmap/portlist.cc",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "effe1e279a8ea396519733090864c5f7a8e89044"
+          "checksumValue": "ef7fccf4e0cf9d38681939272dd66d58edc924a8"
         }
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-scan-lists.cc-180",
+      "SPDXID": "SPDXRef-File-scan-lists.cc-181",
       "fileName": "repos/nmap/scan_lists.cc",
       "checksums": [
         {
@@ -2020,7 +2030,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-nse-fs.cc-181",
+      "SPDXID": "SPDXRef-File-nse-fs.cc-182",
       "fileName": "repos/nmap/nse_fs.cc",
       "checksums": [
         {
@@ -2030,22 +2040,12 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-NmapOutputTable.cc-182",
+      "SPDXID": "SPDXRef-File-NmapOutputTable.cc-183",
       "fileName": "repos/nmap/NmapOutputTable.cc",
       "checksums": [
         {
           "algorithm": "SHA1",
           "checksumValue": "f7624e20b73b0b77af3ecc22d226df83cabfeda2"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-ArgParser.cc-183",
-      "fileName": "repos/nmap/nping/ArgParser.cc",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "f78199ad2971de47cf19d84be07d01ea1f796661"
         }
       ]
     },
@@ -2070,32 +2070,32 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-nmap.cc-186",
-      "fileName": "repos/nmap/nmap.cc",
+      "SPDXID": "SPDXRef-File-FPEngine.cc-186",
+      "fileName": "repos/nmap/FPEngine.cc",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "fa16025ff202d1564f680aed01b704d3ce730b37"
+          "checksumValue": "fd1de6299b8b91288bfd37a93285a0d44a5f19e9"
         }
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-NpingTarget.cc-187",
-      "fileName": "repos/nmap/nping/NpingTarget.cc",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "fee78246f4a966b1004b7e50ff7e02394a689fc3"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-common-modified.h-188",
+      "SPDXID": "SPDXRef-File-common-modified.h-187",
       "fileName": "repos/nmap/nping/common_modified.h",
       "checksums": [
         {
           "algorithm": "SHA1",
           "checksumValue": "ff73e44fcd1b406445e302d3abcfa592ccad2f7c"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-osscan2.cc-188",
+      "fileName": "repos/nmap/osscan2.cc",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "ffda38a9d465b1eb979b4bf6f78be198b2f2bc7f"
         }
       ]
     },
@@ -2650,7 +2650,17 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-IPv4Header.cc-244",
+      "SPDXID": "SPDXRef-File-netutil.h-244",
+      "fileName": "repos/nmap/libnetutil/netutil.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "1874001454df9693bbe45da624172b2dbf95b850"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-IPv4Header.cc-245",
       "fileName": "repos/nmap/libnetutil/IPv4Header.cc",
       "checksums": [
         {
@@ -2660,7 +2670,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-ICMPv4Header.h-245",
+      "SPDXID": "SPDXRef-File-ICMPv4Header.h-246",
       "fileName": "repos/nmap/libnetutil/ICMPv4Header.h",
       "checksums": [
         {
@@ -2670,7 +2680,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-RawData.cc-246",
+      "SPDXID": "SPDXRef-File-RawData.cc-247",
       "fileName": "repos/nmap/libnetutil/RawData.cc",
       "checksums": [
         {
@@ -2680,7 +2690,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-UDPHeader.cc-247",
+      "SPDXID": "SPDXRef-File-UDPHeader.cc-248",
       "fileName": "repos/nmap/libnetutil/UDPHeader.cc",
       "checksums": [
         {
@@ -2690,7 +2700,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-ICMPv4Header.cc-248",
+      "SPDXID": "SPDXRef-File-ICMPv4Header.cc-249",
       "fileName": "repos/nmap/libnetutil/ICMPv4Header.cc",
       "checksums": [
         {
@@ -2700,7 +2710,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-TransportLayerElement.cc-249",
+      "SPDXID": "SPDXRef-File-TransportLayerElement.cc-250",
       "fileName": "repos/nmap/libnetutil/TransportLayerElement.cc",
       "checksums": [
         {
@@ -2710,7 +2720,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-ICMPv6Option.h-250",
+      "SPDXID": "SPDXRef-File-ICMPv6Option.h-251",
       "fileName": "repos/nmap/libnetutil/ICMPv6Option.h",
       "checksums": [
         {
@@ -2720,7 +2730,17 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-RoutingHeader.cc-251",
+      "SPDXID": "SPDXRef-File-netutil.cc-252",
+      "fileName": "repos/nmap/libnetutil/netutil.cc",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "46c80b7e08ae7db40aa87704558bc8bada1d0043"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-RoutingHeader.cc-253",
       "fileName": "repos/nmap/libnetutil/RoutingHeader.cc",
       "checksums": [
         {
@@ -2730,7 +2750,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-EthernetHeader.cc-252",
+      "SPDXID": "SPDXRef-File-EthernetHeader.cc-254",
       "fileName": "repos/nmap/libnetutil/EthernetHeader.cc",
       "checksums": [
         {
@@ -2740,7 +2760,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-TCPHeader.h-253",
+      "SPDXID": "SPDXRef-File-TCPHeader.h-255",
       "fileName": "repos/nmap/libnetutil/TCPHeader.h",
       "checksums": [
         {
@@ -2750,7 +2770,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-TransportLayerElement.h-254",
+      "SPDXID": "SPDXRef-File-TransportLayerElement.h-256",
       "fileName": "repos/nmap/libnetutil/TransportLayerElement.h",
       "checksums": [
         {
@@ -2760,7 +2780,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-DestOptsHeader.h-255",
+      "SPDXID": "SPDXRef-File-DestOptsHeader.h-257",
       "fileName": "repos/nmap/libnetutil/DestOptsHeader.h",
       "checksums": [
         {
@@ -2770,7 +2790,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-FragmentHeader.h-256",
+      "SPDXID": "SPDXRef-File-FragmentHeader.h-258",
       "fileName": "repos/nmap/libnetutil/FragmentHeader.h",
       "checksums": [
         {
@@ -2780,7 +2800,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-EthernetHeader.h-257",
+      "SPDXID": "SPDXRef-File-EthernetHeader.h-259",
       "fileName": "repos/nmap/libnetutil/EthernetHeader.h",
       "checksums": [
         {
@@ -2790,32 +2810,12 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-netutil.h-258",
-      "fileName": "repos/nmap/libnetutil/netutil.h",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "6b024b99ce7d2803205d6e8d33c34c8193028aa5"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-RawData.h-259",
+      "SPDXID": "SPDXRef-File-RawData.h-260",
       "fileName": "repos/nmap/libnetutil/RawData.h",
       "checksums": [
         {
           "algorithm": "SHA1",
           "checksumValue": "6e0dcb5942f3df273c70cc2c156e513a6173a06b"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-netutil.cc-260",
-      "fileName": "repos/nmap/libnetutil/netutil.cc",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "6e81f558c897e464daddd8dfd8ec0360afba7219"
         }
       ]
     },
@@ -2830,17 +2830,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-PacketParser.cc-262",
-      "fileName": "repos/nmap/libnetutil/PacketParser.cc",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "73758712bf49e066c518aeab94f47cd0454abdf5"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-IPv6ExtensionHeader.h-263",
+      "SPDXID": "SPDXRef-File-IPv6ExtensionHeader.h-262",
       "fileName": "repos/nmap/libnetutil/IPv6ExtensionHeader.h",
       "checksums": [
         {
@@ -2850,7 +2840,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-DataLinkLayerElement.h-264",
+      "SPDXID": "SPDXRef-File-DataLinkLayerElement.h-263",
       "fileName": "repos/nmap/libnetutil/DataLinkLayerElement.h",
       "checksums": [
         {
@@ -2860,7 +2850,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-ARPHeader.h-265",
+      "SPDXID": "SPDXRef-File-ARPHeader.h-264",
       "fileName": "repos/nmap/libnetutil/ARPHeader.h",
       "checksums": [
         {
@@ -2870,7 +2860,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-HopByHopHeader.cc-266",
+      "SPDXID": "SPDXRef-File-HopByHopHeader.cc-265",
       "fileName": "repos/nmap/libnetutil/HopByHopHeader.cc",
       "checksums": [
         {
@@ -2880,7 +2870,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-UDPHeader.h-267",
+      "SPDXID": "SPDXRef-File-UDPHeader.h-266",
       "fileName": "repos/nmap/libnetutil/UDPHeader.h",
       "checksums": [
         {
@@ -2890,7 +2880,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-NetworkLayerElement.cc-268",
+      "SPDXID": "SPDXRef-File-NetworkLayerElement.cc-267",
       "fileName": "repos/nmap/libnetutil/NetworkLayerElement.cc",
       "checksums": [
         {
@@ -2900,7 +2890,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-RoutingHeader.h-269",
+      "SPDXID": "SPDXRef-File-RoutingHeader.h-268",
       "fileName": "repos/nmap/libnetutil/RoutingHeader.h",
       "checksums": [
         {
@@ -2910,7 +2900,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-ICMPv6RRBody.h-270",
+      "SPDXID": "SPDXRef-File-ICMPv6RRBody.h-269",
       "fileName": "repos/nmap/libnetutil/ICMPv6RRBody.h",
       "checksums": [
         {
@@ -2920,7 +2910,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-TCPHeader.cc-271",
+      "SPDXID": "SPDXRef-File-TCPHeader.cc-270",
       "fileName": "repos/nmap/libnetutil/TCPHeader.cc",
       "checksums": [
         {
@@ -2930,7 +2920,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-IPv6Header.h-272",
+      "SPDXID": "SPDXRef-File-IPv6Header.h-271",
       "fileName": "repos/nmap/libnetutil/IPv6Header.h",
       "checksums": [
         {
@@ -2940,7 +2930,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-FragmentHeader.cc-273",
+      "SPDXID": "SPDXRef-File-FragmentHeader.cc-272",
       "fileName": "repos/nmap/libnetutil/FragmentHeader.cc",
       "checksums": [
         {
@@ -2950,7 +2940,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-IPv6Header.cc-274",
+      "SPDXID": "SPDXRef-File-IPv6Header.cc-273",
       "fileName": "repos/nmap/libnetutil/IPv6Header.cc",
       "checksums": [
         {
@@ -2960,12 +2950,22 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-PacketElement.h-275",
+      "SPDXID": "SPDXRef-File-PacketElement.h-274",
       "fileName": "repos/nmap/libnetutil/PacketElement.h",
       "checksums": [
         {
           "algorithm": "SHA1",
           "checksumValue": "d6ec0219a94ce69f2d94507449e9582c89564ba0"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-PacketParser.cc-275",
+      "fileName": "repos/nmap/libnetutil/PacketParser.cc",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "dab015a716b981a06d83411eb69eaa2d5d182410"
         }
       ]
     },
@@ -3630,22 +3630,22 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-eth-linux.c-342",
+      "SPDXID": "SPDXRef-File-addr.c-342",
+      "fileName": "repos/nmap/libdnet-stripped/src/addr.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "292df937553c69932a34e58753133a1953f4757c"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-eth-linux.c-343",
       "fileName": "repos/nmap/libdnet-stripped/src/eth-linux.c",
       "checksums": [
         {
           "algorithm": "SHA1",
           "checksumValue": "3d46ecaf05ae63713e33ca3a33f07aa3a665772e"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-addr.h-343",
-      "fileName": "repos/nmap/libnetutil/../libdnet-stripped/include/dnet/addr.h",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "40a97c2a133d8e9e5c113f8cd90e3fe4f5820321"
         }
       ]
     },
@@ -3670,7 +3670,17 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-ndisc.h-346",
+      "SPDXID": "SPDXRef-File-intf.c-346",
+      "fileName": "repos/nmap/libdnet-stripped/src/intf.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "5d8e25df96005269ff4b2cc79a2176a156652753"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-ndisc.h-347",
       "fileName": "repos/nmap/libnetutil/../libdnet-stripped/include/dnet/ndisc.h",
       "checksums": [
         {
@@ -3680,7 +3690,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-strlcpy.c-347",
+      "SPDXID": "SPDXRef-File-strlcpy.c-348",
       "fileName": "repos/nmap/libdnet-stripped/src/strlcpy.c",
       "checksums": [
         {
@@ -3690,7 +3700,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-blob.c-348",
+      "SPDXID": "SPDXRef-File-blob.c-349",
       "fileName": "repos/nmap/libdnet-stripped/src/blob.c",
       "checksums": [
         {
@@ -3700,7 +3710,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-ip6.h-349",
+      "SPDXID": "SPDXRef-File-ip6.h-350",
       "fileName": "repos/nmap/libnetutil/../libdnet-stripped/include/dnet/ip6.h",
       "checksums": [
         {
@@ -3710,7 +3720,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-udp.h-350",
+      "SPDXID": "SPDXRef-File-udp.h-351",
       "fileName": "repos/nmap/libnetutil/../libdnet-stripped/include/dnet/udp.h",
       "checksums": [
         {
@@ -3720,7 +3730,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-blob.h-351",
+      "SPDXID": "SPDXRef-File-blob.h-352",
       "fileName": "repos/nmap/libnetutil/../libdnet-stripped/include/dnet/blob.h",
       "checksums": [
         {
@@ -3730,7 +3740,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-route.h-352",
+      "SPDXID": "SPDXRef-File-route.h-353",
       "fileName": "repos/nmap/libnetutil/../libdnet-stripped/include/dnet/route.h",
       "checksums": [
         {
@@ -3740,7 +3750,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-eth.h-353",
+      "SPDXID": "SPDXRef-File-eth.h-354",
       "fileName": "repos/nmap/libnetutil/../libdnet-stripped/include/dnet/eth.h",
       "checksums": [
         {
@@ -3750,7 +3760,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-crc32ct.h-354",
+      "SPDXID": "SPDXRef-File-crc32ct.h-355",
       "fileName": "repos/nmap/libdnet-stripped/src/crc32ct.h",
       "checksums": [
         {
@@ -3760,7 +3770,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-icmpv6.h-355",
+      "SPDXID": "SPDXRef-File-icmpv6.h-356",
       "fileName": "repos/nmap/libnetutil/../libdnet-stripped/include/dnet/icmpv6.h",
       "checksums": [
         {
@@ -3770,7 +3780,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-config.h-356",
+      "SPDXID": "SPDXRef-File-config.h-357",
       "fileName": "repos/nmap/libdnet-stripped/src/../include/config.h",
       "checksums": [
         {
@@ -3780,7 +3790,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-rand.h-357",
+      "SPDXID": "SPDXRef-File-rand.h-358",
       "fileName": "repos/nmap/libnetutil/../libdnet-stripped/include/dnet/rand.h",
       "checksums": [
         {
@@ -3790,7 +3800,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-intf.h-358",
+      "SPDXID": "SPDXRef-File-intf.h-359",
       "fileName": "repos/nmap/libnetutil/../libdnet-stripped/include/dnet/intf.h",
       "checksums": [
         {
@@ -3800,7 +3810,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-ip-util.c-359",
+      "SPDXID": "SPDXRef-File-ip-util.c-360",
       "fileName": "repos/nmap/libdnet-stripped/src/ip-util.c",
       "checksums": [
         {
@@ -3810,7 +3820,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-addr-util.c-360",
+      "SPDXID": "SPDXRef-File-addr-util.c-361",
       "fileName": "repos/nmap/libdnet-stripped/src/addr-util.c",
       "checksums": [
         {
@@ -3820,22 +3830,12 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-ip6.c-361",
+      "SPDXID": "SPDXRef-File-ip6.c-362",
       "fileName": "repos/nmap/libdnet-stripped/src/ip6.c",
       "checksums": [
         {
           "algorithm": "SHA1",
           "checksumValue": "c342e7ab46c88f7a49afe550d39369956bba48f4"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-intf.c-362",
-      "fileName": "repos/nmap/libdnet-stripped/src/intf.c",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "c75ae528aedaabade3379f8802feef56f7557985"
         }
       ]
     },
@@ -3850,17 +3850,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-addr.c-364",
-      "fileName": "repos/nmap/libdnet-stripped/src/addr.c",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "d5cd06fcdf91d789ef67ac932f3c2e1a5895a044"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-ndisc-linux.c-365",
+      "SPDXID": "SPDXRef-File-ndisc-linux.c-364",
       "fileName": "repos/nmap/libdnet-stripped/src/ndisc-linux.c",
       "checksums": [
         {
@@ -3870,7 +3860,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-os.h-366",
+      "SPDXID": "SPDXRef-File-os.h-365",
       "fileName": "repos/nmap/libnetutil/../libdnet-stripped/include/dnet/os.h",
       "checksums": [
         {
@@ -3880,7 +3870,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-fw.h-367",
+      "SPDXID": "SPDXRef-File-fw.h-366",
       "fileName": "repos/nmap/libnetutil/../libdnet-stripped/include/dnet/fw.h",
       "checksums": [
         {
@@ -3890,7 +3880,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-fw-none.c-368",
+      "SPDXID": "SPDXRef-File-fw-none.c-367",
       "fileName": "repos/nmap/libdnet-stripped/src/fw-none.c",
       "checksums": [
         {
@@ -3900,7 +3890,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-tun-linux.c-369",
+      "SPDXID": "SPDXRef-File-tun-linux.c-368",
       "fileName": "repos/nmap/libdnet-stripped/src/tun-linux.c",
       "checksums": [
         {
@@ -3910,7 +3900,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-icmp.h-370",
+      "SPDXID": "SPDXRef-File-icmp.h-369",
       "fileName": "repos/nmap/libnetutil/../libdnet-stripped/include/dnet/icmp.h",
       "checksums": [
         {
@@ -3920,7 +3910,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-dnet.h-371",
+      "SPDXID": "SPDXRef-File-dnet.h-370",
       "fileName": "repos/nmap/libnetutil/../libdnet-stripped/include/dnet.h",
       "checksums": [
         {
@@ -3930,12 +3920,22 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-sctp.h-372",
+      "SPDXID": "SPDXRef-File-sctp.h-371",
       "fileName": "repos/nmap/libnetutil/../libdnet-stripped/include/dnet/sctp.h",
       "checksums": [
         {
           "algorithm": "SHA1",
           "checksumValue": "f313bae2e0fde4ee9795837825809213f09650f3"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-addr.h-372",
+      "fileName": "repos/nmap/libnetutil/../libdnet-stripped/include/dnet/addr.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "fdcbd9af3edcb973853f3197c80030f69f1c5a16"
         }
       ]
     },
@@ -3990,17 +3990,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-nbase-misc.c-378",
-      "fileName": "repos/nmap/nbase/nbase_misc.c",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "20e122b88acbbf12cd3483c4111e3865e1b93004"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-nbase-crc32ct.h-379",
+      "SPDXID": "SPDXRef-File-nbase-crc32ct.h-378",
       "fileName": "repos/nmap/nbase/nbase_crc32ct.h",
       "checksums": [
         {
@@ -4010,17 +4000,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-nbase-addrset.c-380",
-      "fileName": "repos/nmap/nbase/nbase_addrset.c",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "2f974292d6c5086196be6d8bb812d705449b6b32"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-nbase-time.c-381",
+      "SPDXID": "SPDXRef-File-nbase-time.c-379",
       "fileName": "repos/nmap/nbase/nbase_time.c",
       "checksums": [
         {
@@ -4030,7 +4010,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-getopt.h-382",
+      "SPDXID": "SPDXRef-File-getopt.h-380",
       "fileName": "repos/nmap/libnetutil/../nbase/getopt.h",
       "checksums": [
         {
@@ -4040,7 +4020,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-nbase-memalloc.c-383",
+      "SPDXID": "SPDXRef-File-nbase-memalloc.c-381",
       "fileName": "repos/nmap/nbase/nbase_memalloc.c",
       "checksums": [
         {
@@ -4050,12 +4030,32 @@
       ]
     },
     {
+      "SPDXID": "SPDXRef-File-nbase-misc.c-382",
+      "fileName": "repos/nmap/nbase/nbase_misc.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "9280f177f4be66b039a650ca22a1b84152fd5a27"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-nbase-addrset.c-383",
+      "fileName": "repos/nmap/nbase/nbase_addrset.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "d1fecf94aaf26a8e476b97dd37f057be24ef3524"
+        }
+      ]
+    },
+    {
       "SPDXID": "SPDXRef-File-nbase.h-384",
       "fileName": "repos/nmap/libnetutil/../nbase/nbase.h",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "7b29d9e9b2f80d8f73926c074cf7c9b913633d68"
+          "checksumValue": "f9691aa0d3a6d55385080e728b9d5298519e06e2"
         }
       ]
     },
@@ -4090,7 +4090,17 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-nsock.h-388",
+      "SPDXID": "SPDXRef-File-nsock-internal.h-388",
+      "fileName": "repos/nmap/nsock/src/nsock_internal.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "11b5082aa824f1c876c7062d7e0cfad14a7b8a4d"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-nsock.h-389",
       "fileName": "repos/nmap/nsock/include/nsock.h",
       "checksums": [
         {
@@ -4100,7 +4110,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-nsock-log.h-389",
+      "SPDXID": "SPDXRef-File-nsock-log.h-390",
       "fileName": "repos/nmap/nsock/src/nsock_log.h",
       "checksums": [
         {
@@ -4110,7 +4120,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-gh-list.h-390",
+      "SPDXID": "SPDXRef-File-gh-list.h-391",
       "fileName": "repos/nmap/nsock/src/gh_list.h",
       "checksums": [
         {
@@ -4120,7 +4130,17 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-nsock-connect.c-391",
+      "SPDXID": "SPDXRef-File-nsock-ssl.c-392",
+      "fileName": "repos/nmap/nsock/src/nsock_ssl.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "26e9a7f57c23ebd27a48577f15eec48eb0bb188d"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-nsock-connect.c-393",
       "fileName": "repos/nmap/nsock/src/nsock_connect.c",
       "checksums": [
         {
@@ -4130,7 +4150,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-nsock-proxy.h-392",
+      "SPDXID": "SPDXRef-File-nsock-proxy.h-394",
       "fileName": "repos/nmap/nsock/src/nsock_proxy.h",
       "checksums": [
         {
@@ -4140,7 +4160,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-nsock-iod.c-393",
+      "SPDXID": "SPDXRef-File-nsock-iod.c-395",
       "fileName": "repos/nmap/nsock/src/nsock_iod.c",
       "checksums": [
         {
@@ -4150,7 +4170,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-nsock-engines.c-394",
+      "SPDXID": "SPDXRef-File-nsock-engines.c-396",
       "fileName": "repos/nmap/nsock/src/nsock_engines.c",
       "checksums": [
         {
@@ -4160,32 +4180,12 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-nsock-internal.h-395",
-      "fileName": "repos/nmap/nsock/src/nsock_internal.h",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "4ef523cd7af7ac6e523e21bcb0cae9b35d8f42e5"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-nsock-timers.c-396",
+      "SPDXID": "SPDXRef-File-nsock-timers.c-397",
       "fileName": "repos/nmap/nsock/src/nsock_timers.c",
       "checksums": [
         {
           "algorithm": "SHA1",
           "checksumValue": "58c2a2c402f3e158a1c8c7879f1163a7e63c28d2"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-nsock-proxy.c-397",
-      "fileName": "repos/nmap/nsock/src/nsock_proxy.c",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "6729dc8ee5ecf2627ab803fcf73dbd4fdcacef78"
         }
       ]
     },
@@ -4250,17 +4250,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-nsock-pool.c-404",
-      "fileName": "repos/nmap/nsock/src/nsock_pool.c",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "86f82eef7665dad8a3cff29969d4922fc8ec5e1f"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-engine-epoll.c-405",
+      "SPDXID": "SPDXRef-File-engine-epoll.c-404",
       "fileName": "repos/nmap/nsock/src/engine_epoll.c",
       "checksums": [
         {
@@ -4270,7 +4260,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-error.c-406",
+      "SPDXID": "SPDXRef-File-error.c-405",
       "fileName": "repos/nmap/nsock/src/error.c",
       "checksums": [
         {
@@ -4280,17 +4270,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-nsock-core.c-407",
-      "fileName": "repos/nmap/nsock/src/nsock_core.c",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "9b5a3647f9b95c3c11b6c869b5053c87f30a5b9f"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-engine-select.c-408",
+      "SPDXID": "SPDXRef-File-engine-select.c-406",
       "fileName": "repos/nmap/nsock/src/engine_select.c",
       "checksums": [
         {
@@ -4300,7 +4280,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-nsock-read.c-409",
+      "SPDXID": "SPDXRef-File-nsock-read.c-407",
       "fileName": "repos/nmap/nsock/src/nsock_read.c",
       "checksums": [
         {
@@ -4310,7 +4290,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-gh-heap.h-410",
+      "SPDXID": "SPDXRef-File-gh-heap.h-408",
       "fileName": "repos/nmap/nsock/src/gh_heap.h",
       "checksums": [
         {
@@ -4320,7 +4300,17 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-engine-kqueue.c-411",
+      "SPDXID": "SPDXRef-File-nsock-core.c-409",
+      "fileName": "repos/nmap/nsock/src/nsock_core.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "bf4087f7f3b2e0840e1c80d2b106a9ea71704032"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-engine-kqueue.c-410",
       "fileName": "repos/nmap/nsock/src/engine_kqueue.c",
       "checksums": [
         {
@@ -4330,17 +4320,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-nsock-ssl.c-412",
-      "fileName": "repos/nmap/nsock/src/nsock_ssl.c",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "c1ff6082d91fa9fea9b6b0a01abe330c73f78a5f"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-engine-poll.c-413",
+      "SPDXID": "SPDXRef-File-engine-poll.c-411",
       "fileName": "repos/nmap/nsock/src/engine_poll.c",
       "checksums": [
         {
@@ -4350,7 +4330,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-nsock-config.h-414",
+      "SPDXID": "SPDXRef-File-nsock-config.h-412",
       "fileName": "repos/nmap/nsock/include/nsock_config.h",
       "checksums": [
         {
@@ -4360,7 +4340,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-proxy-socks4.c-415",
+      "SPDXID": "SPDXRef-File-proxy-socks4.c-413",
       "fileName": "repos/nmap/nsock/src/proxy_socks4.c",
       "checksums": [
         {
@@ -4370,7 +4350,17 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-netutils.c-416",
+      "SPDXID": "SPDXRef-File-nsock-proxy.c-414",
+      "fileName": "repos/nmap/nsock/src/nsock_proxy.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "c64f1c91858af9b7d19eb3fe9d0fdb83fcb33265"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-netutils.c-415",
       "fileName": "repos/nmap/nsock/src/netutils.c",
       "checksums": [
         {
@@ -4380,12 +4370,22 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-netutils.h-417",
+      "SPDXID": "SPDXRef-File-netutils.h-416",
       "fileName": "repos/nmap/nsock/src/netutils.h",
       "checksums": [
         {
           "algorithm": "SHA1",
           "checksumValue": "dedec8a6b4c7bf99381707fb102db1c717394a7f"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-nsock-pool.c-417",
+      "fileName": "repos/nmap/nsock/src/nsock_pool.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "e1bc383e92d13ac48cfc3d1a04ef27a00bde958b"
         }
       ]
     },
@@ -4538,7 +4538,17 @@
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-libdnet-stripped-14"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "STATIC_LINK",
+      "relatedSpdxElement": "SPDXRef-liblinear-15"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
       "relatedSpdxElement": "SPDXRef-liblinear-15"
     },
     {
@@ -4548,7 +4558,17 @@
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-liblua-16"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "STATIC_LINK",
+      "relatedSpdxElement": "SPDXRef-libnetutil-17"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
       "relatedSpdxElement": "SPDXRef-libnetutil-17"
     },
     {
@@ -4558,7 +4578,17 @@
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-libssh2-18"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "STATIC_LINK",
+      "relatedSpdxElement": "SPDXRef-nbase-19"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
       "relatedSpdxElement": "SPDXRef-nbase-19"
     },
     {
@@ -4569,502 +4599,507 @@
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-nsock-20"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
       "relatedSpdxElement": "SPDXRef-File-payload.h-21"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-osscan2.h-22"
+      "relatedSpdxElement": "SPDXRef-File-nmap-error.cc-22"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-nmap-error.cc-23"
+      "relatedSpdxElement": "SPDXRef-File-nse-libssh2.cc-23"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-nse-libssh2.cc-24"
+      "relatedSpdxElement": "SPDXRef-File-protocols.h-24"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-protocols.h-25"
+      "relatedSpdxElement": "SPDXRef-File-xml.h-25"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-scan-engine.cc-26"
+      "relatedSpdxElement": "SPDXRef-File-ncat-core.h-26"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-xml.h-27"
+      "relatedSpdxElement": "SPDXRef-File-nmap-config.h-27"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-ncat-core.h-28"
+      "relatedSpdxElement": "SPDXRef-File-nse-utility.cc-28"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-nmap-config.h-29"
+      "relatedSpdxElement": "SPDXRef-File-FPEngine.h-29"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-nse-utility.cc-30"
+      "relatedSpdxElement": "SPDXRef-File-osscan.h-30"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-FPEngine.h-31"
+      "relatedSpdxElement": "SPDXRef-File-osscan2.h-31"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-osscan.h-32"
+      "relatedSpdxElement": "SPDXRef-File-http-digest.c-32"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-idle-scan.cc-33"
+      "relatedSpdxElement": "SPDXRef-File-NmapOps.cc-33"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-http-digest.c-34"
+      "relatedSpdxElement": "SPDXRef-File-NpingTarget.h-34"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-NmapOps.cc-35"
+      "relatedSpdxElement": "SPDXRef-File-charpool.cc-35"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-NpingTarget.h-36"
+      "relatedSpdxElement": "SPDXRef-File-nse-libssh2.h-36"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-charpool.cc-37"
+      "relatedSpdxElement": "SPDXRef-File-nse-nmaplib.cc-37"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-nse-dnet.cc-38"
+      "relatedSpdxElement": "SPDXRef-File-nping.cc-38"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-nse-libssh2.h-39"
+      "relatedSpdxElement": "SPDXRef-File-targets.h-39"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-nse-nmaplib.cc-40"
+      "relatedSpdxElement": "SPDXRef-File-sys-wrap.c-40"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-nping.cc-41"
+      "relatedSpdxElement": "SPDXRef-File-scan-engine-connect.h-41"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-portlist.cc-42"
+      "relatedSpdxElement": "SPDXRef-File-EchoServer.h-42"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-targets.h-43"
+      "relatedSpdxElement": "SPDXRef-File-nse-main.cc-43"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-FPEngine.cc-44"
+      "relatedSpdxElement": "SPDXRef-File-portreasons.cc-44"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-sys-wrap.c-45"
+      "relatedSpdxElement": "SPDXRef-File-base64.h-45"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-scan-engine-connect.h-46"
+      "relatedSpdxElement": "SPDXRef-File-Crypto.h-46"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-EchoServer.h-47"
+      "relatedSpdxElement": "SPDXRef-File-ncat-lua.h-47"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-nse-openssl.cc-48"
+      "relatedSpdxElement": "SPDXRef-File-output.h-48"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-nse-main.cc-49"
+      "relatedSpdxElement": "SPDXRef-File-NpingTarget.cc-49"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-portreasons.cc-50"
+      "relatedSpdxElement": "SPDXRef-File-struct-ip.h-50"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-tcpip.cc-51"
+      "relatedSpdxElement": "SPDXRef-File-nping.h-51"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-ncat.h-52"
+      "relatedSpdxElement": "SPDXRef-File-NpingTargets.cc-52"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-base64.h-53"
+      "relatedSpdxElement": "SPDXRef-File-ncat.h-53"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-traceroute.cc-54"
+      "relatedSpdxElement": "SPDXRef-File-config.h-54"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-Crypto.h-55"
+      "relatedSpdxElement": "SPDXRef-File-NewTargets.h-55"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-EchoClient.cc-56"
+      "relatedSpdxElement": "SPDXRef-File-FingerPrintResults.cc-56"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-ncat-lua.h-57"
+      "relatedSpdxElement": "SPDXRef-File-nse-lpeg.h-57"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-output.h-58"
+      "relatedSpdxElement": "SPDXRef-File-services.cc-58"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-struct-ip.h-59"
+      "relatedSpdxElement": "SPDXRef-File-ncat-ssl.h-59"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-NpingTargets.cc-60"
+      "relatedSpdxElement": "SPDXRef-File-nmap.cc-60"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-EchoServer.cc-61"
+      "relatedSpdxElement": "SPDXRef-File-nse-nsock.cc-61"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-config.h-62"
+      "relatedSpdxElement": "SPDXRef-File-NewTargets.cc-62"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-NewTargets.h-63"
+      "relatedSpdxElement": "SPDXRef-File-targets.cc-63"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-FingerPrintResults.cc-64"
+      "relatedSpdxElement": "SPDXRef-File-utils.h-64"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-nse-lpeg.h-65"
+      "relatedSpdxElement": "SPDXRef-File-utils-net.cc-65"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-services.cc-66"
+      "relatedSpdxElement": "SPDXRef-File-MACLookup.h-66"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-ncat-ssl.h-67"
+      "relatedSpdxElement": "SPDXRef-File-idle-scan.h-67"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-nping.h-68"
+      "relatedSpdxElement": "SPDXRef-File-tcpip.cc-68"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-nse-nsock.cc-69"
+      "relatedSpdxElement": "SPDXRef-File-EchoClient.cc-69"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-NewTargets.cc-70"
+      "relatedSpdxElement": "SPDXRef-File-ncat-main.c-70"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-utils.h-71"
+      "relatedSpdxElement": "SPDXRef-File-util.c-71"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-utils-net.cc-72"
+      "relatedSpdxElement": "SPDXRef-File-nse-dnet.cc-72"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-MACLookup.h-73"
+      "relatedSpdxElement": "SPDXRef-File-output.h-73"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-tcpip.h-74"
+      "relatedSpdxElement": "SPDXRef-File-portreasons.h-74"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-idle-scan.h-75"
+      "relatedSpdxElement": "SPDXRef-File-ProbeMode.h-75"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-ncat-main.c-76"
+      "relatedSpdxElement": "SPDXRef-File-utils-net.h-76"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-util.c-77"
+      "relatedSpdxElement": "SPDXRef-File-FPModel.cc-77"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-scan-engine-raw.cc-78"
+      "relatedSpdxElement": "SPDXRef-File-string-pool.h-78"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-output.h-79"
+      "relatedSpdxElement": "SPDXRef-File-nse-utility.h-79"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-portreasons.h-80"
+      "relatedSpdxElement": "SPDXRef-File-nmap-ftp.h-80"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-ProbeMode.h-81"
+      "relatedSpdxElement": "SPDXRef-File-portlist.h-81"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-utils-net.h-82"
+      "relatedSpdxElement": "SPDXRef-File-output.cc-82"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-nmap-dns.cc-83"
+      "relatedSpdxElement": "SPDXRef-File-ArgParser.h-83"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-string-pool.h-84"
+      "relatedSpdxElement": "SPDXRef-File-EchoHeader.cc-84"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-nse-utility.h-85"
+      "relatedSpdxElement": "SPDXRef-File-timing.h-85"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-nmap-ftp.h-86"
+      "relatedSpdxElement": "SPDXRef-File-nse-zlib.h-86"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-portlist.h-87"
+      "relatedSpdxElement": "SPDXRef-File-http.c-87"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-output.cc-88"
+      "relatedSpdxElement": "SPDXRef-File-nse-dnet.h-88"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-osscan2.cc-89"
+      "relatedSpdxElement": "SPDXRef-File-utils.cc-89"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-ArgParser.h-90"
+      "relatedSpdxElement": "SPDXRef-File-ncat-proxy.h-90"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-timing.h-91"
+      "relatedSpdxElement": "SPDXRef-File-nse-nsock.h-91"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-nse-zlib.h-92"
+      "relatedSpdxElement": "SPDXRef-File-nmap.h-92"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-nse-dnet.h-93"
+      "relatedSpdxElement": "SPDXRef-File-nse-db.cc-93"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-ncat-listen.c-94"
+      "relatedSpdxElement": "SPDXRef-File-nse-lua.h-94"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-EchoHeader.cc-95"
+      "relatedSpdxElement": "SPDXRef-File-nse-zlib.cc-95"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-utils.cc-96"
+      "relatedSpdxElement": "SPDXRef-File-lpeg.c-96"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-ProbeMode.cc-97"
+      "relatedSpdxElement": "SPDXRef-File-common.h-97"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-ncat-proxy.h-98"
+      "relatedSpdxElement": "SPDXRef-File-nse-ssl-cert.h-98"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-nse-nsock.h-99"
+      "relatedSpdxElement": "SPDXRef-File-tcpip.h-99"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-nse-db.cc-100"
+      "relatedSpdxElement": "SPDXRef-File-main.cc-100"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-nse-lua.h-101"
+      "relatedSpdxElement": "SPDXRef-File-output.cc-101"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-nse-zlib.cc-102"
+      "relatedSpdxElement": "SPDXRef-File-traceroute.h-102"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-FPModel.cc-103"
+      "relatedSpdxElement": "SPDXRef-File-nmap-error.h-103"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-lpeg.c-104"
+      "relatedSpdxElement": "SPDXRef-File-common.cc-104"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-common.h-105"
+      "relatedSpdxElement": "SPDXRef-File-http.h-105"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-nse-ssl-cert.h-106"
+      "relatedSpdxElement": "SPDXRef-File-scan-engine-connect.cc-106"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-main.cc-107"
+      "relatedSpdxElement": "SPDXRef-File-payload.cc-107"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-output.cc-108"
+      "relatedSpdxElement": "SPDXRef-File-nse-nmaplib.h-108"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-traceroute.h-109"
+      "relatedSpdxElement": "SPDXRef-File-nse-openssl.h-109"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-nmap-error.h-110"
+      "relatedSpdxElement": "SPDXRef-File-idle-scan.cc-110"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-common.cc-111"
+      "relatedSpdxElement": "SPDXRef-File-FingerPrintResults.h-111"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-http.h-112"
+      "relatedSpdxElement": "SPDXRef-File-TargetGroup.h-112"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-scan-engine-connect.cc-113"
+      "relatedSpdxElement": "SPDXRef-File-ncat-posix.c-113"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-payload.cc-114"
+      "relatedSpdxElement": "SPDXRef-File-ncat-config.h-114"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-nse-nmaplib.h-115"
+      "relatedSpdxElement": "SPDXRef-File-ncat-listen.c-115"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-nse-openssl.h-116"
+      "relatedSpdxElement": "SPDXRef-File-scan-engine-raw.cc-116"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-FingerPrintResults.h-117"
+      "relatedSpdxElement": "SPDXRef-File-scan-engine.h-117"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-TargetGroup.h-118"
+      "relatedSpdxElement": "SPDXRef-File-TargetGroup.cc-118"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-ncat-posix.c-119"
+      "relatedSpdxElement": "SPDXRef-File-ncat-connect.h-119"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-ncat-config.h-120"
+      "relatedSpdxElement": "SPDXRef-File-stats.h-120"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
@@ -5074,167 +5109,167 @@
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-scan-engine.h-122"
+      "relatedSpdxElement": "SPDXRef-File-NEPContext.cc-122"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-TargetGroup.cc-123"
+      "relatedSpdxElement": "SPDXRef-File-sys-wrap.h-123"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-NpingOps.cc-124"
+      "relatedSpdxElement": "SPDXRef-File-timing.cc-124"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-ncat-connect.h-125"
+      "relatedSpdxElement": "SPDXRef-File-nping-config.h-125"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-stats.h-126"
+      "relatedSpdxElement": "SPDXRef-File-charpool.h-126"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-NEPContext.cc-127"
+      "relatedSpdxElement": "SPDXRef-File-stats.cc-127"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-sys-wrap.h-128"
+      "relatedSpdxElement": "SPDXRef-File-scan-engine.cc-128"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-timing.cc-129"
+      "relatedSpdxElement": "SPDXRef-File-ProbeMode.cc-129"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-nping-config.h-130"
+      "relatedSpdxElement": "SPDXRef-File-ncat-exec.h-130"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-charpool.h-131"
+      "relatedSpdxElement": "SPDXRef-File-nmap-tty.cc-131"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-stats.cc-132"
+      "relatedSpdxElement": "SPDXRef-File-ncat-connect.c-132"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-http.c-133"
+      "relatedSpdxElement": "SPDXRef-File-ArgParser.cc-133"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-ncat-exec.h-134"
+      "relatedSpdxElement": "SPDXRef-File-service-scan.cc-134"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-nmap-tty.cc-135"
+      "relatedSpdxElement": "SPDXRef-File-EchoClient.h-135"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-service-scan.cc-136"
+      "relatedSpdxElement": "SPDXRef-File-nse-ssl-cert.cc-136"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-EchoClient.h-137"
+      "relatedSpdxElement": "SPDXRef-File-NEPContext.h-137"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-nse-ssl-cert.cc-138"
+      "relatedSpdxElement": "SPDXRef-File-common-modified.cc-138"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-ncat-ssl.c-139"
+      "relatedSpdxElement": "SPDXRef-File-ncat-lua.c-139"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-common-modified.cc-140"
+      "relatedSpdxElement": "SPDXRef-File-protocols.cc-140"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-ncat-lua.c-141"
+      "relatedSpdxElement": "SPDXRef-File-NpingOps.h-141"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-protocols.cc-142"
+      "relatedSpdxElement": "SPDXRef-File-global-structures.h-142"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-NpingOps.h-143"
+      "relatedSpdxElement": "SPDXRef-File-EchoServer.cc-143"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-global-structures.h-144"
+      "relatedSpdxElement": "SPDXRef-File-services.h-144"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-services.h-145"
+      "relatedSpdxElement": "SPDXRef-File-xml.cc-145"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-xml.cc-146"
+      "relatedSpdxElement": "SPDXRef-File-nse-main.h-146"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-nse-main.h-147"
+      "relatedSpdxElement": "SPDXRef-File-utils.cc-147"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-utils.cc-148"
+      "relatedSpdxElement": "SPDXRef-File-scan-lists.h-148"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-scan-lists.h-149"
+      "relatedSpdxElement": "SPDXRef-File-NmapOps.h-149"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-NmapOps.h-150"
+      "relatedSpdxElement": "SPDXRef-File-Target.cc-150"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-Target.cc-151"
+      "relatedSpdxElement": "SPDXRef-File-utils.h-151"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-utils.h-152"
+      "relatedSpdxElement": "SPDXRef-File-util.h-152"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-util.h-153"
+      "relatedSpdxElement": "SPDXRef-File-nse-debug.cc-153"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-nse-debug.cc-154"
+      "relatedSpdxElement": "SPDXRef-File-ncat-ssl.c-154"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
@@ -5254,7 +5289,7 @@
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-ncat-proxy.c-158"
+      "relatedSpdxElement": "SPDXRef-File-nse-openssl.cc-158"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
@@ -5279,7 +5314,7 @@
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-NEPContext.h-163"
+      "relatedSpdxElement": "SPDXRef-File-nmap-dns.cc-163"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
@@ -5319,67 +5354,67 @@
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-NpingTargets.h-171"
+      "relatedSpdxElement": "SPDXRef-File-traceroute.cc-171"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-Target.h-172"
+      "relatedSpdxElement": "SPDXRef-File-ncat-proxy.c-172"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-nse-fs.h-173"
+      "relatedSpdxElement": "SPDXRef-File-NpingTargets.h-173"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-nmap.h-174"
+      "relatedSpdxElement": "SPDXRef-File-Target.h-174"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-nse-lpeg.cc-175"
+      "relatedSpdxElement": "SPDXRef-File-nse-fs.h-175"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-ncat-connect.c-176"
+      "relatedSpdxElement": "SPDXRef-File-NpingOps.cc-176"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-ncat-core.c-177"
+      "relatedSpdxElement": "SPDXRef-File-nse-lpeg.cc-177"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-FPModel.h-178"
+      "relatedSpdxElement": "SPDXRef-File-ncat-core.c-178"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-targets.cc-179"
+      "relatedSpdxElement": "SPDXRef-File-FPModel.h-179"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-scan-lists.cc-180"
+      "relatedSpdxElement": "SPDXRef-File-portlist.cc-180"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-nse-fs.cc-181"
+      "relatedSpdxElement": "SPDXRef-File-scan-lists.cc-181"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-NmapOutputTable.cc-182"
+      "relatedSpdxElement": "SPDXRef-File-nse-fs.cc-182"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-ArgParser.cc-183"
+      "relatedSpdxElement": "SPDXRef-File-NmapOutputTable.cc-183"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
@@ -5394,17 +5429,17 @@
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-nmap.cc-186"
+      "relatedSpdxElement": "SPDXRef-File-FPEngine.cc-186"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-NpingTarget.cc-187"
+      "relatedSpdxElement": "SPDXRef-File-common-modified.h-187"
     },
     {
       "spdxElementId": "SPDXRef-Package-root",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-common-modified.h-188"
+      "relatedSpdxElement": "SPDXRef-File-osscan2.cc-188"
     },
     {
       "spdxElementId": "SPDXRef-libssh2-18",
@@ -5684,87 +5719,87 @@
     {
       "spdxElementId": "SPDXRef-libnetutil-17",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-IPv4Header.cc-244"
+      "relatedSpdxElement": "SPDXRef-File-netutil.h-244"
     },
     {
       "spdxElementId": "SPDXRef-libnetutil-17",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-ICMPv4Header.h-245"
+      "relatedSpdxElement": "SPDXRef-File-IPv4Header.cc-245"
     },
     {
       "spdxElementId": "SPDXRef-libnetutil-17",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-RawData.cc-246"
+      "relatedSpdxElement": "SPDXRef-File-ICMPv4Header.h-246"
     },
     {
       "spdxElementId": "SPDXRef-libnetutil-17",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-UDPHeader.cc-247"
+      "relatedSpdxElement": "SPDXRef-File-RawData.cc-247"
     },
     {
       "spdxElementId": "SPDXRef-libnetutil-17",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-ICMPv4Header.cc-248"
+      "relatedSpdxElement": "SPDXRef-File-UDPHeader.cc-248"
     },
     {
       "spdxElementId": "SPDXRef-libnetutil-17",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-TransportLayerElement.cc-249"
+      "relatedSpdxElement": "SPDXRef-File-ICMPv4Header.cc-249"
     },
     {
       "spdxElementId": "SPDXRef-libnetutil-17",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-ICMPv6Option.h-250"
+      "relatedSpdxElement": "SPDXRef-File-TransportLayerElement.cc-250"
     },
     {
       "spdxElementId": "SPDXRef-libnetutil-17",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-RoutingHeader.cc-251"
+      "relatedSpdxElement": "SPDXRef-File-ICMPv6Option.h-251"
     },
     {
       "spdxElementId": "SPDXRef-libnetutil-17",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-EthernetHeader.cc-252"
+      "relatedSpdxElement": "SPDXRef-File-netutil.cc-252"
     },
     {
       "spdxElementId": "SPDXRef-libnetutil-17",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-TCPHeader.h-253"
+      "relatedSpdxElement": "SPDXRef-File-RoutingHeader.cc-253"
     },
     {
       "spdxElementId": "SPDXRef-libnetutil-17",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-TransportLayerElement.h-254"
+      "relatedSpdxElement": "SPDXRef-File-EthernetHeader.cc-254"
     },
     {
       "spdxElementId": "SPDXRef-libnetutil-17",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-DestOptsHeader.h-255"
+      "relatedSpdxElement": "SPDXRef-File-TCPHeader.h-255"
     },
     {
       "spdxElementId": "SPDXRef-libnetutil-17",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-FragmentHeader.h-256"
+      "relatedSpdxElement": "SPDXRef-File-TransportLayerElement.h-256"
     },
     {
       "spdxElementId": "SPDXRef-libnetutil-17",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-EthernetHeader.h-257"
+      "relatedSpdxElement": "SPDXRef-File-DestOptsHeader.h-257"
     },
     {
       "spdxElementId": "SPDXRef-libnetutil-17",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-netutil.h-258"
+      "relatedSpdxElement": "SPDXRef-File-FragmentHeader.h-258"
     },
     {
       "spdxElementId": "SPDXRef-libnetutil-17",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-RawData.h-259"
+      "relatedSpdxElement": "SPDXRef-File-EthernetHeader.h-259"
     },
     {
       "spdxElementId": "SPDXRef-libnetutil-17",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-netutil.cc-260"
+      "relatedSpdxElement": "SPDXRef-File-RawData.h-260"
     },
     {
       "spdxElementId": "SPDXRef-libnetutil-17",
@@ -5774,72 +5809,72 @@
     {
       "spdxElementId": "SPDXRef-libnetutil-17",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-PacketParser.cc-262"
+      "relatedSpdxElement": "SPDXRef-File-IPv6ExtensionHeader.h-262"
     },
     {
       "spdxElementId": "SPDXRef-libnetutil-17",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-IPv6ExtensionHeader.h-263"
+      "relatedSpdxElement": "SPDXRef-File-DataLinkLayerElement.h-263"
     },
     {
       "spdxElementId": "SPDXRef-libnetutil-17",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-DataLinkLayerElement.h-264"
+      "relatedSpdxElement": "SPDXRef-File-ARPHeader.h-264"
     },
     {
       "spdxElementId": "SPDXRef-libnetutil-17",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-ARPHeader.h-265"
+      "relatedSpdxElement": "SPDXRef-File-HopByHopHeader.cc-265"
     },
     {
       "spdxElementId": "SPDXRef-libnetutil-17",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-HopByHopHeader.cc-266"
+      "relatedSpdxElement": "SPDXRef-File-UDPHeader.h-266"
     },
     {
       "spdxElementId": "SPDXRef-libnetutil-17",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-UDPHeader.h-267"
+      "relatedSpdxElement": "SPDXRef-File-NetworkLayerElement.cc-267"
     },
     {
       "spdxElementId": "SPDXRef-libnetutil-17",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-NetworkLayerElement.cc-268"
+      "relatedSpdxElement": "SPDXRef-File-RoutingHeader.h-268"
     },
     {
       "spdxElementId": "SPDXRef-libnetutil-17",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-RoutingHeader.h-269"
+      "relatedSpdxElement": "SPDXRef-File-ICMPv6RRBody.h-269"
     },
     {
       "spdxElementId": "SPDXRef-libnetutil-17",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-ICMPv6RRBody.h-270"
+      "relatedSpdxElement": "SPDXRef-File-TCPHeader.cc-270"
     },
     {
       "spdxElementId": "SPDXRef-libnetutil-17",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-TCPHeader.cc-271"
+      "relatedSpdxElement": "SPDXRef-File-IPv6Header.h-271"
     },
     {
       "spdxElementId": "SPDXRef-libnetutil-17",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-IPv6Header.h-272"
+      "relatedSpdxElement": "SPDXRef-File-FragmentHeader.cc-272"
     },
     {
       "spdxElementId": "SPDXRef-libnetutil-17",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-FragmentHeader.cc-273"
+      "relatedSpdxElement": "SPDXRef-File-IPv6Header.cc-273"
     },
     {
       "spdxElementId": "SPDXRef-libnetutil-17",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-IPv6Header.cc-274"
+      "relatedSpdxElement": "SPDXRef-File-PacketElement.h-274"
     },
     {
       "spdxElementId": "SPDXRef-libnetutil-17",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-PacketElement.h-275"
+      "relatedSpdxElement": "SPDXRef-File-PacketParser.cc-275"
     },
     {
       "spdxElementId": "SPDXRef-libnetutil-17",
@@ -6174,12 +6209,12 @@
     {
       "spdxElementId": "SPDXRef-libdnet-stripped-14",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-eth-linux.c-342"
+      "relatedSpdxElement": "SPDXRef-File-addr.c-342"
     },
     {
       "spdxElementId": "SPDXRef-libdnet-stripped-14",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-addr.h-343"
+      "relatedSpdxElement": "SPDXRef-File-eth-linux.c-343"
     },
     {
       "spdxElementId": "SPDXRef-libdnet-stripped-14",
@@ -6194,87 +6229,87 @@
     {
       "spdxElementId": "SPDXRef-libdnet-stripped-14",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-ndisc.h-346"
+      "relatedSpdxElement": "SPDXRef-File-intf.c-346"
     },
     {
       "spdxElementId": "SPDXRef-libdnet-stripped-14",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-strlcpy.c-347"
+      "relatedSpdxElement": "SPDXRef-File-ndisc.h-347"
     },
     {
       "spdxElementId": "SPDXRef-libdnet-stripped-14",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-blob.c-348"
+      "relatedSpdxElement": "SPDXRef-File-strlcpy.c-348"
     },
     {
       "spdxElementId": "SPDXRef-libdnet-stripped-14",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-ip6.h-349"
+      "relatedSpdxElement": "SPDXRef-File-blob.c-349"
     },
     {
       "spdxElementId": "SPDXRef-libdnet-stripped-14",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-udp.h-350"
+      "relatedSpdxElement": "SPDXRef-File-ip6.h-350"
     },
     {
       "spdxElementId": "SPDXRef-libdnet-stripped-14",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-blob.h-351"
+      "relatedSpdxElement": "SPDXRef-File-udp.h-351"
     },
     {
       "spdxElementId": "SPDXRef-libdnet-stripped-14",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-route.h-352"
+      "relatedSpdxElement": "SPDXRef-File-blob.h-352"
     },
     {
       "spdxElementId": "SPDXRef-libdnet-stripped-14",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-eth.h-353"
+      "relatedSpdxElement": "SPDXRef-File-route.h-353"
     },
     {
       "spdxElementId": "SPDXRef-libdnet-stripped-14",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-crc32ct.h-354"
+      "relatedSpdxElement": "SPDXRef-File-eth.h-354"
     },
     {
       "spdxElementId": "SPDXRef-libdnet-stripped-14",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-icmpv6.h-355"
+      "relatedSpdxElement": "SPDXRef-File-crc32ct.h-355"
     },
     {
       "spdxElementId": "SPDXRef-libdnet-stripped-14",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-config.h-356"
+      "relatedSpdxElement": "SPDXRef-File-icmpv6.h-356"
     },
     {
       "spdxElementId": "SPDXRef-libdnet-stripped-14",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-rand.h-357"
+      "relatedSpdxElement": "SPDXRef-File-config.h-357"
     },
     {
       "spdxElementId": "SPDXRef-libdnet-stripped-14",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-intf.h-358"
+      "relatedSpdxElement": "SPDXRef-File-rand.h-358"
     },
     {
       "spdxElementId": "SPDXRef-libdnet-stripped-14",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-ip-util.c-359"
+      "relatedSpdxElement": "SPDXRef-File-intf.h-359"
     },
     {
       "spdxElementId": "SPDXRef-libdnet-stripped-14",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-addr-util.c-360"
+      "relatedSpdxElement": "SPDXRef-File-ip-util.c-360"
     },
     {
       "spdxElementId": "SPDXRef-libdnet-stripped-14",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-ip6.c-361"
+      "relatedSpdxElement": "SPDXRef-File-addr-util.c-361"
     },
     {
       "spdxElementId": "SPDXRef-libdnet-stripped-14",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-intf.c-362"
+      "relatedSpdxElement": "SPDXRef-File-ip6.c-362"
     },
     {
       "spdxElementId": "SPDXRef-libdnet-stripped-14",
@@ -6284,47 +6319,47 @@
     {
       "spdxElementId": "SPDXRef-libdnet-stripped-14",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-addr.c-364"
+      "relatedSpdxElement": "SPDXRef-File-ndisc-linux.c-364"
     },
     {
       "spdxElementId": "SPDXRef-libdnet-stripped-14",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-ndisc-linux.c-365"
+      "relatedSpdxElement": "SPDXRef-File-os.h-365"
     },
     {
       "spdxElementId": "SPDXRef-libdnet-stripped-14",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-os.h-366"
+      "relatedSpdxElement": "SPDXRef-File-fw.h-366"
     },
     {
       "spdxElementId": "SPDXRef-libdnet-stripped-14",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-fw.h-367"
+      "relatedSpdxElement": "SPDXRef-File-fw-none.c-367"
     },
     {
       "spdxElementId": "SPDXRef-libdnet-stripped-14",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-fw-none.c-368"
+      "relatedSpdxElement": "SPDXRef-File-tun-linux.c-368"
     },
     {
       "spdxElementId": "SPDXRef-libdnet-stripped-14",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-tun-linux.c-369"
+      "relatedSpdxElement": "SPDXRef-File-icmp.h-369"
     },
     {
       "spdxElementId": "SPDXRef-libdnet-stripped-14",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-icmp.h-370"
+      "relatedSpdxElement": "SPDXRef-File-dnet.h-370"
     },
     {
       "spdxElementId": "SPDXRef-libdnet-stripped-14",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-dnet.h-371"
+      "relatedSpdxElement": "SPDXRef-File-sctp.h-371"
     },
     {
       "spdxElementId": "SPDXRef-libdnet-stripped-14",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-sctp.h-372"
+      "relatedSpdxElement": "SPDXRef-File-addr.h-372"
     },
     {
       "spdxElementId": "SPDXRef-libdnet-stripped-14",
@@ -6354,32 +6389,32 @@
     {
       "spdxElementId": "SPDXRef-nbase-19",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-nbase-misc.c-378"
+      "relatedSpdxElement": "SPDXRef-File-nbase-crc32ct.h-378"
     },
     {
       "spdxElementId": "SPDXRef-nbase-19",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-nbase-crc32ct.h-379"
+      "relatedSpdxElement": "SPDXRef-File-nbase-time.c-379"
     },
     {
       "spdxElementId": "SPDXRef-nbase-19",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-nbase-addrset.c-380"
+      "relatedSpdxElement": "SPDXRef-File-getopt.h-380"
     },
     {
       "spdxElementId": "SPDXRef-nbase-19",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-nbase-time.c-381"
+      "relatedSpdxElement": "SPDXRef-File-nbase-memalloc.c-381"
     },
     {
       "spdxElementId": "SPDXRef-nbase-19",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-getopt.h-382"
+      "relatedSpdxElement": "SPDXRef-File-nbase-misc.c-382"
     },
     {
       "spdxElementId": "SPDXRef-nbase-19",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-nbase-memalloc.c-383"
+      "relatedSpdxElement": "SPDXRef-File-nbase-addrset.c-383"
     },
     {
       "spdxElementId": "SPDXRef-nbase-19",
@@ -6404,52 +6439,52 @@
     {
       "spdxElementId": "SPDXRef-nsock-20",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-nsock.h-388"
+      "relatedSpdxElement": "SPDXRef-File-nsock-internal.h-388"
     },
     {
       "spdxElementId": "SPDXRef-nsock-20",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-nsock-log.h-389"
+      "relatedSpdxElement": "SPDXRef-File-nsock.h-389"
     },
     {
       "spdxElementId": "SPDXRef-nsock-20",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-gh-list.h-390"
+      "relatedSpdxElement": "SPDXRef-File-nsock-log.h-390"
     },
     {
       "spdxElementId": "SPDXRef-nsock-20",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-nsock-connect.c-391"
+      "relatedSpdxElement": "SPDXRef-File-gh-list.h-391"
     },
     {
       "spdxElementId": "SPDXRef-nsock-20",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-nsock-proxy.h-392"
+      "relatedSpdxElement": "SPDXRef-File-nsock-ssl.c-392"
     },
     {
       "spdxElementId": "SPDXRef-nsock-20",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-nsock-iod.c-393"
+      "relatedSpdxElement": "SPDXRef-File-nsock-connect.c-393"
     },
     {
       "spdxElementId": "SPDXRef-nsock-20",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-nsock-engines.c-394"
+      "relatedSpdxElement": "SPDXRef-File-nsock-proxy.h-394"
     },
     {
       "spdxElementId": "SPDXRef-nsock-20",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-nsock-internal.h-395"
+      "relatedSpdxElement": "SPDXRef-File-nsock-iod.c-395"
     },
     {
       "spdxElementId": "SPDXRef-nsock-20",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-nsock-timers.c-396"
+      "relatedSpdxElement": "SPDXRef-File-nsock-engines.c-396"
     },
     {
       "spdxElementId": "SPDXRef-nsock-20",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-nsock-proxy.c-397"
+      "relatedSpdxElement": "SPDXRef-File-nsock-timers.c-397"
     },
     {
       "spdxElementId": "SPDXRef-nsock-20",
@@ -6484,72 +6519,72 @@
     {
       "spdxElementId": "SPDXRef-nsock-20",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-nsock-pool.c-404"
+      "relatedSpdxElement": "SPDXRef-File-engine-epoll.c-404"
     },
     {
       "spdxElementId": "SPDXRef-nsock-20",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-engine-epoll.c-405"
+      "relatedSpdxElement": "SPDXRef-File-error.c-405"
     },
     {
       "spdxElementId": "SPDXRef-nsock-20",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-error.c-406"
+      "relatedSpdxElement": "SPDXRef-File-engine-select.c-406"
     },
     {
       "spdxElementId": "SPDXRef-nsock-20",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-nsock-core.c-407"
+      "relatedSpdxElement": "SPDXRef-File-nsock-read.c-407"
     },
     {
       "spdxElementId": "SPDXRef-nsock-20",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-engine-select.c-408"
+      "relatedSpdxElement": "SPDXRef-File-gh-heap.h-408"
     },
     {
       "spdxElementId": "SPDXRef-nsock-20",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-nsock-read.c-409"
+      "relatedSpdxElement": "SPDXRef-File-nsock-core.c-409"
     },
     {
       "spdxElementId": "SPDXRef-nsock-20",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-gh-heap.h-410"
+      "relatedSpdxElement": "SPDXRef-File-engine-kqueue.c-410"
     },
     {
       "spdxElementId": "SPDXRef-nsock-20",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-engine-kqueue.c-411"
+      "relatedSpdxElement": "SPDXRef-File-engine-poll.c-411"
     },
     {
       "spdxElementId": "SPDXRef-nsock-20",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-nsock-ssl.c-412"
+      "relatedSpdxElement": "SPDXRef-File-nsock-config.h-412"
     },
     {
       "spdxElementId": "SPDXRef-nsock-20",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-engine-poll.c-413"
+      "relatedSpdxElement": "SPDXRef-File-proxy-socks4.c-413"
     },
     {
       "spdxElementId": "SPDXRef-nsock-20",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-nsock-config.h-414"
+      "relatedSpdxElement": "SPDXRef-File-nsock-proxy.c-414"
     },
     {
       "spdxElementId": "SPDXRef-nsock-20",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-proxy-socks4.c-415"
+      "relatedSpdxElement": "SPDXRef-File-netutils.c-415"
     },
     {
       "spdxElementId": "SPDXRef-nsock-20",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-netutils.c-416"
+      "relatedSpdxElement": "SPDXRef-File-netutils.h-416"
     },
     {
       "spdxElementId": "SPDXRef-nsock-20",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-File-netutils.h-417"
+      "relatedSpdxElement": "SPDXRef-File-nsock-pool.c-417"
     },
     {
       "spdxElementId": "SPDXRef-nsock-20",

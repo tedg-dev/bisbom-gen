@@ -147,18 +147,15 @@ class BomtraceBuilder:
 
         # --- Phase 2a: ADG generation ---
         timer = StepTimer("adg", "phase2")
+        adg_ok = True
         with timer:
             if strategy:
-                ok = strategy.generate_adg(
-                    str(repo_dir), str(bom_dir),
-                    omnibor_cfg,
-                )
-                if not ok:
-                    print(
-                        "[ERROR] ADG generation failed"
+                adg_ok = bool(
+                    strategy.generate_adg(
+                        str(repo_dir), str(bom_dir),
+                        omnibor_cfg,
                     )
-                    result.steps.append(timer.metrics)
-                    return result
+                )
             else:
                 create_bom = (
                     omnibor_cfg["create_bom_script"]
@@ -173,13 +170,15 @@ class BomtraceBuilder:
                         "documents"
                     ),
                 )
-                if rc != 0:
-                    print(
-                        "[ERROR] ADG generation failed"
-                    )
-                    result.steps.append(timer.metrics)
-                    return result
+                adg_ok = rc == 0
+        # Append metrics AFTER the timer context exits so
+        # the step records real timing (timer.metrics is
+        # None until __exit__ runs).  This holds for both
+        # the success and failure paths.
         result.steps.append(timer.metrics)
+        if not adg_ok:
+            print("[ERROR] ADG generation failed")
+            return result
 
         print(
             "[OK] OmniBOR ADG documents "

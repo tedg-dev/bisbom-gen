@@ -3,9 +3,9 @@
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
   "name": "libavutil.so",
-  "documentNamespace": "https://omnibor.io/omnibor-analysis/libavutil.so-638275a3-3ca2-4d49-a44d-0e45d48c56e8",
+  "documentNamespace": "https://omnibor.io/omnibor-analysis/libavutil.so-201e4f58-874c-46d0-abdb-258661006dfe",
   "creationInfo": {
-    "created": "2026-05-14T18:00:13Z",
+    "created": "2026-06-22T20:52:41Z",
     "creators": [
       "Tool: bomtrace3-unknown",
       "Tool: bomsh-unknown",
@@ -20,7 +20,7 @@
       "downloadLocation": "https://github.com/FFmpeg/FFmpeg/commit/9047fa1b084f76b1b4d065af2d743df1b40dfb56",
       "filesAnalyzed": true,
       "primaryPackagePurpose": "LIBRARY",
-      "builtDate": "2026-05-14T18:00:13Z",
+      "builtDate": "2026-06-22T20:52:41Z",
       "externalRefs": [],
       "checksums": [],
       "comment": "Built on Ubuntu 22.04.5 LTS with gcc (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0",
