@@ -3,9 +3,9 @@
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
   "name": "ffprobe",
-  "documentNamespace": "https://omnibor.io/omnibor-analysis/ffprobe-71ba0434-fb9c-455c-90c0-bf1af903fa8e",
+  "documentNamespace": "https://omnibor.io/omnibor-analysis/ffprobe-5266e2ff-004e-4dba-8355-03486203501f",
   "creationInfo": {
-    "created": "2026-05-14T18:00:06Z",
+    "created": "2026-06-22T20:52:34Z",
     "creators": [
       "Tool: bomtrace3-unknown",
       "Tool: bomsh-unknown",
@@ -20,7 +20,7 @@
       "downloadLocation": "https://github.com/FFmpeg/FFmpeg/commit/9047fa1b084f76b1b4d065af2d743df1b40dfb56",
       "filesAnalyzed": true,
       "primaryPackagePurpose": "APPLICATION",
-      "builtDate": "2026-05-14T18:00:06Z",
+      "builtDate": "2026-06-22T20:52:34Z",
       "externalRefs": [
         {
           "referenceCategory": "PERSISTENT-ID",
@@ -59,7 +59,7 @@
       "versionInfo": "2.35-0ubuntu3.13",
       "supplier": "Organization: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>",
       "homepage": "https://www.gnu.org/software/libc/libc.html",
-      "packageSourceInfo": "Installed via dpkg package libc6 on Ubuntu 22.04.5 LTS."
+      "sourceInfo": "Installed via dpkg package libc6 on Ubuntu 22.04.5 LTS."
     },
     {
       "SPDXID": "SPDXRef-libavcodec-2",
@@ -69,7 +69,7 @@
       "primaryPackagePurpose": "LIBRARY",
       "externalRefs": [],
       "comment": "Project-built shared library (direct). sonames: libavcodec.so.62",
-      "packageSourceInfo": "Built from project source as part of ffmpeg build.",
+      "sourceInfo": "Built from project source as part of ffmpeg build.",
       "versionInfo": "8.1"
     },
     {
@@ -80,7 +80,7 @@
       "primaryPackagePurpose": "LIBRARY",
       "externalRefs": [],
       "comment": "Project-built shared library (direct). sonames: libavdevice.so.62",
-      "packageSourceInfo": "Built from project source as part of ffmpeg build.",
+      "sourceInfo": "Built from project source as part of ffmpeg build.",
       "versionInfo": "8.1"
     },
     {
@@ -91,7 +91,7 @@
       "primaryPackagePurpose": "LIBRARY",
       "externalRefs": [],
       "comment": "Project-built shared library (direct). sonames: libavfilter.so.11",
-      "packageSourceInfo": "Built from project source as part of ffmpeg build.",
+      "sourceInfo": "Built from project source as part of ffmpeg build.",
       "versionInfo": "8.1"
     },
     {
@@ -102,7 +102,7 @@
       "primaryPackagePurpose": "LIBRARY",
       "externalRefs": [],
       "comment": "Project-built shared library (direct). sonames: libavformat.so.62",
-      "packageSourceInfo": "Built from project source as part of ffmpeg build.",
+      "sourceInfo": "Built from project source as part of ffmpeg build.",
       "versionInfo": "8.1"
     },
     {
@@ -113,7 +113,7 @@
       "primaryPackagePurpose": "LIBRARY",
       "externalRefs": [],
       "comment": "Project-built shared library (direct). sonames: libavutil.so.60",
-      "packageSourceInfo": "Built from project source as part of ffmpeg build.",
+      "sourceInfo": "Built from project source as part of ffmpeg build.",
       "versionInfo": "8.1"
     },
     {
@@ -124,7 +124,7 @@
       "primaryPackagePurpose": "LIBRARY",
       "externalRefs": [],
       "comment": "Project-built shared library (direct). sonames: libswresample.so.6",
-      "packageSourceInfo": "Built from project source as part of ffmpeg build.",
+      "sourceInfo": "Built from project source as part of ffmpeg build.",
       "versionInfo": "8.1"
     },
     {
@@ -135,7 +135,7 @@
       "primaryPackagePurpose": "LIBRARY",
       "externalRefs": [],
       "comment": "Project-built shared library (direct). sonames: libswscale.so.9",
-      "packageSourceInfo": "Built from project source as part of ffmpeg build.",
+      "sourceInfo": "Built from project source as part of ffmpeg build.",
       "versionInfo": "8.1"
     },
     {
@@ -154,7 +154,7 @@
           "referenceLocator": "cpe:2.3:a:gnu:gcc:11.4.0:*:*:*:*:*:*:*"
         }
       ],
-      "packageSourceInfo": "System-installed build toolchain on Ubuntu 22.04.5 LTS."
+      "sourceInfo": "System-installed build toolchain on Ubuntu 22.04.5 LTS."
     }
   ],
   "files": [

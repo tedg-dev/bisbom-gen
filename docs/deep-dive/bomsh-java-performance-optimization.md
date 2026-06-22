@@ -1,8 +1,8 @@
 # `bomsh_create_bom_java.py` Performance Optimization
 
-| **Status** | IMPLEMENTED (pending EC2 golden validation) — see Implementation Status |
+| **Status** | VALIDATED — golden-clean on EC2 (June 22, 2026) — see EC2 Validation Results |
 |---|---|
-| **Date** | June 16, 2026 (analysis); June 18, 2026 (implementation) |
+| **Date** | June 16, 2026 (analysis); June 18, 2026 (implementation); June 22, 2026 (EC2 validation) |
 | **Author** | OmniBOR Analysis project |
 | **Related** | `docs/deep-dive/phase-isolation-build-time-analysis.md` |
 
@@ -15,8 +15,12 @@
 > follow-up PR after the extract-to-disk variant is validated against
 > golden files on EC2. The appliers fail-fast on upstream drift, and
 > `omnibor/bomsh` is now pinned by commit SHA in the Dockerfile
-> (`ARG BOMSH_COMMIT`). **Not yet EC2-validated** — no commit until the
-> two largest Java repos are golden-clean.
+> (`ARG BOMSH_COMMIT`).
+
+> **Validation status (June 22, 2026):** EC2-validated and golden-clean
+> across all re-run Java repos (`jsoup`, `crawler4j`, `checkstyle`,
+> `logging-log4j2`, `bc-java`); `dependency-check` and `spring-boot` were
+> validated in a prior session. See **Section 9** for measured timings.
 
 ---
 
@@ -287,3 +291,60 @@ costs.
 | `zipfile` cannot read corrupted/non-standard JARs | Fall back to `jar -xf` on `BadZipFile` exception |
 | Parallel hashing introduces race conditions in treedb | Hash in parallel, update treedb sequentially (collect results first) |
 | Upstream bomsh updates may conflict with patches | `apply_fast_hashing.py` uses regex matching like `apply_fast_javap.py`; pin bomsh commit in Dockerfile |
+
+---
+
+## 9. EC2 Validation Results (June 22, 2026)
+
+The optimized appliers were re-run on the EC2 build host
+(`c6i.xlarge`, 4 vCPU) in sidecar mode. All re-run Java repos produced
+**golden-clean** SPDX (no structural differences beyond the intended
+`packageSourceInfo` → `sourceInfo` rename and the `javac` JDK patch
+bump `21.0.10` → `21.0.11`).
+
+### Measured timings
+
+`Build` is the Phase 1 instrumented build wall time; `Analysis` is the
+Phase 2 post-build step that runs the optimized
+`bomsh_create_bom_java.py` (the treedb step this optimization targets).
+
+| Repo | Build (P1) | Analysis (P2) | Total |
+|------|-----------|---------------|-------|
+| `jsoup` | 18.7s | 8.4s | 27.1s |
+| `crawler4j` | 9.6s | 7.6s | 17.2s |
+| `checkstyle` | 26.9s | 13.2s | 40.1s |
+| `logging-log4j2` | 98.2s | 18.6s | 116.7s |
+| `bc-java` | 166.8s | 224.0s | 390.8s |
+
+### Build-interception overhead (baseline → instrumented)
+
+The pipeline also reports build overhead as the stored baseline build
+wall vs the instrumented build wall.
+
+| Repo | Baseline → Instrumented | Reported delta |
+|------|--------------------------|----------------|
+| `jsoup` | 25.1s → 17.0s | −32.2% |
+| `crawler4j` | 98.9s → 8.2s | −91.8% |
+| `checkstyle` | 41.8s → 24.9s | −40.4% |
+| `logging-log4j2` | 120.9s → 96.1s | −20.5% |
+| `bc-java` | 140.7s → 142.3s | +1.1% |
+
+> **Caveat — cache warmth confound:** these overhead deltas are not a
+> clean measure of the treedb optimization. The instrumented re-runs use
+> the persistent Maven/Gradle cache volumes (`maven-cache`,
+> `gradle-cache`), while the stored baselines were captured cold. Large
+> negative deltas (e.g., `crawler4j` −91.8%) primarily reflect avoided
+> cold-cache dependency downloads, not interception speedups. The
+> optimization's true impact is in the Phase 2 `Analysis` column above.
+
+### Interpretation
+
+- The optimized treedb step (`Analysis`) is now a minor cost for
+  small/medium repos (`jsoup` 8.4s, `crawler4j` 7.6s, `checkstyle`
+  13.2s, `logging-log4j2` 18.6s).
+- `bc-java` Phase 2 (224.0s) remains dominated by its large multi-module
+  Gradle output volume; the per-file pure-Python hashing still applies,
+  but the sheer number of `.class` files keeps the absolute time high.
+- All re-run repos are golden-clean, confirming the pure-Python
+  appliers produce byte-identical hashes and file matching versus the
+  original subprocess-based upstream behavior.

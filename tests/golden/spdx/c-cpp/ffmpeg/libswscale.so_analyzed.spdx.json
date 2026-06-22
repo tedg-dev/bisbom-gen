@@ -3,9 +3,9 @@
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
   "name": "libswscale.so",
-  "documentNamespace": "https://omnibor.io/omnibor-analysis/libswscale.so-9589353e-7022-480b-9f1d-bbef9cdd8a23",
+  "documentNamespace": "https://omnibor.io/omnibor-analysis/libswscale.so-03e01fce-aaca-42d6-8921-9702aa5d161a",
   "creationInfo": {
-    "created": "2026-05-14T18:00:16Z",
+    "created": "2026-06-22T20:52:44Z",
     "creators": [
       "Tool: bomtrace3-unknown",
       "Tool: bomsh-unknown",
@@ -20,7 +20,7 @@
       "downloadLocation": "https://github.com/FFmpeg/FFmpeg/commit/9047fa1b084f76b1b4d065af2d743df1b40dfb56",
       "filesAnalyzed": true,
       "primaryPackagePurpose": "LIBRARY",
-      "builtDate": "2026-05-14T18:00:16Z",
+      "builtDate": "2026-06-22T20:52:44Z",
       "externalRefs": [],
       "checksums": [],
       "comment": "Built on Ubuntu 22.04.5 LTS with gcc (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0",

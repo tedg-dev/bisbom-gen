@@ -3,14 +3,15 @@
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
   "name": "crawler4j-crawler4j-4.4.0.jar",
-  "documentNamespace": "https://omnibor.io/spdx/crawler4j/69c1bee7-522e-4a69-bb92-4a05c3d14806",
+  "documentNamespace": "https://omnibor.io/spdx/crawler4j/282d3bfd-a200-4c2f-925c-9eb4b364cebc",
   "creationInfo": {
-    "created": "2026-05-08T18:08:21Z",
+    "created": "2026-06-22T18:53:48Z",
     "creators": [
       "Tool: omnibor-analysis",
       "Tool: bomsh_create_bom_java.py"
     ],
-    "licenseListVersion": "3.19"
+    "licenseListVersion": "3.19",
+    "comment": "maven-assembly-plugin detected \u2014 assembled archive may bundle dependencies not listed in dependency:tree"
   },
   "packages": [
     {
@@ -32,7 +33,7 @@
     {
       "SPDXID": "SPDXRef-BuildTool-javac",
       "name": "javac",
-      "versionInfo": "21.0.10",
+      "versionInfo": "21.0.11",
       "supplier": "Organization: Oracle",
       "downloadLocation": "https://jdk.java.net/",
       "filesAnalyzed": false,
@@ -41,10 +42,10 @@
         {
           "referenceCategory": "SECURITY",
           "referenceType": "cpe23Type",
-          "referenceLocator": "cpe:2.3:a:oracle:jdk:21.0.10:*:*:*:*:*:*:*"
+          "referenceLocator": "cpe:2.3:a:oracle:jdk:21.0.11:*:*:*:*:*:*:*"
         }
       ],
-      "comment": "Java compiler (JDK 21.0.10) used to compile .java sources into .class bytecode."
+      "comment": "Java compiler (JDK 21.0.11) used to compile .java sources into .class bytecode."
     },
     {
       "SPDXID": "SPDXRef-BuildTool-maven",
@@ -441,296 +442,286 @@
   "files": [
     {
       "SPDXID": "SPDXRef-File-0",
-      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/url/URLCanonicalizer.java",
+      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/crawler/Configurable.java",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "000770d712c49299f998f1e53eb58f874eff1765"
+          "checksumValue": "cdfa1a344b399764ab631c4411b960e5bb449495"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-1",
-      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/url/URLCanonicalizer.class",
+      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/crawler/Configurable.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "f7d15a1d2b73b4a20d4e43eecdfedf59a84d334f"
+          "checksumValue": "994fd4efcf4110ed033177eabc9dec945cc3b4ca"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-2",
-      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/url/TLDList.java",
+      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/crawler/CrawlConfig.java",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "a2f0a78062e3417840eac7bdbef5201c0463b42c"
+          "checksumValue": "207e15f30ef37dc9d80441e73a9721f765aef35d"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-3",
-      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/url/TLDList.class",
+      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/crawler/CrawlConfig.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "270761bc75a7387c54707ebbf158736d1b726b1f"
+          "checksumValue": "23f55de2a47607b495df75fdde45b2113e15434c"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-4",
-      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/url/UrlResolver.java",
+      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/crawler/CrawlController.java",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "33bb5026692c9a7b76cf9d062c67083c0be54d95"
+          "checksumValue": "c443130cadaf41b6cc4bd80952b7dd9d14c63298"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-5",
-      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/url/UrlResolver.class",
+      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/crawler/CrawlController$1.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "740b0737473dc0285d10a24a42a668130adcda0b"
+          "checksumValue": "a35ca26cbd3d4456d3528bd2407523fccad5ad53"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-6",
-      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/url/TLDList$SingletonHolder.class",
+      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/crawler/CrawlController$DefaultWebCrawlerFactory.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "1b6225731b8c9cb49024f70f23c321c471017426"
+          "checksumValue": "1349d43b5f26b3b716cd0a925abd86d5e52f63db"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-7",
-      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/url/UrlResolver$1.class",
+      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/crawler/CrawlController$WebCrawlerFactory.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "a526156c945acbb23c3548afef14a48b87aa0799"
+          "checksumValue": "bd79ffd509847cdcd08b7f50a2696fb3866217a9"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-8",
-      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/url/UrlResolver$Url.class",
+      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/crawler/CrawlController.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "81d3b3a2b86a70ee05f9520bb9e1d76ee0e52fed"
+          "checksumValue": "f774ebc7a1c73d9f31816a9d59a6faab62effb1f"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-9",
-      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/url/WebURL.java",
+      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/crawler/Page.java",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "a0929500952b61dd84cdc84d5f9e00d1dd3c357b"
+          "checksumValue": "a3d5674ef8f110284f4308a24793469e2509c3d5"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-10",
-      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/url/WebURL.class",
+      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/crawler/Page.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "825db271f9be0692c785adae217ffd6348fe588a"
+          "checksumValue": "42d78e311cabb49dbda96f08c1e1759bb4eafcdd"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-11",
-      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/url/TLDList$1.class",
+      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/crawler/WebCrawler.java",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "5b0fdd9d0d73f95eaa761c126394eca261361c94"
+          "checksumValue": "45daba0794d67808b831bc7e660b74f7ca328c1b"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-12",
-      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/frontier/InProcessPagesDB.java",
+      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/crawler/WebCrawler.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "1536d6ae0665d84b32b270c98e65e03f7dc7da59"
+          "checksumValue": "78381d28c49c3bd56cc8958706efed6e600609dc"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-13",
-      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/frontier/InProcessPagesDB.class",
+      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/crawler/authentication/AuthInfo.java",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "153334ed9c15b1bfa9db045efbcf896b3eb004a7"
+          "checksumValue": "884bce16a3cac3969a134c0f22b19f9fa1c7137c"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-14",
-      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/frontier/DocIDServer.java",
+      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/crawler/authentication/AuthInfo$AuthenticationType.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "06b89a518e17bf5d5abc98a374dbc3af6349d36e"
+          "checksumValue": "d43d3d2f327668695e67f433843337dd07244472"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-15",
-      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/frontier/DocIDServer.class",
+      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/crawler/authentication/AuthInfo.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "a944e3f0664b6f727a66ea18ec6e2b28269e36bd"
+          "checksumValue": "c40b6e669cbf30c2dd6309f0eeeba37317a05f4b"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-16",
-      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/frontier/WorkQueues.java",
+      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/crawler/authentication/BasicAuthInfo.java",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "eeb474d031833c9a0f3d64632f884058bd65f2aa"
+          "checksumValue": "5de1be1762581a1b2cecf63eef593f1d49881481"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-17",
-      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/frontier/WorkQueues.class",
+      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/crawler/authentication/BasicAuthInfo.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "05cf7d34df207977cd22292adb3435832678ff82"
+          "checksumValue": "709866ad57a73086d5ad145721ded1cb08e1ec33"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-18",
-      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/frontier/Counters.java",
+      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/crawler/authentication/FormAuthInfo.java",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "0097d0be00c800278b7e491590caaa4ccaf6e312"
+          "checksumValue": "1539f408497a9a831d051a21866b63eae9891fd4"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-19",
-      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/frontier/Counters$ReservedCounterNames.class",
+      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/crawler/authentication/FormAuthInfo.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "2857013e43e751dfb0b874d73fcaf32753b5c6cd"
+          "checksumValue": "83b99eb190d559efdc380f00268f8cd4a19660a9"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-20",
-      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/frontier/WebURLTupleBinding.java",
+      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/crawler/authentication/NtAuthInfo.java",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "1406da16612155a9a70a971c88cef5fa1e61b091"
+          "checksumValue": "e5fae79a71faaab30d0589903a23962fe4538092"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-21",
-      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/frontier/WebURLTupleBinding.class",
+      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/crawler/authentication/NtAuthInfo.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "02600c82771b4692038615e37c98825e4db8fb25"
+          "checksumValue": "5d437bbf87d2300489767ff7cb17e1b970feee4f"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-22",
-      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/frontier/Counters.class",
+      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/crawler/exceptions/ContentFetchException.java",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "ccda04b8d6970b7428fcb8ff9c2e124266ae2f98"
+          "checksumValue": "9286610033202c46e9b50725bc9619cd22ba02da"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-23",
-      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/frontier/Frontier.java",
+      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/crawler/exceptions/ContentFetchException.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "d7ca120279510697403c21307fc8a6a7b99f56bf"
+          "checksumValue": "a7aaf1617b31636f97bd0a3a7631dc1bbb6405d3"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-24",
-      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/frontier/Frontier.class",
+      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/crawler/exceptions/PageBiggerThanMaxSizeException.java",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "b4ae84fd65935541f0de9f70ac7e79cff56b1a88"
+          "checksumValue": "41cfee1d2268b2dbc2f751bee0b07ab9e14363a0"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-25",
-      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/fetcher/PageFetcher.java",
+      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/crawler/exceptions/PageBiggerThanMaxSizeException.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "08477c6c062ae49de5ad8dc98d903081858b7185"
+          "checksumValue": "b59e5766df064fe4ae2a161142e9d927c24adb8b"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-26",
-      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/fetcher/PageFetcher.class",
+      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/crawler/exceptions/ParseException.java",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "7d3906ec40d6c8eb794c4a8169765ace59a811ee"
+          "checksumValue": "9b8b08a2d6945eb0854517020cb4ce30e8206937"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-27",
-      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/fetcher/SniSSLConnectionSocketFactory.java",
+      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/crawler/exceptions/ParseException.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "4c215a698678bb100558f6f017f0b35b90d9d6f6"
+          "checksumValue": "b546015c5b157fa7491cc151137a134aeca7fffb"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-28",
-      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/fetcher/SniSSLConnectionSocketFactory.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "5128ceecd36cb1331edecef2f7ffe61ed7a5ea7f"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-29",
       "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/fetcher/BasicAuthHttpRequestInterceptor.java",
       "checksums": [
         {
@@ -740,7 +731,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-30",
+      "SPDXID": "SPDXRef-File-29",
       "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/fetcher/BasicAuthHttpRequestInterceptor.class",
       "checksums": [
         {
@@ -750,27 +741,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-31",
-      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/fetcher/SniPoolingHttpClientConnectionManager.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "55392b99bbcdaa10f6bbf6682e622acae21e38e4"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-32",
-      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/fetcher/SniPoolingHttpClientConnectionManager.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "02e1eebf07cf89137470c275ff32f419e026f35f"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-33",
+      "SPDXID": "SPDXRef-File-30",
       "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/fetcher/IdleConnectionMonitorThread.java",
       "checksums": [
         {
@@ -780,12 +751,42 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-34",
+      "SPDXID": "SPDXRef-File-31",
       "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/fetcher/IdleConnectionMonitorThread.class",
       "checksums": [
         {
           "algorithm": "SHA1",
           "checksumValue": "a551e71765996f538eebbcd3748a1c9a8ad6fed1"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-32",
+      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/fetcher/PageFetchResult.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "df89371198f5670f7155ff10b2850fe8b445fc05"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-33",
+      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/fetcher/PageFetchResult.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "226d5af9ced7c9766f8e79daaddf74e9292c70ae"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-34",
+      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/fetcher/PageFetcher.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "08477c6c062ae49de5ad8dc98d903081858b7185"
         }
       ]
     },
@@ -801,406 +802,426 @@
     },
     {
       "SPDXID": "SPDXRef-File-36",
-      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/fetcher/PageFetchResult.java",
+      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/fetcher/PageFetcher.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "df89371198f5670f7155ff10b2850fe8b445fc05"
+          "checksumValue": "7d3906ec40d6c8eb794c4a8169765ace59a811ee"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-37",
-      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/fetcher/PageFetchResult.class",
+      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/fetcher/SniPoolingHttpClientConnectionManager.java",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "226d5af9ced7c9766f8e79daaddf74e9292c70ae"
+          "checksumValue": "55392b99bbcdaa10f6bbf6682e622acae21e38e4"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-38",
-      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/crawler/CrawlController.java",
+      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/fetcher/SniPoolingHttpClientConnectionManager.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "c443130cadaf41b6cc4bd80952b7dd9d14c63298"
+          "checksumValue": "02e1eebf07cf89137470c275ff32f419e026f35f"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-39",
-      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/crawler/CrawlController$1.class",
+      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/fetcher/SniSSLConnectionSocketFactory.java",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "a35ca26cbd3d4456d3528bd2407523fccad5ad53"
+          "checksumValue": "4c215a698678bb100558f6f017f0b35b90d9d6f6"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-40",
-      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/crawler/CrawlController$WebCrawlerFactory.class",
+      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/fetcher/SniSSLConnectionSocketFactory.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "bd79ffd509847cdcd08b7f50a2696fb3866217a9"
+          "checksumValue": "5128ceecd36cb1331edecef2f7ffe61ed7a5ea7f"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-41",
-      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/crawler/exceptions/ParseException.java",
+      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/frontier/Counters.java",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "9b8b08a2d6945eb0854517020cb4ce30e8206937"
+          "checksumValue": "0097d0be00c800278b7e491590caaa4ccaf6e312"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-42",
-      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/crawler/exceptions/ParseException.class",
+      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/frontier/Counters$ReservedCounterNames.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "b546015c5b157fa7491cc151137a134aeca7fffb"
+          "checksumValue": "2857013e43e751dfb0b874d73fcaf32753b5c6cd"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-43",
-      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/crawler/exceptions/ContentFetchException.java",
+      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/frontier/Counters.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "9286610033202c46e9b50725bc9619cd22ba02da"
+          "checksumValue": "ccda04b8d6970b7428fcb8ff9c2e124266ae2f98"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-44",
-      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/crawler/exceptions/ContentFetchException.class",
+      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/frontier/DocIDServer.java",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "a7aaf1617b31636f97bd0a3a7631dc1bbb6405d3"
+          "checksumValue": "06b89a518e17bf5d5abc98a374dbc3af6349d36e"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-45",
-      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/crawler/exceptions/PageBiggerThanMaxSizeException.java",
+      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/frontier/DocIDServer.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "41cfee1d2268b2dbc2f751bee0b07ab9e14363a0"
+          "checksumValue": "a944e3f0664b6f727a66ea18ec6e2b28269e36bd"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-46",
-      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/crawler/exceptions/PageBiggerThanMaxSizeException.class",
+      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/frontier/Frontier.java",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "b59e5766df064fe4ae2a161142e9d927c24adb8b"
+          "checksumValue": "d7ca120279510697403c21307fc8a6a7b99f56bf"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-47",
-      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/crawler/CrawlConfig.java",
+      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/frontier/Frontier.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "207e15f30ef37dc9d80441e73a9721f765aef35d"
+          "checksumValue": "b4ae84fd65935541f0de9f70ac7e79cff56b1a88"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-48",
-      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/crawler/CrawlConfig.class",
+      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/frontier/InProcessPagesDB.java",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "23f55de2a47607b495df75fdde45b2113e15434c"
+          "checksumValue": "1536d6ae0665d84b32b270c98e65e03f7dc7da59"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-49",
-      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/crawler/Page.java",
+      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/frontier/InProcessPagesDB.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "a3d5674ef8f110284f4308a24793469e2509c3d5"
+          "checksumValue": "153334ed9c15b1bfa9db045efbcf896b3eb004a7"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-50",
-      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/crawler/Page.class",
+      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/frontier/WebURLTupleBinding.java",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "42d78e311cabb49dbda96f08c1e1759bb4eafcdd"
+          "checksumValue": "1406da16612155a9a70a971c88cef5fa1e61b091"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-51",
-      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/crawler/authentication/NtAuthInfo.java",
+      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/frontier/WebURLTupleBinding.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "e5fae79a71faaab30d0589903a23962fe4538092"
+          "checksumValue": "02600c82771b4692038615e37c98825e4db8fb25"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-52",
-      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/crawler/authentication/NtAuthInfo.class",
+      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/frontier/WorkQueues.java",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "5d437bbf87d2300489767ff7cb17e1b970feee4f"
+          "checksumValue": "eeb474d031833c9a0f3d64632f884058bd65f2aa"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-53",
-      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/crawler/authentication/FormAuthInfo.java",
+      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/frontier/WorkQueues.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "1539f408497a9a831d051a21866b63eae9891fd4"
+          "checksumValue": "05cf7d34df207977cd22292adb3435832678ff82"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-54",
-      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/crawler/authentication/FormAuthInfo.class",
+      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/parser/AllTagMapper.java",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "83b99eb190d559efdc380f00268f8cd4a19660a9"
+          "checksumValue": "129933e99a81641e32ea15d90ccb22d144f28aa5"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-55",
-      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/crawler/authentication/AuthInfo.java",
+      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/parser/AllTagMapper.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "884bce16a3cac3969a134c0f22b19f9fa1c7137c"
+          "checksumValue": "0908f4ec2643dc4cee3bafd0168a2cfa1a10830d"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-56",
-      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/crawler/authentication/AuthInfo$AuthenticationType.class",
+      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/parser/BinaryParseData.java",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "d43d3d2f327668695e67f433843337dd07244472"
+          "checksumValue": "b1729612ec68d66b5129e54a067bb133561304de"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-57",
-      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/crawler/authentication/BasicAuthInfo.java",
+      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/parser/BinaryParseData.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "5de1be1762581a1b2cecf63eef593f1d49881481"
+          "checksumValue": "b98f4658ccf6937736e4cf22b8d3155db60d2a00"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-58",
-      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/crawler/authentication/BasicAuthInfo.class",
+      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/parser/ExtractedUrlAnchorPair.java",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "709866ad57a73086d5ad145721ded1cb08e1ec33"
+          "checksumValue": "eda45ffa29b31d2b1504c02258cb993a4b524d6f"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-59",
-      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/crawler/authentication/AuthInfo.class",
+      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/parser/ExtractedUrlAnchorPair.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "c40b6e669cbf30c2dd6309f0eeeba37317a05f4b"
+          "checksumValue": "5d71d29780acaa321e7ce4781c07b86c52c0523f"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-60",
-      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/crawler/CrawlController$DefaultWebCrawlerFactory.class",
+      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/parser/HtmlContentHandler.java",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "1349d43b5f26b3b716cd0a925abd86d5e52f63db"
+          "checksumValue": "67676afcb0a2de0c55185591226d75fd45ec23ea"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-61",
-      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/crawler/CrawlController.class",
+      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/parser/HtmlContentHandler$Element.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "f774ebc7a1c73d9f31816a9d59a6faab62effb1f"
+          "checksumValue": "1df32256f6a4aa57d536f36d75df04d3c5c7c0a0"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-62",
-      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/crawler/Configurable.java",
+      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/parser/HtmlContentHandler$HtmlFactory.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "cdfa1a344b399764ab631c4411b960e5bb449495"
+          "checksumValue": "aaa291f9e15fff46efc7358b41a9dc4f7a142b29"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-63",
-      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/crawler/Configurable.class",
+      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/parser/HtmlContentHandler.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "994fd4efcf4110ed033177eabc9dec945cc3b4ca"
+          "checksumValue": "848dd8e969728aaf4f0b57c47d79dd258cd191bc"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-64",
-      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/crawler/WebCrawler.java",
+      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/parser/HtmlParseData.java",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "45daba0794d67808b831bc7e660b74f7ca328c1b"
+          "checksumValue": "cac68fb75de2de79a90cb7a194b54fb64a55207e"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-65",
-      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/crawler/WebCrawler.class",
+      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/parser/HtmlParseData.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "78381d28c49c3bd56cc8958706efed6e600609dc"
+          "checksumValue": "ec7e007862d74f9c3ed20937c0a5e90606f9fbe4"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-66",
-      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/util/Net.java",
+      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/parser/HtmlParser.java",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "763ac06da8bf910e6ec86e3878fc718155f3532f"
+          "checksumValue": "747367ad0c48da99817e1df90ab4c3c304d4c758"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-67",
-      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/util/Net.class",
+      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/parser/HtmlParser.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "0b2de7874d5a76d1d1640ae300949ffbcacb8ef5"
+          "checksumValue": "97513537ae8aa121d972398df6f12731c949257e"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-68",
-      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/util/Util.java",
+      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/parser/NotAllowedContentException.java",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "fcbb70413f232d3d02107e750e0e8f3288733760"
+          "checksumValue": "c85535ad9198dac1220293b03e8154b72e7064a3"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-69",
-      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/util/Util.class",
+      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/parser/NotAllowedContentException.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "5fc91cd4c7e70addd6cd8d6a02cc91c54a9904ed"
+          "checksumValue": "3e89b95077bf69548994e3c68f4778b005f6e010"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-70",
-      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/util/IO.java",
+      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/parser/ParseData.java",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "2f215f91e773b03d0669e552ef204c32b6728ac7"
+          "checksumValue": "5aabf2ef9048d7e09865e0517a4e880fd8969799"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-71",
-      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/util/IO.class",
+      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/parser/ParseData.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "7e43d65f994b944b1e7c1aa3d6df9c2a23043970"
+          "checksumValue": "fad9b988450af30f5efdd19838fa266105bbaca5"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-72",
-      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/robotstxt/RobotstxtParser.java",
+      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/parser/Parser.java",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "8eeee4c0c3564b641d274793d77a9737ad93a3ca"
+          "checksumValue": "65460732e4cff3bb90c743b7531b0a933036e5c2"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-73",
-      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/robotstxt/RobotstxtParser.class",
+      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/parser/Parser.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "1c3e149eef82095cc9632355ca87a6130d7b62ed"
+          "checksumValue": "846125a596c9fe6afcbc03e6a2f4891d403f2443"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-74",
-      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/robotstxt/RobotstxtServer.java",
+      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/parser/TextParseData.java",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "a4939c4e6190002e277d47fc38d7e83f4f9ce93e"
+          "checksumValue": "d6741ac71a528369d7eb941f33ac1c2cad27168b"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-75",
-      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/robotstxt/RobotstxtServer.class",
+      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/parser/TextParseData.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "5f8a007f820137cdff0c24a81851620c06036785"
+          "checksumValue": "bf6e53ef986f83ede331d9d87484da190bd3157b"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-76",
+      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/parser/TikaHtmlParser.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "fd8bdfb5906389972ddf80d782c9408e8bbd41f5"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-77",
+      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/parser/TikaHtmlParser.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "875599616d8133d78ed39ff84e7fb9367c04a412"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-78",
       "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/robotstxt/HostDirectives.java",
       "checksums": [
         {
@@ -1210,32 +1231,12 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-77",
+      "SPDXID": "SPDXRef-File-79",
       "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/robotstxt/HostDirectives.class",
       "checksums": [
         {
           "algorithm": "SHA1",
           "checksumValue": "5d3a14ffe0fb4f53d4777fe0831005a1d1321077"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-78",
-      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/robotstxt/UserAgentDirectives.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "a499d46cf6950fd49aa6e316ee8ac400854964c1"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-79",
-      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/robotstxt/UserAgentDirectives$PathComparator.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "9da3f696fa0bb44386a1edfaf64275dff1400b49"
         }
       ]
     },
@@ -1261,16 +1262,6 @@
     },
     {
       "SPDXID": "SPDXRef-File-82",
-      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/robotstxt/UserAgentDirectives$UserAgentComparator.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "317289b6ead609e1e3a6590154322eebd6efd0a6"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-83",
       "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/robotstxt/RobotstxtConfig.java",
       "checksums": [
         {
@@ -1280,7 +1271,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-84",
+      "SPDXID": "SPDXRef-File-83",
       "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/robotstxt/RobotstxtConfig.class",
       "checksums": [
         {
@@ -1290,7 +1281,77 @@
       ]
     },
     {
+      "SPDXID": "SPDXRef-File-84",
+      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/robotstxt/RobotstxtParser.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "8eeee4c0c3564b641d274793d77a9737ad93a3ca"
+        }
+      ]
+    },
+    {
       "SPDXID": "SPDXRef-File-85",
+      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/robotstxt/RobotstxtParser.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "1c3e149eef82095cc9632355ca87a6130d7b62ed"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-86",
+      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/robotstxt/RobotstxtServer.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "a4939c4e6190002e277d47fc38d7e83f4f9ce93e"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-87",
+      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/robotstxt/RobotstxtServer.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "5f8a007f820137cdff0c24a81851620c06036785"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-88",
+      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/robotstxt/UserAgentDirectives.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "a499d46cf6950fd49aa6e316ee8ac400854964c1"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-89",
+      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/robotstxt/UserAgentDirectives$PathComparator.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "9da3f696fa0bb44386a1edfaf64275dff1400b49"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-90",
+      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/robotstxt/UserAgentDirectives$UserAgentComparator.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "317289b6ead609e1e3a6590154322eebd6efd0a6"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-91",
       "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/robotstxt/UserAgentDirectives.class",
       "checksums": [
         {
@@ -1300,242 +1361,182 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-File-86",
-      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/parser/ParseData.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "5aabf2ef9048d7e09865e0517a4e880fd8969799"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-87",
-      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/parser/ParseData.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "fad9b988450af30f5efdd19838fa266105bbaca5"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-88",
-      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/parser/TextParseData.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "d6741ac71a528369d7eb941f33ac1c2cad27168b"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-89",
-      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/parser/TextParseData.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "bf6e53ef986f83ede331d9d87484da190bd3157b"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-90",
-      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/parser/Parser.java",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "65460732e4cff3bb90c743b7531b0a933036e5c2"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-File-91",
-      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/parser/Parser.class",
-      "checksums": [
-        {
-          "algorithm": "SHA1",
-          "checksumValue": "846125a596c9fe6afcbc03e6a2f4891d403f2443"
-        }
-      ]
-    },
-    {
       "SPDXID": "SPDXRef-File-92",
-      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/parser/ExtractedUrlAnchorPair.java",
+      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/url/TLDList.java",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "eda45ffa29b31d2b1504c02258cb993a4b524d6f"
+          "checksumValue": "a2f0a78062e3417840eac7bdbef5201c0463b42c"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-93",
-      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/parser/ExtractedUrlAnchorPair.class",
+      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/url/TLDList$1.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "5d71d29780acaa321e7ce4781c07b86c52c0523f"
+          "checksumValue": "5b0fdd9d0d73f95eaa761c126394eca261361c94"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-94",
-      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/parser/TikaHtmlParser.java",
+      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/url/TLDList$SingletonHolder.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "fd8bdfb5906389972ddf80d782c9408e8bbd41f5"
+          "checksumValue": "1b6225731b8c9cb49024f70f23c321c471017426"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-95",
-      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/parser/TikaHtmlParser.class",
+      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/url/TLDList.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "875599616d8133d78ed39ff84e7fb9367c04a412"
+          "checksumValue": "270761bc75a7387c54707ebbf158736d1b726b1f"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-96",
-      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/parser/HtmlParser.java",
+      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/url/URLCanonicalizer.java",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "747367ad0c48da99817e1df90ab4c3c304d4c758"
+          "checksumValue": "000770d712c49299f998f1e53eb58f874eff1765"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-97",
-      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/parser/HtmlParser.class",
+      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/url/URLCanonicalizer.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "97513537ae8aa121d972398df6f12731c949257e"
+          "checksumValue": "f7d15a1d2b73b4a20d4e43eecdfedf59a84d334f"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-98",
-      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/parser/NotAllowedContentException.java",
+      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/url/UrlResolver.java",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "c85535ad9198dac1220293b03e8154b72e7064a3"
+          "checksumValue": "33bb5026692c9a7b76cf9d062c67083c0be54d95"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-99",
-      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/parser/NotAllowedContentException.class",
+      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/url/UrlResolver$1.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "3e89b95077bf69548994e3c68f4778b005f6e010"
+          "checksumValue": "a526156c945acbb23c3548afef14a48b87aa0799"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-100",
-      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/parser/HtmlParseData.java",
+      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/url/UrlResolver$Url.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "cac68fb75de2de79a90cb7a194b54fb64a55207e"
+          "checksumValue": "81d3b3a2b86a70ee05f9520bb9e1d76ee0e52fed"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-101",
-      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/parser/HtmlParseData.class",
+      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/url/UrlResolver.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "ec7e007862d74f9c3ed20937c0a5e90606f9fbe4"
+          "checksumValue": "740b0737473dc0285d10a24a42a668130adcda0b"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-102",
-      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/parser/HtmlContentHandler.java",
+      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/url/WebURL.java",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "67676afcb0a2de0c55185591226d75fd45ec23ea"
+          "checksumValue": "a0929500952b61dd84cdc84d5f9e00d1dd3c357b"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-103",
-      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/parser/HtmlContentHandler$Element.class",
+      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/url/WebURL.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "1df32256f6a4aa57d536f36d75df04d3c5c7c0a0"
+          "checksumValue": "825db271f9be0692c785adae217ffd6348fe588a"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-104",
-      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/parser/HtmlContentHandler$HtmlFactory.class",
+      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/util/IO.java",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "aaa291f9e15fff46efc7358b41a9dc4f7a142b29"
+          "checksumValue": "2f215f91e773b03d0669e552ef204c32b6728ac7"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-105",
-      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/parser/AllTagMapper.java",
+      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/util/IO.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "129933e99a81641e32ea15d90ccb22d144f28aa5"
+          "checksumValue": "7e43d65f994b944b1e7c1aa3d6df9c2a23043970"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-106",
-      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/parser/AllTagMapper.class",
+      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/util/Net.java",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "0908f4ec2643dc4cee3bafd0168a2cfa1a10830d"
+          "checksumValue": "763ac06da8bf910e6ec86e3878fc718155f3532f"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-107",
-      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/parser/HtmlContentHandler.class",
+      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/util/Net.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "848dd8e969728aaf4f0b57c47d79dd258cd191bc"
+          "checksumValue": "0b2de7874d5a76d1d1640ae300949ffbcacb8ef5"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-108",
-      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/parser/BinaryParseData.java",
+      "fileName": "crawler4j/src/main/java/edu/uci/ics/crawler4j/util/Util.java",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "b1729612ec68d66b5129e54a067bb133561304de"
+          "checksumValue": "fcbb70413f232d3d02107e750e0e8f3288733760"
         }
       ]
     },
     {
       "SPDXID": "SPDXRef-File-109",
-      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/parser/BinaryParseData.class",
+      "fileName": "crawler4j/target/classes/edu/uci/ics/crawler4j/util/Util.class",
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "b98f4658ccf6937736e4cf22b8d3155db60d2a00"
+          "checksumValue": "5fc91cd4c7e70addd6cd8d6a02cc91c54a9904ed"
         }
       ]
     }

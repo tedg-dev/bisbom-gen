@@ -3,9 +3,9 @@
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
   "name": "redis-server",
-  "documentNamespace": "https://omnibor.io/omnibor-analysis/redis-server-d8f057ea-fd51-4f37-9cf0-854a799a5893",
+  "documentNamespace": "https://omnibor.io/omnibor-analysis/redis-server-84c3e3e2-bfb9-4021-9f88-f72a4d2a2b70",
   "creationInfo": {
-    "created": "2026-05-04T21:57:33Z",
+    "created": "2026-06-22T20:37:24Z",
     "creators": [
       "Tool: bomtrace3-unknown",
       "Tool: bomsh-unknown",
@@ -17,15 +17,15 @@
     {
       "SPDXID": "SPDXRef-Package-root",
       "name": "redis-server",
-      "downloadLocation": "NOASSERTION",
+      "downloadLocation": "https://github.com/redis/redis/commit/f49e5cb2b161418f92f2095c532b85ad24d80819",
       "filesAnalyzed": true,
       "primaryPackagePurpose": "APPLICATION",
-      "builtDate": "2026-05-04T21:57:33Z",
+      "builtDate": "2026-06-22T20:37:24Z",
       "externalRefs": [
         {
           "referenceCategory": "PERSISTENT-ID",
           "referenceType": "gitoid",
-          "referenceLocator": "gitoid:blob:sha1:e3fb4c064f338cc4c7095c03de9368248777cb6c"
+          "referenceLocator": "gitoid:blob:sha1:61c445e5a3d3ca3d959987ce81a0fc604182b68c"
         }
       ],
       "checksums": [
@@ -59,7 +59,7 @@
       "versionInfo": "12.3.0-1ubuntu1~22.04.3",
       "supplier": "Organization: Ubuntu Core developers <ubuntu-devel-discuss@lists.ubuntu.com>",
       "homepage": "http://gcc.gnu.org/",
-      "packageSourceInfo": "Installed via dpkg package libgcc-s1, libstdc++6 on Ubuntu 22.04.5 LTS."
+      "sourceInfo": "Installed via dpkg package libgcc-s1, libstdc++6 on Ubuntu 22.04.5 LTS."
     },
     {
       "SPDXID": "SPDXRef-libc6-2",
@@ -83,7 +83,7 @@
       "versionInfo": "2.35-0ubuntu3.13",
       "supplier": "Organization: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>",
       "homepage": "https://www.gnu.org/software/libc/libc.html",
-      "packageSourceInfo": "Installed via dpkg package libc6 on Ubuntu 22.04.5 LTS."
+      "sourceInfo": "Installed via dpkg package libc6 on Ubuntu 22.04.5 LTS."
     },
     {
       "SPDXID": "SPDXRef-gcc-3",
@@ -101,7 +101,7 @@
           "referenceLocator": "cpe:2.3:a:gnu:gcc:11.4.0:*:*:*:*:*:*:*"
         }
       ],
-      "packageSourceInfo": "System-installed build toolchain on Ubuntu 22.04.5 LTS."
+      "sourceInfo": "System-installed build toolchain on Ubuntu 22.04.5 LTS."
     },
     {
       "SPDXID": "SPDXRef-fast-float-4",
@@ -111,7 +111,7 @@
       "primaryPackagePurpose": "LIBRARY",
       "externalRefs": [],
       "comment": "Vendored source compiled into redis-server. 1 source files.",
-      "packageSourceInfo": "Vendored from redis/fast_float/fast_float/. Source compiled into static archive and linked."
+      "sourceInfo": "Vendored from redis/fast_float/fast_float/. Source compiled into static archive and linked."
     },
     {
       "SPDXID": "SPDXRef-fpconv-5",
@@ -121,7 +121,7 @@
       "primaryPackagePurpose": "LIBRARY",
       "externalRefs": [],
       "comment": "Vendored source compiled into redis-server. 1 source files.",
-      "packageSourceInfo": "Vendored from redis/fpconv/fpconv/. Source compiled into static archive and linked.",
+      "sourceInfo": "Vendored from redis/fpconv/fpconv/. Source compiled into static archive and linked.",
       "versionInfo": "1.0"
     },
     {
@@ -132,7 +132,7 @@
       "primaryPackagePurpose": "LIBRARY",
       "externalRefs": [],
       "comment": "Vendored source compiled into redis-server. 1 source files.",
-      "packageSourceInfo": "Vendored from redis/hdr_histogram/hdr_histogram/. Source compiled into static archive and linked."
+      "sourceInfo": "Vendored from redis/hdr_histogram/hdr_histogram/. Source compiled into static archive and linked."
     },
     {
       "SPDXID": "SPDXRef-hiredis-7",
@@ -142,7 +142,7 @@
       "primaryPackagePurpose": "LIBRARY",
       "externalRefs": [],
       "comment": "Vendored source compiled into redis-server. 6 source files.",
-      "packageSourceInfo": "Vendored from redis/hiredis/hiredis/. Source compiled into static archive and linked.",
+      "sourceInfo": "Vendored from redis/hiredis/hiredis/. Source compiled into static archive and linked.",
       "versionInfo": "1.2.0"
     },
     {
@@ -153,7 +153,7 @@
       "primaryPackagePurpose": "LIBRARY",
       "externalRefs": [],
       "comment": "Vendored source compiled into redis-server. 1 source files.",
-      "packageSourceInfo": "Vendored from redis/jemalloc/jemalloc/. Source compiled into static archive and linked.",
+      "sourceInfo": "Vendored from redis/jemalloc/jemalloc/. Source compiled into static archive and linked.",
       "versionInfo": "5.3.0"
     },
     {
@@ -164,7 +164,7 @@
       "primaryPackagePurpose": "LIBRARY",
       "externalRefs": [],
       "comment": "Vendored source compiled into redis-server. 1 source files.",
-      "packageSourceInfo": "Vendored from redis/linenoise/linenoise/. Source compiled into static archive and linked.",
+      "sourceInfo": "Vendored from redis/linenoise/linenoise/. Source compiled into static archive and linked.",
       "versionInfo": "1.0"
     },
     {
@@ -175,7 +175,7 @@
       "primaryPackagePurpose": "LIBRARY",
       "externalRefs": [],
       "comment": "Vendored source compiled into redis-server. 10 source files.",
-      "packageSourceInfo": "Vendored from redis/lua/lua/. Source compiled into static archive and linked.",
+      "sourceInfo": "Vendored from redis/lua/lua/. Source compiled into static archive and linked.",
       "versionInfo": "5.1.5"
     }
   ],

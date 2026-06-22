@@ -3,9 +3,9 @@
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
   "name": "libavutil.so",
-  "documentNamespace": "https://omnibor.io/omnibor-analysis/libavutil.so-f1823c52-279c-4ed0-b78f-6646a8e546aa",
+  "documentNamespace": "https://omnibor.io/omnibor-analysis/libavutil.so-55ffd054-36b8-48a9-bc09-0d0cecf9caf2",
   "creationInfo": {
-    "created": "2026-05-14T18:00:14Z",
+    "created": "2026-06-22T20:52:42Z",
     "creators": [
       "Tool: bomtrace3-unknown",
       "Tool: bomsh-unknown",
@@ -20,7 +20,7 @@
       "downloadLocation": "https://github.com/FFmpeg/FFmpeg/commit/9047fa1b084f76b1b4d065af2d743df1b40dfb56",
       "filesAnalyzed": true,
       "primaryPackagePurpose": "LIBRARY",
-      "builtDate": "2026-05-14T18:00:14Z",
+      "builtDate": "2026-06-22T20:52:42Z",
       "externalRefs": [],
       "checksums": [],
       "comment": "Built on Ubuntu 22.04.5 LTS with gcc (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0",
@@ -48,7 +48,7 @@
       "versionInfo": "2.35-0ubuntu3.13",
       "supplier": "Organization: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>",
       "homepage": "https://www.gnu.org/software/libc/libc.html",
-      "packageSourceInfo": "Installed via dpkg package libc6 on Ubuntu 22.04.5 LTS."
+      "sourceInfo": "Installed via dpkg package libc6 on Ubuntu 22.04.5 LTS."
     },
     {
       "SPDXID": "SPDXRef-libssl3-2",
@@ -60,7 +60,7 @@
         {
           "referenceCategory": "PACKAGE-MANAGER",
           "referenceType": "purl",
-          "referenceLocator": "pkg:deb/ubuntu/libssl3@3.0.2-0ubuntu1.23?arch=amd64&distro=ubuntu-22.04"
+          "referenceLocator": "pkg:deb/ubuntu/libssl3@3.0.2-0ubuntu1.25?arch=amd64&distro=ubuntu-22.04"
         },
         {
           "referenceCategory": "SECURITY",
@@ -69,10 +69,10 @@
         }
       ],
       "comment": "Dynamically linked (direct). sonames: libcrypto.so.3. dpkg: libssl3 (amd64)",
-      "versionInfo": "3.0.2-0ubuntu1.23",
+      "versionInfo": "3.0.2-0ubuntu1.25",
       "supplier": "Organization: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>",
       "homepage": "https://www.openssl.org/",
-      "packageSourceInfo": "Installed via dpkg package libssl3 on Ubuntu 22.04.5 LTS."
+      "sourceInfo": "Installed via dpkg package libssl3 on Ubuntu 22.04.5 LTS."
     },
     {
       "SPDXID": "SPDXRef-gcc-3",
@@ -90,7 +90,7 @@
           "referenceLocator": "cpe:2.3:a:gnu:gcc:11.4.0:*:*:*:*:*:*:*"
         }
       ],
-      "packageSourceInfo": "System-installed build toolchain on Ubuntu 22.04.5 LTS."
+      "sourceInfo": "System-installed build toolchain on Ubuntu 22.04.5 LTS."
     }
   ],
   "files": [

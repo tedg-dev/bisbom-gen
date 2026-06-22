@@ -3,9 +3,9 @@
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
   "name": "lazygit",
-  "documentNamespace": "https://omnibor.io/omnibor-analysis/lazygit-b175d808-9362-4a30-bf4e-730d588b147b",
+  "documentNamespace": "https://omnibor.io/omnibor-analysis/lazygit-2ad5bdf7-630d-45b5-90c8-bed9cacaa6d0",
   "creationInfo": {
-    "created": "2026-05-05T16:27:38Z",
+    "created": "2026-06-22T20:32:53Z",
     "creators": [
       "Tool: bomtrace3-unknown",
       "Tool: bomsh-unknown",
@@ -17,10 +17,10 @@
     {
       "SPDXID": "SPDXRef-Package-root",
       "name": "lazygit",
-      "downloadLocation": "NOASSERTION",
+      "downloadLocation": "https://github.com/jesseduffield/lazygit/commit/2f6d20275afd5fc9b623500c9194a2c732936014",
       "filesAnalyzed": true,
       "primaryPackagePurpose": "APPLICATION",
-      "builtDate": "2026-05-05T16:27:38Z",
+      "builtDate": "2026-06-22T20:32:53Z",
       "externalRefs": [],
       "checksums": [],
       "comment": "Built on Ubuntu 22.04.5 LTS with gcc (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0",
@@ -48,7 +48,7 @@
       "versionInfo": "2.35-0ubuntu3.13",
       "supplier": "Organization: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>",
       "homepage": "https://www.gnu.org/software/libc/libc.html",
-      "packageSourceInfo": "Installed via dpkg package libc6 on Ubuntu 22.04.5 LTS."
+      "sourceInfo": "Installed via dpkg package libc6 on Ubuntu 22.04.5 LTS."
     },
     {
       "SPDXID": "SPDXRef-go-2",
@@ -66,7 +66,7 @@
           "referenceLocator": "cpe:2.3:a:golang:go:1.26.0:*:*:*:*:*:*:*"
         }
       ],
-      "packageSourceInfo": "System-installed Go toolchain at /usr/local/go/."
+      "sourceInfo": "System-installed Go toolchain at /usr/local/go/."
     },
     {
       "SPDXID": "SPDXRef-go-stdlib-3",
@@ -84,8 +84,8 @@
           "referenceLocator": "pkg:golang/stdlib@1.26.0"
         }
       ],
-      "comment": "Go standard library. 1227 .go files compiled into lazygit",
-      "packageSourceInfo": "Bundled with Go toolchain 1.26.0. Source at /usr/local/go/src/."
+      "comment": "Go standard library (bundled with Go 1.26.0). Provides core packages (fmt, os, net, etc.) that are statically compiled into every Go binary. 1227 .go files compiled into lazygit.",
+      "sourceInfo": "Bundled with Go toolchain 1.26.0. Source at /usr/local/go/src/."
     },
     {
       "SPDXID": "SPDXRef-gcc-4",
@@ -103,7 +103,7 @@
           "referenceLocator": "cpe:2.3:a:gnu:gcc:11.4.0:*:*:*:*:*:*:*"
         }
       ],
-      "packageSourceInfo": "System-installed build toolchain on Ubuntu 22.04.5 LTS."
+      "sourceInfo": "System-installed build toolchain on Ubuntu 22.04.5 LTS."
     },
     {
       "SPDXID": "SPDXRef-dario.cat-mergo-5",
@@ -118,8 +118,8 @@
           "referenceLocator": "pkg:golang/dario.cat/mergo@1.0.1"
         }
       ],
-      "comment": "Go module (direct). 4 source files compiled into lazygit",
-      "packageSourceInfo": "Vendored via go mod vendor. Source at vendor/dario.cat/mergo/.",
+      "comment": "Go module (direct). Explicitly listed in go.mod require block without '// indirect' comment \u2014 this project imports it directly. 4 source files compiled into lazygit.",
+      "sourceInfo": "Vendored via go mod vendor. Source at vendor/dario.cat/mergo/.",
       "versionInfo": "1.0.1"
     },
     {
@@ -135,8 +135,8 @@
           "referenceLocator": "pkg:golang/github.com/ProtonMail/go-crypto@1.1.6"
         }
       ],
-      "comment": "Go module (indirect). 77 source files compiled into lazygit",
-      "packageSourceInfo": "Indirect dependency vendored via go mod vendor.",
+      "comment": "Go module (indirect). Transitive dependency \u2014 not listed directly in go.mod; pulled in by a direct dependency. Identified by '// indirect' comment in go.mod require block. 77 source files compiled into lazygit.",
+      "sourceInfo": "Indirect dependency vendored via go mod vendor.",
       "versionInfo": "1.1.6"
     },
     {
@@ -152,8 +152,8 @@
           "referenceLocator": "pkg:golang/github.com/adrg/xdg@0.4.0"
         }
       ],
-      "comment": "Go module (direct). 7 source files compiled into lazygit",
-      "packageSourceInfo": "Vendored via go mod vendor. Source at vendor/github.com/adrg/xdg/.",
+      "comment": "Go module (direct). Explicitly listed in go.mod require block without '// indirect' comment \u2014 this project imports it directly. 7 source files compiled into lazygit.",
+      "sourceInfo": "Vendored via go mod vendor. Source at vendor/github.com/adrg/xdg/.",
       "versionInfo": "0.4.0"
     },
     {
@@ -169,8 +169,8 @@
           "referenceLocator": "pkg:golang/github.com/atotto/clipboard@0.1.4"
         }
       ],
-      "comment": "Go module (direct). 2 source files compiled into lazygit",
-      "packageSourceInfo": "Vendored via go mod vendor. Source at vendor/github.com/atotto/clipboard/.",
+      "comment": "Go module (direct). Explicitly listed in go.mod require block without '// indirect' comment \u2014 this project imports it directly. 2 source files compiled into lazygit.",
+      "sourceInfo": "Vendored via go mod vendor. Source at vendor/github.com/atotto/clipboard/.",
       "versionInfo": "0.1.4"
     },
     {
@@ -186,8 +186,8 @@
           "referenceLocator": "pkg:golang/github.com/aybabtme/humanlog@0.4.1"
         }
       ],
-      "comment": "Go module (direct). 6 source files compiled into lazygit",
-      "packageSourceInfo": "Vendored via go mod vendor. Source at vendor/github.com/aybabtme/humanlog/.",
+      "comment": "Go module (direct). Explicitly listed in go.mod require block without '// indirect' comment \u2014 this project imports it directly. 6 source files compiled into lazygit.",
+      "sourceInfo": "Vendored via go mod vendor. Source at vendor/github.com/aybabtme/humanlog/.",
       "versionInfo": "0.4.1"
     },
     {
@@ -203,8 +203,8 @@
           "referenceLocator": "pkg:golang/github.com/bahlo/generic-list-go@0.2.0"
         }
       ],
-      "comment": "Go module (indirect). 1 source files compiled into lazygit",
-      "packageSourceInfo": "Indirect dependency vendored via go mod vendor.",
+      "comment": "Go module (indirect). Transitive dependency \u2014 not listed directly in go.mod; pulled in by a direct dependency. Identified by '// indirect' comment in go.mod require block. 1 source files compiled into lazygit.",
+      "sourceInfo": "Indirect dependency vendored via go mod vendor.",
       "versionInfo": "0.2.0"
     },
     {
@@ -220,8 +220,8 @@
           "referenceLocator": "pkg:golang/github.com/buger/jsonparser@1.1.1"
         }
       ],
-      "comment": "Go module (indirect). 5 source files compiled into lazygit",
-      "packageSourceInfo": "Indirect dependency vendored via go mod vendor.",
+      "comment": "Go module (indirect). Transitive dependency \u2014 not listed directly in go.mod; pulled in by a direct dependency. Identified by '// indirect' comment in go.mod require block. 5 source files compiled into lazygit.",
+      "sourceInfo": "Indirect dependency vendored via go mod vendor.",
       "versionInfo": "1.1.1"
     },
     {
@@ -237,8 +237,8 @@
           "referenceLocator": "pkg:golang/github.com/cloudflare/circl@1.6.3"
         }
       ],
-      "comment": "Go module (indirect). 50 source files compiled into lazygit",
-      "packageSourceInfo": "Indirect dependency vendored via go mod vendor.",
+      "comment": "Go module (indirect). Transitive dependency \u2014 not listed directly in go.mod; pulled in by a direct dependency. Identified by '// indirect' comment in go.mod require block. 50 source files compiled into lazygit.",
+      "sourceInfo": "Indirect dependency vendored via go mod vendor.",
       "versionInfo": "1.6.3"
     },
     {
@@ -254,8 +254,8 @@
           "referenceLocator": "pkg:golang/github.com/cloudfoundry/jibber_jabber@0.0.0-20151120183258-bcc4c8345a21"
         }
       ],
-      "comment": "Go module (direct). 2 source files compiled into lazygit",
-      "packageSourceInfo": "Vendored via go mod vendor. Source at vendor/github.com/cloudfoundry/jibber_jabber/.",
+      "comment": "Go module (direct). Explicitly listed in go.mod require block without '// indirect' comment \u2014 this project imports it directly. 2 source files compiled into lazygit.",
+      "sourceInfo": "Vendored via go mod vendor. Source at vendor/github.com/cloudfoundry/jibber_jabber/.",
       "versionInfo": "0.0.0-20151120183258-bcc4c8345a21"
     },
     {
@@ -271,8 +271,8 @@
           "referenceLocator": "pkg:golang/github.com/creack/pty@1.1.11"
         }
       ],
-      "comment": "Go module (direct). 6 source files compiled into lazygit",
-      "packageSourceInfo": "Vendored via go mod vendor. Source at vendor/github.com/creack/pty/.",
+      "comment": "Go module (direct). Explicitly listed in go.mod require block without '// indirect' comment \u2014 this project imports it directly. 6 source files compiled into lazygit.",
+      "sourceInfo": "Vendored via go mod vendor. Source at vendor/github.com/creack/pty/.",
       "versionInfo": "1.1.11"
     },
     {
@@ -288,8 +288,8 @@
           "referenceLocator": "pkg:golang/github.com/cyphar/filepath-securejoin@0.4.1"
         }
       ],
-      "comment": "Go module (indirect). 11 source files compiled into lazygit",
-      "packageSourceInfo": "Indirect dependency vendored via go mod vendor.",
+      "comment": "Go module (indirect). Transitive dependency \u2014 not listed directly in go.mod; pulled in by a direct dependency. Identified by '// indirect' comment in go.mod require block. 11 source files compiled into lazygit.",
+      "sourceInfo": "Indirect dependency vendored via go mod vendor.",
       "versionInfo": "0.4.1"
     },
     {
@@ -305,8 +305,8 @@
           "referenceLocator": "pkg:golang/github.com/emirpasic/gods@1.18.1"
         }
       ],
-      "comment": "Go module (indirect). 16 source files compiled into lazygit",
-      "packageSourceInfo": "Indirect dependency vendored via go mod vendor.",
+      "comment": "Go module (indirect). Transitive dependency \u2014 not listed directly in go.mod; pulled in by a direct dependency. Identified by '// indirect' comment in go.mod require block. 16 source files compiled into lazygit.",
+      "sourceInfo": "Indirect dependency vendored via go mod vendor.",
       "versionInfo": "1.18.1"
     },
     {
@@ -322,8 +322,8 @@
           "referenceLocator": "pkg:golang/github.com/fatih/color@1.9.0"
         }
       ],
-      "comment": "Go module (indirect). 2 source files compiled into lazygit",
-      "packageSourceInfo": "Indirect dependency vendored via go mod vendor.",
+      "comment": "Go module (indirect). Transitive dependency \u2014 not listed directly in go.mod; pulled in by a direct dependency. Identified by '// indirect' comment in go.mod require block. 2 source files compiled into lazygit.",
+      "sourceInfo": "Indirect dependency vendored via go mod vendor.",
       "versionInfo": "1.9.0"
     },
     {
@@ -339,8 +339,8 @@
           "referenceLocator": "pkg:golang/github.com/gdamore/encoding@1.0.1"
         }
       ],
-      "comment": "Go module (indirect). 7 source files compiled into lazygit",
-      "packageSourceInfo": "Indirect dependency vendored via go mod vendor.",
+      "comment": "Go module (indirect). Transitive dependency \u2014 not listed directly in go.mod; pulled in by a direct dependency. Identified by '// indirect' comment in go.mod require block. 7 source files compiled into lazygit.",
+      "sourceInfo": "Indirect dependency vendored via go mod vendor.",
       "versionInfo": "1.0.1"
     },
     {
@@ -356,8 +356,8 @@
           "referenceLocator": "pkg:golang/github.com/gdamore/tcell/v2@2.13.8"
         }
       ],
-      "comment": "Go module (direct). 63 source files compiled into lazygit",
-      "packageSourceInfo": "Vendored via go mod vendor. Source at vendor/github.com/gdamore/tcell/v2/.",
+      "comment": "Go module (direct). Explicitly listed in go.mod require block without '// indirect' comment \u2014 this project imports it directly. 63 source files compiled into lazygit.",
+      "sourceInfo": "Vendored via go mod vendor. Source at vendor/github.com/gdamore/tcell/v2/.",
       "versionInfo": "2.13.8"
     },
     {
@@ -373,8 +373,8 @@
           "referenceLocator": "pkg:golang/github.com/go-errors/errors@1.5.1"
         }
       ],
-      "comment": "Go module (direct). 5 source files compiled into lazygit",
-      "packageSourceInfo": "Vendored via go mod vendor. Source at vendor/github.com/go-errors/errors/.",
+      "comment": "Go module (direct). Explicitly listed in go.mod require block without '// indirect' comment \u2014 this project imports it directly. 5 source files compiled into lazygit.",
+      "sourceInfo": "Vendored via go mod vendor. Source at vendor/github.com/go-errors/errors/.",
       "versionInfo": "1.5.1"
     },
     {
@@ -390,8 +390,8 @@
           "referenceLocator": "pkg:golang/github.com/go-git/gcfg@1.5.1-0.20230307220236-3a3c6141e376"
         }
       ],
-      "comment": "Go module (indirect). 14 source files compiled into lazygit",
-      "packageSourceInfo": "Indirect dependency vendored via go mod vendor.",
+      "comment": "Go module (indirect). Transitive dependency \u2014 not listed directly in go.mod; pulled in by a direct dependency. Identified by '// indirect' comment in go.mod require block. 14 source files compiled into lazygit.",
+      "sourceInfo": "Indirect dependency vendored via go mod vendor.",
       "versionInfo": "1.5.1-0.20230307220236-3a3c6141e376"
     },
     {
@@ -407,8 +407,8 @@
           "referenceLocator": "pkg:golang/github.com/go-git/go-billy/v5@5.6.2"
         }
       ],
-      "comment": "Go module (indirect). 11 source files compiled into lazygit",
-      "packageSourceInfo": "Indirect dependency vendored via go mod vendor.",
+      "comment": "Go module (indirect). Transitive dependency \u2014 not listed directly in go.mod; pulled in by a direct dependency. Identified by '// indirect' comment in go.mod require block. 11 source files compiled into lazygit.",
+      "sourceInfo": "Indirect dependency vendored via go mod vendor.",
       "versionInfo": "5.6.2"
     },
     {
@@ -424,8 +424,8 @@
           "referenceLocator": "pkg:golang/github.com/go-logfmt/logfmt@0.5.0"
         }
       ],
-      "comment": "Go module (indirect). 4 source files compiled into lazygit",
-      "packageSourceInfo": "Indirect dependency vendored via go mod vendor.",
+      "comment": "Go module (indirect). Transitive dependency \u2014 not listed directly in go.mod; pulled in by a direct dependency. Identified by '// indirect' comment in go.mod require block. 4 source files compiled into lazygit.",
+      "sourceInfo": "Indirect dependency vendored via go mod vendor.",
       "versionInfo": "0.5.0"
     },
     {
@@ -441,8 +441,8 @@
           "referenceLocator": "pkg:golang/github.com/golang/groupcache@0.0.0-20241129210726-2c02b8208cf8"
         }
       ],
-      "comment": "Go module (indirect). 1 source files compiled into lazygit",
-      "packageSourceInfo": "Indirect dependency vendored via go mod vendor.",
+      "comment": "Go module (indirect). Transitive dependency \u2014 not listed directly in go.mod; pulled in by a direct dependency. Identified by '// indirect' comment in go.mod require block. 1 source files compiled into lazygit.",
+      "sourceInfo": "Indirect dependency vendored via go mod vendor.",
       "versionInfo": "0.0.0-20241129210726-2c02b8208cf8"
     },
     {
@@ -458,8 +458,8 @@
           "referenceLocator": "pkg:golang/github.com/gookit/color@1.4.2"
         }
       ],
-      "comment": "Go module (direct). 12 source files compiled into lazygit",
-      "packageSourceInfo": "Vendored via go mod vendor. Source at vendor/github.com/gookit/color/.",
+      "comment": "Go module (direct). Explicitly listed in go.mod require block without '// indirect' comment \u2014 this project imports it directly. 12 source files compiled into lazygit.",
+      "sourceInfo": "Vendored via go mod vendor. Source at vendor/github.com/gookit/color/.",
       "versionInfo": "1.4.2"
     },
     {
@@ -475,8 +475,8 @@
           "referenceLocator": "pkg:golang/github.com/integrii/flaggy@1.4.0"
         }
       ],
-      "comment": "Go module (direct). 9 source files compiled into lazygit",
-      "packageSourceInfo": "Vendored via go mod vendor. Source at vendor/github.com/integrii/flaggy/.",
+      "comment": "Go module (direct). Explicitly listed in go.mod require block without '// indirect' comment \u2014 this project imports it directly. 9 source files compiled into lazygit.",
+      "sourceInfo": "Vendored via go mod vendor. Source at vendor/github.com/integrii/flaggy/.",
       "versionInfo": "1.4.0"
     },
     {
@@ -492,8 +492,8 @@
           "referenceLocator": "pkg:golang/github.com/jbenet/go-context@0.0.0-20150711004518-d14ea06fba99"
         }
       ],
-      "comment": "Go module (indirect). 1 source files compiled into lazygit",
-      "packageSourceInfo": "Indirect dependency vendored via go mod vendor.",
+      "comment": "Go module (indirect). Transitive dependency \u2014 not listed directly in go.mod; pulled in by a direct dependency. Identified by '// indirect' comment in go.mod require block. 1 source files compiled into lazygit.",
+      "sourceInfo": "Indirect dependency vendored via go mod vendor.",
       "versionInfo": "0.0.0-20150711004518-d14ea06fba99"
     },
     {
@@ -509,8 +509,8 @@
           "referenceLocator": "pkg:golang/github.com/jesseduffield/generics@0.0.0-20250517122708-b0b4a53a6f5c"
         }
       ],
-      "comment": "Go module (direct). 3 source files compiled into lazygit",
-      "packageSourceInfo": "Vendored via go mod vendor. Source at vendor/github.com/jesseduffield/generics/.",
+      "comment": "Go module (direct). Explicitly listed in go.mod require block without '// indirect' comment \u2014 this project imports it directly. 3 source files compiled into lazygit.",
+      "sourceInfo": "Vendored via go mod vendor. Source at vendor/github.com/jesseduffield/generics/.",
       "versionInfo": "0.0.0-20250517122708-b0b4a53a6f5c"
     },
     {
@@ -526,8 +526,8 @@
           "referenceLocator": "pkg:golang/github.com/jesseduffield/go-git/v5@5.14.1-0.20250407170251-e1a013310ccd"
         }
       ],
-      "comment": "Go module (direct). 182 source files compiled into lazygit",
-      "packageSourceInfo": "Vendored via go mod vendor. Source at vendor/github.com/jesseduffield/go-git/v5/.",
+      "comment": "Go module (direct). Explicitly listed in go.mod require block without '// indirect' comment \u2014 this project imports it directly. 182 source files compiled into lazygit.",
+      "sourceInfo": "Vendored via go mod vendor. Source at vendor/github.com/jesseduffield/go-git/v5/.",
       "versionInfo": "5.14.1-0.20250407170251-e1a013310ccd"
     },
     {
@@ -543,8 +543,8 @@
           "referenceLocator": "pkg:golang/github.com/jesseduffield/gocui@0.3.1-0.20260308162933-5e45e57b5564"
         }
       ],
-      "comment": "Go module (direct). 14 source files compiled into lazygit",
-      "packageSourceInfo": "Vendored via go mod vendor. Source at vendor/github.com/jesseduffield/gocui/.",
+      "comment": "Go module (direct). Explicitly listed in go.mod require block without '// indirect' comment \u2014 this project imports it directly. 14 source files compiled into lazygit.",
+      "sourceInfo": "Vendored via go mod vendor. Source at vendor/github.com/jesseduffield/gocui/.",
       "versionInfo": "0.3.1-0.20260308162933-5e45e57b5564"
     },
     {
@@ -560,8 +560,8 @@
           "referenceLocator": "pkg:golang/github.com/jesseduffield/lazycore@0.0.0-20221012050358-03d2e40243c5"
         }
       ],
-      "comment": "Go module (direct). 2 source files compiled into lazygit",
-      "packageSourceInfo": "Vendored via go mod vendor. Source at vendor/github.com/jesseduffield/lazycore/.",
+      "comment": "Go module (direct). Explicitly listed in go.mod require block without '// indirect' comment \u2014 this project imports it directly. 2 source files compiled into lazygit.",
+      "sourceInfo": "Vendored via go mod vendor. Source at vendor/github.com/jesseduffield/lazycore/.",
       "versionInfo": "0.0.0-20221012050358-03d2e40243c5"
     },
     {
@@ -577,8 +577,8 @@
           "referenceLocator": "pkg:golang/github.com/kardianos/osext@0.0.0-20190222173326-2bc1f35cddc0"
         }
       ],
-      "comment": "Go module (direct). 2 source files compiled into lazygit",
-      "packageSourceInfo": "Vendored via go mod vendor. Source at vendor/github.com/kardianos/osext/.",
+      "comment": "Go module (direct). Explicitly listed in go.mod require block without '// indirect' comment \u2014 this project imports it directly. 2 source files compiled into lazygit.",
+      "sourceInfo": "Vendored via go mod vendor. Source at vendor/github.com/kardianos/osext/.",
       "versionInfo": "0.0.0-20190222173326-2bc1f35cddc0"
     },
     {
@@ -594,8 +594,8 @@
           "referenceLocator": "pkg:golang/github.com/karimkhaleel/jsonschema@0.0.0-20231001195015-d933f0d94ea3"
         }
       ],
-      "comment": "Go module (direct). 4 source files compiled into lazygit",
-      "packageSourceInfo": "Vendored via go mod vendor. Source at vendor/github.com/karimkhaleel/jsonschema/.",
+      "comment": "Go module (direct). Explicitly listed in go.mod require block without '// indirect' comment \u2014 this project imports it directly. 4 source files compiled into lazygit.",
+      "sourceInfo": "Vendored via go mod vendor. Source at vendor/github.com/karimkhaleel/jsonschema/.",
       "versionInfo": "0.0.0-20231001195015-d933f0d94ea3"
     },
     {
@@ -611,8 +611,8 @@
           "referenceLocator": "pkg:golang/github.com/kevinburke/ssh_config@1.2.0"
         }
       ],
-      "comment": "Go module (indirect). 6 source files compiled into lazygit",
-      "packageSourceInfo": "Indirect dependency vendored via go mod vendor.",
+      "comment": "Go module (indirect). Transitive dependency \u2014 not listed directly in go.mod; pulled in by a direct dependency. Identified by '// indirect' comment in go.mod require block. 6 source files compiled into lazygit.",
+      "sourceInfo": "Indirect dependency vendored via go mod vendor.",
       "versionInfo": "1.2.0"
     },
     {
@@ -628,8 +628,8 @@
           "referenceLocator": "pkg:golang/github.com/kr/logfmt@0.0.0-20140226030751-b84e30acd515"
         }
       ],
-      "comment": "Go module (indirect). 3 source files compiled into lazygit",
-      "packageSourceInfo": "Indirect dependency vendored via go mod vendor.",
+      "comment": "Go module (indirect). Transitive dependency \u2014 not listed directly in go.mod; pulled in by a direct dependency. Identified by '// indirect' comment in go.mod require block. 3 source files compiled into lazygit.",
+      "sourceInfo": "Indirect dependency vendored via go mod vendor.",
       "versionInfo": "0.0.0-20140226030751-b84e30acd515"
     },
     {
@@ -645,8 +645,8 @@
           "referenceLocator": "pkg:golang/github.com/kyokomi/emoji/v2@2.2.8"
         }
       ],
-      "comment": "Go module (direct). 2 source files compiled into lazygit",
-      "packageSourceInfo": "Vendored via go mod vendor. Source at vendor/github.com/kyokomi/emoji/v2/.",
+      "comment": "Go module (direct). Explicitly listed in go.mod require block without '// indirect' comment \u2014 this project imports it directly. 2 source files compiled into lazygit.",
+      "sourceInfo": "Vendored via go mod vendor. Source at vendor/github.com/kyokomi/emoji/v2/.",
       "versionInfo": "2.2.8"
     },
     {
@@ -662,8 +662,8 @@
           "referenceLocator": "pkg:golang/github.com/lucasb-eyer/go-colorful@1.3.0"
         }
       ],
-      "comment": "Go module (direct). 9 source files compiled into lazygit",
-      "packageSourceInfo": "Vendored via go mod vendor. Source at vendor/github.com/lucasb-eyer/go-colorful/.",
+      "comment": "Go module (direct). Explicitly listed in go.mod require block without '// indirect' comment \u2014 this project imports it directly. 9 source files compiled into lazygit.",
+      "sourceInfo": "Vendored via go mod vendor. Source at vendor/github.com/lucasb-eyer/go-colorful/.",
       "versionInfo": "1.3.0"
     },
     {
@@ -679,8 +679,8 @@
           "referenceLocator": "pkg:golang/github.com/mailru/easyjson@0.7.7"
         }
       ],
-      "comment": "Go module (indirect). 2 source files compiled into lazygit",
-      "packageSourceInfo": "Indirect dependency vendored via go mod vendor.",
+      "comment": "Go module (indirect). Transitive dependency \u2014 not listed directly in go.mod; pulled in by a direct dependency. Identified by '// indirect' comment in go.mod require block. 2 source files compiled into lazygit.",
+      "sourceInfo": "Indirect dependency vendored via go mod vendor.",
       "versionInfo": "0.7.7"
     },
     {
@@ -696,8 +696,8 @@
           "referenceLocator": "pkg:golang/github.com/mattn/go-colorable@0.1.11"
         }
       ],
-      "comment": "Go module (indirect). 2 source files compiled into lazygit",
-      "packageSourceInfo": "Indirect dependency vendored via go mod vendor.",
+      "comment": "Go module (indirect). Transitive dependency \u2014 not listed directly in go.mod; pulled in by a direct dependency. Identified by '// indirect' comment in go.mod require block. 2 source files compiled into lazygit.",
+      "sourceInfo": "Indirect dependency vendored via go mod vendor.",
       "versionInfo": "0.1.11"
     },
     {
@@ -713,8 +713,8 @@
           "referenceLocator": "pkg:golang/github.com/mattn/go-isatty@0.0.14"
         }
       ],
-      "comment": "Go module (indirect). 2 source files compiled into lazygit",
-      "packageSourceInfo": "Indirect dependency vendored via go mod vendor.",
+      "comment": "Go module (indirect). Transitive dependency \u2014 not listed directly in go.mod; pulled in by a direct dependency. Identified by '// indirect' comment in go.mod require block. 2 source files compiled into lazygit.",
+      "sourceInfo": "Indirect dependency vendored via go mod vendor.",
       "versionInfo": "0.0.14"
     },
     {
@@ -730,8 +730,8 @@
           "referenceLocator": "pkg:golang/github.com/mgutz/str@1.2.0"
         }
       ],
-      "comment": "Go module (direct). 3 source files compiled into lazygit",
-      "packageSourceInfo": "Vendored via go mod vendor. Source at vendor/github.com/mgutz/str/.",
+      "comment": "Go module (direct). Explicitly listed in go.mod require block without '// indirect' comment \u2014 this project imports it directly. 3 source files compiled into lazygit.",
+      "sourceInfo": "Vendored via go mod vendor. Source at vendor/github.com/mgutz/str/.",
       "versionInfo": "1.2.0"
     },
     {
@@ -747,8 +747,8 @@
           "referenceLocator": "pkg:golang/github.com/petermattis/goid@0.0.0-20250813065127-a731cc31b4fe"
         }
       ],
-      "comment": "Go module (indirect). 3 source files compiled into lazygit",
-      "packageSourceInfo": "Indirect dependency vendored via go mod vendor.",
+      "comment": "Go module (indirect). Transitive dependency \u2014 not listed directly in go.mod; pulled in by a direct dependency. Identified by '// indirect' comment in go.mod require block. 3 source files compiled into lazygit.",
+      "sourceInfo": "Indirect dependency vendored via go mod vendor.",
       "versionInfo": "0.0.0-20250813065127-a731cc31b4fe"
     },
     {
@@ -764,8 +764,8 @@
           "referenceLocator": "pkg:golang/github.com/pjbgf/sha1cd@0.3.2"
         }
       ],
-      "comment": "Go module (indirect). 9 source files compiled into lazygit",
-      "packageSourceInfo": "Indirect dependency vendored via go mod vendor.",
+      "comment": "Go module (indirect). Transitive dependency \u2014 not listed directly in go.mod; pulled in by a direct dependency. Identified by '// indirect' comment in go.mod require block. 9 source files compiled into lazygit.",
+      "sourceInfo": "Indirect dependency vendored via go mod vendor.",
       "versionInfo": "0.3.2"
     },
     {
@@ -781,8 +781,8 @@
           "referenceLocator": "pkg:golang/github.com/rivo/uniseg@0.4.7"
         }
       ],
-      "comment": "Go module (direct). 18 source files compiled into lazygit",
-      "packageSourceInfo": "Vendored via go mod vendor. Source at vendor/github.com/rivo/uniseg/.",
+      "comment": "Go module (direct). Explicitly listed in go.mod require block without '// indirect' comment \u2014 this project imports it directly. 18 source files compiled into lazygit.",
+      "sourceInfo": "Vendored via go mod vendor. Source at vendor/github.com/rivo/uniseg/.",
       "versionInfo": "0.4.7"
     },
     {
@@ -798,8 +798,8 @@
           "referenceLocator": "pkg:golang/github.com/sahilm/fuzzy@0.1.0"
         }
       ],
-      "comment": "Go module (direct). 1 source files compiled into lazygit",
-      "packageSourceInfo": "Vendored via go mod vendor. Source at vendor/github.com/sahilm/fuzzy/.",
+      "comment": "Go module (direct). Explicitly listed in go.mod require block without '// indirect' comment \u2014 this project imports it directly. 1 source files compiled into lazygit.",
+      "sourceInfo": "Vendored via go mod vendor. Source at vendor/github.com/sahilm/fuzzy/.",
       "versionInfo": "0.1.0"
     },
     {
@@ -815,8 +815,8 @@
           "referenceLocator": "pkg:golang/github.com/samber/lo@1.31.0"
         }
       ],
-      "comment": "Go module (direct). 17 source files compiled into lazygit",
-      "packageSourceInfo": "Vendored via go mod vendor. Source at vendor/github.com/samber/lo/.",
+      "comment": "Go module (direct). Explicitly listed in go.mod require block without '// indirect' comment \u2014 this project imports it directly. 17 source files compiled into lazygit.",
+      "sourceInfo": "Vendored via go mod vendor. Source at vendor/github.com/samber/lo/.",
       "versionInfo": "1.31.0"
     },
     {
@@ -832,8 +832,8 @@
           "referenceLocator": "pkg:golang/github.com/sasha-s/go-deadlock@0.3.6"
         }
       ],
-      "comment": "Go module (direct). 4 source files compiled into lazygit",
-      "packageSourceInfo": "Vendored via go mod vendor. Source at vendor/github.com/sasha-s/go-deadlock/.",
+      "comment": "Go module (direct). Explicitly listed in go.mod require block without '// indirect' comment \u2014 this project imports it directly. 4 source files compiled into lazygit.",
+      "sourceInfo": "Vendored via go mod vendor. Source at vendor/github.com/sasha-s/go-deadlock/.",
       "versionInfo": "0.3.6"
     },
     {
@@ -849,8 +849,8 @@
           "referenceLocator": "pkg:golang/github.com/sergi/go-diff@1.3.2-0.20230802210424-5b0b94c5c0d3"
         }
       ],
-      "comment": "Go module (indirect). 7 source files compiled into lazygit",
-      "packageSourceInfo": "Indirect dependency vendored via go mod vendor.",
+      "comment": "Go module (indirect). Transitive dependency \u2014 not listed directly in go.mod; pulled in by a direct dependency. Identified by '// indirect' comment in go.mod require block. 7 source files compiled into lazygit.",
+      "sourceInfo": "Indirect dependency vendored via go mod vendor.",
       "versionInfo": "1.3.2-0.20230802210424-5b0b94c5c0d3"
     },
     {
@@ -866,8 +866,8 @@
           "referenceLocator": "pkg:golang/github.com/sirupsen/logrus@1.9.3"
         }
       ],
-      "comment": "Go module (direct). 14 source files compiled into lazygit",
-      "packageSourceInfo": "Vendored via go mod vendor. Source at vendor/github.com/sirupsen/logrus/.",
+      "comment": "Go module (direct). Explicitly listed in go.mod require block without '// indirect' comment \u2014 this project imports it directly. 14 source files compiled into lazygit.",
+      "sourceInfo": "Vendored via go mod vendor. Source at vendor/github.com/sirupsen/logrus/.",
       "versionInfo": "1.9.3"
     },
     {
@@ -883,8 +883,8 @@
           "referenceLocator": "pkg:golang/github.com/skeema/knownhosts@1.3.1"
         }
       ],
-      "comment": "Go module (indirect). 1 source files compiled into lazygit",
-      "packageSourceInfo": "Indirect dependency vendored via go mod vendor.",
+      "comment": "Go module (indirect). Transitive dependency \u2014 not listed directly in go.mod; pulled in by a direct dependency. Identified by '// indirect' comment in go.mod require block. 1 source files compiled into lazygit.",
+      "sourceInfo": "Indirect dependency vendored via go mod vendor.",
       "versionInfo": "1.3.1"
     },
     {
@@ -900,8 +900,8 @@
           "referenceLocator": "pkg:golang/github.com/spf13/afero@1.9.5"
         }
       ],
-      "comment": "Go module (direct). 22 source files compiled into lazygit",
-      "packageSourceInfo": "Vendored via go mod vendor. Source at vendor/github.com/spf13/afero/.",
+      "comment": "Go module (direct). Explicitly listed in go.mod require block without '// indirect' comment \u2014 this project imports it directly. 22 source files compiled into lazygit.",
+      "sourceInfo": "Vendored via go mod vendor. Source at vendor/github.com/spf13/afero/.",
       "versionInfo": "1.9.5"
     },
     {
@@ -917,8 +917,8 @@
           "referenceLocator": "pkg:golang/github.com/spkg/bom@0.0.0-20160624110644-59b7046e48ad"
         }
       ],
-      "comment": "Go module (direct). 2 source files compiled into lazygit",
-      "packageSourceInfo": "Vendored via go mod vendor. Source at vendor/github.com/spkg/bom/.",
+      "comment": "Go module (direct). Explicitly listed in go.mod require block without '// indirect' comment \u2014 this project imports it directly. 2 source files compiled into lazygit.",
+      "sourceInfo": "Vendored via go mod vendor. Source at vendor/github.com/spkg/bom/.",
       "versionInfo": "0.0.0-20160624110644-59b7046e48ad"
     },
     {
@@ -934,8 +934,8 @@
           "referenceLocator": "pkg:golang/github.com/stefanhaller/git-todo-parser@0.0.7-0.20250905083220-c50528f08304"
         }
       ],
-      "comment": "Go module (direct). 3 source files compiled into lazygit",
-      "packageSourceInfo": "Vendored via go mod vendor. Source at vendor/github.com/stefanhaller/git-todo-parser/.",
+      "comment": "Go module (direct). Explicitly listed in go.mod require block without '// indirect' comment \u2014 this project imports it directly. 3 source files compiled into lazygit.",
+      "sourceInfo": "Vendored via go mod vendor. Source at vendor/github.com/stefanhaller/git-todo-parser/.",
       "versionInfo": "0.0.7-0.20250905083220-c50528f08304"
     },
     {
@@ -951,8 +951,8 @@
           "referenceLocator": "pkg:golang/github.com/wk8/go-ordered-map/v2@2.1.8"
         }
       ],
-      "comment": "Go module (indirect). 3 source files compiled into lazygit",
-      "packageSourceInfo": "Indirect dependency vendored via go mod vendor.",
+      "comment": "Go module (indirect). Transitive dependency \u2014 not listed directly in go.mod; pulled in by a direct dependency. Identified by '// indirect' comment in go.mod require block. 3 source files compiled into lazygit.",
+      "sourceInfo": "Indirect dependency vendored via go mod vendor.",
       "versionInfo": "2.1.8"
     },
     {
@@ -968,8 +968,8 @@
           "referenceLocator": "pkg:golang/github.com/xanzy/ssh-agent@0.3.3"
         }
       ],
-      "comment": "Go module (indirect). 1 source files compiled into lazygit",
-      "packageSourceInfo": "Indirect dependency vendored via go mod vendor.",
+      "comment": "Go module (indirect). Transitive dependency \u2014 not listed directly in go.mod; pulled in by a direct dependency. Identified by '// indirect' comment in go.mod require block. 1 source files compiled into lazygit.",
+      "sourceInfo": "Indirect dependency vendored via go mod vendor.",
       "versionInfo": "0.3.3"
     },
     {
@@ -985,8 +985,8 @@
           "referenceLocator": "pkg:golang/github.com/xo/terminfo@0.0.0-20210125001918-ca9a967f8778"
         }
       ],
-      "comment": "Go module (direct). 8 source files compiled into lazygit",
-      "packageSourceInfo": "Vendored via go mod vendor. Source at vendor/github.com/xo/terminfo/.",
+      "comment": "Go module (direct). Explicitly listed in go.mod require block without '// indirect' comment \u2014 this project imports it directly. 8 source files compiled into lazygit.",
+      "sourceInfo": "Vendored via go mod vendor. Source at vendor/github.com/xo/terminfo/.",
       "versionInfo": "0.0.0-20210125001918-ca9a967f8778"
     },
     {
@@ -1002,8 +1002,8 @@
           "referenceLocator": "pkg:golang/golang.org/x/crypto@0.45.0"
         }
       ],
-      "comment": "Go module (indirect). 48 source files compiled into lazygit",
-      "packageSourceInfo": "Indirect dependency vendored via go mod vendor.",
+      "comment": "Go module (indirect). Transitive dependency \u2014 not listed directly in go.mod; pulled in by a direct dependency. Identified by '// indirect' comment in go.mod require block. 48 source files compiled into lazygit.",
+      "sourceInfo": "Indirect dependency vendored via go mod vendor.",
       "versionInfo": "0.45.0"
     },
     {
@@ -1019,8 +1019,8 @@
           "referenceLocator": "pkg:golang/golang.org/x/exp@0.0.0-20240719175910-8a7402abbf56"
         }
       ],
-      "comment": "Go module (direct). 6 source files compiled into lazygit",
-      "packageSourceInfo": "Vendored via go mod vendor. Source at vendor/golang.org/x/exp/.",
+      "comment": "Go module (direct). Explicitly listed in go.mod require block without '// indirect' comment \u2014 this project imports it directly. 6 source files compiled into lazygit.",
+      "sourceInfo": "Vendored via go mod vendor. Source at vendor/golang.org/x/exp/.",
       "versionInfo": "0.0.0-20240719175910-8a7402abbf56"
     },
     {
@@ -1036,8 +1036,8 @@
           "referenceLocator": "pkg:golang/golang.org/x/net@0.47.0"
         }
       ],
-      "comment": "Go module (indirect). 8 source files compiled into lazygit",
-      "packageSourceInfo": "Indirect dependency vendored via go mod vendor.",
+      "comment": "Go module (indirect). Transitive dependency \u2014 not listed directly in go.mod; pulled in by a direct dependency. Identified by '// indirect' comment in go.mod require block. 8 source files compiled into lazygit.",
+      "sourceInfo": "Indirect dependency vendored via go mod vendor.",
       "versionInfo": "0.47.0"
     },
     {
@@ -1053,8 +1053,8 @@
           "referenceLocator": "pkg:golang/golang.org/x/sync@0.19.0"
         }
       ],
-      "comment": "Go module (direct). 1 source files compiled into lazygit",
-      "packageSourceInfo": "Vendored via go mod vendor. Source at vendor/golang.org/x/sync/.",
+      "comment": "Go module (direct). Explicitly listed in go.mod require block without '// indirect' comment \u2014 this project imports it directly. 1 source files compiled into lazygit.",
+      "sourceInfo": "Vendored via go mod vendor. Source at vendor/golang.org/x/sync/.",
       "versionInfo": "0.19.0"
     },
     {
@@ -1070,8 +1070,8 @@
           "referenceLocator": "pkg:golang/golang.org/x/sys@0.42.0"
         }
       ],
-      "comment": "Go module (direct). 44 source files compiled into lazygit",
-      "packageSourceInfo": "Vendored via go mod vendor. Source at vendor/golang.org/x/sys/.",
+      "comment": "Go module (direct). Explicitly listed in go.mod require block without '// indirect' comment \u2014 this project imports it directly. 44 source files compiled into lazygit.",
+      "sourceInfo": "Vendored via go mod vendor. Source at vendor/golang.org/x/sys/.",
       "versionInfo": "0.42.0"
     },
     {
@@ -1087,8 +1087,8 @@
           "referenceLocator": "pkg:golang/golang.org/x/term@0.40.0"
         }
       ],
-      "comment": "Go module (indirect). 4 source files compiled into lazygit",
-      "packageSourceInfo": "Indirect dependency vendored via go mod vendor.",
+      "comment": "Go module (indirect). Transitive dependency \u2014 not listed directly in go.mod; pulled in by a direct dependency. Identified by '// indirect' comment in go.mod require block. 4 source files compiled into lazygit.",
+      "sourceInfo": "Indirect dependency vendored via go mod vendor.",
       "versionInfo": "0.40.0"
     },
     {
@@ -1104,8 +1104,8 @@
           "referenceLocator": "pkg:golang/golang.org/x/text@0.34.0"
         }
       ],
-      "comment": "Go module (indirect). 15 source files compiled into lazygit",
-      "packageSourceInfo": "Indirect dependency vendored via go mod vendor.",
+      "comment": "Go module (indirect). Transitive dependency \u2014 not listed directly in go.mod; pulled in by a direct dependency. Identified by '// indirect' comment in go.mod require block. 15 source files compiled into lazygit.",
+      "sourceInfo": "Indirect dependency vendored via go mod vendor.",
       "versionInfo": "0.34.0"
     },
     {
@@ -1121,8 +1121,8 @@
           "referenceLocator": "pkg:golang/gopkg.in/ozeidan/fuzzy-patricia.v3@3.0.0"
         }
       ],
-      "comment": "Go module (direct). 2 source files compiled into lazygit",
-      "packageSourceInfo": "Vendored via go mod vendor. Source at vendor/gopkg.in/ozeidan/fuzzy-patricia.v3/.",
+      "comment": "Go module (direct). Explicitly listed in go.mod require block without '// indirect' comment \u2014 this project imports it directly. 2 source files compiled into lazygit.",
+      "sourceInfo": "Vendored via go mod vendor. Source at vendor/gopkg.in/ozeidan/fuzzy-patricia.v3/.",
       "versionInfo": "3.0.0"
     },
     {
@@ -1138,8 +1138,8 @@
           "referenceLocator": "pkg:golang/gopkg.in/warnings.v0@0.1.2"
         }
       ],
-      "comment": "Go module (indirect). 1 source files compiled into lazygit",
-      "packageSourceInfo": "Indirect dependency vendored via go mod vendor.",
+      "comment": "Go module (indirect). Transitive dependency \u2014 not listed directly in go.mod; pulled in by a direct dependency. Identified by '// indirect' comment in go.mod require block. 1 source files compiled into lazygit.",
+      "sourceInfo": "Indirect dependency vendored via go mod vendor.",
       "versionInfo": "0.1.2"
     },
     {
@@ -1155,8 +1155,8 @@
           "referenceLocator": "pkg:golang/gopkg.in/yaml.v3@3.0.1"
         }
       ],
-      "comment": "Go module (direct). 13 source files compiled into lazygit",
-      "packageSourceInfo": "Vendored via go mod vendor. Source at vendor/gopkg.in/yaml.v3/.",
+      "comment": "Go module (direct). Explicitly listed in go.mod require block without '// indirect' comment \u2014 this project imports it directly. 13 source files compiled into lazygit.",
+      "sourceInfo": "Vendored via go mod vendor. Source at vendor/gopkg.in/yaml.v3/.",
       "versionInfo": "3.0.1"
     }
   ],

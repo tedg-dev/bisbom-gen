@@ -3,9 +3,9 @@
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
   "name": "libavdevice.so",
-  "documentNamespace": "https://omnibor.io/omnibor-analysis/libavdevice.so-8d8c41d0-273e-41bd-b5b6-743cba60ec8c",
+  "documentNamespace": "https://omnibor.io/omnibor-analysis/libavdevice.so-1c5d91eb-f670-4c98-8d3d-f5616ce92eaf",
   "creationInfo": {
-    "created": "2026-05-14T18:00:09Z",
+    "created": "2026-06-22T20:52:37Z",
     "creators": [
       "Tool: bomtrace3-unknown",
       "Tool: bomsh-unknown",
@@ -20,7 +20,7 @@
       "downloadLocation": "https://github.com/FFmpeg/FFmpeg/commit/9047fa1b084f76b1b4d065af2d743df1b40dfb56",
       "filesAnalyzed": true,
       "primaryPackagePurpose": "LIBRARY",
-      "builtDate": "2026-05-14T18:00:09Z",
+      "builtDate": "2026-06-22T20:52:37Z",
       "externalRefs": [],
       "checksums": [],
       "comment": "Built on Ubuntu 22.04.5 LTS with gcc (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0",

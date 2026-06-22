@@ -3,9 +3,9 @@
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
   "name": "redis-server",
-  "documentNamespace": "https://omnibor.io/omnibor-analysis/redis-server-ad70279a-270a-49a9-a130-a1b8ff89caf0",
+  "documentNamespace": "https://omnibor.io/omnibor-analysis/redis-server-6e11a44c-f448-4b46-9aad-14c300566e15",
   "creationInfo": {
-    "created": "2026-05-04T21:57:33Z",
+    "created": "2026-06-22T20:37:24Z",
     "creators": [
       "Tool: bomtrace3-unknown",
       "Tool: bomsh-unknown",
@@ -17,15 +17,15 @@
     {
       "SPDXID": "SPDXRef-Package-root",
       "name": "redis-server",
-      "downloadLocation": "NOASSERTION",
+      "downloadLocation": "https://github.com/redis/redis/commit/f49e5cb2b161418f92f2095c532b85ad24d80819",
       "filesAnalyzed": true,
       "primaryPackagePurpose": "APPLICATION",
-      "builtDate": "2026-05-04T21:57:33Z",
+      "builtDate": "2026-06-22T20:37:24Z",
       "externalRefs": [
         {
           "referenceCategory": "PERSISTENT-ID",
           "referenceType": "gitoid",
-          "referenceLocator": "gitoid:blob:sha1:e3fb4c064f338cc4c7095c03de9368248777cb6c"
+          "referenceLocator": "gitoid:blob:sha1:61c445e5a3d3ca3d959987ce81a0fc604182b68c"
         }
       ],
       "checksums": [
@@ -45,7 +45,7 @@
       "primaryPackagePurpose": "LIBRARY",
       "externalRefs": [],
       "comment": "Vendored source compiled into redis-server. 1 source files.",
-      "packageSourceInfo": "Vendored from redis/fast_float/fast_float/. Source compiled into static archive and linked."
+      "sourceInfo": "Vendored from redis/fast_float/fast_float/. Source compiled into static archive and linked."
     },
     {
       "SPDXID": "SPDXRef-fpconv-3",
@@ -55,7 +55,7 @@
       "primaryPackagePurpose": "LIBRARY",
       "externalRefs": [],
       "comment": "Vendored source compiled into redis-server. 1 source files.",
-      "packageSourceInfo": "Vendored from redis/fpconv/fpconv/. Source compiled into static archive and linked.",
+      "sourceInfo": "Vendored from redis/fpconv/fpconv/. Source compiled into static archive and linked.",
       "versionInfo": "1.0"
     },
     {
@@ -66,7 +66,7 @@
       "primaryPackagePurpose": "LIBRARY",
       "externalRefs": [],
       "comment": "Vendored source compiled into redis-server. 1 source files.",
-      "packageSourceInfo": "Vendored from redis/hdr_histogram/hdr_histogram/. Source compiled into static archive and linked."
+      "sourceInfo": "Vendored from redis/hdr_histogram/hdr_histogram/. Source compiled into static archive and linked."
     },
     {
       "SPDXID": "SPDXRef-hiredis-5",
@@ -76,7 +76,7 @@
       "primaryPackagePurpose": "LIBRARY",
       "externalRefs": [],
       "comment": "Vendored source compiled into redis-server. 6 source files.",
-      "packageSourceInfo": "Vendored from redis/hiredis/hiredis/. Source compiled into static archive and linked.",
+      "sourceInfo": "Vendored from redis/hiredis/hiredis/. Source compiled into static archive and linked.",
       "versionInfo": "1.2.0"
     },
     {
@@ -87,7 +87,7 @@
       "primaryPackagePurpose": "LIBRARY",
       "externalRefs": [],
       "comment": "Vendored source compiled into redis-server. 1 source files.",
-      "packageSourceInfo": "Vendored from redis/jemalloc/jemalloc/. Source compiled into static archive and linked.",
+      "sourceInfo": "Vendored from redis/jemalloc/jemalloc/. Source compiled into static archive and linked.",
       "versionInfo": "5.3.0"
     },
     {
@@ -98,7 +98,7 @@
       "primaryPackagePurpose": "LIBRARY",
       "externalRefs": [],
       "comment": "Vendored source compiled into redis-server. 1 source files.",
-      "packageSourceInfo": "Vendored from redis/linenoise/linenoise/. Source compiled into static archive and linked.",
+      "sourceInfo": "Vendored from redis/linenoise/linenoise/. Source compiled into static archive and linked.",
       "versionInfo": "1.0"
     },
     {
@@ -109,7 +109,7 @@
       "primaryPackagePurpose": "LIBRARY",
       "externalRefs": [],
       "comment": "Vendored source compiled into redis-server. 10 source files.",
-      "packageSourceInfo": "Vendored from redis/lua/lua/. Source compiled into static archive and linked.",
+      "sourceInfo": "Vendored from redis/lua/lua/. Source compiled into static archive and linked.",
       "versionInfo": "5.1.5"
     }
   ],
