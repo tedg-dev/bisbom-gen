@@ -101,14 +101,17 @@ def compare(golden_path, new_path):
             )
 
     # Other scalar package fields (name, license, supplier,
-    # download location, purpose, filesAnalyzed).  A change
-    # in any of these is a real difference that version/ref
-    # comparison alone would miss.
+    # download location, purpose, filesAnalyzed, sourceInfo,
+    # comment).  A change in any of these is a real difference
+    # that version/ref comparison alone would miss.  sourceInfo
+    # and the legacy packageSourceInfo key are both compared so
+    # a rename between them is reported, not silently ignored.
     _pkg_fields = (
         "name", "downloadLocation", "supplier",
         "primaryPackagePurpose", "filesAnalyzed",
         "licenseConcluded", "licenseDeclared",
-        "copyrightText",
+        "copyrightText", "sourceInfo", "comment",
+        "packageSourceInfo",
     )
     for sid in sorted(set(g_by_id) & set(n_by_id)):
         for field in _pkg_fields:

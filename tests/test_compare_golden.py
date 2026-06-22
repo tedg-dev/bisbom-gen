@@ -143,6 +143,43 @@ class TestCompare(_CompareHarness):
         new = _spdx(files=[_file("only_new.java")])
         self.assertTrue(self._compare(golden, new))
 
+    def test_source_info_change_detected(self):
+        golden = _spdx(
+            packages=[_pkg(
+                "SPDXRef-P", "app", sourceInfo="from A",
+            )],
+        )
+        new = _spdx(
+            packages=[_pkg(
+                "SPDXRef-P", "app", sourceInfo="from B",
+            )],
+        )
+        self.assertTrue(self._compare(golden, new))
+
+    def test_comment_change_detected(self):
+        golden = _spdx(
+            packages=[_pkg("SPDXRef-P", "app", comment="old")],
+        )
+        new = _spdx(
+            packages=[_pkg("SPDXRef-P", "app", comment="new")],
+        )
+        self.assertTrue(self._compare(golden, new))
+
+    def test_source_info_rename_detected(self):
+        """Legacy packageSourceInfo -> sourceInfo rename must
+        surface, not be silently ignored."""
+        golden = _spdx(
+            packages=[_pkg(
+                "SPDXRef-P", "app", packageSourceInfo="built X",
+            )],
+        )
+        new = _spdx(
+            packages=[_pkg(
+                "SPDXRef-P", "app", sourceInfo="built X",
+            )],
+        )
+        self.assertTrue(self._compare(golden, new))
+
 
 if __name__ == "__main__":
     unittest.main()
