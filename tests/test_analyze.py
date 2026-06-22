@@ -593,6 +593,35 @@ class TestBomtraceBuilder(unittest.TestCase):
             )
         self.assertFalse(result.success)
 
+    def test_adg_failure_records_real_metrics(self):
+        """On ADG failure the step must record real
+        metrics (not None) so timing aggregation does
+        not crash on ``s.phase``."""
+        runner = MagicMock()
+        runner.run.return_value = 0
+        strategy = MagicMock()
+        strategy.instrument_command.return_value = (
+            "make -j4", {},
+        )
+        strategy.generate_adg.return_value = False
+        builder = BomtraceBuilder(runner)
+        repo_cfg, paths, omnibor = self._cfg()
+
+        with patch("builtins.print"):
+            result = builder.build(
+                "curl", repo_cfg, paths, omnibor,
+                strategy=strategy,
+            )
+        self.assertFalse(result.success)
+        # No None steps slipped in; phase access is safe
+        self.assertTrue(
+            all(s is not None for s in result.steps)
+        )
+        self.assertIn(
+            "phase2",
+            [s.phase for s in result.steps],
+        )
+
     def test_no_strategy_uses_legacy(self):
         runner = MagicMock()
         runner.run.return_value = 0

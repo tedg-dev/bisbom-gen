@@ -37,16 +37,30 @@ docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
 
 **Remote host (Provider: DigitalOcean, AWS, etc.):**
 
-Use the SSH alias and repo path from the active profile:
+The remote repo is kept in sync via **rsync** (it is NOT a git
+clone), so sync the code first, then run.  Use the SSH alias and
+repo path from the active profile:
 
 ```bash
-ssh <SSH_ALIAS> "cd <REPO_PATH> && git pull origin main && docker-compose -f docker/docker-compose.yml run --rm omnibor-env python3 /workspace/app/analyze.py --repo <REPO_NAME>"
+rsync -avz --exclude=.git --exclude=.venv --exclude=repos --exclude=output ./ <SSH_ALIAS>:<REPO_PATH>/
+ssh <SSH_ALIAS> "cd <REPO_PATH> && docker compose -f docker/docker-compose.yml run --rm --remove-orphans omnibor-env python3 /workspace/app/analyze.py --repo <REPO_NAME>"
+```
+
+## 1b. Java sidecar mode (dep:tree, no SYS_PTRACE)
+
+Java repos are analyzed with the `omnibor-sidecar` service in
+**sidecar mode** — dependency capture via `mvn`/`gradle`
+`dependency:tree`, which does not require `SYS_PTRACE`:
+
+```bash
+docker compose -f docker/docker-compose.yml run --rm --remove-orphans omnibor-sidecar \
+  python3 /workspace/app/analyze.py --repo <REPO_NAME> --mode sidecar
 ```
 
 ## 2. Re-run without cloning (repo already exists)
 
 ```bash
-docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
+docker compose -f docker/docker-compose.yml run --rm --remove-orphans omnibor-env \
   python3 /workspace/app/analyze.py --repo <REPO_NAME> --skip-clone
 ```
 

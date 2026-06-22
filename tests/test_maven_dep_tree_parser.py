@@ -442,13 +442,16 @@ class TestRunMavenDepTree(unittest.TestCase):
     def test_failure_returns_none(self, mock_run):
         mock_run.return_value = MagicMock(
             returncode=1,
-            stderr="BUILD FAILURE",
+            stdout="BUILD FAILURE",
+            stderr="",
         )
         with tempfile.TemporaryDirectory() as td:
             (Path(td) / "pom.xml").touch()
             with patch("builtins.print"):
                 result = run_maven_dep_tree(td)
             self.assertIsNone(result)
+        # Offline attempt + online fallback = 2 invocations
+        self.assertEqual(mock_run.call_count, 2)
 
     @patch("app.pipeline.maven_dep_tree_parser"
            ".subprocess.run")
@@ -532,6 +535,63 @@ class TestRunMavenDepTree(unittest.TestCase):
         self.assertIn(
             "-Dcheckstyle.skip=true", cmd,
         )
+
+    @patch("app.pipeline.maven_dep_tree_parser"
+           ".subprocess.run")
+    def test_offline_failure_falls_back_online(
+        self, mock_run,
+    ):
+        """When the offline attempt fails, dep:tree retries
+        online and returns the online output."""
+        mock_run.side_effect = [
+            MagicMock(
+                returncode=1,
+                stdout="No plugin found for prefix "
+                       "'dependency'",
+                stderr="",
+            ),
+            MagicMock(
+                returncode=0,
+                stdout=_SINGLE_MODULE_DOT,
+                stderr="",
+            ),
+        ]
+        with tempfile.TemporaryDirectory() as td:
+            (Path(td) / "pom.xml").touch()
+            with patch("builtins.print"):
+                result = run_maven_dep_tree(td)
+        self.assertEqual(result, _SINGLE_MODULE_DOT)
+        self.assertEqual(mock_run.call_count, 2)
+        # First attempt is offline (-o); the fallback is not
+        first_cmd = mock_run.call_args_list[0][0][0]
+        second_cmd = mock_run.call_args_list[1][0][0]
+        self.assertIn("-o", first_cmd)
+        self.assertNotIn("-o", second_cmd)
+
+    @patch("app.pipeline.maven_dep_tree_parser"
+           ".subprocess.run")
+    def test_both_attempts_fail_logs_stdout(
+        self, mock_run,
+    ):
+        """Maven writes resolution errors to stdout; the
+        final error log must include that output."""
+        mock_run.return_value = MagicMock(
+            returncode=1,
+            stdout="No plugin found for prefix "
+                   "'dependency'",
+            stderr="",
+        )
+        with tempfile.TemporaryDirectory() as td:
+            (Path(td) / "pom.xml").touch()
+            with patch("builtins.print") as mock_print:
+                result = run_maven_dep_tree(td)
+        self.assertIsNone(result)
+        self.assertEqual(mock_run.call_count, 2)
+        printed = " ".join(
+            str(c.args[0])
+            for c in mock_print.call_args_list
+        )
+        self.assertIn("No plugin found", printed)
 
 
 # ============================================================
