@@ -1,5 +1,12 @@
 # Phase Isolation: Build-Time Impact Analysis
 
+> **Superseded (2026-06-24):** The design, recommendations, and
+> implementation plan from this analysis are consolidated into
+> `docs/deep-dive/phase1-build-speed-design.md`, which pairs with the
+> high-level user stories in `docs/planning/phase1-build-speed-subissues.md`.
+> This document is retained for historical reference (the original Q&A and
+> measurements).
+
 **Date:** June 16, 2026
 
 **Context:** Deep-dive investigation into Phase 1 build-time impact,

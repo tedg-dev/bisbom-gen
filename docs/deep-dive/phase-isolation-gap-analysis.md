@@ -1,5 +1,12 @@
 # Phase Isolation Gap Analysis: Phase 2 Dependencies on `repo_dir`
 
+> **Partially consolidated (2026-06-24):** The Java build-speed and
+> duplicate dependency-resolution material (the "Irony" in §2.1 and the
+> related rows in §7) is consolidated into
+> `docs/deep-dive/phase1-build-speed-design.md`. This document is retained
+> as the authoritative **multi-language** phase-isolation audit (C/C++,
+> Rust, Go, Java) and is not fully superseded.
+
 > **Date**: June 16, 2026
 >
 > **Status**: Architecture gap analysis — Phase 2 cannot run independently
