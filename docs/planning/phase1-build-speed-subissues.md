@@ -7,7 +7,7 @@
 | **Drafted** | 2026-06-24 (Cascade) |
 | **Status** | Draft — ready to attach under the chosen parent issue |
 | **Scope** | **Java builds** (Maven and Gradle). Other languages capture inline during the build and are not affected. |
-| **Origin** | Verified findings from `docs/deep-dive/phase-isolation-gap-analysis.md` and `docs/deep-dive/phase-isolation-build-time-analysis.md`. |
+| **Detailed design** | `docs/deep-dive/phase1-build-speed-design.md` (single engineering reference — design, evidence, code-level plan). |
 
 ---
 

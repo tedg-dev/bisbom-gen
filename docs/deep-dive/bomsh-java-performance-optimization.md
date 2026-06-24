@@ -1,5 +1,10 @@
 # `bomsh_create_bom_java.py` Performance Optimization
 
+> **Superseded (2026-06-24):** This delivered optimization is summarized in
+> the consolidated reference `docs/deep-dive/phase1-build-speed-design.md`
+> (Section 3.1). This document is retained for the full root-cause analysis,
+> optimization detail, and EC2 validation measurements.
+
 | **Status** | VALIDATED — golden-clean on EC2 (June 22, 2026) — see EC2 Validation Results |
 |---|---|
 | **Date** | June 16, 2026 (analysis); June 18, 2026 (implementation); June 22, 2026 (EC2 validation) |
