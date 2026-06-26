@@ -25,6 +25,17 @@ from app.spdx.gradle_parser import (
 )
 
 
+def _normalize_project_key(project):
+    """Return a Gradle project path key (``:name`` form).
+
+    ``settings.gradle`` ``include`` directives may use either
+    ``'core'`` or ``':core'``; both map to the project path ``:core``,
+    which also matches the subproject directory name used in the JAR
+    output path (``core/build/libs/...``).
+    """
+    return project if project.startswith(":") else ":" + project
+
+
 def run_gradle_dep_tree(
     repo_dir, project=None, runner=None,
 ):
@@ -88,39 +99,6 @@ def run_gradle_dep_tree(
         return None
 
 
-def parse_gradle_output(output):
-    """Parse Gradle dependency tree into structured dicts.
-
-    Delegates to ``gradle_parser.parse_gradle_dep_tree()``
-    and normalises the output to match the Maven DOT
-    parser format (adds ``is_test``, ``module``,
-    ``packaging`` fields).
-
-    Args:
-        output: Raw stdout from ``./gradlew dependencies``.
-
-    Returns:
-        List of dependency dicts with keys matching
-        ``maven_dep_tree_parser.parse_dot_output()``.
-    """
-    raw_deps = parse_gradle_dep_tree(output)
-    deps = []
-    for d in raw_deps:
-        scope = d.get("scope", "compile")
-        deps.append({
-            "groupId": d["groupId"],
-            "artifactId": d["artifactId"],
-            "version": d["version"],
-            "scope": scope,
-            "packaging": "jar",
-            "direct": d.get("direct", False),
-            "parent": d.get("parent"),
-            "is_test": scope == "test",
-            "module": None,
-        })
-    return deps
-
-
 def find_gradle_subprojects(repo_dir):
     """Discover Gradle subprojects from settings.gradle.
 
@@ -178,46 +156,53 @@ def get_all_gradle_deps(
     repo_dir: str,
     include_subprojects: bool = True,
 ) -> List[dict]:
-    """Get dependencies from all Gradle subprojects.
+    """Get per-subproject dependency subtrees for Phase 1 capture.
+
+    Each Gradle subproject (and the root project) is captured as its
+    own subtree so that Phase 2 can generate a per-subproject
+    ``_build`` SBOM from this metadata alone. There is **no**
+    de-duplication across subprojects — a component used by two
+    subprojects appears under both.
 
     Args:
         repo_dir: Path to the repository root.
-        include_subprojects: If True, iterate over
-            subprojects discovered from settings.gradle.
+        include_subprojects: If True, iterate over subprojects
+            discovered from ``settings.gradle``.
 
     Returns:
-        Combined deduplicated dependency list.
+        A list of module dicts, each with keys:
+
+        - ``key`` — Gradle project path (``":"`` for the root,
+          ``":<name>"`` for a subproject)
+        - ``project`` — the ``settings.gradle`` include name, or
+          None for the root project
+        - ``deps`` — list of dependency dicts in the shape produced
+          by ``app.spdx.gradle_parser.parse_gradle_dep_tree``
+          (``groupId``, ``artifactId``, ``version``, ``scope``,
+          ``direct``, ``optional``, ``parent``, ``depth``).
     """
-    all_deps = []
-    seen = set()
+    modules = []
 
     # Root project
     output = run_gradle_dep_tree(repo_dir)
-    if output:
-        deps = parse_gradle_output(output)
-        for d in deps:
-            key = (d["groupId"], d["artifactId"])
-            if key not in seen:
-                seen.add(key)
-                all_deps.append(d)
+    if output is not None:
+        modules.append({
+            "key": ":",
+            "project": None,
+            "deps": parse_gradle_dep_tree(output),
+        })
 
     # Subprojects
     if include_subprojects:
-        subprojects = find_gradle_subprojects(repo_dir)
-        for proj in subprojects:
+        for proj in find_gradle_subprojects(repo_dir):
             output = run_gradle_dep_tree(
                 repo_dir, project=proj,
             )
-            if output:
-                deps = parse_gradle_output(output)
-                for d in deps:
-                    d["module"] = proj
-                    key = (
-                        d["groupId"],
-                        d["artifactId"],
-                    )
-                    if key not in seen:
-                        seen.add(key)
-                        all_deps.append(d)
+            if output is not None:
+                modules.append({
+                    "key": _normalize_project_key(proj),
+                    "project": proj,
+                    "deps": parse_gradle_dep_tree(output),
+                })
 
-    return all_deps
+    return modules

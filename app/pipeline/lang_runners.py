@@ -310,6 +310,31 @@ def run_java_pipeline(
     return timing
 
 
+def _find_module_dir(jar_path):
+    """Find the build-module directory for an output JAR.
+
+    Walks up from the JAR's build-output directory to the nearest
+    ancestor containing a build file (``pom.xml`` /
+    ``build.gradle`` / ``build.gradle.kts``). Used only by the
+    co-located dev/test live-resolution fallback; the enterprise
+    path never reads the source tree.
+
+    Returns the module directory as a string, or None if not found.
+    """
+    jar_dir = jar_path.parent
+    build_files = (
+        "pom.xml", "build.gradle", "build.gradle.kts",
+    )
+    for parent in [
+        jar_dir, jar_dir.parent, jar_dir.parent.parent,
+    ]:
+        if any(
+            (parent / bf).exists() for bf in build_files
+        ):
+            return str(parent)
+    return None
+
+
 def generate_java_adg_spdx(
     repo_name, repo_cfg, paths_cfg, run_ts,
     vcs_uri="NOASSERTION",
@@ -327,6 +352,10 @@ def generate_java_adg_spdx(
     """
     from app.pipeline.maven_plugin_detector import (
         detect_repackaging_plugins,
+    )
+    from app.spdx.dep_capture_reader import (
+        get_module_deps,
+        load_capture,
     )
     from app.spdx.java_generator import JavaSpdxGenerator
     from app.spdx.parser import AdgParser
@@ -409,6 +438,14 @@ def generate_java_adg_spdx(
         vcs_uri=vcs_uri,
     )
 
+    # Phase 2 generates _build SBOMs from the Phase 1 dependency
+    # capture (no source-tree access).  ``source_present`` marks a
+    # co-located dev/test run, where a live-resolution fallback is
+    # permitted if the capture is missing; the enterprise path
+    # (no source tree) fails loudly instead.
+    capture = load_capture(bom_dir)
+    source_present = repo_dir.exists()
+
     results = []
     for jar_path in jar_paths:
         jar_name = jar_path.stem  # e.g. jsoup-1.22.1
@@ -444,26 +481,45 @@ def generate_java_adg_spdx(
             )
             continue
 
-        # Determine module dir for per-module dependency
-        # resolution (Maven: pom.xml, Gradle: build.gradle)
-        pom_dir = None
-        jar_dir = jar_path.parent
-        # Walk up from build output dir to find module root
-        build_files = (
-            "pom.xml", "build.gradle", "build.gradle.kts"
+        # Resolve this JAR's dependency subtree from the Phase 1
+        # capture (no source-tree access).  The module is identified
+        # from artifact metadata that travels with the JAR: its
+        # artifactId / subproject name and its build-output path.
+        artifact_name = (
+            JavaSpdxGenerator._extract_artifact_name(bin_name)
         )
-        for parent in [
-            jar_dir, jar_dir.parent,
-            jar_dir.parent.parent,
-        ]:
-            if any(
-                (parent / bf).exists()
-                for bf in build_files
-            ):
-                pom_dir = str(parent)
-                break
+        build_deps = None
+        if capture is not None:
+            build_deps = get_module_deps(
+                capture, artifact_name, rel_jar,
+            )
 
-        # Analyzed: only source files in this JAR
+        # Decide the _build dependency source.  Per design, the
+        # enterprise path (no source tree) fails loudly when the
+        # capture lacks this module; a co-located dev/test run may
+        # fall back to live resolution from the source tree.
+        pom_dir = None
+        build_ok = True
+        if build_deps is None:
+            if source_present:
+                print(
+                    f"[WARN] {bin_name}: no Phase 1 dependency "
+                    f"metadata; falling back to live resolution "
+                    f"(co-located dev/test path)"
+                )
+                pom_dir = _find_module_dir(jar_path)
+            else:
+                print(
+                    f"[ERROR] {bin_name}: no Phase 1 dependency "
+                    f"metadata and no source tree — cannot "
+                    f"generate _build SBOM (enterprise Phase 2 "
+                    f"requires the capture); skipping _build"
+                )
+                build_ok = False
+
+        # Analyzed: only source files in this JAR.  It never needs
+        # dependencies, so pass deps=[] to keep it off the source
+        # tree entirely.
         analyzed_path = (
             spdx_dir
             / f"{jar_name}_analyzed.spdx.json"
@@ -473,27 +529,31 @@ def generate_java_adg_spdx(
             binary_name=bin_name,
             sbom_type="analyzed",
             jar_files=jar_files,
-            pom_dir=pom_dir,
+            deps=[],
             plugin_detection=plugin_result,
         )
         if result:
             results.append(result)
 
-        # Build: full dependency graph for this module
-        build_path = (
-            spdx_dir
-            / f"{jar_name}_build.spdx.json"
-        )
-        result = gen.generate(
-            output_path=str(build_path),
-            binary_name=bin_name,
-            sbom_type="build",
-            jar_files=jar_files,
-            pom_dir=pom_dir,
-            plugin_detection=plugin_result,
-        )
-        if result:
-            results.append(result)
+        # Build: full dependency graph for this module, from the
+        # captured metadata (build_deps) or the co-located live
+        # fallback (build_deps is None with pom_dir set).
+        if build_ok:
+            build_path = (
+                spdx_dir
+                / f"{jar_name}_build.spdx.json"
+            )
+            result = gen.generate(
+                output_path=str(build_path),
+                binary_name=bin_name,
+                sbom_type="build",
+                jar_files=jar_files,
+                pom_dir=pom_dir,
+                deps=build_deps,
+                plugin_detection=plugin_result,
+            )
+            if result:
+                results.append(result)
 
     return results
 

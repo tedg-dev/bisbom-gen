@@ -13,7 +13,6 @@ from pathlib import Path
 from unittest.mock import patch, MagicMock
 
 from app.pipeline.gradle_dep_tree_parser import (
-    parse_gradle_output,
     run_gradle_dep_tree,
     find_gradle_subprojects,
 )
@@ -44,119 +43,6 @@ _SINGLE_PROJECT_OUTPUT = (
     '     \\--- com.fasterxml.jackson.core'
     ':jackson-annotations:2.16.0\n'
 )
-
-# ============================================================
-# Fixture: version conflict
-# ============================================================
-
-_VERSION_CONFLICT_OUTPUT = """\
-runtimeClasspath - Runtime classpath of source set 'main'.
-+--- org.slf4j:slf4j-api:2.0.7
-+--- com.example:lib-a:1.0.0
-|    \\--- org.slf4j:slf4j-api:1.7.36 -> 2.0.7 (*)
-\\--- com.example:lib-b:2.0.0
-     \\--- org.slf4j:slf4j-api:2.0.0 -> 2.0.7 (*)
-"""
-
-# ============================================================
-# Fixture: empty output
-# ============================================================
-
-_EMPTY_OUTPUT = """\
-runtimeClasspath - Runtime classpath of source set 'main'.
-No dependencies
-"""
-
-
-# ============================================================
-# Tests: parse_gradle_output
-# ============================================================
-
-class TestParseGradleOutput(unittest.TestCase):
-    """Tests for parse_gradle_output()."""
-
-    def test_single_project_deps(self):
-        deps = parse_gradle_output(
-            _SINGLE_PROJECT_OUTPUT,
-        )
-        names = {d["artifactId"] for d in deps}
-        self.assertIn("slf4j-api", names)
-        self.assertIn("guava", names)
-        self.assertIn("commons-lang3", names)
-        self.assertIn("jackson-databind", names)
-
-    def test_transitive_deps(self):
-        deps = parse_gradle_output(
-            _SINGLE_PROJECT_OUTPUT,
-        )
-        transitive = [
-            d for d in deps if not d["direct"]
-        ]
-        names = {d["artifactId"] for d in transitive}
-        self.assertIn("failureaccess", names)
-        self.assertIn("jackson-core", names)
-
-    def test_direct_deps(self):
-        deps = parse_gradle_output(
-            _SINGLE_PROJECT_OUTPUT,
-        )
-        direct = [d for d in deps if d["direct"]]
-        self.assertEqual(len(direct), 4)
-
-    def test_output_format_has_required_keys(self):
-        deps = parse_gradle_output(
-            _SINGLE_PROJECT_OUTPUT,
-        )
-        required = {
-            "groupId", "artifactId", "version",
-            "scope", "packaging", "direct",
-            "parent", "is_test", "module",
-        }
-        for d in deps:
-            self.assertTrue(
-                required.issubset(d.keys()),
-                f"Missing keys in {d}",
-            )
-
-    def test_packaging_defaults_to_jar(self):
-        deps = parse_gradle_output(
-            _SINGLE_PROJECT_OUTPUT,
-        )
-        for d in deps:
-            self.assertEqual(d["packaging"], "jar")
-
-    def test_version_conflict_resolved(self):
-        deps = parse_gradle_output(
-            _VERSION_CONFLICT_OUTPUT,
-        )
-        slf4j = [
-            d for d in deps
-            if d["artifactId"] == "slf4j-api"
-        ]
-        self.assertEqual(len(slf4j), 1)
-        self.assertEqual(slf4j[0]["version"], "2.0.7")
-
-    def test_empty_output(self):
-        deps = parse_gradle_output(_EMPTY_OUTPUT)
-        self.assertEqual(deps, [])
-
-    def test_empty_string(self):
-        deps = parse_gradle_output("")
-        self.assertEqual(deps, [])
-
-    def test_scope_is_compile(self):
-        deps = parse_gradle_output(
-            _SINGLE_PROJECT_OUTPUT,
-        )
-        for d in deps:
-            self.assertEqual(d["scope"], "compile")
-
-    def test_not_test_scope(self):
-        deps = parse_gradle_output(
-            _SINGLE_PROJECT_OUTPUT,
-        )
-        for d in deps:
-            self.assertFalse(d["is_test"])
 
 
 # ============================================================
@@ -320,8 +206,12 @@ class TestGradleDepTreeStrategy(unittest.TestCase):
                     "/repo", str(bom_dir), {},
                 )
             self.assertTrue(ok)
-            self.assertTrue(
-                (bom_dir / "gradle_deps.json").exists()
+            capture_file = bom_dir / "gradle_deps.json"
+            self.assertTrue(capture_file.exists())
+            capture = json.loads(capture_file.read_text())
+            self.assertEqual(capture["tool"], "gradle")
+            self.assertEqual(
+                capture["modules"][0]["key"], ":",
             )
             substeps_file = (
                 bom_dir / "adg_substeps.json"
@@ -442,58 +332,55 @@ class TestFindGradleSubprojectsEdge(unittest.TestCase):
 
 
 class TestGetAllGradleDeps(unittest.TestCase):
-    """Tests for get_all_gradle_deps."""
+    """Tests for get_all_gradle_deps (per-subproject capture)."""
 
     @patch(
         "app.pipeline.gradle_dep_tree_parser"
         ".run_gradle_dep_tree"
     )
-    def test_subproject_deps_merged(self, mock_run):
+    def test_per_subproject_modules(self, mock_run):
         from app.pipeline.gradle_dep_tree_parser import (
             get_all_gradle_deps,
         )
         mock_run.side_effect = [
             # Root project
-            (
-                "runtimeClasspath\n"
-                "+--- com.a:b:1.0\n"
-            ),
+            "runtimeClasspath\n+--- com.a:b:1.0\n",
             # Subproject
-            (
-                "runtimeClasspath\n"
-                "+--- com.c:d:2.0\n"
-            ),
+            "runtimeClasspath\n+--- com.c:d:2.0\n",
         ]
         with tempfile.TemporaryDirectory() as td:
             s = Path(td) / "settings.gradle"
             s.write_text("include 'sub'\n")
-            deps = get_all_gradle_deps(td)
-        self.assertEqual(len(deps), 2)
+            modules = get_all_gradle_deps(td)
+        self.assertEqual(len(modules), 2)
+        keys = {m["key"] for m in modules}
+        self.assertIn(":", keys)
+        self.assertIn(":sub", keys)
 
     @patch(
         "app.pipeline.gradle_dep_tree_parser"
         ".run_gradle_dep_tree"
     )
-    def test_dedup_across_projects(self, mock_run):
+    def test_no_cross_subproject_dedup(self, mock_run):
+        """A dependency used by two subprojects must appear in
+        BOTH module subtrees (no cross-subproject dedup)."""
         from app.pipeline.gradle_dep_tree_parser import (
             get_all_gradle_deps,
         )
         mock_run.side_effect = [
-            (
-                "runtimeClasspath\n"
-                "+--- com.a:b:1.0\n"
-            ),
-            (
-                "runtimeClasspath\n"
-                "+--- com.a:b:1.0\n"
-            ),
+            "runtimeClasspath\n+--- com.a:b:1.0\n",
+            "runtimeClasspath\n+--- com.a:b:1.0\n",
         ]
         with tempfile.TemporaryDirectory() as td:
             s = Path(td) / "settings.gradle"
             s.write_text("include 'sub'\n")
-            deps = get_all_gradle_deps(td)
-        # Deduped: same groupId:artifactId
-        self.assertEqual(len(deps), 1)
+            modules = get_all_gradle_deps(td)
+        self.assertEqual(len(modules), 2)
+        for module in modules:
+            names = {
+                d["artifactId"] for d in module["deps"]
+            }
+            self.assertIn("b", names)
 
 
 if __name__ == "__main__":

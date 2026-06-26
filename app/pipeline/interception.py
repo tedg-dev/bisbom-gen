@@ -322,7 +322,7 @@ class MavenDepTreeStrategy(InterceptionStrategy):
             True on success, False on failure.
         """
         from app.pipeline.maven_dep_tree_parser import (
-            parse_dot_output,
+            parse_text_output,
             run_maven_dep_tree,
         )
 
@@ -369,9 +369,12 @@ class MavenDepTreeStrategy(InterceptionStrategy):
             f"{treedb_file} ({treedb_sec:.1f}s)"
         )
 
-        # Step 2: Capture Maven dependency graph
+        # Step 2: Capture Maven dependency graph (per-module).
+        # Default text output is parsed into per-module subtrees so
+        # Phase 2 can generate per-module ``_build`` SBOMs from this
+        # metadata alone, with no source-tree access.
         t0 = time.monotonic()
-        dot_output = run_maven_dep_tree(
+        tree_output = run_maven_dep_tree(
             repo_dir, runner=self._runner,
             maven_modules=self._maven_modules,
         )
@@ -381,24 +384,26 @@ class MavenDepTreeStrategy(InterceptionStrategy):
             "tool": "mvn dependency:tree",
             "wall_sec": round(deptree_sec, 2),
         })
-        if dot_output is None:
+        if tree_output is None:
             _write_adg_substeps(bom_path, substeps)
             return False
 
-        deps = parse_dot_output(dot_output)
-        if not deps:
+        modules = parse_text_output(tree_output)
+        capture = {"tool": "maven", "modules": modules}
+        if not modules:
             print(
-                "[WARN] No dependencies found in "
+                "[WARN] No modules found in "
                 "mvn dependency:tree output"
             )
 
         out_file = bom_path / "maven_deps.json"
         with open(out_file, "w", encoding="utf-8") as f:
-            json.dump(deps, f, indent=2)
+            json.dump(capture, f, indent=2)
 
+        dep_total = sum(len(m["deps"]) for m in modules)
         print(
-            f"[OK] Maven dep:tree: "
-            f"{len(deps)} dependencies → {out_file}"
+            f"[OK] Maven dep:tree: {len(modules)} modules, "
+            f"{dep_total} dependencies → {out_file}"
             f" ({deptree_sec:.1f}s)"
         )
         _write_adg_substeps(bom_path, substeps)
@@ -503,28 +508,33 @@ class GradleDepTreeStrategy(InterceptionStrategy):
             f"{treedb_file} ({treedb_sec:.1f}s)"
         )
 
-        # Step 2: Capture Gradle dependency graph
+        # Step 2: Capture Gradle dependency graph (per-subproject).
+        # Captured per subproject so Phase 2 can generate per-module
+        # ``_build`` SBOMs from this metadata alone, with no
+        # source-tree access.
         t0 = time.monotonic()
-        deps = get_all_gradle_deps(repo_dir)
+        modules = get_all_gradle_deps(repo_dir)
+        capture = {"tool": "gradle", "modules": modules}
         deptree_sec = time.monotonic() - t0
         substeps.append({
             "name": "dep_tree",
             "tool": "gradlew dependencies",
             "wall_sec": round(deptree_sec, 2),
         })
-        if not deps:
+        if not modules:
             print(
-                "[WARN] No dependencies found in "
+                "[WARN] No subprojects found in "
                 "Gradle dependency tree"
             )
 
         out_file = bom_path / "gradle_deps.json"
         with open(out_file, "w", encoding="utf-8") as f:
-            json.dump(deps, f, indent=2)
+            json.dump(capture, f, indent=2)
 
+        dep_total = sum(len(m["deps"]) for m in modules)
         print(
-            f"[OK] Gradle dep:tree: "
-            f"{len(deps)} dependencies → {out_file}"
+            f"[OK] Gradle dep:tree: {len(modules)} subprojects, "
+            f"{dep_total} dependencies → {out_file}"
             f" ({deptree_sec:.1f}s)"
         )
         _write_adg_substeps(bom_path, substeps)
