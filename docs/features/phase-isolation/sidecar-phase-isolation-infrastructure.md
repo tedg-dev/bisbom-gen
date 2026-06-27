@@ -16,11 +16,11 @@ manifest format, CLI flags, config schema, Corona integration, Docker
 setup, and the testing framework. Each language has its own design doc
 with strategy details, Phase 1/2 artifacts, and implementation tasks:
 
-- **`sidecar-c-cpp-design.md`** — `CcWrapperStrategy`, upstream bomsh wrappers, version pre-computation
-- **`sidecar-java-design.md`** — `MavenDepTreeStrategy`/`GradleDepTreeStrategy` (already implemented)
-- **`sidecar-go-design.md`** — `GoToolexecStrategy`, `-a` flag interaction
-- **`sidecar-rust-design.md`** — `RustcWrapperStrategy`, `RUSTC_WRAPPER` vs `RUSTC_WORKSPACE_WRAPPER`
-- **`sidecar-python-design.md`** — metadata-only pipeline (future)
+- **`docs/deep-dive/c-cpp/sidecar-design.md`** — `CcWrapperStrategy`, upstream bomsh wrappers, version pre-computation
+- **`docs/deep-dive/java/sidecar-design.md`** — `MavenDepTreeStrategy`/`GradleDepTreeStrategy` (already implemented)
+- **`docs/deep-dive/go/sidecar-design.md`** — `GoToolexecStrategy`, `-a` flag interaction
+- **`docs/deep-dive/rust/sidecar-design.md`** — `RustcWrapperStrategy`, `RUSTC_WRAPPER` vs `RUSTC_WORKSPACE_WRAPPER`
+- **`docs/deep-dive/python/sidecar-design.md`** — metadata-only pipeline (future)
 
 ---
 

@@ -2,7 +2,8 @@
 
 | | |
 |---|---|
-| **Parent issue** | TBD — to be assigned by the user |
+| **Main issue** | Faster SBOM Generation for Java Builds (Retrospective) |
+| **Epic** | Single epic — this main issue is added to it later by the issues team |
 | **Type** | Retrospective (work already completed) |
 | **Scope** | **Java builds only** (Maven and Gradle). |
 | **Status** | DONE — merged & EC2-validated golden-clean (June 22, 2026) |
@@ -43,7 +44,7 @@ version so behavior stays stable over time.
 faster — the previously dominant stage dropped from roughly four minutes to
 a matter of seconds on the projects measured — with no change to the
 resulting SBOM. Full measurements are in
-`docs/deep-dive/bomsh-java-performance-optimization.md`.
+`docs/_archived/performance/bomsh-java-performance-optimization.md`.
 
 **Acceptance Criteria (Confirmation — all met)**
 
@@ -70,7 +71,7 @@ resulting SBOM. Full measurements are in
 
 Delivered in PRs #189 (primary), #187, and #191. Full technical detail,
 method, and measurements live in
-`docs/deep-dive/bomsh-java-performance-optimization.md`.
+`docs/_archived/performance/bomsh-java-performance-optimization.md`.
 
 ---
 

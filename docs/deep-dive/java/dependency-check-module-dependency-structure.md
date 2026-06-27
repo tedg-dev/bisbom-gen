@@ -6,7 +6,7 @@
 | **Authors** | Ted G. (architect), Cascade AI |
 | **Status** | Reference — validated on EC2 (sidecar mode, v9.2.0) |
 | **Applies to** | `dependency-check` target repo (OWASP DependencyCheck) |
-| **Related** | `bomsh-java-performance-optimization.md`, `phase2-binary-artifact-dependencies.md` |
+| **Related** | `docs/_archived/performance/bomsh-java-performance-optimization.md`, `docs/deep-dive/phase2-binary-artifact-dependencies.md` |
 
 ---
 
@@ -220,7 +220,7 @@ artifact users actually run, so omitting its SBOM was a real gap.
 
 As a bonus, the treedb build step for this repo dropped from roughly
 **244 s to 19.5 s** (about 12x faster) — see
-`bomsh-java-performance-optimization.md`.
+`docs/_archived/performance/bomsh-java-performance-optimization.md`.
 
 ---
 
