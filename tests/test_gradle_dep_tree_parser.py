@@ -14,7 +14,10 @@ from unittest.mock import patch, MagicMock
 
 from app.pipeline.gradle_dep_tree_parser import (
     run_gradle_dep_tree,
+    run_gradle_all_dep_trees,
     find_gradle_subprojects,
+    get_all_gradle_deps,
+    _split_dep_report_sections,
 )
 
 
@@ -42,6 +45,30 @@ _SINGLE_PROJECT_OUTPUT = (
     ':jackson-core:2.16.0\n'
     '     \\--- com.fasterxml.jackson.core'
     ':jackson-annotations:2.16.0\n'
+)
+
+
+# ============================================================
+# Fixture: aggregated multi-project report (single invocation)
+# ============================================================
+
+_DASHES = "-" * 60
+_MULTI_PROJECT_REPORT = (
+    "> Task :util:omniborDeps\n\n"
+    f"{_DASHES}\n"
+    # ':util' carries a ' - description' suffix to exercise the
+    # header regex's optional trailing text.
+    "Project ':util' - Example utility module\n"
+    f"{_DASHES}\n\n"
+    "runtimeClasspath - Runtime classpath of source set 'main'.\n"
+    "+--- com.a:b:1.0\n"
+    "\\--- com.c:d:2.0\n\n"
+    "> Task :core:omniborDeps\n\n"
+    f"{_DASHES}\n"
+    "Project ':core'\n"
+    f"{_DASHES}\n\n"
+    "runtimeClasspath - Runtime classpath of source set 'main'.\n"
+    "+--- com.e:f:3.0\n"
 )
 
 
@@ -288,7 +315,10 @@ class TestRunGradleDepTreeEdge(unittest.TestCase):
     )
     def test_file_not_found(self, mock_run):
         mock_run.side_effect = FileNotFoundError
-        result = run_gradle_dep_tree("/repo")
+        with tempfile.TemporaryDirectory() as td:
+            (Path(td) / "gradlew").touch()
+            with patch("builtins.print"):
+                result = run_gradle_dep_tree(td)
         self.assertIsNone(result)
 
     @patch(
@@ -331,17 +361,140 @@ class TestFindGradleSubprojectsEdge(unittest.TestCase):
         self.assertIn(":sub2", result)
 
 
-class TestGetAllGradleDeps(unittest.TestCase):
-    """Tests for get_all_gradle_deps (per-subproject capture)."""
+class TestRunGradleAllDepTrees(unittest.TestCase):
+    """Tests for run_gradle_all_dep_trees (single invocation)."""
+
+    def test_no_gradlew_returns_none(self):
+        with tempfile.TemporaryDirectory() as td:
+            with patch("builtins.print"):
+                self.assertIsNone(run_gradle_all_dep_trees(td))
+
+    @patch("app.pipeline.gradle_dep_tree_parser.subprocess.run")
+    def test_success_flags_and_cleanup(self, mock_run):
+        mock_run.return_value = MagicMock(
+            returncode=0, stdout=_MULTI_PROJECT_REPORT,
+        )
+        with tempfile.TemporaryDirectory() as td:
+            (Path(td) / "gradlew").touch()
+            out = run_gradle_all_dep_trees(td)
+        self.assertEqual(out, _MULTI_PROJECT_REPORT)
+        cmd = mock_run.call_args[0][0]
+        self.assertIn("omniborDeps", cmd)
+        self.assertIn("--init-script", cmd)
+        self.assertIn("--offline", cmd)
+        self.assertIn("--continue", cmd)
+        self.assertNotIn("-q", cmd)
+        # The temp init script is removed after the invocation.
+        init_path = cmd[cmd.index("--init-script") + 1]
+        self.assertFalse(Path(init_path).exists())
+
+    @patch("app.pipeline.gradle_dep_tree_parser.subprocess.run")
+    def test_empty_stdout_returns_none(self, mock_run):
+        mock_run.return_value = MagicMock(returncode=0, stdout="")
+        with tempfile.TemporaryDirectory() as td:
+            (Path(td) / "gradlew").touch()
+            self.assertIsNone(run_gradle_all_dep_trees(td))
+
+    @patch("app.pipeline.gradle_dep_tree_parser.subprocess.run")
+    def test_timeout_returns_none(self, mock_run):
+        mock_run.side_effect = subprocess.TimeoutExpired("gradlew", 600)
+        with tempfile.TemporaryDirectory() as td:
+            (Path(td) / "gradlew").touch()
+            with patch("builtins.print"):
+                self.assertIsNone(run_gradle_all_dep_trees(td))
+
+    @patch("app.pipeline.gradle_dep_tree_parser.subprocess.run")
+    def test_file_not_found_returns_none(self, mock_run):
+        mock_run.side_effect = FileNotFoundError
+        with tempfile.TemporaryDirectory() as td:
+            (Path(td) / "gradlew").touch()
+            with patch("builtins.print"):
+                self.assertIsNone(run_gradle_all_dep_trees(td))
+
+    @patch("app.pipeline.gradle_dep_tree_parser.subprocess.run")
+    def test_cleanup_oserror_swallowed(self, mock_run):
+        """A failure to delete the temp init script must not raise."""
+        mock_run.return_value = MagicMock(
+            returncode=0, stdout=_MULTI_PROJECT_REPORT,
+        )
+        with tempfile.TemporaryDirectory() as td:
+            (Path(td) / "gradlew").touch()
+            with patch(
+                "app.pipeline.gradle_dep_tree_parser.os.unlink",
+                side_effect=OSError,
+            ):
+                out = run_gradle_all_dep_trees(td)
+        self.assertEqual(out, _MULTI_PROJECT_REPORT)
+        # os.unlink is restored here; clean up the leaked temp file.
+        init_path = mock_run.call_args[0][0][
+            mock_run.call_args[0][0].index("--init-script") + 1
+        ]
+        Path(init_path).unlink(missing_ok=True)
+
+
+class TestSplitDepReportSections(unittest.TestCase):
+    """Tests for _split_dep_report_sections."""
+
+    def test_splits_projects(self):
+        sections = _split_dep_report_sections(_MULTI_PROJECT_REPORT)
+        self.assertEqual(set(sections), {":util", ":core"})
+
+    def test_description_suffix_handled(self):
+        sections = _split_dep_report_sections(_MULTI_PROJECT_REPORT)
+        self.assertIn("com.a:b:1.0", sections[":util"])
+
+    def test_root_project_key(self):
+        report = (
+            f"{_DASHES}\n"
+            "Root project 'demo'\n"
+            f"{_DASHES}\n"
+            "runtimeClasspath\n"
+            "+--- com.x:y:1.0\n"
+        )
+        sections = _split_dep_report_sections(report)
+        self.assertIn(":", sections)
+
+    def test_no_headers_empty(self):
+        self.assertEqual(
+            _split_dep_report_sections("no headers here"), {},
+        )
+
+
+class TestGetAllGradleDepsPrimary(unittest.TestCase):
+    """get_all_gradle_deps uses the single-invocation report."""
 
     @patch(
-        "app.pipeline.gradle_dep_tree_parser"
-        ".run_gradle_dep_tree"
+        "app.pipeline.gradle_dep_tree_parser.run_gradle_all_dep_trees"
     )
-    def test_per_subproject_modules(self, mock_run):
-        from app.pipeline.gradle_dep_tree_parser import (
-            get_all_gradle_deps,
-        )
+    def test_single_invocation_parses_modules(self, mock_all):
+        mock_all.return_value = _MULTI_PROJECT_REPORT
+        modules = get_all_gradle_deps("/repo")
+        keys = {m["key"] for m in modules}
+        self.assertEqual(keys, {":util", ":core"})
+        util = next(m for m in modules if m["key"] == ":util")
+        names = {d["artifactId"] for d in util["deps"]}
+        self.assertEqual(names, {"b", "d"})
+
+    @patch(
+        "app.pipeline.gradle_dep_tree_parser.run_gradle_all_dep_trees"
+    )
+    def test_project_field_derived_from_key(self, mock_all):
+        mock_all.return_value = _MULTI_PROJECT_REPORT
+        modules = get_all_gradle_deps("/repo")
+        util = next(m for m in modules if m["key"] == ":util")
+        self.assertEqual(util["project"], "util")
+
+
+class TestGetAllGradleDepsFallback(unittest.TestCase):
+    """Falls back to per-subproject capture when the single-invocation
+    report yields no parseable sections."""
+
+    @patch(
+        "app.pipeline.gradle_dep_tree_parser.run_gradle_all_dep_trees"
+    )
+    @patch("app.pipeline.gradle_dep_tree_parser.run_gradle_dep_tree")
+    def test_per_subproject_modules(self, mock_run, mock_all):
+        mock_all.return_value = None
         mock_run.side_effect = [
             # Root project
             "runtimeClasspath\n+--- com.a:b:1.0\n",
@@ -354,19 +507,16 @@ class TestGetAllGradleDeps(unittest.TestCase):
             modules = get_all_gradle_deps(td)
         self.assertEqual(len(modules), 2)
         keys = {m["key"] for m in modules}
-        self.assertIn(":", keys)
-        self.assertIn(":sub", keys)
+        self.assertEqual(keys, {":", ":sub"})
 
     @patch(
-        "app.pipeline.gradle_dep_tree_parser"
-        ".run_gradle_dep_tree"
+        "app.pipeline.gradle_dep_tree_parser.run_gradle_all_dep_trees"
     )
-    def test_no_cross_subproject_dedup(self, mock_run):
+    @patch("app.pipeline.gradle_dep_tree_parser.run_gradle_dep_tree")
+    def test_no_cross_subproject_dedup(self, mock_run, mock_all):
         """A dependency used by two subprojects must appear in
         BOTH module subtrees (no cross-subproject dedup)."""
-        from app.pipeline.gradle_dep_tree_parser import (
-            get_all_gradle_deps,
-        )
+        mock_all.return_value = None
         mock_run.side_effect = [
             "runtimeClasspath\n+--- com.a:b:1.0\n",
             "runtimeClasspath\n+--- com.a:b:1.0\n",
