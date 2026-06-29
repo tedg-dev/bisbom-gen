@@ -40,6 +40,58 @@ def _write_adg_substeps(bom_path, substeps):
         json.dump(substeps, f, indent=2)
 
 
+def _generate_java_treedb(
+    runner, repo_dir, meta_dir, omnibor_cfg, substeps,
+):
+    """Generate the OmniBOR treedb for a Java workspace.
+
+    Runs ``bomsh_create_bom_java.py`` to map JAR -> class ->
+    source from the built workspace.  This step is
+    **build-tool-agnostic** (it inspects compiled artifacts,
+    not build files) and is shared by every Java sidecar
+    strategy.  Appends a ``treedb`` timing entry to *substeps*.
+
+    Args:
+        runner: ``CommandRunner`` used to invoke the script.
+        repo_dir: Path to the built repository workspace.
+        meta_dir: ``Path`` to the bomsh metadata directory
+            where the treedb is written.
+        omnibor_cfg: The ``omnibor`` config section.
+        substeps: Mutable list of timing dicts; a ``treedb``
+            entry is appended.
+
+    Returns:
+        True on success, False if the script fails.
+    """
+    create_bom = omnibor_cfg.get(
+        "create_bom_script",
+        "bomsh_create_bom_java.py",
+    )
+    treedb_file = meta_dir / "bomsh_omnibor_treedb"
+    t0 = time.monotonic()
+    rc = runner.run(
+        f"{create_bom} -r {repo_dir} -j {treedb_file}",
+        cwd=str(repo_dir),
+        description=(
+            "Generating OmniBOR treedb for Java workspace"
+        ),
+    )
+    treedb_sec = time.monotonic() - t0
+    substeps.append({
+        "name": "treedb",
+        "tool": "bomsh_create_bom_java.py",
+        "wall_sec": round(treedb_sec, 2),
+    })
+    if rc != 0:
+        print("[ERROR] bomsh_create_bom_java.py failed")
+        return False
+    print(
+        f"[OK] OmniBOR treedb written to "
+        f"{treedb_file} ({treedb_sec:.1f}s)"
+    )
+    return True
+
+
 class InterceptionStrategy(ABC):
     """Defines how a build is instrumented for OmniBOR tracing.
 
@@ -333,41 +385,15 @@ class MavenDepTreeStrategy(InterceptionStrategy):
         meta_dir.mkdir(parents=True, exist_ok=True)
 
         # Step 1: Generate OmniBOR treedb via JAR
-        # introspection — same bomsh script as
-        # standalone mode, without strace log.
-        create_bom = omnibor_cfg.get(
-            "create_bom_script",
-            "bomsh_create_bom_java.py",
-        )
-        treedb_file = meta_dir / "bomsh_omnibor_treedb"
-        t0 = time.monotonic()
-        rc = self._runner.run(
-            f"{create_bom} -r {repo_dir} "
-            f"-j {treedb_file}",
-            cwd=str(repo_dir),
-            description=(
-                "Generating OmniBOR treedb "
-                "for Java workspace"
-            ),
-        )
-        treedb_sec = time.monotonic() - t0
-        substeps.append({
-            "name": "treedb",
-            "tool": "bomsh_create_bom_java.py",
-            "wall_sec": round(treedb_sec, 2),
-        })
-        if rc != 0:
-            print(
-                "[ERROR] bomsh_create_bom_java.py "
-                "failed"
-            )
+        # introspection — same bomsh script as standalone
+        # mode, without strace log.  Build-tool-agnostic and
+        # shared by all Java sidecar strategies.
+        if not _generate_java_treedb(
+            self._runner, repo_dir, meta_dir,
+            omnibor_cfg, substeps,
+        ):
             _write_adg_substeps(bom_path, substeps)
             return False
-
-        print(
-            f"[OK] OmniBOR treedb written to "
-            f"{treedb_file} ({treedb_sec:.1f}s)"
-        )
 
         # Step 2: Capture Maven dependency graph (per-module).
         # Default text output is parsed into per-module subtrees so
@@ -472,41 +498,15 @@ class GradleDepTreeStrategy(InterceptionStrategy):
         meta_dir.mkdir(parents=True, exist_ok=True)
 
         # Step 1: Generate OmniBOR treedb via JAR
-        # introspection — same bomsh script as
-        # standalone mode, without strace log.
-        create_bom = omnibor_cfg.get(
-            "create_bom_script",
-            "bomsh_create_bom_java.py",
-        )
-        treedb_file = meta_dir / "bomsh_omnibor_treedb"
-        t0 = time.monotonic()
-        rc = self._runner.run(
-            f"{create_bom} -r {repo_dir} "
-            f"-j {treedb_file}",
-            cwd=str(repo_dir),
-            description=(
-                "Generating OmniBOR treedb "
-                "for Java workspace"
-            ),
-        )
-        treedb_sec = time.monotonic() - t0
-        substeps.append({
-            "name": "treedb",
-            "tool": "bomsh_create_bom_java.py",
-            "wall_sec": round(treedb_sec, 2),
-        })
-        if rc != 0:
-            print(
-                "[ERROR] bomsh_create_bom_java.py "
-                "failed"
-            )
+        # introspection — same bomsh script as standalone
+        # mode, without strace log.  Build-tool-agnostic and
+        # shared by all Java sidecar strategies.
+        if not _generate_java_treedb(
+            self._runner, repo_dir, meta_dir,
+            omnibor_cfg, substeps,
+        ):
             _write_adg_substeps(bom_path, substeps)
             return False
-
-        print(
-            f"[OK] OmniBOR treedb written to "
-            f"{treedb_file} ({treedb_sec:.1f}s)"
-        )
 
         # Step 2: Capture Gradle dependency graph (per-subproject).
         # Captured per subproject so Phase 2 can generate per-module

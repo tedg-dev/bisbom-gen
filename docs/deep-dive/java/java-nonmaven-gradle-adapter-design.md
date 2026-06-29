@@ -1,0 +1,478 @@
+# Engineering Design — Non-Maven/Gradle Java Dependency Adapters
+
+| | |
+|---|---|
+| **Sub-issue** | A9 — Support non-Maven/Gradle Java builds (`../../planning/java/java-nonmaven-gradle-build-tools-subissue.md`) |
+| **Audience** | Cascade + reviewers implementing the Ivy/Bazel adapters |
+| **Author** | Ted G. |
+| **Drafted** | 2026-06-29 (Cascade) |
+| **Status** | Design — no code yet |
+| **Scope** | Phase 1 dependency capture + Phase 2 consumption for Ant/Ivy, Bazel, and `make`/`javac` Java builds |
+
+---
+
+## 1. Goal
+
+Extend Java dependency capture beyond Maven/Gradle **without inventing a
+parallel pipeline**. New build tools plug into the existing strategy pattern
+and produce the **same capture contract** that Phase 2 already consumes.
+
+---
+
+## 2. Architecture recap (what already exists)
+
+Java sidecar capture runs through `InterceptionStrategy.generate_adg()`
+(`app/pipeline/interception.py`). Both `MavenDepTreeStrategy` and
+`GradleDepTreeStrategy` do exactly two things:
+
+1. **Universal treedb step (build-tool-agnostic).** They run
+   `bomsh_create_bom_java.py -r <repo_dir> -j <treedb_file>`, which scans the
+   built workspace and maps JAR -> `.class` -> source using the `SourceFile`
+   bytecode attribute plus path similarity. **This step does not know or care
+   which build tool produced the workspace.**
+2. **Per-ecosystem dependency capture (enrichment).** They run
+   `mvn dependency:tree` / `gradlew dependencies`, parse it, and write a
+   capture file (`maven_deps.json` / `gradle_deps.json`).
+
+Strategy selection happens in `_select_java_strategy()`
+(`app/pipeline/lang_runners.py`): today it checks `is_gradle_project()` and
+otherwise defaults to Maven.
+
+Phase 2 (`generate_java_adg_spdx()` in `lang_runners.py`) reads the capture
+via `app/spdx/dep_capture_reader.py` (`load_capture()` -> `resolve_module()`
+-> `get_module_deps()`) and hands the dependency list to `JavaSpdxGenerator`
+for the per-JAR `_build` SBOM. The treedb drives the `_analyzed` SBOM.
+
+**Key consequence:** the universal layer (step 1) already works for *any*
+Java build. Adapters only need to supply step 2 (the declared graph) in the
+existing contract — or, where there is no declared graph, fall back to the
+artifact-only path.
+
+### 2.1 Investigation findings (grounded in the code)
+
+These were verified by reading the code, not assumed:
+
+- **The treedb step is build-tool-agnostic.** `bomsh_create_bom_java.py`
+  maps JAR -> `.class` -> source using the `.class` `SourceFile` bytecode
+  attribute, with strace/filename-heuristic fallback
+  (`docker/patches/README-bomsh_java_sourcefile.md`). It reads the *built
+  workspace* and never inspects build files, so it is independent of
+  Maven/Gradle/Ant/Bazel/`make`.
+- **The treedb scope is output-JAR -> source only.** `AdgParser`
+  (`app/spdx/parser.py`) shows treedb entries are `{sha1: {file_path,
+  hash_tree, ...}}`, tracing output JAR -> compiled class -> source. The
+  treedb is the basis for the `_analyzed` SBOM.
+- **The treedb does NOT contain the consumed dependency (classpath) JARs.**
+  The Maven/Gradle `_build` dependency graph comes from the *separate*
+  dep:tree capture (`maven_deps.json` / `gradle_deps.json`), not the treedb.
+- **Consumed classpath JARs are observable only via strace** in standalone
+  mode (`AdgParser.parse_strace_openat_log()` records every opened file).
+  Sidecar mode has no equivalent capture.
+
+These findings drive §8 (artifact-only path) and §11.
+
+---
+
+## 3. The capture contract (what adapters must produce)
+
+Every adapter writes a JSON capture file with this shape (matching
+`dep_capture_reader.load_capture()` expectations):
+
+```json
+{
+  "tool": "ivy",
+  "modules": [
+    {
+      "key": "org.apache.ant:ant-ivy",
+      "groupId": "org.apache.ant",
+      "artifactId": "ant-ivy",
+      "version": "2.5.2",
+      "packaging": "jar",
+      "deps": [ { "...dep dict..." } ]
+    }
+  ]
+}
+```
+
+Each entry in `deps` uses the canonical dep-dict shape produced by
+`app/spdx/maven_parser.parse_dep_tree` and consumed by `JavaSpdxGenerator`:
+
+| Field | Type | Meaning |
+|---|---|---|
+| `groupId` | str | Group / organization |
+| `artifactId` | str | Artifact / module name |
+| `version` | str | Resolved version |
+| `scope` | str | `compile` / `runtime` / `provided` / `system` (test excluded) |
+| `direct` | bool | Direct vs transitive dependency |
+| `optional` | bool | Optional flag |
+| `parent` | str | Parent coordinate (`""` if direct) |
+| `depth` | int | Tree depth (0 = direct) |
+
+Adapters MUST emit production scopes only (drop `test`), consistent with
+`maven_dep_tree_parser._PRODUCTION_SCOPES`.
+
+---
+
+## 4. Integration points (exact changes)
+
+| Layer | File / symbol | Change |
+|---|---|---|
+| Detection | `lang_runners._select_java_strategy` | Add Ivy / Bazel / `make` branches before the Maven default; add a `_detect_java_build_tool()` helper |
+| Strategy | `app/pipeline/interception.py` | New `IvyDepCaptureStrategy`, `BazelDepCaptureStrategy`, `ArtifactOnlyStrategy` (treedb-only) |
+| Parser | `app/pipeline/ivy_report_parser.py` (new) | Parse Ivy resolution report XML -> capture dict |
+| Parser | `app/pipeline/bazel_lockfile_parser.py` (new) | Parse `maven_install.json` -> capture dict |
+| Phase 2 | `app/spdx/dep_capture_reader.py` | Add `ivy_deps.json` / `bazel_deps.json` to `_CAPTURE_FILES`; add `_resolve_ivy()` / `_resolve_bazel()` dispatch in `resolve_module()` |
+
+All new strategies reuse the **identical treedb step** from the Maven/Gradle
+strategies (extract it into a shared `_generate_java_treedb()` helper to
+avoid copy-paste — DRY).
+
+---
+
+## 5. Detection design — **implemented** (`lang_runners._detect_java_build_tool`)
+
+`_detect_java_build_tool(repo_dir, repo_cfg=None)` returns one of
+`gradle` / `maven` / `ivy` / `ant` / `make` / `bazel`, or `unknown` when no
+signal matches. Precedence (checked in this order) and signals:
+
+| Order | Tool | Primary signal | Notes |
+|---|---|---|---|
+| 1 | `gradle` | `gradlew` / `build.gradle` / `build.gradle.kts` (existing `is_gradle_project`) | highest precedence |
+| 2 | `maven` | `pom.xml` | checked before Ivy/Ant: a `pom.xml` unambiguously means Maven |
+| 3 | `ivy` | `ivy.xml` (usually alongside `build.xml`) | Ant + Ivy |
+| 4 | `ant` | `build.xml` (no `ivy.xml`) | Ant without a declared graph -> artifact-only |
+| 5 | `make` | `Makefile` / `makefile` / `GNUmakefile` | artifact-only path |
+| 6 | `bazel` | `WORKSPACE` / `WORKSPACE.bazel` / `MODULE.bazel` | lowest — tiny Java share; native strategy **deferred** |
+
+A **`java_build_tool`** field in `config.yaml` overrides detection
+(config-driven, never repo-name-keyed). An unrecognized override raises
+`ValueError`. The field is **`java_build_tool`**, not `build_system`, because
+`build_system` is already the C/C++ discovery concept
+(autoconf/cmake/meson/make) in `app/repo_discovery`.
+
+Detection is a pure function over the repo's top-level files, unit-testable
+without a real build. `_select_java_strategy` maps `gradle` -> Gradle and
+everything else -> the Maven `dep:tree` strategy for now; a detected tool that
+has no native strategy yet (`ivy`/`ant`/`bazel`/`make`) logs an INFO message
+and falls back to Maven (preserving current golden-clean behavior). Native
+strategies land in Steps 3–5.
+
+---
+
+## 6. Ivy adapter
+
+**Input (declared graph):** the Ivy *resolution report* XML. Ant builds that
+use Ivy emit per-configuration reports (e.g.
+`<module>-<conf>.xml`) under the Ivy resolution-report directory
+(`ivy:report` task output, or the cache report). The report lists resolved
+modules with `organisation`, `name`, `revision`, and the `conf` they belong
+to.
+
+**Mapping to the dep dict:**
+
+| Ivy report field | Dep-dict field |
+|---|---|
+| `organisation` | `groupId` |
+| `name` | `artifactId` |
+| `revision` | `version` |
+| `conf` (configuration) | `scope` via a config map |
+| caller depth / `caller` | `direct` / `depth` / `parent` |
+
+**Configuration -> scope map** (Ivy configs are project-defined, so use a
+conservative default map, config-overridable):
+
+| Ivy conf | scope |
+|---|---|
+| `compile`, `default`, `master` | `compile` |
+| `runtime` | `runtime` |
+| `provided` | `provided` |
+| `test` | dropped (test excluded) |
+
+**Module shape:** Ant/Ivy projects are typically single-artifact, so the
+capture has one module keyed by the project's `org:name`. If the report
+exposes no module coordinate, key by the repo name and leave `groupId` empty.
+
+**Strategy:** `IvyDepCaptureStrategy.generate_adg()` = shared treedb step +
+locate the resolution report (configurable path) + `ivy_report_parser` ->
+write `ivy_deps.json`.
+
+---
+
+## 7. Bazel adapter
+
+**Input (declared graph):** `rules_jvm_external`'s pinned lockfile
+`maven_install.json`. It enumerates resolved Maven coordinates and the
+dependency edges between them.
+
+**Mapping:** each lockfile artifact coordinate `group:artifact:version` maps
+directly to `groupId` / `artifactId` / `version`; `scope` is `compile`
+(lockfiles do not carry test scope); `direct` vs transitive is derived from
+the lockfile's `dependencies` adjacency (roots = direct), giving `depth` and
+`parent`.
+
+**Module shape:** Bazel does not have Maven-style reactor modules. Use a
+single synthetic module keyed by the Bazel target (or repo name). Phase 2
+JAR -> module resolution falls through to the single-module case in
+`dep_capture_reader` (already handled: "if exactly one module, use it").
+
+**No lockfile present:** if `maven_install.json` is absent (unpinned
+`maven_install`), there is no declared graph — fall back to the artifact-only
+path (Section 8) and log a clear warning. We require pinned lockfiles for
+enrichment (consistent with the project's pinning policy).
+
+**Strategy:** `BazelDepCaptureStrategy.generate_adg()` = shared treedb step +
+`bazel_lockfile_parser` on `maven_install.json` -> write `bazel_deps.json`.
+
+---
+
+## 8. Ant-only and `make`/`javac` — artifact-only path
+
+These builds have **no declared dependency graph**. The design does not fake
+one. Instead:
+
+- **`_analyzed` SBOM** — produced as usual from the treedb (source files
+  compiled into each JAR). Fully accurate, no change needed. **Grounded:**
+  `bomsh_create_bom_java.py` derives JAR -> class -> source from the `.class`
+  `SourceFile` bytecode attribute (with strace/heuristic fallback) — it reads
+  the built workspace and has no build-tool knowledge, so this works
+  unchanged for Ant/`make` (see §2.1).
+- **`_build` SBOM** — there is no resolved-coordinate graph, so dependencies
+  are represented as the **classpath JARs the build consumed**, identified by
+  GitOID (and best-effort coordinates parsed from the JAR filename).
+
+**Grounded constraint (from §2.1): the treedb does NOT record consumed
+classpath JARs** — it records output-JAR -> source provenance only. The
+consumed JARs are therefore sourced differently per mode:
+
+| Mode | Consumed-classpath source | Feasible today? |
+|---|---|---|
+| **Standalone** (strace) | `AdgParser.parse_strace_openat_log()` already records every opened file; filter `.jar` opens, excluding output JARs and JDK/runtime jars | Yes — generic, exists |
+| **Sidecar** (no strace) | No capture exists; needs an explicit, standard classpath-capture step | No — design gap |
+
+So the artifact-only `_build` path is **straightforward in standalone mode**
+but a **genuine gap in sidecar mode** for Ant-only/`make`. Ivy and Bazel do
+not have this gap because they ship a declared graph (Ivy report,
+`maven_install.json`). Recommended scoping: deliver Ivy + Bazel first; treat
+the sidecar artifact-only `_build` path for Ant-only/`make` as a separate,
+explicitly-scoped problem (candidate standard mechanisms: a `javac` classpath
+manifest emitted by the build, or parsing the resolved classpath the build
+used — to be designed, not guessed).
+
+`ArtifactOnlyStrategy.generate_adg()` runs only the shared treedb step and
+writes **no** `*_deps.json`. In standalone mode an artifact-only `_build`
+mode in `generate_java_adg_spdx()` lists the strace-observed classpath JARs
+as GitOID-identified components; in sidecar mode it uses the capture designed
+in §8.1.
+
+### 8.1 Sidecar classpath-capture mechanism (design)
+
+In sidecar mode there is no strace, so the consumed classpath JARs for
+Ant-only/`make` are not observed. This mechanism captures them generically,
+consistent with the existing sidecar interception strategies (`CcWrapper`,
+`RustcWrapper`, `GoToolexec`) — i.e. a Java-consistent `javac` interception,
+not a new pipeline.
+
+**Grounded facts (verified, not assumed):**
+
+- **`make`/`javac`** — `javac` runs as a separate process, so the resolved
+  classpath is on its argv (`-classpath` / `-cp` / `@argfile`).
+- **Ant `<javac>`** — defaults to **unforked (in-process) compilation**
+  (Ant manual, Javac task: the "modern compiler ... in unforked mode" is the
+  default; a separate process spawns only with `fork="true"`). A PATH `javac`
+  shim is therefore **not** invoked for default Ant builds.
+- **Ant extension point** — Ant supports a custom compiler via the
+  `build.compiler` property / `CompilerAdapter` interface, settable through
+  `ANT_OPTS` with **no build-file edit**.
+
+**Design — `JavacInterceptStrategy` (feeds the artifact-only `_build` path):**
+
+| Build tool | Interception (no build-file change) | Mechanism |
+|---|---|---|
+| `make` / forked `javac` | Prepend a wrapper dir to `PATH` (env, like `CcWrapperStrategy`) holding a `javac` shim | Shim expands `-cp`/`-classpath`/`@argfile`, appends entries to `classpath_capture.json`, then `exec`s the real `javac` |
+| Ant (unforked, default) | Set `ANT_OPTS=-Dbuild.compiler=<bomsh adapter class>` | A bomsh `CompilerAdapter` records `getJavac().getClasspath()`, then delegates to the default adapter; adapter jar shipped in the image |
+
+**Fallback (no silent guessing):** if neither interception is viable for a
+given project, emit the `_analyzed` SBOM and a **clearly-logged,
+dependency-less `_build`** — never a fabricated graph.
+
+**Capture contract:** `classpath_capture.json` = a deduplicated list of
+`{path, gitoid}` for each consumed JAR, excluding JDK/runtime jars under
+`JAVA_HOME` and output jars under `repos_dir`. Phase 2's artifact-only
+`_build` mode lists these as **GitOID-identified** components (the stable,
+OmniBOR-aligned identifier); Maven coordinates are best-effort from the JAR
+filename with **NOASSERTION** when unknown — never fabricated.
+
+**Validation required (against real repos, not assumed):** confirm
+`apache/ant` builds with unforked `javac`; confirm the `CompilerAdapter`
+loads under the Ant version in the image; confirm the `make` test-app shim
+fires. These are explicit validation steps, not assumptions.
+
+**Why this is generic:** it adds one Java-consistent interception strategy
+alongside the existing CC/RUSTC/toolexec strategies, selected by detection;
+no per-repo logic, all behavior config/detection-driven.
+
+---
+
+## 9. Phase 2 reader changes
+
+`dep_capture_reader.py`:
+
+```python
+_CAPTURE_FILES = {
+    "maven_deps.json": "target",
+    "gradle_deps.json": "build",
+    "ivy_deps.json": "build",      # Ant default output dir
+    "bazel_deps.json": "bazel-bin",
+}
+```
+
+`resolve_module()` dispatches on `capture["tool"]`: `ivy` and `bazel` both use
+single-module/`artifactId`-match resolution (reuse `_resolve_maven`-style
+logic; Bazel almost always single-module). No change to `get_module_deps()`
+or `JavaSpdxGenerator` — they consume the canonical dep dict unchanged.
+
+---
+
+## 10. Testing plan
+
+- **Unit (no network, no Docker):**
+  - `ivy_report_parser`: fixture Ivy report XML -> expected capture dict,
+    including conf->scope mapping and test-scope exclusion.
+  - `bazel_lockfile_parser`: fixture `maven_install.json` -> expected capture
+    dict, including direct/transitive depth derivation.
+  - `_detect_java_build_tool`: file-list fixtures for each tool + config
+    override.
+  - `dep_capture_reader`: `ivy_deps.json` / `bazel_deps.json` resolution.
+- **Integration (EC2, golden-gated):** the verifier repos from the sub-issue
+  (`apache/ant-ivy`, `apache/ant`, `bazelbuild/examples` java-maven, the
+  `make` test app). SBOMs reviewed against USER-approved golden baselines —
+  never auto-generated.
+- Coverage thresholds (>=97% overall, >=95% per file) apply to new modules.
+
+---
+
+## 11. Findings (investigated) and remaining open questions
+
+**Resolved by investigation (no longer assumptions):**
+
+- **Treedb `_analyzed` layer is build-tool-agnostic — confirmed.**
+  `bomsh_create_bom_java.py` maps JAR -> class -> source via the `.class`
+  `SourceFile` attribute (strace/heuristic fallback), reading the built
+  workspace with no build-tool knowledge
+  (`docker/patches/README-bomsh_java_sourcefile.md`,
+  `AdgParser.get_jar_source_files`). Ant/Bazel/`make` `_analyzed` SBOMs are
+  feasible via the existing treedb step.
+- **Treedb does NOT record consumed dependency JARs — confirmed.** It records
+  output-JAR -> class -> source only; the Maven/Gradle `_build` graph comes
+  from the separate dep:tree capture, not the treedb (`AdgParser`,
+  `dep_capture_reader`). Consumed JARs are observable via
+  `parse_strace_openat_log()` in **standalone mode only** (see §8 table).
+
+**Remaining genuine open questions:**
+
+- **Sidecar artifact-only `_build` capture** — designed in §8.1 (PATH `javac`
+  shim for `make`; Ant `CompilerAdapter` via `ANT_OPTS` for unforked Ant).
+  Remaining work is **validation against real repos** (apache/ant unforked
+  javac; adapter loads under the image's Ant version; make shim fires), not
+  design.
+- **Ivy report location** — **resolved (§13.3):** `ant-ivy` writes the report
+  under `${ivy.report.dir}` during `ivy:retrieve`. Keep the path
+  config-overridable; some projects may need an explicit `ivy:report` task.
+- **Bazel toolchain weight** — adding Bazel to the Docker image is heavy;
+  gated on USER confirmation (see sub-issue). Ivy can land first.
+- **sbt** remains out of scope (Scala-first).
+
+---
+
+## 12. Incremental delivery order
+
+0. **Investigate real repositories** — **done; findings recorded in §13**
+   (`maven_install.json` structure, Ivy report XML schema, `ant-ivy` build
+   facts, finalized verifier repos). Remaining: confirm the Bazel example
+   repo path (post toolchain decision) and create `omnibor-java-make-testapp`.
+1. Extract shared `_generate_java_treedb()` helper (pure refactor, golden-clean).
+2. `_detect_java_build_tool()` + config override + unit tests.
+3. Ivy: `ivy_report_parser` + `IvyDepCaptureStrategy` + reader support + tests
+   (parser validated against the real report from step 0).
+4. `make`/Ant-only: `ArtifactOnlyStrategy` + §8.1 capture + artifact-only
+   `_build` mode + tests.
+5. Bazel: `bazel_lockfile_parser` + `BazelDepCaptureStrategy` + reader support
+   + tests (parser validated against the real lockfile from step 0; after the
+   Bazel toolchain decision).
+6. EC2 golden validation per verifier repo — present diffs, await USER review.
+
+---
+
+## 13. Step 0 findings — validated against real artifacts
+
+Evidence gathered by inspecting real repositories (per the "never guess /
+validate against real repos" rule). These confirm the §6/§7/§8.1 designs.
+
+### 13.1 Bazel `maven_install.json` (real: `bazel-contrib/rules_jvm_external`)
+
+Confirmed top-level structure:
+
+| Key | Shape | Use |
+|---|---|---|
+| `artifacts` | `{"group:artifact": {"shasums": {"jar": "<sha256>"}, "version": "x.y.z"}}` | coordinates (split key on `:`) + resolved version + jar digest |
+| `dependencies` | `{"group:artifact": ["group:artifact", ...]}` | adjacency graph -> direct vs transitive + `depth`/`parent` |
+| `__INPUT_ARTIFACTS_HASH` / `__RESOLVED_ARTIFACTS_HASH` | metadata | ignore |
+
+Notes that drive `bazel_lockfile_parser`:
+
+- Classifier artifacts use **4-part keys** (`io.netty:...:jar:linux-x86_64`);
+  the parser must handle 2-part and 4-part keys.
+- The lockfile is **compile-scope only** (no test scope) — matches the
+  capture contract (test already excluded).
+- `shasums.jar` is a **SHA-256**, not a GitOID; treat as a verifiable digest,
+  not the OmniBOR identifier.
+
+### 13.2 Ivy resolution report XML (schema confirmed via authoritative XSLT)
+
+```text
+<ivy-report>
+  <info organisation=".." module=".." revision=".." conf=".."/>
+  <dependencies>
+    <module organisation=".." name="..">
+      <revision name="<version>" status=".." evicted="..">
+        <caller organisation=".." name=".." callerrev=".." rev=".."/>
+        <artifacts><artifact name=".." type="jar" ext="jar"/></artifacts>
+      </revision>
+    </module>
+  </dependencies>
+</ivy-report>
+```
+
+Drives `ivy_report_parser`:
+
+- `module/@organisation` -> `groupId`; `module/@name` -> `artifactId`;
+  `revision/@name` -> `version`.
+- **Direct** iff a `revision/caller` matches the root module
+  (`info/@organisation` + `info/@module`); otherwise transitive (derive
+  `depth`/`parent` from caller chains).
+- **Skip `evicted` revisions** (not part of the resolved graph).
+- One report **per conf**; parse production confs, skip `test`.
+
+### 13.3 `apache/ant-ivy` build facts (real `build.xml`)
+
+- **Resolves via Ivy:** `<target name="resolve">` runs
+  `<ivy:retrieve conf="default,test" .../>` -> a real resolve happens and the
+  XML resolution report is written under `${ivy.report.dir}` (config-driven —
+  confirms the report-location open question).
+- **Unforked `<javac>`:** `compile-core` uses `<javac ... includeantruntime="no">`
+  with **no `fork`** -> in-process compilation, confirming §8.1 (a PATH
+  `javac` shim will not fire for default Ant; the `CompilerAdapter` route is
+  required).
+
+### 13.4 Finalized verifier repos
+
+| Build tool | Repo | Pin | Build entry | Evidence |
+|---|---|---|---|---|
+| Ant + Ivy | `apache/ant-ivy` | release tag (e.g. `2.5.2`) | `ant jar` (resolve -> compile -> jar) | §13.2/§13.3 — real Ivy report + unforked javac |
+| `make`/`javac` (artifact-only) | new `omnibor-java-make-testapp` (we own) | `main` | `make` | controlled `Makefile` -> `javac` -> `jar`; exercises §8.1 PATH shim |
+| Bazel | candidate `bazelbuild/examples` (Java + `rules_jvm_external`) — **exact path TBD** | commit SHA | `bazel build //...` | §13.1 lockfile format; **gated on Bazel toolchain decision** |
+| Ant (no Ivy) | optional `apache/ant` | release tag | bootstrap build | confirms artifact-only path; heavier bootstrap — lower priority |
+
+Bazel repo path is not yet pinned: the previously-assumed
+`bazelbuild/examples/java-maven/maven_install.json` path returned 404 and
+must be re-confirmed before adding (and only after the toolchain decision).

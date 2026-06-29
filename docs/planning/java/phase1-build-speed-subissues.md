@@ -6,7 +6,7 @@
 | **Epic** | Single epic — this main issue is added to it later by the issues team |
 | **Author** | Ted G. |
 | **Drafted** | 2026-06-24 (Cascade) |
-| **Status** | US-2 delivered (validated golden-clean on bc-java + spring-boot); US-3 conditional; US-1 moved — see below |
+| **Status** | US-2 delivered & merged (PR `tedg-dev/omnibor-analysis#196`, golden-clean on bc-java + spring-boot); US-4 added (deferred, in-memory JAR processing); US-3 optional/low; US-1 moved — see below |
 | **Scope** | **Java builds** (Maven and Gradle). Other languages capture inline during the build and are not affected. |
 | **Detailed design** | `docs/deep-dive/java/phase1-build-speed-design.md` (single engineering reference — design, evidence, code-level plan). |
 
@@ -93,6 +93,10 @@ many times over, which dominates the capture time for those builds.
 
 ## US-3 — Overlap independent post-build steps only when it measurably helps
 
+> **Priority note:** This is **optional / low value**. Earlier wins (faster
+> component hashing, offline resolution, warm daemon) already shrank the gap.
+> Pursue **only** if measurement on a real build host shows a real reduction.
+
 **Applies to:** Java builds
 
 **Estimate:** ~1 AI-day (conditional — only pursued if measurement justifies it)
@@ -118,6 +122,52 @@ where the gain is negligible.
   capture runs, then it stays sequential to avoid needless complexity.
 - Given concurrent execution, when the SBOM is produced, then it is
   identical to the sequential result.
+
+---
+
+## US-4 — Process JAR class files fully in memory (no extract-to-disk)
+
+**Status:** Deferred — implement after EC2 golden validation of the current
+extract-to-disk fast-IO variant. This is the **remaining build-speed item
+with real value.**
+
+**Applies to:** Java builds (Phase 1 component processing of JARs)
+
+**Estimate:** ~1–2 AI-days
+
+**Priority:** Medium-high — eliminates the per-JAR temp-directory extraction
+lifecycle (est. ~5–10s/build for JAR-heavy projects).
+
+**User Story**
+
+As a product build team with many JAR dependencies,
+I want JAR component hashing to read `.class` bytes directly from the archive
+in memory rather than extracting every JAR to a temp directory,
+so that Phase 1 avoids the disk I/O and subprocess churn of extract-to-disk.
+
+**Why this matters**
+
+Component processing currently extracts each JAR (`jar -xf` /
+`zipfile.extractall`) to a temp directory, hashes files on disk, then
+`rmtree`s it. For builds with many JARs this disk lifecycle dominates.
+Reading `.class` entries from the zip in memory and hashing with
+`git_blob_hash_data` removes the entire unbundle -> find -> `rmtree` cycle.
+
+**Acceptance Criteria**
+
+- Given a JAR, when its components are processed, then `.class` GitOIDs are
+  computed from in-memory bytes with no extraction to disk.
+- Given the in-memory path, when its output is compared to the extract-to-disk
+  result, then the GitOIDs and the SBOM are identical (golden-clean).
+- Given a malformed or edge-case archive, when processed, then it fails
+  gracefully with a clear error (no silent skip).
+- Given the change, when validated on a representative multi-JAR build on a
+  real build host, then the SBOM matches the golden baseline.
+
+**Implementation note:** refactor the class-processing path to accept
+in-memory data rather than file paths; mirrors the existing fast-IO /
+classreader patches in `docker/patches/`. Deferred per the follow-up noted in
+`retro-subissue-java-treedb-perf.md`.
 
 ---
 

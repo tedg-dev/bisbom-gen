@@ -61,9 +61,10 @@ Index labels (**A1**, **A4**, ...) refer to the rows in
 | Item | Theme -> sub-issue (index label) | Status |
 |---|---|---|
 | Phase 2 output set + hand-off manifest | Java Phase 2 main issue; index **A2**; Corona #11004 | Scoped, no PR |
-| Overlap independent post-build steps (measure first) | Phase 1 Build-Speed (Java) -> **US-3**; index **A5** | Conditional, no PR |
-| Deliver Java build evidence to Corona | Java Phase 2 main issue -> sub (2); index **A7**; SI-5 (Java) | Planned, no PR |
-| Non-Maven/Gradle build-tool support (Ant/Ivy, Bazel, `make`) | Phase 1 Java capture (new sub-issue to draft) | Next R&D, no PR |
+| Fully in-memory JAR class processing (no extract-to-disk) | Phase 1 Build-Speed (Java) -> **US-4**; index **A8** | Deferred (validate on EC2), no PR |
+| Support non-Maven/Gradle Java builds (Ant/Ivy, Bazel, `make`) | Phase 1 Java capture -> **A9**; see `java/java-nonmaven-gradle-build-tools-subissue.md` | Drafting, no PR |
+| Overlap independent post-build steps (measure first) | Phase 1 Build-Speed (Java) -> **US-3**; index **A5** | Optional / low, no PR |
+| Deliver Java build evidence to Corona | index **A7**; SI-5 (Java) | Postponed — out of charter (Corona / Phase 2-incorporation team) |
 
 ---
 
