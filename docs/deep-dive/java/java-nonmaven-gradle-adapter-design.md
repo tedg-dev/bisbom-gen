@@ -129,22 +129,33 @@ avoid copy-paste — DRY).
 
 ---
 
-## 5. Detection design
+## 5. Detection design — **implemented** (`lang_runners._detect_java_build_tool`)
 
-Add `_detect_java_build_tool(repo_dir, repo_cfg)` returning one of
-`gradle` / `maven` / `ivy` / `bazel` / `make`. Precedence and signals:
+`_detect_java_build_tool(repo_dir, repo_cfg=None)` returns one of
+`gradle` / `maven` / `ivy` / `ant` / `bazel` / `make`, or `unknown` when no
+signal matches. Precedence (checked in this order) and signals:
 
-| Tool | Primary signal | Notes |
-|---|---|---|
-| `gradle` | `build.gradle` / `build.gradle.kts` (existing `is_gradle_project`) | unchanged, highest precedence |
-| `bazel` | `WORKSPACE` / `WORKSPACE.bazel` / `MODULE.bazel` + `BUILD`/`BUILD.bazel` | check for `maven_install.json` for enrichment |
-| `ivy` | `ivy.xml` (usually alongside `build.xml`) | Ant + Ivy |
-| `maven` | `pom.xml` | existing default |
-| `make` | `Makefile`/`makefile` with no other Java build file | artifact-only |
+| Order | Tool | Primary signal | Notes |
+|---|---|---|---|
+| 1 | `gradle` | `gradlew` / `build.gradle` / `build.gradle.kts` (existing `is_gradle_project`) | highest precedence |
+| 2 | `maven` | `pom.xml` | checked before Ivy/Ant: a `pom.xml` unambiguously means Maven |
+| 3 | `ivy` | `ivy.xml` (usually alongside `build.xml`) | Ant + Ivy |
+| 4 | `ant` | `build.xml` (no `ivy.xml`) | Ant without a declared graph -> artifact-only |
+| 5 | `bazel` | `WORKSPACE` / `WORKSPACE.bazel` / `MODULE.bazel` | `maven_install.json` enriches (parser deferred) |
+| 6 | `make` | `Makefile` / `makefile` / `GNUmakefile` | lowest — a convenience `Makefile` often coexists with a real tool |
 
-A `build_system` field in `config.yaml` overrides detection (config-driven,
-never repo-name-keyed). Detection is a pure function over the repo file list,
-unit-testable without a real build.
+A **`java_build_tool`** field in `config.yaml` overrides detection
+(config-driven, never repo-name-keyed). An unrecognized override raises
+`ValueError`. The field is **`java_build_tool`**, not `build_system`, because
+`build_system` is already the C/C++ discovery concept
+(autoconf/cmake/meson/make) in `app/repo_discovery`.
+
+Detection is a pure function over the repo's top-level files, unit-testable
+without a real build. `_select_java_strategy` maps `gradle` -> Gradle and
+everything else -> the Maven `dep:tree` strategy for now; a detected tool that
+has no native strategy yet (`ivy`/`ant`/`bazel`/`make`) logs an INFO message
+and falls back to Maven (preserving current golden-clean behavior). Native
+strategies land in Steps 3–5.
 
 ---
 
