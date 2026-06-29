@@ -88,11 +88,22 @@ USER review — never auto-generated/updated).
 
 ## Proposed work breakdown
 
-1. **Verifier repos + `make` test app** — add the four repos; create
-   `omnibor-java-make-testapp`.
+0. **Investigate real repositories (design research + validation).** Before
+   any parser code, examine **actual build artifacts** from real repos to
+   validate every design assumption and finalize the verifier-repo list:
+   - a real Ivy resolution-report XML (`apache/ant-ivy`) — confirm element
+     names (`organisation`/`name`/`revision`/`conf`) and report location;
+   - a real `maven_install.json` (`bazelbuild/bazel`, `rules_jvm_external`) —
+     confirm structure and direct/transitive edges;
+   - `apache/ant` — confirm unforked `<javac>` (drives §8.1 of the design);
+   - candidate `make`/`javac` Java layouts.
+   This step supplements, and is a prerequisite to, the parser designs below
+   (no parser is finalized against an assumed format).
+1. **Verifier repos + `make` test app** — add the (investigation-confirmed)
+   repos; create `omnibor-java-make-testapp`.
 2. **Confirm Bazel toolchain decision** — gate the Bazel verifier.
-3. **Ivy adapter** — parse the Ivy resolution report.
-4. **Bazel adapter** — parse `maven_install.json`.
+3. **Ivy adapter** — parse the Ivy resolution report (format validated in 0).
+4. **Bazel adapter** — parse `maven_install.json` (format validated in 0).
 5. **Validate artifact-only path** for Ant-only and `make`/`javac`.
 6. **Golden review** — present SBOMs to the USER; never auto-update goldens.
 

@@ -374,10 +374,18 @@ or `JavaSpdxGenerator` — they consume the canonical dep dict unchanged.
 
 ## 12. Incremental delivery order
 
+0. **Investigate real repositories** — validate the Ivy report XML,
+   `maven_install.json`, and Ant unforked-`javac` assumptions against actual
+   files, and finalize the verifier-repo list. Prerequisite to steps 3–5; no
+   parser is finalized against an assumed format. (Supplements the design
+   research/validation throughout this doc.)
 1. Extract shared `_generate_java_treedb()` helper (pure refactor, golden-clean).
 2. `_detect_java_build_tool()` + config override + unit tests.
-3. Ivy: `ivy_report_parser` + `IvyDepCaptureStrategy` + reader support + tests.
-4. `make`/Ant-only: `ArtifactOnlyStrategy` + artifact-only `_build` mode + tests.
+3. Ivy: `ivy_report_parser` + `IvyDepCaptureStrategy` + reader support + tests
+   (parser validated against the real report from step 0).
+4. `make`/Ant-only: `ArtifactOnlyStrategy` + §8.1 capture + artifact-only
+   `_build` mode + tests.
 5. Bazel: `bazel_lockfile_parser` + `BazelDepCaptureStrategy` + reader support
-   + tests (after the Bazel toolchain decision).
+   + tests (parser validated against the real lockfile from step 0; after the
+   Bazel toolchain decision).
 6. EC2 golden validation per verifier repo — present diffs, await USER review.
