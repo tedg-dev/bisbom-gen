@@ -52,10 +52,16 @@ PR/issue mapping for recreation once GitHub Issues access returns:
 | A2 | Phase 2 output set + hand-off manifest | Scoped | #11004 → [java/java-phase2-11004-handoff-scope.md](java/java-phase2-11004-handoff-scope.md) |
 | A3 | Build efficiency — reuse captured dependency data (no double resolution) | Delivered via A1 | US-1 |
 | A4 | Build efficiency — single-invocation multi-module Gradle capture | Merged | US-2 / PR #196 |
-| A5 | Build efficiency — overlap independent post-build steps only when measurable | Conditional (measure first) | US-3 |
+| A5 | Build efficiency — overlap independent post-build steps only when measurable | Optional / low (measure first) | US-3 |
 | A6 | Treedb SBOM-generation speedup (retro) | Delivered | SI-R1 / PRs #189, #187, #191 |
-| A7 | Deliver Java build evidence to Corona (Java delivery slice) | Planned | SI-5 (Java) |
-| A8 | Testing — golden validation + `regression-gate` + multi-distro across all Java repos | Ongoing | — |
+| A7 | Deliver Java build evidence to Corona (Java delivery slice) | Postponed — out of charter (Corona / Phase 2-incorporation team owns delivery + verification) | SI-5 (Java) |
+| A8 | Build efficiency — fully in-memory JAR class processing (no extract-to-disk) | Deferred (validate on EC2) | US-4 |
+| A9 | Support non-Maven/Gradle Java builds (Ant/Ivy, Bazel, `make`) | Drafting | [java/java-nonmaven-gradle-build-tools-subissue.md](java/java-nonmaven-gradle-build-tools-subissue.md) |
+
+**Standing gate (not a sub-issue):** testing — golden validation, the
+`regression-gate`, and multi-distro runs (Ubuntu/RHEL/Alpine) — is a
+**continuous requirement applied to every item above**, not a discrete
+deliverable. No A-row is "done" until it passes these gates.
 
 ### Main B — C/C++ Sidecar Design: Deep Investigation & Validation
 
