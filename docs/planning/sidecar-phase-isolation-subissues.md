@@ -2,10 +2,11 @@
 
 | | |
 |---|---|
-| **Parent issue** | TBD — to be assigned by the user |
+| **Main issue** | Build-Based SBOM Capture & Delivery (Sidecar + Phase Isolation) |
+| **Epic** | Single epic — this main issue is added to it later by the issues team |
 | **Author** | Ted G. |
 | **Drafted** | 2026-06-23 (Cascade) |
-| **Status** | Draft — ready to attach under the chosen parent issue |
+| **Status** | Draft — SI-1..SI-5 are created as sub-issues under this main issue |
 | **Scope** | **Multi-language — NOT C/C++ only.** SI-1 and SI-2 are C/C++-specific; SI-3 and SI-5 apply across languages; SI-4 spans Java, C/C++, Rust, and Go. See the **Applies to** tag on each sub-issue. |
 
 ---
@@ -108,6 +109,13 @@ else.
 
 **Applies to:** All languages — Java, C/C++, Rust, Go
 
+**Java realization:** The Java-specific detail (Phase 2 generating SBOMs
+from Phase 1 metadata with no source-tree access) is its own main issue,
+**"Java Phase 2: Generate SBOMs From Phase 1 Metadata Without the Source
+Tree"** (`java-phase2-consume-dep-capture-subissue.md`). Create the Java
+work there; SI-4 here covers the cross-language umbrella and the C/C++,
+Rust, and Go realizations.
+
 **Estimate:** ~4 AI-days
 
 **User Story**
@@ -135,7 +143,11 @@ discarded.
 
 ## SI-5 — Deliver build evidence to the central SBOM system (Corona)
 
-**Applies to:** All languages
+**Applies to:** C/C++, Rust, Go, **plus the shared delivery mechanism and
+auth model**. The **Java** delivery slice is broken out and tracked in the
+Java main issue (`java-phase2-consume-dep-capture-subissue.md`), so that all
+Java work completes before C/C++ work begins. SI-5 here builds the shared
+intake/auth once and extends delivery to the remaining languages.
 
 **Estimate:** ~2 AI-days
 
@@ -173,7 +185,7 @@ covering at least two days of work:
 | SI-2 | Building the primary C/C++ capture, with fallback |
 | SI-3 | Extending capture to self-contained builds |
 | SI-4 | Generating SBOMs from captured data, and proving it works |
-| SI-5 | Delivering evidence to the central SBOM system |
+| SI-5 | Delivering evidence to the central SBOM system (shared mechanism + non-Java; Java delivery is broken out to the Java main issue) |
 
 If the total must stay under two weeks, SI-3 (extending capture to
 self-contained builds) is the largest and most deferrable item.
