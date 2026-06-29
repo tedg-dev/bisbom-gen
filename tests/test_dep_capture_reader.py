@@ -66,6 +66,27 @@ def _gradle_capture():
     }
 
 
+def _ivy_capture():
+    return {
+        "tool": "ivy",
+        "modules": [
+            {
+                "key": "org.apache:myapp",
+                "groupId": "org.apache",
+                "artifactId": "myapp",
+                "version": "1.0",
+                "packaging": "jar",
+                "deps": [
+                    {"groupId": "com.google.guava",
+                     "artifactId": "guava",
+                     "version": "32.1.3-jre", "scope": "compile",
+                     "direct": True, "parent": None},
+                ],
+            },
+        ],
+    }
+
+
 class TestLoadCapture(unittest.TestCase):
     """Tests for load_capture()."""
 
@@ -93,6 +114,14 @@ class TestLoadCapture(unittest.TestCase):
             )
             capture = load_capture(td)
         self.assertEqual(capture["tool"], "maven")
+
+    def test_loads_ivy(self):
+        with tempfile.TemporaryDirectory() as td:
+            (Path(td) / "ivy_deps.json").write_text(
+                json.dumps(_ivy_capture())
+            )
+            capture = load_capture(td)
+        self.assertEqual(capture["tool"], "ivy")
 
     def test_missing_returns_none(self):
         with tempfile.TemporaryDirectory() as td:
@@ -183,6 +212,34 @@ class TestResolveGradle(unittest.TestCase):
             "missing/build/libs/missing.jar",
         )
         self.assertIsNone(module)
+
+
+class TestResolveIvy(unittest.TestCase):
+    """Ivy/Ant JAR -> module resolution."""
+
+    def test_match_by_artifact_name(self):
+        module = resolve_module(
+            _ivy_capture(), "myapp", "dist/myapp.jar",
+        )
+        self.assertEqual(module["key"], "org.apache:myapp")
+
+    def test_single_module_fallback(self):
+        module = resolve_module(
+            _ivy_capture(), "other", "build/other.jar",
+        )
+        self.assertEqual(module["key"], "org.apache:myapp")
+
+    def test_not_found_multi_module(self):
+        capture = {
+            "tool": "ivy",
+            "modules": [
+                {"key": "a", "artifactId": "a", "deps": []},
+                {"key": "b", "artifactId": "b", "deps": []},
+            ],
+        }
+        self.assertIsNone(
+            resolve_module(capture, "missing", "x.jar"),
+        )
 
 
 class TestGetModuleDeps(unittest.TestCase):

@@ -34,6 +34,7 @@ from pathlib import Path
 _CAPTURE_FILES = {
     "maven_deps.json": "target",
     "gradle_deps.json": "build",
+    "ivy_deps.json": "build",
 }
 
 
@@ -112,6 +113,22 @@ def _resolve_gradle(modules, artifact_name, jar_rel_path):
     return None
 
 
+def _resolve_ivy(modules, artifact_name, jar_rel_path):
+    """Resolve an Ivy/Ant output JAR to its capture module.
+
+    Ant+Ivy projects resolve a single root module, so the
+    single-module fallback covers the common case; an artifactId
+    match is attempted first for the rare multi-JAR layout.
+    """
+    if artifact_name:
+        for module in modules:
+            if module.get("artifactId") == artifact_name:
+                return module
+    if len(modules) == 1:
+        return modules[0]
+    return None
+
+
 def resolve_module(capture, artifact_name, jar_rel_path=None):
     """Resolve the capture module for an output JAR.
 
@@ -132,8 +149,11 @@ def resolve_module(capture, artifact_name, jar_rel_path=None):
     modules = capture.get("modules") or []
     if not modules:
         return None
-    if capture.get("tool") == "gradle":
+    tool = capture.get("tool")
+    if tool == "gradle":
         return _resolve_gradle(modules, artifact_name, jar_rel_path)
+    if tool == "ivy":
+        return _resolve_ivy(modules, artifact_name, jar_rel_path)
     return _resolve_maven(modules, artifact_name, jar_rel_path)
 
 
