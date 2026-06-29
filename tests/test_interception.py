@@ -8,6 +8,7 @@ GradleDepTreeStrategy.
 """
 
 import unittest
+from pathlib import Path
 from unittest.mock import patch, MagicMock
 
 from app.pipeline.interception import (
@@ -18,6 +19,7 @@ from app.pipeline.interception import (
     RustcWrapperStrategy,
     MavenDepTreeStrategy,
     GradleDepTreeStrategy,
+    _generate_java_treedb,
 )
 
 
@@ -312,6 +314,71 @@ class TestInterceptionStrategyABC(unittest.TestCase):
             pass
         with self.assertRaises(TypeError):
             Incomplete()
+
+
+# ============================================================
+# _generate_java_treedb (shared helper)
+# ============================================================
+
+class TestGenerateJavaTreedb(unittest.TestCase):
+    """Tests for the shared _generate_java_treedb helper."""
+
+    def test_success_appends_treedb_substep(self):
+        runner = MagicMock()
+        runner.run.return_value = 0
+        substeps = []
+        with patch("builtins.print"):
+            ok = _generate_java_treedb(
+                runner, "/repo", Path("/bom/meta"),
+                {}, substeps,
+            )
+        self.assertTrue(ok)
+        self.assertEqual(len(substeps), 1)
+        self.assertEqual(substeps[0]["name"], "treedb")
+        self.assertEqual(
+            substeps[0]["tool"], "bomsh_create_bom_java.py",
+        )
+        self.assertIn("wall_sec", substeps[0])
+
+    def test_failure_returns_false_but_records_substep(self):
+        runner = MagicMock()
+        runner.run.return_value = 1
+        substeps = []
+        with patch("builtins.print"):
+            ok = _generate_java_treedb(
+                runner, "/repo", Path("/bom/meta"),
+                {}, substeps,
+            )
+        self.assertFalse(ok)
+        self.assertEqual(len(substeps), 1)
+        self.assertEqual(substeps[0]["name"], "treedb")
+
+    def test_uses_default_create_bom_script(self):
+        runner = MagicMock()
+        runner.run.return_value = 0
+        with patch("builtins.print"):
+            _generate_java_treedb(
+                runner, "/repo", Path("/bom/meta"),
+                {}, [],
+            )
+        cmd_str = runner.run.call_args[0][0]
+        self.assertIn("bomsh_create_bom_java.py", cmd_str)
+        self.assertIn("-r /repo", cmd_str)
+        self.assertIn(
+            "-j /bom/meta/bomsh_omnibor_treedb", cmd_str,
+        )
+
+    def test_honors_config_create_bom_script(self):
+        runner = MagicMock()
+        runner.run.return_value = 0
+        cfg = {"create_bom_script": "/custom/mkbom.py"}
+        with patch("builtins.print"):
+            _generate_java_treedb(
+                runner, "/repo", Path("/bom/meta"),
+                cfg, [],
+            )
+        cmd_str = runner.run.call_args[0][0]
+        self.assertIn("/custom/mkbom.py", cmd_str)
 
 
 if __name__ == "__main__":
