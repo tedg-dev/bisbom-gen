@@ -132,7 +132,7 @@ avoid copy-paste — DRY).
 ## 5. Detection design — **implemented** (`lang_runners._detect_java_build_tool`)
 
 `_detect_java_build_tool(repo_dir, repo_cfg=None)` returns one of
-`gradle` / `maven` / `ivy` / `ant` / `bazel` / `make`, or `unknown` when no
+`gradle` / `maven` / `ivy` / `ant` / `make` / `bazel`, or `unknown` when no
 signal matches. Precedence (checked in this order) and signals:
 
 | Order | Tool | Primary signal | Notes |
@@ -141,8 +141,8 @@ signal matches. Precedence (checked in this order) and signals:
 | 2 | `maven` | `pom.xml` | checked before Ivy/Ant: a `pom.xml` unambiguously means Maven |
 | 3 | `ivy` | `ivy.xml` (usually alongside `build.xml`) | Ant + Ivy |
 | 4 | `ant` | `build.xml` (no `ivy.xml`) | Ant without a declared graph -> artifact-only |
-| 5 | `bazel` | `WORKSPACE` / `WORKSPACE.bazel` / `MODULE.bazel` | `maven_install.json` enriches (parser deferred) |
-| 6 | `make` | `Makefile` / `makefile` / `GNUmakefile` | lowest — a convenience `Makefile` often coexists with a real tool |
+| 5 | `make` | `Makefile` / `makefile` / `GNUmakefile` | artifact-only path |
+| 6 | `bazel` | `WORKSPACE` / `WORKSPACE.bazel` / `MODULE.bazel` | lowest — tiny Java share; native strategy **deferred** |
 
 A **`java_build_tool`** field in `config.yaml` overrides detection
 (config-driven, never repo-name-keyed). An unrecognized override raises
