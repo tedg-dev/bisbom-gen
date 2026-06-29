@@ -48,6 +48,29 @@ Java build. Adapters only need to supply step 2 (the declared graph) in the
 existing contract — or, where there is no declared graph, fall back to the
 artifact-only path.
 
+### 2.1 Investigation findings (grounded in the code)
+
+These were verified by reading the code, not assumed:
+
+- **The treedb step is build-tool-agnostic.** `bomsh_create_bom_java.py`
+  maps JAR -> `.class` -> source using the `.class` `SourceFile` bytecode
+  attribute, with strace/filename-heuristic fallback
+  (`docker/patches/README-bomsh_java_sourcefile.md`). It reads the *built
+  workspace* and never inspects build files, so it is independent of
+  Maven/Gradle/Ant/Bazel/`make`.
+- **The treedb scope is output-JAR -> source only.** `AdgParser`
+  (`app/spdx/parser.py`) shows treedb entries are `{sha1: {file_path,
+  hash_tree, ...}}`, tracing output JAR -> compiled class -> source. The
+  treedb is the basis for the `_analyzed` SBOM.
+- **The treedb does NOT contain the consumed dependency (classpath) JARs.**
+  The Maven/Gradle `_build` dependency graph comes from the *separate*
+  dep:tree capture (`maven_deps.json` / `gradle_deps.json`), not the treedb.
+- **Consumed classpath JARs are observable only via strace** in standalone
+  mode (`AdgParser.parse_strace_openat_log()` records every opened file).
+  Sidecar mode has no equivalent capture.
+
+These findings drive §8 (artifact-only path) and §11.
+
 ---
 
 ## 3. The capture contract (what adapters must produce)
@@ -197,24 +220,39 @@ These builds have **no declared dependency graph**. The design does not fake
 one. Instead:
 
 - **`_analyzed` SBOM** — produced as usual from the treedb (source files
-  compiled into each JAR). Fully accurate, no change needed.
+  compiled into each JAR). Fully accurate, no change needed. **Grounded:**
+  `bomsh_create_bom_java.py` derives JAR -> class -> source from the `.class`
+  `SourceFile` bytecode attribute (with strace/heuristic fallback) — it reads
+  the built workspace and has no build-tool knowledge, so this works
+  unchanged for Ant/`make` (see §2.1).
 - **`_build` SBOM** — there is no resolved-coordinate graph, so dependencies
   are represented as the **classpath JARs the build consumed**, identified by
-  GitOID (and best-effort coordinates parsed from the JAR filename). These
-  JARs are the ones present in the workspace's library directory / on the
-  `javac -classpath`.
+  GitOID (and best-effort coordinates parsed from the JAR filename).
+
+**Grounded constraint (from §2.1): the treedb does NOT record consumed
+classpath JARs** — it records output-JAR -> source provenance only. The
+consumed JARs are therefore sourced differently per mode:
+
+| Mode | Consumed-classpath source | Feasible today? |
+|---|---|---|
+| **Standalone** (strace) | `AdgParser.parse_strace_openat_log()` already records every opened file; filter `.jar` opens, excluding output JARs and JDK/runtime jars | Yes — generic, exists |
+| **Sidecar** (no strace) | No capture exists; needs an explicit, standard classpath-capture step | No — design gap |
+
+So the artifact-only `_build` path is **straightforward in standalone mode**
+but a **genuine gap in sidecar mode** for Ant-only/`make`. Ivy and Bazel do
+not have this gap because they ship a declared graph (Ivy report,
+`maven_install.json`). Recommended scoping: deliver Ivy + Bazel first; treat
+the sidecar artifact-only `_build` path for Ant-only/`make` as a separate,
+explicitly-scoped problem (candidate standard mechanisms: a `javac` classpath
+manifest emitted by the build, or parsing the resolved classpath the build
+used — to be designed, not guessed).
 
 `ArtifactOnlyStrategy.generate_adg()` runs only the shared treedb step and
-writes **no** `*_deps.json`. Phase 2 then has `build_deps is None`; rather
-than failing, the design adds an **artifact-only `_build` mode** in
-`generate_java_adg_spdx()` that lists the consumed classpath JARs as
-components (GitOID-identified) when the build tool is `make`/`ant-only`.
-
-**Open implementation question (Section 11):** the cleanest source of the
-consumed classpath JAR set without a declared graph — candidates: (a) the
-treedb already records consumed JARs; (b) scan a configured `lib/` dir; (c)
-parse `javac -classpath` from the build. Prefer (a) if the treedb captures
-it; confirm during implementation.
+writes **no** `*_deps.json`. In standalone mode an artifact-only `_build`
+mode in `generate_java_adg_spdx()` lists the strace-observed classpath JARs
+as GitOID-identified components; in sidecar mode it emits the `_analyzed`
+SBOM and a clearly-logged, dependency-less `_build` until the capture
+mechanism above is designed.
 
 ---
 
@@ -256,17 +294,32 @@ or `JavaSpdxGenerator` — they consume the canonical dep dict unchanged.
 
 ---
 
-## 11. Open questions / risks
+## 11. Findings (investigated) and remaining open questions
 
-- **Treedb in sidecar for non-MG** — confirm `bomsh_create_bom_java.py -r`
-  produces a complete treedb for Ant/Bazel/`make` workspaces (it is
-  build-tool-agnostic by design, but unverified on these layouts).
-- **Consumed-classpath source** for the artifact-only `_build` path (Section
-  8) — confirm whether the treedb already records consumed JARs.
+**Resolved by investigation (no longer assumptions):**
+
+- **Treedb `_analyzed` layer is build-tool-agnostic — confirmed.**
+  `bomsh_create_bom_java.py` maps JAR -> class -> source via the `.class`
+  `SourceFile` attribute (strace/heuristic fallback), reading the built
+  workspace with no build-tool knowledge
+  (`docker/patches/README-bomsh_java_sourcefile.md`,
+  `AdgParser.get_jar_source_files`). Ant/Bazel/`make` `_analyzed` SBOMs are
+  feasible via the existing treedb step.
+- **Treedb does NOT record consumed dependency JARs — confirmed.** It records
+  output-JAR -> class -> source only; the Maven/Gradle `_build` graph comes
+  from the separate dep:tree capture, not the treedb (`AdgParser`,
+  `dep_capture_reader`). Consumed JARs are observable via
+  `parse_strace_openat_log()` in **standalone mode only** (see §8 table).
+
+**Remaining genuine open questions:**
+
+- **Sidecar artifact-only `_build` capture** — Ant-only/`make` in sidecar
+  mode has no consumed-classpath source; needs a standard mechanism (§8). To
+  be designed before that path is implemented — not guessed.
 - **Ivy report location** — varies by project; must be config-overridable and
   may require running the `ivy:report` task.
 - **Bazel toolchain weight** — adding Bazel to the Docker image is heavy;
-  gated on USER confirmation (see sub-issue). Ivy + `make` can land first.
+  gated on USER confirmation (see sub-issue). Ivy can land first.
 - **sbt** remains out of scope (Scala-first).
 
 ---
