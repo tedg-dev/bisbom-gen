@@ -364,8 +364,9 @@ or `JavaSpdxGenerator` — they consume the canonical dep dict unchanged.
   Remaining work is **validation against real repos** (apache/ant unforked
   javac; adapter loads under the image's Ant version; make shim fires), not
   design.
-- **Ivy report location** — varies by project; must be config-overridable and
-  may require running the `ivy:report` task.
+- **Ivy report location** — **resolved (§13.3):** `ant-ivy` writes the report
+  under `${ivy.report.dir}` during `ivy:retrieve`. Keep the path
+  config-overridable; some projects may need an explicit `ivy:report` task.
 - **Bazel toolchain weight** — adding Bazel to the Docker image is heavy;
   gated on USER confirmation (see sub-issue). Ivy can land first.
 - **sbt** remains out of scope (Scala-first).
@@ -374,11 +375,10 @@ or `JavaSpdxGenerator` — they consume the canonical dep dict unchanged.
 
 ## 12. Incremental delivery order
 
-0. **Investigate real repositories** — validate the Ivy report XML,
-   `maven_install.json`, and Ant unforked-`javac` assumptions against actual
-   files, and finalize the verifier-repo list. Prerequisite to steps 3–5; no
-   parser is finalized against an assumed format. (Supplements the design
-   research/validation throughout this doc.)
+0. **Investigate real repositories** — **done; findings recorded in §13**
+   (`maven_install.json` structure, Ivy report XML schema, `ant-ivy` build
+   facts, finalized verifier repos). Remaining: confirm the Bazel example
+   repo path (post toolchain decision) and create `omnibor-java-make-testapp`.
 1. Extract shared `_generate_java_treedb()` helper (pure refactor, golden-clean).
 2. `_detect_java_build_tool()` + config override + unit tests.
 3. Ivy: `ivy_report_parser` + `IvyDepCaptureStrategy` + reader support + tests
@@ -389,3 +389,79 @@ or `JavaSpdxGenerator` — they consume the canonical dep dict unchanged.
    + tests (parser validated against the real lockfile from step 0; after the
    Bazel toolchain decision).
 6. EC2 golden validation per verifier repo — present diffs, await USER review.
+
+---
+
+## 13. Step 0 findings — validated against real artifacts
+
+Evidence gathered by inspecting real repositories (per the "never guess /
+validate against real repos" rule). These confirm the §6/§7/§8.1 designs.
+
+### 13.1 Bazel `maven_install.json` (real: `bazel-contrib/rules_jvm_external`)
+
+Confirmed top-level structure:
+
+| Key | Shape | Use |
+|---|---|---|
+| `artifacts` | `{"group:artifact": {"shasums": {"jar": "<sha256>"}, "version": "x.y.z"}}` | coordinates (split key on `:`) + resolved version + jar digest |
+| `dependencies` | `{"group:artifact": ["group:artifact", ...]}` | adjacency graph -> direct vs transitive + `depth`/`parent` |
+| `__INPUT_ARTIFACTS_HASH` / `__RESOLVED_ARTIFACTS_HASH` | metadata | ignore |
+
+Notes that drive `bazel_lockfile_parser`:
+
+- Classifier artifacts use **4-part keys** (`io.netty:...:jar:linux-x86_64`);
+  the parser must handle 2-part and 4-part keys.
+- The lockfile is **compile-scope only** (no test scope) — matches the
+  capture contract (test already excluded).
+- `shasums.jar` is a **SHA-256**, not a GitOID; treat as a verifiable digest,
+  not the OmniBOR identifier.
+
+### 13.2 Ivy resolution report XML (schema confirmed via authoritative XSLT)
+
+```text
+<ivy-report>
+  <info organisation=".." module=".." revision=".." conf=".."/>
+  <dependencies>
+    <module organisation=".." name="..">
+      <revision name="<version>" status=".." evicted="..">
+        <caller organisation=".." name=".." callerrev=".." rev=".."/>
+        <artifacts><artifact name=".." type="jar" ext="jar"/></artifacts>
+      </revision>
+    </module>
+  </dependencies>
+</ivy-report>
+```
+
+Drives `ivy_report_parser`:
+
+- `module/@organisation` -> `groupId`; `module/@name` -> `artifactId`;
+  `revision/@name` -> `version`.
+- **Direct** iff a `revision/caller` matches the root module
+  (`info/@organisation` + `info/@module`); otherwise transitive (derive
+  `depth`/`parent` from caller chains).
+- **Skip `evicted` revisions** (not part of the resolved graph).
+- One report **per conf**; parse production confs, skip `test`.
+
+### 13.3 `apache/ant-ivy` build facts (real `build.xml`)
+
+- **Resolves via Ivy:** `<target name="resolve">` runs
+  `<ivy:retrieve conf="default,test" .../>` -> a real resolve happens and the
+  XML resolution report is written under `${ivy.report.dir}` (config-driven —
+  confirms the report-location open question).
+- **Unforked `<javac>`:** `compile-core` uses `<javac ... includeantruntime="no">`
+  with **no `fork`** -> in-process compilation, confirming §8.1 (a PATH
+  `javac` shim will not fire for default Ant; the `CompilerAdapter` route is
+  required).
+
+### 13.4 Finalized verifier repos
+
+| Build tool | Repo | Pin | Build entry | Evidence |
+|---|---|---|---|---|
+| Ant + Ivy | `apache/ant-ivy` | release tag (e.g. `2.5.2`) | `ant jar` (resolve -> compile -> jar) | §13.2/§13.3 — real Ivy report + unforked javac |
+| `make`/`javac` (artifact-only) | new `omnibor-java-make-testapp` (we own) | `main` | `make` | controlled `Makefile` -> `javac` -> `jar`; exercises §8.1 PATH shim |
+| Bazel | candidate `bazelbuild/examples` (Java + `rules_jvm_external`) — **exact path TBD** | commit SHA | `bazel build //...` | §13.1 lockfile format; **gated on Bazel toolchain decision** |
+| Ant (no Ivy) | optional `apache/ant` | release tag | bootstrap build | confirms artifact-only path; heavier bootstrap — lower priority |
+
+Bazel repo path is not yet pinned: the previously-assumed
+`bazelbuild/examples/java-maven/maven_install.json` path returned 404 and
+must be re-confirmed before adding (and only after the toolchain decision).

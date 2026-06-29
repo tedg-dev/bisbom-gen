@@ -9,7 +9,7 @@
 | **Applies to** | Java builds using Ant, Ivy, Bazel, or `make`/`javac` |
 | **Author** | Ted G. |
 | **Drafted** | 2026-06-29 (Cascade) |
-| **Status** | Drafting — design + verifier repos; no code yet |
+| **Status** | Step 0 (real-repo validation) done — see design §13; no code yet |
 | **Detailed design** | `../../deep-dive/java/java-nonmaven-gradle-adapter-design.md` (integration points, capture contract, Ivy/Bazel parsers, artifact-only path) |
 
 ---
@@ -51,12 +51,14 @@ Identification is **build-tool-agnostic** because it reads what the build
 Each verifies a real build path and gets golden SBOMs (golden files require
 USER review — never auto-generated/updated).
 
-| Build tool | Repo | Pin | Why |
+Finalized from Step 0 real-artifact validation (see design §13.4):
+
+| Build tool | Repo | Pin | Status / why |
 |---|---|---|---|
-| Ant + Ivy | `apache/ant-ivy` | `2.5.2` | The Ivy project, built with Ant **and** Ivy — exercises both |
-| Ant (no Ivy) | `apache/ant` | `rel/1.10.15` | Ant builds itself, zero external deps — pure artifact-based path |
-| Bazel + lockfile | `bazelbuild/examples` (`java-maven`) | commit SHA (no release tags) | `rules_jvm_external` + `maven_install.json` — Bazel mechanism + lockfile adapter |
-| Plain `make`/`javac` | new `omnibor-java-make-testapp` | `main` (we own it) | Controlled `Makefile` -> `javac` -> `jar` with manual classpath JARs |
+| Ant + Ivy | `apache/ant-ivy` | `2.5.2` | **Confirmed** (§13.3): `ivy:retrieve` produces a real resolution report; unforked `<javac>`. Build: `ant jar`. |
+| Plain `make`/`javac` | new `omnibor-java-make-testapp` | `main` (we own it) | **To create**: controlled `Makefile` -> `javac` -> `jar`; exercises the §8.1 PATH shim |
+| Bazel + lockfile | candidate `bazelbuild/examples` — **exact path TBD** | commit SHA | `rules_jvm_external` + `maven_install.json` (§13.1). Prior `java-maven` path 404'd; re-confirm. **Gated on Bazel toolchain decision.** |
+| Ant (no Ivy) | optional `apache/ant` | release tag | Lower priority — heavier bootstrap; artifact-only path also covered by the `make` test app |
 
 ---
 
