@@ -40,15 +40,18 @@ testing) before Main B or Main C begins.
 
 Detail: build-speed sub-issues [java/phase1-build-speed-subissues.md](java/phase1-build-speed-subissues.md)
 (A3–A5) with engineering design [../deep-dive/java/phase1-build-speed-design.md](../deep-dive/java/phase1-build-speed-design.md);
-Java Phase 2 main issue `java/java-phase2-consume-dep-capture-subissue.md`
-(arrives with PR #194); treedb retro [java/retro-subissue-java-treedb-perf.md](java/retro-subissue-java-treedb-perf.md).
+Java Phase 2 main issue `java-phase2-consume-dep-capture-subissue.md`
+(delivered in PR #194); treedb retro [java/retro-subissue-java-treedb-perf.md](java/retro-subissue-java-treedb-perf.md).
+
+PR/issue mapping for recreation once GitHub Issues access returns:
+[github-issues-crosswalk.md](github-issues-crosswalk.md).
 
 | Sub | Title | Status | Maps to |
 |-----|-------|--------|---------|
-| A1 | Phase 2 generates SBOMs from Phase 1 metadata, no source tree (phase-isolation core) | PR open | SI-4 (Java) / #11003 / PR #194 |
+| A1 | Phase 2 generates SBOMs from Phase 1 metadata, no source tree (phase-isolation core) | Merged | SI-4 (Java) / #11003 / PR #194 |
 | A2 | Phase 2 output set + hand-off manifest | Scoped | #11004 → [java/java-phase2-11004-handoff-scope.md](java/java-phase2-11004-handoff-scope.md) |
 | A3 | Build efficiency — reuse captured dependency data (no double resolution) | Delivered via A1 | US-1 |
-| A4 | Build efficiency — single-invocation multi-module Gradle capture | Done (golden-clean); PR pending | US-2 |
+| A4 | Build efficiency — single-invocation multi-module Gradle capture | Merged | US-2 / PR #196 |
 | A5 | Build efficiency — overlap independent post-build steps only when measurable | Conditional (measure first) | US-3 |
 | A6 | Treedb SBOM-generation speedup (retro) | Delivered | SI-R1 / PRs #189, #187, #191 |
 | A7 | Deliver Java build evidence to Corona (Java delivery slice) | Planned | SI-5 (Java) |
