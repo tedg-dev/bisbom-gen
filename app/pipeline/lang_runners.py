@@ -10,11 +10,19 @@ metrics for Phase 1 (build interception) and Phase 2
 (post-build analysis).
 """
 
+import logging
 import sys
 from pathlib import Path
 
 from app.config import lang_subdir
 from app.pipeline.timing import StepTimer, TimingResult
+
+logger = logging.getLogger(__name__)
+
+# Java build tools recognized by _detect_java_build_tool().
+_KNOWN_JAVA_BUILD_TOOLS = (
+    "gradle", "maven", "ivy", "ant", "make", "bazel",
+)
 
 
 # ============================================================
@@ -169,30 +177,91 @@ def _extract_maven_modules(build_steps):
     return None
 
 
+def _detect_java_build_tool(repo_dir, repo_cfg=None):
+    """Detect the Java build tool for a repository.
+
+    Returns one of ``gradle`` / ``maven`` / ``ivy`` / ``ant`` /
+    ``make`` / ``bazel``, or ``unknown`` when no signal matches.
+
+    A ``java_build_tool`` field in the repo config overrides
+    detection (config-driven, never repo-name-keyed). Otherwise
+    detection is a pure function over the repo's top-level build
+    files, using this precedence: ``gradle`` > ``maven`` >
+    ``ivy`` > ``ant`` > ``make`` > ``bazel``. Maven and Gradle
+    are checked first because their build files unambiguously
+    identify the primary build; ``bazel`` is last because its
+    Java share is tiny and a native strategy is deferred.
+
+    Raises:
+        ValueError: if ``java_build_tool`` is set to an
+            unrecognized value.
+    """
+    override = (repo_cfg or {}).get("java_build_tool")
+    if override:
+        tool = str(override).strip().lower()
+        if tool not in _KNOWN_JAVA_BUILD_TOOLS:
+            raise ValueError(
+                f"Unknown java_build_tool '{override}'; expected "
+                f"one of {_KNOWN_JAVA_BUILD_TOOLS}"
+            )
+        return tool
+
+    from app.spdx.gradle_parser import is_gradle_project
+
+    repo_path = Path(repo_dir)
+    if is_gradle_project(str(repo_path)):
+        return "gradle"
+    if (repo_path / "pom.xml").exists():
+        return "maven"
+    if (repo_path / "ivy.xml").exists():
+        return "ivy"
+    if (repo_path / "build.xml").exists():
+        return "ant"
+    if any(
+        (repo_path / f).exists()
+        for f in ("Makefile", "makefile", "GNUmakefile")
+    ):
+        return "make"
+    if any(
+        (repo_path / f).exists()
+        for f in ("WORKSPACE", "WORKSPACE.bazel", "MODULE.bazel")
+    ):
+        return "bazel"
+    return "unknown"
+
+
 def _select_java_strategy(
     repo_name, repo_cfg, paths_cfg, mode,
 ):
     """Select interception strategy for Java builds.
 
     In sidecar mode, uses dep:tree strategies that avoid
-    strace entirely.  Detects Maven vs Gradle from the
-    repo's build configuration.
+    strace entirely.  Detects the build tool via
+    ``_detect_java_build_tool``.
 
     In standalone mode, returns None (legacy strace path).
     """
     if mode != "sidecar":
         return None
 
-    from app.spdx.gradle_parser import is_gradle_project
-
     repo_dir = (
         Path(paths_cfg["repos_dir"]) / repo_name
     )
-    if is_gradle_project(str(repo_dir)):
+    tool = _detect_java_build_tool(str(repo_dir), repo_cfg)
+
+    if tool == "gradle":
         from app.pipeline.interception import (
             GradleDepTreeStrategy,
         )
         return GradleDepTreeStrategy()
+
+    if tool not in ("maven", "unknown"):
+        logger.info(
+            "Java build tool '%s' detected for %s; native "
+            "dependency capture is not yet implemented \u2014 "
+            "falling back to the Maven dep:tree strategy",
+            tool, repo_name,
+        )
 
     from app.pipeline.interception import (
         MavenDepTreeStrategy,
