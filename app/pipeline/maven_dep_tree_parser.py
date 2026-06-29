@@ -1,32 +1,39 @@
-"""
-Maven ``dependency:tree`` DOT format parser.
+r"""
+Maven ``dependency:tree`` text format parser (per-module).
 
-Parses the output of ``mvn dependency:tree -DoutputType=dot``
-into structured dependency metadata.
+Parses the **default text** output of ``mvn dependency:tree`` into
+per-module dependency subtrees for Phase 1 capture.
 
-DOT output format::
+The default text format is used (not DOT, not JSON) because it is the
+only universally-available output that carries the ``optional`` flag:
 
-    digraph "com.example:app:jar:1.0" {
-        "com.example:app:jar:1.0" ->
-            "org.apache:commons-lang3:jar:3.12.0:compile" ;
-        "org.apache:commons-lang3:jar:3.12.0:compile" ->
-            "org.apache:commons-text:jar:1.10.0:compile" ;
-    }
+- **DOT** edges are labeled with scope only
+  (``groupId:artifactId:type:version:scope``) — no ``optional``.
+- **JSON** carries ``optional`` but requires
+  ``maven-dependency-plugin >= 3.7.0``, a toolchain version that is not
+  under our control (Phase 1 runs on the customer's build machine).
+- **text** (the default) has emitted the ``:scope`` coordinate plus an
+  ``(optional)`` suffix consistently across the plugin's 2.x/3.x life,
+  so it imposes no version requirement.
 
-Each node uses the Maven coordinate format:
-``groupId:artifactId:packaging:version[:scope]``
+Text output format (one tree per reactor module)::
 
-The root node (project itself) has no scope suffix.
-Dependency nodes have a scope suffix (compile, runtime,
-provided, test, system, import).
+    [INFO] com.example:app:jar:1.0
+    [INFO] +- org.apache:commons-lang3:jar:3.12.0:compile
+    [INFO] |  \- org.apache:commons-text:jar:1.10.0:compile
+    [INFO] \- org.projectlombok:lombok:jar:1.18.0:provided (optional)
 
-Multi-module projects produce multiple ``digraph`` blocks,
-one per module.
+Each module begins with its root coordinate line
+(``groupId:artifactId:packaging:version`` — no tree-branch prefix and
+no scope suffix). A component shared by two modules appears under
+**both** (no cross-module de-duplication).
 """
 
 import re
 import subprocess
 from pathlib import Path
+
+from app.spdx.maven_parser import parse_dep_tree
 
 
 # Maven dependency scopes that appear in production artifacts.
@@ -35,17 +42,9 @@ _PRODUCTION_SCOPES = frozenset({
     "compile", "runtime", "provided", "system",
 })
 
-# Regex for DOT edge lines:
-#   "group:artifact:type:ver:scope" -> "group:artifact:type:ver:scope" ;
-_EDGE_RE = re.compile(
-    r'"([^"]+)"\s*->\s*"([^"]+)"\s*;'
-)
-
-# Regex for DOT digraph header:
-#   digraph "group:artifact:type:ver" {
-_DIGRAPH_RE = re.compile(
-    r'digraph\s+"([^"]+)"\s*\{'
-)
+# A dependency tree branch line, e.g. ``+- g:a:...`` or ``|  \- g:a:...``
+# or (when the parent is the last child) ``   +- g:a:...``.
+_TREE_LINE_RE = re.compile(r"^[ |]*[+\\]- ")
 
 
 def parse_maven_coordinate(coord):
@@ -84,95 +83,105 @@ def parse_maven_coordinate(coord):
     return None
 
 
-def parse_dot_output(dot_text):
-    """Parse ``mvn dependency:tree -DoutputType=dot`` output.
+def _strip_info_prefix(raw_line):
+    """Remove a leading Maven ``[INFO]`` marker, preserving the tree
+    indentation that follows it.
 
-    Extracts all dependency edges from the DOT graph and
-    builds a list of dependency dicts. The root project node
-    is identified as the digraph name and excluded from the
-    dependency list.
+    The indentation after ``[INFO] `` encodes dependency depth and
+    must not be stripped. Lines without an ``[INFO]`` marker (e.g.
+    raw fixture input) are returned unchanged.
+    """
+    stripped = raw_line.lstrip()
+    if stripped.startswith("[INFO]"):
+        rest = stripped[len("[INFO]"):]
+        if rest.startswith(" "):
+            rest = rest[1:]
+        return rest
+    return raw_line
 
-    Handles multi-module projects (multiple digraph blocks).
+
+def _parse_root_line(line):
+    """Return a module dict if *line* is a reactor module root
+    coordinate, else None.
+
+    A root line is a bare Maven coordinate
+    (``groupId:artifactId:packaging:version``) with no tree-branch
+    prefix and no scope suffix.
+    """
+    if not line or line[0] in "+\\| ":
+        return None
+    parts = line.split(":")
+    if len(parts) != 4:
+        return None
+    if any((not p) or (" " in p) for p in parts):
+        return None
+    coord = parse_maven_coordinate(line)
+    if coord is None:
+        return None
+    return {
+        "key": f"{coord['groupId']}:{coord['artifactId']}",
+        "groupId": coord["groupId"],
+        "artifactId": coord["artifactId"],
+        "version": coord["version"],
+        "packaging": coord["packaging"],
+        "deps": [],
+    }
+
+
+def parse_text_output(dep_tree_text):
+    """Parse default ``mvn dependency:tree`` (text) reactor output
+    into per-module dependency subtrees.
+
+    Dependencies are de-duplicated WITHIN a module only (Maven prints
+    each resolved artifact once per module); there is no
+    de-duplication ACROSS modules, so a component shared by two
+    modules appears under both — which is exactly what per-module
+    ``_build`` SBOMs require.
 
     Args:
-        dot_text: Raw stdout from ``mvn dependency:tree
-            -DoutputType=dot``, possibly including Maven
+        dep_tree_text: Raw stdout from ``mvn dependency:tree``
+            (default text output), possibly including Maven
             ``[INFO]`` log prefix lines.
 
     Returns:
-        A list of dicts, each with keys:
+        A list of module dicts, each with keys:
 
-        - ``groupId``, ``artifactId``, ``version``, ``scope``
-        - ``packaging`` (jar, pom, war, etc.)
-        - ``direct`` (bool) — True if the parent is the
-          project root
-        - ``parent`` — the parent artifactId, or None for
-          direct deps
-        - ``is_test`` (bool) — True if scope is ``test``
-        - ``module`` — the module coordinate that owns this
-          dependency (for multi-module projects)
+        - ``key`` — ``"groupId:artifactId"`` module coordinate
+        - ``groupId``, ``artifactId``, ``version``, ``packaging``
+        - ``deps`` — list of dependency dicts in the shape produced
+          by ``app.spdx.maven_parser.parse_dep_tree`` (``groupId``,
+          ``artifactId``, ``version``, ``scope``, ``direct``,
+          ``optional``, ``parent``, ``depth``).
     """
-    # Strip Maven [INFO] prefixes if present
-    lines = []
-    for raw_line in dot_text.splitlines():
-        line = raw_line.strip()
-        if line.startswith("[INFO] "):
-            line = line[7:]
-        lines.append(line)
-    clean_text = "\n".join(lines)
+    modules = []
+    state = {"current": None, "block": []}
 
-    # Collect root nodes per digraph block
-    roots = set()
-    for match in _DIGRAPH_RE.finditer(clean_text):
-        roots.add(match.group(1))
+    def _flush():
+        current = state["current"]
+        if current is not None:
+            current["deps"] = parse_dep_tree(
+                "\n".join(state["block"])
+            )
+            modules.append(current)
 
-    # Parse all edges
-    seen = set()
-    deps = []
-    for match in _EDGE_RE.finditer(clean_text):
-        parent_coord = match.group(1)
-        child_coord = match.group(2)
+    for raw_line in dep_tree_text.splitlines():
+        content = _strip_info_prefix(raw_line)
 
-        child = parse_maven_coordinate(child_coord)
-        if child is None:
+        root = _parse_root_line(content)
+        if root is not None:
+            _flush()
+            state["current"] = root
+            state["block"] = []
             continue
 
-        parent = parse_maven_coordinate(parent_coord)
-        if parent is None:
-            continue
+        if (
+            state["current"] is not None
+            and _TREE_LINE_RE.match(content)
+        ):
+            state["block"].append("[INFO] " + content)
 
-        # Deduplicate by (groupId, artifactId) — Maven
-        # resolves one version per artifact, so the first
-        # occurrence (nearest/managed) wins.
-        dep_key = (
-            child["groupId"],
-            child["artifactId"],
-        )
-        if dep_key in seen:
-            continue
-        seen.add(dep_key)
-
-        # Direct dependency = parent is a root node
-        is_direct = parent_coord in roots
-
-        scope = child.get("scope", "compile") or "compile"
-
-        deps.append({
-            "groupId": child["groupId"],
-            "artifactId": child["artifactId"],
-            "version": child["version"],
-            "scope": scope,
-            "packaging": child.get("packaging", "jar"),
-            "direct": is_direct,
-            "parent": (
-                None if is_direct
-                else parent["artifactId"]
-            ),
-            "is_test": scope == "test",
-            "module": parent_coord if is_direct else None,
-        })
-
-    return deps
+    _flush()
+    return modules
 
 
 def filter_production_deps(deps):
@@ -181,8 +190,8 @@ def filter_production_deps(deps):
     Removes test-scope dependencies from the list.
 
     Args:
-        deps: List of dependency dicts from
-            ``parse_dot_output()``.
+        deps: List of dependency dicts (e.g. a module's
+            ``deps`` list from ``parse_text_output()``).
 
     Returns:
         A new list containing only dependencies with
@@ -248,9 +257,13 @@ def run_maven_dep_tree(
         )
         return None
 
+    # Use the DEFAULT text output (no -DoutputType): it is the only
+    # universally-available format that carries the ``optional`` flag
+    # and imposes no maven-dependency-plugin version requirement on
+    # the customer's build toolchain (DOT lacks optional; JSON needs
+    # plugin >= 3.7.0).
     base_cmd = [
         "mvn", "dependency:tree",
-        "-DoutputType=dot",
         "-DskipTests",
         "-Dmaven.javadoc.skip=true",
         "-Denforcer.skip=true",
@@ -271,6 +284,8 @@ def run_maven_dep_tree(
         cmd = list(base_cmd)
         if offline:
             cmd.insert(2, "-o")
+        # cmd index 2 is the first option after
+        # ``mvn dependency:tree``; -o is inserted there.
         try:
             result = subprocess.run(
                 cmd,

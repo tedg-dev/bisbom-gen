@@ -1,4 +1,5 @@
 """Tests for Java pipeline functions in runners.py."""
+import json
 import sys
 import tempfile
 import unittest
@@ -637,6 +638,84 @@ class TestGenerateJavaAdgSpdxBranches(unittest.TestCase):
             )
         self.assertEqual(len(result), 2)
         mock_detect.assert_called_once()
+
+    @patch("app.spdx.parser.AdgParser")
+    @patch("app.spdx.java_generator.JavaSpdxGenerator")
+    def test_build_deps_from_capture(
+        self, mock_gen_cls, mock_parser_cls,
+    ):
+        """With a Phase 1 capture present, the _build SBOM is
+        generated from the captured per-module deps directly
+        (no source-tree access / pom_dir)."""
+        mock_gen = MagicMock()
+        mock_gen.generate.side_effect = [
+            "/tmp/analyzed.spdx.json",
+            "/tmp/build.spdx.json",
+        ]
+        mock_gen_cls.return_value = mock_gen
+
+        mock_parser = MagicMock()
+        mock_parser.get_jar_source_files.return_value = {
+            "myapp/target/myapp-1.0.jar": [
+                {"sha1": "a", "file_path": "a.java"},
+            ],
+        }
+        mock_parser.parse_strace_openat_log.return_value = (
+            set()
+        )
+        mock_parser_cls.return_value = mock_parser
+
+        with tempfile.TemporaryDirectory() as td:
+            paths_cfg = {
+                "output_dir": str(Path(td) / "output"),
+                "repos_dir": str(Path(td) / "repos"),
+            }
+            repo_cfg = {
+                "language": "java",
+                "output_binaries": ["target/myapp-1.0.jar"],
+            }
+            jar = (
+                Path(td) / "repos" / "myapp"
+                / "target" / "myapp-1.0.jar"
+            )
+            jar.parent.mkdir(parents=True)
+            jar.write_bytes(b"PK")
+
+            bom_dir = (
+                Path(td) / "output" / "omnibor"
+                / "java" / "myapp" / "ts1"
+            )
+            bom_dir.mkdir(parents=True)
+            captured_dep = {
+                "groupId": "org.slf4j",
+                "artifactId": "slf4j-api",
+                "version": "2.0.7", "scope": "compile",
+                "direct": True, "optional": False,
+                "parent": None,
+            }
+            (bom_dir / "maven_deps.json").write_text(
+                json.dumps({
+                    "tool": "maven",
+                    "modules": [{
+                        "key": "com.example:myapp",
+                        "groupId": "com.example",
+                        "artifactId": "myapp",
+                        "version": "1.0",
+                        "packaging": "jar",
+                        "deps": [captured_dep],
+                    }],
+                })
+            )
+
+            result = _generate_java_adg_spdx(
+                "myapp", repo_cfg, paths_cfg, "ts1",
+            )
+        self.assertEqual(len(result), 2)
+        build_call = mock_gen.generate.call_args_list[1]
+        self.assertEqual(
+            build_call.kwargs["deps"], [captured_dep],
+        )
+        self.assertIsNone(build_call.kwargs["pom_dir"])
 
 
 class TestMainJavaDispatch(unittest.TestCase):

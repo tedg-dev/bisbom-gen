@@ -23,6 +23,17 @@ COMPARE_SCRIPT="$SCRIPT_DIR/compare_golden.py"
 # Default: test jsoup (fast, has golden files)
 REPOS="${1:-jsoup}"
 
+# Phase 1 clone control.  By default Phase 1 reuses an existing
+# checkout (--skip-clone) so reruns are fast.  Set P1_SKIP_CLONE=0
+# to clone the pinned tag fresh (required when repos/ is empty,
+# e.g. a clean golden-regression host).
+P1_SKIP_CLONE="${P1_SKIP_CLONE:-1}"
+if [ "$P1_SKIP_CLONE" = "0" ]; then
+    P1_CLONE_FLAG=""
+else
+    P1_CLONE_FLAG="--skip-clone"
+fi
+
 mkdir -p "$LOG_DIR"
 
 # Color output helpers
@@ -62,7 +73,7 @@ run_phase_test() {
         bash -c "echo CONTAINER_ID=\$(hostname) && \
             cd /workspace && python3 app/analyze.py \
             --repo $repo --mode sidecar --phase build \
-            --skip-clone" \
+            $P1_CLONE_FLAG" \
         > "$repo_log_dir/phase1.log" 2>&1
     local p1_rc=$?
     local p1_end
@@ -96,26 +107,32 @@ run_phase_test() {
     fi
     ok "Manifest: $manifest_path"
 
+    # The Phase 1 log prints the in-container path
+    # (/workspace/...).  Host-side file checks need the
+    # host path; the docker run for Phase 2 still gets the
+    # in-container path via --manifest.
+    local manifest_host="${manifest_path/\/workspace/$PROJECT_ROOT}"
+
     # ── Verify manifest content ────────────────────────
-    if [ ! -f "$manifest_path" ]; then
-        fail "Manifest file does not exist: $manifest_path"
+    if [ ! -f "$manifest_host" ]; then
+        fail "Manifest file does not exist: $manifest_host"
         TOTAL_FAIL=$((TOTAL_FAIL + 1))
         return 1
     fi
     info "Manifest contents (summary):"
     # Log key manifest fields for audit trail
-    grep -o '"run_ts": *"[^"]*"' "$manifest_path" | head -1
-    grep -o '"commit_sha": *"[^"]*"' "$manifest_path" | head -1
-    grep -c '"gitoids"' "$manifest_path" | \
+    grep -o '"run_ts": *"[^"]*"' "$manifest_host" | head -1
+    grep -o '"commit_sha": *"[^"]*"' "$manifest_host" | head -1
+    grep -c '"gitoids"' "$manifest_host" | \
         xargs -I{} echo "  gitoid entries present: {}"
-    cp "$manifest_path" "$repo_log_dir/manifest.json"
+    cp "$manifest_host" "$repo_log_dir/manifest.json"
     ok "Manifest validated and archived to logs"
 
     # ── Pre-Phase 2: Clean SPDX output dir ─────────────
     # Ensures any SPDX files found after Phase 2 were
     # produced by Container B, not left over from prior runs.
     local run_ts
-    run_ts=$(grep -o '"run_ts": *"[^"]*"' "$manifest_path" \
+    run_ts=$(grep -o '"run_ts": *"[^"]*"' "$manifest_host" \
         | head -1 | sed 's/.*": *"//;s/"//')
     local spdx_dir="$PROJECT_ROOT/output/spdx/java/$repo/$run_ts"
 

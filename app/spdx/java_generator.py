@@ -398,6 +398,7 @@ class JavaSpdxGenerator:
         self, output_path, binary_name=None,
         sbom_type="build", jar_files=None,
         pom_dir=None, plugin_detection=None,
+        deps=None,
     ):
         """Generate SPDX for a Java JAR.
 
@@ -413,11 +414,20 @@ class JavaSpdxGenerator:
                 Required; None is an error.
             pom_dir: optional directory containing the
                 module's pom.xml for per-module Maven
-                dependency resolution.
+                dependency resolution. Only used by the
+                co-located dev/test live fallback when
+                *deps* is None.
             plugin_detection: optional ``DetectionResult``
                 from ``maven_plugin_detector``. When present
                 and a shade/assembly plugin is detected,
                 the SPDX ``creationInfo`` is annotated.
+            deps: optional pre-resolved dependency list (the
+                module's subtree from Phase 1 capture). When
+                provided, it is used directly and **no**
+                source-tree resolution is performed (the
+                enterprise Phase 2 path). When None, the
+                generator falls back to live resolution via
+                *pom_dir* (the co-located dev/test path).
 
         Returns output path on success, None on failure.
         """
@@ -479,13 +489,19 @@ class JavaSpdxGenerator:
             f"{test_msg}{strace_msg}"
         )
 
-        # Get dependencies via mvn dependency:tree
-        # or ./gradlew dependencies (auto-detected).
-        # Filter to only runtime deps (compile, runtime, provided).
-        # Exclude test scope - those aren't in the final JAR
-        all_deps = self._get_maven_deps(
-            pom_dir=pom_dir
-        )
+        # Dependency source (CISA build SBOM):
+        #   - enterprise Phase 2: *deps* is the module's subtree from
+        #     Phase 1 capture (no source tree touched).
+        #   - co-located dev/test fallback: *deps* is None, so resolve
+        #     live via mvn dependency:tree / ./gradlew dependencies.
+        # Filter to only runtime deps (compile, runtime, provided);
+        # exclude test scope — those aren't in the final JAR.
+        if deps is not None:
+            all_deps = deps
+        else:
+            all_deps = self._get_maven_deps(
+                pom_dir=pom_dir
+            )
         maven_deps = [
             d for d in all_deps
             if d["scope"] in (
