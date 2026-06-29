@@ -2,10 +2,11 @@
 
 | | |
 |---|---|
-| **Parent issue** | TBD — assigned by the user |
+| **Main issue** | Phase 1 Build-Speed & Efficiency (Java) |
+| **Epic** | Single epic — this main issue is added to it later by the issues team |
 | **Author** | Ted G. |
 | **Drafted** | 2026-06-24 (Cascade) |
-| **Status** | Draft — ready to attach under the chosen parent issue |
+| **Status** | US-2 delivered (validated golden-clean on bc-java + spring-boot); US-3 conditional; US-1 moved — see below |
 | **Scope** | **Java builds** (Maven and Gradle). Other languages capture inline during the build and are not affected. |
 | **Detailed design** | `docs/deep-dive/java/phase1-build-speed-design.md` (single engineering reference — design, evidence, code-level plan). |
 
@@ -23,49 +24,36 @@
 
 ---
 
-## US-1 — Reuse captured dependency data instead of resolving it twice
+## US-1 — (Moved) Reuse captured dependency data
 
-**Applies to:** Java builds (Maven and Gradle)
+**Status: do NOT create this as a sub-issue here.** This work is the same
+deliverable as the dedicated main issue **"Java Phase 2: Generate SBOMs
+From Phase 1 Metadata Without the Source Tree"**
+(`java-phase2-consume-dep-capture-subissue.md`), which is the canonical,
+detailed spec. Create it there, under that main issue.
 
-**Estimate:** ~3 AI-days
+**Why it moved:** the work is primarily an architecture-correctness change
+(Phase 2 must generate SBOMs from Phase 1 metadata with **no source-tree
+access**), not merely a speed optimization. Avoiding the second dependency
+resolution is a welcome side effect, but it does not belong in the
+build-speed theme as a standalone story.
 
-**Priority:** Highest — largest measured win, and it also advances the
-mandatory phase-isolation goal (see related SI-4 in
-`sidecar-phase-isolation-subissues.md`).
-
-**User Story**
-
-As a release engineer,
-I want the SBOM step to reuse the dependency information already captured
-during the build instead of recalculating it,
-so that we do not pay for the same expensive dependency resolution twice
-and reporting runs faster.
-
-**Why this matters**
-
-Today the build's dependency graph is resolved during capture and saved,
-then the reporting step throws that away and resolves it a second time
-against the original workspace. On large projects the duplicated step costs
-minutes and also forces the reporting step to depend on a workspace that no
-longer exists in modern pipelines.
-
-**Acceptance Criteria**
-
-- Given a build whose dependency information was captured, when the SBOM is
-  generated, then it uses the captured data and does not re-run the build
-  tool's dependency resolver.
-- Given the captured data is used, when the resulting SBOM is compared to
-  the previously trusted output, then the two are identical.
-- Given a build where the captured data is missing or incomplete, when the
-  SBOM is generated, then it fails clearly (or uses a documented fallback)
-  rather than silently producing a wrong SBOM.
-- Given the change, when it is validated on representative Maven and Gradle
-  projects on a real build host, then all produce identical, golden-clean
-  results.
+**Correctness note (was an error here):** an earlier draft claimed the
+reused result would be "identical to the previously trusted output" from
+the capture as-is. That is **only** true with the parser-only per-module
+capture fix described in the Java Phase-2 main issue — today's capture is
+lossy (globally de-duplicated by `(groupId, artifactId)` and missing the
+`optional` flag). The two are therefore inseparable and are tracked
+together there.
 
 ---
 
 ## US-2 — Capture dependencies efficiently for multi-module Java projects
+
+**Status:** Delivered. Multi-module Gradle capture now runs in a single
+`gradlew` invocation via an injected init script and was validated
+golden-clean on bc-java (11 modules) and spring-boot (186 modules). See
+the detailed design reference for the mechanism and findings.
 
 **Applies to:** Java builds (Gradle multi-project in particular)
 

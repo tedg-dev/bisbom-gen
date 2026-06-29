@@ -6,7 +6,7 @@
 | **Pairs with** | `docs/planning/java/phase1-build-speed-subissues.md` (high-level user stories US-1/US-2/US-3) |
 | **Consolidates** | `docs/_archived/performance/phase-isolation-build-time-analysis.md`, the Java-efficiency portions of `docs/deep-dive/phase-isolation-gap-analysis.md`, and `docs/_archived/performance/bomsh-java-performance-optimization.md` |
 | **Scope** | Java builds (Maven and Gradle). Other languages capture inline during the build and have no separate dependency-resolution step. |
-| **Status** | Active design; baseline optimizations delivered, US-1/US-2 pending implementation |
+| **Status** | Active design; baseline + US-1 + US-2 delivered (US-2 validated golden-clean on bc-java + spring-boot); US-3 conditional |
 | **Author** | OmniBOR Analysis project |
 | **Drafted** | 2026-06-24 (Cascade) |
 
@@ -31,7 +31,7 @@ beneficial changes. Each plan maps to a user story:
 | Story | Title | Status |
 |-------|-------|--------|
 | US-1 | Reuse captured dependency data instead of resolving it twice | Pending — highest value |
-| US-2 | Efficient dependency capture for multi-module Java projects | Pending — Gradle multi-project |
+| US-2 | Efficient dependency capture for multi-module Java projects | Done — single-invocation init script, validated golden-clean |
 | US-3 | Conditional concurrency of independent post-build steps | Conditional — only if measured |
 
 ---
@@ -170,30 +170,62 @@ data; graceful, explicit fallback when capture is missing.
 
 ### 5.2 US-2 — Efficient capture for multi-module Java projects
 
+**Status:** Implemented and validated golden-clean (bc-java Gradle 9.1.0;
+spring-boot Gradle 8.13).
+
 **Goal:** stop starting a separate query process per Gradle subproject.
 
-**Current behavior:** `app/pipeline/gradle_dep_tree_parser.py` —
-`get_all_gradle_deps()` runs `run_gradle_dep_tree()` once for the root and
-then **once per subproject** discovered in `settings.gradle`. Each call is a
-separate Gradle invocation.
+**Previous behavior:** `get_all_gradle_deps()` in
+`app/pipeline/gradle_dep_tree_parser.py` ran one `gradlew` invocation for
+the root and one per subproject discovered by a `settings.gradle` regex.
 
-**Design caveat (do not guess):** a plain `./gradlew dependencies` at the
-root does **not** aggregate subproject dependencies. A correct
-single-invocation approach needs either a generated aggregate task
-(an `allDeps`-style task that iterates `allprojects`) or a single call that
-emits all subprojects' resolved configurations. The chosen mechanism must
-be generic (no per-repo logic) and produce a dependency set identical to
-the current per-subproject union.
+**Chosen mechanism:** a single `gradlew` invocation with an injected
+**init script** (`--init-script`) that registers a single-configuration
+`DependencyReportTask` (`omniborDeps`) on every project exposing a
+`runtimeClasspath` configuration. One process emits every module's runtime
+dependency tree; the aggregated report is split per project and parsed by
+the existing `parse_gradle_dep_tree()`. A per-subproject fallback is
+retained for builds where the aggregated report yields no sections. This
+also **removes the brittle `settings.gradle` regex** — `allprojects` is
+Gradle's own project enumeration, so it captures every module (including
+DSL variants and dynamically included projects the regex missed).
 
-**Files likely touched:**
+**Empirically validated on EC2 (each finding would have been a wrong
+guess in pure design):**
 
-- `app/pipeline/gradle_dep_tree_parser.py` — query construction and
-  aggregation.
+- **Registration timing.** An init-script `allprojects {}` closure runs
+  *before* the Java plugin applies, so `runtimeClasspath` does not yet
+  exist; registration must be deferred to `afterEvaluate`.
+- **Report section headers.** A project header may carry a
+  ` - <description>` suffix (e.g. spring-boot), which the section splitter
+  must tolerate.
+- **Log level.** On Gradle 8.13 the custom report renders below the quiet
+  level, so `-q` must be omitted and parser noise filtered instead.
 
-**Acceptance (engineering view):** minimum build-tool invocations needed
-for completeness; identical dependency set vs the per-subproject result;
-single-module projects unchanged; golden-clean on a representative
-multi-module repo.
+**Superset behavior (benign):** on spring-boot the init script captures
+186 modules vs the old regex's 35. Every shared module — including the
+output modules that drive the SPDX — matches byte-for-byte, so the SPDX is
+identical; the extra modules make `gradle_deps.json` more complete and are
+inert for Phase 2 (which consumes only output-JAR module subtrees).
+
+**Machine-stable alternative evaluated and deferred:** serializing
+Gradle's resolved `ResolutionResult` graph to JSON in the init script
+(stable public API, no text parsing) was prototyped. It reproduces the
+text output exactly on bc-java but diverges on spring-boot (a real
+package-set difference — optional-dep inclusion and different transitive
+expansion), so it is **not golden-clean** as a drop-in. It is recorded as
+future hardening pending a deliberate golden re-baseline; the text
+approach ships now because it is golden-clean and the tree-body format it
+parses is stable across repos.
+
+**Files touched:**
+
+- `app/pipeline/gradle_dep_tree_parser.py` — `run_gradle_all_dep_trees()`,
+  `_split_dep_report_sections()`, single-invocation `get_all_gradle_deps()`
+  with a `_get_all_gradle_deps_per_subproject()` fallback.
+
+**Validation:** bc-java 11 subprojects / 33 deps (golden 4/4 identical);
+spring-boot 186 subprojects / 12062 deps in 23.1s (golden 6/6 identical).
 
 ### 5.3 US-3 — Conditional concurrency of independent post-build steps
 
@@ -261,6 +293,6 @@ Per the project golden-file policy, no build-speed change ships on a
 | Pure-Python treedb fast path | bomsh-java-performance §4–§5 | Done (#189) |
 | Module targeting (`-pl`) | build-time-analysis §3d | Done (#180) |
 | **Phase 2 reuses captured dep JSON** | gap-analysis §2.1, §7 | **Pending — US-1** |
-| **Single-invocation Gradle query** | build-time-analysis §4 (pending) | **Pending — US-2** |
+| Single-invocation Gradle query (init script) | build-time-analysis §4 | Done — US-2 (validated golden-clean) |
 | Concurrency of treedb + resolution | build-time-analysis §3c | Conditional — US-3 |
 | Direct POM parsing (no Maven) | build-time-analysis §3e | Not recommended |
