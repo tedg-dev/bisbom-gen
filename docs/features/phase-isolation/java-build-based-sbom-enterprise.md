@@ -27,9 +27,9 @@ The work is split into two phases connected by a tiny, signed handoff file. **Ph
 is a thin, build-time metadata step that lives next to your build. **Phase 2** — the
 actual SBOM assembly — runs in Corona, off your infrastructure.
 
-<a href="java-sbom-phase-split.png"><img src="java-sbom-phase-split.png" width="760" alt="Java build-based SBOM phase split — click to enlarge"></a>
+<a href="https://github.com/tedg-dev/omnibor-analysis/blob/main/docs/features/phase-isolation/java-sbom-phase-split.png"><img src="https://raw.githubusercontent.com/tedg-dev/omnibor-analysis/main/docs/features/phase-isolation/java-sbom-phase-split.png" width="760" alt="Java build-based SBOM phase split — click to enlarge"></a>
 
-*Click to enlarge. Source: [java-sbom-phase-split.drawio](java-sbom-phase-split.drawio)*
+*Click to enlarge. Source: [java-sbom-phase-split.drawio](https://github.com/tedg-dev/omnibor-analysis/blob/main/docs/features/phase-isolation/java-sbom-phase-split.drawio)*
 
 **Phase 1 (in your pipeline) is deliberately thin:**
 
@@ -74,9 +74,9 @@ the same model covers **all Java build tooling**, including Ant/Ivy, Bazel, and
 
 One step, after your existing build stage. That's the whole change.
 
-<a href="java-sbom-cicd-integration.png"><img src="java-sbom-cicd-integration.png" width="760" alt="Java CI/CD integration — one added step — click to enlarge"></a>
+<a href="https://github.com/tedg-dev/omnibor-analysis/blob/main/docs/features/phase-isolation/java-sbom-cicd-integration.png"><img src="https://raw.githubusercontent.com/tedg-dev/omnibor-analysis/main/docs/features/phase-isolation/java-sbom-cicd-integration.png" width="760" alt="Java CI/CD integration — one added step — click to enlarge"></a>
 
-*Click to enlarge. Source: [java-sbom-cicd-integration.drawio](java-sbom-cicd-integration.drawio)*
+*Click to enlarge. Source: [java-sbom-cicd-integration.drawio](https://github.com/tedg-dev/omnibor-analysis/blob/main/docs/features/phase-isolation/java-sbom-cicd-integration.drawio)*
 
 **GitHub Actions** — add one step after your build (names below are illustrative):
 
@@ -135,9 +135,9 @@ uploads to Corona. No SBOM is assembled on your runner.
 
 Only compact, signed metadata — and Corona turns it into the SBOM.
 
-<a href="java-sbom-corona-handoff.png"><img src="java-sbom-corona-handoff.png" width="760" alt="What leaves the build machine — Java metadata handoff to Corona — click to enlarge"></a>
+<a href="https://github.com/tedg-dev/omnibor-analysis/blob/main/docs/features/phase-isolation/java-sbom-corona-handoff.png"><img src="https://raw.githubusercontent.com/tedg-dev/omnibor-analysis/main/docs/features/phase-isolation/java-sbom-corona-handoff.png" width="760" alt="What leaves the build machine — Java metadata handoff to Corona — click to enlarge"></a>
 
-*Click to enlarge. Source: [java-sbom-corona-handoff.drawio](java-sbom-corona-handoff.drawio)*
+*Click to enlarge. Source: [java-sbom-corona-handoff.drawio](https://github.com/tedg-dev/omnibor-analysis/blob/main/docs/features/phase-isolation/java-sbom-corona-handoff.drawio)*
 
 Because Java SBOM assembly needs only the `treedb` and the resolved dependency tree,
 **Phase 2 never needs your source tree or your JARs**. The signed `phase1_manifest.json`
