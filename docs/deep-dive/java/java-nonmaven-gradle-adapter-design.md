@@ -250,9 +250,55 @@ used — to be designed, not guessed).
 `ArtifactOnlyStrategy.generate_adg()` runs only the shared treedb step and
 writes **no** `*_deps.json`. In standalone mode an artifact-only `_build`
 mode in `generate_java_adg_spdx()` lists the strace-observed classpath JARs
-as GitOID-identified components; in sidecar mode it emits the `_analyzed`
-SBOM and a clearly-logged, dependency-less `_build` until the capture
-mechanism above is designed.
+as GitOID-identified components; in sidecar mode it uses the capture designed
+in §8.1.
+
+### 8.1 Sidecar classpath-capture mechanism (design)
+
+In sidecar mode there is no strace, so the consumed classpath JARs for
+Ant-only/`make` are not observed. This mechanism captures them generically,
+consistent with the existing sidecar interception strategies (`CcWrapper`,
+`RustcWrapper`, `GoToolexec`) — i.e. a Java-consistent `javac` interception,
+not a new pipeline.
+
+**Grounded facts (verified, not assumed):**
+
+- **`make`/`javac`** — `javac` runs as a separate process, so the resolved
+  classpath is on its argv (`-classpath` / `-cp` / `@argfile`).
+- **Ant `<javac>`** — defaults to **unforked (in-process) compilation**
+  (Ant manual, Javac task: the "modern compiler ... in unforked mode" is the
+  default; a separate process spawns only with `fork="true"`). A PATH `javac`
+  shim is therefore **not** invoked for default Ant builds.
+- **Ant extension point** — Ant supports a custom compiler via the
+  `build.compiler` property / `CompilerAdapter` interface, settable through
+  `ANT_OPTS` with **no build-file edit**.
+
+**Design — `JavacInterceptStrategy` (feeds the artifact-only `_build` path):**
+
+| Build tool | Interception (no build-file change) | Mechanism |
+|---|---|---|
+| `make` / forked `javac` | Prepend a wrapper dir to `PATH` (env, like `CcWrapperStrategy`) holding a `javac` shim | Shim expands `-cp`/`-classpath`/`@argfile`, appends entries to `classpath_capture.json`, then `exec`s the real `javac` |
+| Ant (unforked, default) | Set `ANT_OPTS=-Dbuild.compiler=<bomsh adapter class>` | A bomsh `CompilerAdapter` records `getJavac().getClasspath()`, then delegates to the default adapter; adapter jar shipped in the image |
+
+**Fallback (no silent guessing):** if neither interception is viable for a
+given project, emit the `_analyzed` SBOM and a **clearly-logged,
+dependency-less `_build`** — never a fabricated graph.
+
+**Capture contract:** `classpath_capture.json` = a deduplicated list of
+`{path, gitoid}` for each consumed JAR, excluding JDK/runtime jars under
+`JAVA_HOME` and output jars under `repos_dir`. Phase 2's artifact-only
+`_build` mode lists these as **GitOID-identified** components (the stable,
+OmniBOR-aligned identifier); Maven coordinates are best-effort from the JAR
+filename with **NOASSERTION** when unknown — never fabricated.
+
+**Validation required (against real repos, not assumed):** confirm
+`apache/ant` builds with unforked `javac`; confirm the `CompilerAdapter`
+loads under the Ant version in the image; confirm the `make` test-app shim
+fires. These are explicit validation steps, not assumptions.
+
+**Why this is generic:** it adds one Java-consistent interception strategy
+alongside the existing CC/RUSTC/toolexec strategies, selected by detection;
+no per-repo logic, all behavior config/detection-driven.
 
 ---
 
@@ -313,9 +359,11 @@ or `JavaSpdxGenerator` — they consume the canonical dep dict unchanged.
 
 **Remaining genuine open questions:**
 
-- **Sidecar artifact-only `_build` capture** — Ant-only/`make` in sidecar
-  mode has no consumed-classpath source; needs a standard mechanism (§8). To
-  be designed before that path is implemented — not guessed.
+- **Sidecar artifact-only `_build` capture** — designed in §8.1 (PATH `javac`
+  shim for `make`; Ant `CompilerAdapter` via `ANT_OPTS` for unforked Ant).
+  Remaining work is **validation against real repos** (apache/ant unforked
+  javac; adapter loads under the image's Ant version; make shim fires), not
+  design.
 - **Ivy report location** — varies by project; must be config-overridable and
   may require running the `ivy:report` task.
 - **Bazel toolchain weight** — adding Bazel to the Docker image is heavy;
