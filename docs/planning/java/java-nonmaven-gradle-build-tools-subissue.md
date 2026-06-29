@@ -10,6 +10,7 @@
 | **Author** | Ted G. |
 | **Drafted** | 2026-06-29 (Cascade) |
 | **Status** | Drafting — design + verifier repos; no code yet |
+| **Detailed design** | `../../deep-dive/java/java-nonmaven-gradle-adapter-design.md` (integration points, capture contract, Ivy/Bazel parsers, artifact-only path) |
 
 ---
 
