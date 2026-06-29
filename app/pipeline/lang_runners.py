@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 # Java build tools recognized by _detect_java_build_tool().
 _KNOWN_JAVA_BUILD_TOOLS = (
-    "gradle", "maven", "ivy", "ant", "bazel", "make",
+    "gradle", "maven", "ivy", "ant", "make", "bazel",
 )
 
 
@@ -181,17 +181,16 @@ def _detect_java_build_tool(repo_dir, repo_cfg=None):
     """Detect the Java build tool for a repository.
 
     Returns one of ``gradle`` / ``maven`` / ``ivy`` / ``ant`` /
-    ``bazel`` / ``make``, or ``unknown`` when no signal matches.
+    ``make`` / ``bazel``, or ``unknown`` when no signal matches.
 
     A ``java_build_tool`` field in the repo config overrides
     detection (config-driven, never repo-name-keyed). Otherwise
     detection is a pure function over the repo's top-level build
     files, using this precedence: ``gradle`` > ``maven`` >
-    ``ivy`` > ``ant`` > ``bazel`` > ``make``. Maven and Gradle
+    ``ivy`` > ``ant`` > ``make`` > ``bazel``. Maven and Gradle
     are checked first because their build files unambiguously
-    identify the primary build; ``make`` is last because a
-    convenience ``Makefile`` often coexists with a real build
-    tool.
+    identify the primary build; ``bazel`` is last because its
+    Java share is tiny and a native strategy is deferred.
 
     Raises:
         ValueError: if ``java_build_tool`` is set to an
@@ -220,14 +219,14 @@ def _detect_java_build_tool(repo_dir, repo_cfg=None):
         return "ant"
     if any(
         (repo_path / f).exists()
-        for f in ("WORKSPACE", "WORKSPACE.bazel", "MODULE.bazel")
-    ):
-        return "bazel"
-    if any(
-        (repo_path / f).exists()
         for f in ("Makefile", "makefile", "GNUmakefile")
     ):
         return "make"
+    if any(
+        (repo_path / f).exists()
+        for f in ("WORKSPACE", "WORKSPACE.bazel", "MODULE.bazel")
+    ):
+        return "bazel"
     return "unknown"
 
 

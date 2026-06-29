@@ -356,6 +356,12 @@ class TestDetectJavaBuildTool(unittest.TestCase):
             "ivy",
         )
 
+    def test_precedence_make_over_bazel(self):
+        self.assertEqual(
+            self._detect_with_files("Makefile", "WORKSPACE"),
+            "make",
+        )
+
     def test_repo_cfg_none(self):
         with tempfile.TemporaryDirectory() as tmp:
             open(
