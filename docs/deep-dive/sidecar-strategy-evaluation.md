@@ -4,7 +4,7 @@
 >
 > **Status**: Active evaluation — corrections applied from prior analysis
 >
-> **Prerequisite docs**: `c-cpp-sidecar-interception-strategies.md`,
+> **Prerequisite docs**: `c-cpp/sidecar-interception-strategies.md`,
 > `ebpf-investigation-report.md`, `sidecar-async-spdx-architecture.md`,
 > `../features/phase-isolation/sidecar-phase-isolation-infrastructure.md`
 
@@ -122,7 +122,7 @@ requiring build system cooperation** — sorted by enterprise coverage
 </tr>
 </table>
 
-See `c-cpp-sidecar-interception-strategies.md` for exhaustive analysis
+See `c-cpp/sidecar-interception-strategies.md` for exhaustive analysis
 of each strategy, including devil's advocate challenges, data capture
 capabilities, compatibility matrices, and enterprise adoption data.
 
@@ -267,7 +267,7 @@ Since no single strategy covers all enterprise environments, a
 eBPF is the **future primary strategy** as older kernels age out and
 `CAP_BPF` becomes standard in enterprise container policies.
 
-See `c-cpp-sidecar-interception-strategies.md` §8 for the full
+See `c-cpp/sidecar-interception-strategies.md` §8 for the full
 auto-detection decision tree and recommended strategy combinations
 with coverage estimates.
 

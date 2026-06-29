@@ -1,0 +1,52 @@
+<mxfile host="Electron" agent="Cascade AI">
+  <diagram id="java-handoff" name="Java Corona Handoff">
+    <mxGraphModel dx="1099" dy="729" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1120" pageHeight="500" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" parent="1" style="text;html=1;fontSize=18;fontStyle=1;align=center;verticalAlign=middle;" value="What leaves the build machine (Java)" vertex="1">
+          <mxGeometry height="30" width="1000" x="60" y="10" as="geometry" />
+        </mxCell>
+        <mxCell id="subtitle" parent="1" style="text;html=1;fontSize=11;fontStyle=2;align=center;fontColor=#666666;" value="Only compact metadata is uploaded — no source tree, no JARs, no binaries, no build logs." vertex="1">
+          <mxGeometry height="22" width="1000" x="60" y="42" as="geometry" />
+        </mxCell>
+        <mxCell id="manifest" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;verticalAlign=middle;align=left;spacingLeft=8;" value="&lt;b&gt;phase1_manifest.json&lt;/b&gt;  (~1–2 KB)&#xa;SHA-256 gitoids + artifact paths" vertex="1">
+          <mxGeometry height="70" width="180" x="148.5" y="78" as="geometry" />
+        </mxCell>
+        <mxCell id="treedb" parent="1" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;verticalAlign=middle;align=center;size=8;" value="&lt;b&gt;bomsh_omnibor_treedb&lt;/b&gt;&#xa;compiled-class → source map" vertex="1">
+          <mxGeometry height="80" width="176" x="150.5" y="178" as="geometry" />
+        </mxCell>
+        <mxCell id="deps" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;verticalAlign=middle;align=left;spacingLeft=8;" value="&lt;b&gt;maven_deps.json / gradle_deps.json&lt;/b&gt;&#xa;resolved dependency tree" vertex="1">
+          <mxGeometry height="70" width="199" x="139" y="288" as="geometry" />
+        </mxCell>
+        <mxCell id="s3" parent="1" style="shape=datastore;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;strokeWidth=2;fontSize=11;fontStyle=1;" value="Corona S3 /&#xa;Artifactory&#xa;intake" vertex="1">
+          <mxGeometry height="100" width="200" x="408.5" y="168" as="geometry" />
+        </mxCell>
+        <mxCell id="em1" edge="1" parent="1" source="manifest" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#d79b00;strokeWidth=2;" target="s3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="em2" edge="1" parent="1" source="treedb" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#d79b00;strokeWidth=2;" target="s3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="em3" edge="1" parent="1" source="deps" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#d79b00;strokeWidth=2;" target="s3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="phase2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#2e7d32;strokeWidth=2;fontSize=11;align=center;verticalAlign=middle;" value="&lt;b&gt;Corona Phase 2&lt;/b&gt;&#xa;builds SPDX 2.3 SBOM&#xa;from the metadata" vertex="1">
+          <mxGeometry height="70" width="209" x="688.5" y="183" as="geometry" />
+        </mxCell>
+        <mxCell id="pri" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e9;strokeColor=#2e7d32;fontSize=11;align=center;verticalAlign=middle;" value="Stored in Corona&#xa;Product → Release → Image (SBOM)" vertex="1">
+          <mxGeometry height="64" width="212" x="687" y="285" as="geometry" />
+        </mxCell>
+        <mxCell id="es3p2" edge="1" parent="1" source="s3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#2e7d32;strokeWidth=2;dashed=1;" target="phase2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ep2pri" edge="1" parent="1" source="phase2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#2e7d32;strokeWidth=2;" target="pri">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="callout" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fce4ec;strokeColor=#c0392b;strokeWidth=1;dashed=1;fontSize=11;fontStyle=1;fontColor=#c0392b;align=center;verticalAlign=middle;" value="No source tree · No JARs/binaries · No build logs — just KB of metadata. The build machine never does SBOM work." vertex="1">
+          <mxGeometry height="25" width="757" x="142" y="400" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Audience** | Engineering (design + implementation reference) |
-| **Pairs with** | `docs/planning/phase1-build-speed-subissues.md` (high-level user stories US-1/US-2/US-3) |
-| **Consolidates** | `phase-isolation-build-time-analysis.md`, the Java-efficiency portions of `phase-isolation-gap-analysis.md`, and `bomsh-java-performance-optimization.md` |
+| **Pairs with** | `docs/planning/java/phase1-build-speed-subissues.md` (high-level user stories US-1/US-2/US-3) |
+| **Consolidates** | `docs/_archived/performance/phase-isolation-build-time-analysis.md`, the Java-efficiency portions of `docs/deep-dive/phase-isolation-gap-analysis.md`, and `docs/_archived/performance/bomsh-java-performance-optimization.md` |
 | **Scope** | Java builds (Maven and Gradle). Other languages capture inline during the build and have no separate dependency-resolution step. |
 | **Status** | Active design; baseline optimizations delivered, US-1/US-2 pending implementation |
 | **Author** | OmniBOR Analysis project |
@@ -125,7 +125,7 @@ This is wasteful on two axes:
 1. **Time** — a full duplicate resolution (minutes on large repos).
 2. **Phase isolation** — Phase 2 depends on `repo_dir`, which does not exist
    in an ephemeral CI/CD pipeline where build and reporting run on separate
-   machines. (Full multi-language audit: `phase-isolation-gap-analysis.md`.)
+   machines. (Full multi-language audit: `docs/deep-dive/phase-isolation-gap-analysis.md`.)
 
 ---
 
@@ -230,7 +230,7 @@ operate solely on `bom_dir` artifacts and never read `repo_dir`, because
 US-1 removes the Java dependency-graph dependency on `repo_dir`; the
 remaining `repo_dir` reads (binaries, version files, static manifests, and
 the C/C++/Rust/Go paths) are catalogued in
-`phase-isolation-gap-analysis.md` and tracked separately under the
+`docs/deep-dive/phase-isolation-gap-analysis.md` and tracked separately under the
 phase-isolation sub-issues.
 
 ---

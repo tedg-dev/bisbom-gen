@@ -1,7 +1,7 @@
 # `bomsh_create_bom_java.py` Performance Optimization
 
 > **Superseded (2026-06-24):** This delivered optimization is summarized in
-> the consolidated reference `docs/deep-dive/phase1-build-speed-design.md`
+> the consolidated reference `docs/deep-dive/java/phase1-build-speed-design.md`
 > (Section 3.1). This document is retained for the full root-cause analysis,
 > optimization detail, and EC2 validation measurements.
 
@@ -9,7 +9,7 @@
 |---|---|
 | **Date** | June 16, 2026 (analysis); June 18, 2026 (implementation); June 22, 2026 (EC2 validation) |
 | **Author** | OmniBOR Analysis project |
-| **Related** | `docs/deep-dive/phase-isolation-build-time-analysis.md` |
+| **Related** | `docs/_archived/performance/phase-isolation-build-time-analysis.md` |
 
 > **Implementation status (June 18, 2026):** Optimizations #1–#5 are
 > implemented in `docker/patches/bomsh_java_fast_io.py` and applied via

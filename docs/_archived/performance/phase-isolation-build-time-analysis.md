@@ -2,8 +2,8 @@
 
 > **Superseded (2026-06-24):** The design, recommendations, and
 > implementation plan from this analysis are consolidated into
-> `docs/deep-dive/phase1-build-speed-design.md`, which pairs with the
-> high-level user stories in `docs/planning/phase1-build-speed-subissues.md`.
+> `docs/deep-dive/java/phase1-build-speed-design.md`, which pairs with the
+> high-level user stories in `docs/planning/java/phase1-build-speed-subissues.md`.
 > This document is retained for historical reference (the original Q&A and
 > measurements).
 
@@ -18,7 +18,7 @@ in `feat/adg-phase1-optimization`.
 
 - `docs/features/phase-isolation/phase-isolation-system-test.md`
 - `docs/deep-dive/phase-isolation-gap-analysis.md`
-- `docs/deep-dive/sidecar-java-design.md`
+- `docs/deep-dive/java/sidecar-design.md`
 
 ---
 
