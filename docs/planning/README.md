@@ -56,7 +56,7 @@ PR/issue mapping for recreation once GitHub Issues access returns:
 | A6 | Treedb SBOM-generation speedup (retro) | Delivered | SI-R1 / PRs #189, #187, #191 |
 | A7 | Deliver Java build evidence to Corona (Java delivery slice) | Postponed — out of charter (Corona / Phase 2-incorporation team owns delivery + verification) | SI-5 (Java) |
 | A8 | Build efficiency — fully in-memory JAR class processing (no extract-to-disk) | Deferred (validate on EC2) | US-4 |
-| A9 | Support non-Maven/Gradle Java builds (Ant/Ivy, Bazel, `make`) | Drafting | [java/java-nonmaven-gradle-build-tools-subissue.md](java/java-nonmaven-gradle-build-tools-subissue.md) |
+| A9 | Support non-Maven/Gradle Java builds (Ant/Ivy, Bazel, `make`) | **TABLED — deferred post-pilot** (archived) | [_archived/nonmaven-gradle-java/…build-tools-subissue.md](../_archived/nonmaven-gradle-java/java-nonmaven-gradle-build-tools-subissue.md) |
 
 **Standing gate (not a sub-issue):** testing — golden validation, the
 `regression-gate`, and multi-distro runs (Ubuntu/RHEL/Alpine) — is a

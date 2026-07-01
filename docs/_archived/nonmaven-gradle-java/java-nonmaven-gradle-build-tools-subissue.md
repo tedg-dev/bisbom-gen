@@ -4,13 +4,13 @@
 |---|---|
 | **Main issue** | Phase 1 Build-Speed & Efficiency (Java) — capture coverage |
 | **Epic** | Single epic — this main issue is added to it later by the issues team |
-| **Index label** | A9 (see `../README.md`) |
-| **Relationship** | Extends Java Phase 1 dependency capture beyond Maven/Gradle; complements the Java Phase 2 main issue (`../java-phase2-consume-dep-capture-subissue.md`) |
+| **Index label** | A9 (see `../../planning/README.md`) |
+| **Relationship** | Extends Java Phase 1 dependency capture beyond Maven/Gradle; complements the Java Phase 2 main issue (`../../planning/java-phase2-consume-dep-capture-subissue.md`) |
 | **Applies to** | Java builds using Ant, Ivy, Bazel, or `make`/`javac` |
 | **Author** | Ted G. |
 | **Drafted** | 2026-06-29 (Cascade) |
 | **Status** | **TABLED — deferred post-pilot** (pilot = Maven/Gradle only); detection guard merged (#200); Ivy branch parked |
-| **Detailed design** | `../../deep-dive/java/java-nonmaven-gradle-adapter-design.md` (integration points, capture contract, Ivy/Bazel parsers, artifact-only path) |
+| **Detailed design** | `./java-nonmaven-gradle-adapter-design.md` (integration points, capture contract, Ivy/Bazel parsers, artifact-only path) |
 
 ---
 

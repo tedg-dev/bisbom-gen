@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Sub-issue** | A9 — Support non-Maven/Gradle Java builds (`../../planning/java/java-nonmaven-gradle-build-tools-subissue.md`) |
+| **Sub-issue** | A9 — Support non-Maven/Gradle Java builds (`./java-nonmaven-gradle-build-tools-subissue.md`) |
 | **Audience** | Cascade + reviewers implementing the Ivy/Bazel adapters |
 | **Author** | Ted G. |
 | **Drafted** | 2026-06-29 (Cascade) |

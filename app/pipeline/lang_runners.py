@@ -238,7 +238,7 @@ def _select_java_strategy(
     In sidecar mode, uses dep:tree strategies that avoid
     strace entirely.  Detects the build tool via
     ``_detect_java_build_tool``.
-
+A
     Recognized non-Maven/Gradle tools (``ivy`` / ``ant`` /
     ``make`` / ``bazel``) are tabled for the pilot and raise
     ``ValueError`` (fail-fast, no silent Maven fallback);
@@ -265,7 +265,7 @@ def _select_java_strategy(
             f"Java build tool '{tool}' detected for "
             f"'{repo_name}': non-Maven/Gradle Java builds are "
             "not supported in the current pilot (tabled for "
-            "post-pilot; see docs/deep-dive/java/"
+            "post-pilot; see docs/_archived/nonmaven-gradle-java/"
             "java-nonmaven-gradle-adapter-design.md). Set "
             "'java_build_tool' to 'maven' or 'gradle' to "
             "override, or remove the repo from config."

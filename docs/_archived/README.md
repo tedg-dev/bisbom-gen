@@ -11,6 +11,7 @@ early design iterations, or point-in-time snapshots.
 | **standalone/** | Pre-sidecar standalone mode docs, CI/CD integration (ptrace-era), demo workflows |
 | **performance/** | Build-time overhead analysis, optimization proposals (pre-hash cache, seccomp-BPF, eBPF) |
 | **design-evolution/** | Sidecar design iterations, cleanroom analysis, refactoring plans, Python/polyglot proposals |
+| **nonmaven-gradle-java/** | TABLED (deferred post-pilot) design + sub-issue for non-Maven/Gradle Java builds (Ant/Ivy, Bazel, `make`/`javac`); pilot is Maven/Gradle only |
 | **snapshots/** | Point-in-time build results, coverage milestones, meeting agendas, per-feature changelogs |
 | **features/** | Superseded feature docs (Go support, three-way SPDX comparison) |
 
