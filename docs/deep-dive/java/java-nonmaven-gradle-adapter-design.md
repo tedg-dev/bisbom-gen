@@ -6,8 +6,46 @@
 | **Audience** | Cascade + reviewers implementing the Ivy/Bazel adapters |
 | **Author** | Ted G. |
 | **Drafted** | 2026-06-29 (Cascade) |
-| **Status** | Design — no code yet |
+| **Status** | **TABLED — deferred post-pilot** (pilot scope = Maven/Gradle only) |
 | **Scope** | Phase 1 dependency capture + Phase 2 consumption for Ant/Ivy, Bazel, and `make`/`javac` Java builds |
+
+---
+
+## Status: TABLED — deferred post-pilot
+
+After an industry-standard best-practices assessment, the pilot is scoped
+to **Maven and Gradle only** — the two Java build tools that emit a
+resolved, scoped dependency graph as a **read-only, post-build artifact**,
+which is the exact fit for the sidecar model (read-only capture, no
+build-phase impact, on an ephemeral build tree). Non-Maven/Gradle Java
+builds are deferred; this document is preserved as the future plan.
+
+**Rationale:**
+
+- **Coverage:** Maven + Gradle are the overwhelming majority of real Java
+  builds; Ant/Ivy is legacy-declining, Bazel a monorepo niche, and raw
+  `make`/`javac` rare for shipped Java.
+- **Architectural fit:** only Maven/Gradle cleanly satisfy read-only,
+  no-build-impact capture. Ant-only and `make`/`javac` have **no declared
+  dependency graph** and would require build-phase `javac` interception
+  (§8.1), which contradicts the sidecar constraint. Ivy's `<ivy-report>` is
+  conditional (only if the build resolves/reports) and its conf→scope
+  mapping is project-specific.
+- **Cost/fragility:** per-orchestrator toolchain weight, JDK-version quirks
+  (e.g. `ant-ivy` needs the removed `Pack200` API / JDK 11 — see §13.3),
+  and scarce modern-JDK verifier repos.
+
+**Revival ranking when reprioritized:** **Bazel** (pinned
+`maven_install.json` is a clean read-only graph) > **Ivy** (conditional
+report) > **Ant-only / `make`** (require build-phase interception — weakest
+fit).
+
+**Current code state:** detection (`_detect_java_build_tool`, `#200`)
+remains on `main` as a **fail-fast guard** — a recognized non-Maven/Gradle
+Java build raises a clear "unsupported in pilot" `ValueError` rather than
+silently falling back to Maven. The Ivy parser/reader work was **not
+merged** (parked on branch `feat/java-ivy-parser-reader` for future
+revival). The design below is retained unchanged as the plan of record.
 
 ---
 
@@ -70,6 +108,27 @@ These were verified by reading the code, not assumed:
   Sidecar mode has no equivalent capture.
 
 These findings drive §8 (artifact-only path) and §11.
+
+### 2.2 Phase-1 window and the ephemeral build tree (foundational constraint)
+
+All Java capture obeys the phase-isolation model:
+
+- **Phase 1** is a step added to the customer's CI/CD pipeline that runs
+  **after the build completes but while the build workspace still exists**
+  (before the runner tears it down). This is the *only* window in which
+  build-produced artifacts — the treedb inputs, the Ivy resolution report,
+  and the Ivy cache — are available. Phase 1 **captures and persists** that
+  metadata (uploaded to Corona); it must **not** alter the build host or
+  perturb the build phase, and it must **not** pin or change any build-tool
+  version on the host.
+- **Phase 2** runs later in Corona with **no build tree** — it consumes only
+  the metadata Phase 1 persisted.
+
+**Consequence for every adapter:** capture must read what the build already
+produced, within the Phase-1 window. Re-running the build (or re-resolving
+dependencies) is not a reliable capture strategy — its inputs may already be
+gone by Phase 2, and re-running in Phase 1 risks touching the build. This is
+why the Ivy adapter (§6) leads with **read-only** report capture.
 
 ---
 
@@ -162,11 +221,28 @@ strategies land in Steps 3–5.
 ## 6. Ivy adapter
 
 **Input (declared graph):** the Ivy *resolution report* XML. Ant builds that
-use Ivy emit per-configuration reports (e.g.
-`<module>-<conf>.xml`) under the Ivy resolution-report directory
-(`ivy:report` task output, or the cache report). The report lists resolved
-modules with `organisation`, `name`, `revision`, and the `conf` they belong
-to.
+use Ivy emit per-configuration reports named `<org>-<module>-<conf>.xml`
+into the Ivy resolution cache (default `~/.ivy2/cache/`) during
+`ivy:resolve`/`ivy:retrieve`, or into `${ivy.report.dir}` when the build
+runs `ivy:report`. The report lists resolved modules with `organisation`,
+`name`, `revision`, and the `conf` they belong to.
+
+**Capture model — read-only, within the Phase-1 window (primary path).**
+Consistent with §2.2, the Ivy adapter **reads the report the build already
+emitted** and persists it; it does **not** run Ant/Ivy to (re)produce it.
+This has zero build-phase impact and is version-agnostic — the `<ivy-report>`
+schema is stable across Ivy versions, so no specific Ant/Ivy/JDK version is
+assumed or required. The parser (`ivy_report_parser`) and Phase-2 reader
+(`dep_capture_reader`) operate purely on the captured XML, so Phase 2 needs
+no build tree.
+
+**Fallback (explicitly demoted, never primary).** If the build left no
+report, a Phase-1-only, build-phase-non-impacting, version-agnostic
+regeneration *within the Phase-1 window* (while `ivy.xml` + the Ivy cache
+still exist) may be considered — but only with clear logging, and never by
+changing any host toolchain version. If regeneration is not viable, emit the
+treedb-based `_analyzed` SBOM and a clearly-logged, dependency-less `_build`
+— never a fabricated graph.
 
 **Mapping to the dep dict:**
 
@@ -193,8 +269,10 @@ capture has one module keyed by the project's `org:name`. If the report
 exposes no module coordinate, key by the repo name and leave `groupId` empty.
 
 **Strategy:** `IvyDepCaptureStrategy.generate_adg()` = shared treedb step +
-locate the resolution report (configurable path) + `ivy_report_parser` ->
-write `ivy_deps.json`.
+**locate the build-emitted resolution report** (search the Ivy resolution
+cache and `${ivy.report.dir}`; path config-overridable) + `ivy_report_parser`
+-> write `ivy_deps.json`. It builds nothing and resolves nothing — it is a
+read-only capture of an existing artifact, run in the Phase-1 window.
 
 ---
 
@@ -375,9 +453,17 @@ or `JavaSpdxGenerator` — they consume the canonical dep dict unchanged.
   Remaining work is **validation against real repos** (apache/ant unforked
   javac; adapter loads under the image's Ant version; make shim fires), not
   design.
-- **Ivy report location** — **resolved (§13.3):** `ant-ivy` writes the report
-  under `${ivy.report.dir}` during `ivy:retrieve`. Keep the path
-  config-overridable; some projects may need an explicit `ivy:report` task.
+- **Ivy report location** — **resolved (§13.3), empirically confirmed:** Ivy
+  writes per-conf resolution reports named `<org>-<module>-<conf>.xml` into
+  the resolution cache (default `~/.ivy2/cache/`) during
+  `ivy:resolve`/`ivy:retrieve`, and under `${ivy.report.dir}` when the build
+  runs `ivy:report`. The adapter searches both; path is config-overridable.
+- **Verifier repo choice** — **`ant-ivy` rejected (§13.3/§13.4):** it *is* Ivy
+  and self-bootstraps by compiling its own source, which requires JDK 11
+  (removed `Pack200`) and would mean changing a host toolchain version —
+  disallowed for a sidecar. A representative Ant+Ivy **application** (or a
+  controlled fixture we own) that builds on the standard JDK is required
+  instead; it must be empirically verified in-container before adoption.
 - **Bazel toolchain weight** — adding Bazel to the Docker image is heavy;
   gated on USER confirmation (see sub-issue). Ivy can land first.
 - **sbt** remains out of scope (Scala-first).
@@ -453,22 +539,31 @@ Drives `ivy_report_parser`:
 - **Skip `evicted` revisions** (not part of the resolved graph).
 - One report **per conf**; parse production confs, skip `test`.
 
-### 13.3 `apache/ant-ivy` build facts (real `build.xml`)
+### 13.3 `apache/ant-ivy` build facts (real `build.xml`) — and why it is NOT a verifier
 
 - **Resolves via Ivy:** `<target name="resolve">` runs
   `<ivy:retrieve conf="default,test" .../>` -> a real resolve happens and the
-  XML resolution report is written under `${ivy.report.dir}` (config-driven —
-  confirms the report-location open question).
+  per-conf XML resolution reports are written into the Ivy resolution cache
+  (empirically observed at `~/.ivy2/cache/org.apache.ivy-ivy-default.xml`,
+  `...-test.xml`), confirming the report location and `<ivy-report>` schema.
 - **Unforked `<javac>`:** `compile-core` uses `<javac ... includeantruntime="no">`
   with **no `fork`** -> in-process compilation, confirming §8.1 (a PATH
   `javac` shim will not fire for default Ant; the `CompilerAdapter` route is
   required).
+- **REJECTED as a verifier (empirically):** `ant-ivy` *is* Ivy and
+  **self-bootstraps** — `resolve` depends on `init-ivy` ->
+  `compile-bootstrap` -> `compile-core`, so it must compile its own source
+  before it can resolve. On the standard JDK 17/21 that compile fails at
+  `FileUtil.newUnpacker()` because `java.util.jar.Pack200` was **removed in
+  JDK 14+**. Making it build would require adding/selecting JDK 11 — a host
+  toolchain-version change that a sidecar must never make. It is Ivy-the-tool,
+  not a representative Ant+Ivy application, so it is unsuitable regardless.
 
 ### 13.4 Finalized verifier repos
 
 | Build tool | Repo | Pin | Build entry | Evidence |
 |---|---|---|---|---|
-| Ant + Ivy | `apache/ant-ivy` | release tag (e.g. `2.5.2`) | `ant jar` (resolve -> compile -> jar) | §13.2/§13.3 — real Ivy report + unforked javac |
+| Ant + Ivy | **TBD** — representative Ant+Ivy *application* that builds on standard JDK 17/21 and emits a resolution report; else a controlled minimal Ant+Ivy fixture we own | release tag / commit SHA (or `main` for the owned fixture) | `ant <resolve+jar target>` | must be **empirically verified in-container** before adoption; `apache/ant-ivy` **rejected** (§13.3: self-bootstrap -> Pack200 -> JDK 11) |
 | `make`/`javac` (artifact-only) | new `omnibor-java-make-testapp` (we own) | `main` | `make` | controlled `Makefile` -> `javac` -> `jar`; exercises §8.1 PATH shim |
 | Bazel | candidate `bazelbuild/examples` (Java + `rules_jvm_external`) — **exact path TBD** | commit SHA | `bazel build //...` | §13.1 lockfile format; **gated on Bazel toolchain decision** |
 | Ant (no Ivy) | optional `apache/ant` | release tag | bootstrap build | confirms artifact-only path; heavier bootstrap — lower priority |

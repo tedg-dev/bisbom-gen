@@ -374,7 +374,7 @@ class TestDetectJavaBuildTool(unittest.TestCase):
 
 
 class TestSelectJavaStrategyUnsupportedTools(unittest.TestCase):
-    """Detected-but-unimplemented tools fall back to Maven."""
+    """Recognized non-Maven/Gradle tools are tabled (fail-fast)."""
 
     def _paths(self):
         return {"repos_dir": "/workspace/repos"}
@@ -391,23 +391,26 @@ class TestSelectJavaStrategyUnsupportedTools(unittest.TestCase):
             strategy, GradleDepTreeStrategy,
         )
 
-    def test_override_ivy_falls_back_to_maven_with_log(self):
+    def test_override_ivy_raises_unsupported(self):
         cfg = {
             "java_build_tool": "ivy",
             "build_steps": ["ant jar"],
         }
-        with self.assertLogs(
-            "app.pipeline.lang_runners", level="INFO",
-        ) as logs:
-            strategy = _select_java_strategy(
+        with self.assertRaises(ValueError) as ctx:
+            _select_java_strategy(
                 "ant-ivy", cfg, self._paths(), "sidecar",
             )
-        self.assertIsInstance(
-            strategy, MavenDepTreeStrategy,
-        )
-        self.assertTrue(
-            any("ivy" in m for m in logs.output),
-        )
+        msg = str(ctx.exception)
+        self.assertIn("ivy", msg)
+        self.assertIn("not supported", msg)
+
+    def test_unsupported_tools_all_raise(self):
+        for tool in ("ivy", "ant", "make", "bazel"):
+            cfg = {"java_build_tool": tool}
+            with self.assertRaises(ValueError):
+                _select_java_strategy(
+                    "repo", cfg, self._paths(), "sidecar",
+                )
 
 
 class TestSidecarPassesMavenModules(unittest.TestCase):

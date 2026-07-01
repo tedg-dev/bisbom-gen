@@ -9,8 +9,22 @@
 | **Applies to** | Java builds using Ant, Ivy, Bazel, or `make`/`javac` |
 | **Author** | Ted G. |
 | **Drafted** | 2026-06-29 (Cascade) |
-| **Status** | Step 0 (real-repo validation) done — see design §13; no code yet |
+| **Status** | **TABLED — deferred post-pilot** (pilot = Maven/Gradle only); detection guard merged (#200); Ivy branch parked |
 | **Detailed design** | `../../deep-dive/java/java-nonmaven-gradle-adapter-design.md` (integration points, capture contract, Ivy/Bazel parsers, artifact-only path) |
+
+---
+
+## Status: TABLED — deferred post-pilot
+
+Per an industry-standard best-practices assessment, non-Maven/Gradle Java
+builds are **deferred**: only Maven and Gradle emit a resolved, scoped
+dependency graph as a read-only, post-build artifact, which is the correct
+fit for the sidecar (read-only capture, no build-phase impact, ephemeral
+tree). Ant-only/`make` would require build-phase `javac` interception; Ivy's
+report is conditional. **Revival ranking:** Bazel > Ivy > Ant-only/`make`.
+See the design doc's "Status: TABLED" banner for the full rationale. The
+detection **fail-fast guard** (`_detect_java_build_tool`, #200) is on `main`;
+the Ivy parser/reader is parked on `feat/java-ivy-parser-reader`.
 
 ---
 

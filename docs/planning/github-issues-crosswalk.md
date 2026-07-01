@@ -62,7 +62,7 @@ Index labels (**A1**, **A4**, ...) refer to the rows in
 |---|---|---|
 | Phase 2 output set + hand-off manifest | Java Phase 2 main issue; index **A2**; Corona #11004 | Scoped, no PR |
 | Fully in-memory JAR class processing (no extract-to-disk) | Phase 1 Build-Speed (Java) -> **US-4**; index **A8** | Deferred (validate on EC2), no PR |
-| Support non-Maven/Gradle Java builds (Ant/Ivy, Bazel, `make`) | Phase 1 Java capture -> **A9**; see `java/java-nonmaven-gradle-build-tools-subissue.md` | Drafting, no PR |
+| Support non-Maven/Gradle Java builds (Ant/Ivy, Bazel, `make`) | Phase 1 Java capture -> **A9**; see `java/java-nonmaven-gradle-build-tools-subissue.md` | **TABLED — deferred post-pilot** (pilot = Maven/Gradle only); detection fail-fast guard merged (#200); Ivy branch parked (`feat/java-ivy-parser-reader`) |
 | Overlap independent post-build steps (measure first) | Phase 1 Build-Speed (Java) -> **US-3**; index **A5** | Optional / low, no PR |
 | Deliver Java build evidence to Corona | index **A7**; SI-5 (Java) | Postponed — out of charter (Corona / Phase 2-incorporation team) |
 

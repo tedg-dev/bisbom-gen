@@ -239,6 +239,11 @@ def _select_java_strategy(
     strace entirely.  Detects the build tool via
     ``_detect_java_build_tool``.
 
+    Recognized non-Maven/Gradle tools (``ivy`` / ``ant`` /
+    ``make`` / ``bazel``) are tabled for the pilot and raise
+    ``ValueError`` (fail-fast, no silent Maven fallback);
+    ``unknown`` defaults to Maven.
+
     In standalone mode, returns None (legacy strace path).
     """
     if mode != "sidecar":
@@ -256,11 +261,14 @@ def _select_java_strategy(
         return GradleDepTreeStrategy()
 
     if tool not in ("maven", "unknown"):
-        logger.info(
-            "Java build tool '%s' detected for %s; native "
-            "dependency capture is not yet implemented \u2014 "
-            "falling back to the Maven dep:tree strategy",
-            tool, repo_name,
+        raise ValueError(
+            f"Java build tool '{tool}' detected for "
+            f"'{repo_name}': non-Maven/Gradle Java builds are "
+            "not supported in the current pilot (tabled for "
+            "post-pilot; see docs/deep-dive/java/"
+            "java-nonmaven-gradle-adapter-design.md). Set "
+            "'java_build_tool' to 'maven' or 'gradle' to "
+            "override, or remove the repo from config."
         )
 
     from app.pipeline.interception import (
