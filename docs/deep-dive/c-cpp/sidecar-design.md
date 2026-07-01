@@ -61,14 +61,13 @@ instantiated by any runner.
 
 ## 2. Interception Strategies
 
-### 2.1 Standalone: `PtraceStrategy` (existing)
+This is a **sidecar** design, so the sidecar `CcWrapperStrategy` is the
+primary strategy (§2.1). The standalone `PtraceStrategy` (§2.2) is included
+**only as the existing production baseline** — the sidecar strategy reuses
+its ADG-generation step (identical raw-logfile output), so it is documented
+here for reference, not as the recommended path.
 
-- **Mechanism**: `bomtrace3 make -j$(nproc)` — ptrace-based syscall interception
-- **Capability needed**: `SYS_PTRACE` in Docker
-- **Output**: raw logfile at `/tmp/bomsh_hook_raw_logfile.sha1`
-- **ADG**: `bomsh_create_bom.py -r <raw_logfile> -b <bom_dir>`
-
-### 2.2 Sidecar: `CcWrapperStrategy` (to be wired)
+### 2.1 Sidecar: `CcWrapperStrategy` (primary — to be wired)
 
 - **Mechanism**: `CC=/opt/bomsh/bin/bomsh_cc_wrapper.sh`, `CXX=...`, `AR=...`, `LD=...`
 - **Capability needed**: None (`SYS_PTRACE` not required)
@@ -94,6 +93,17 @@ class CcWrapperStrategy(InterceptionStrategy):
         strategy = PtraceStrategy()
         return strategy.generate_adg(repo_dir, bom_dir, omnibor_cfg)
 ```
+
+### 2.2 Standalone: `PtraceStrategy` (existing baseline — reference only)
+
+- **Mechanism**: `bomtrace3 make -j$(nproc)` — ptrace-based syscall interception
+- **Capability needed**: `SYS_PTRACE` in Docker
+- **Output**: raw logfile at `/tmp/bomsh_hook_raw_logfile.sha1`
+- **ADG**: `bomsh_create_bom.py -r <raw_logfile> -b <bom_dir>`
+- **Role in this design**: retained as the baseline only — the sidecar
+  `CcWrapperStrategy.generate_adg()` delegates to
+  `PtraceStrategy.generate_adg()` because the wrapper output format is
+  identical. It is **not** the recommended path for new sidecar work.
 
 ### 2.3 Wiring `CcWrapperStrategy` to the Pipeline
 
