@@ -1,12 +1,12 @@
 # Sidecar & Phase Isolation — C/C++
 
-> **Parent doc**: `../features/phase-isolation/sidecar-phase-isolation-infrastructure.md`
+> **Parent doc**: `../../features/phase-isolation/sidecar-phase-isolation-infrastructure.md`
 > **Status**: Design proposal — not yet implemented
 > **Date**: 2026-06-12
 
 ---
 
-> **Supported modes**: See `../features/phase-isolation/sidecar-phase-isolation-infrastructure.md` §1
+> **Supported modes**: See `../../features/phase-isolation/sidecar-phase-isolation-infrastructure.md` §1
 > for the authoritative definition of Standalone and Sidecar modes.
 > All modes apply to C/C++.
 
@@ -14,9 +14,9 @@
 
 ## Architecture Diagram
 
-<a href="../architecture/c-cpp-sidecar-mode.png"><img src="../architecture/c-cpp-sidecar-mode.png" width="600" alt="C/C++ Sidecar Mode Architecture — click to enlarge"></a>
+<a href="../../architecture/c-cpp-sidecar-mode.png"><img src="../../architecture/c-cpp-sidecar-mode.png" width="600" alt="C/C++ Sidecar Mode Architecture — click to enlarge"></a>
 
-*Click image to enlarge. Source: [c-cpp-sidecar-mode.drawio](../architecture/c-cpp-sidecar-mode.drawio)*
+*Click image to enlarge. Source: [c-cpp-sidecar-mode.drawio](../../architecture/c-cpp-sidecar-mode.drawio)*
 
 ---
 
