@@ -6,7 +6,7 @@
 | **Authors** | Ted G. (architect), Cascade AI |
 | **Status** | Reference — validated on EC2 (sidecar mode, v9.2.0) |
 | **Applies to** | `dependency-check` target repo (OWASP DependencyCheck) |
-| **Related** | `docs/_archived/performance/bomsh-java-performance-optimization.md`, `docs/deep-dive/phase2-binary-artifact-dependencies.md` |
+| **Related** | `docs/_archived/performance/bomsh-java-performance-optimization.md`, `docs/deep-dive/phase-isolation/phase2-binary-artifact-dependencies.md` |
 
 ---
 

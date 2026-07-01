@@ -39,7 +39,7 @@ Includes ALL testing. Must be 100% complete (every sub-item *and* its
 testing) before Main B or Main C begins.
 
 Detail: build-speed sub-issues [java/phase1-build-speed-subissues.md](java/phase1-build-speed-subissues.md)
-(A3–A5) with engineering design [../deep-dive/java/phase1-build-speed-design.md](../deep-dive/java/phase1-build-speed-design.md);
+(A3–A5) with engineering design [../deep-dive/sidecar/java/phase1-build-speed-design.md](../deep-dive/sidecar/java/phase1-build-speed-design.md);
 Java Phase 2 main issue `java-phase2-consume-dep-capture-subissue.md`
 (delivered in PR #194); treedb retro [java/retro-subissue-java-treedb-perf.md](java/retro-subissue-java-treedb-perf.md).
 

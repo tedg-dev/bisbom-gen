@@ -16,7 +16,7 @@
 | **[guides/](guides/)** | Setup, onboarding, contributing, AWS infrastructure, workflow guide |
 | **[architecture/](architecture/)** | System design diagrams (draw.io + PNG), pipeline overview, app architecture |
 | **[features/](features/)** | Feature documentation: phase isolation, analyzed vs. build SBOMs, vendored detection |
-| **[deep-dive/](deep-dive/)** | Engineering deep-dives. Generic, cross-language sidecar + phase-isolation design stays at the top level; per-language design detail lives in `java/`, `c-cpp/`, `go/`, `rust/`, `python/` subfolders |
+| **[deep-dive/](deep-dive/)** | Engineering deep-dives (design rationale, investigations). Sidecar design + strategy analysis lives in `sidecar/` (with per-language `c-cpp/`, `java/`, `go/`, `rust/`, `python/` subfolders); phase-isolation investigations in `phase-isolation/`; non-sidecar per-language analysis in `java/` |
 | **[planning/](planning/)** | Issue & sub-issue planning. Living index at [planning/README.md](planning/README.md); generic umbrella docs at the top level; per-language sub-issues in `java/`, `c-cpp/`, etc. |
 | **[testing/](testing/)** | Golden file regression testing, test strategy, multi-distro testing |
 | **[issues/](issues/)** | Upstream bomsh/bomtrace bug reports and workarounds |

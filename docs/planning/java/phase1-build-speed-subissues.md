@@ -8,7 +8,7 @@
 | **Drafted** | 2026-06-24 (Cascade) |
 | **Status** | US-2 delivered & merged (PR `tedg-dev/omnibor-analysis#196`, golden-clean on bc-java + spring-boot); US-4 added (deferred, in-memory JAR processing); US-3 optional/low; US-1 moved — see below |
 | **Scope** | **Java builds** (Maven and Gradle). Other languages capture inline during the build and are not affected. |
-| **Detailed design** | `docs/deep-dive/java/phase1-build-speed-design.md` (single engineering reference — design, evidence, code-level plan). |
+| **Detailed design** | `docs/deep-dive/sidecar/java/phase1-build-speed-design.md` (single engineering reference — design, evidence, code-level plan). |
 
 ---
 

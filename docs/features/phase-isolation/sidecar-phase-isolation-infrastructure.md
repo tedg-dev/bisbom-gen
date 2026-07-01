@@ -16,11 +16,11 @@ manifest format, CLI flags, config schema, Corona integration, Docker
 setup, and the testing framework. Each language has its own design doc
 with strategy details, Phase 1/2 artifacts, and implementation tasks:
 
-- **`docs/deep-dive/c-cpp/sidecar-design.md`** — `CcWrapperStrategy`, upstream bomsh wrappers, version pre-computation
-- **`docs/deep-dive/java/sidecar-design.md`** — `MavenDepTreeStrategy`/`GradleDepTreeStrategy` (already implemented)
-- **`docs/deep-dive/go/sidecar-design.md`** — `GoToolexecStrategy`, `-a` flag interaction
-- **`docs/deep-dive/rust/sidecar-design.md`** — `RustcWrapperStrategy`, `RUSTC_WRAPPER` vs `RUSTC_WORKSPACE_WRAPPER`
-- **`docs/deep-dive/python/sidecar-design.md`** — metadata-only pipeline (future)
+- **`docs/deep-dive/sidecar/c-cpp/sidecar-design.md`** — truly-sidecar interception (`LD_PRELOAD` → eBPF → per-repo `ptrace`) and version pre-computation. Strategy rationale lives in the reference guide `docs/deep-dive/sidecar/c-cpp/sidecar-interception-strategies.md`
+- **`docs/deep-dive/sidecar/java/sidecar-design.md`** — `MavenDepTreeStrategy`/`GradleDepTreeStrategy` (already implemented)
+- **`docs/deep-dive/sidecar/go/sidecar-design.md`** — `GoToolexecStrategy`, `-a` flag interaction
+- **`docs/deep-dive/sidecar/rust/sidecar-design.md`** — `RustcWrapperStrategy`, `RUSTC_WRAPPER` vs `RUSTC_WORKSPACE_WRAPPER`
+- **`docs/deep-dive/sidecar/python/sidecar-design.md`** — metadata-only pipeline (future)
 
 ---
 
@@ -50,8 +50,10 @@ This document describes the shared infrastructure:
 
 1. **Two modes: Standalone and Sidecar** — Standalone uses ptrace-based
    interception (`bomtrace3`/`bomtrace2`) and requires `SYS_PTRACE`.
-   Sidecar uses build-system-native interception mechanisms and does
-   **not** require `SYS_PTRACE`. The specific mechanism varies by
+   Sidecar uses **transparent** interception mechanisms that do not
+   modify the build invocation and do **not** require `SYS_PTRACE` —
+   build-system-native for Java (`dep:tree`), or kernel/linker-level for
+   C/C++ (`LD_PRELOAD`, eBPF). The specific mechanism varies by
    language — see per-language design docs for details.
 2. **Phase isolation (Sidecar only)** — Phase 1 (build interception) and
    Phase 2 (SPDX generation) can run independently, connected only by a
@@ -73,9 +75,9 @@ per-language docs listed above.
 |-----------|------|--------|
 | `InterceptionStrategy` ABC | `app/pipeline/interception.py` | ✅ Complete |
 | `PtraceStrategy` (standalone) | `app/pipeline/interception.py` | ✅ Complete |
-| `CcWrapperStrategy` (C/C++ sidecar) | `app/pipeline/interception.py` | ✅ Skeleton — not wired to CLI |
-| `GoToolexecStrategy` (Go sidecar) | `app/pipeline/interception.py` | ✅ Skeleton — not wired to CLI |
-| `RustcWrapperStrategy` (Rust sidecar) | `app/pipeline/interception.py` | ✅ Skeleton — not wired to CLI |
+| `CcWrapperStrategy` (C/C++) † | `app/pipeline/interception.py` | ✅ Skeleton — not wired |
+| `GoToolexecStrategy` (Go) † | `app/pipeline/interception.py` | ✅ Skeleton — not wired |
+| `RustcWrapperStrategy` (Rust) † | `app/pipeline/interception.py` | ✅ Skeleton — not wired |
 | `MavenDepTreeStrategy` (Java sidecar) | `app/pipeline/interception.py` | ✅ Fully wired and tested |
 | `GradleDepTreeStrategy` (Java sidecar) | `app/pipeline/interception.py` | ✅ Fully wired and tested |
 | Phase 1/2 timing tags | `app/pipeline/timing.py` | ✅ `StepMetrics.phase` ∈ {`phase1`, `phase2`} |
@@ -95,7 +97,22 @@ per-language docs listed above.
 | Manifest unit tests (22 tests) | `tests/test_manifest.py` | ✅ Complete |
 | Sidecar Docker image (multi-stage target) | `docker/Dockerfile` (`AS sidecar`) | ✅ Complete — published to GHCR |
 | Sidecar publish workflow | `.github/workflows/publish-sidecar.yml` | ✅ Complete — auto-publishes on push to main |
-| CI/CD proof of execution | `docs/features/phase-isolation/phase-isolation-cicd-results_2026-05-13.md` | ✅ Validated 2026-05-13 — 3 runners, 3 Azure regions |
+| CI/CD proof of execution | `phase-isolation-cicd-results_2026-05-13.md` | ✅ Validated 2026-05-13 — 3 runners, 3 Azure regions |
+
+> **† Wrapper-vs-sidecar note:**
+>
+> The `*WrapperStrategy` classes above (`CcWrapperStrategy`,
+> `GoToolexecStrategy`, `RustcWrapperStrategy`) each set a build variable
+> (`CC=`/`CXX=`/`AR=`/`LD=`, `-toolexec`, `RUSTC_WRAPPER`) and therefore
+> **modify the build invocation** — which the sidecar model forbids. They
+> are valid **standalone-without-ptrace** options, *not* sidecar
+> mechanisms. The truly-sidecar C/C++ path is transparent kernel/linker
+> interception: `LD_PRELOAD` (primary) → eBPF (secondary) → per-repo
+> `ptrace` (tertiary). See `../../deep-dive/sidecar/c-cpp/sidecar-design.md` and
+> the reference guide
+> `../../deep-dive/sidecar/c-cpp/sidecar-interception-strategies.md`. The
+> analogous Go/Rust re-framing is tracked as an open question and is out
+> of scope here.
 
 ### 2.2 What's Missing
 
@@ -115,15 +132,15 @@ The following existing diagrams illustrate the target architecture:
 
 #### Standalone Architecture (current flow)
 
-<a href="../../deep-dive/sidecar-standalone-architecture.png"><img src="../../deep-dive/sidecar-standalone-architecture.png" width="600" alt="Standalone Architecture — click to enlarge"></a>
+<a href="../../deep-dive/sidecar/sidecar-standalone-architecture.png"><img src="../../deep-dive/sidecar/sidecar-standalone-architecture.png" width="600" alt="Standalone Architecture — click to enlarge"></a>
 
-*Click image to enlarge. Source: [sidecar-standalone-architecture.drawio](../../deep-dive/sidecar-standalone-architecture.drawio)*
+*Click image to enlarge. Source: [sidecar-standalone-architecture.drawio](../../deep-dive/sidecar/sidecar-standalone-architecture.drawio)*
 
 #### Target Dual-Mode Architecture
 
-<a href="../../deep-dive/sidecar-target-architecture.png"><img src="../../deep-dive/sidecar-target-architecture.png" width="600" alt="Target Dual-Mode Architecture — click to enlarge"></a>
+<a href="../../deep-dive/sidecar/sidecar-target-architecture.png"><img src="../../deep-dive/sidecar/sidecar-target-architecture.png" width="600" alt="Target Dual-Mode Architecture — click to enlarge"></a>
 
-*Click image to enlarge. Source: [sidecar-target-architecture.drawio](../../deep-dive/sidecar-target-architecture.drawio)*
+*Click image to enlarge. Source: [sidecar-target-architecture.drawio](../../deep-dive/sidecar/sidecar-target-architecture.drawio)*
 
 #### Two-Phase Sidecar with Corona
 
@@ -133,21 +150,21 @@ The following existing diagrams illustrate the target architecture:
 
 #### Strategy Pattern Class Hierarchy
 
-<a href="../../deep-dive/sidecar-strategy-pattern.png"><img src="../../deep-dive/sidecar-strategy-pattern.png" width="600" alt="Strategy Pattern Class Hierarchy — click to enlarge"></a>
+<a href="../../deep-dive/sidecar/sidecar-strategy-pattern.png"><img src="../../deep-dive/sidecar/sidecar-strategy-pattern.png" width="600" alt="Strategy Pattern Class Hierarchy — click to enlarge"></a>
 
-*Click image to enlarge. Source: [sidecar-strategy-pattern.drawio](../../deep-dive/sidecar-strategy-pattern.drawio)*
+*Click image to enlarge. Source: [sidecar-strategy-pattern.drawio](../../deep-dive/sidecar/sidecar-strategy-pattern.drawio)*
 
 #### CI/CD Critical Path Reduction
 
-<a href="../../deep-dive/sidecar-critical-path.png"><img src="../../deep-dive/sidecar-critical-path.png" width="600" alt="CI/CD Critical Path Reduction — click to enlarge"></a>
+<a href="../../deep-dive/sidecar/sidecar-critical-path.png"><img src="../../deep-dive/sidecar/sidecar-critical-path.png" width="600" alt="CI/CD Critical Path Reduction — click to enlarge"></a>
 
-*Click image to enlarge. Source: [sidecar-critical-path.drawio](../../deep-dive/sidecar-critical-path.drawio)*
+*Click image to enlarge. Source: [sidecar-critical-path.drawio](../../deep-dive/sidecar/sidecar-critical-path.drawio)*
 
 #### Module Dependency Graph
 
-<a href="../../deep-dive/sidecar-dependency-graph.png"><img src="../../deep-dive/sidecar-dependency-graph.png" width="600" alt="Module Dependency Graph — click to enlarge"></a>
+<a href="../../deep-dive/sidecar/sidecar-dependency-graph.png"><img src="../../deep-dive/sidecar/sidecar-dependency-graph.png" width="600" alt="Module Dependency Graph — click to enlarge"></a>
 
-*Click image to enlarge. Source: [sidecar-dependency-graph.drawio](../../deep-dive/sidecar-dependency-graph.drawio)*
+*Click image to enlarge. Source: [sidecar-dependency-graph.drawio](../../deep-dive/sidecar/sidecar-dependency-graph.drawio)*
 
 ---
 
@@ -358,74 +375,63 @@ New CLI arguments in `app/pipeline/runners.py`:
 
 #### Pattern A: Standalone (full pipeline, single container)
 
-```
-┌─────────────────────────────────────────────┐
-│  Container (standalone, SYS_PTRACE)         │
-│                                             │
-│  Phase 1: clone → build → treedb → ADG     │
-│     ↓ (in-memory, no manifest needed)       │
-│  Phase 2: SBOM → metadata → SPDX → validate│
-└─────────────────────────────────────────────┘
-```
+A single container (with `SYS_PTRACE`) runs both phases sequentially,
+connected by an in-memory hand-off (no manifest):
+
+1. **Phase 1** — clone → build → treedb → ADG
+2. **Phase 2** — SBOM → metadata → SPDX → validate
 
 This is the only Standalone pattern. Phase split is not supported in
 Standalone mode.
 
 #### Pattern B: Sidecar Full (Phase 1 + Phase 2, single container)
 
-```
-┌─────────────────────────────────────────────┐
-│  Container (sidecar, NO SYS_PTRACE)         │
-│                                             │
-│  Phase 1: clone → build → treedb → ADG     │
-│     ↓ (in-memory, no manifest needed)       │
-│  Phase 2: SBOM → metadata → SPDX → validate│
-└─────────────────────────────────────────────┘
-```
+A single sidecar container (no `SYS_PTRACE`) runs both phases
+sequentially, connected by an in-memory hand-off (no manifest):
 
-Same flow as Standalone but using wrapper-based interception. This is
+1. **Phase 1** — clone → build → treedb → ADG
+2. **Phase 2** — SBOM → metadata → SPDX → validate
+
+Same flow as Standalone, but Phase 1 uses **transparent,
+build-unmodifying interception** instead of ptrace (for C/C++:
+`LD_PRELOAD` → eBPF → per-repo `ptrace`; for Java: `dep:tree`). This is
 the **primary customer deployment mode**.
 
 #### Pattern C: Sidecar Phase 1 + Separate Phase 2 (two-stage CI)
 
-```
-┌──── CI Stage 1 (sidecar) ─────────┐
-│  --mode sidecar --phase build      │
-│  Phase 1: clone → build → treedb   │
-│  → writes phase1_manifest.json     │
-└────────────┬───────────────────────┘
-             │ manifest + bom_dir artifacts
-┌────────────▼───────────────────────┐
-│  CI Stage 2 (--phase spdx)         │
-│  Phase 2: reads manifest            │
-│  → SBOM → metadata → SPDX          │
-└────────────────────────────────────┘
-```
+Two CI stages connected by the manifest artifact:
+
+1. **CI Stage 1 (sidecar)** — `--mode sidecar --phase build`: Phase 1
+   runs clone → build → treedb and writes `phase1_manifest.json`.
+2. **Hand-off** — `phase1_manifest.json` plus `bom_dir` artifacts pass
+   to the next stage.
+3. **CI Stage 2** — `--phase spdx`: Phase 2 reads the manifest, then
+   SBOM → metadata → SPDX.
 
 Phase 2 runs in a downstream CI stage, reducing the critical path.
 
 #### Pattern D: Sidecar Phase 1 + Remote Phase 2 (cross-host)
 
-```
-┌──── Customer CI (sidecar) ─────┐     ┌──── Analysis Host ──────────┐
-│  --mode sidecar --phase build  │     │  --phase spdx               │
-│  Phase 1: build + treedb       │────▶│  --manifest ./manifest.json │
-│  → manifest + artifacts        │     │  Phase 2: SPDX generation   │
-└────────────────────────────────┘     └─────────────────────────────┘
-```
+Phase 1 and Phase 2 run on different hosts, connected by transferred
+artifacts:
+
+1. **Customer CI (sidecar)** — `--mode sidecar --phase build`: Phase 1
+   runs build + treedb and produces the manifest plus artifacts.
+2. **Transfer** — manifest plus artifacts move to the analysis host.
+3. **Analysis Host** — `--phase spdx --manifest ./manifest.json`:
+   Phase 2 SPDX generation.
 
 Artifacts are transferred via `rsync`, S3, or CI artifact upload.
 
 #### Pattern E: Corona Daemon (future extension of Pattern C/D)
 
-```
-┌──── Customer CI (sidecar) ─────┐     ┌──── Corona Service ─────────┐
-│  --mode sidecar --phase build  │     │  HTTP API: POST /analyze    │
-│  Phase 1: build + treedb       │────▶│  Reads manifest             │
-│  → uploads manifest + artifacts│     │  Runs Phase 2 asynchronously│
-│    to Corona Artifactory       │     │  Stores SPDX in SBOM DB     │
-└────────────────────────────────┘     └─────────────────────────────┘
-```
+Extends Pattern C/D with a Corona service that consumes the artifacts:
+
+1. **Customer CI (sidecar)** — `--mode sidecar --phase build`: Phase 1
+   runs build + treedb and uploads the manifest plus artifacts to the
+   Corona Artifactory.
+2. **Corona Service** — `HTTP API: POST /analyze` reads the manifest,
+   runs Phase 2 asynchronously, and stores the SPDX in the SBOM DB.
 
 ---
 
@@ -578,8 +584,14 @@ Currently, only Java passes `mode` to its runner. Each language needs a
 ```python
 def _select_c_cpp_strategy(repo_name, repo_cfg, paths_cfg, mode):
     if mode != "sidecar":
-        return None  # legacy bomtrace3 path
-    return CcWrapperStrategy()
+        return None  # legacy bomtrace3 path (standalone)
+    # Truly-sidecar C/C++ interception is transparent (no build change):
+    #   primary   LD_PRELOAD shim (injected by infra)
+    #   secondary eBPF node DaemonSet (static binaries)
+    #   tertiary  per-repo `interception: ptrace` override
+    # CcWrapperStrategy (CC=/CXX=/AR=/LD=) is NOT sidecar — it is a
+    # standalone-without-ptrace option. See sidecar/c-cpp/sidecar-design.md.
+    return LdPreloadStrategy()  # pending implementation
 
 def _select_go_strategy(repo_name, repo_cfg, paths_cfg, mode):
     if mode != "sidecar":
@@ -604,8 +616,8 @@ through, mirroring what Java already does.
 #### Phase 1 Artifacts
 | Artifact | Standalone | Sidecar |
 |----------|-----------|---------|
-| Treedb (`bomsh_omnibor_treedb`) | ✅ via `bomsh_create_bom.py` | ✅ via `bomsh_create_bom.py` (wrapper output) |
-| Raw logfile | ✅ bomtrace3 writes | ✅ CC wrappers write same format |
+| Treedb (`bomsh_omnibor_treedb`) | ✅ via `bomsh_create_bom.py` | ✅ via `bomsh_create_bom.py` (from `LD_PRELOAD`/eBPF capture) |
+| Raw logfile | ✅ bomtrace3 writes | ✅ `LD_PRELOAD` shim writes same format |
 | `bomsh_omnibor_doc_mapping` | ✅ | ✅ |
 | Output binaries | ✅ in `repo_dir` | ✅ in `repo_dir` |
 
@@ -744,8 +756,9 @@ omnibor_java:
 **Design note**: The originally proposed nested standalone/sidecar
 sub-keys and `phase_isolation` section were not implemented. Mode
 selection is handled entirely via `--mode sidecar` CLI flag, and
-the interception strategy classes (`MavenDepTreeStrategy`,
-`CcWrapperStrategy`, etc.) encapsulate all sidecar-specific behavior.
+the interception strategy classes (`MavenDepTreeStrategy`, the C/C++
+`LD_PRELOAD`/eBPF strategies, etc.) encapsulate all sidecar-specific
+behavior.
 No config changes are needed for phase isolation — the `--phase`
 and `--manifest` CLI flags are sufficient.
 
@@ -763,10 +776,27 @@ If Corona integration or cross-host Phase 2 requires config:
 
 ---
 
-## 10. Upstream `bomsh` Wrapper Requirements
+## 10. Upstream `bomsh` Interception Requirements
 
-The CC/CXX/AR/LD wrappers assumed by `CcWrapperStrategy` do not yet exist
-in upstream bomsh. These must be contributed or developed:
+### 10.1 Truly-sidecar C/C++ — `LD_PRELOAD` shim (primary)
+
+The transparent C/C++ sidecar mechanism is an `LD_PRELOAD` shim
+(`libomnibor_intercept.so`) injected by infrastructure (e.g. a K8s
+mutating webhook + init container), never by the build command. It
+interposes `execve`/`open`/`close`, records compiler/linker `argv`,
+hashes inputs and outputs inline, and writes the **same raw logfile
+format** as `bomtrace3` so `bomsh_create_bom.py` works unchanged. This
+shim does not yet exist in upstream bomsh and must be contributed or
+developed. For statically-linked builds an eBPF node DaemonSet is the
+secondary tier; hermetic builds fall back to per-repo `ptrace`. See
+`../../deep-dive/sidecar/c-cpp/sidecar-design.md`.
+
+### 10.2 Standalone-without-ptrace — CC/CXX/AR/LD wrappers
+
+The CC/CXX/AR/LD wrappers assumed by `CcWrapperStrategy` support the
+**standalone-without-ptrace** option (not sidecar — they set build
+env vars). They also do not yet exist in upstream bomsh and must be
+contributed or developed:
 
 | Wrapper | Purpose | Input | Output |
 |---------|---------|-------|--------|
