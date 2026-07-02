@@ -1,0 +1,117 @@
+# Publish OmniBOR container images to GitHub Container Registry
+#
+# Builds and pushes all four service images using a matrix strategy.
+# Each image is tagged with :latest and :<sha>. The GHCR namespace is
+# derived from the repository owner, so forks publish to their own
+# namespace automatically.
+#
+# Triggered manually or on pushes to main that change relevant paths.
+
+name: Publish Container Images
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "docker/Dockerfile"
+      - "app/**"
+      - "requirements.txt"
+      - "operator/**"
+      - "spdx-indexing/**"
+      - "sbom-tree/**"
+      - ".github/workflows/publish-containers.yml"
+  workflow_dispatch:
+    inputs:
+      image:
+        description: "Single image to build (blank = all)"
+        required: false
+        type: choice
+        options:
+          - ""
+          - omnibor-sidecar
+          - omnibor-operator
+          - omnibor-spdx-indexing
+          - omnibor-sbom-tree
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  REGISTRY: ghcr.io
+  OWNER: ${{ github.repository_owner }}
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - image: omnibor-sidecar
+            context: .
+            dockerfile: docker/Dockerfile
+            target: sidecar
+            paths: docker/Dockerfile app/** requirements.txt
+
+          - image: omnibor-operator
+            context: operator
+            dockerfile: operator/Dockerfile
+            target: ""
+            paths: operator/**
+
+          - image: omnibor-spdx-indexing
+            context: spdx-indexing
+            dockerfile: spdx-indexing/Dockerfile
+            target: ""
+            paths: spdx-indexing/**
+
+          - image: omnibor-sbom-tree
+            context: sbom-tree
+            dockerfile: sbom-tree/Dockerfile
+            target: ""
+            paths: sbom-tree/**
+
+    # Skip matrix entries that don't match the selected image (manual dispatch)
+    if: >-
+      github.event_name != 'workflow_dispatch' ||
+      inputs.image == '' ||
+      inputs.image == matrix.image
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+
+      - name: Login to GHCR
+        uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772  # v3.4.0
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@b5ca514318bd6ebac0fb2aedd5d36ec1b5c232a2  # v3.10.0
+
+      - name: Build and push
+        uses: docker/build-push-action@263435318d21b8e681c14492fe198e19c3bc62d6  # v6.18.0
+        with:
+          context: ${{ matrix.context }}
+          file: ${{ matrix.dockerfile }}
+          target: ${{ matrix.target || '' }}
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.OWNER }}/${{ matrix.image }}:latest
+            ${{ env.REGISTRY }}/${{ env.OWNER }}/${{ matrix.image }}:${{ github.sha }}
+          cache-from: type=gha,scope=${{ matrix.image }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.image }}
+
+      - name: Summary
+        run: |
+          echo "## ${{ matrix.image }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "- \`${{ env.REGISTRY }}/${{ env.OWNER }}/${{ matrix.image }}:latest\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "- \`${{ env.REGISTRY }}/${{ env.OWNER }}/${{ matrix.image }}:${{ github.sha }}\`" >> "$GITHUB_STEP_SUMMARY"

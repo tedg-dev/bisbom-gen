@@ -1,20 +1,16 @@
-# Publish OmniBOR sidecar Docker image to GitHub Container Registry
+# DEPRECATED — use publish-containers.yml instead.
 #
-# Triggered manually or on pushes to main that change the sidecar image.
-# The sidecar image is used by external CI/CD pipelines (e.g.,
-# tedg-dev/omnibor-java-testapp) to generate SPDX SBOMs without
-# SYS_PTRACE.
+# This workflow is superseded by publish-containers.yml, which builds
+# all four service images (sidecar, operator, spdx-indexing, sbom-tree)
+# via a matrix strategy with the same GHCR namespace auto-detection.
+#
+# This file is retained temporarily for reference. Remove once
+# publish-containers.yml is verified in CI.
 
-name: Publish Sidecar Image
+name: "[DEPRECATED] Publish Sidecar Image"
 
+# Disabled — triggers moved to publish-containers.yml
 on:
-  push:
-    branches: [main]
-    paths:
-      - "docker/Dockerfile"
-      - "app/**"
-      - "requirements.txt"
-      - ".github/workflows/publish-sidecar.yml"
   workflow_dispatch:
 
 concurrency:

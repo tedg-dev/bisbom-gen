@@ -6,13 +6,13 @@
         <mxCell id="1" parent="0" />
 
         <!-- Title -->
-        <mxCell id="title" parent="1" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=20;fontStyle=1;fontColor=#333333;" value="Tree-Based SBOM Production — Presigned URL Broker Architecture" vertex="1">
-          <mxGeometry x="280" y="20" width="620" height="40" as="geometry" />
+        <mxCell id="title" parent="1" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=20;fontStyle=1;fontColor=#333333;" value="Tree-Based SBOM Production — Phase 1 &amp; Phase 2 Overview" vertex="1">
+          <mxGeometry x="280" y="20" width="560" height="40" as="geometry" />
         </mxCell>
 
         <!-- Phase 1 label -->
         <mxCell id="phase1_label" parent="1" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=13;fontStyle=3;fontColor=#82b366;" value="Phase 1 — Build Site" vertex="1">
-          <mxGeometry x="70" y="80" width="240" height="30" as="geometry" />
+          <mxGeometry x="100" y="80" width="310" height="30" as="geometry" />
         </mxCell>
 
         <!-- Phase 2 label -->
@@ -22,75 +22,59 @@
 
         <!-- Box 1: Build Pipeline GitHub/Jenkins -->
         <mxCell id="build_pipeline" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=13;fontStyle=1;spacingTop=5;spacingBottom=5;shadow=1;" value="Build Pipeline&lt;br&gt;&lt;font style='font-size:11px;font-weight:normal;'&gt;GitHub Actions / Jenkins&lt;/font&gt;&lt;br&gt;&lt;br&gt;&lt;font style='font-size:10px;font-weight:normal;color:#555555;'&gt;• Compile source code&lt;br&gt;• Run omnibor-sidecar (Phase 1)&lt;br&gt;• Produce build artifacts,&lt;br&gt;  dependency tree, bomsh treedb&lt;br&gt;• Generate phase1_manifest.json&lt;/font&gt;" vertex="1">
-          <mxGeometry x="30" y="120" width="240" height="180" as="geometry" />
+          <mxGeometry x="50" y="120" width="240" height="180" as="geometry" />
         </mxCell>
 
-        <!-- Box 2: Presigned URL Broker (replaces OIDC Federated Connectivity) -->
-        <mxCell id="presigned_broker" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=13;fontStyle=1;spacingTop=5;spacingBottom=5;shadow=1;" value="Presigned URL Broker&lt;br&gt;&lt;font style='font-size:11px;font-weight:normal;'&gt;Endpoint on Operator&lt;/font&gt;&lt;br&gt;&lt;br&gt;&lt;font style='font-size:10px;font-weight:normal;color:#555555;'&gt;• POST /v1/upload-url&lt;br&gt;• Validates CI OIDC tokens&lt;br&gt;• Checks org enrollment&lt;br&gt;• Returns scoped, time-limited&lt;br&gt;  S3 presigned PUT URLs&lt;br&gt;• No per-org IAM policies&lt;/font&gt;" vertex="1">
-          <mxGeometry x="30" y="370" width="240" height="180" as="geometry" />
+        <!-- Box 2: OIDC Federated Connectivity -->
+        <mxCell id="oidc" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=13;fontStyle=1;spacingTop=5;spacingBottom=5;shadow=1;" value="OIDC Federated&lt;br&gt;Connectivity&lt;br&gt;&lt;br&gt;&lt;font style='font-size:10px;font-weight:normal;color:#555555;'&gt;• No long-lived AWS keys&lt;br&gt;• AssumeRoleWithWebIdentity&lt;br&gt;• GitHub / Jenkins OIDC tokens&lt;br&gt;• Scoped IAM role&lt;/font&gt;" vertex="1">
+          <mxGeometry x="50" y="360" width="240" height="150" as="geometry" />
         </mxCell>
 
         <!-- Box 3: S3 -->
         <mxCell id="s3" parent="1" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=13;fontStyle=1;shadow=1;" value="S3&lt;br&gt;&lt;font style='font-size:10px;font-weight:normal;color:#555555;'&gt;omnibor-spdx-artifacts&lt;br&gt;&lt;br&gt;• Phase 1 outputs&lt;br&gt;• Build artifacts&lt;br&gt;• SPDX documents&lt;br&gt;• Hierarchical SBOM&lt;/font&gt;" vertex="1">
-          <mxGeometry x="410" y="140" width="200" height="160" as="geometry" />
+          <mxGeometry x="430" y="140" width="200" height="160" as="geometry" />
         </mxCell>
 
         <!-- Box 4: Operator -->
-        <mxCell id="operator" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;fontStyle=1;spacingTop=5;spacingBottom=5;shadow=1;" value="Operator&lt;br&gt;&lt;font style='font-size:11px;font-weight:normal;'&gt;Go Service (ECS / Docker)&lt;/font&gt;&lt;br&gt;&lt;br&gt;&lt;font style='font-size:10px;font-weight:normal;color:#555555;'&gt;• Presigned URL broker (/v1/upload-url)&lt;br&gt;• Poll SQS for Phase 1 events&lt;br&gt;• Download Phase 1 from S3&lt;br&gt;• Launch Phase 2 container&lt;br&gt;• Upload results back to S3&lt;br&gt;• Index artifacts in DynamoDB&lt;/font&gt;" vertex="1">
-          <mxGeometry x="710" y="120" width="250" height="190" as="geometry" />
+        <mxCell id="operator" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;fontStyle=1;spacingTop=5;spacingBottom=5;shadow=1;" value="Operator&lt;br&gt;&lt;font style='font-size:11px;font-weight:normal;'&gt;Go Service (ECS / Docker)&lt;/font&gt;&lt;br&gt;&lt;br&gt;&lt;font style='font-size:10px;font-weight:normal;color:#555555;'&gt;• Poll SQS for Phase 1 events&lt;br&gt;• Download Phase 1 from S3&lt;br&gt;• Launch Phase 2 container&lt;br&gt;• Upload results back to S3&lt;br&gt;• Index artifacts in DynamoDB&lt;/font&gt;" vertex="1">
+          <mxGeometry x="730" y="120" width="240" height="180" as="geometry" />
         </mxCell>
 
         <!-- Box 5: SPDX Generation -->
         <mxCell id="spdx_gen" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=13;fontStyle=1;spacingTop=5;spacingBottom=5;shadow=1;" value="SPDX Generation&lt;br&gt;&lt;font style='font-size:11px;font-weight:normal;'&gt;omnibor-sidecar (Phase 2)&lt;/font&gt;&lt;br&gt;&lt;br&gt;&lt;font style='font-size:10px;font-weight:normal;color:#555555;'&gt;• Parse bomsh treedb&lt;br&gt;• Resolve dependency tree&lt;br&gt;• Emit SPDX 2.3 JSON&lt;br&gt;• Flat SBOM per artifact&lt;/font&gt;" vertex="1">
-          <mxGeometry x="710" y="380" width="250" height="160" as="geometry" />
+          <mxGeometry x="730" y="370" width="240" height="160" as="geometry" />
         </mxCell>
 
         <!-- Box 6: Hierarchical SBOM -->
         <mxCell id="hier_sbom" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=13;fontStyle=1;spacingTop=5;spacingBottom=5;shadow=1;" value="Hierarchical SBOM&lt;br&gt;&lt;font style='font-size:11px;font-weight:normal;'&gt;Tree-Structured Output&lt;/font&gt;&lt;br&gt;&lt;br&gt;&lt;font style='font-size:10px;font-weight:normal;color:#555555;'&gt;• Nested dependency tree&lt;br&gt;• Parent → child relationships&lt;br&gt;• BFS traversal of dep graph&lt;br&gt;• sbom-tree.json&lt;/font&gt;" vertex="1">
-          <mxGeometry x="1080" y="250" width="240" height="160" as="geometry" />
+          <mxGeometry x="1090" y="250" width="240" height="160" as="geometry" />
         </mxCell>
 
-        <!-- Box 7: Corona (downstream consumer) -->
-        <mxCell id="corona" parent="1" style="shape=swimlane;startSize=28;fillColor=#f5f5f5;strokeColor=#666666;fontSize=14;fontStyle=1;horizontal=1;collapsible=0;rounded=1;shadow=1;" value="Corona" vertex="1">
-          <mxGeometry x="1040" y="490" width="320" height="220" as="geometry" />
-        </mxCell>
-        <mxCell id="corona_archive" parent="corona" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#999999;fontSize=11;fontStyle=1;dashed=1;dashPattern=8 4;spacingTop=3;spacingBottom=3;" value="Archive Matching Worker&lt;br&gt;&lt;font style='font-size:9px;font-weight:normal;font-style:italic;color:#999999;'&gt;(future)&lt;/font&gt;" vertex="1">
-          <mxGeometry x="20" y="40" width="270" height="65" as="geometry" />
-        </mxCell>
-        <mxCell id="corona_ingest" parent="corona" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#999999;fontSize=11;fontStyle=1;dashed=1;dashPattern=8 4;spacingTop=3;spacingBottom=3;" value="Hierarchical BOM Ingestion&lt;br&gt;&lt;font style='font-size:9px;font-weight:normal;font-style:italic;color:#999999;'&gt;(future)&lt;/font&gt;" vertex="1">
-          <mxGeometry x="20" y="120" width="270" height="65" as="geometry" />
-        </mxCell>
-
-        <!-- Edge: Build Pipeline → Presigned Broker (get OIDC token) -->
-        <mxCell id="e_build_broker" edge="1" parent="1" source="build_pipeline" target="presigned_broker" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#9673a6;strokeWidth=2;fontSize=10;fontColor=#9673a6;">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="e_build_broker_label" parent="e_build_broker" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=9;fontColor=#555555;" value="① OIDC token +&#xa;request upload URLs" vertex="1" connectable="0">
-          <mxGeometry x="-0.1" relative="1" as="geometry">
-            <mxPoint as="offset" />
-          </mxGeometry>
-        </mxCell>
-
-        <!-- Edge: Presigned Broker → Operator (same service) -->
-        <mxCell id="e_broker_oper" edge="1" parent="1" source="presigned_broker" target="operator" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#6c8ebf;strokeWidth=2;dashed=1;fontSize=10;fontColor=#6c8ebf;">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="370" y="460" />
-              <mxPoint x="370" y="460" />
-            </Array>
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="e_broker_oper_label" parent="e_broker_oper" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=9;fontColor=#555555;" value="(same service —&#xa;endpoint on operator)" vertex="1" connectable="0">
-          <mxGeometry x="-0.1" relative="1" as="geometry">
-            <mxPoint as="offset" />
-          </mxGeometry>
-        </mxCell>
-
-        <!-- Edge: Build Pipeline → S3 (upload via presigned URL) -->
+        <!-- Edge: Build Pipeline → S3 (upload Phase 1 artifacts) -->
         <mxCell id="e_build_s3" edge="1" parent="1" source="build_pipeline" target="s3" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#82b366;strokeWidth=2;fontSize=10;fontColor=#82b366;">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e_build_s3_label" parent="e_build_s3" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;fontColor=#555555;" value="② HTTP PUT via&#xa;presigned URL" vertex="1" connectable="0">
+        <mxCell id="e_build_s3_label" parent="e_build_s3" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;fontColor=#555555;" value="Upload Phase 1&#xa;artifacts + build output" vertex="1" connectable="0">
+          <mxGeometry x="-0.1" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Edge: OIDC → S3 (secure access) -->
+        <mxCell id="e_oidc_s3" edge="1" parent="1" source="oidc" target="s3" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#9673a6;strokeWidth=2;dashed=1;fontSize=10;fontColor=#9673a6;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_oidc_s3_label" parent="e_oidc_s3" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;fontColor=#555555;" value="Federated auth&#xa;(no static keys)" vertex="1" connectable="0">
+          <mxGeometry x="-0.1" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Edge: OIDC → Build Pipeline (authenticates) -->
+        <mxCell id="e_oidc_build" edge="1" parent="1" source="oidc" target="build_pipeline" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#9673a6;strokeWidth=1;dashed=1;fontSize=10;fontColor=#9673a6;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_oidc_build_label" parent="e_oidc_build" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=9;fontColor=#555555;" value="Authenticates&#xa;build pipeline" vertex="1" connectable="0">
           <mxGeometry x="-0.1" relative="1" as="geometry">
             <mxPoint as="offset" />
           </mxGeometry>
@@ -100,7 +84,7 @@
         <mxCell id="e_s3_oper" edge="1" parent="1" source="s3" target="operator" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#6c8ebf;strokeWidth=2;fontSize=10;fontColor=#6c8ebf;">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e_s3_oper_label" parent="e_s3_oper" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;fontColor=#555555;" value="③ SQS event +&#xa;download Phase 1" vertex="1" connectable="0">
+        <mxCell id="e_s3_oper_label" parent="e_s3_oper" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;fontColor=#555555;" value="SQS event +&#xa;download Phase 1" vertex="1" connectable="0">
           <mxGeometry x="-0.1" relative="1" as="geometry">
             <mxPoint as="offset" />
           </mxGeometry>
@@ -110,7 +94,7 @@
         <mxCell id="e_oper_spdx" edge="1" parent="1" source="operator" target="spdx_gen" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#d6b656;strokeWidth=2;fontSize=10;fontColor=#d6b656;">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e_oper_spdx_label" parent="e_oper_spdx" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;fontColor=#555555;" value="④ Launch Phase 2&#xa;container" vertex="1" connectable="0">
+        <mxCell id="e_oper_spdx_label" parent="e_oper_spdx" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;fontColor=#555555;" value="Launch Phase 2&#xa;container" vertex="1" connectable="0">
           <mxGeometry x="-0.1" relative="1" as="geometry">
             <mxPoint as="offset" />
           </mxGeometry>
@@ -120,7 +104,7 @@
         <mxCell id="e_spdx_hier" edge="1" parent="1" source="spdx_gen" target="hier_sbom" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#b85450;strokeWidth=2;fontSize=10;fontColor=#b85450;">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e_spdx_hier_label" parent="e_spdx_hier" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;fontColor=#555555;" value="⑤ BFS dep graph →&#xa;nested tree" vertex="1" connectable="0">
+        <mxCell id="e_spdx_hier_label" parent="e_spdx_hier" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;fontColor=#555555;" value="BFS dep graph →&#xa;nested tree" vertex="1" connectable="0">
           <mxGeometry x="-0.1" relative="1" as="geometry">
             <mxPoint as="offset" />
           </mxGeometry>
@@ -130,8 +114,8 @@
         <mxCell id="e_hier_s3" edge="1" parent="1" source="hier_sbom" target="s3" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#82b366;strokeWidth=2;dashed=1;fontSize=10;fontColor=#82b366;">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="1200" y="610" />
-              <mxPoint x="510" y="610" />
+              <mxPoint x="1210" y="600" />
+              <mxPoint x="530" y="600" />
             </Array>
           </mxGeometry>
         </mxCell>
@@ -145,8 +129,8 @@
         <mxCell id="e_spdx_s3" edge="1" parent="1" source="spdx_gen" target="s3" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#82b366;strokeWidth=1;dashed=1;fontSize=10;fontColor=#82b366;">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="680" y="460" />
-              <mxPoint x="680" y="300" />
+              <mxPoint x="700" y="450" />
+              <mxPoint x="700" y="300" />
             </Array>
           </mxGeometry>
         </mxCell>
@@ -154,6 +138,17 @@
           <mxGeometry x="-0.3" relative="1" as="geometry">
             <mxPoint as="offset" />
           </mxGeometry>
+        </mxCell>
+
+        <!-- Box 7: Corona (downstream consumer) -->
+        <mxCell id="corona" parent="1" style="shape=swimlane;startSize=28;fillColor=#f5f5f5;strokeColor=#666666;fontSize=14;fontStyle=1;horizontal=1;collapsible=0;rounded=1;shadow=1;" value="Corona" vertex="1">
+          <mxGeometry x="1050" y="480" width="320" height="220" as="geometry" />
+        </mxCell>
+        <mxCell id="corona_archive" parent="corona" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#999999;fontSize=11;fontStyle=1;dashed=1;dashPattern=8 4;spacingTop=3;spacingBottom=3;" value="Archive Matching Worker&lt;br&gt;&lt;font style='font-size:9px;font-weight:normal;font-style:italic;color:#999999;'&gt;(future)&lt;/font&gt;" vertex="1">
+          <mxGeometry x="20" y="40" width="270" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="corona_ingest" parent="corona" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#999999;fontSize=11;fontStyle=1;dashed=1;dashPattern=8 4;spacingTop=3;spacingBottom=3;" value="Hierarchical BOM Ingestion&lt;br&gt;&lt;font style='font-size:9px;font-weight:normal;font-style:italic;color:#999999;'&gt;(future)&lt;/font&gt;" vertex="1">
+          <mxGeometry x="20" y="120" width="270" height="65" as="geometry" />
         </mxCell>
 
         <!-- Edge: Hierarchical SBOM → Corona -->
@@ -170,8 +165,8 @@
         <mxCell id="e_s3_corona" edge="1" parent="1" source="s3" target="corona" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#666666;strokeWidth=1;dashed=1;dashPattern=8 4;fontSize=10;fontColor=#666666;">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="510" y="660" />
-              <mxPoint x="1040" y="660" />
+              <mxPoint x="530" y="650" />
+              <mxPoint x="1050" y="650" />
             </Array>
           </mxGeometry>
         </mxCell>
@@ -183,12 +178,12 @@
 
         <!-- Phase divider line -->
         <mxCell id="divider" parent="1" style="shape=line;strokeColor=#999999;strokeWidth=1;dashed=1;dashPattern=8 8;fillColor=none;fontSize=1;" value="" vertex="1">
-          <mxGeometry x="350" y="100" width="10" height="620" as="geometry" />
+          <mxGeometry x="370" y="100" width="10" height="620" as="geometry" />
         </mxCell>
 
         <!-- Legend -->
         <mxCell id="legend" parent="1" style="shape=swimlane;startSize=20;fillColor=#f5f5f5;strokeColor=#666666;fontSize=11;fontStyle=1;horizontal=1;collapsible=0;rounded=1;" value="Legend" vertex="1">
-          <mxGeometry x="410" y="430" width="200" height="200" as="geometry" />
+          <mxGeometry x="430" y="430" width="200" height="200" as="geometry" />
         </mxCell>
         <mxCell id="leg1" parent="legend" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=9;" value="Build / Storage" vertex="1">
           <mxGeometry x="10" y="28" width="85" height="25" as="geometry" />
@@ -196,7 +191,7 @@
         <mxCell id="leg2" parent="legend" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=9;" value="Orchestration" vertex="1">
           <mxGeometry x="105" y="28" width="85" height="25" as="geometry" />
         </mxCell>
-        <mxCell id="leg3" parent="legend" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=9;" value="Auth / Broker" vertex="1">
+        <mxCell id="leg3" parent="legend" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=9;" value="Authentication" vertex="1">
           <mxGeometry x="10" y="60" width="85" height="25" as="geometry" />
         </mxCell>
         <mxCell id="leg4" parent="legend" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=9;" value="SPDX Processing" vertex="1">
@@ -208,8 +203,8 @@
         <mxCell id="leg6" parent="legend" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#999999;fontSize=9;dashed=1;dashPattern=8 4;" value="Future Work" vertex="1">
           <mxGeometry x="105" y="92" width="85" height="25" as="geometry" />
         </mxCell>
-        <mxCell id="leg_note" parent="legend" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=9;fontColor=#666666;fontStyle=2;" value="Solid = data flow&#xa;Dashed = auth / upload / future&#xa;① ② ③ = numbered sequence" vertex="1">
-          <mxGeometry x="10" y="125" width="160" height="60" as="geometry" />
+        <mxCell id="leg_note" parent="legend" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=9;fontColor=#666666;fontStyle=2;" value="Solid = data flow&#xa;Dashed = auth / upload / future" vertex="1">
+          <mxGeometry x="10" y="125" width="140" height="40" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
