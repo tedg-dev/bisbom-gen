@@ -104,7 +104,7 @@ needing the source tree or any omnibor-analysis internals.
 - A Phase 2 output-writer/manifest module (generic, config-driven) — no
   language- or repo-specific logic.
 - Config keys for the output location and build/release identifiers.
-- A short boundary-contract doc (`docs/deep-dive/`) describing the artifact
+- A short boundary-contract doc (`docs/sidecar/`) describing the artifact
   set + manifest schema for the delivery team.
 - Unit tests: manifest correctness, digests, missing-input handling,
   config-driven path resolution.

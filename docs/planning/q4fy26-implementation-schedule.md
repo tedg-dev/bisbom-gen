@@ -418,9 +418,9 @@ Example: `[A1] Create PackageResolver ABC`
 
 ## Dependency Graph
 
-<a href="../deep-dive/sidecar/sidecar-dependency-graph.png"><img src="../deep-dive/sidecar/sidecar-dependency-graph.png" width="600" alt="Sidecar Priority Dependency Graph — click to enlarge"></a>
+<a href="../sidecar/sidecar-dependency-graph.png"><img src="../sidecar/sidecar-dependency-graph.png" width="600" alt="Sidecar Priority Dependency Graph — click to enlarge"></a>
 
-*Click image to enlarge. Source: [sidecar-dependency-graph.drawio](../deep-dive/sidecar/sidecar-dependency-graph.drawio)*
+*Click image to enlarge. Source: [sidecar-dependency-graph.drawio](../sidecar/sidecar-dependency-graph.drawio)*
 
 ---
 

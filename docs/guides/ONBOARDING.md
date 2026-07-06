@@ -205,10 +205,10 @@ omnibor-analysis/
 \u251c\u2500\u2500 terraform/              # AWS EC2 infrastructure as code
 \u251c\u2500\u2500 tests/                  # Unit tests (1,450+ tests, 97%+ coverage)
 \u251c\u2500\u2500 docs/                   # Hand-written documentation
-\u2502   \u251c\u2500\u2500 architecture/       # System diagrams and technical design
-\u2502   \u251c\u2500\u2500 features/           # Feature documentation (phase isolation, SBOMs)
+\u2502   \u251c\u2500\u2500 sidecar/            # Sidecar + phase isolation (per-language subdirs)
+\u2502   \u251c\u2500\u2500 architecture/       # General app architecture and technical design
 \u2502   \u251c\u2500\u2500 guides/             # Onboarding, contributing, AWS setup
-\u2502   \u251c\u2500\u2500 deep-dive/          # Sidecar design docs (per-language)
+\u2502   \u251c\u2500\u2500 planning/           # Issue & sub-issue planning docs
 \u2502   \u251c\u2500\u2500 testing/            # Golden file regression testing
 \u2502   \u251c\u2500\u2500 issues/             # Upstream bug tracking
 \u2502   \u2514\u2500\u2500 _archived/          # Historical documents (not current)

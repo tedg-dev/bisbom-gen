@@ -49,7 +49,7 @@ two-phase pipeline:
 does not require `SYS_PTRACE`.
 
 For the full phase isolation architecture, see
-[Sidecar Phase Isolation Infrastructure](../features/phase-isolation/sidecar-phase-isolation-infrastructure.md).
+[Sidecar Phase Isolation Infrastructure](../sidecar/infrastructure.md).
 
 ---
 

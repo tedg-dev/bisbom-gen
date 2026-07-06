@@ -1,0 +1,400 @@
+{
+  "tool": "gradle",
+  "modules": [
+    {
+      "key": ":",
+      "project": null,
+      "deps": []
+    },
+    {
+      "key": ":core",
+      "project": "core",
+      "deps": [
+        {
+          "groupId": "org.openjdk.jmh",
+          "artifactId": "jmh-core",
+          "version": "1.33",
+          "scope": "compile",
+          "direct": true,
+          "optional": false,
+          "parent": null,
+          "depth": 0
+        },
+        {
+          "groupId": "net.sf.jopt-simple",
+          "artifactId": "jopt-simple",
+          "version": "4.6",
+          "scope": "compile",
+          "direct": false,
+          "optional": false,
+          "parent": "jmh-core",
+          "depth": 1
+        },
+        {
+          "groupId": "org.apache.commons",
+          "artifactId": "commons-math3",
+          "version": "3.2",
+          "scope": "compile",
+          "direct": false,
+          "optional": false,
+          "parent": "jmh-core",
+          "depth": 1
+        }
+      ]
+    },
+    {
+      "key": ":util",
+      "project": "util",
+      "deps": [
+        {
+          "groupId": "org.openjdk.jmh",
+          "artifactId": "jmh-core",
+          "version": "1.33",
+          "scope": "compile",
+          "direct": false,
+          "optional": false,
+          "parent": null,
+          "depth": 2
+        },
+        {
+          "groupId": "net.sf.jopt-simple",
+          "artifactId": "jopt-simple",
+          "version": "4.6",
+          "scope": "compile",
+          "direct": false,
+          "optional": false,
+          "parent": "jmh-core",
+          "depth": 3
+        },
+        {
+          "groupId": "org.apache.commons",
+          "artifactId": "commons-math3",
+          "version": "3.2",
+          "scope": "compile",
+          "direct": false,
+          "optional": false,
+          "parent": "jmh-core",
+          "depth": 3
+        }
+      ]
+    },
+    {
+      "key": ":pg",
+      "project": "pg",
+      "deps": [
+        {
+          "groupId": "org.openjdk.jmh",
+          "artifactId": "jmh-core",
+          "version": "1.33",
+          "scope": "compile",
+          "direct": false,
+          "optional": false,
+          "parent": null,
+          "depth": 2
+        },
+        {
+          "groupId": "net.sf.jopt-simple",
+          "artifactId": "jopt-simple",
+          "version": "4.6",
+          "scope": "compile",
+          "direct": false,
+          "optional": false,
+          "parent": "jmh-core",
+          "depth": 3
+        },
+        {
+          "groupId": "org.apache.commons",
+          "artifactId": "commons-math3",
+          "version": "3.2",
+          "scope": "compile",
+          "direct": false,
+          "optional": false,
+          "parent": "jmh-core",
+          "depth": 3
+        }
+      ]
+    },
+    {
+      "key": ":pkix",
+      "project": "pkix",
+      "deps": [
+        {
+          "groupId": "org.openjdk.jmh",
+          "artifactId": "jmh-core",
+          "version": "1.33",
+          "scope": "compile",
+          "direct": false,
+          "optional": false,
+          "parent": null,
+          "depth": 2
+        },
+        {
+          "groupId": "net.sf.jopt-simple",
+          "artifactId": "jopt-simple",
+          "version": "4.6",
+          "scope": "compile",
+          "direct": false,
+          "optional": false,
+          "parent": "jmh-core",
+          "depth": 3
+        },
+        {
+          "groupId": "org.apache.commons",
+          "artifactId": "commons-math3",
+          "version": "3.2",
+          "scope": "compile",
+          "direct": false,
+          "optional": false,
+          "parent": "jmh-core",
+          "depth": 3
+        }
+      ]
+    },
+    {
+      "key": ":prov",
+      "project": "prov",
+      "deps": [
+        {
+          "groupId": "org.openjdk.jmh",
+          "artifactId": "jmh-core",
+          "version": "1.33",
+          "scope": "compile",
+          "direct": false,
+          "optional": false,
+          "parent": null,
+          "depth": 1
+        },
+        {
+          "groupId": "net.sf.jopt-simple",
+          "artifactId": "jopt-simple",
+          "version": "4.6",
+          "scope": "compile",
+          "direct": false,
+          "optional": false,
+          "parent": "jmh-core",
+          "depth": 2
+        },
+        {
+          "groupId": "org.apache.commons",
+          "artifactId": "commons-math3",
+          "version": "3.2",
+          "scope": "compile",
+          "direct": false,
+          "optional": false,
+          "parent": "jmh-core",
+          "depth": 2
+        }
+      ]
+    },
+    {
+      "key": ":tls",
+      "project": "tls",
+      "deps": [
+        {
+          "groupId": "org.openjdk.jmh",
+          "artifactId": "jmh-core",
+          "version": "1.33",
+          "scope": "compile",
+          "direct": false,
+          "optional": false,
+          "parent": null,
+          "depth": 2
+        },
+        {
+          "groupId": "net.sf.jopt-simple",
+          "artifactId": "jopt-simple",
+          "version": "4.6",
+          "scope": "compile",
+          "direct": false,
+          "optional": false,
+          "parent": "jmh-core",
+          "depth": 3
+        },
+        {
+          "groupId": "org.apache.commons",
+          "artifactId": "commons-math3",
+          "version": "3.2",
+          "scope": "compile",
+          "direct": false,
+          "optional": false,
+          "parent": "jmh-core",
+          "depth": 3
+        }
+      ]
+    },
+    {
+      "key": ":test",
+      "project": "test",
+      "deps": [
+        {
+          "groupId": "org.openjdk.jmh",
+          "artifactId": "jmh-core",
+          "version": "1.33",
+          "scope": "compile",
+          "direct": false,
+          "optional": false,
+          "parent": null,
+          "depth": 1
+        },
+        {
+          "groupId": "net.sf.jopt-simple",
+          "artifactId": "jopt-simple",
+          "version": "4.6",
+          "scope": "compile",
+          "direct": false,
+          "optional": false,
+          "parent": "jmh-core",
+          "depth": 2
+        },
+        {
+          "groupId": "org.apache.commons",
+          "artifactId": "commons-math3",
+          "version": "3.2",
+          "scope": "compile",
+          "direct": false,
+          "optional": false,
+          "parent": "jmh-core",
+          "depth": 2
+        }
+      ]
+    },
+    {
+      "key": ":mls",
+      "project": "mls",
+      "deps": [
+        {
+          "groupId": "org.openjdk.jmh",
+          "artifactId": "jmh-core",
+          "version": "1.33",
+          "scope": "compile",
+          "direct": false,
+          "optional": false,
+          "parent": null,
+          "depth": 3
+        },
+        {
+          "groupId": "net.sf.jopt-simple",
+          "artifactId": "jopt-simple",
+          "version": "4.6",
+          "scope": "compile",
+          "direct": false,
+          "optional": false,
+          "parent": "jmh-core",
+          "depth": 4
+        },
+        {
+          "groupId": "org.apache.commons",
+          "artifactId": "commons-math3",
+          "version": "3.2",
+          "scope": "compile",
+          "direct": false,
+          "optional": false,
+          "parent": "jmh-core",
+          "depth": 4
+        }
+      ]
+    },
+    {
+      "key": ":mail",
+      "project": "mail",
+      "deps": [
+        {
+          "groupId": "org.openjdk.jmh",
+          "artifactId": "jmh-core",
+          "version": "1.33",
+          "scope": "compile",
+          "direct": false,
+          "optional": false,
+          "parent": null,
+          "depth": 2
+        },
+        {
+          "groupId": "net.sf.jopt-simple",
+          "artifactId": "jopt-simple",
+          "version": "4.6",
+          "scope": "compile",
+          "direct": false,
+          "optional": false,
+          "parent": "jmh-core",
+          "depth": 3
+        },
+        {
+          "groupId": "org.apache.commons",
+          "artifactId": "commons-math3",
+          "version": "3.2",
+          "scope": "compile",
+          "direct": false,
+          "optional": false,
+          "parent": "jmh-core",
+          "depth": 3
+        },
+        {
+          "groupId": "javax.mail",
+          "artifactId": "mail",
+          "version": "1.4",
+          "scope": "compile",
+          "direct": true,
+          "optional": false,
+          "parent": null,
+          "depth": 0
+        }
+      ]
+    },
+    {
+      "key": ":jmail",
+      "project": "jmail",
+      "deps": [
+        {
+          "groupId": "org.openjdk.jmh",
+          "artifactId": "jmh-core",
+          "version": "1.33",
+          "scope": "compile",
+          "direct": false,
+          "optional": false,
+          "parent": null,
+          "depth": 2
+        },
+        {
+          "groupId": "net.sf.jopt-simple",
+          "artifactId": "jopt-simple",
+          "version": "4.6",
+          "scope": "compile",
+          "direct": false,
+          "optional": false,
+          "parent": "jmh-core",
+          "depth": 3
+        },
+        {
+          "groupId": "org.apache.commons",
+          "artifactId": "commons-math3",
+          "version": "3.2",
+          "scope": "compile",
+          "direct": false,
+          "optional": false,
+          "parent": "jmh-core",
+          "depth": 3
+        },
+        {
+          "groupId": "jakarta.mail",
+          "artifactId": "jakarta.mail-api",
+          "version": "2.0.1",
+          "scope": "compile",
+          "direct": true,
+          "optional": false,
+          "parent": null,
+          "depth": 0
+        },
+        {
+          "groupId": "jakarta.activation",
+          "artifactId": "jakarta.activation-api",
+          "version": "2.0.0",
+          "scope": "compile",
+          "direct": true,
+          "optional": false,
+          "parent": null,
+          "depth": 0
+        }
+      ]
+    }
+  ]
+}

@@ -142,7 +142,7 @@ Different consumers need different views — vulnerability scanners want
 the analyzed SBOM (what ships), build reproducibility auditors want the
 build SBOM (everything involved).
 
-**Full details:** [Analyzed vs. Build SBOMs](../features/analyzed-vs-build-sboms.md)
+**Full details:** [Analyzed vs. Build SBOMs](../architecture/analyzed-vs-build-sboms.md)
 
 ### 2.2 Why does the analyzed SBOM for Java have only 1 package?
 
@@ -218,7 +218,7 @@ Several reasons a version may be absent:
 The pipeline intentionally omits `versionInfo` rather than guessing.
 An absent version is more honest than a wrong one.
 
-**Details:** [Version Detection — Known Limitations](../features/vendored-version-detection.md#8-known-limitations)
+**Details:** [Version Detection — Known Limitations](../architecture/vendored-version-detection.md#8-known-limitations)
 
 ### 3.2 Why does the root package version differ from what I expect?
 
@@ -237,7 +237,7 @@ Common discrepancies:
 If the tag fails, the pipeline falls back to file-based detection
 (`Cargo.toml` for Rust, `pom.xml` for Java, VERSION files for C/C++).
 
-**Details:** [Version Detection — Root Package](../features/vendored-version-detection.md#3-root-package-version-detection)
+**Details:** [Version Detection — Root Package](../architecture/vendored-version-detection.md#3-root-package-version-detection)
 
 ### 3.3 Why does a version show "8.19.0" when the source says "8.19.0-DEV"?
 
@@ -336,7 +336,7 @@ Common reasons:
 | `liblinear` (nmap) | Flat integer `#define LIBLINEAR_VERSION 250` — ambiguous |
 
 The detector uses 12 strategies but intentionally avoids guessing. See
-[Version Detection — Known Limitations](../features/vendored-version-detection.md#8-known-limitations).
+[Version Detection — Known Limitations](../architecture/vendored-version-detection.md#8-known-limitations).
 
 ### 6.2 Why is a transitive dynamic library missing from curl but present in libcurl?
 
@@ -386,8 +386,8 @@ Edge styles indicate relationship types:
 
 ## Further Reading
 
-- [Analyzed vs. Build SBOMs](../features/analyzed-vs-build-sboms.md) — full two-file design
-- [Version Detection](../features/vendored-version-detection.md) — 12 vendored strategies + root version
+- [Analyzed vs. Build SBOMs](../architecture/analyzed-vs-build-sboms.md) — full two-file design
+- [Version Detection](../architecture/vendored-version-detection.md) — 12 vendored strategies + root version
 - [SPDX 2.3 Relationship Types](https://spdx.github.io/spdx-spec/v2.3/relationships-between-SPDX-elements/) — official spec
 
 ---

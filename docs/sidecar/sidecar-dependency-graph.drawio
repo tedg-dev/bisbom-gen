@@ -1,0 +1,91 @@
+<mxfile host="Electron" agent="Cascade AI">
+  <diagram id="sidecar-dep-graph" name="Sidecar Priority Dependency Graph">
+    <mxGraphModel dx="1099" dy="729" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="700" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="pkg" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;fontStyle=1;verticalAlign=middle;spacingTop=4;spacingBottom=4;" value="1. Package resolver&#xa;abstraction&#xa;&#xa;Blocks Java + C/C++&#xa;on enterprise distros" vertex="1">
+          <mxGeometry height="90" width="160" x="370" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="java" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;fontStyle=1;verticalAlign=middle;" value="2. Java Maven&#xa;dep:tree&#xa;&#xa;Removes SYS_PTRACE" vertex="1">
+          <mxGeometry height="80" width="160" x="170" y="140" as="geometry" />
+        </mxCell>
+        <mxCell id="config" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;fontStyle=1;verticalAlign=middle;" value="3. Config mode selection&#xa;+ CommandRunner&#xa;env support" vertex="1">
+          <mxGeometry height="80" width="160" x="370" y="140" as="geometry" />
+        </mxCell>
+        <mxCell id="docker" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;fontStyle=1;verticalAlign=middle;" value="4. Dual-mode&#xa;Docker image&#xa;&#xa;Enterprise delivery" vertex="1">
+          <mxGeometry height="80" width="140" x="580" y="140" as="geometry" />
+        </mxCell>
+        <mxCell id="cpp" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;fontStyle=1;verticalAlign=middle;" value="5. C/C++ LD_PRELOAD&#xa;shim (sidecar primary)&#xa;&#xa;Depends on config&#xa;+ upstream shim" vertex="1">
+          <mxGeometry height="90" width="160" x="370" y="270" as="geometry" />
+        </mxCell>
+        <mxCell id="go" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;fontStyle=1;verticalAlign=middle;" value="6. Go -toolexec&#xa;wrapper" vertex="1">
+          <mxGeometry height="70" width="120" x="222" y="380" as="geometry" />
+        </mxCell>
+        <mxCell id="rust" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;fontStyle=1;verticalAlign=middle;" value="7. Rust&#xa;RUSTC_WRAPPER" vertex="1">
+          <mxGeometry height="70" width="130" x="560" y="380" as="geometry" />
+        </mxCell>
+        <mxCell id="gocache" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=12;fontStyle=1;verticalAlign=middle;" value="8. Go cache&#xa;integration" vertex="1">
+          <mxGeometry height="70" width="120" x="246" y="582" as="geometry" />
+        </mxCell>
+        <mxCell id="arm" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=12;fontStyle=1;verticalAlign=middle;" value="9. ARM64&#xa;validation&#xa;&#xa;Requires wrappers first" vertex="1">
+          <mxGeometry height="70" width="160" x="435" y="582" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" edge="1" parent="1" source="pkg" style="edgeStyle=orthogonalEdgeStyle;" target="java">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" edge="1" parent="1" source="pkg" style="edgeStyle=orthogonalEdgeStyle;" target="config">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" edge="1" parent="1" source="pkg" style="edgeStyle=orthogonalEdgeStyle;" target="docker">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" edge="1" parent="1" source="config" style="edgeStyle=orthogonalEdgeStyle;" target="cpp">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e5" edge="1" parent="1" source="cpp" style="edgeStyle=orthogonalEdgeStyle;" target="go">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" edge="1" parent="1" source="cpp" style="edgeStyle=orthogonalEdgeStyle;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" target="rust">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e7" edge="1" parent="1" source="cpp" style="edgeStyle=orthogonalEdgeStyle;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="arm">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e8" edge="1" parent="1" source="go" style="edgeStyle=orthogonalEdgeStyle;entryX=0.25;entryY=0;entryDx=0;entryDy=0;" target="arm">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e9" edge="1" parent="1" source="rust" style="edgeStyle=orthogonalEdgeStyle;entryX=0.75;entryY=0;entryDx=0;entryDy=0;" target="arm">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e10" edge="1" parent="1" source="go" style="edgeStyle=orthogonalEdgeStyle;entryX=0.299;entryY=0.01;entryDx=0;entryDy=0;entryPerimeter=0;" target="gocache">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="leg1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;" value="" vertex="1">
+          <mxGeometry height="16" width="16" x="60" y="473" as="geometry" />
+        </mxCell>
+        <mxCell id="leg1t" parent="1" style="text;html=1;fontSize=10;align=left;" value="Infrastructure (prerequisite)" vertex="1">
+          <mxGeometry height="20" width="180" x="82" y="470" as="geometry" />
+        </mxCell>
+        <mxCell id="leg2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;" value="" vertex="1">
+          <mxGeometry height="16" width="16" x="60" y="495" as="geometry" />
+        </mxCell>
+        <mxCell id="leg2t" parent="1" style="text;html=1;fontSize=10;align=left;" value="Java pilot (Q4 priority)" vertex="1">
+          <mxGeometry height="20" width="180" x="82" y="492" as="geometry" />
+        </mxCell>
+        <mxCell id="leg3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;" value="" vertex="1">
+          <mxGeometry height="16" width="16" x="60" y="517" as="geometry" />
+        </mxCell>
+        <mxCell id="leg3t" parent="1" style="text;html=1;fontSize=10;align=left;" value="Wrapper languages (Phase 2+)" vertex="1">
+          <mxGeometry height="20" width="180" x="82" y="514" as="geometry" />
+        </mxCell>
+        <mxCell id="leg4" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;" value="" vertex="1">
+          <mxGeometry height="16" width="16" x="60" y="539" as="geometry" />
+        </mxCell>
+        <mxCell id="leg4t" parent="1" style="text;html=1;fontSize=10;align=left;" value="Future / dependent" vertex="1">
+          <mxGeometry height="20" width="180" x="82" y="536" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
