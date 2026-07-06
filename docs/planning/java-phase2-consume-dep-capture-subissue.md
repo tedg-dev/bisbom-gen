@@ -11,7 +11,7 @@
 | **Status** | Draft — docs only, awaiting approval before any code |
 | **Estimate** | ~3 AI-days (implementation + tests), excluding EC2 golden validation |
 | **Planned sub-issues** | (1) Generate from metadata — Maven and Gradle (see `phase2-consume-dependency-capture-design.md` §8); (2) Deliver Java SBOMs to Corona (Java slice of SI-5) |
-| **Design** | `docs/deep-dive/phase-isolation/phase2-consume-dependency-capture-design.md` |
+| **Design** | `docs/sidecar/phase2-consume-dep-capture.md` |
 
 ---
 

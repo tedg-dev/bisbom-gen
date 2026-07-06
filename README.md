@@ -36,15 +36,14 @@ For detailed documentation, see the [`docs/`](docs/) directory:
 |-----------|----------|
 | **[`docs/guides/`](docs/guides/)** | **Start here.** Onboarding, contributing, AWS setup |
 | [`docs/architecture/`](docs/architecture/) | System diagrams, build interception flow, technical overview |
-| [`docs/features/`](docs/features/) | Feature documentation (Go support, stable tag pinning, etc.) |
+| [`docs/sidecar/`](docs/sidecar/) | Sidecar + phase isolation design (per-language subdirs) |
 | [`docs/issues/`](docs/issues/) | Upstream bomsh/bomtrace bug reports and workarounds |
-| [`docs/deep-dive/`](docs/deep-dive/) | Research, performance analysis, optimization proposals |
 
 ## Background
 
 ### What is Build Interception?
 
-Build interception hooks into the compiler and linker during a software build to observe exactly which source files are compiled into which output artifacts. [OmniBOR's Bomtrace](https://github.com/omnibor/bomsh) uses `strace` to intercept these calls and produce an **Artifact Dependency Graph (ADG)** — a cryptographically verifiable record of what was built from what. C/C++ builds use bomtrace3; Rust and Go builds use bomtrace2. Java uses strace-based post-build analysis. See [Analyzed vs Build SBOMs](docs/features/analyzed-vs-build-sboms.md) and [Stable Tag Pinning](docs/features/stable-tag-pinning.md) for details.
+Build interception hooks into the compiler and linker during a software build to observe exactly which source files are compiled into which output artifacts. [OmniBOR's Bomtrace](https://github.com/omnibor/bomsh) uses `strace` to intercept these calls and produce an **Artifact Dependency Graph (ADG)** — a cryptographically verifiable record of what was built from what. C/C++ builds use bomtrace3; Rust and Go builds use bomtrace2. Java uses strace-based post-build analysis. See [Analyzed vs Build SBOMs](docs/architecture/analyzed-vs-build-sboms.md) and [Stable Tag Pinning](docs/architecture/stable-tag-pinning.md) for details.
 
 ## Project Structure
 
@@ -61,9 +60,9 @@ omnibor-analysis/
 ├── docs/                  Documentation (hand-written only, no generated files)
 │   ├── guides/            Onboarding, contributing, AWS setup
 │   ├── architecture/      System design, diagrams, pipeline overview
-│   ├── features/          Feature documentation
-│   ├── issues/            Upstream bug tracking and workarounds
-│   └── deep-dive/         Research, performance, enterprise docs
+│   ├── sidecar/           Sidecar + phase isolation (per-language subdirs)
+│   ├── planning/          Issue & sub-issue planning docs
+│   └── issues/            Upstream bug tracking and workarounds
 ├── terraform/             AWS EC2 infrastructure as code
 ├── tests/                 Unit tests (1451+ tests, 98% coverage)
 ├── repos/                 Cloned target repositories (gitignored)
@@ -206,7 +205,7 @@ Each analysis run produces SPDX files per output binary:
 | `<binary>_build.spdx.json` | Build | Full dependency graph: static + dynamic + build tools + transitive deps. For build reproducibility and supply chain audit. |
 | `<binary>_omnibor.spdx.json` | — | OmniBOR artifact identity. Cryptographic hashes for provenance tracking. No dependency relationships (by design). |
 
-Each `.spdx.json` has a corresponding `.spdx.html` interactive D3.js visualization. See [Analyzed vs Build SBOMs](docs/features/analyzed-vs-build-sboms.md) for the rationale behind the two-file approach.
+Each `.spdx.json` has a corresponding `.spdx.html` interactive D3.js visualization. See [Analyzed vs Build SBOMs](docs/architecture/analyzed-vs-build-sboms.md) for the rationale behind the two-file approach.
 
 ### Artifacts (not tracked in git)
 

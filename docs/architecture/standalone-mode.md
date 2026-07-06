@@ -81,4 +81,4 @@ for standalone mode.
 ---
 
 For the sidecar architecture, see
-[Sidecar Phase Isolation Infrastructure](../features/phase-isolation/sidecar-phase-isolation-infrastructure.md).
+[Sidecar Phase Isolation Infrastructure](../sidecar/infrastructure.md).

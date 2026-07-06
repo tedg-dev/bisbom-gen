@@ -1,0 +1,529 @@
+<mxfile host="Electron" agent="Cascade AI" pages="2">
+  <diagram id="two-phase" name="Two-Phase Sidecar Architecture">
+    <mxGraphModel dx="1600" dy="1018" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title1" parent="1" style="text;html=1;fontSize=20;fontStyle=1;align=center;verticalAlign=middle;" value="Two-Phase Sidecar Architecture — Build Interception + Async SPDX Generation" vertex="1">
+          <mxGeometry height="35" width="1200" x="200" y="10" as="geometry" />
+        </mxCell>
+        <mxCell id="subtitle1" parent="1" style="text;html=1;fontSize=11;fontStyle=2;align=center;fontColor=#666666;" value="Phase 1 runs in-band with CI/CD build (&lt;5 min).  Phase 2 runs out-of-band as a parallel CI stage (not blocking deploy)." vertex="1">
+          <mxGeometry height="22" width="1200" x="200" y="42" as="geometry" />
+        </mxCell>
+        <mxCell id="cicd" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#333333;strokeWidth=2;dashed=1;" value="" vertex="1">
+          <mxGeometry height="440" width="1540" x="30" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="cicdlabel" parent="1" style="text;html=1;fontSize=14;fontStyle=1;align=left;verticalAlign=top;" value="CI/CD Pipeline (Team-Owned)&amp;nbsp; &amp;nbsp;&lt;font color=&quot;#7f6003&quot; style=&quot;font-size: 10px; font-weight: normal;&quot;&gt;&lt;i&gt;OmniBOR Sidecar (/opt/omnibor/) provides Phase 1 + Phase 2 tooling&lt;/i&gt;&lt;/font&gt;" vertex="1">
+          <mxGeometry height="40" width="550" x="80" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="p1box" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;" value="" vertex="1">
+          <mxGeometry height="390" width="620" x="50" y="115" as="geometry" />
+        </mxCell>
+        <mxCell id="p1label" parent="1" style="text;html=1;fontSize=13;fontStyle=1;align=left;fontColor=#1a5276;" value="PHASE 1: Build Interception (In-Band) — Integrated with Build" vertex="1">
+          <mxGeometry height="24" width="500" x="80" y="118" as="geometry" />
+        </mxCell>
+        <mxCell id="p1time" parent="1" style="text;html=1;fontSize=10;fontStyle=2;align=left;fontColor=#2980b9;" value="~3–5 min (Java) | &lt;5% overhead (C/C++)" vertex="1">
+          <mxGeometry height="18" width="350" x="76" y="140" as="geometry" />
+        </mxCell>
+        <mxCell id="clone" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontSize=11;" value="1. Clone&#xa;git clone --branch &lt;tag&gt;" vertex="1">
+          <mxGeometry height="50" width="140" x="70" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="build" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontSize=11;" value="2. Instrumented Build&#xa;(language-specific)" vertex="1">
+          <mxGeometry height="50" width="150" x="230" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="treedb" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontSize=11;" value="3. ADG / Treedb&#xa;bomsh_create_bom*.py" vertex="1">
+          <mxGeometry height="50" width="160" x="400" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="ea1" edge="1" parent="1" source="clone" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#6c8ebf;" target="build">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ea2" edge="1" parent="1" source="build" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#6c8ebf;" target="treedb">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="langbox" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f4f8;strokeColor=#6c8ebf;strokeWidth=1;dashed=1;" value="" vertex="1">
+          <mxGeometry height="120" width="580" x="70" y="240" as="geometry" />
+        </mxCell>
+        <mxCell id="langlabel" parent="1" style="text;html=1;fontSize=11;fontStyle=1;align=left;fontColor=#1a5276;" value="Per-Language Interception Mechanism" vertex="1">
+          <mxGeometry height="20" width="300" x="80" y="243" as="geometry" />
+        </mxCell>
+        <mxCell id="lang_c" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;verticalAlign=middle;" value="&lt;b&gt;C/C++&lt;/b&gt;&#xa;LD_PRELOAD shim&#xa;(transparent interception)&#xa;(1–3% overhead)" vertex="1">
+          <mxGeometry height="80" width="130" x="80" y="268" as="geometry" />
+        </mxCell>
+        <mxCell id="lang_go" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;verticalAlign=middle;" value="&lt;b&gt;Go&lt;/b&gt;&#xa;go build -toolexec=&#xa;go-wrapper&#xa;(10–15% overhead)" vertex="1">
+          <mxGeometry height="80" width="130" x="220" y="268" as="geometry" />
+        </mxCell>
+        <mxCell id="lang_rust" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;verticalAlign=middle;" value="&lt;b&gt;Rust&lt;/b&gt;&#xa;RUSTC_WRAPPER=&#xa;rustc-wrapper&#xa;(5–10% overhead)" vertex="1">
+          <mxGeometry height="80" width="130" x="360" y="268" as="geometry" />
+        </mxCell>
+        <mxCell id="lang_java" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;verticalAlign=middle;" value="&lt;b&gt;Java&lt;/b&gt;&#xa;strace -e openat or&#xa;dep:tree (no ptrace)&#xa;(&lt;2x build time)" vertex="1">
+          <mxGeometry height="80" width="140" x="500" y="268" as="geometry" />
+        </mxCell>
+        <mxCell id="p1out_label" parent="1" style="text;html=1;fontSize=11;fontStyle=1;align=left;fontColor=#1a5276;" value="Phase 1 Outputs" vertex="1">
+          <mxGeometry height="20" width="150" x="80" y="372" as="geometry" />
+        </mxCell>
+        <mxCell id="manifest" parent="1" style="shape=document;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;verticalAlign=top;" value="phase1_manifest.json&#xa;(SHA-256, GitOIDs,&#xa;artifact paths, durations)" vertex="1">
+          <mxGeometry height="65" width="170" x="80" y="395" as="geometry" />
+        </mxCell>
+        <mxCell id="store" parent="1" style="shape=datastore;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=12;fontStyle=1;strokeWidth=2;" value="Durable Artifact Store&#xa;(S3 / CI Artifacts / OCI)" vertex="1">
+          <mxGeometry height="90" width="180" x="700" y="300" as="geometry" />
+        </mxCell>
+        <mxCell id="store_note" parent="1" style="text;html=1;fontSize=9;fontStyle=2;fontColor=#b7950b;align=center;" value="Retention ≥ binary lifecycle&#xa;Tamper-detected (SHA-256)" vertex="1">
+          <mxGeometry height="30" width="180" x="680" y="427.5" as="geometry" />
+        </mxCell>
+        <mxCell id="ea_store1" edge="1" parent="1" source="manifest" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#d79b00;strokeWidth=2;" target="store">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ea_store2" edge="1" parent="1" source="treedb_art" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#d79b00;strokeWidth=1;" target="store">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ea_store3" edge="1" parent="1" source="binaries" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#d79b00;strokeWidth=1;" target="store">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="p2box" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#27ae60;strokeWidth=2;" value="" vertex="1">
+          <mxGeometry height="250" width="630" x="920" y="115" as="geometry" />
+        </mxCell>
+        <mxCell id="p2label" parent="1" style="text;html=1;fontSize=13;fontStyle=1;align=left;fontColor=#1e8449;" value="PHASE 2: SPDX Generation (Out-of-Band) — DOES NOT BLOCK DEPLOY" vertex="1">
+          <mxGeometry height="24" width="550" x="940" y="118" as="geometry" />
+        </mxCell>
+        <mxCell id="p2time" parent="1" style="text;html=1;fontSize=10;fontStyle=2;align=left;fontColor=#27ae60;" value="~2 min (C/Go/Rust) | ~5–8 min (Java optimized)" vertex="1">
+          <mxGeometry height="18" width="400" x="937" y="140" as="geometry" />
+        </mxCell>
+        <mxCell id="p2_deptree" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#27ae60;fontSize=10;" value="5. Dep:tree&#xa;(Java: gradlew deps)&#xa;(Go: modules.txt)&#xa;(Rust: Cargo.lock)" vertex="1">
+          <mxGeometry height="70" width="130" x="935" y="165" as="geometry" />
+        </mxCell>
+        <mxCell id="p2_meta" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#27ae60;fontSize=10;" value="6. Metadata&#xa;dpkg-query / rpm -qf&#xa;apk info --who-owns&#xa;(batch optimized)" vertex="1">
+          <mxGeometry height="70" width="130" x="1080" y="165" as="geometry" />
+        </mxCell>
+        <mxCell id="p2_spdx" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#27ae60;fontSize=10;" value="7. SPDX 2.3&#xa;Generation&#xa;(analyzed + build)" vertex="1">
+          <mxGeometry height="70" width="120" x="1255" y="165" as="geometry" />
+        </mxCell>
+        <mxCell id="p2_validate" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#27ae60;fontSize=10;" value="8. Validate&#xa;JSON Schema&#xa;+ Semantic" vertex="1">
+          <mxGeometry height="70" width="100" x="1390" y="165" as="geometry" />
+        </mxCell>
+        <mxCell id="p2_viz" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#27ae60;fontSize=10;" value="9. Visualize&#xa;D3.js HTML" vertex="1">
+          <mxGeometry height="50" width="100" x="1390" y="255" as="geometry" />
+        </mxCell>
+        <mxCell id="p2_docs" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#27ae60;fontSize=10;" value="10. Docs&#xa;build.md" vertex="1">
+          <mxGeometry height="50" width="100" x="1265" y="258" as="geometry" />
+        </mxCell>
+        <mxCell id="eb1" edge="1" parent="1" source="p2_deptree" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#27ae60;" target="p2_meta">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="eb2" edge="1" parent="1" source="p2_meta" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#27ae60;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" target="p2_spdx">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1240" y="200" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="eb3" edge="1" parent="1" source="p2_spdx" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#27ae60;" target="p2_validate">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="eb4" edge="1" parent="1" source="p2_validate" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#27ae60;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" target="p2_viz">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1430" y="240" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="eb5" edge="1" parent="1" source="p2_spdx" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#27ae60;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" target="p2_docs">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1305" y="243" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ea_store_p2" edge="1" parent="1" source="store" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#d79b00;strokeWidth=2;dashed=1;" target="p2_deptree">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="spdx_out" parent="1" style="shape=document;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;fontStyle=1;verticalAlign=top;" value="SPDX 2.3 JSON&#xa;*_analyzed.spdx.json&#xa;*_build.spdx.json&#xa;+ ExternalRef GitOIDs" vertex="1">
+          <mxGeometry height="95" width="170" x="1050" y="264" as="geometry" />
+        </mxCell>
+        <mxCell id="eb_spdxout" edge="1" parent="1" source="p2_spdx" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#9673a6;strokeWidth=2;exitX=0.25;exitY=1;exitDx=0;exitDy=0;" target="spdx_out">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1285" y="240" />
+              <mxPoint x="1135" y="240" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="test_stage" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=12;fontStyle=1;verticalAlign=middle;" value="Test Stage&#xa;(starts after Phase 1)" vertex="1">
+          <mxGeometry height="55" width="180" x="1050" y="402.5" as="geometry" />
+        </mxCell>
+        <mxCell id="deploy_stage" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=12;fontStyle=1;verticalAlign=middle;" value="Deploy Stage&#xa;(NOT blocked by SPDX)" vertex="1">
+          <mxGeometry height="55" width="180" x="1260" y="402.5" as="geometry" />
+        </mxCell>
+        <mxCell id="ec1" edge="1" parent="1" source="test_stage" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#666666;" target="deploy_stage">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="parallel_label" parent="1" style="text;html=1;fontSize=10;fontStyle=3;fontColor=#27ae60;align=center;" value="Phase 2 runs IN PARALLEL with Test + Deploy" vertex="1">
+          <mxGeometry height="20" width="390" x="1050" y="462.5" as="geometry" />
+        </mxCell>
+        <mxCell id="provbox" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fce4ec;strokeColor=#c0392b;strokeWidth=1;dashed=1;" value="" vertex="1">
+          <mxGeometry height="140" width="1540" x="30" y="540" as="geometry" />
+        </mxCell>
+        <mxCell id="provlabel" parent="1" style="text;html=1;fontSize=13;fontStyle=1;align=left;fontColor=#c0392b;" value="Artifact Provenance Chain (SLSA v1.0 / in-toto / Sigstore aligned)" vertex="1">
+          <mxGeometry height="22" width="600" x="40" y="545" as="geometry" />
+        </mxCell>
+        <mxCell id="prov1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#c0392b;fontSize=10;" value="① Phase 1 computes&#xa;SHA-256 + GitOID&#xa;of every output binary" vertex="1">
+          <mxGeometry height="55" width="170" x="50" y="575" as="geometry" />
+        </mxCell>
+        <mxCell id="prov2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#c0392b;fontSize=10;" value="② SHA-256 of treedb&#xa;+ raw_logfile recorded&#xa;in manifest" vertex="1">
+          <mxGeometry height="55" width="170" x="240" y="575" as="geometry" />
+        </mxCell>
+        <mxCell id="prov3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#c0392b;fontSize=10;" value="③ Manifest signed&#xa;(Sigstore cosign /&#xa;KMS key)" vertex="1">
+          <mxGeometry height="55" width="150" x="430" y="575" as="geometry" />
+        </mxCell>
+        <mxCell id="prov4" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#c0392b;fontSize=10;" value="④ Phase 2 verifies&#xa;treedb SHA-256&#xa;before processing" vertex="1">
+          <mxGeometry height="55" width="160" x="600" y="575" as="geometry" />
+        </mxCell>
+        <mxCell id="prov5" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#c0392b;fontSize=10;" value="⑤ SPDX ExternalRef&#xa;contains binary GitOIDs&#xa;(PERSISTENT_ID)" vertex="1">
+          <mxGeometry height="55" width="170" x="780" y="575" as="geometry" />
+        </mxCell>
+        <mxCell id="prov6" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#c0392b;fontSize=10;" value="⑥ Consumer verifies&#xa;binary GitOID matches&#xa;SPDX ExternalRef" vertex="1">
+          <mxGeometry height="55" width="170" x="970" y="575" as="geometry" />
+        </mxCell>
+        <mxCell id="prov7" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#c0392b;fontSize=10;" value="⑦ Full trust chain:&#xa;Binary → SPDX → Manifest&#xa;→ CI/CD OIDC identity" vertex="1">
+          <mxGeometry height="55" width="180" x="1160" y="575" as="geometry" />
+        </mxCell>
+        <mxCell id="ep1" edge="1" parent="1" source="prov1" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#c0392b;" target="prov2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ep2" edge="1" parent="1" source="prov2" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#c0392b;" target="prov3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ep3" edge="1" parent="1" source="prov3" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#c0392b;" target="prov4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ep4" edge="1" parent="1" source="prov4" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#c0392b;" target="prov5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ep5" edge="1" parent="1" source="prov5" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#c0392b;" target="prov6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ep6" edge="1" parent="1" source="prov6" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#c0392b;" target="prov7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="standards" parent="1" style="text;html=1;fontSize=10;fontStyle=0;align=left;fontColor=#666666;" value="Standards: SPDX 2.3 | SLSA v1.0 | in-toto | Sigstore/cosign | OmniBOR GitOID | CISA SBOM guidance.&amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; (This is what we&#39;re supposed to do, but ...)" vertex="1">
+          <mxGeometry height="18" width="600" x="50" y="645" as="geometry" />
+        </mxCell>
+        <mxCell id="timebox" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8eaf6;strokeColor=#3f51b5;strokeWidth=1;" value="" vertex="1">
+          <mxGeometry height="130" width="1320" x="30" y="700" as="geometry" />
+        </mxCell>
+        <mxCell id="timelabel" parent="1" style="text;html=1;fontSize=13;fontStyle=1;align=left;fontColor=#283593;" value="Pipeline Timeline (Java example — worst case)" vertex="1">
+          <mxGeometry height="22" width="400" x="40" y="703" as="geometry" />
+        </mxCell>
+        <mxCell id="t0" parent="1" style="text;html=1;fontSize=9;fontStyle=1;align=center;fontColor=#333;" value="0:00" vertex="1">
+          <mxGeometry height="15" width="40" x="50" y="725" as="geometry" />
+        </mxCell>
+        <mxCell id="t3" parent="1" style="text;html=1;fontSize=9;fontStyle=1;align=center;fontColor=#333;" value="3:00" vertex="1">
+          <mxGeometry height="15" width="40" x="260" y="725" as="geometry" />
+        </mxCell>
+        <mxCell id="t5" parent="1" style="text;html=1;fontSize=9;fontStyle=1;align=center;fontColor=#333;" value="5:00" vertex="1">
+          <mxGeometry height="15" width="40" x="400" y="725" as="geometry" />
+        </mxCell>
+        <mxCell id="t8" parent="1" style="text;html=1;fontSize=9;fontStyle=1;align=center;fontColor=#333;" value="8:00" vertex="1">
+          <mxGeometry height="15" width="40" x="610" y="725" as="geometry" />
+        </mxCell>
+        <mxCell id="t12" parent="1" style="text;html=1;fontSize=9;fontStyle=1;align=center;fontColor=#333;" value="12:00" vertex="1">
+          <mxGeometry height="15" width="40" x="890" y="725" as="geometry" />
+        </mxCell>
+        <mxCell id="t15" parent="1" style="text;html=1;fontSize=9;fontStyle=1;align=center;fontColor=#333;" value="15:00" vertex="1">
+          <mxGeometry height="15" width="40" x="1100" y="725" as="geometry" />
+        </mxCell>
+        <mxCell id="t18" parent="1" style="text;html=1;fontSize=9;fontStyle=1;align=center;fontColor=#333;" value="18:00" vertex="1">
+          <mxGeometry height="15" width="40" x="1310" y="725" as="geometry" />
+        </mxCell>
+        <mxCell id="bar_build" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;fontStyle=1;" value="Build (Phase 1)" vertex="1">
+          <mxGeometry height="22" width="370" x="70" y="745" as="geometry" />
+        </mxCell>
+        <mxCell id="bar_test" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;" value="Test" vertex="1">
+          <mxGeometry height="22" width="470" x="440" y="745" as="geometry" />
+        </mxCell>
+        <mxCell id="bar_deploy" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;" value="Deploy" vertex="1">
+          <mxGeometry height="22" width="400" x="910" y="745" as="geometry" />
+        </mxCell>
+        <mxCell id="bar_sbom" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#27ae60;fontSize=10;fontStyle=1;" value="Generate SBOM (Phase 2) — parallel, not blocking" vertex="1">
+          <mxGeometry height="22" width="870" x="440" y="775" as="geometry" />
+        </mxCell>
+        <mxCell id="crit_path" parent="1" style="text;html=1;fontSize=10;fontStyle=1;fontColor=#c0392b;align=left;" value="Critical path: Build → Test → Deploy = 15 min (was 23 min).  SBOM available 3 min after deploy." vertex="1">
+          <mxGeometry height="18" width="700" x="70" y="805" as="geometry" />
+        </mxCell>
+        <mxCell id="leg_title" parent="1" style="text;html=1;fontSize=11;fontStyle=1;align=left;" value="Legend" vertex="1">
+          <mxGeometry height="20" width="60" x="1430" y="700" as="geometry" />
+        </mxCell>
+        <mxCell id="leg1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=9;" value="Phase 1 (in-band)" vertex="1">
+          <mxGeometry height="22" width="110" x="1430" y="722" as="geometry" />
+        </mxCell>
+        <mxCell id="leg2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#27ae60;fontSize=9;" value="Phase 2 (out-of-band)" vertex="1">
+          <mxGeometry height="22" width="110" x="1430" y="748" as="geometry" />
+        </mxCell>
+        <mxCell id="leg3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=9;" value="Artifact store" vertex="1">
+          <mxGeometry height="22" width="110" x="1430" y="774" as="geometry" />
+        </mxCell>
+        <mxCell id="leg4" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fce4ec;strokeColor=#c0392b;fontSize=9;" value="Provenance chain" vertex="1">
+          <mxGeometry height="22" width="110" x="1430" y="800" as="geometry" />
+        </mxCell>
+        <mxCell id="treedb_art" parent="1" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;size=8;" value="treedb /&#xa;raw_logfile" vertex="1">
+          <mxGeometry height="60" width="100" x="270" y="395" as="geometry" />
+        </mxCell>
+        <mxCell id="binaries" parent="1" style="shape=hexagon;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;size=12;" value="Output&#xa;Binaries" vertex="1">
+          <mxGeometry height="50" width="90" x="396" y="400" as="geometry" />
+        </mxCell>
+        <mxCell id="srccommit" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;" value="Source Commit&#xa;SHA" vertex="1">
+          <mxGeometry height="50" width="100" x="512" y="400" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="corona" name="Corona Integration">
+    <mxGraphModel dx="1560" dy="1065" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="c_title" parent="1" style="text;html=1;fontSize=20;fontStyle=1;align=center;verticalAlign=middle;" value="Corona Integration — Centralized SBOM Construction" vertex="1">
+          <mxGeometry height="35" width="1200" x="200" y="10" as="geometry" />
+        </mxCell>
+        <mxCell id="c_subtitle" parent="1" style="text;html=1;fontSize=11;fontStyle=2;align=center;fontColor=#666666;" value="CI/CD runs Phase 1 only + S3 upload (seconds).  Corona agent runs Phase 2 asynchronously.  Zero SPDX overhead on CI/CD pipeline." vertex="1">
+          <mxGeometry height="22" width="1300" x="150" y="42" as="geometry" />
+        </mxCell>
+        <mxCell id="c_cicd" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#333333;strokeWidth=2;dashed=1;" value="" vertex="1">
+          <mxGeometry height="280" width="700" x="30" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="c_cicd_label" parent="1" style="text;html=1;fontSize=14;fontStyle=1;align=left;fontColor=#1a5276;" value="CI/CD Pipeline (Team-Owned)&amp;nbsp; &amp;nbsp;&lt;font color=&quot;#7f6003&quot; style=&quot;font-size: 10px; font-weight: normal;&quot;&gt;&lt;i&gt;OmniBOR Sidecar (/opt/omnibor/) — Phase 1 only (Phase 2 → Corona)&lt;/i&gt;&lt;/font&gt;" vertex="1">
+          <mxGeometry height="40" width="450" x="52" y="83" as="geometry" />
+        </mxCell>
+        <mxCell id="c_cicd_note" parent="1" style="text;html=1;fontSize=10;fontStyle=2;fontColor=#2980b9;align=left;" value="Only Phase 1 runs here.  No SPDX generation.  No dep:tree.  No metadata collection." vertex="1">
+          <mxGeometry height="18" width="600" x="52" y="105" as="geometry" />
+        </mxCell>
+        <mxCell id="c_build" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontSize=11;fontStyle=1;" value="Build Stage&#xa;&#xa;1. git clone --branch &lt;tag&gt;&#xa;2. Instrumented build&#xa;   (LD_PRELOAD / strace / dep:tree)&#xa;3. bomsh_create_bom → treedb&#xa;4. Compute SHA-256 + GitOID" vertex="1">
+          <mxGeometry height="130" width="200" x="90" y="135" as="geometry" />
+        </mxCell>
+        <mxCell id="c_upload" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;fontStyle=1;" value="Upload Metadata&#xa;&#xa;aws s3 cp treedb + manifest&#xa;→ s3://corona-sbom-intake/&#xa;   omnibor/{product}/{release}/&#xa;   {build_id}/" vertex="1">
+          <mxGeometry height="100" width="240" x="390" y="150" as="geometry" />
+        </mxCell>
+        <mxCell id="c_e1" edge="1" parent="1" source="c_build" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#6c8ebf;strokeWidth=2;" target="c_upload">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="c_e2" edge="1" parent="1" source="c_build" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#666666;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="190" y="290" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_s3" parent="1" style="shape=datastore;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=12;fontStyle=1;strokeWidth=2;" value="Corona S3 Intake Bucket&#xa;s3://corona-sbom-intake/&#xa;omnibor/{product}/{release}/{build_id}/" vertex="1">
+          <mxGeometry height="100" width="260" x="875" y="150" as="geometry" />
+        </mxCell>
+        <mxCell id="c_s3_contents" parent="1" style="text;html=1;fontSize=9;fontStyle=0;fontColor=#b7950b;align=left;" value="Contents:&#xa;• phase1_manifest.json (signed)&#xa;• bomsh_omnibor_treedb / raw_logfile&#xa;• Binary SHA-256 + GitOID digests&#xa;• Source commit SHA" vertex="1">
+          <mxGeometry height="75" width="240" x="1025" y="270" as="geometry" />
+        </mxCell>
+        <mxCell id="c_e5" edge="1" parent="1" source="c_upload" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#d79b00;strokeWidth=3;" target="c_s3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="c_upload_time" parent="1" style="text;html=1;fontSize=9;fontStyle=2;fontColor=#d79b00;align=center;" value="~seconds" vertex="1">
+          <mxGeometry height="15" width="70" x="665" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="c_corona" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e9;strokeColor=#2e7d32;strokeWidth=2;" value="" vertex="1">
+          <mxGeometry height="455" width="1440" x="30" y="433" as="geometry" />
+        </mxCell>
+        <mxCell id="c_corona_label" parent="1" style="text;html=1;fontSize=16;fontStyle=1;align=left;fontColor=#1b5e20;" value="Corona — Centralized SBOM Management System" vertex="1">
+          <mxGeometry height="28" width="500" x="65" y="436" as="geometry" />
+        </mxCell>
+        <mxCell id="c_corona_desc" parent="1" style="text;html=1;fontSize=10;fontStyle=2;fontColor=#2e7d32;align=left;" value="Ingests SBOMs from multiple sources • Manages Product → Release → Image lifecycle • Tracks vulnerabilities • Single pane of glass" vertex="1">
+          <mxGeometry height="18" width="900" x="65" y="461" as="geometry" />
+        </mxCell>
+        <mxCell id="c_agent" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#c8e6c9;strokeColor=#2e7d32;strokeWidth=2;fontSize=11;fontStyle=1;" value="OmniBOR Analysis Agent (New Daemon)&lt;br&gt;&lt;br&gt;• Watches S3 prefix for new manifests&lt;br&gt;• Downloads treedb + metadata&lt;br&gt;• Verifies SHA-256 integrity&lt;br&gt;• Runs Phase 2 pipeline (Python)&lt;br&gt;• Retries on transient failures&lt;br&gt;• Reports status back to PR" vertex="1">
+          <mxGeometry height="150" width="240" x="100" y="498" as="geometry" />
+        </mxCell>
+        <mxCell id="c_e6" edge="1" parent="1" source="c_s3" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#d79b00;strokeWidth=3;dashed=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" target="c_agent">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1005" y="390" />
+              <mxPoint x="190" y="390" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_async_label" parent="1" style="text;html=1;fontSize=10;fontStyle=3;fontColor=#d79b00;align=center;" value="Async (minutes to hours later)" vertex="1">
+          <mxGeometry height="18" width="250" x="410" y="398" as="geometry" />
+        </mxCell>
+        <mxCell id="c_phase2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#2e7d32;fontSize=11;" value="Phase 2: SPDX Generation&#xa;&#xa;analyze.py --phase spdx&#xa;  --manifest &lt;path&gt;&#xa;&#xa;(Same code as CI/CD Pattern A)&#xa;(~5–18 min depending on language)" vertex="1">
+          <mxGeometry height="150" width="190" x="410" y="498" as="geometry" />
+        </mxCell>
+        <mxCell id="c_e7" edge="1" parent="1" source="c_agent" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#2e7d32;strokeWidth=2;" target="c_phase2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="c_pri_box" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8eaf6;strokeColor=#3f51b5;strokeWidth=2;" value="" vertex="1">
+          <mxGeometry height="170" width="400" x="650" y="488" as="geometry" />
+        </mxCell>
+        <mxCell id="c_pri_label" parent="1" style="text;html=1;fontSize=12;fontStyle=1;align=center;fontColor=#283593;" value="Corona PRI Data Model" vertex="1">
+          <mxGeometry height="22" width="400" x="650" y="491" as="geometry" />
+        </mxCell>
+        <mxCell id="c_product" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#c5cae9;strokeColor=#3f51b5;fontSize=11;fontStyle=1;" value="Product&#xa;(config_snapshot.product)" vertex="1">
+          <mxGeometry height="45" width="160" x="670" y="516" as="geometry" />
+        </mxCell>
+        <mxCell id="c_release" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#c5cae9;strokeColor=#3f51b5;fontSize=11;fontStyle=1;" value="Release&#xa;(git tag / branch)" vertex="1">
+          <mxGeometry height="45" width="160" x="670" y="593" as="geometry" />
+        </mxCell>
+        <mxCell id="c_image" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#c5cae9;strokeColor=#3f51b5;fontSize=11;fontStyle=1;" value="Image (SBOM)&#xa;(build_id / GitOID)" vertex="1">
+          <mxGeometry height="45" width="160" x="870" y="551" as="geometry" />
+        </mxCell>
+        <mxCell id="c_ep1" edge="1" parent="1" source="c_product" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#3f51b5;" target="c_release">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="c_ep2" edge="1" parent="1" source="c_release" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#3f51b5;" target="c_image">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="c_e8" edge="1" parent="1" source="c_phase2" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#2e7d32;strokeWidth=2;" target="c_image">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="c_spdx_label" parent="1" style="text;html=1;fontSize=9;fontStyle=1;fontColor=#2e7d32;align=center;" value="SPDX stored at&#xa;correct PRI location" vertex="1">
+          <mxGeometry height="25" width="120" x="845" y="608" as="geometry" />
+        </mxCell>
+        <mxCell id="c_corr_box" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff3e0;strokeColor=#e65100;strokeWidth=2;" value="" vertex="1">
+          <mxGeometry height="185" width="330" x="1090" y="488" as="geometry" />
+        </mxCell>
+        <mxCell id="c_corr_label" parent="1" style="text;html=1;fontSize=12;fontStyle=1;align=center;fontColor=#e65100;" value="Multi-Source SBOM Correlation" vertex="1">
+          <mxGeometry height="22" width="430" x="1090" y="491" as="geometry" />
+        </mxCell>
+        <mxCell id="c_omnibor_sbom" parent="1" style="shape=document;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;fontStyle=1;verticalAlign=top;" value="OmniBOR SBOM&#xa;(build-traced)&#xa;Source-level&#xa;File SHA-256" vertex="1">
+          <mxGeometry height="70" width="130" x="1110" y="516" as="geometry" />
+        </mxCell>
+        <mxCell id="c_bd_sbom" parent="1" style="shape=document;whiteSpace=wrap;html=1;fillColor=#ffccbc;strokeColor=#e65100;fontSize=10;fontStyle=1;verticalAlign=top;" value="Black Duck SBOM&#xa;(binary-scanned)&#xa;Binary signatures&#xa;CVE matching" vertex="1">
+          <mxGeometry height="70" width="130" x="1260" y="516" as="geometry" />
+        </mxCell>
+        <mxCell id="c_corr_out" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#e65100;fontSize=10;" value="Correlation:&#xa;• Gaps (one method, not other)&#xa;• High confidence (both confirm)&#xa;• Auto vuln enrichment" vertex="1">
+          <mxGeometry height="55" width="240" x="1130" y="608" as="geometry" />
+        </mxCell>
+        <mxCell id="c_ec1" edge="1" parent="1" source="c_omnibor_sbom" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#e65100;exitX=0.485;exitY=0.843;exitDx=0;exitDy=0;exitPerimeter=0;" target="c_corr_out">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1173" y="593" />
+              <mxPoint x="1250" y="593" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_ec2" edge="1" parent="1" source="c_bd_sbom" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#e65100;exitX=0.477;exitY=0.843;exitDx=0;exitDy=0;exitPerimeter=0;" target="c_corr_out">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1322" y="593" />
+              <mxPoint x="1250" y="593" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c_e_pri_corr" edge="1" parent="1" source="c_image" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#3f51b5;dashed=1;" target="c_omnibor_sbom">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="c_adopt_box" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f3e5f5;strokeColor=#7b1fa2;strokeWidth=1;" value="" vertex="1">
+          <mxGeometry height="160" width="1330" x="90" y="698" as="geometry" />
+        </mxCell>
+        <mxCell id="c_adopt_label" parent="1" style="text;html=1;fontSize=13;fontStyle=1;align=left;fontColor=#4a148c;" value="Graduated Adoption Path" vertex="1">
+          <mxGeometry height="22" width="300" x="100" y="701" as="geometry" />
+        </mxCell>
+        <mxCell id="c_s1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f3e5f5;strokeColor=#7b1fa2;fontSize=10;verticalAlign=middle;" value="&lt;b&gt;Stage 1: Current&lt;/b&gt;&#xa;CI/CD runs full pipeline.&#xa;Manual SPDX upload to Corona.&#xa;Risk: None" vertex="1">
+          <mxGeometry height="75" width="210" x="110" y="733" as="geometry" />
+        </mxCell>
+        <mxCell id="c_s2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1bee7;strokeColor=#7b1fa2;fontSize=10;verticalAlign=middle;" value="&lt;b&gt;Stage 2: Auto Upload&lt;/b&gt;&#xa;CI/CD runs Phase 1 + 2.&#xa;Uploads finished SPDX to Corona S3.&#xa;Corona agent ingests pre-built SPDX.&#xa;Risk: Low" vertex="1">
+          <mxGeometry height="75" width="250" x="350" y="733" as="geometry" />
+        </mxCell>
+        <mxCell id="c_s3_stage" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ce93d8;strokeColor=#7b1fa2;fontSize=10;fontStyle=0;verticalAlign=middle;strokeWidth=2;" value="&lt;b&gt;Stage 3: Corona Phase 2 (TARGET)&lt;/b&gt;&#xa;CI/CD runs Phase 1 only.&#xa;Uploads raw metadata to Corona S3.&#xa;Corona agent runs Phase 2.&#xa;Risk: Medium" vertex="1">
+          <mxGeometry height="75" width="280" x="630" y="733" as="geometry" />
+        </mxCell>
+        <mxCell id="c_s4" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ab47bc;strokeColor=#7b1fa2;fontSize=10;fontColor=#ffffff;verticalAlign=middle;" value="&lt;b&gt;Stage 4: Full Corona&lt;/b&gt;&#xa;Corona triggers Phase 1 on&#xa;dedicated build cluster.&#xa;No CI/CD involvement for SBOM.&#xa;Risk: High" vertex="1">
+          <mxGeometry height="75" width="260" x="940" y="733" as="geometry" />
+        </mxCell>
+        <mxCell id="c_sa1" edge="1" parent="1" source="c_s1" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#7b1fa2;strokeWidth=2;" target="c_s2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="c_sa2" edge="1" parent="1" source="c_s2" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#7b1fa2;strokeWidth=2;" target="c_s3_stage">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="c_sa3" edge="1" parent="1" source="c_s3_stage" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#7b1fa2;strokeWidth=2;" target="c_s4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="c_target_arrow" parent="1" style="text;html=1;fontSize=10;fontStyle=1;fontColor=#7b1fa2;align=center;" value="▲ TARGET" vertex="1">
+          <mxGeometry height="18" width="100" x="710" y="813" as="geometry" />
+        </mxCell>
+        <mxCell id="c_adv_label" parent="1" style="text;html=1;fontSize=12;fontStyle=1;align=left;fontColor=#1b5e20;" value="Corona vs. CI/CD Phase 2" vertex="1">
+          <mxGeometry height="22" width="170" x="1230" y="723" as="geometry" />
+        </mxCell>
+        <mxCell id="c_adv" parent="1" style="text;html=1;fontSize=9;align=left;fontColor=#333;" value="✓ Zero CI/CD compute for SPDX&#xa;✓ Corona server (already provisioned)&#xa;✓ Permanent PRI-organized storage&#xa;✓ Auto vulnerability tracking&#xa;✓ Multi-source SBOM correlation (native)&#xa;✓ Autonomous retry on failure&#xa;✓ Centralized dashboard visibility" vertex="1">
+          <mxGeometry height="100" width="180" x="1230" y="746" as="geometry" />
+        </mxCell>
+        <mxCell id="c_timebox" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8eaf6;strokeColor=#3f51b5;strokeWidth=1;" value="" vertex="1">
+          <mxGeometry height="150" width="1440" x="30" y="913" as="geometry" />
+        </mxCell>
+        <mxCell id="c_timelabel" parent="1" style="text;html=1;fontSize=13;fontStyle=1;align=left;fontColor=#283593;" value="Pipeline Timeline — Corona Integration (Java example)" vertex="1">
+          <mxGeometry height="22" width="450" x="40" y="916" as="geometry" />
+        </mxCell>
+        <mxCell id="c_t0" parent="1" style="text;html=1;fontSize=9;fontStyle=1;align=center;fontColor=#333;" value="0:00" vertex="1">
+          <mxGeometry height="15" width="40" x="200" y="938" as="geometry" />
+        </mxCell>
+        <mxCell id="c_t5" parent="1" style="text;html=1;fontSize=9;fontStyle=1;align=center;fontColor=#333;" value="5:00" vertex="1">
+          <mxGeometry height="15" width="40" x="580" y="938" as="geometry" />
+        </mxCell>
+        <mxCell id="c_t12" parent="1" style="text;html=1;fontSize=9;fontStyle=1;align=center;fontColor=#333;" value="12:00" vertex="1">
+          <mxGeometry height="15" width="40" x="1130" y="938" as="geometry" />
+        </mxCell>
+        <mxCell id="c_t15" parent="1" style="text;html=1;fontSize=9;fontStyle=1;align=center;fontColor=#333;" value="15:00" vertex="1">
+          <mxGeometry height="15" width="40" x="1370" y="938" as="geometry" />
+        </mxCell>
+        <mxCell id="c_lane_cicd" parent="1" style="text;html=1;fontSize=10;fontStyle=1;align=right;fontColor=#1a5276;" value="CI/CD:" vertex="1">
+          <mxGeometry height="22" width="150" x="40" y="955" as="geometry" />
+        </mxCell>
+        <mxCell id="c_bar_build" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;fontStyle=1;" value="Build (Phase 1 + S3 Upload)" vertex="1">
+          <mxGeometry height="22" width="400" x="200" y="955" as="geometry" />
+        </mxCell>
+        <mxCell id="c_bar_test" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;" value="Test" vertex="1">
+          <mxGeometry height="22" width="560" x="600" y="955" as="geometry" />
+        </mxCell>
+        <mxCell id="c_bar_deploy" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;" value="Deploy" vertex="1">
+          <mxGeometry height="22" width="240" x="1160" y="955" as="geometry" />
+        </mxCell>
+        <mxCell id="c_bar_done" parent="1" style="text;html=1;fontSize=10;fontStyle=1;fontColor=#27ae60;align=left;" value="✓" vertex="1">
+          <mxGeometry height="22" width="30" x="1405" y="955" as="geometry" />
+        </mxCell>
+        <mxCell id="c_lane_corona" parent="1" style="text;html=1;fontSize=10;fontStyle=1;align=right;fontColor=#2e7d32;" value="Corona:" vertex="1">
+          <mxGeometry height="22" width="150" x="40" y="988" as="geometry" />
+        </mxCell>
+        <mxCell id="c_bar_phase2" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#c8e6c9;strokeColor=#2e7d32;fontSize=10;fontStyle=1;dashed=1;" value="Phase 2: SPDX Generation (~5–18 min) — async, off-pipeline" vertex="1">
+          <mxGeometry height="22" width="800" x="600" y="988" as="geometry" />
+        </mxCell>
+        <mxCell id="c_bar_note" parent="1" style="text;html=1;fontSize=9;fontStyle=2;fontColor=#2e7d32;align=left;" value="↑ Starts after build completes + S3 upload — minutes to hours later, off-pipeline" vertex="1">
+          <mxGeometry height="15" width="500" x="600" y="1015" as="geometry" />
+        </mxCell>
+        <mxCell id="c_crit_path" parent="1" style="text;html=1;fontSize=10;fontStyle=1;fontColor=#c0392b;align=left;" value="CI/CD critical path: Build → Test → Deploy = 15 min (identical to Page 1).  Zero SBOM overhead on CI/CD." vertex="1">
+          <mxGeometry height="18" width="800" x="200" y="1038" as="geometry" />
+        </mxCell>
+        <mxCell id="2tYV6ycHdCr0yUIyAnxZ-1" parent="1" style="text;html=1;fontSize=11;fontStyle=1;align=left;fontColor=#1a5276;" value="Phase 1 Outputs" vertex="1">
+          <mxGeometry height="20" width="150" x="90" y="270" as="geometry" />
+        </mxCell>
+        <mxCell id="2tYV6ycHdCr0yUIyAnxZ-2" parent="1" style="shape=document;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;verticalAlign=top;" value="phase1_manifest.json&#xa;(SHA-256, GitOIDs,&#xa;artifact paths, durations)" vertex="1">
+          <mxGeometry height="65" width="170" x="110" y="293" as="geometry" />
+        </mxCell>
+        <mxCell id="2tYV6ycHdCr0yUIyAnxZ-3" parent="1" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;size=8;" value="treedb /&#xa;raw_logfile" vertex="1">
+          <mxGeometry height="53" width="100" x="300" y="300" as="geometry" />
+        </mxCell>
+        <mxCell id="2tYV6ycHdCr0yUIyAnxZ-4" parent="1" style="shape=hexagon;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;size=12;" value="&lt;b&gt;Output&lt;br&gt;Binaries&lt;/b&gt;" vertex="1">
+          <mxGeometry height="50" width="90" x="590" y="295" as="geometry" />
+        </mxCell>
+        <mxCell id="2tYV6ycHdCr0yUIyAnxZ-7" edge="1" parent="1" source="2tYV6ycHdCr0yUIyAnxZ-5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" target="c_upload">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="2tYV6ycHdCr0yUIyAnxZ-5" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;" value="Source Commit&#xa;SHA" vertex="1">
+          <mxGeometry height="50" width="100" x="460" y="300" as="geometry" />
+        </mxCell>
+        <mxCell id="2tYV6ycHdCr0yUIyAnxZ-6" edge="1" parent="1" source="2tYV6ycHdCr0yUIyAnxZ-2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.75;exitY=0;exitDx=0;exitDy=0;entryX=0.087;entryY=1.014;entryDx=0;entryDy=0;entryPerimeter=0;" target="c_upload">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="238" y="280" />
+              <mxPoint x="410" y="280" />
+              <mxPoint x="410" y="251" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="2tYV6ycHdCr0yUIyAnxZ-8" edge="1" parent="1" source="2tYV6ycHdCr0yUIyAnxZ-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.888;entryY=0.979;entryDx=0;entryDy=0;entryPerimeter=0;dashed=1;dashPattern=8 8;" target="c_upload">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="2tYV6ycHdCr0yUIyAnxZ-9" edge="1" parent="1" source="2tYV6ycHdCr0yUIyAnxZ-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.227;entryY=0.986;entryDx=0;entryDy=0;entryPerimeter=0;" target="c_upload">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Ve7_btZ6uR-xiRcqLrw3-1" edge="1" parent="1" source="2tYV6ycHdCr0yUIyAnxZ-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.058;entryY=0.9;entryDx=0;entryDy=0;entryPerimeter=0;strokeColor=#FFCE9F;strokeWidth=3;" target="c_s3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

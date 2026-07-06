@@ -25,9 +25,9 @@ and completeness.
 - **docs/** — Hand-written documentation only (no generated files)
   - **docs/guides/** — Onboarding, contributing, AWS setup
   - **docs/architecture/** — System design, diagrams, pipeline overview
-  - **docs/features/** — Feature documentation
+  - **docs/sidecar/** — Sidecar + phase isolation (per-language subdirs)
+  - **docs/planning/** — Issue & sub-issue planning docs
   - **docs/issues/** — Upstream bug tracking and workarounds
-  - **docs/deep-dive/** — Research, performance, enterprise docs
 - **repos/** — Cloned target repositories (gitignored)
 - **output/** — All generated artifacts (gitignored)
   - **output/omnibor/{lang}/{repo}/{ts}/** — OmniBOR ADG documents

@@ -1,0 +1,134 @@
+<mxfile host="Electron" agent="Cascade AI">
+  <diagram name="C/C++ Phase 1 Sidecar — Build Interception" id="sidecar-cpp-p1">
+    <mxGraphModel dx="1100" dy="850" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- ===== TITLE ===== -->
+        <mxCell id="title" parent="1" style="text;fontSize=20;fontStyle=1;align=center;fillColor=none;strokeColor=none;" value="C/C++ Phase 1 Sidecar — Build Interception" vertex="1">
+          <mxGeometry height="28" width="700" x="170" y="15" as="geometry" />
+        </mxCell>
+        <mxCell id="subtitle" parent="1" style="text;fontSize=12;fontStyle=2;align=center;fillColor=none;strokeColor=none;fontColor=#666666;" value="LD_PRELOAD shim added by platform team — transparent, no build modification, 1–3% overhead" vertex="1">
+          <mxGeometry height="18" width="750" x="145" y="43" as="geometry" />
+        </mxCell>
+
+        <!-- ===== ROW 1: K8s Injection (top center) ===== -->
+        <mxCell id="k8s" parent="1" style="rounded=1;fillColor=#e8eaf6;strokeColor=#5c6bc0;strokeWidth=2;fontSize=12;fontStyle=1;verticalAlign=middle;align=center;" value="Platform Team / CI Configuration&#xa;Adds LD_PRELOAD shim to build environment" vertex="1">
+          <mxGeometry height="55" width="300" x="370" y="75" as="geometry" />
+        </mxCell>
+
+        <!-- Arrow: K8s → Build Pod -->
+        <mxCell id="a-k8s-pod" edge="1" parent="1" source="k8s" style="endArrow=classic;strokeColor=#5c6bc0;strokeWidth=3;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="cicd-box">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a-k8s-pod-label" connectable="0" parent="a-k8s-pod" style="edgeLabel;fontSize=10;fillColor=#FFFFFF;strokeColor=none;fontStyle=1;fontColor=#5c6bc0;" value="adds shim to build environment" vertex="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ===== ROW 2: Your CI/CD Build Pod ===== -->
+        <mxCell id="cicd-box" parent="1" style="rounded=1;fillColor=#ffe6cc;strokeColor=#d79b00;strokeWidth=2;fontSize=13;fontStyle=1;verticalAlign=top;align=center;spacingTop=4;" value="Your CI/CD Build Environment — build command is UNCHANGED" vertex="1">
+          <mxGeometry height="130" width="900" x="70" y="190" as="geometry" />
+        </mxCell>
+        <mxCell id="tc" parent="1" style="rounded=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;fontStyle=1;verticalAlign=middle;align=center;" value="Your Toolchains&#xa;gcc 13 / clang 17&#xa;make / cmake" vertex="1">
+          <mxGeometry height="70" width="140" x="90" y="230" as="geometry" />
+        </mxCell>
+        <mxCell id="src" parent="1" style="rounded=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;fontStyle=1;verticalAlign=middle;align=center;" value="Your Source&#xa;src/*.c src/*.h&#xa;Makefile" vertex="1">
+          <mxGeometry height="70" width="130" x="250" y="230" as="geometry" />
+        </mxCell>
+        <mxCell id="bins" parent="1" style="rounded=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;fontStyle=1;verticalAlign=middle;align=center;" value="Your Binaries&#xa;(identical to&#xa;normal build)" vertex="1">
+          <mxGeometry height="70" width="130" x="410" y="230" as="geometry" />
+        </mxCell>
+        <mxCell id="shim" parent="1" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=2;fontSize=11;fontStyle=1;verticalAlign=middle;align=center;" value="LD_PRELOAD shim&#xa;(added by platform)" vertex="1">
+          <mxGeometry height="70" width="160" x="570" y="230" as="geometry" />
+        </mxCell>
+
+        <!-- Arrow: Source → Binaries -->
+        <mxCell id="a-src-bins" edge="1" parent="1" source="src" style="endArrow=classic;strokeColor=#82b366;strokeWidth=2;" target="bins">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Arrow: Build Pod → Three-Tier -->
+        <mxCell id="a-pod-tiers" edge="1" parent="1" source="shim" style="endArrow=classic;strokeColor=#d6b656;strokeWidth=3;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="tier-box">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a-pod-tiers-label" connectable="0" parent="a-pod-tiers" style="edgeLabel;fontSize=10;fillColor=#FFFFFF;strokeColor=none;fontStyle=1;" value="intercepts syscalls" vertex="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ===== ROW 3: Three-Tier Interception ===== -->
+        <mxCell id="tier-box" parent="1" style="rounded=1;fillColor=none;strokeColor=#1565c0;strokeWidth=2;dashed=1;dashPattern=8 4;fontSize=12;fontStyle=1;verticalAlign=top;align=center;spacingTop=4;" value="Three-Tier Interception (transparent — no build modification)" vertex="1">
+          <mxGeometry height="140" width="900" x="70" y="355" as="geometry" />
+        </mxCell>
+        <mxCell id="tier1" parent="1" style="rounded=1;fillColor=#c8e6c9;strokeColor=#2e7d32;strokeWidth=2;fontSize=11;fontStyle=1;verticalAlign=top;align=center;spacingTop=3;" value="Primary: LD_PRELOAD Shim" vertex="1">
+          <mxGeometry height="95" width="250" x="100" y="385" as="geometry" />
+        </mxCell>
+        <mxCell id="tier1-text" parent="1" style="text;fontSize=10;align=left;fillColor=none;strokeColor=none;spacingLeft=5;" value="Dynamic builds&#xa;1–3% overhead" vertex="1">
+          <mxGeometry height="45" width="240" x="105" y="410" as="geometry" />
+        </mxCell>
+        <mxCell id="tier2" parent="1" style="rounded=1;fillColor=#fff9c4;strokeColor=#f9a825;strokeWidth=2;fontSize=11;fontStyle=1;verticalAlign=top;align=center;spacingTop=3;" value="Secondary: eBPF DaemonSet" vertex="1">
+          <mxGeometry height="95" width="250" x="380" y="385" as="geometry" />
+        </mxCell>
+        <mxCell id="tier2-text" parent="1" style="text;fontSize=10;align=left;fillColor=none;strokeColor=none;spacingLeft=5;" value="Static + dynamic builds&#xa;Future tier" vertex="1">
+          <mxGeometry height="45" width="240" x="385" y="410" as="geometry" />
+        </mxCell>
+        <mxCell id="tier3" parent="1" style="rounded=1;fillColor=#ffccbc;strokeColor=#d84315;strokeWidth=2;fontSize=11;fontStyle=1;verticalAlign=top;align=center;spacingTop=3;" value="Tertiary: Per-Repo ptrace" vertex="1">
+          <mxGeometry height="95" width="230" x="660" y="385" as="geometry" />
+        </mxCell>
+        <mxCell id="tier3-text" parent="1" style="text;fontSize=10;align=left;fillColor=none;strokeColor=none;spacingLeft=5;" value="Hermetic builds (Bazel, Nix)&#xa;20–60% overhead — fallback only" vertex="1">
+          <mxGeometry height="45" width="220" x="665" y="410" as="geometry" />
+        </mxCell>
+
+        <!-- Arrow: Tiers → Raw Logfile -->
+        <mxCell id="a-tiers-rawlog" edge="1" parent="1" source="tier-box" style="endArrow=classic;strokeColor=#d6b656;strokeWidth=3;exitX=0.2;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="rawlog">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ===== ROW 4: Post-Build Processing ===== -->
+        <mxCell id="rawlog" parent="1" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=2;fontSize=11;fontStyle=1;verticalAlign=top;align=center;spacingTop=3;" value="Raw Logfile" vertex="1">
+          <mxGeometry height="70" width="200" x="90" y="530" as="geometry" />
+        </mxCell>
+        <mxCell id="rawlog-text" parent="1" style="text;fontSize=10;align=left;fillColor=none;strokeColor=none;spacingLeft=5;" value="Same format from all 3 tiers" vertex="1">
+          <mxGeometry height="30" width="190" x="95" y="555" as="geometry" />
+        </mxCell>
+        <mxCell id="bomsh" parent="1" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=2;fontSize=11;fontStyle=1;verticalAlign=top;align=center;spacingTop=3;" value="bomsh_create_bom.py" vertex="1">
+          <mxGeometry height="70" width="200" x="360" y="530" as="geometry" />
+        </mxCell>
+        <mxCell id="bomsh-text" parent="1" style="text;fontSize=10;align=left;fillColor=none;strokeColor=none;spacingLeft=5;" value="Parses raw logfile&#xa;Builds ADG + treedb" vertex="1">
+          <mxGeometry height="30" width="190" x="365" y="555" as="geometry" />
+        </mxCell>
+        <mxCell id="manifest" parent="1" style="rounded=1;fillColor=#e3f2fd;strokeColor=#1565c0;strokeWidth=2;fontSize=11;fontStyle=1;verticalAlign=top;align=center;spacingTop=3;" value="phase1_manifest.json" vertex="1">
+          <mxGeometry height="70" width="220" x="630" y="530" as="geometry" />
+        </mxCell>
+        <mxCell id="manifest-text" parent="1" style="text;fontSize=10;align=left;fillColor=none;strokeColor=none;spacingLeft=5;" value="Treedb + ADG + binary hashes" vertex="1">
+          <mxGeometry height="30" width="210" x="635" y="555" as="geometry" />
+        </mxCell>
+
+        <!-- Arrows: rawlog → bomsh → manifest -->
+        <mxCell id="a-rawlog-bomsh" edge="1" parent="1" source="rawlog" style="endArrow=classic;strokeColor=#d6b656;strokeWidth=2;" target="bomsh">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a-bomsh-manifest" edge="1" parent="1" source="bomsh" style="endArrow=classic;strokeColor=#1565c0;strokeWidth=2;" target="manifest">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ===== ROW 5: Handoff ===== -->
+        <mxCell id="handoff" parent="1" style="rounded=1;fillColor=#e3f2fd;strokeColor=#1565c0;strokeWidth=2;fontSize=12;fontStyle=1;align=center;verticalAlign=middle;" value="Manifest shipped to analysis host for Phase 2 SPDX generation — binaries NEVER leave build host" vertex="1">
+          <mxGeometry height="35" width="900" x="70" y="640" as="geometry" />
+        </mxCell>
+        <mxCell id="a-manifest-handoff" edge="1" parent="1" source="manifest" style="endArrow=classic;strokeColor=#1565c0;strokeWidth=2;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.75;entryY=0;entryDx=0;entryDy=0;" target="handoff">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ===== FOOTER ===== -->
+        <mxCell id="flow" parent="1" style="rounded=1;fillColor=#f5f5f5;strokeColor=#cccccc;fontSize=11;fontStyle=1;align=center;verticalAlign=middle;" value="Flow: Platform adds shim → LD_PRELOAD intercepts syscalls → Raw Logfile → bomsh_create_bom.py → Treedb/ADG → Manifest → Phase 2" vertex="1">
+          <mxGeometry height="28" width="900" x="70" y="700" as="geometry" />
+        </mxCell>
+        <mxCell id="xref" parent="1" style="text;fontSize=10;fontStyle=2;align=center;fillColor=none;strokeColor=none;fontColor=#666666;" value="Design: sidecar-design.md  |  Strategies: sidecar-interception-strategies.md" vertex="1">
+          <mxGeometry height="18" width="600" x="220" y="735" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
