@@ -4,20 +4,20 @@
 |---|---|
 | **Audience** | Enterprise Java build / platform teams |
 | **What this is** | A short technical overview of how build-based SBOM generation fits a Java CI/CD pipeline |
-| **The promise** | A complete, build-accurate SBOM with **near-zero impact** on your build |
+| **The promise** | A complete, build-accurate SBOM with **near-zero impact** on your build time |
 
 ---
 
 ## The one-sentence pitch
 
-Your build runs **exactly as it does today** — and you still get a complete,
-build-accurate SPDX SBOM, because the heavy work happens in Corona, not on your
-build machine.
+Your Java build (`mvn package` / `gradle build`) and your build scripts (`pom.xml` /
+`build.gradle`) stay **exactly as they are**. Phase 1 metadata capture is added to your
+existing CI/CD build step — after your build completes, it ships a few KB of metadata
+to Corona, where the SBOM is assembled off your build machine.
 
-Most SBOM tooling makes you change your build, add a scanning stage to your critical
-path, or hand over source. This does none of that. You add **one lightweight step**
-after your existing build; it ships a few KB of metadata to Corona; Corona assembles
-the SBOM.
+Most SBOM tooling makes you change your build configuration, add a scanning stage to
+your critical path, or hand over source. Phase 1 is added to your existing build step
+— no new pipeline steps, no build modifications.
 
 ---
 
@@ -49,7 +49,7 @@ actual SBOM assembly — runs in Corona, off your infrastructure.
 
 This is the part that matters to a build team:
 
-- **No build-script changes.** Your `pom.xml` / `build.gradle` and your build command stay byte-for-byte the same.
+- **Nothing is modified — only an addition.** Your `pom.xml` / `build.gradle`, your `mvn` / `gradle` invocation, and your pipeline structure stay byte-for-byte the same. Phase 1 metadata capture is added to your existing CI/CD build step, after the build completes.
 - **No kernel tracing, no privileged runners.** No `ptrace`, no `SYS_PTRACE`, no `--privileged` container, no custom build agents.
 - **Off the critical path.** Phase 1 takes **seconds**; Phase 2 SBOM generation happens later, in Corona, and never blocks Test or Deploy.
 - **Tiny footprint.** What leaves your machine is a few KB of metadata — not source, not JARs, not binaries, not build logs.
@@ -60,7 +60,7 @@ This is the part that matters to a build team:
 
 Maven and Gradle account for roughly **88% of Java builds**, and both are first-class:
 Phase 1 records the resolved dependency graph with `mvn dependency:tree` or
-`gradlew dependencies`, auto-detected, with no change to how you build.
+`gradlew dependencies`, auto-detected, with no changes to your build scripts or build invocations.
 
 The approach is **not limited to them**. Phase 1 works from what your build
 *produces* — the compiled classes and the JARs on your classpath — not from your build
@@ -72,13 +72,13 @@ the same model covers **all Java build tooling**, including Ant/Ivy, Bazel, and
 
 ## What your team actually adds to CI/CD
 
-One step, after your existing build stage. That's the whole change.
+Phase 1 metadata capture, added to your existing build step. That's the whole change.
 
 <a href="https://github.com/tedg-dev/omnibor-analysis/blob/main/docs/sidecar/java/java-sbom-cicd-integration.png"><img src="https://raw.githubusercontent.com/tedg-dev/omnibor-analysis/main/docs/sidecar/java/java-sbom-cicd-integration.png" width="760" alt="Java CI/CD integration — one added step — click to enlarge"></a>
 
 *Click to enlarge. Source: [java-sbom-cicd-integration.drawio](https://github.com/tedg-dev/omnibor-analysis/blob/main/docs/sidecar/java/java-sbom-cicd-integration.drawio)*
 
-**GitHub Actions** — add one step after your build (names below are illustrative):
+**GitHub Actions** — Phase 1 added to your build step (names are illustrative):
 
 ```yaml
 # .github/workflows/ci.yml — your existing pipeline
@@ -92,28 +92,27 @@ jobs:
           distribution: temurin
           java-version: "17"
 
-      - name: Build                        # your existing build — UNCHANGED
-        run: mvn -B package -DskipTests
+      - name: Build
+        run: |
+          mvn -B package -DskipTests
 
-      # ---------- the only thing you add ----------
-      - name: Build-based SBOM (Phase 1)
-        uses: your-org/omnibor-java-sidecar@v1
-        with:
-          build-tool: maven                # or: gradle
-          modules: "-pl cli -am"           # optional, for multi-module builds
-          corona-bucket: corona-sbom-intake
-          product: my-service
+          # --- Phase 1: build-based SBOM metadata capture (the only addition) ---
+          docker run --rm \
+            -v "${{ github.workspace }}:/src" -w /src \
+            ghcr.io/your-org/omnibor-java-sidecar:1 phase1 \
+            --build-tool maven \
+            --corona-bucket corona-sbom-intake \
+            --product my-service
 ```
 
-**Jenkins** — add one stage after your build stage:
+**Jenkins** — Phase 1 added to your Build stage:
 
 ```groovy
-stage('Build') {                           // your existing stage — UNCHANGED
-  steps { sh 'mvn -B package -DskipTests' }
-}
-
-stage('Build-based SBOM (Phase 1)') {      // the only thing you add
+stage('Build') {
   steps {
+    sh 'mvn -B package -DskipTests'
+
+    // Phase 1: build-based SBOM metadata capture (the only addition)
     sh '''
       docker run --rm -v "$WORKSPACE:/src" -w /src \
         ghcr.io/your-org/omnibor-java-sidecar:1 phase1 \
@@ -125,9 +124,9 @@ stage('Build-based SBOM (Phase 1)') {      // the only thing you add
 }
 ```
 
-The added step runs the published Java sidecar against the workspace your build just
-produced: it reads the dependency tree + `treedb`, writes the signed manifest, and
-uploads to Corona. No SBOM is assembled on your runner.
+Phase 1 runs after your build completes, within the same build step. It reads the
+dependency tree + `treedb`, writes the signed manifest, and uploads to Corona. No
+SBOM is assembled on your runner. No new pipeline steps are created.
 
 ---
 

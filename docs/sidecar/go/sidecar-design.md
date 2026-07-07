@@ -63,7 +63,14 @@ runners.py main()
 - **Output**: raw logfile at `/tmp/bomsh_hook_raw_logfile.sha1`
 - **ADG**: `bomsh_create_bom.py -r <raw_logfile> -b <bom_dir>`
 
-### 2.2 Sidecar: `GoToolexecStrategy`
+### 2.2 Standalone-without-ptrace: `GoToolexecStrategy`
+
+> **Not a sidecar mechanism.** `-toolexec` modifies the build
+> invocation, which the sidecar model forbids (see `../infrastructure.md`
+> §2.1 footnote). This is a valid **standalone-without-ptrace** option.
+> The truly-sidecar Go mechanism is transparent kernel/linker
+> interception (`LD_PRELOAD` / eBPF), same as C/C++ — see
+> `../c-cpp/sidecar-design.md` §2.
 
 - **Mechanism**: `-toolexec=/opt/bomsh/bin/bomsh_hook.sh` injected into `go build`
 - **Capability needed**: None (`SYS_PTRACE` not required)
@@ -97,8 +104,8 @@ Add `_select_go_strategy()` in `lang_runners.py`:
 def _select_go_strategy(repo_name, repo_cfg, paths_cfg, mode):
     """Select interception strategy for Go builds.
 
-    In sidecar mode, uses -toolexec wrapper that avoids
-    ptrace entirely.
+    In standalone-without-ptrace mode, uses -toolexec wrapper
+    that avoids ptrace entirely.
 
     In standalone mode, returns None (legacy bomtrace2 path).
     """
