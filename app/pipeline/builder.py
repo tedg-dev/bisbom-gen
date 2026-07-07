@@ -4,9 +4,9 @@ Instrumented build with bomtrace for OmniBOR Analysis.
 Runs pre-build steps, the instrumented build via bomtrace3/bomtrace2,
 and generates OmniBOR ADG documents.
 
-Each phase is timed separately via ``StepTimer`` so
-callers can report Phase 1 (build interception) vs
-Phase 2 (post-build analysis) accurately.
+All steps here are Phase 1 (build + metadata capture):
+clean, prebuild, instrumented build, and ADG generation.
+Phase 2 (SPDX generation) lives in ``lang_runners``.
 """
 
 import shutil
@@ -145,8 +145,8 @@ class BomtraceBuilder:
             print("[ERROR] Instrumented build failed")
             return result
 
-        # --- Phase 2a: ADG generation ---
-        timer = StepTimer("adg", "phase2")
+        # --- Phase 1d: ADG generation ---
+        timer = StepTimer("adg", "phase1")
         adg_ok = True
         with timer:
             if strategy:
@@ -374,8 +374,8 @@ class BomtraceBuilder:
             print("[ERROR] Instrumented build failed")
             return result
 
-        # --- Phase 2a: ADG generation ---
-        timer = StepTimer("adg", "phase2")
+        # --- Phase 1d: ADG generation ---
+        timer = StepTimer("adg", "phase1")
         with timer:
             treedb_file = (
                 meta_dir / "bomsh_omnibor_treedb"

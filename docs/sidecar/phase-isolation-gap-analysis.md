@@ -118,14 +118,28 @@ destroyed when Phase 1 exits.
 
 ## 4. Foundational Constraint: Zero Modification to the Host Build
 
-The sidecar requires **ZERO modifications** to the customer's:
+> **Scope**: This section describes the **enterprise K8s sidecar**
+> deployment model (§4.2), where a platform team deploys the sidecar
+> transparently via Kubernetes webhooks, eBPF DaemonSets, or
+> pre-configured container images. The build team changes nothing.
+>
+> An alternative **CI/CD integration** model exists (see
+> `java/enterprise-sbom.md`) in which Phase 1 metadata capture is
+> explicitly added to the existing CI/CD build step. In that model,
+> the CI/CD pipeline config **is** modified — but only to append a
+> Phase 1 `docker run` after the build command. Build scripts
+> (`pom.xml`, `build.gradle`, `Makefile`) and build invocations
+> (`mvn`, `gradle`, `make`) remain unchanged in both models.
+
+The enterprise K8s sidecar requires **ZERO modifications** to the
+customer's:
 
 - **Build system** — no `pom.xml` changes, no `build.gradle` changes,
   no Makefile changes
 - **Build commands** — no wrapping `make` with `omnibor-build -- make`,
   no adding flags
 - **CI/CD pipeline config** — no changing the pipeline YAML, Jenkinsfile,
-  or `.gitlab-ci.yml`
+  or `.gitlab-ci.yml` (K8s sidecar model only — see note above)
 
 The sidecar is purely **additive infrastructure** — a container,
 DaemonSet, or system-level service added by the DevOps/platform team.

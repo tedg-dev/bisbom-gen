@@ -24,7 +24,9 @@ All Java-specific sidecar and phase isolation documentation.
 ## Key Facts
 
 - Java sidecar does **NOT** use strace (standalone mode only)
-- Build runs **unmodified** — no strace prefix, no `SYS_PTRACE`
+- Your Java build (`mvn package` / `gradle build`) and build scripts (`pom.xml` / `build.gradle`) are **unchanged**
+- Phase 1 metadata capture is **added to your existing CI/CD build step** — no new pipeline steps, no build modifications
+- No strace, no `SYS_PTRACE`, no privileged container
 - All metadata capture is **post-build**:
 
   1. `bomsh_create_bom_java.py` scans `.class` `SourceFile` attributes

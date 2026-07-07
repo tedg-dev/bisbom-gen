@@ -32,7 +32,13 @@
           <mxGeometry height="50" width="150" x="230" y="170" as="geometry" />
         </mxCell>
         <mxCell id="treedb" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontSize=11;" value="3. ADG / Treedb&#xa;bomsh_create_bom*.py" vertex="1">
-          <mxGeometry height="50" width="160" x="400" y="170" as="geometry" />
+          <mxGeometry height="50" width="150" x="390" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="p1_depcap" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontSize=10;" value="4. Dep Capture&#xa;(Java: dep:tree)&#xa;(Go: copy go.mod)&#xa;(Rust: copy Cargo.lock)" vertex="1">
+          <mxGeometry height="50" width="100" x="555" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="ea3" edge="1" parent="1" source="treedb" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#6c8ebf;" target="p1_depcap">
+          <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="ea1" edge="1" parent="1" source="clone" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#6c8ebf;" target="build">
           <mxGeometry relative="1" as="geometry" />
@@ -88,7 +94,7 @@
         <mxCell id="p2time" parent="1" style="text;html=1;fontSize=10;fontStyle=2;align=left;fontColor=#27ae60;" value="~2 min (C/Go/Rust) | ~5–8 min (Java optimized)" vertex="1">
           <mxGeometry height="18" width="400" x="937" y="140" as="geometry" />
         </mxCell>
-        <mxCell id="p2_deptree" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#27ae60;fontSize=10;" value="5. Dep:tree&#xa;(Java: gradlew deps)&#xa;(Go: modules.txt)&#xa;(Rust: Cargo.lock)" vertex="1">
+        <mxCell id="p2_deptree" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#27ae60;fontSize=10;" value="5. Read Dep Metadata&#xa;(from Phase 1 capture:&#xa;maven_deps.json,&#xa;go.mod, Cargo.lock)" vertex="1">
           <mxGeometry height="70" width="130" x="935" y="165" as="geometry" />
         </mxCell>
         <mxCell id="p2_meta" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#27ae60;fontSize=10;" value="6. Metadata&#xa;dpkg-query / rpm -qf&#xa;apk info --who-owns&#xa;(batch optimized)" vertex="1">
@@ -264,8 +270,14 @@
         <mxCell id="binaries" parent="1" style="shape=hexagon;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;size=12;" value="Output&#xa;Binaries" vertex="1">
           <mxGeometry height="50" width="90" x="396" y="400" as="geometry" />
         </mxCell>
+        <mxCell id="deps_art" parent="1" style="shape=document;whiteSpace=wrap;html=1;fillColor=#c8e6c9;strokeColor=#2e7d32;fontSize=9;size=8;" value="Dep metadata&#xa;(maven_deps.json /&#xa;go.mod / Cargo.lock)" vertex="1">
+          <mxGeometry height="55" width="110" x="500" y="395" as="geometry" />
+        </mxCell>
+        <mxCell id="ea_store4" edge="1" parent="1" source="deps_art" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#d79b00;strokeWidth=1;" target="store">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
         <mxCell id="srccommit" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;" value="Source Commit&#xa;SHA" vertex="1">
-          <mxGeometry height="50" width="100" x="512" y="400" as="geometry" />
+          <mxGeometry height="50" width="90" x="624" y="400" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>

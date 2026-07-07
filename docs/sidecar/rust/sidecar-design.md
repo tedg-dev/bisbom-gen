@@ -64,7 +64,14 @@ runners.py main()
 - **Output**: raw logfile at `/tmp/bomsh_hook_raw_logfile.sha1`
 - **ADG**: `bomsh_create_bom.py -r <raw_logfile> -b <bom_dir>`
 
-### 2.2 Sidecar: `RustcWrapperStrategy`
+### 2.2 Standalone-without-ptrace: `RustcWrapperStrategy`
+
+> **Not a sidecar mechanism.** `RUSTC_WRAPPER` modifies the build
+> invocation, which the sidecar model forbids (see `../infrastructure.md`
+> §2.1 footnote). This is a valid **standalone-without-ptrace** option.
+> The truly-sidecar Rust mechanism is transparent kernel/linker
+> interception (`LD_PRELOAD` / eBPF), same as C/C++ — see
+> `../c-cpp/sidecar-design.md` §2.
 
 - **Mechanism**: `RUSTC_WRAPPER=/opt/bomsh/bin/bomsh_hook.sh` environment variable
 - **Capability needed**: None (`SYS_PTRACE` not required)
@@ -95,8 +102,8 @@ Add `_select_rust_strategy()` in `lang_runners.py`:
 def _select_rust_strategy(repo_name, repo_cfg, paths_cfg, mode):
     """Select interception strategy for Rust builds.
 
-    In sidecar mode, uses RUSTC_WRAPPER that avoids
-    ptrace entirely.
+    In standalone-without-ptrace mode, uses RUSTC_WRAPPER
+    that avoids ptrace entirely.
 
     In standalone mode, returns None (legacy bomtrace2 path).
     """

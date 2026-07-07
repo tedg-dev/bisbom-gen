@@ -617,10 +617,13 @@ class TestBomtraceBuilder(unittest.TestCase):
         self.assertTrue(
             all(s is not None for s in result.steps)
         )
-        self.assertIn(
-            "phase2",
-            [s.phase for s in result.steps],
-        )
+        # ADG generation is Phase 1 (metadata capture
+        # within the build step)
+        adg_steps = [
+            s for s in result.steps if s.name == "adg"
+        ]
+        self.assertTrue(len(adg_steps) > 0)
+        self.assertEqual(adg_steps[0].phase, "phase1")
 
     def test_no_strategy_uses_legacy(self):
         runner = MagicMock()
