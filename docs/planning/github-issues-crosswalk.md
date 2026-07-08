@@ -48,7 +48,7 @@ theme / planning doc) -> **sub-issues** (drafted in the matching planning doc).
 | `tedg-dev/omnibor-analysis#196` | Single-invocation Gradle dependency capture (US-2) | Phase 1 Build-Speed -> **A4** / US-2 | #11006 | Merged |
 | `tedg-dev/omnibor-analysis#200` | Java build-tool detection + `java_build_tool` override | Phase 1 Java capture -> **AF** (pilot foundation) | #11069 | Merged |
 | `tedg-dev/omnibor-analysis#199` | Shared `_generate_java_treedb` helper (DRY) | Phase 1 Java capture -> **AF** (pilot foundation) | #11069 | Merged |
-| `tedg-dev/omnibor-analysis#198` | Main A scope refinement + design draft | Java Main A scope (ref on #11002); foundation ref | #11069 | Merged |
+| `tedg-dev/omnibor-analysis#198` | Main A scope refinement + design draft | Java Main A scope (comment on #11002) | #11002 | Merged |
 | `tedg-dev/omnibor-analysis#204` | C/C++ sidecar docs consolidation + reorg | Planning / docs (Main B enablement) | — | Merged |
 | `tedg-dev/omnibor-analysis#195` | Java build-based SBOM sell doc + diagrams + planning reorg | Java Main A enablement (supporting docs) | — | Merged |
 | `tedg-dev/omnibor-analysis#193` | Phase 1 build-speed design consolidation | Phase 1 Build-Speed (Java) design reference | — | Merged |
