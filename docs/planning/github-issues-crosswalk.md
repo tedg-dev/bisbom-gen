@@ -58,6 +58,12 @@ theme / planning doc) -> **sub-issues** (drafted in the matching planning doc).
 Index labels (**A1**, **A4**, ...) refer to the rows in
 [`README.md`](README.md), the priority-ordered planning index.
 
+**Documentation tracker:** docs-only PRs (e.g. `#192`, `#193`, `#195`,
+`#204`, `#205`, `#206`, `#207`) have no 1:1 theme issue; they are grouped
+under the living documentation tracker **#11071** (In Review), which each
+docs PR references with a `Part of` line. The tracker's status moves with
+docs activity and carries a datetimestamped activity log.
+
 ---
 
 ## Still open / not yet implemented (no PR)
@@ -79,10 +85,11 @@ Index labels (**A1**, **A4**, ...) refer to the rows in
 
 ## Issue structure notes
 
-The 13 themed issues (#11000–#11013) plus the pilot-foundation issue
-**#11069** (In Review, child of #11005) and the parentless A9 backlog
-issue **#11066** are live on the Corona project board (#255). Sub-issue
-parent links are established (#11069 → #11005; #11066 is intentionally
+The 13 themed issues (#11000–#11013), the pilot-foundation issue
+**#11069** (In Review, child of #11005), the parentless A9 backlog issue
+**#11066**, and the living documentation tracker **#11071** (In Review,
+parentless) are live on the Corona project board (#255). Sub-issue parent
+links are established (#11069 → #11005; #11066 and #11071 are intentionally
 parentless). Assignee: `tedg_cisco`.
 
 The current GitHub main issue structure (#11002, #11005, #11008) does not
