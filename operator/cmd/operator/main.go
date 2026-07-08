@@ -8,10 +8,14 @@ import (
 	"syscall"
 
 	awsconfig "github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/tedg-dev/omnibor-analysis/operator/internal/api"
 	operatorconfig "github.com/tedg-dev/omnibor-analysis/operator/internal/config"
 	"github.com/tedg-dev/omnibor-analysis/operator/internal/consumer"
+	"github.com/tedg-dev/omnibor-analysis/operator/internal/oidc"
+	"github.com/tedg-dev/omnibor-analysis/operator/internal/whitelist"
 )
 
 func main() {
@@ -38,13 +42,49 @@ func main() {
 		cancel()
 	}()
 
-	// Start HTTP API server in a goroutine if DynamoDB indexing is enabled
-	if cfg.DynamoTable != "" {
-		awsCfg, err := awsconfig.LoadDefaultConfig(ctx)
+	awsCfg, err := awsconfig.LoadDefaultConfig(ctx)
+	if err != nil {
+		log.Fatalf("[FATAL] Failed to load AWS config: %v", err)
+	}
+
+	// Build API server options
+	var apiOpts []api.Option
+
+	// Set up presigned URL broker if DATABASE_URL is configured
+	var validator *oidc.Validator
+	if cfg.DatabaseURL != "" {
+		pool, err := pgxpool.New(ctx, cfg.DatabaseURL)
 		if err != nil {
-			log.Fatalf("[FATAL] Failed to load AWS config for API: %v", err)
+			log.Fatalf("[FATAL] Failed to connect to database: %v", err)
 		}
-		apiServer := api.New(awsCfg, cfg.DynamoTable, cfg.APIAddr)
+		defer pool.Close()
+
+		store := whitelist.NewStore(pool)
+		if err := store.Migrate(ctx); err != nil {
+			log.Fatalf("[FATAL] Failed to migrate whitelist table: %v", err)
+		}
+		log.Printf("[INFO] Repo whitelist table ready")
+
+		validator = oidc.NewValidator(cfg.OIDC)
+		defer validator.Close()
+
+		s3Client := s3.NewFromConfig(awsCfg)
+
+		uploadHandler := api.NewUploadHandler(validator, store, s3Client, cfg.S3Bucket)
+		whitelistHandler := api.NewWhitelistHandler(store)
+
+		apiOpts = append(apiOpts,
+			api.WithUploadHandler(uploadHandler),
+			api.WithWhitelistHandler(whitelistHandler),
+		)
+
+		log.Printf("[INFO] Presigned URL broker enabled")
+		log.Printf("[INFO] OIDC issuers: %v", cfg.OIDC.IssuerURLs())
+	}
+
+	// Start HTTP API server
+	if cfg.DynamoTable != "" || len(apiOpts) > 0 {
+		apiServer := api.New(awsCfg, cfg.DynamoTable, cfg.APIAddr, apiOpts...)
 		go func() {
 			if err := apiServer.Run(ctx); err != nil {
 				log.Printf("[ERROR] API server exited: %v", err)
@@ -59,6 +99,10 @@ func main() {
 
 	if err := c.Run(ctx); err != nil {
 		log.Fatalf("[FATAL] Consumer exited with error: %v", err)
+	}
+
+	if validator != nil {
+		validator.Close()
 	}
 
 	log.Printf("[INFO] Operator stopped")

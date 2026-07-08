@@ -1,7 +1,7 @@
 # Multi-stage build: compile Go binary, then copy into minimal runtime image
 
 # ── Build stage ──
-FROM golang:1.22-alpine AS builder
+FROM golang:1.24-alpine AS builder
 
 WORKDIR /src
 COPY go.mod go.sum ./

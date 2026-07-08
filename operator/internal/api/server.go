@@ -35,8 +35,27 @@ type Server struct {
 	httpServer   *http.Server
 }
 
+// Option configures optional API server features.
+type Option func(*Server, *http.ServeMux)
+
+// WithUploadHandler registers the POST /v1/upload-url endpoint.
+func WithUploadHandler(h *UploadHandler) Option {
+	return func(_ *Server, mux *http.ServeMux) {
+		mux.Handle("/v1/upload-url", h)
+	}
+}
+
+// WithWhitelistHandler registers the /v1/whitelist CRUD endpoints.
+func WithWhitelistHandler(h *WhitelistHandler) Option {
+	return func(_ *Server, mux *http.ServeMux) {
+		mux.Handle("/v1/whitelist", h)
+		mux.Handle("/v1/whitelist/", h)
+	}
+}
+
 // New creates an API server that reads from the given DynamoDB table.
-func New(awsCfg aws.Config, table, addr string) *Server {
+// Optional handlers can be registered via Option functions.
+func New(awsCfg aws.Config, table, addr string, opts ...Option) *Server {
 	s := &Server{
 		dynamoClient: dynamodb.NewFromConfig(awsCfg),
 		table:        table,
@@ -45,6 +64,10 @@ func New(awsCfg aws.Config, table, addr string) *Server {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/artifact-s3/", s.handleArtifactS3)
 	mux.HandleFunc("/healthz", s.handleHealthz)
+
+	for _, opt := range opts {
+		opt(s, mux)
+	}
 
 	s.httpServer = &http.Server{
 		Addr:    addr,

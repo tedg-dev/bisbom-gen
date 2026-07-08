@@ -3,6 +3,9 @@ package config
 import (
 	"fmt"
 	"os"
+	"strings"
+
+	"github.com/tedg-dev/omnibor-analysis/operator/internal/oidc"
 )
 
 // LaunchMode determines how Phase 2 containers are launched.
@@ -38,6 +41,10 @@ type Config struct {
 
 	// HTTP API (optional — skipped if DynamoTable is empty)
 	APIAddr string // Listen address for REST API (default: ":8080")
+
+	// Presigned URL broker (optional — skipped if DatabaseURL is empty)
+	DatabaseURL string       // Postgres connection string for repo_whitelist
+	OIDC        *oidc.Config // OIDC validation settings
 
 	// ECS-specific (required when LAUNCH_MODE=ecs)
 	ECSCluster        string // ECS cluster ARN or name
@@ -107,6 +114,11 @@ func Load() (*Config, error) {
 		cfg.APIAddr = ":8080"
 	}
 
+	cfg.DatabaseURL = os.Getenv("DATABASE_URL")
+
+	// Parse OIDC config from environment
+	cfg.OIDC = parseOIDCConfig()
+
 	// Validate ECS-specific config
 	if mode == LaunchModeECS {
 		cfg.ECSCluster = os.Getenv("ECS_CLUSTER")
@@ -129,4 +141,48 @@ func Load() (*Config, error) {
 	}
 
 	return cfg, nil
+}
+
+// parseOIDCConfig reads OIDC settings from environment variables.
+//
+// Environment variables:
+//   - OIDC_AUDIENCE: expected audience claim (optional)
+//   - OIDC_ISSUERS: comma-separated "url|type" pairs, e.g.
+//     "https://token.actions.githubusercontent.com|github.com,https://ghe.example.com/_services/token|ghe"
+//   - OIDC_ENTERPRISE_ALLOWLIST: comma-separated enterprise slugs
+//   - OIDC_ORG_ALLOWLIST: comma-separated GitHub org names
+func parseOIDCConfig() *oidc.Config {
+	cfg := &oidc.Config{
+		Audience: os.Getenv("OIDC_AUDIENCE"),
+	}
+
+	if issuers := os.Getenv("OIDC_ISSUERS"); issuers != "" {
+		for _, pair := range strings.Split(issuers, ",") {
+			parts := strings.SplitN(strings.TrimSpace(pair), "|", 2)
+			if len(parts) == 2 {
+				cfg.Issuers = append(cfg.Issuers, oidc.IssuerConfig{
+					URL:  strings.TrimSpace(parts[0]),
+					Type: strings.TrimSpace(parts[1]),
+				})
+			}
+		}
+	}
+
+	if ents := os.Getenv("OIDC_ENTERPRISE_ALLOWLIST"); ents != "" {
+		for _, e := range strings.Split(ents, ",") {
+			if t := strings.TrimSpace(e); t != "" {
+				cfg.EnterpriseAllowlist = append(cfg.EnterpriseAllowlist, t)
+			}
+		}
+	}
+
+	if orgs := os.Getenv("OIDC_ORG_ALLOWLIST"); orgs != "" {
+		for _, o := range strings.Split(orgs, ",") {
+			if t := strings.TrimSpace(o); t != "" {
+				cfg.OrgAllowlist = append(cfg.OrgAllowlist, t)
+			}
+		}
+	}
+
+	return cfg
 }

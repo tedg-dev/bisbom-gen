@@ -305,96 +305,249 @@ Content-Type: application/json
 
 ### OIDC Token Validation
 
-The operator validates the GitHub Actions OIDC token:
+The operator validates GitHub Actions OIDC tokens using a multi-step
+chain. Every rejection is logged with structured details for auditing.
+
+#### Step 1: Signature Verification
 
 1. **Fetch JWKS** — download the JSON Web Key Set from the OIDC
    provider's `/.well-known/jwks` endpoint (cached with TTL)
 2. **Verify signature** — validate the JWT signature against the JWKS
-3. **Check claims:**
-   - `iss` — must match a known OIDC issuer (GitHub.com or GHE instance)
+3. **Standard claims:**
+   - `iss` — must match a configured issuer
    - `aud` — must be the operator's expected audience
    - `exp` — must not be expired
-   - `sub` — must match `repo:<owner>/<repo>:*` for the requested repo
+
+#### Step 2: Cisco Ownership Verification (3-Tier)
+
+After signature verification, the operator confirms the token
+originates from Cisco-controlled infrastructure. Cisco uses multiple
+GitHub arrangements — GHE Server, Enterprise Managed Users (EMU),
+Enterprise Cloud, and legacy github.com orgs. The 3-tier check covers
+all of these:
+
+```
+┌──────────────────────────────────────────────────────────┐
+│  Tier 1: Trusted Issuer (GHE instances)                  │
+│  iss ∈ trusted_issuers? → PASS (skip Tier 2 & 3)        │
+│                                                          │
+│  Tier 2: Enterprise Claim (EMU / Enterprise Cloud)       │
+│  enterprise ∈ enterprise_allowlist? → PASS (skip Tier 3) │
+│                                                          │
+│  Tier 3: Org Allowlist (legacy github.com orgs)          │
+│  repository_owner ∈ org_allowlist? → PASS                │
+│                                                          │
+│  No tier matched? → REJECT                               │
+└──────────────────────────────────────────────────────────┘
+```
+
+| Tier | Config location | Matches | Covers |
+|------|----------------|---------|--------|
+| **1. Trusted issuers** | YAML (rarely changes) | `iss` | GHE Server instances — all repos auto-trusted |
+| **2. Enterprise allowlist** | YAML (rarely changes) | `enterprise` claim | EMU + Enterprise Cloud on github.com |
+| **3. Org allowlist** | YAML (updated as needed) | `repository_owner` claim | Legacy github.com orgs without enterprise claim |
+
+**Operator config (YAML):**
+
+```yaml
+oidc:
+  audience: "omnibor-operator"   # expected aud claim
+
+  issuers:
+    - url: https://token.actions.githubusercontent.com
+      type: github.com           # requires Tier 2 or 3 check
+    - url: https://gh-xr.scm.engit.cisco.com/_services/token
+      type: ghe                  # Tier 1: auto-trust all repos
+
+  # Tier 2: for github.com tokens — enterprise claim
+  enterprise_allowlist:
+    - cisco
+
+  # Tier 3: for github.com tokens without enterprise claim
+  org_allowlist:
+    - CiscoDevNet
+    - cisco
+    - cisco-open
+    - kkaple                     # dev/test
+```
+
+**Validation pseudocode:**
 
 ```go
-// Pseudocode — operator token validation
-func validateToken(tokenStr string, requestedRepo string) (*Claims, error) {
-    // Fetch and cache JWKS from issuer
-    jwks := fetchJWKS(issuerURL + "/.well-known/jwks")
-
-    // Parse and verify JWT
-    token, err := jwt.Parse(tokenStr, jwks.Keyfunc)
-    if err != nil {
-        return nil, fmt.Errorf("invalid token: %w", err)
+func validateOwnership(claims *Claims, cfg *OIDCConfig) error {
+    // Tier 1: trusted GHE issuer — all repos are Cisco-controlled
+    for _, iss := range cfg.Issuers {
+        if iss.URL == claims.Issuer && iss.Type == "ghe" {
+            return nil // trusted by issuer
+        }
     }
 
-    claims := token.Claims
-    // Verify sub matches requested repo
-    expectedSub := fmt.Sprintf("repo:%s:", requestedRepo)
-    if !strings.HasPrefix(claims.Sub, expectedSub) {
-        return nil, fmt.Errorf("sub %q does not match repo %q", claims.Sub, requestedRepo)
+    // Tier 2: enterprise claim (EMU / Enterprise Cloud)
+    if claims.Enterprise != "" {
+        for _, e := range cfg.EnterpriseAllowlist {
+            if claims.Enterprise == e {
+                return nil
+            }
+        }
     }
 
-    return claims, nil
+    // Tier 3: org allowlist (legacy github.com orgs)
+    for _, org := range cfg.OrgAllowlist {
+        if claims.RepositoryOwner == org {
+            return nil
+        }
+    }
+
+    return fmt.Errorf("ownership check failed")
 }
 ```
 
-**Supported OIDC issuers:**
+#### Step 3: Repository Whitelist (Database)
 
-| Issuer | URL |
-|--------|-----|
-| GitHub.com | `https://token.actions.githubusercontent.com` |
-| Cisco GHE | `https://gh-xr.scm.engit.cisco.com/_services/token` |
-| Jenkins (with OIDC plugin) | Instance-specific |
-
-Adding a new CI system or GHE instance only requires adding its issuer
-URL to the operator's config — no IAM changes.
-
-### Org Enrollment
-
-The operator maintains an allowlist of enrolled organizations in
-PostgreSQL. Validation logic is **application code, not IAM policy
-JSON** — no size limits, no IAM updates, and no per-org trust
-policies.
+After ownership is verified, the operator checks whether the specific
+repository has been enrolled in the **repo whitelist**. This is a
+database table (not YAML) because it changes frequently as teams
+onboard repositories. The tenant-service UI provides a management
+interface for adding/removing repos.
 
 ```sql
--- Operator's own Postgres database (separate from tenant-service DB)
-CREATE TABLE org_enrollment (
-    id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    org_name    TEXT NOT NULL,
-    oidc_issuer TEXT NOT NULL,
-    enabled     BOOLEAN NOT NULL DEFAULT TRUE,
-    created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    UNIQUE(org_name, oidc_issuer)
+-- Operator's Postgres database
+CREATE TABLE repo_whitelist (
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    tenant_id       UUID NOT NULL,         -- tenant that added this entry
+    repository      TEXT NOT NULL,          -- e.g., "CiscoDevNet/WebGoat"
+    added_by        TEXT NOT NULL,          -- username who added it
+    enabled         BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    UNIQUE(tenant_id, repository)
 );
 
-CREATE INDEX idx_enrollment_org ON org_enrollment(org_name);
+CREATE INDEX idx_repo_whitelist_repo ON repo_whitelist(repository);
+CREATE INDEX idx_repo_whitelist_tenant ON repo_whitelist(tenant_id);
 ```
 
-Enrollment is **org-scoped, not tenant-scoped**. An org is either
-allowed to upload or it isn't — this is a platform-level decision.
-Which tenants receive the resulting SBOMs is handled separately by
-the [subscription model](#upload-authorization-vs-sbom-consumption).
+**Tenant isolation:** All CRUD operations are scoped by `tenant_id`
+(from the `X-SSVS-TENANT-ID` gateway header). A tenant can never
+read, update, or delete another tenant's entries. Every management
+query includes `WHERE tenant_id = $tenant_id`.
 
-Wildcard issuers (e.g., internal GHE where all repos are trusted)
-are stored as rows with `org_name = '*'`:
+Multiple tenants can independently whitelist the same repository.
+The same repo appearing under different tenants is normal — each
+tenant manages its own entries.
 
-```sql
-INSERT INTO org_enrollment (org_name, oidc_issuer)
-VALUES ('*', 'https://gh-xr.scm.engit.cisco.com/_services/token');
-```
-
-The validation query:
+**Upload validation query (not tenant-scoped):** When checking
+whether a repo is whitelisted for presigned URL generation, the
+query checks if *any* tenant has whitelisted it:
 
 ```go
 var enabled bool
 err := db.QueryRow(ctx, `
-    SELECT enabled FROM org_enrollment
-    WHERE (org_name = $1 OR org_name = '*')
-      AND oidc_issuer = $2
-      AND enabled = TRUE
-    LIMIT 1
-`, orgName, issuerURL).Scan(&enabled)
+    SELECT EXISTS(
+        SELECT 1 FROM repo_whitelist
+        WHERE repository = $1 AND enabled = TRUE
+    )
+`, claims.Repository).Scan(&enabled)
+```
+
+**CRUD queries (always tenant-scoped):**
+
+```go
+// List — only this tenant's repos
+rows, err := db.Query(ctx, `
+    SELECT id, repository, added_by, enabled, created_at
+    FROM repo_whitelist WHERE tenant_id = $1
+    ORDER BY created_at DESC
+`, tenantID)
+
+// Create — stamped with this tenant
+_, err := db.Exec(ctx, `
+    INSERT INTO repo_whitelist (tenant_id, repository, added_by)
+    VALUES ($1, $2, $3)
+`, tenantID, repo, username)
+
+// Delete — only if owned by this tenant
+_, err := db.Exec(ctx, `
+    DELETE FROM repo_whitelist
+    WHERE id = $1 AND tenant_id = $2
+`, entryID, tenantID)
+```
+
+#### Step 4: Sub Claim Verification
+
+Finally, verify the `sub` claim matches the requested repository to
+prevent token reuse across repos:
+
+```go
+expectedPrefix := fmt.Sprintf("repo:%s:", requestedRepo)
+if !strings.HasPrefix(claims.Sub, expectedPrefix) {
+    return fmt.Errorf("sub %q does not match repo %q", claims.Sub, requestedRepo)
+}
+```
+
+#### Rejection Logging
+
+Every rejected token is logged with structured details. This provides
+an audit trail of who is attempting to use the system and why they
+were denied. All fields are extracted from the token claims — no
+secrets are logged.
+
+```go
+type RejectionLog struct {
+    Timestamp       time.Time `json:"ts"`
+    Reason          string    `json:"reason"`
+    Issuer          string    `json:"iss"`
+    Enterprise      string    `json:"enterprise,omitempty"`
+    RepoOwner       string    `json:"repository_owner"`
+    Repository      string    `json:"repository"`
+    Actor           string    `json:"actor"`
+    RunnerEnv       string    `json:"runner_environment,omitempty"`
+    Ref             string    `json:"ref,omitempty"`
+    WorkflowRef     string    `json:"workflow_ref,omitempty"`
+}
+```
+
+**Example log output:**
+
+```
+[OIDC REJECT] reason=unknown_issuer iss=https://evil.com repo=foo/bar actor=attacker
+[OIDC REJECT] reason=enterprise_not_allowed iss=github.com enterprise=acme repo=acme/tool actor=bob
+[OIDC REJECT] reason=org_not_allowed iss=github.com owner=random-user repo=random-user/app actor=random-user
+[OIDC REJECT] reason=repo_not_whitelisted iss=github.com enterprise=cisco owner=CiscoDevNet repo=CiscoDevNet/new-tool actor=jsmith
+[OIDC REJECT] reason=sub_mismatch iss=github.com repo=CiscoDevNet/WebGoat actor=jsmith sub=repo:CiscoDevNet/other:ref:refs/heads/main
+```
+
+**Rejection reasons:**
+
+| Reason | Step | Meaning |
+|--------|------|---------|
+| `invalid_signature` | 1 | JWT signature verification failed |
+| `expired_token` | 1 | Token `exp` is in the past |
+| `unknown_issuer` | 1 | `iss` not in configured issuers |
+| `invalid_audience` | 1 | `aud` doesn't match expected value |
+| `enterprise_not_allowed` | 2 | `enterprise` claim present but not in allowlist |
+| `org_not_allowed` | 2 | `repository_owner` not in org allowlist (no enterprise claim) |
+| `repo_not_whitelisted` | 3 | Repository not in database whitelist |
+| `sub_mismatch` | 4 | `sub` claim doesn't match the requested repo |
+
+#### Full Validation Chain Summary
+
+```
+Token arrives at POST /v1/upload-url
+  │
+  ├─ Step 1: Signature + standard claims (JWKS, iss, aud, exp)
+  │   └─ FAIL → 401 + log(invalid_signature | expired_token | unknown_issuer | invalid_audience)
+  │
+  ├─ Step 2: Cisco ownership (3-tier: issuer → enterprise → org)
+  │   └─ FAIL → 403 + log(enterprise_not_allowed | org_not_allowed)
+  │
+  ├─ Step 3: Repo whitelist (database lookup)
+  │   └─ FAIL → 403 + log(repo_not_whitelisted)
+  │
+  ├─ Step 4: Sub claim matches requested repo
+  │   └─ FAIL → 403 + log(sub_mismatch)
+  │
+  └─ ALL PASS → generate presigned URLs
 ```
 
 ### Presigned URL Generation
@@ -1113,7 +1266,7 @@ multi-tenant isolation. Two concerns are deliberately separated:
 
 | Concern | Scope | Question it answers |
 |---------|-------|---------------------|
-| **Upload authorization** | Org + OIDC issuer | "Is this CI runner allowed to upload?" |
+| **Upload authorization** | OIDC issuer + enterprise/org (YAML) + repo (DB) | "Is this CI runner allowed to upload?" |
 | **SBOM consumption** | Tenant + repo pattern | "Which teams want this repo's SBOMs?" |
 
 ### Tenant Service Overview
@@ -1174,7 +1327,7 @@ the same repo. When Phase 2 completes, all subscribers are notified:
 ```
 CI builds CiscoSecurityServices/WebGoat
     │
-    │ ① Upload authorized (org_enrollment: CiscoSecurityServices is enrolled)
+    │ ① Upload authorized (OIDC validated + repo_whitelist: CiscoSecurityServices/WebGoat is whitelisted)
     │
     │ ② Phase 1 → S3 → Phase 2 → SPDX indexed
     │
@@ -1196,17 +1349,23 @@ The operator has its own Postgres database (separate from the
 tenant-service database). Two tables handle enrollment and subscriptions:
 
 ```sql
--- Who is allowed to upload (org-scoped, platform-level)
-CREATE TABLE org_enrollment (
-    id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    org_name    TEXT NOT NULL,            -- GitHub org, or '*' for wildcard
-    oidc_issuer TEXT NOT NULL,
-    enabled     BOOLEAN NOT NULL DEFAULT TRUE,
-    created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    UNIQUE(org_name, oidc_issuer)
+-- Who is allowed to upload (repo-scoped, managed via tenant-service UI)
+-- Cisco ownership check (issuers, enterprises, orgs) is in operator YAML config.
+-- This table tracks individual repos that have been onboarded.
+-- CRUD is always tenant-scoped; upload validation checks any tenant.
+CREATE TABLE repo_whitelist (
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    tenant_id       UUID NOT NULL,         -- tenant that added this entry
+    repository      TEXT NOT NULL,          -- e.g., "CiscoDevNet/WebGoat"
+    added_by        TEXT NOT NULL,          -- username who added it
+    enabled         BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    UNIQUE(tenant_id, repository)
 );
 
-CREATE INDEX idx_enrollment_org ON org_enrollment(org_name);
+CREATE INDEX idx_repo_whitelist_repo ON repo_whitelist(repository);
+CREATE INDEX idx_repo_whitelist_tenant ON repo_whitelist(tenant_id);
 
 -- Who wants to be notified (tenant-scoped, self-service)
 CREATE TABLE repo_subscription (
@@ -1342,7 +1501,7 @@ tenant). Tenant scoping happens at the notification/consumption layer:
 
 | Layer | Scoped by | Storage |
 |-------|-----------|---------|
-| **Upload auth** (`org_enrollment`) | GitHub org + OIDC issuer | Operator Postgres |
+| **Upload auth** (`repo_whitelist` + OIDC YAML config) | Issuer + enterprise/org + repo | Operator Postgres + YAML |
 | **Artifacts** (S3, DynamoDB) | Repo (`owner/repo`) | Shared, no tenant scoping |
 | **Subscription** (`repo_subscription`) | Tenant | Operator Postgres |
 | **Notification** (NATS events) | Tenant | Per-tenant message headers |
