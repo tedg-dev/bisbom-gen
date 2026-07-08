@@ -48,6 +48,7 @@ PR/issue mapping for recreation once GitHub Issues access returns:
 
 | Sub | Title | Status | Maps to |
 |-----|-------|--------|---------|
+| AF | Java Phase 1 capture foundation — build-tool detection + shared treedb helper | Merged (issue **In Review**) | #11069 / PRs #199, #200 |
 | A1 | Phase 2 generates SBOMs from Phase 1 metadata, no source tree (phase-isolation core) | Merged | SI-4 (Java) / #11003 / PR #194 |
 | A2 | Phase 2 output set + hand-off manifest | Scoped | #11004 → [java/java-phase2-11004-handoff-scope.md](java/java-phase2-11004-handoff-scope.md) |
 | A3 | Build efficiency — reuse captured dependency data (no double resolution) | Delivered via A1 | US-1 |
@@ -68,9 +69,12 @@ Proposed) and is **not** part of the Main A completion gate. It is very
 likely not required for the initial pilot: the universal artifact-based
 capture path (`.class` + classpath JAR GitOID via treedb) already covers
 Ant and `make`/`javac` without a declared-graph adapter, and the Ivy/Bazel
-declared-graph adapters are post-pilot accuracy enrichments. The Ivy/Ant
-work (`tedg-dev/omnibor-analysis#201`) is parked as a draft with the
-`backlog` label. **Java delivery completion does not depend on A9.**
+declared-graph adapters are post-pilot accuracy enrichments. The parked
+work is `tedg-dev/omnibor-analysis#201` (Ivy parser, `backlog` label) and
+`#202` (tables non-Maven/Gradle for the pilot, `Proposed` label). The
+generic build-tool detection + shared treedb helper (#199/#200) is **pilot
+foundation** tracked in #11069 (AF), not under A9. **Java delivery
+completion does not depend on A9.**
 
 ### Main B — C/C++ Sidecar Design: Deep Investigation & Validation
 

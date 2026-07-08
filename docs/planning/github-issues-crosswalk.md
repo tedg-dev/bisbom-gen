@@ -34,7 +34,7 @@ theme / planning doc) -> **sub-issues** (drafted in the matching planning doc).
 | Main issue (GitHub title) | Planning doc | Sub-issues | GitHub issue # |
 |---|---|---|---|
 | Java Phase 2: Generate SBOMs From Phase 1 Metadata Without the Source Tree | `java-phase2-consume-dep-capture-subissue.md` | A1 (#11003), A2 (#11004) | #11002 |
-| Phase 1 Build-Speed & Efficiency (Java) | `java/phase1-build-speed-subissues.md` | A4 (#11006), A5 (#11007) | #11005 |
+| Phase 1 Build-Speed & Efficiency (Java) | `java/phase1-build-speed-subissues.md` | AF (#11069), A4 (#11006), A5 (#11007) | #11005 |
 | Faster SBOM Generation for Java Builds (Retrospective) | `java/retro-subissue-java-treedb-perf.md` | SI-R1 | #11000 |
 | Build-Based SBOM Capture & Delivery (Sidecar + Phase Isolation) | `sidecar-phase-isolation-subissues.md` | B1 (#11009), B2 (#11010), B3 (#11011), B4 (#11012), C1/C2 (#11013) | #11008 |
 
@@ -46,6 +46,9 @@ theme / planning doc) -> **sub-issues** (drafted in the matching planning doc).
 |---|---|---|---|---|
 | `tedg-dev/omnibor-analysis#194` | Phase 2 generates SBOMs from Phase 1 metadata, no source tree | Java Phase 2 -> **A1** / SI-4 (Java) | #11003 | Merged |
 | `tedg-dev/omnibor-analysis#196` | Single-invocation Gradle dependency capture (US-2) | Phase 1 Build-Speed -> **A4** / US-2 | #11006 | Merged |
+| `tedg-dev/omnibor-analysis#200` | Java build-tool detection + `java_build_tool` override | Phase 1 Java capture -> **AF** (pilot foundation) | #11069 | Merged |
+| `tedg-dev/omnibor-analysis#199` | Shared `_generate_java_treedb` helper (DRY) | Phase 1 Java capture -> **AF** (pilot foundation) | #11069 | Merged |
+| `tedg-dev/omnibor-analysis#198` | Main A scope refinement + design draft | Java Main A scope (ref on #11002); foundation ref | #11069 | Merged |
 | `tedg-dev/omnibor-analysis#204` | C/C++ sidecar docs consolidation + reorg | Planning / docs (Main B enablement) | — | Merged |
 | `tedg-dev/omnibor-analysis#195` | Java build-based SBOM sell doc + diagrams + planning reorg | Java Main A enablement (supporting docs) | — | Merged |
 | `tedg-dev/omnibor-analysis#193` | Phase 1 build-speed design consolidation | Phase 1 Build-Speed (Java) design reference | — | Merged |
@@ -76,9 +79,10 @@ Index labels (**A1**, **A4**, ...) refer to the rows in
 
 ## Issue structure notes
 
-The 13 themed issues (#11000–#11013) plus the parentless A9 backlog
-issue **#11066** are created and live on the Corona project board
-(#255). Sub-issue parent links are established (#11066 is intentionally
+The 13 themed issues (#11000–#11013) plus the pilot-foundation issue
+**#11069** (In Review, child of #11005) and the parentless A9 backlog
+issue **#11066** are live on the Corona project board (#255). Sub-issue
+parent links are established (#11069 → #11005; #11066 is intentionally
 parentless). Assignee: `tedg_cisco`.
 
 The current GitHub main issue structure (#11002, #11005, #11008) does not
