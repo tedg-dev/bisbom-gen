@@ -4,7 +4,7 @@
 |---|---|
 | **Purpose** | Durable record tying each drafted Main issue and sub-issue to the PR(s) that implement it, so the hierarchy can be recreated and linked once GitHub Projects/Issues access is restored. |
 | **Maintained by** | Cascade (update as PRs merge) |
-| **Last updated** | 2026-07-02 |
+| **Last updated** | 2026-07-08 |
 
 ---
 
@@ -63,7 +63,7 @@ Index labels (**A1**, **A4**, ...) refer to the rows in
 |---|---|---|---|
 | Phase 2 output set + hand-off manifest | Java Phase 2 -> **A2** | #11004 (re-scoped) | Scoped, no PR |
 | In-memory JAR class processing (no extract-to-disk) | Phase 1 Build-Speed -> **A8** / US-4 | #11055 | Deferred (validate on EC2), no PR |
-| Support non-Maven/Gradle Java builds (Ant/Ivy, Bazel, `make`) | Phase 1 Java capture -> **A9** | — | Deferred / idle, no PR |
+| Support non-Maven/Gradle Java builds (Ant/Ivy, Bazel, `make`) | Phase 1 Java capture -> **A9** | #11066 (backlog, Proposed; parentless) | Backlog — **excluded from the Main A gate**. `tedg-dev/omnibor-analysis#202` (Draft, `Proposed` label — tables it for the pilot, fail-fast on ivy/ant/make/bazel); `#201` (Draft, `backlog` label — Ivy parser/reader) |
 | Overlap independent post-build steps (measure first) | Phase 1 Build-Speed -> **A5** / US-3 | #11007 | Optional / low, no PR |
 | Deliver Java build evidence to Corona | **A7** / SI-5 (Java) | — | Postponed — out of charter |
 | Agree on C/C++ build observation | Main B -> **B1** / SI-1 | #11009 | Blocked on Main A |
@@ -76,9 +76,10 @@ Index labels (**A1**, **A4**, ...) refer to the rows in
 
 ## Issue structure notes
 
-All 13 issues (#11000–#11013) are created and live on the Corona project
-board (#255). Sub-issue parent links are established. Assignee:
-`tedg_cisco`.
+The 13 themed issues (#11000–#11013) plus the parentless A9 backlog
+issue **#11066** are created and live on the Corona project board
+(#255). Sub-issue parent links are established (#11066 is intentionally
+parentless). Assignee: `tedg_cisco`.
 
 The current GitHub main issue structure (#11002, #11005, #11008) does not
 map 1:1 to the planning index's Main A / B / C. See the restructuring

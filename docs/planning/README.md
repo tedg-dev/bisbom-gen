@@ -56,12 +56,21 @@ PR/issue mapping for recreation once GitHub Issues access returns:
 | A6 | Treedb SBOM-generation speedup (retro) | Delivered | SI-R1 / PRs #189, #187, #191 |
 | A7 | Deliver Java build evidence to Corona (Java delivery slice) | Postponed — out of charter (Corona / Phase 2-incorporation team owns delivery + verification) | SI-5 (Java) |
 | A8 | Build efficiency — fully in-memory JAR class processing (no extract-to-disk) | Deferred (validate on EC2) | US-4 |
-| A9 | Support non-Maven/Gradle Java builds (Ant/Ivy, Bazel, `make`) | Drafting | [java/java-nonmaven-gradle-build-tools-subissue.md](java/java-nonmaven-gradle-build-tools-subissue.md) |
+| A9 | Support non-Maven/Gradle Java builds (Ant/Ivy, Bazel, `make`) | **Backlog** — parentless issue, not in the initial pilot; **excluded from the Main A completion gate** | #11066 (Proposed) / [java/java-nonmaven-gradle-build-tools-subissue.md](java/java-nonmaven-gradle-build-tools-subissue.md) |
 
 **Standing gate (not a sub-issue):** testing — golden validation, the
 `regression-gate`, and multi-distro runs (Ubuntu/RHEL/Alpine) — is a
 **continuous requirement applied to every item above**, not a discrete
 deliverable. No A-row is "done" until it passes these gates.
+
+**A9 exclusion:** A9 is **backlog and parentless** (GitHub issue #11066,
+Proposed) and is **not** part of the Main A completion gate. It is very
+likely not required for the initial pilot: the universal artifact-based
+capture path (`.class` + classpath JAR GitOID via treedb) already covers
+Ant and `make`/`javac` without a declared-graph adapter, and the Ivy/Bazel
+declared-graph adapters are post-pilot accuracy enrichments. The Ivy/Ant
+work (`tedg-dev/omnibor-analysis#201`) is parked as a draft with the
+`backlog` label. **Java delivery completion does not depend on A9.**
 
 ### Main B — C/C++ Sidecar Design: Deep Investigation & Validation
 
