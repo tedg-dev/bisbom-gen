@@ -124,7 +124,7 @@ class DocWriter:
             f"**Status:** {status}\n"
             f"{timing_str}\n\n"
             "## Repository\n\n"
-            f"- **URL:** {repo_cfg['url']}\n"
+            f"- **URL:** {repo_cfg.get('url', 'N/A')}\n"
             f"- **Branch:** "
             f"{repo_cfg.get('branch', 'master')}\n"
             f"- **Commit:** "
@@ -135,7 +135,7 @@ class DocWriter:
             "## Build Steps\n\n"
         )
         for i, step in enumerate(
-            repo_cfg["build_steps"], 1
+            repo_cfg.get("build_steps", []), 1
         ):
             content += f"{i}. `{step}`\n"
 

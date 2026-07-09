@@ -121,7 +121,10 @@ def main():
         # Phase 2 SPDX generation with a manifest is
         # self-contained — the manifest carries repo_cfg.
         if args.phase == "spdx" and args.manifest:
-            repo_cfg = {}
+            _m = json.loads(
+                Path(args.manifest).read_text()
+            )
+            repo_cfg = _m.get("repo_cfg", {})
         else:
             print(
                 f"[ERROR] Unknown repo '{args.repo}'. "
