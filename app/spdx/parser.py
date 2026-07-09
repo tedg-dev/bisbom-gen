@@ -245,13 +245,22 @@ class AdgParser:
         return result
 
     def load_doc_mapping(self):
-        """Return dict: sha1 -> omnibor_doc_id."""
-        path = (
-            self.meta_dir / "bomsh_omnibor_doc_mapping"
-        )
-        if not path.exists():
-            return {}
-        return json.loads(path.read_text())
+        """Return dict: sha1 -> omnibor_doc_id.
+
+        The C/Rust/Go tool (``bomsh_create_bom.py``) writes
+        ``bomsh_omnibor_doc_mapping``; the Java tool
+        (``bomsh_create_bom_java.py``) writes
+        ``bomsh_gitbom_doc_mapping``.  Both map an artifact's
+        git-blob SHA1 to its OmniBOR document id.
+        """
+        for name in (
+            "bomsh_omnibor_doc_mapping",
+            "bomsh_gitbom_doc_mapping",
+        ):
+            path = self.meta_dir / name
+            if path.exists():
+                return json.loads(path.read_text())
+        return {}
 
     def parse_strace_openat_log(self):
         """Parse strace openat log for Java builds.

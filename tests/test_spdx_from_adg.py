@@ -142,6 +142,22 @@ class TestAdgParser(unittest.TestCase):
                 result["abc123"], "doc456"
             )
 
+    def test_load_doc_mapping_gitbom_filename(self):
+        with tempfile.TemporaryDirectory() as td:
+            meta = self._setup_bom_dir(td)
+            mapping = {"jar123": "gitbomdoc"}
+            (
+                meta / "bomsh_gitbom_doc_mapping"
+            ).write_text(json.dumps(mapping))
+
+            parser = AdgParser(
+                str(Path(td) / "bom"), "/repos"
+            )
+            result = parser.load_doc_mapping()
+            self.assertEqual(
+                result["jar123"], "gitbomdoc"
+            )
+
     def test_load_doc_mapping_missing(self):
         with tempfile.TemporaryDirectory() as td:
             self._setup_bom_dir(td)
