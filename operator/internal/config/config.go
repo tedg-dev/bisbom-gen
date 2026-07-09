@@ -55,9 +55,6 @@ type Config struct {
 
 // Load reads configuration from environment variables.
 //
-// Required (all modes):
-//   - SQS_QUEUE_URL, S3_BUCKET
-//
 // Optional (all modes):
 //   - SIDECAR_IMAGE (default: ghcr.io/tedg-dev/omnibor-sidecar:latest)
 //   - WORK_DIR (default: /tmp/operator)
@@ -71,14 +68,7 @@ type Config struct {
 //   - ECS_CLUSTER, ECS_TASK_DEFINITION, ECS_SUBNETS, ECS_SECURITY_GROUP
 func Load() (*Config, error) {
 	queueURL := os.Getenv("SQS_QUEUE_URL")
-	if queueURL == "" {
-		return nil, fmt.Errorf("SQS_QUEUE_URL is required")
-	}
-
 	bucket := os.Getenv("S3_BUCKET")
-	if bucket == "" {
-		return nil, fmt.Errorf("S3_BUCKET is required")
-	}
 
 	image := os.Getenv("SIDECAR_IMAGE")
 	if image == "" {

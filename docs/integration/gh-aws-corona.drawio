@@ -25,7 +25,7 @@
         <mxCell id="oidc_token" parent="lane_build" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;" value="Get OIDC Token&#xa;(CI-native, no AWS keys)" vertex="1">
           <mxGeometry height="40" width="170" x="70" y="380" as="geometry" />
         </mxCell>
-        <mxCell id="sidecar_upload" parent="lane_build" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;fontStyle=1;" value="Sidecar: request presigned&#xa;URLs → HTTP PUT to S3" vertex="1">
+        <mxCell id="sidecar_upload" parent="lane_build" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;fontStyle=1;" value="tar.gz → presigned URL&#xa;→ single HTTP PUT to S3" vertex="1">
           <mxGeometry height="35" width="200" x="55" y="440" as="geometry" />
         </mxCell>
         <mxCell id="e_checkout_build" edge="1" parent="lane_build" source="checkout" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#666666;" target="build">
@@ -43,10 +43,10 @@
         <mxCell id="s3_bucket" parent="lane_aws" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=12;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=13;fontStyle=1;" value="S3: omnibor-spdx-artifacts" vertex="1">
           <mxGeometry height="65" width="220" x="60" y="50" as="geometry" />
         </mxCell>
-        <mxCell id="s3_paths" parent="lane_aws" style="shape=note;whiteSpace=wrap;html=1;size=14;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;align=left;spacingLeft=8;fontFamily=Courier New;" value="&lt;owner&gt;/&lt;repo&gt;/&lt;datetime&gt;_&lt;sha12&gt;_&lt;run_id&gt;/&#xa;├── phase1/  (treedb, deps, manifest)&#xa;├── build/   (JARs, class files)&#xa;└── spdx/    (flat: .spdx.json, .html, sbom-tree)" vertex="1">
+        <mxCell id="s3_paths" parent="lane_aws" style="shape=note;whiteSpace=wrap;html=1;size=14;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;align=left;spacingLeft=8;fontFamily=Courier New;" value="&lt;owner&gt;/&lt;repo&gt;/&lt;datetime&gt;_&lt;sha12&gt;_&lt;run_id&gt;/&#xa;├── phase1.tar.gz  (treedb, deps, manifest)&#xa;├── build.tar.gz   (JARs, class files)&#xa;└── spdx/          (flat: .spdx.json, .html, sbom-tree)" vertex="1">
           <mxGeometry height="80" width="280" x="30" y="130" as="geometry" />
         </mxCell>
-        <mxCell id="s3_event" parent="lane_aws" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;size=16;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;" value="S3 Event Notification&#xa;(suffix: phase1_manifest.json)" vertex="1">
+        <mxCell id="s3_event" parent="lane_aws" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;size=16;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;" value="S3 Event Notification&#xa;(suffix: phase1.tar.gz)" vertex="1">
           <mxGeometry height="55" width="200" x="70" y="240" as="geometry" />
         </mxCell>
         <mxCell id="sqs_phase1" parent="lane_aws" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;size=0.05;" value="SQS: omnibor-phase1-notifications&#xa;(visibility: 15 min, retention: 7 days)" vertex="1">
@@ -73,7 +73,7 @@
         <mxCell id="ecs_group" parent="lane_aws" style="shape=swimlane;startSize=24;fillColor=#f5f5f5;strokeColor=#666666;fontSize=12;fontStyle=1;horizontal=1;collapsible=0;rounded=1;dashed=1;dashPattern=5 5;" value="ECS Fargate Cluster" vertex="1">
           <mxGeometry height="290" width="1320" x="40" y="420" as="geometry" />
         </mxCell>
-        <mxCell id="operator" parent="ecs_group" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;fontStyle=0;align=left;spacingLeft=10;verticalAlign=top;spacingTop=4;" value="Go Operator&#xa;(long-running service)&#xa;&#xa;• /v1/upload-url (presigned broker)&#xa;• OIDC token validation&#xa;• Org enrollment check&#xa;• SQS long poll (phase1 queue)&#xa;• Download Phase 1 from S3&#xa;• Launch Phase 2 container&#xa;• SPDX indexing → DynamoDB&#xa;• REST API :8080" vertex="1">
+        <mxCell id="operator" parent="ecs_group" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;fontStyle=0;align=left;spacingLeft=10;verticalAlign=top;spacingTop=4;" value="Go Operator&#xa;(long-running service)&#xa;&#xa;• /v1/upload-url (presigned broker)&#xa;• OIDC token validation&#xa;• Org enrollment check&#xa;• SQS long poll (phase1 queue)&#xa;• Download + extract phase1.tar.gz&#xa;• Launch Phase 2 container&#xa;• SPDX indexing → DynamoDB&#xa;• REST API :8080" vertex="1">
           <mxGeometry height="180" width="250" x="20" y="35" as="geometry" />
         </mxCell>
         <mxCell id="oper_spec" parent="ecs_group" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=10;fontColor=#666666;fontStyle=2;" value="256 CPU / 512 MB&#xa;~$9/month" vertex="1">
@@ -180,7 +180,7 @@
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="e_s3_download" edge="1" parent="lane_aws" source="s3_paths" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#d6b656;strokeWidth=1;dashed=1;fontSize=9;fontColor=#d6b656;" target="operator" value="download&#xa;Phase 1">
+        <mxCell id="e_s3_download" edge="1" parent="lane_aws" source="s3_paths" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#d6b656;strokeWidth=1;dashed=1;fontSize=9;fontColor=#d6b656;" target="operator" value="download + extract&#xa;phase1.tar.gz">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="20" y="200" />
@@ -262,13 +262,13 @@
         <mxCell id="j_phase1" parent="j_lane_build" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;fontStyle=1;" value="Phase 1: Build Result&#xa;Processing&#xa;(omnibor-sidecar)" vertex="1">
           <mxGeometry height="55" width="140" x="85" y="185" as="geometry" />
         </mxCell>
-        <mxCell id="j_phase1_outputs" parent="j_lane_build" style="shape=note;whiteSpace=wrap;html=1;size=14;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;align=left;spacingLeft=8;" value="Phase 1 Outputs:&#xa;• maven_deps.json&#xa;• bomsh treedb&#xa;• phase1_manifest.json&#xa;• JARs / class files" vertex="1">
+        <mxCell id="j_phase1_outputs" parent="j_lane_build" style="shape=note;whiteSpace=wrap;html=1;size=14;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;align=left;spacingLeft=8;" value="Phase 1 Outputs:&#xa;→ Bundled as phase1.tar.gz&#xa;• maven_deps.json&#xa;• bomsh treedb&#xa;• phase1_manifest.json" vertex="1">
           <mxGeometry height="95" width="200" x="55" y="265" as="geometry" />
         </mxCell>
         <mxCell id="j_auth" parent="j_lane_build" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;" value="Auth Token&#xa;(OIDC plugin or API key)" vertex="1">
           <mxGeometry height="40" width="170" x="70" y="380" as="geometry" />
         </mxCell>
-        <mxCell id="j_sidecar_upload" parent="j_lane_build" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;fontStyle=1;" value="Sidecar: request presigned&#xa;URLs → HTTP PUT to S3" vertex="1">
+        <mxCell id="j_sidecar_upload" parent="j_lane_build" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;fontStyle=1;" value="tar.gz → presigned URL&#xa;→ single HTTP PUT to S3" vertex="1">
           <mxGeometry height="35" width="200" x="55" y="440" as="geometry" />
         </mxCell>
         <mxCell id="j_e_checkout_build" edge="1" parent="j_lane_build" source="j_checkout" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#666666;" target="j_build">

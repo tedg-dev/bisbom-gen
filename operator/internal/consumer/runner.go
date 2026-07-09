@@ -1,6 +1,8 @@
 package consumer
 
 import (
+	"archive/tar"
+	"compress/gzip"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -74,7 +76,8 @@ func NewRunner(cfg *config.Config, awsCfg aws.Config) *Runner {
 
 // RunPhase2 downloads artifacts from S3 and launches the sidecar container.
 // jobPrefix is the S3 path: <owner>/<repo>/<job_id>
-func (r *Runner) RunPhase2(ctx context.Context, jobPrefix string) error {
+// archiveFile is the tar.gz filename (e.g., "phase1.tar.gz") or empty for legacy multi-file mode.
+func (r *Runner) RunPhase2(ctx context.Context, jobPrefix string, archiveFile string) error {
 	parts := strings.Split(jobPrefix, "/")
 	if len(parts) < 3 {
 		return fmt.Errorf("invalid job prefix: %s", jobPrefix)
@@ -110,10 +113,26 @@ func (r *Runner) RunPhase2(ctx context.Context, jobPrefix string) error {
 	}
 
 	// Download Phase 1 artifacts (treedb, dep:tree, manifest)
-	log.Printf("[INFO] Downloading Phase 1 artifacts: s3://%s/%s/phase1/",
-		r.cfg.S3Bucket, jobPrefix)
-	if err := r.downloadPrefix(ctx, jobPrefix+"/phase1/", phase1Dir); err != nil {
-		return fmt.Errorf("download phase1: %w", err)
+	if archiveFile != "" {
+		// tar.gz mode: download single archive and extract
+		log.Printf("[INFO] Downloading Phase 1 archive: s3://%s/%s/%s",
+			r.cfg.S3Bucket, jobPrefix, archiveFile)
+		archivePath := filepath.Join(workDir, archiveFile)
+		s3Key := jobPrefix + "/" + archiveFile
+		if err := r.downloadFile(ctx, s3Key, archivePath); err != nil {
+			return fmt.Errorf("download archive: %w", err)
+		}
+		if err := extractTarGz(archivePath, phase1Dir); err != nil {
+			return fmt.Errorf("extract archive: %w", err)
+		}
+		os.Remove(archivePath)
+	} else {
+		// Legacy mode: download individual files by prefix
+		log.Printf("[INFO] Downloading Phase 1 artifacts: s3://%s/%s/phase1/",
+			r.cfg.S3Bucket, jobPrefix)
+		if err := r.downloadPrefix(ctx, jobPrefix+"/phase1/", phase1Dir); err != nil {
+			return fmt.Errorf("download phase1: %w", err)
+		}
 	}
 
 	// Find the manifest file
@@ -327,6 +346,64 @@ func (r *Runner) uploadDir(ctx context.Context, localDir, s3Prefix string) error
 		return err
 	}
 	log.Printf("[INFO] Uploaded %d SPDX files to s3://%s/%s", count, r.cfg.S3Bucket, s3Prefix)
+	return nil
+}
+
+// extractTarGz extracts a .tar.gz archive into destDir,
+// preserving the directory structure from the archive.
+func extractTarGz(archivePath, destDir string) error {
+	f, err := os.Open(archivePath)
+	if err != nil {
+		return fmt.Errorf("open archive: %w", err)
+	}
+	defer f.Close()
+
+	gz, err := gzip.NewReader(f)
+	if err != nil {
+		return fmt.Errorf("gzip reader: %w", err)
+	}
+	defer gz.Close()
+
+	tr := tar.NewReader(gz)
+	count := 0
+	for {
+		hdr, err := tr.Next()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return fmt.Errorf("tar next: %w", err)
+		}
+
+		// Sanitize path to prevent directory traversal
+		target := filepath.Join(destDir, filepath.Clean(hdr.Name))
+		if !strings.HasPrefix(target, filepath.Clean(destDir)+string(os.PathSeparator)) {
+			return fmt.Errorf("tar entry escapes destination: %s", hdr.Name)
+		}
+
+		switch hdr.Typeflag {
+		case tar.TypeDir:
+			if err := os.MkdirAll(target, 0o755); err != nil {
+				return fmt.Errorf("mkdir %s: %w", target, err)
+			}
+		case tar.TypeReg:
+			if err := os.MkdirAll(filepath.Dir(target), 0o755); err != nil {
+				return fmt.Errorf("mkdir parent %s: %w", target, err)
+			}
+			out, err := os.Create(target)
+			if err != nil {
+				return fmt.Errorf("create %s: %w", target, err)
+			}
+			if _, err := io.Copy(out, tr); err != nil {
+				out.Close()
+				return fmt.Errorf("write %s: %w", target, err)
+			}
+			out.Close()
+			count++
+		}
+	}
+
+	log.Printf("[INFO] Extracted %d files from %s", count, filepath.Base(archivePath))
 	return nil
 }
 

@@ -102,15 +102,22 @@ func (c *Consumer) handleMessage(ctx context.Context, msg types.Message) error {
 	log.Printf("[INFO] S3 key: %s", s3Key)
 
 	// Extract path components:
-	// <owner>/<repo>/<job_id>/phase1/.../<filename>
-	// We need the prefix up to and including <job_id>
+	// tar.gz mode: <owner>/<repo>/<job_id>/phase1.tar.gz
+	// legacy mode: <owner>/<repo>/<job_id>/phase1/.../<filename>
 	jobPrefix, err := extractJobPrefix(s3Key)
 	if err != nil {
 		return fmt.Errorf("extract job prefix: %w", err)
 	}
 
-	log.Printf("[INFO] Job prefix: %s", jobPrefix)
-	return c.runner.RunPhase2(ctx, jobPrefix)
+	// Determine archive filename (e.g., "phase1.tar.gz") or empty for legacy
+	archiveFile := ""
+	parts := strings.Split(s3Key, "/")
+	if len(parts) >= 4 && strings.HasSuffix(parts[3], ".tar.gz") {
+		archiveFile = parts[3]
+	}
+
+	log.Printf("[INFO] Job prefix: %s (archive: %q)", jobPrefix, archiveFile)
+	return c.runner.RunPhase2(ctx, jobPrefix, archiveFile)
 }
 
 // errTestEvent is returned when an S3 test event is received.

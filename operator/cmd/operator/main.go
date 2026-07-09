@@ -92,17 +92,20 @@ func main() {
 		}()
 	}
 
-	c, err := consumer.New(cfg)
-	if err != nil {
-		log.Fatalf("[FATAL] Failed to create consumer: %v", err)
-	}
+	// Start SQS consumer only if queue URL is configured
+	if cfg.SQSQueueURL != "" {
+		c, err := consumer.New(cfg)
+		if err != nil {
+			log.Fatalf("[FATAL] Failed to create consumer: %v", err)
+		}
 
-	if err := c.Run(ctx); err != nil {
-		log.Fatalf("[FATAL] Consumer exited with error: %v", err)
-	}
-
-	if validator != nil {
-		validator.Close()
+		if err := c.Run(ctx); err != nil {
+			log.Fatalf("[FATAL] Consumer exited with error: %v", err)
+		}
+	} else {
+		log.Printf("[INFO] SQS consumer disabled (no SQS_QUEUE_URL)")
+		// Block until shutdown signal
+		<-ctx.Done()
 	}
 
 	log.Printf("[INFO] Operator stopped")

@@ -133,9 +133,9 @@ All artifacts for a build are stored under a single job directory:
 
 ```
 s3://omnibor-spdx-artifacts/<owner>/<repo>/<datetime>_<sha12>_<run_id>/
-├── phase1/    ← treedb, dep:tree, manifest (Phase 2 inputs)
-├── build/     ← JARs, class files (optional)
-└── spdx/      ← all SPDX outputs (flat, colocated)
+├── phase1.tar.gz   ← single archive: treedb, dep:tree, manifest (Phase 2 inputs)
+├── build.tar.gz    ← single archive: JARs, class files (optional)
+└── spdx/           ← all SPDX outputs (flat, colocated)
     ├── <artifact>_build.spdx.json
     ├── <artifact>_analyzed.spdx.json
     ├── <artifact>.spdx.html
@@ -165,21 +165,32 @@ The S3 path structure is a **contract between two systems**:
 | **Sidecar (in CI)** | Produces the S3 path (uploads Phase 1 artifacts via presigned URLs) | sidecar upload module |
 | **Operator** | Validates tokens, issues presigned URLs, consumes S3 events | `operator/internal/` |
 
-**Producer side (sidecar):** The sidecar constructs the job directory
-from `github.repository`, a UTC timestamp, the first 12 characters of
-`github.sha`, and `github.run_id`. It sends these to the operator's
-`/v1/upload-url` endpoint and receives scoped presigned URLs.
+**Producer side (workflow):** The CI workflow bundles Phase 1 outputs
+into a single `phase1.tar.gz` archive, requests one presigned URL from
+the operator's `/v1/upload-url` endpoint, and uploads via HTTP PUT.
+The job directory is constructed from `github.repository`, a UTC
+timestamp, the first 12 characters of `github.sha`, and `github.run_id`.
 
-**Consumer side (operator):** When S3 event notifications arrive via SQS,
-the operator extracts the first 3 path components as the **job prefix**:
+**Consumer side (operator):** When the S3 event notification for
+`phase1.tar.gz` arrives via SQS, the operator extracts the first 3
+path components as the **job prefix**, downloads the archive, and
+extracts it locally before launching Phase 2:
 
 ```
-S3 key: kkaple/WebGoat/20260603-153000_8c3a1710b358_26894443338/phase1/.../manifest.json
+S3 key: kkaple/WebGoat/20260603-153000_8c3a1710b358_26894443338/phase1.tar.gz
                 │          │                    │
                 └──────────┴────────────────────┘
                      job prefix (3 parts)
                    owner / repo / job_id
 ```
+
+**Why tar.gz?** Bundling Phase 1 into a single archive:
+
+- **1 presigned URL** instead of N (fewer API calls)
+- **1 S3 PUT** instead of N (faster upload)
+- **1 SQS event** → clean Phase 2 trigger signal
+- **Future-proof** — adding Phase 1 output files doesn't change the
+  upload contract
 
 **Checklist when onboarding a new repo:**
 
@@ -277,7 +288,7 @@ Content-Type: application/json
 {
   "repo": "kkaple/WebGoat",
   "job_id": "20260701-131500_abc123def456_12345",
-  "files": ["phase1.tar.gz", "phase1_manifest.json"]
+  "files": ["phase1.tar.gz"]
 }
 ```
 
@@ -286,11 +297,8 @@ Content-Type: application/json
 ```json
 {
   "urls": {
-    "phase1.tar.gz": "https://omnibor-spdx-artifacts.s3.amazonaws.com/kkaple/WebGoat/20260701-.../phase1/phase1.tar.gz?X-Amz-...",
-    "phase1_manifest.json": "https://omnibor-spdx-artifacts.s3.amazonaws.com/kkaple/WebGoat/20260701-.../phase1/phase1_manifest.json?X-Amz-..."
-  },
-  "expires_in": 900,
-  "s3_prefix": "kkaple/WebGoat/20260701-131500_abc123def456_12345"
+    "phase1.tar.gz": "https://omnibor-spdx-artifacts.s3.amazonaws.com/kkaple/WebGoat/20260701-.../phase1.tar.gz?X-Amz-..."
+  }
 }
 ```
 
@@ -729,25 +737,34 @@ jobs:
             -   name: Pull sidecar image
                 run: docker pull "$SIDECAR_IMAGE"
 
-            -   name: "Phase 1 + Upload to S3 via presigned URLs"
+            -   name: "Phase 1: Build Result Processing"
                 run: |
-                    SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-12)
-                    JOB_ID="${{ env.TS }}_${SHORT_SHA}_${{ github.run_id }}"
                     docker run --rm \
                       -v "${{ github.workspace }}:/workspace/repos/WebGoat" \
                       -v "${{ github.workspace }}/spdx-output:/workspace/output" \
-                      -e OMNIBOR_MODE=sidecar \
-                      -e OPERATOR_URL="${{ env.OPERATOR_URL }}" \
-                      -e OIDC_TOKEN="${{ steps.oidc.outputs.token }}" \
-                      -e REPO="${{ github.repository }}" \
-                      -e JOB_ID="${JOB_ID}" \
                       "$SIDECAR_IMAGE" \
                       python3 /workspace/app/analyze.py \
                         --repo WebGoat \
                         --mode sidecar \
                         --phase build \
-                        --skip-clone \
-                        --upload
+                        --skip-clone
+
+            -   name: Bundle Phase 1 artifacts
+                run: |
+                    SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-12)
+                    JOB_ID="${{ env.TS }}_${SHORT_SHA}_${{ github.run_id }}"
+                    echo "JOB_ID=${JOB_ID}" >> "$GITHUB_ENV"
+                    tar czf /tmp/phase1.tar.gz -C spdx-output .
+
+            -   name: Upload Phase 1 via presigned URL
+                run: |
+                    RESPONSE=$(curl -sS -f -X POST \
+                      "${{ env.OPERATOR_URL }}/v1/upload-url" \
+                      -H "Authorization: Bearer ${{ steps.oidc.outputs.token }}" \
+                      -H "Content-Type: application/json" \
+                      -d "{\"repository\":\"${{ github.repository }}\",\"job_id\":\"${{ env.JOB_ID }}\",\"files\":[\"phase1.tar.gz\"]}")
+                    URL=$(echo "$RESPONSE" | jq -r '.urls["phase1.tar.gz"]')
+                    curl -sS -f -X PUT -T /tmp/phase1.tar.gz "$URL"
 ```
 
 ### Triggering the Workflow
@@ -787,7 +804,7 @@ an API key as an alternative authentication method.
 
 - **Sidecar image** — identical `docker run`, same `analyze.py`
   invocation and arguments
-- **S3 path structure** — same `{repo}/{jobId}/phase1/` convention;
+- **S3 path structure** — same `{repo}/{jobId}/phase1.tar.gz` convention;
   the operator parses this, not CI metadata
 - **Phase 2 / operator** — completely decoupled; watches S3 events
 - **DynamoDB indexing, sbom-tree** — no changes at all
@@ -857,26 +874,27 @@ pipeline {
 ### Event-Driven Flow
 
 ```
-Sidecar (Phase 1 + upload via presigned URLs)
+CI Workflow (Phase 1 + tar.gz bundle + presigned URL upload)
     │
     ▼
-S3 bucket ──► S3 Event Notification ──► SQS queue
-                                            │
-                                            ▼
-                                    Operator microservice (long poll SQS)
-                                            │
-                                            ▼
-                                    Pull Phase 1 artifacts from S3
-                                            │
-                                            ▼
-                                    Launch Phase 2 container
-                                            │
-                                            ▼
-                                    Write SPDX back to S3
+S3 bucket ──► S3 Event Notification (suffix: phase1.tar.gz) ──► SQS queue
+                                                                    │
+                                                                    ▼
+                                                        Operator (long poll SQS)
+                                                                    │
+                                                                    ▼
+                                                        Download + extract phase1.tar.gz
+                                                                    │
+                                                                    ▼
+                                                        Launch Phase 2 container
+                                                                    │
+                                                                    ▼
+                                                        Write SPDX back to S3
 ```
 
-An operator microservice monitors S3 via SQS long polling. When Phase 1
-artifacts land, it launches a Phase 2 container to generate SPDX.
+An operator microservice monitors S3 via SQS long polling. When
+`phase1.tar.gz` lands, the operator downloads it, extracts the
+Phase 1 artifacts, and launches a Phase 2 container to generate SPDX.
 
 The operator now serves **three roles**:
 
@@ -916,10 +934,16 @@ loop:
     msg := sqs.ReceiveMessage(queue, waitTimeSeconds=20)
     if msg == nil: continue
 
-    s3Key := parseS3Key(msg)
-    jobPrefix := extractJobPrefix(s3Key)
-    repoName := repoFromPrefix(jobPrefix)  // e.g. "CiscoSecurityServices/WebGoat"
+    s3Key := parseS3Key(msg)          // e.g. "kkaple/WebGoat/<jobId>/phase1.tar.gz"
+    jobPrefix := extractJobPrefix(s3Key)  // "kkaple/WebGoat/<jobId>"
+    archiveFile := basename(s3Key)        // "phase1.tar.gz"
+    repoName := repoFromPrefix(jobPrefix) // "kkaple/WebGoat"
 
+    // Download + extract tar.gz archive
+    downloadFile("s3://bucket/" + jobPrefix + "/" + archiveFile, workDir)
+    extractTarGz(workDir + "/" + archiveFile, workDir + "/phase1/")
+
+    // Launch Phase 2 (Docker mode: mount local files; ECS mode: pass S3 paths)
     ecs.RunTask({
         taskDefinition: "omnibor-phase2",
         overrides: {
@@ -1015,7 +1039,7 @@ const queue = new sqs.Queue(this, 'Phase1Queue', {
 bucket.addEventNotification(
   s3.EventType.OBJECT_CREATED,
   new s3n.SqsDestination(queue),
-  { suffix: 'phase1_manifest.json' },
+  { suffix: 'phase1.tar.gz' },
 );
 ```
 
@@ -1117,7 +1141,7 @@ new ecs.FargateService(this, 'OperatorService', {
 | Decision | Rationale |
 |----------|-----------|
 | **Presigned URL broker on the operator** | No new service to deploy; operator already has S3 IAM access |
-| **SQS filter on `phase1_manifest.json` suffix** | Only fires once per Phase 1 run, not per file |
+| **SQS filter on `phase1.tar.gz` suffix** | Only fires once per Phase 1 run (single archive upload) |
 | **Dead letter queue** | Failed Phase 2 jobs don't disappear silently |
 | **Visibility timeout > Phase 2 runtime** | Prevents duplicate launches |
 | **Separate task definitions** | Operator is small (256 CPU); Phase 2 needs more compute |
