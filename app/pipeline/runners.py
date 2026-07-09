@@ -118,13 +118,18 @@ def main():
         sys.exit(1)
 
     if args.repo not in config["repos"]:
-        print(
-            f"[ERROR] Unknown repo '{args.repo}'. "
-            "Use --list to see options."
-        )
-        sys.exit(1)
-
-    repo_cfg = config["repos"][args.repo]
+        # Phase 2 SPDX generation with a manifest is
+        # self-contained — the manifest carries repo_cfg.
+        if args.phase == "spdx" and args.manifest:
+            repo_cfg = {}
+        else:
+            print(
+                f"[ERROR] Unknown repo '{args.repo}'. "
+                "Use --list to see options."
+            )
+            sys.exit(1)
+    else:
+        repo_cfg = config["repos"][args.repo]
     paths_cfg = config["paths"]
 
     # Language-aware omnibor config lookup
