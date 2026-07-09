@@ -58,7 +58,7 @@ func NewECSLauncher(cfg *config.Config, awsCfg aws.Config) *ECSLauncher {
 
 // Launch starts a Phase 2 ECS task and waits for it to complete.
 func (e *ECSLauncher) Launch(ctx context.Context, job *Phase2Job) error {
-	s3Input := fmt.Sprintf("s3://%s/%s/phase1/", job.S3Bucket, job.JobPrefix)
+	s3Input := fmt.Sprintf("s3://%s/%s/phase1.tar.gz", job.S3Bucket, job.JobPrefix)
 	s3Output := fmt.Sprintf("s3://%s/%s/spdx/", job.S3Bucket, job.JobPrefix)
 
 	subnets := strings.Split(e.cfg.ECSSubnets, ",")
@@ -93,7 +93,8 @@ func (e *ECSLauncher) Launch(ctx context.Context, job *Phase2Job) error {
 		Overrides: &ecstypes.TaskOverride{
 			ContainerOverrides: []ecstypes.ContainerOverride{
 				{
-					Name: aws.String("sidecar"),
+					Name:    aws.String("sidecar"),
+					Command: []string{"/bin/bash", "/workspace/sidecar-entrypoint.sh"},
 					Environment: []ecstypes.KeyValuePair{
 						{Name: aws.String("S3_INPUT_PATH"), Value: &s3Input},
 						{Name: aws.String("S3_OUTPUT_PATH"), Value: &s3Output},

@@ -375,8 +375,14 @@ func extractTarGz(archivePath, destDir string) error {
 			return fmt.Errorf("tar next: %w", err)
 		}
 
+		// Skip the archive root directory entry (e.g., "./")
+		clean := filepath.Clean(hdr.Name)
+		if clean == "." {
+			continue
+		}
+
 		// Sanitize path to prevent directory traversal
-		target := filepath.Join(destDir, filepath.Clean(hdr.Name))
+		target := filepath.Join(destDir, clean)
 		if !strings.HasPrefix(target, filepath.Clean(destDir)+string(os.PathSeparator)) {
 			return fmt.Errorf("tar entry escapes destination: %s", hdr.Name)
 		}
