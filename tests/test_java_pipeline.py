@@ -209,6 +209,123 @@ class TestGenerateJavaAdgSpdx(unittest.TestCase):
     @patch(
         "app.spdx.java_generator.JavaSpdxGenerator"
     )
+    def test_passes_artifact_identity(
+        self, mock_gen_cls, mock_parser_cls,
+    ):
+        """Resolved JAR sha1/gitoid reach both SBOMs."""
+        mock_gen = MagicMock()
+        mock_gen.generate.side_effect = [
+            "/tmp/out/myapp_analyzed.spdx.json",
+            "/tmp/out/myapp_build.spdx.json",
+        ]
+        mock_gen_cls.return_value = mock_gen
+
+        mock_parser = MagicMock()
+        mock_parser.get_jar_source_files.return_value = {
+            "myapp/target/myapp-1.0.jar": [
+                {"sha1": "aaa", "file_path": "a.java"},
+            ],
+        }
+        mock_parser.get_jar_artifact_ids.return_value = {
+            "myapp/target/myapp-1.0.jar": "jarsha1",
+        }
+        mock_parser.load_doc_mapping.return_value = {
+            "jarsha1": "gitoiddoc",
+        }
+        mock_parser_cls.return_value = mock_parser
+
+        with tempfile.TemporaryDirectory() as td:
+            paths_cfg = {
+                "output_dir": str(Path(td) / "output"),
+                "repos_dir": str(Path(td) / "repos"),
+            }
+            repo_cfg = {
+                "language": "java",
+                "output_binaries": [
+                    "target/myapp-1.0.jar",
+                ],
+            }
+            jar = (
+                Path(td) / "repos" / "myapp"
+                / "target" / "myapp-1.0.jar"
+            )
+            jar.parent.mkdir(parents=True)
+            jar.write_bytes(b"PK")
+
+            _generate_java_adg_spdx(
+                "myapp", repo_cfg, paths_cfg, "ts1",
+            )
+
+            calls = mock_gen.generate.call_args_list
+            self.assertEqual(len(calls), 2)
+            for c in calls:
+                self.assertEqual(
+                    c.kwargs["jar_sha1"], "jarsha1"
+                )
+                self.assertEqual(
+                    c.kwargs["jar_gitoid"], "gitoiddoc"
+                )
+
+    @patch(
+        "app.spdx.parser.AdgParser"
+    )
+    @patch(
+        "app.spdx.java_generator.JavaSpdxGenerator"
+    )
+    def test_missing_artifact_identity_passes_none(
+        self, mock_gen_cls, mock_parser_cls,
+    ):
+        """No treedb id / doc mapping -> None identity."""
+        mock_gen = MagicMock()
+        mock_gen.generate.side_effect = [
+            "/tmp/out/myapp_analyzed.spdx.json",
+            "/tmp/out/myapp_build.spdx.json",
+        ]
+        mock_gen_cls.return_value = mock_gen
+
+        mock_parser = MagicMock()
+        mock_parser.get_jar_source_files.return_value = {
+            "myapp/target/myapp-1.0.jar": [
+                {"sha1": "aaa", "file_path": "a.java"},
+            ],
+        }
+        mock_parser.get_jar_artifact_ids.return_value = {}
+        mock_parser.load_doc_mapping.return_value = {}
+        mock_parser_cls.return_value = mock_parser
+
+        with tempfile.TemporaryDirectory() as td:
+            paths_cfg = {
+                "output_dir": str(Path(td) / "output"),
+                "repos_dir": str(Path(td) / "repos"),
+            }
+            repo_cfg = {
+                "language": "java",
+                "output_binaries": [
+                    "target/myapp-1.0.jar",
+                ],
+            }
+            jar = (
+                Path(td) / "repos" / "myapp"
+                / "target" / "myapp-1.0.jar"
+            )
+            jar.parent.mkdir(parents=True)
+            jar.write_bytes(b"PK")
+
+            _generate_java_adg_spdx(
+                "myapp", repo_cfg, paths_cfg, "ts1",
+            )
+
+            calls = mock_gen.generate.call_args_list
+            for c in calls:
+                self.assertIsNone(c.kwargs["jar_sha1"])
+                self.assertIsNone(c.kwargs["jar_gitoid"])
+
+    @patch(
+        "app.spdx.parser.AdgParser"
+    )
+    @patch(
+        "app.spdx.java_generator.JavaSpdxGenerator"
+    )
     def test_returns_empty_on_failure(
         self, mock_gen_cls, mock_parser_cls,
     ):

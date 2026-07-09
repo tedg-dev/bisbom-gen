@@ -143,16 +143,9 @@ class AdgParser:
         repos_prefix = str(self.repos_dir)
 
         result = {}
-        for sha1, entry in treedb.items():
+        for _sha1, entry in treedb.items():
             fp = entry.get("file_path", "")
-            if not (
-                fp.endswith(".jar")
-                and fp.startswith(repos_prefix)
-                and "hash_tree" in entry
-                and "/test-classes/" not in fp
-                and "/test/" not in fp
-                and not fp.endswith("-tests.jar")
-            ):
+            if not self._is_project_jar(fp, entry, repos_prefix):
                 continue
 
             # Relative path from repos_dir
@@ -201,6 +194,53 @@ class AdgParser:
 
             if sources:
                 result[rel] = sources
+
+        return result
+
+    @staticmethod
+    def _is_project_jar(fp, entry, repos_prefix):
+        """Return True for a production project JAR entry.
+
+        Shared predicate used by ``get_jar_source_files`` and
+        ``get_jar_artifact_ids`` so both agree on which treedb
+        entries are project JARs.  Excludes test JARs and any
+        JAR outside the cloned repo tree.
+        """
+        return (
+            fp.endswith(".jar")
+            and fp.startswith(repos_prefix)
+            and "hash_tree" in entry
+            and "/test-classes/" not in fp
+            and "/test/" not in fp
+            and not fp.endswith("-tests.jar")
+        )
+
+    def get_jar_artifact_ids(self):
+        """Return each project JAR's own OmniBOR identity.
+
+        The treedb key of a JAR entry is that JAR's git-blob
+        SHA1 (its OmniBOR Artifact ID, sha1 flavor).  This is
+        the value the SPDX root package needs as its checksum,
+        and the key into ``load_doc_mapping()`` for the JAR's
+        OmniBOR document id.
+
+        Returns dict keyed identically to
+        ``get_jar_source_files`` (repo-relative JAR path):
+          { "rel/path/to.jar": "<jar_sha1>" }
+        """
+        treedb_path = (
+            self.meta_dir / "bomsh_omnibor_treedb"
+        )
+        treedb = json.loads(treedb_path.read_text())
+        repos_prefix = str(self.repos_dir)
+
+        result = {}
+        for sha1, entry in treedb.items():
+            fp = entry.get("file_path", "")
+            if not self._is_project_jar(fp, entry, repos_prefix):
+                continue
+            rel = fp[len(repos_prefix):].lstrip("/")
+            result[rel] = sha1
 
         return result
 

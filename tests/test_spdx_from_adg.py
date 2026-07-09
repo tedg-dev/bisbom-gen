@@ -512,6 +512,107 @@ class TestAdgParser(unittest.TestCase):
                 )
             )
 
+    def test_get_jar_artifact_ids_basic(self):
+        """Returns each project JAR's own treedb SHA1."""
+        with tempfile.TemporaryDirectory() as td:
+            meta = self._setup_bom_dir(td)
+            treedb = {
+                "jar_sha_123": {
+                    "file_path": (
+                        "/repos/myapp/target/app.jar"
+                    ),
+                    "hash_tree": ["cls_sha"],
+                },
+                "cls_sha": {
+                    "file_path": (
+                        "/repos/myapp/target/"
+                        "classes/App.class"
+                    ),
+                },
+            }
+            (meta / "bomsh_omnibor_treedb").write_text(
+                json.dumps(treedb)
+            )
+            parser = AdgParser(
+                str(Path(td) / "bom"), "/repos"
+            )
+            result = parser.get_jar_artifact_ids()
+            self.assertEqual(
+                result,
+                {"myapp/target/app.jar": "jar_sha_123"},
+            )
+
+    def test_get_jar_artifact_ids_skips_test_jars(self):
+        """Excludes test/system JARs, same as sources."""
+        with tempfile.TemporaryDirectory() as td:
+            meta = self._setup_bom_dir(td)
+            treedb = {
+                "tj": {
+                    "file_path": (
+                        "/repos/myapp/target/"
+                        "app-tests.jar"
+                    ),
+                    "hash_tree": ["c1"],
+                },
+                "sj": {
+                    "file_path": "/usr/lib/rt.jar",
+                    "hash_tree": ["c2"],
+                },
+                "nt": {
+                    "file_path": (
+                        "/repos/myapp/target/x.jar"
+                    ),
+                },
+                "c1": {"file_path": "/f1"},
+                "c2": {"file_path": "/f2"},
+            }
+            (meta / "bomsh_omnibor_treedb").write_text(
+                json.dumps(treedb)
+            )
+            parser = AdgParser(
+                str(Path(td) / "bom"), "/repos"
+            )
+            result = parser.get_jar_artifact_ids()
+            self.assertEqual(result, {})
+
+    def test_jar_artifact_id_key_matches_sources(self):
+        """artifact-id keys align with source-file keys."""
+        with tempfile.TemporaryDirectory() as td:
+            meta = self._setup_bom_dir(td)
+            treedb = {
+                "jar_sha": {
+                    "file_path": (
+                        "/repos/myapp/target/app.jar"
+                    ),
+                    "hash_tree": ["cls_sha"],
+                },
+                "cls_sha": {
+                    "file_path": (
+                        "/repos/myapp/target/"
+                        "classes/App.class"
+                    ),
+                    "hash_tree": ["src_sha"],
+                },
+                "src_sha": {
+                    "file_path": (
+                        "/repos/myapp/src/App.java"
+                    ),
+                },
+            }
+            (meta / "bomsh_omnibor_treedb").write_text(
+                json.dumps(treedb)
+            )
+            parser = AdgParser(
+                str(Path(td) / "bom"), "/repos"
+            )
+            src_keys = set(
+                parser.get_jar_source_files().keys()
+            )
+            id_keys = set(
+                parser.get_jar_artifact_ids().keys()
+            )
+            self.assertEqual(src_keys, id_keys)
+
     def test_classify_empty_filepath(self):
         """Entries with empty file_path are skipped."""
         with tempfile.TemporaryDirectory() as td:

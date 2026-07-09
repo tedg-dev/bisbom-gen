@@ -98,6 +98,10 @@ Violating any rule marked NEVER is a critical failure.
   `project/release-builds.md` for language-specific flags.
 - [ ] **ALWAYS** import SPDX relationship types from
   `app/spdx/relationships.py` — never hardcode strings.
+- [ ] **ALWAYS** attach the built artifact's OmniBOR GitOID + checksum to
+  its root SPDX package, in EVERY language emitter. A root artifact package
+  without a `gitoid` `externalRef` and a `checksums` entry is a critical
+  correctness failure. See `project/artifact-identity.md`.
 
 ---
 

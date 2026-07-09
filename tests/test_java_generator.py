@@ -1055,6 +1055,104 @@ class TestBuildSpdx(unittest.TestCase):
         self.assertEqual(len(depends), 1)
 
 
+class TestArtifactIdentity(unittest.TestCase):
+    """Root JAR package must carry OmniBOR identity.
+
+    Regression tests for project/artifact-identity.md: the
+    built artifact's own checksum (git-blob SHA1) and OmniBOR
+    gitoid must appear on the root package, mirroring the C
+    emitter.
+    """
+
+    def setUp(self):
+        self.gen = JavaSpdxGenerator(
+            bom_dir="/tmp/bom",
+            repos_dir="/tmp/repos",
+            repo_name="myapp",
+        )
+        p1 = patch.object(
+            JavaSpdxGenerator,
+            "_detect_javac_version",
+            return_value=None,
+        )
+        p2 = patch.object(
+            JavaSpdxGenerator,
+            "_detect_maven_version",
+            return_value=None,
+        )
+        p1.start()
+        p2.start()
+        self.addCleanup(p1.stop)
+        self.addCleanup(p2.stop)
+
+    @staticmethod
+    def _gitoid_refs(root):
+        return [
+            r for r in root["externalRefs"]
+            if r["referenceType"] == "gitoid"
+        ]
+
+    def test_root_has_checksum_and_gitoid(self):
+        doc = self.gen._build_spdx(
+            "myapp.jar", [], [],
+            jar_sha1="abc123",
+            jar_gitoid="def456",
+        )
+        root = doc["packages"][0]
+        self.assertEqual(
+            root["checksums"],
+            [{
+                "algorithm": "SHA1",
+                "checksumValue": "abc123",
+            }],
+        )
+        refs = self._gitoid_refs(root)
+        self.assertEqual(len(refs), 1)
+        self.assertEqual(
+            refs[0]["referenceCategory"],
+            "PERSISTENT-ID",
+        )
+        self.assertEqual(
+            refs[0]["referenceLocator"],
+            "gitoid:blob:sha1:def456",
+        )
+
+    def test_identity_on_analyzed_sbom(self):
+        doc = self.gen._build_spdx(
+            "myapp.jar", [], [],
+            sbom_type="analyzed",
+            jar_sha1="a1",
+            jar_gitoid="g1",
+        )
+        root = doc["packages"][0]
+        self.assertEqual(
+            root["checksums"][0]["checksumValue"], "a1"
+        )
+        self.assertEqual(
+            len(self._gitoid_refs(root)), 1
+        )
+
+    def test_missing_identity_leaves_empty(self):
+        doc = self.gen._build_spdx("myapp.jar", [], [])
+        root = doc["packages"][0]
+        self.assertEqual(root["checksums"], [])
+        self.assertEqual(
+            len(self._gitoid_refs(root)), 0
+        )
+
+    def test_purl_ref_still_present_with_identity(self):
+        doc = self.gen._build_spdx(
+            "myapp.jar", [], [],
+            jar_sha1="a1", jar_gitoid="g1",
+        )
+        root = doc["packages"][0]
+        purls = [
+            r for r in root["externalRefs"]
+            if r["referenceType"] == "purl"
+        ]
+        self.assertEqual(len(purls), 1)
+
+
 class TestBuildToolEmission(unittest.TestCase):
     """Tests for javac/maven BUILD_TOOL_OF emission."""
 

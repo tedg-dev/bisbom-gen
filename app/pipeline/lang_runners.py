@@ -450,6 +450,13 @@ def generate_java_adg_spdx(
         print(f"[ERROR] {e}")
         return []
 
+    # OmniBOR artifact identity per JAR: the JAR's own git-blob
+    # SHA1 (treedb key) and its OmniBOR document id (doc_mapping).
+    # Attached to each SBOM's root package so the built artifact
+    # carries its OmniBOR identity (see project/artifact-identity.md).
+    jar_artifact_ids = parser.get_jar_artifact_ids()
+    doc_mapping = parser.load_doc_mapping()
+
     # Parse strace openat log — the set of files
     # actually opened during the build.  Mirrors
     # how C/C++ uses load_raw_logfile_hashes() to
@@ -529,12 +536,16 @@ def generate_java_adg_spdx(
             jar_path.relative_to(repo_dir)
         )
         lookup_key = f"{repo_name}/{rel_jar}"
+        matched_key = (
+            lookup_key if lookup_key in jar_map else None
+        )
         jar_files = jar_map.get(lookup_key)
         if jar_files is None:
             # Fallback: match by JAR filename
             for key in jar_map:
                 if key.endswith(f"/{bin_name}"):
                     jar_files = jar_map[key]
+                    matched_key = key
                     print(
                         f"[OK] Matched {bin_name} "
                         f"via filename (treedb path "
@@ -549,6 +560,14 @@ def generate_java_adg_spdx(
                 f"{lookup_key})"
             )
             continue
+
+        # Resolve this JAR's OmniBOR artifact identity using the
+        # same matched treedb key: its git-blob SHA1 (checksum)
+        # and OmniBOR document id (gitoid externalRef).
+        jar_sha1 = jar_artifact_ids.get(matched_key)
+        jar_gitoid = (
+            doc_mapping.get(jar_sha1) if jar_sha1 else None
+        )
 
         # Resolve this JAR's dependency subtree from the Phase 1
         # capture (no source-tree access).  The module is identified
@@ -600,6 +619,8 @@ def generate_java_adg_spdx(
             jar_files=jar_files,
             deps=[],
             plugin_detection=plugin_result,
+            jar_sha1=jar_sha1,
+            jar_gitoid=jar_gitoid,
         )
         if result:
             results.append(result)
@@ -620,6 +641,8 @@ def generate_java_adg_spdx(
                 pom_dir=pom_dir,
                 deps=build_deps,
                 plugin_detection=plugin_result,
+                jar_sha1=jar_sha1,
+                jar_gitoid=jar_gitoid,
             )
             if result:
                 results.append(result)

@@ -398,7 +398,7 @@ class JavaSpdxGenerator:
         self, output_path, binary_name=None,
         sbom_type="build", jar_files=None,
         pom_dir=None, plugin_detection=None,
-        deps=None,
+        deps=None, jar_sha1=None, jar_gitoid=None,
     ):
         """Generate SPDX for a Java JAR.
 
@@ -428,6 +428,15 @@ class JavaSpdxGenerator:
                 enterprise Phase 2 path). When None, the
                 generator falls back to live resolution via
                 *pom_dir* (the co-located dev/test path).
+            jar_sha1: the JAR's own git-blob SHA1 (its OmniBOR
+                Artifact ID, sha1 flavor) from the treedb key.
+                Emitted as the root package ``checksums`` value.
+            jar_gitoid: the JAR's OmniBOR document id from
+                ``load_doc_mapping()``. Emitted as the root
+                package ``gitoid`` ``externalRef``. Both mirror
+                the C emitter so every language records the
+                built artifact's OmniBOR identity
+                (see project/artifact-identity.md).
 
         Returns output path on success, None on failure.
         """
@@ -530,6 +539,7 @@ class JavaSpdxGenerator:
             bin_name, source_files, maven_deps,
             sbom_type=sbom_type,
             plugin_detection=plugin_detection,
+            jar_sha1=jar_sha1, jar_gitoid=jar_gitoid,
         )
 
         # Write output
@@ -586,6 +596,7 @@ class JavaSpdxGenerator:
     def _build_spdx(
         self, bin_name, source_files, maven_deps,
         sbom_type="build", plugin_detection=None,
+        jar_sha1=None, jar_gitoid=None,
     ):
         """Build SPDX 2.3 document.
 
@@ -597,6 +608,12 @@ class JavaSpdxGenerator:
         plugin_detection: optional ``DetectionResult``;
           when present, annotates ``creationInfo.comment``
           with repackaging plugin warnings.
+
+        jar_sha1 / jar_gitoid: the built JAR's OmniBOR
+          artifact identity (git-blob SHA1 checksum and
+          OmniBOR document id).  Emitted on the root
+          package; see ``generate`` and
+          project/artifact-identity.md.
         """
         now = datetime.now(timezone.utc).strftime(
             "%Y-%m-%dT%H:%M:%SZ"
@@ -631,6 +648,43 @@ class JavaSpdxGenerator:
 
         # Add root package for the JAR
         root_pkg_id = f"SPDXRef-Package-{clean_name}"
+
+        # OmniBOR artifact identity for the built JAR.  The JAR's
+        # own git-blob SHA1 (its Artifact ID) is the checksum; its
+        # OmniBOR document id is the gitoid externalRef.  Mirrors
+        # the C emitter (app/spdx/emitter.py) so every language
+        # records the built artifact's identity — the core point
+        # of OmniBOR (see project/artifact-identity.md).
+        external_refs = [{
+            "referenceCategory": "PACKAGE-MANAGER",
+            "referenceType": "purl",
+            "referenceLocator": (
+                f"pkg:maven/{self.repo_name}/"
+                f"{artifact_name}"
+            ),
+        }]
+        checksums = []
+        if jar_sha1:
+            checksums.append({
+                "algorithm": "SHA1",
+                "checksumValue": jar_sha1,
+            })
+        if jar_gitoid:
+            external_refs.append({
+                "referenceCategory": "PERSISTENT-ID",
+                "referenceType": "gitoid",
+                "referenceLocator": (
+                    f"gitoid:blob:sha1:{jar_gitoid}"
+                ),
+            })
+        if not jar_sha1 or not jar_gitoid:
+            print(
+                f"[WARN] {bin_name}: missing OmniBOR artifact "
+                f"identity (sha1={bool(jar_sha1)}, "
+                f"gitoid={bool(jar_gitoid)}) — root package "
+                f"will lack full artifact identity"
+            )
+
         doc["packages"].append({
             "SPDXID": root_pkg_id,
             "name": artifact_name,
@@ -641,14 +695,8 @@ class JavaSpdxGenerator:
             "filesAnalyzed": True,
             "primaryPackagePurpose": "APPLICATION",
             "supplier": "NOASSERTION",
-            "externalRefs": [{
-                "referenceCategory": "PACKAGE-MANAGER",
-                "referenceType": "purl",
-                "referenceLocator": (
-                    f"pkg:maven/{self.repo_name}/"
-                    f"{artifact_name}"
-                ),
-            }],
+            "externalRefs": external_refs,
+            "checksums": checksums,
         })
 
         # Add DESCRIBES relationship
