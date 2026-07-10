@@ -8,6 +8,10 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from app.version_detection import VendoredVersionDetector
+from app.spdx.identity import (
+    spdx_2_3_file_checksums,
+    try_from_file,
+)
 from app.spdx.lang_parsers import (
     detect_go_version,
     go_module_from_vendor_path,
@@ -160,8 +164,14 @@ class SpdxEmitter:
         Args:
             components: list of resolved component dicts
             project_files: list of project source artifacts
-            doc_mapping: sha1 -> omnibor_doc_id
-            logfile_hashes: file_path -> build-time sha1
+            doc_mapping: bomsh sha1 -> omnibor_doc_id.
+                Topology only (never surfaced in the SBOM);
+                retained as the bridge the future SHA-256
+                OMID reconstruction will re-key. See the
+                design of record (project/artifact-identity.md).
+            logfile_hashes: file_path -> build-time sha1.
+                Used only to locate the built binary's path;
+                identity is computed by reading that file.
             direct_only: if True, include only direct
                 dependencies (exclude transitive).
                 Use for two-tier SBOMs where transitive
@@ -238,27 +248,32 @@ class SpdxEmitter:
                 self.repo_version
             )
 
-        # Add OmniBOR ref for root binary
-        for bin_path, sha1 in (
-            logfile_hashes.items()
-        ):
-            basename = Path(bin_path).name
-            if basename == self.binary_name:
-                omnibor_id = doc_mapping.get(sha1)
-                if omnibor_id:
-                    root_pkg["externalRefs"].append({
-                        "referenceCategory":
-                            "PERSISTENT-ID",
-                        "referenceType": "gitoid",
-                        "referenceLocator":
-                            f"gitoid:blob:sha1:"
-                            f"{omnibor_id}",
-                    })
-                root_pkg["checksums"].append({
-                    "algorithm": "SHA1",
-                    "checksumValue": sha1,
-                })
-                break
+        # OmniBOR identity for the built binary (design of
+        # record: project/artifact-identity.md).  The checksum
+        # is the raw SHA-256 of the artifact; the gitoid
+        # externalRef is the artifact's own SHA-256 OmniBOR
+        # Artifact ID.  Both are computed by reading the built
+        # binary -- bomsh's SHA-1 treedb (doc_mapping) is
+        # topology only and is never surfaced in the SBOM.
+        for bin_path in logfile_hashes:
+            if Path(bin_path).name != self.binary_name:
+                continue
+            ident = try_from_file(bin_path)
+            if ident is not None:
+                root_pkg["externalRefs"].append(
+                    ident.as_spdx_gitoid_ref()
+                )
+                root_pkg["checksums"].append(
+                    ident.as_spdx_checksum()
+                )
+            else:
+                print(
+                    f"[WARN] {self.binary_name}: built "
+                    f"artifact not readable at "
+                    f"{bin_path} -- root package will "
+                    f"lack OmniBOR identity"
+                )
+            break
 
         doc["packages"].append(root_pkg)
 
@@ -874,13 +889,17 @@ class SpdxEmitter:
             except (ValueError, IndexError):
                 pass
 
+            # SPDX 2.3 File checksums: the spec-mandated raw SHA-1
+            # (Clause 8.4, Table 39) plus the raw SHA-256 identity
+            # hash.  The SHA-1 is a legacy corruption checksum, not
+            # an identity value; SPDX 3.x drops it (see
+            # spdx_2_3_file_checksums and artifact-identity.md).
+            # bomsh's SHA-1 git-blob treedb key is topology only and
+            # is never surfaced here.
             file_entry = {
                 "SPDXID": file_id,
                 "fileName": rel_path,
-                "checksums": [{
-                    "algorithm": "SHA1",
-                    "checksumValue": art["sha1"],
-                }],
+                "checksums": spdx_2_3_file_checksums(fp),
             }
             doc["files"].append(file_entry)
 

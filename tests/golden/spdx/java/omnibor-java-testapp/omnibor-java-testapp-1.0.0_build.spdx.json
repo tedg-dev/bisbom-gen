@@ -3,9 +3,9 @@
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
   "name": "omnibor-java-testapp-omnibor-java-testapp-1.0.0.jar",
-  "documentNamespace": "https://omnibor.io/spdx/omnibor-java-testapp/3a8aeb63-992d-4402-ab25-e4784b9a6715",
+  "documentNamespace": "https://omnibor.io/spdx/omnibor-java-testapp/4bef6ae1-eb07-4a61-b1b0-602b321f75bc",
   "creationInfo": {
-    "created": "2026-06-22T21:55:55Z",
+    "created": "2026-07-10T20:17:27Z",
     "creators": [
       "Tool: omnibor-analysis",
       "Tool: bomsh_create_bom_java.py"
@@ -26,6 +26,17 @@
           "referenceCategory": "PACKAGE-MANAGER",
           "referenceType": "purl",
           "referenceLocator": "pkg:maven/omnibor-java-testapp/omnibor-java-testapp"
+        },
+        {
+          "referenceCategory": "PERSISTENT-ID",
+          "referenceType": "gitoid",
+          "referenceLocator": "gitoid:blob:sha256:7b51ffb27eb3c002ef0172fac8e66035d63b64fe2a1907c685c9d8d11947b8a1"
+        }
+      ],
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "6d9ebd7e9e583d090ede2ecf30901088d71487039f4d310e191d5cda4512d50f"
         }
       ]
     },
@@ -139,7 +150,11 @@
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "ab385c089c35c8b19da6a82cf3af35e449b413cf"
+          "checksumValue": "32bb2dfe2ad33ed0024026180888f011da2952ec"
+        },
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "f2b9456747d43235fd057a686269fc59c7d0bff61b411a069709865fc6a3148f"
         }
       ]
     },
@@ -149,7 +164,11 @@
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "2ff98ec83fb7cbf16ae056ebbf76043d51606179"
+          "checksumValue": "4ecff25b28622cc1337ea57cdf5ff06cdbf0be43"
+        },
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "d5269cb6ea55a54bad1c45318a7e81e23def913962cc65ce30c160f326b59ddf"
         }
       ]
     }

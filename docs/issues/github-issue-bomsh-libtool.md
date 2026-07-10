@@ -121,10 +121,10 @@ At minimum, `bomsh_sbom.py --force_insert` should print a warning when it cannot
 
 We implemented a post-processing step in our pipeline that:
 
-1. Parses the raw logfile to build a `binary_path → build-time SHA1` map
-2. Looks up the build-time SHA1 in `bomsh_omnibor_doc_mapping` to get the OmniBOR document ID
+1. Parses the raw logfile to build a `binary_path → build-time hash` map
+2. Looks up the build-time hash in `bomsh_omnibor_doc_mapping` to get the OmniBOR document ID
 3. Matches SPDX package names to binary basenames
-4. Injects `PERSISTENT-ID` ExternalRefs with `gitoid:blob:sha1:<omnibor_id>` locators
+4. Injects `PERSISTENT-ID` gitoid ExternalRefs referencing the matched OmniBOR document
 
 This workaround is available at: https://github.com/tedg-dev/omnibor-analysis
 

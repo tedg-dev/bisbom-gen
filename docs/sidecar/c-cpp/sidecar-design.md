@@ -270,9 +270,13 @@ split, because:
    `bomsh_omnibor_doc_mapping` maps `sha1 → OmniBOR doc id`. The full
    `binary → gitoid → ADG-doc-id` chain is already resolved in Phase-1
    artifacts; re-hashing at Phase 2 is redundant.
-2. **No artifact-derived fact needs Phase 2.** gitoid/SHA1 (ADG lookup),
-   SHA256/size (SPDX `checksums`), ELF metadata (`readelf`), and dynamic
-   deps (`ldd` → `dynamic_libs.json`) are all Phase-1-capturable.
+2. **No artifact-derived fact needs Phase 2.** bomsh's `SHA-1` treedb/gitoid
+   (ADG topology lookup only), the raw `SHA-256` + `SHA-256` gitOID that the
+   SBOM surfaces, size, ELF metadata (`readelf`), and dynamic deps
+   (`ldd` → `dynamic_libs.json`) are all Phase-1-capturable. The `SHA-256`
+   identity is computed by reading each artifact while it still exists at
+   Phase 1 (bomsh's `SHA-1` values never surface in the SBOM). See the design
+   of record: `.windsurf/rules/project/artifact-identity.md`.
 3. **Binaries are often proprietary customer IP** — egressing them to S3 or
    an analysis host is a data-exfiltration surface (CWE-200). Capturing
    facts in Phase 1 keeps binaries on the build host.

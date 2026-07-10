@@ -1,4 +1,5 @@
 """Tests for Java SPDX generator."""
+import hashlib
 import json
 import sys
 import tempfile
@@ -10,6 +11,7 @@ sys.path.insert(
     0, str(Path(__file__).parent.parent / "app")
 )
 
+from app.spdx.identity import ArtifactIdentity
 from app.spdx.java_generator import JavaSpdxGenerator
 
 
@@ -1059,9 +1061,10 @@ class TestArtifactIdentity(unittest.TestCase):
     """Root JAR package must carry OmniBOR identity.
 
     Regression tests for project/artifact-identity.md: the
-    built artifact's own checksum (git-blob SHA1) and OmniBOR
-    gitoid must appear on the root package, mirroring the C
-    emitter.
+    built JAR's own raw SHA-256 checksum and SHA-256 OmniBOR
+    gitOID (``gitoid:blob:sha256``) must appear on the root
+    package, both computed by reading the built JAR (the
+    identity layer), mirroring the C emitter.
     """
 
     def setUp(self):
@@ -1084,6 +1087,11 @@ class TestArtifactIdentity(unittest.TestCase):
         p2.start()
         self.addCleanup(p1.stop)
         self.addCleanup(p2.stop)
+        self._tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self._tmp.cleanup)
+        self.jar_path = Path(self._tmp.name) / "myapp.jar"
+        self.jar_path.write_bytes(b"PK\x03\x04 fake jar bytes")
+        self.ident = ArtifactIdentity.from_file(self.jar_path)
 
     @staticmethod
     def _gitoid_refs(root):
@@ -1095,15 +1103,14 @@ class TestArtifactIdentity(unittest.TestCase):
     def test_root_has_checksum_and_gitoid(self):
         doc = self.gen._build_spdx(
             "myapp.jar", [], [],
-            jar_sha1="abc123",
-            jar_gitoid="def456",
+            jar_path=str(self.jar_path),
         )
         root = doc["packages"][0]
         self.assertEqual(
             root["checksums"],
             [{
-                "algorithm": "SHA1",
-                "checksumValue": "abc123",
+                "algorithm": "SHA256",
+                "checksumValue": self.ident.raw,
             }],
         )
         refs = self._gitoid_refs(root)
@@ -1114,19 +1121,24 @@ class TestArtifactIdentity(unittest.TestCase):
         )
         self.assertEqual(
             refs[0]["referenceLocator"],
-            "gitoid:blob:sha1:def456",
+            self.ident.gitoid,
+        )
+        self.assertTrue(
+            self.ident.gitoid.startswith(
+                "gitoid:blob:sha256:"
+            )
         )
 
     def test_identity_on_analyzed_sbom(self):
         doc = self.gen._build_spdx(
             "myapp.jar", [], [],
             sbom_type="analyzed",
-            jar_sha1="a1",
-            jar_gitoid="g1",
+            jar_path=str(self.jar_path),
         )
         root = doc["packages"][0]
         self.assertEqual(
-            root["checksums"][0]["checksumValue"], "a1"
+            root["checksums"][0]["checksumValue"],
+            self.ident.raw,
         )
         self.assertEqual(
             len(self._gitoid_refs(root)), 1
@@ -1140,10 +1152,21 @@ class TestArtifactIdentity(unittest.TestCase):
             len(self._gitoid_refs(root)), 0
         )
 
+    def test_unreadable_jar_leaves_empty(self):
+        doc = self.gen._build_spdx(
+            "myapp.jar", [], [],
+            jar_path="/nonexistent/myapp.jar",
+        )
+        root = doc["packages"][0]
+        self.assertEqual(root["checksums"], [])
+        self.assertEqual(
+            len(self._gitoid_refs(root)), 0
+        )
+
     def test_purl_ref_still_present_with_identity(self):
         doc = self.gen._build_spdx(
             "myapp.jar", [], [],
-            jar_sha1="a1", jar_gitoid="g1",
+            jar_path=str(self.jar_path),
         )
         root = doc["packages"][0]
         purls = [
@@ -1151,6 +1174,37 @@ class TestArtifactIdentity(unittest.TestCase):
             if r["referenceType"] == "purl"
         ]
         self.assertEqual(len(purls), 1)
+
+    def test_source_file_dual_hash_sha1_and_sha256(self):
+        # SPDX 2.3 File entries carry the spec-mandated raw SHA-1
+        # plus the raw SHA-256 identity hash
+        # (project/artifact-identity.md §5.1).
+        src = Path(self._tmp.name) / "App.java"
+        content = b"class App {}\n"
+        src.write_bytes(content)
+        doc = self.gen._build_spdx(
+            "myapp.jar",
+            [{"file_path": str(src)}],
+            [],
+        )
+        self.assertEqual(len(doc["files"]), 1)
+        self.assertEqual(
+            doc["files"][0]["checksums"],
+            [
+                {
+                    "algorithm": "SHA1",
+                    "checksumValue": hashlib.sha1(
+                        content
+                    ).hexdigest(),
+                },
+                {
+                    "algorithm": "SHA256",
+                    "checksumValue": hashlib.sha256(
+                        content
+                    ).hexdigest(),
+                },
+            ],
+        )
 
 
 class TestBuildToolEmission(unittest.TestCase):

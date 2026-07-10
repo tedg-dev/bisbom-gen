@@ -4,6 +4,14 @@ All documentation for sidecar-based build interception and phase
 isolation lives here. General (cross-language) documents are at the
 root; language-specific documents are in subdirectories.
 
+> **Artifact identity — design of record**: gitOID + raw SHA are `SHA-256`
+> for **every** artifact (files, objects, packages), in every language.
+> bomsh's `SHA-1` treedb captures graph **topology** only and never surfaces
+> in the SBOM. Why C/C++ is automatic and Java isn't, and how Java achieves
+> the same identity, is in [`java/sidecar-design.md`](java/sidecar-design.md)
+> §2.5 and the canonical rule
+> `.windsurf/rules/project/artifact-identity.md`.
+
 ## General Documents
 
 | Document | Description |

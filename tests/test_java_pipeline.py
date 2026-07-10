@@ -212,7 +212,8 @@ class TestGenerateJavaAdgSpdx(unittest.TestCase):
     def test_passes_artifact_identity(
         self, mock_gen_cls, mock_parser_cls,
     ):
-        """Resolved JAR sha1/gitoid reach both SBOMs."""
+        """Built JAR path reaches both SBOMs so the
+        generator can compute its SHA-256 identity."""
         mock_gen = MagicMock()
         mock_gen.generate.side_effect = [
             "/tmp/out/myapp_analyzed.spdx.json",
@@ -226,12 +227,7 @@ class TestGenerateJavaAdgSpdx(unittest.TestCase):
                 {"sha1": "aaa", "file_path": "a.java"},
             ],
         }
-        mock_parser.get_jar_artifact_ids.return_value = {
-            "myapp/target/myapp-1.0.jar": "jarsha1",
-        }
-        mock_parser.load_doc_mapping.return_value = {
-            "jarsha1": "gitoiddoc",
-        }
+        mock_parser.validate_jar_topology.return_value = {}
         mock_parser_cls.return_value = mock_parser
 
         with tempfile.TemporaryDirectory() as td:
@@ -260,10 +256,7 @@ class TestGenerateJavaAdgSpdx(unittest.TestCase):
             self.assertEqual(len(calls), 2)
             for c in calls:
                 self.assertEqual(
-                    c.kwargs["jar_sha1"], "jarsha1"
-                )
-                self.assertEqual(
-                    c.kwargs["jar_gitoid"], "gitoiddoc"
+                    c.kwargs["jar_path"], str(jar)
                 )
 
     @patch(
@@ -272,10 +265,13 @@ class TestGenerateJavaAdgSpdx(unittest.TestCase):
     @patch(
         "app.spdx.java_generator.JavaSpdxGenerator"
     )
-    def test_missing_artifact_identity_passes_none(
+    def test_no_sha1_identity_kwargs_passed(
         self, mock_gen_cls, mock_parser_cls,
     ):
-        """No treedb id / doc mapping -> None identity."""
+        """Regression: bomsh SHA-1 topology values must not
+        be passed as identity; only ``jar_path`` is used so
+        the generator computes SHA-256 identity from the JAR
+        (project/artifact-identity.md)."""
         mock_gen = MagicMock()
         mock_gen.generate.side_effect = [
             "/tmp/out/myapp_analyzed.spdx.json",
@@ -289,8 +285,7 @@ class TestGenerateJavaAdgSpdx(unittest.TestCase):
                 {"sha1": "aaa", "file_path": "a.java"},
             ],
         }
-        mock_parser.get_jar_artifact_ids.return_value = {}
-        mock_parser.load_doc_mapping.return_value = {}
+        mock_parser.validate_jar_topology.return_value = {}
         mock_parser_cls.return_value = mock_parser
 
         with tempfile.TemporaryDirectory() as td:
@@ -317,8 +312,11 @@ class TestGenerateJavaAdgSpdx(unittest.TestCase):
 
             calls = mock_gen.generate.call_args_list
             for c in calls:
-                self.assertIsNone(c.kwargs["jar_sha1"])
-                self.assertIsNone(c.kwargs["jar_gitoid"])
+                self.assertNotIn("jar_sha1", c.kwargs)
+                self.assertNotIn("jar_gitoid", c.kwargs)
+                self.assertEqual(
+                    c.kwargs["jar_path"], str(jar)
+                )
 
     @patch(
         "app.spdx.parser.AdgParser"
@@ -962,6 +960,156 @@ class TestMainJavaDispatch(unittest.TestCase):
             main()
 
         mock_rust.assert_called_once()
+
+
+class TestPhase1IdentityIndex(unittest.TestCase):
+    """Tests for Phase-1 identity-index wiring in run_java_phase1.
+
+    Design of record: project/artifact-identity.md (Java caveat —
+    hash intermediates while they exist, before workspace cleanup).
+    """
+
+    def _paths(self, td):
+        return {
+            "output_dir": str(Path(td) / "output"),
+            "repos_dir": str(Path(td) / "repos"),
+        }
+
+    def _write_treedb(self, paths_cfg, run_ts, treedb):
+        meta = (
+            Path(paths_cfg["output_dir"]) / "omnibor"
+            / "java" / "myapp" / run_ts
+            / "metadata" / "bomsh"
+        )
+        meta.mkdir(parents=True)
+        (meta / "bomsh_omnibor_treedb").write_text(
+            json.dumps(treedb)
+        )
+        return meta
+
+    def test_persist_helper_writes_index(self):
+        from app.pipeline.lang_runners import (
+            _persist_identity_index,
+        )
+        from app.spdx.identity import (
+            IDENTITY_INDEX_FILENAME,
+        )
+
+        with tempfile.TemporaryDirectory() as td:
+            paths_cfg = self._paths(td)
+            src = (
+                Path(paths_cfg["repos_dir"]) / "myapp"
+                / "App.class"
+            )
+            src.parent.mkdir(parents=True)
+            src.write_bytes(b"\xca\xfe\xba\xbe")
+            meta = self._write_treedb(
+                paths_cfg, "ts1",
+                {"s1": {"file_path": str(src)}},
+            )
+            _persist_identity_index(
+                "myapp", {"language": "java"},
+                paths_cfg, "ts1",
+            )
+            index_path = meta / IDENTITY_INDEX_FILENAME
+            self.assertTrue(index_path.exists())
+            index = json.loads(index_path.read_text())
+            self.assertIn(str(src), index)
+            self.assertEqual(
+                index[str(src)]["algo"], "sha256"
+            )
+
+    def test_persist_helper_no_treedb_is_quiet(self):
+        """Missing treedb: no index, no exception."""
+        from app.pipeline.lang_runners import (
+            _persist_identity_index,
+        )
+
+        with tempfile.TemporaryDirectory() as td:
+            paths_cfg = self._paths(td)
+            # No treedb written — must not raise.
+            _persist_identity_index(
+                "myapp", {"language": "java"},
+                paths_cfg, "ts1",
+            )
+
+    def test_persist_helper_swallows_errors(self):
+        """A persistence failure is logged, never raised, so it
+        cannot break an otherwise successful build."""
+        from app.pipeline.lang_runners import (
+            _persist_identity_index,
+        )
+
+        with tempfile.TemporaryDirectory() as td:
+            paths_cfg = self._paths(td)
+            with patch(
+                "app.spdx.parser.AdgParser."
+                "persist_identity_index",
+                side_effect=OSError("disk full"),
+            ):
+                # Must return without raising.
+                _persist_identity_index(
+                    "myapp", {"language": "java"},
+                    paths_cfg, "ts1",
+                )
+
+    def test_phase1_success_persists_index(self):
+        from app.pipeline.lang_runners import run_java_phase1
+
+        with tempfile.TemporaryDirectory() as td:
+            paths_cfg = self._paths(td)
+            self._write_treedb(
+                paths_cfg, "ts1",
+                {"s1": {"file_path": "/gone/App.class"}},
+            )
+            pipeline = MagicMock()
+            pipeline.builder.build_java.return_value = (
+                BuildResult(success=True)
+            )
+            with patch(
+                "app.pipeline.lang_runners."
+                "_persist_identity_index"
+            ) as mock_persist:
+                timing, _ = run_java_phase1(
+                    pipeline, "myapp",
+                    {"language": "java"},
+                    paths_cfg,
+                    {
+                        "strace_opts": "-f",
+                        "create_bom_script": "x.py",
+                        "strace_logfile": "/tmp/s.log",
+                    },
+                    "ts1",
+                )
+            self.assertTrue(timing.success)
+            mock_persist.assert_called_once()
+
+    def test_phase1_failure_skips_index(self):
+        from app.pipeline.lang_runners import run_java_phase1
+
+        with tempfile.TemporaryDirectory() as td:
+            paths_cfg = self._paths(td)
+            pipeline = MagicMock()
+            pipeline.builder.build_java.return_value = (
+                BuildResult(success=False)
+            )
+            with patch(
+                "app.pipeline.lang_runners."
+                "_persist_identity_index"
+            ) as mock_persist:
+                timing, _ = run_java_phase1(
+                    pipeline, "myapp",
+                    {"language": "java"},
+                    paths_cfg,
+                    {
+                        "strace_opts": "-f",
+                        "create_bom_script": "x.py",
+                        "strace_logfile": "/tmp/s.log",
+                    },
+                    "ts1",
+                )
+            self.assertFalse(timing.success)
+            mock_persist.assert_not_called()
 
 
 if __name__ == "__main__":

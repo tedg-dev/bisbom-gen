@@ -123,6 +123,40 @@ The downstream SPDX generator (`JavaSpdxGenerator`) handles both cases:
 when `strace_accessed` is populated (standalone), it filters treedb results
 against strace evidence. When empty (sidecar), it trusts the workspace scan.
 
+### 2.5 Artifact Identity: Why C/C++ Is Automatic and Java Isn't
+
+> **Design of record**: see `.windsurf/rules/project/artifact-identity.md`.
+> gitOID + raw SHA are `SHA-256` for every artifact, in every language.
+
+A common misconception is that Java cannot carry per-file/per-object OmniBOR
+identity the way C/C++ does. It can. The asymmetry lives **only** in bomsh's
+hashing step, not in whether the dependency graph can be captured:
+
+| | C/C++ | Java |
+|---|---|---|
+| **Interception** | `bomtrace3` (syscall-level) sees every `gcc`/`ld` call and its exact inputs/outputs | `bomsh_create_bom_java.py` uses `strace` of `javac` + JAR packaging |
+| **bomsh ID computation** | `bomsh_create_bom.py` supports `--hashtype sha256` natively | `SHA-1` only; no `--hashtype` |
+
+The resolution is to **separate topology from identity**:
+
+- **Topology (edges: output ← inputs)** is language-specific and bomsh already
+  captures it for Java (`strace` `.java`→`.class`→`.jar`, plus Maven/Gradle
+  `dep:tree` for external deps). The treedb maps `sha1 → path`.
+- **Identity (`SHA-256` gitOIDs + raw hashes + Input Manifests)** is pure,
+  language-agnostic math. We lift it **out** of bomsh and compute it ourselves,
+  uniformly, by reading each artifact once and re-keying bomsh's `SHA-1` nodes
+  to our `SHA-256` IDs via file path.
+
+With identity as our responsibility, bomsh's lack of `--hashtype sha256` for
+Java is irrelevant, and Java gets the same full `SHA-256` identity (per-file
+artifact gitOIDs + raw SHA, package OMID) as C/C++.
+
+**Java-specific caveats**: hash `.class` intermediates while they still exist
+(during/right after the build, before cleanup); validate that every `.class`
+in the JAR traces back to a `.java` (the `strace` capture is more fragile than
+`bomtrace3`); and treat Maven/Gradle dependencies as leaf artifacts identified
+by their JAR's gitOID + `purl`.
+
 ---
 
 ## 3. Phase 1 Artifacts
