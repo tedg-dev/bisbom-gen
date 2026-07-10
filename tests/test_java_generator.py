@@ -1,4 +1,8 @@
 """Tests for Java SPDX generator."""
+# Tests exercise the internal _build_spdx builder directly, which is
+# legitimate for a class's own unit tests.
+# pylint: disable=protected-access
+import hashlib
 import json
 import sys
 import tempfile
@@ -10,6 +14,7 @@ sys.path.insert(
     0, str(Path(__file__).parent.parent / "app")
 )
 
+from app.spdx.identity import ArtifactIdentity
 from app.spdx.java_generator import JavaSpdxGenerator
 
 
@@ -1055,6 +1060,156 @@ class TestBuildSpdx(unittest.TestCase):
         self.assertEqual(len(depends), 1)
 
 
+class TestArtifactIdentity(unittest.TestCase):
+    """Root JAR package must carry OmniBOR identity.
+
+    Regression tests for project/artifact-identity.md: the
+    built JAR's own raw SHA-256 checksum and SHA-256 OmniBOR
+    gitOID (``gitoid:blob:sha256``) must appear on the root
+    package, both computed by reading the built JAR (the
+    identity layer), mirroring the C emitter.
+    """
+
+    def setUp(self):
+        self.gen = JavaSpdxGenerator(
+            bom_dir="/tmp/bom",
+            repos_dir="/tmp/repos",
+            repo_name="myapp",
+        )
+        p1 = patch.object(
+            JavaSpdxGenerator,
+            "_detect_javac_version",
+            return_value=None,
+        )
+        p2 = patch.object(
+            JavaSpdxGenerator,
+            "_detect_maven_version",
+            return_value=None,
+        )
+        p1.start()
+        p2.start()
+        self.addCleanup(p1.stop)
+        self.addCleanup(p2.stop)
+        self._tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self._tmp.cleanup)
+        self.jar_path = Path(self._tmp.name) / "myapp.jar"
+        self.jar_path.write_bytes(b"PK\x03\x04 fake jar bytes")
+        self.ident = ArtifactIdentity.from_file(self.jar_path)
+
+    @staticmethod
+    def _gitoid_refs(root):
+        return [
+            r for r in root["externalRefs"]
+            if r["referenceType"] == "gitoid"
+        ]
+
+    def test_root_has_checksum_and_gitoid(self):
+        doc = self.gen._build_spdx(
+            "myapp.jar", [], [],
+            jar_path=str(self.jar_path),
+        )
+        root = doc["packages"][0]
+        self.assertEqual(
+            root["checksums"],
+            [{
+                "algorithm": "SHA256",
+                "checksumValue": self.ident.raw,
+            }],
+        )
+        refs = self._gitoid_refs(root)
+        self.assertEqual(len(refs), 1)
+        self.assertEqual(
+            refs[0]["referenceCategory"],
+            "PERSISTENT-ID",
+        )
+        self.assertEqual(
+            refs[0]["referenceLocator"],
+            self.ident.gitoid,
+        )
+        self.assertTrue(
+            self.ident.gitoid.startswith(
+                "gitoid:blob:sha256:"
+            )
+        )
+
+    def test_identity_on_analyzed_sbom(self):
+        doc = self.gen._build_spdx(
+            "myapp.jar", [], [],
+            sbom_type="analyzed",
+            jar_path=str(self.jar_path),
+        )
+        root = doc["packages"][0]
+        self.assertEqual(
+            root["checksums"][0]["checksumValue"],
+            self.ident.raw,
+        )
+        self.assertEqual(
+            len(self._gitoid_refs(root)), 1
+        )
+
+    def test_missing_identity_leaves_empty(self):
+        doc = self.gen._build_spdx("myapp.jar", [], [])
+        root = doc["packages"][0]
+        self.assertEqual(root["checksums"], [])
+        self.assertEqual(
+            len(self._gitoid_refs(root)), 0
+        )
+
+    def test_unreadable_jar_leaves_empty(self):
+        doc = self.gen._build_spdx(
+            "myapp.jar", [], [],
+            jar_path="/nonexistent/myapp.jar",
+        )
+        root = doc["packages"][0]
+        self.assertEqual(root["checksums"], [])
+        self.assertEqual(
+            len(self._gitoid_refs(root)), 0
+        )
+
+    def test_purl_ref_still_present_with_identity(self):
+        doc = self.gen._build_spdx(
+            "myapp.jar", [], [],
+            jar_path=str(self.jar_path),
+        )
+        root = doc["packages"][0]
+        purls = [
+            r for r in root["externalRefs"]
+            if r["referenceType"] == "purl"
+        ]
+        self.assertEqual(len(purls), 1)
+
+    def test_source_file_dual_hash_sha1_and_sha256(self):
+        # SPDX 2.3 File entries carry the spec-mandated raw SHA-1
+        # plus the raw SHA-256 identity hash
+        # (project/artifact-identity.md §5.1).
+        src = Path(self._tmp.name) / "App.java"
+        content = b"class App {}\n"
+        src.write_bytes(content)
+        doc = self.gen._build_spdx(
+            "myapp.jar",
+            [{"file_path": str(src)}],
+            [],
+        )
+        self.assertEqual(len(doc["files"]), 1)
+        self.assertEqual(
+            doc["files"][0]["checksums"],
+            [
+                {
+                    "algorithm": "SHA1",
+                    "checksumValue": hashlib.sha1(
+                        content
+                    ).hexdigest(),
+                },
+                {
+                    "algorithm": "SHA256",
+                    "checksumValue": hashlib.sha256(
+                        content
+                    ).hexdigest(),
+                },
+            ],
+        )
+
+
 class TestBuildToolEmission(unittest.TestCase):
     """Tests for javac/maven BUILD_TOOL_OF emission."""
 
@@ -1460,11 +1615,11 @@ class TestIsTestFile(unittest.TestCase):
 
 
 class TestExtractArtifactName(unittest.TestCase):
-    """Tests for _extract_artifact_name."""
+    """Tests for extract_artifact_name."""
 
     def test_simple_versioned_jar(self):
         self.assertEqual(
-            JavaSpdxGenerator._extract_artifact_name(
+            JavaSpdxGenerator.extract_artifact_name(
                 "jsoup-1.17.2.jar"
             ),
             "jsoup",
@@ -1472,7 +1627,7 @@ class TestExtractArtifactName(unittest.TestCase):
 
     def test_multi_part_name(self):
         self.assertEqual(
-            JavaSpdxGenerator._extract_artifact_name(
+            JavaSpdxGenerator.extract_artifact_name(
                 "dependency-check-utils-9.2.0.jar"
             ),
             "dependency-check-utils",
@@ -1480,7 +1635,7 @@ class TestExtractArtifactName(unittest.TestCase):
 
     def test_snapshot_version(self):
         self.assertEqual(
-            JavaSpdxGenerator._extract_artifact_name(
+            JavaSpdxGenerator.extract_artifact_name(
                 "my-lib-1.0-SNAPSHOT.jar"
             ),
             "my-lib",
@@ -1488,7 +1643,7 @@ class TestExtractArtifactName(unittest.TestCase):
 
     def test_three_part_version(self):
         self.assertEqual(
-            JavaSpdxGenerator._extract_artifact_name(
+            JavaSpdxGenerator.extract_artifact_name(
                 "commons-io-2.16.1.jar"
             ),
             "commons-io",
@@ -1497,7 +1652,7 @@ class TestExtractArtifactName(unittest.TestCase):
     def test_no_version(self):
         # If no version pattern, return name without .jar
         self.assertEqual(
-            JavaSpdxGenerator._extract_artifact_name(
+            JavaSpdxGenerator.extract_artifact_name(
                 "mylib.jar"
             ),
             "mylib",
@@ -1505,7 +1660,7 @@ class TestExtractArtifactName(unittest.TestCase):
 
     def test_no_jar_extension(self):
         self.assertEqual(
-            JavaSpdxGenerator._extract_artifact_name(
+            JavaSpdxGenerator.extract_artifact_name(
                 "artifact-1.0.0"
             ),
             "artifact",

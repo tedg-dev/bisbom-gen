@@ -28,6 +28,10 @@ from app.spdx.gradle_parser import (
     get_gradle_group,
     is_gradle_project,
 )
+from app.spdx.identity import (
+    spdx_2_3_file_checksums,
+    try_from_file,
+)
 from app.spdx.relationships import (
     BUILD_TOOL_OF,
     CONTAINED_BY,
@@ -398,7 +402,7 @@ class JavaSpdxGenerator:
         self, output_path, binary_name=None,
         sbom_type="build", jar_files=None,
         pom_dir=None, plugin_detection=None,
-        deps=None,
+        deps=None, jar_path=None,
     ):
         """Generate SPDX for a Java JAR.
 
@@ -428,6 +432,15 @@ class JavaSpdxGenerator:
                 enterprise Phase 2 path). When None, the
                 generator falls back to live resolution via
                 *pom_dir* (the co-located dev/test path).
+            jar_path: absolute path to the built JAR. Its raw
+                SHA-256 is emitted as the root package
+                ``checksums`` value and its own SHA-256 OmniBOR
+                Artifact ID (``gitoid:blob:sha256``) as the
+                ``gitoid`` ``externalRef`` -- both computed by
+                reading the JAR (the identity layer), mirroring
+                the C emitter so every language records the
+                built artifact's OmniBOR identity
+                (see project/artifact-identity.md).
 
         Returns output path on success, None on failure.
         """
@@ -530,6 +543,7 @@ class JavaSpdxGenerator:
             bin_name, source_files, maven_deps,
             sbom_type=sbom_type,
             plugin_detection=plugin_detection,
+            jar_path=jar_path,
         )
 
         # Write output
@@ -586,6 +600,7 @@ class JavaSpdxGenerator:
     def _build_spdx(
         self, bin_name, source_files, maven_deps,
         sbom_type="build", plugin_detection=None,
+        jar_path=None,
     ):
         """Build SPDX 2.3 document.
 
@@ -597,6 +612,11 @@ class JavaSpdxGenerator:
         plugin_detection: optional ``DetectionResult``;
           when present, annotates ``creationInfo.comment``
           with repackaging plugin warnings.
+
+        jar_path: absolute path to the built JAR.  Its raw
+          SHA-256 checksum and own SHA-256 gitOID are emitted
+          on the root package; see ``generate`` and
+          project/artifact-identity.md.
         """
         now = datetime.now(timezone.utc).strftime(
             "%Y-%m-%dT%H:%M:%SZ"
@@ -627,10 +647,45 @@ class JavaSpdxGenerator:
 
         # Extract artifact name from JAR filename
         # e.g., dependency-check-utils-9.2.0.jar → dependency-check-utils
-        artifact_name = self._extract_artifact_name(bin_name)
+        artifact_name = self.extract_artifact_name(bin_name)
 
         # Add root package for the JAR
         root_pkg_id = f"SPDXRef-Package-{clean_name}"
+
+        # OmniBOR artifact identity for the built JAR is attached
+        # below (raw SHA-256 checksum + SHA-256 gitOID), mirroring
+        # the C emitter (app/spdx/emitter.py) so every language
+        # records the built artifact's identity — the core point
+        # of OmniBOR (see project/artifact-identity.md).
+        external_refs = [{
+            "referenceCategory": "PACKAGE-MANAGER",
+            "referenceType": "purl",
+            "referenceLocator": (
+                f"pkg:maven/{self.repo_name}/"
+                f"{artifact_name}"
+            ),
+        }]
+        # OmniBOR identity for the built JAR (design of record:
+        # project/artifact-identity.md).  Checksum is the JAR's
+        # raw SHA-256; the gitoid externalRef is the JAR's own
+        # SHA-256 OmniBOR Artifact ID.  Computed by reading the
+        # built JAR -- bomsh's SHA-1 treedb is topology only.
+        checksums = []
+        jar_ident = (
+            try_from_file(jar_path) if jar_path else None
+        )
+        if jar_ident is not None:
+            checksums.append(jar_ident.as_spdx_checksum())
+            external_refs.append(
+                jar_ident.as_spdx_gitoid_ref()
+            )
+        else:
+            print(
+                f"[WARN] {bin_name}: built JAR not readable "
+                f"(jar_path={jar_path}) — root package will "
+                f"lack OmniBOR identity"
+            )
+
         doc["packages"].append({
             "SPDXID": root_pkg_id,
             "name": artifact_name,
@@ -641,14 +696,8 @@ class JavaSpdxGenerator:
             "filesAnalyzed": True,
             "primaryPackagePurpose": "APPLICATION",
             "supplier": "NOASSERTION",
-            "externalRefs": [{
-                "referenceCategory": "PACKAGE-MANAGER",
-                "referenceType": "purl",
-                "referenceLocator": (
-                    f"pkg:maven/{self.repo_name}/"
-                    f"{artifact_name}"
-                ),
-            }],
+            "externalRefs": external_refs,
+            "checksums": checksums,
         })
 
         # Add DESCRIBES relationship
@@ -661,7 +710,6 @@ class JavaSpdxGenerator:
         # Add source files
         for i, src in enumerate(source_files):
             file_path = src.get("file_path", "")
-            sha1 = src.get("sha1", "")
 
             # Make path relative to repo
             rel_path = file_path
@@ -669,14 +717,18 @@ class JavaSpdxGenerator:
             if file_path.startswith(repo_prefix):
                 rel_path = file_path[len(repo_prefix):]
 
+            # SPDX 2.3 File checksums: the spec-mandated raw SHA-1
+            # (Clause 8.4, Table 39) plus the raw SHA-256 identity
+            # hash.  The SHA-1 is a legacy corruption checksum, not
+            # an identity value; SPDX 3.x drops it (see
+            # spdx_2_3_file_checksums and artifact-identity.md).
+            # bomsh's SHA-1 git-blob treedb key is topology only and
+            # is never surfaced here.
             file_id = f"SPDXRef-File-{i}"
             doc["files"].append({
                 "SPDXID": file_id,
                 "fileName": rel_path,
-                "checksums": [{
-                    "algorithm": "SHA1",
-                    "checksumValue": sha1,
-                }] if sha1 else [],
+                "checksums": spdx_2_3_file_checksums(file_path),
             })
 
             # File CONTAINED_BY root package
@@ -870,7 +922,7 @@ class JavaSpdxGenerator:
         return doc
 
     @staticmethod
-    def _extract_artifact_name(jar_filename):
+    def extract_artifact_name(jar_filename):
         """Extract Maven artifact name from JAR filename.
 
         Strips version suffix and .jar extension.

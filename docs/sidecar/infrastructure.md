@@ -343,6 +343,11 @@ Each artifact path in the manifest includes a SHA-256 gitoid computed at
 Phase 1 completion time. Phase 2 can optionally verify these gitoids
 before processing to detect tampering or corruption during transfer.
 
+> **Design of record**: gitOID + raw SHA are `SHA-256` for every artifact
+> (files, objects, packages), and are distinct values. bomsh's `SHA-1`
+> treedb is a topology bridge only and never surfaces in the SBOM. See
+> `.windsurf/rules/project/artifact-identity.md`.
+
 ---
 
 ## 5. Phase Isolation Architecture

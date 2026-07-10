@@ -309,7 +309,52 @@ def run_java_phase1(
         )
     timing.steps.extend(build_result.steps)
     timing.success = build_result.success
+
+    # Persist the SHA-256 identity index while build intermediates
+    # (.class) still exist, so an offline Phase 2 can surface
+    # identity for files removed by workspace cleanup (design of
+    # record: project/artifact-identity.md, Java caveats).  bomsh's
+    # SHA-1 treedb is used only to enumerate node paths (topology).
+    if timing.success:
+        _persist_identity_index(
+            repo_name, repo_cfg, paths_cfg, run_ts,
+        )
+
     return timing, strategy
+
+
+def _persist_identity_index(
+    repo_name, repo_cfg, paths_cfg, run_ts,
+):
+    """Write the Phase-1 identity index for a Java run.
+
+    Generic across standalone and sidecar modes: both write the
+    bomsh treedb to the same ``bom_dir``.  Failure to persist the
+    index is non-fatal (logged, not raised) so it never breaks a
+    successful build.
+    """
+    from app.spdx.parser import AdgParser
+
+    lang = lang_subdir(repo_cfg)
+    bom_dir = (
+        Path(paths_cfg["output_dir"])
+        / "omnibor" / lang / repo_name / run_ts
+    )
+    try:
+        count = AdgParser(
+            str(bom_dir), paths_cfg["repos_dir"],
+        ).persist_identity_index()
+    except (OSError, ValueError) as exc:
+        print(
+            f"[WARN] identity index not written for "
+            f"{repo_name}: {exc}"
+        )
+        return
+    print(
+        f"[OK] identity index: {count} artifacts "
+        f"({bom_dir}/metadata/bomsh/"
+        f"bomsh_identity_index.json)"
+    )
 
 
 def run_java_phase2(
@@ -450,6 +495,23 @@ def generate_java_adg_spdx(
         print(f"[ERROR] {e}")
         return []
 
+    # OmniBOR artifact identity per JAR is computed by reading the
+    # built JAR itself in the generator (raw SHA-256 + SHA-256
+    # gitOID); bomsh's SHA-1 treedb is topology only and is not
+    # surfaced (see project/artifact-identity.md).
+
+    # Topology completeness: warn when a JAR's .class files do not
+    # trace back to a .java source (strace capture gap).  Design of
+    # record Java caveat (project/artifact-identity.md).
+    for rel, stats in parser.validate_jar_topology().items():
+        missing = stats["classes_without_source"]
+        if missing:
+            print(
+                f"[WARN] {rel}: {missing}/{stats['classes']} "
+                f".class files have no traced .java source "
+                f"(strace capture gap — topology incomplete)"
+            )
+
     # Parse strace openat log — the set of files
     # actually opened during the build.  Mirrors
     # how C/C++ uses load_raw_logfile_hashes() to
@@ -555,7 +617,7 @@ def generate_java_adg_spdx(
         # from artifact metadata that travels with the JAR: its
         # artifactId / subproject name and its build-output path.
         artifact_name = (
-            JavaSpdxGenerator._extract_artifact_name(bin_name)
+            JavaSpdxGenerator.extract_artifact_name(bin_name)
         )
         build_deps = None
         if capture is not None:
@@ -600,6 +662,7 @@ def generate_java_adg_spdx(
             jar_files=jar_files,
             deps=[],
             plugin_detection=plugin_result,
+            jar_path=str(jar_path),
         )
         if result:
             results.append(result)
@@ -620,6 +683,7 @@ def generate_java_adg_spdx(
                 pom_dir=pom_dir,
                 deps=build_deps,
                 plugin_detection=plugin_result,
+                jar_path=str(jar_path),
             )
             if result:
                 results.append(result)

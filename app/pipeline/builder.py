@@ -382,7 +382,7 @@ class BomtraceBuilder:
             )
             rc = self.runner.run(
                 f"{create_bom} -r {repo_dir} "
-                f"-j {treedb_file}",
+                f"-j {treedb_file} -b {meta_dir} -m",
                 cwd=str(repo_dir),
                 description=(
                     "Generating OmniBOR treedb "

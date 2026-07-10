@@ -6,6 +6,25 @@ OmniBOR intercepts compiler/linker invocations during build to create
 an **Artifact Dependency Graph (ADG)** — a cryptographic record of
 every input→output relationship.
 
+### Artifact Identity — gitOID + SHA-256
+
+Every artifact (leaf source files, intermediate objects, and built
+packages) carries two distinct `SHA-256` values, plus a third for built
+packages:
+
+| Value | What | Applies to |
+|-------|------|------------|
+| **raw hash** | `SHA-256` of the file bytes | files, objects, packages |
+| **artifact gitOID** | `gitoid:blob:sha256` (git-blob framing + `SHA-256`) | files, objects, packages |
+| **Input Manifest gitOID (OMID)** | gitOID of the OmniBOR Input Manifest (provenance ID) | built packages only |
+
+`SHA-256` is mandated by the OmniBOR specification. The **topology** of
+the ADG (which inputs feed which output) is captured by bomsh per
+language, but the **identity** values are computed by omnibor-analysis
+uniformly across all languages — so bomsh's internal `SHA-1` treedb
+never surfaces in the SBOM. This is the design of record; see
+`.windsurf/rules/project/artifact-identity.md`.
+
 The project supports two execution modes:
 
 | Mode | Mechanism | Requires `SYS_PTRACE` | Primary Use |

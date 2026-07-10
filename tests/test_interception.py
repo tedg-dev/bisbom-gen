@@ -367,6 +367,8 @@ class TestGenerateJavaTreedb(unittest.TestCase):
         self.assertIn(
             "-j /bom/meta/bomsh_omnibor_treedb", cmd_str,
         )
+        self.assertIn("-b /bom/meta", cmd_str)
+        self.assertIn("-m", cmd_str.split())
 
     def test_honors_config_create_bom_script(self):
         runner = MagicMock()

@@ -952,9 +952,16 @@ that specific build — not some other build, not a tampered artifact.
 ### Solution: GitOID-Based Provenance Chain
 
 OmniBOR already provides the cryptographic foundation: **GitOIDs**
-are content-addressable identifiers (SHA-256 over the artifact
-content). Every binary produced by the build has a unique GitOID
-that changes if even one byte changes.
+are content-addressable identifiers (`SHA-256` over the git-blob-framed
+artifact content — `blob <len>\0` prefix, then the bytes). Every binary
+produced by the build has a unique GitOID that changes if even one byte
+changes.
+
+> **Design of record**: gitOID (`SHA-256`) and a valid **raw** `SHA-256`
+> are captured for every artifact — files, objects, and packages — and are
+> distinct values (the gitOID is git-blob-framed; the raw SHA is not). See
+> `.windsurf/rules/project/artifact-identity.md`. bomsh's `SHA-1` treedb is
+> used only to capture graph topology and never surfaces in the SBOM.
 
 The provenance chain works as follows:
 

@@ -70,7 +70,8 @@ def _generate_java_treedb(
     treedb_file = meta_dir / "bomsh_omnibor_treedb"
     t0 = time.monotonic()
     rc = runner.run(
-        f"{create_bom} -r {repo_dir} -j {treedb_file}",
+        f"{create_bom} -r {repo_dir} -j {treedb_file} "
+        f"-b {meta_dir} -m",
         cwd=str(repo_dir),
         description=(
             "Generating OmniBOR treedb for Java workspace"
