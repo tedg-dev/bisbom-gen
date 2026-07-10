@@ -1112,5 +1112,100 @@ class TestPhase1IdentityIndex(unittest.TestCase):
             mock_persist.assert_not_called()
 
 
+class TestHandoffManifestHelpers(unittest.TestCase):
+    """Tests for the Phase 2 hand-off manifest helpers."""
+
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self._tmp.cleanup)
+        self.tmp = Path(self._tmp.name)
+
+    def test_artifact_record_from_index(self):
+        from app.pipeline.lang_runners import _jar_artifact_record
+
+        index = {
+            "/build/libs/app.jar": {
+                "raw": "r" * 64,
+                "gitoid": "gitoid:blob:sha256:" + "g" * 64,
+            },
+        }
+        rec = _jar_artifact_record(
+            index, self.tmp / "app.jar", "app.jar",
+        )
+        self.assertEqual(rec["sha256"], "r" * 64)
+        self.assertEqual(
+            rec["gitoid"], "gitoid:blob:sha256:" + "g" * 64,
+        )
+
+    def test_artifact_record_file_fallback(self):
+        from app.pipeline.lang_runners import _jar_artifact_record
+        from app.spdx import identity
+
+        jar = self.tmp / "app.jar"
+        jar.write_bytes(b"PK\x03\x04payload")
+        rec = _jar_artifact_record({}, jar, "app.jar")
+        self.assertEqual(rec["sha256"], identity.raw_hash(jar))
+        self.assertEqual(rec["gitoid"], identity.gitoid(jar))
+
+    def test_artifact_record_unavailable(self):
+        from app.pipeline.lang_runners import _jar_artifact_record
+
+        rec = _jar_artifact_record(
+            {}, self.tmp / "gone.jar", "gone.jar",
+        )
+        self.assertIsNone(rec)
+
+    def test_emit_empty_sboms_returns_none(self):
+        from app.pipeline.lang_runners import _emit_handoff_manifest
+
+        result = _emit_handoff_manifest(
+            self.tmp, "app", "java", "sidecar",
+            "sha", "vcs", "bid", [],
+        )
+        self.assertIsNone(result)
+
+    def test_emit_success_writes_manifest(self):
+        from app.pipeline.lang_runners import _emit_handoff_manifest
+        from app.pipeline import handoff
+
+        build = self.tmp / "app_build.spdx.json"
+        analyzed = self.tmp / "app_analyzed.spdx.json"
+        build.write_text("{}", encoding="utf-8")
+        analyzed.write_text("{}", encoding="utf-8")
+        sboms = [{
+            "artifact": {
+                "name": "app.jar",
+                "sha256": "r" * 64,
+                "gitoid": "gitoid:blob:sha256:" + "g" * 64,
+            },
+            "build": str(build),
+            "analyzed": str(analyzed),
+        }]
+        path = _emit_handoff_manifest(
+            self.tmp, "app", "java", "sidecar",
+            "sha", "vcs", "bid", sboms,
+        )
+        self.assertEqual(path.name, handoff.HANDOFF_FILENAME)
+        data = handoff.read_handoff_manifest(path)
+        self.assertEqual(data["build_id"], "bid")
+        self.assertEqual(data["producer"]["mode"], "sidecar")
+
+    def test_emit_handoff_error_returns_none(self):
+        from app.pipeline.lang_runners import _emit_handoff_manifest
+        from app.pipeline import handoff
+
+        sboms = [{"artifact": {}, "build": "x", "analyzed": "y"}]
+        with patch(
+            "app.pipeline.lang_runners.handoff."
+            "write_handoff_manifest",
+            side_effect=handoff.HandoffError("boom"),
+        ):
+            result = _emit_handoff_manifest(
+                self.tmp, "app", "java", "sidecar",
+                "sha", "vcs", "bid", sboms,
+            )
+        self.assertIsNone(result)
+
+
 if __name__ == "__main__":
     unittest.main()

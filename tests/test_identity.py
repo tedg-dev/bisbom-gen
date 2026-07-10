@@ -286,6 +286,64 @@ class TestSpdx23FileChecksums(unittest.TestCase):
         )
 
 
+class TestReadIdentityIndex(unittest.TestCase):
+    """Tests for identity.read_identity_index."""
+
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self._tmp.cleanup)
+        self.tmp = Path(self._tmp.name)
+
+    def test_missing_returns_empty(self):
+        self.assertEqual(
+            identity.read_identity_index(self.tmp / "absent.json"),
+            {},
+        )
+
+    def test_valid_returns_mapping(self):
+        p = self.tmp / "idx.json"
+        p.write_text(
+            json.dumps({"/a/x.jar": {"raw": "r", "gitoid": "g"}}),
+            encoding="utf-8",
+        )
+        idx = identity.read_identity_index(p)
+        self.assertEqual(idx["/a/x.jar"]["gitoid"], "g")
+
+    def test_non_dict_returns_empty(self):
+        p = self.tmp / "list.json"
+        p.write_text(json.dumps([1, 2]), encoding="utf-8")
+        self.assertEqual(identity.read_identity_index(p), {})
+
+    def test_malformed_returns_empty(self):
+        p = self.tmp / "bad.json"
+        p.write_text("{not json", encoding="utf-8")
+        self.assertEqual(identity.read_identity_index(p), {})
+
+
+class TestIdentityForBasename(unittest.TestCase):
+    """Tests for identity.identity_for_basename."""
+
+    def test_exact_key_match(self):
+        idx = {"app.jar": {"raw": "r"}}
+        self.assertEqual(
+            identity.identity_for_basename(idx, "app.jar"),
+            {"raw": "r"},
+        )
+
+    def test_suffix_match(self):
+        idx = {"/build/libs/app.jar": {"raw": "r"}}
+        self.assertEqual(
+            identity.identity_for_basename(idx, "app.jar")["raw"],
+            "r",
+        )
+
+    def test_no_match_returns_none(self):
+        idx = {"/build/libs/other.jar": {"raw": "r"}}
+        self.assertIsNone(
+            identity.identity_for_basename(idx, "app.jar")
+        )
+
+
 class TestModuleConstants(unittest.TestCase):
     """Module-level defaults align with the design of record."""
 
