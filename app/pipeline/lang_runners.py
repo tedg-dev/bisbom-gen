@@ -617,7 +617,7 @@ def generate_java_adg_spdx(
         # from artifact metadata that travels with the JAR: its
         # artifactId / subproject name and its build-output path.
         artifact_name = (
-            JavaSpdxGenerator._extract_artifact_name(bin_name)
+            JavaSpdxGenerator.extract_artifact_name(bin_name)
         )
         build_deps = None
         if capture is not None:

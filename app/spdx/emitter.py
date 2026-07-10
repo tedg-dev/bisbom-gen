@@ -152,7 +152,7 @@ class SpdxEmitter:
         )
         return vendored, own
 
-    def emit(
+    def emit(  # pylint: disable=unused-argument
         self, components, project_files,
         doc_mapping, logfile_hashes,
         direct_only=False,

@@ -1,4 +1,7 @@
 """Tests for Java SPDX generator."""
+# Tests exercise the internal _build_spdx builder directly, which is
+# legitimate for a class's own unit tests.
+# pylint: disable=protected-access
 import hashlib
 import json
 import sys
@@ -1612,11 +1615,11 @@ class TestIsTestFile(unittest.TestCase):
 
 
 class TestExtractArtifactName(unittest.TestCase):
-    """Tests for _extract_artifact_name."""
+    """Tests for extract_artifact_name."""
 
     def test_simple_versioned_jar(self):
         self.assertEqual(
-            JavaSpdxGenerator._extract_artifact_name(
+            JavaSpdxGenerator.extract_artifact_name(
                 "jsoup-1.17.2.jar"
             ),
             "jsoup",
@@ -1624,7 +1627,7 @@ class TestExtractArtifactName(unittest.TestCase):
 
     def test_multi_part_name(self):
         self.assertEqual(
-            JavaSpdxGenerator._extract_artifact_name(
+            JavaSpdxGenerator.extract_artifact_name(
                 "dependency-check-utils-9.2.0.jar"
             ),
             "dependency-check-utils",
@@ -1632,7 +1635,7 @@ class TestExtractArtifactName(unittest.TestCase):
 
     def test_snapshot_version(self):
         self.assertEqual(
-            JavaSpdxGenerator._extract_artifact_name(
+            JavaSpdxGenerator.extract_artifact_name(
                 "my-lib-1.0-SNAPSHOT.jar"
             ),
             "my-lib",
@@ -1640,7 +1643,7 @@ class TestExtractArtifactName(unittest.TestCase):
 
     def test_three_part_version(self):
         self.assertEqual(
-            JavaSpdxGenerator._extract_artifact_name(
+            JavaSpdxGenerator.extract_artifact_name(
                 "commons-io-2.16.1.jar"
             ),
             "commons-io",
@@ -1649,7 +1652,7 @@ class TestExtractArtifactName(unittest.TestCase):
     def test_no_version(self):
         # If no version pattern, return name without .jar
         self.assertEqual(
-            JavaSpdxGenerator._extract_artifact_name(
+            JavaSpdxGenerator.extract_artifact_name(
                 "mylib.jar"
             ),
             "mylib",
@@ -1657,7 +1660,7 @@ class TestExtractArtifactName(unittest.TestCase):
 
     def test_no_jar_extension(self):
         self.assertEqual(
-            JavaSpdxGenerator._extract_artifact_name(
+            JavaSpdxGenerator.extract_artifact_name(
                 "artifact-1.0.0"
             ),
             "artifact",

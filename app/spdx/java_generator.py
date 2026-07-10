@@ -647,7 +647,7 @@ class JavaSpdxGenerator:
 
         # Extract artifact name from JAR filename
         # e.g., dependency-check-utils-9.2.0.jar → dependency-check-utils
-        artifact_name = self._extract_artifact_name(bin_name)
+        artifact_name = self.extract_artifact_name(bin_name)
 
         # Add root package for the JAR
         root_pkg_id = f"SPDXRef-Package-{clean_name}"
@@ -922,7 +922,7 @@ class JavaSpdxGenerator:
         return doc
 
     @staticmethod
-    def _extract_artifact_name(jar_filename):
+    def extract_artifact_name(jar_filename):
         """Extract Maven artifact name from JAR filename.
 
         Strips version suffix and .jar extension.
