@@ -15,7 +15,10 @@ import sys
 from pathlib import Path
 
 from app.config import lang_subdir
+from app.pipeline import handoff
 from app.pipeline.timing import StepTimer, TimingResult
+from app.spdx import identity
+from app.spdx.identity import IDENTITY_INDEX_FILENAME
 
 logger = logging.getLogger(__name__)
 
@@ -361,11 +364,15 @@ def run_java_phase2(
     pipeline, repo_name, repo_cfg,
     paths_cfg, omnibor_java_cfg, run_ts,
     vcs_uri="NOASSERTION",
+    commit_sha="NOASSERTION",
+    mode="standalone",
+    build_id=None,
 ):
     """Java Phase 2: SPDX generation + validation.
 
     Runs post-build analysis: OmniBOR SBOM, metadata,
-    per-binary SPDX, validation, binary collection.
+    per-binary SPDX, validation, binary collection, and the
+    Phase 2 SBOM hand-off manifest.
 
     Returns list of ``StepMetrics``.
     """
@@ -384,6 +391,9 @@ def run_java_phase2(
                 repo_name, repo_cfg,
                 paths_cfg, run_ts,
                 vcs_uri=vcs_uri,
+                commit_sha=commit_sha,
+                mode=mode,
+                build_id=build_id,
             )
         ),
     )
@@ -394,6 +404,7 @@ def run_java_pipeline(
     paths_cfg, omnibor_java_cfg, run_ts,
     vcs_uri="NOASSERTION",
     mode="standalone",
+    commit_sha="NOASSERTION",
 ):
     """Java pipeline: build + SPDX generation.
 
@@ -419,6 +430,8 @@ def run_java_pipeline(
             pipeline, repo_name, repo_cfg,
             paths_cfg, omnibor_java_cfg, run_ts,
             vcs_uri=vcs_uri,
+            commit_sha=commit_sha,
+            mode=mode,
         )
     )
     return timing
@@ -449,9 +462,75 @@ def _find_module_dir(jar_path):
     return None
 
 
+def _jar_artifact_record(index, jar_path, bin_name):
+    """Resolve a JAR's OmniBOR identity for the hand-off manifest.
+
+    Prefers the Phase-1 identity index (canonical, works offline);
+    falls back to reading the JAR when it is still on disk (co-located
+    run). Returns a ``{name, sha256, gitoid}`` record, or ``None`` when
+    identity is unavailable (offline Phase 2 with no index entry).
+    """
+    record = identity.identity_for_basename(index, bin_name)
+    if record is not None:
+        return {
+            "name": bin_name,
+            "sha256": record["raw"],
+            "gitoid": record["gitoid"],
+        }
+    ident = identity.try_from_file(jar_path)
+    if ident is not None:
+        return {
+            "name": bin_name,
+            "sha256": ident.raw,
+            "gitoid": ident.gitoid,
+        }
+    return None
+
+
+def _emit_handoff_manifest(
+    spdx_dir, repo_name, lang, mode,
+    commit_sha, vcs_uri, build_id, sboms,
+):
+    """Write the Phase 2 SBOM hand-off manifest for a Java run.
+
+    The manifest is a consumer-agnostic output descriptor enumerating
+    every generated SBOM pair (see
+    ``docs/sidecar/java/phase2-handoff-contract.md``). A run that
+    produced no complete pair writes no manifest.
+    """
+    if not sboms:
+        print(
+            f"[WARN] {repo_name}: no complete SBOM pairs — "
+            f"hand-off manifest not written"
+        )
+        return None
+    try:
+        path = handoff.write_handoff_manifest(
+            spdx_dir,
+            repo_name=repo_name,
+            language=lang,
+            mode=mode,
+            commit_sha=commit_sha,
+            vcs_uri=vcs_uri,
+            build_id=build_id,
+            sboms=sboms,
+        )
+    except handoff.HandoffError as exc:
+        print(f"[ERROR] hand-off manifest not written: {exc}")
+        return None
+    print(
+        f"[OK] Hand-off manifest: {path} "
+        f"({len(sboms)} artifact(s))"
+    )
+    return path
+
+
 def generate_java_adg_spdx(
     repo_name, repo_cfg, paths_cfg, run_ts,
     vcs_uri="NOASSERTION",
+    commit_sha="NOASSERTION",
+    mode="standalone",
+    build_id=None,
 ):
     """Generate per-binary Java SPDX.
 
@@ -577,7 +656,16 @@ def generate_java_adg_spdx(
     capture = load_capture(bom_dir)
     source_present = repo_dir.exists()
 
+    # Phase-1 identity index: canonical source for each JAR's raw
+    # SHA-256 + gitOID in the hand-off manifest (works offline, no
+    # workspace re-read). Empty when absent; a co-located fallback
+    # reads the JAR directly (see _jar_artifact_record).
+    identity_index = identity.read_identity_index(
+        bom_dir / "metadata" / "bomsh" / IDENTITY_INDEX_FILENAME
+    )
+
     results = []
+    sboms = []
     for jar_path in jar_paths:
         jar_name = jar_path.stem  # e.g. jsoup-1.22.1
         bin_name = jar_path.name  # e.g. jsoup-1.22.1.jar
@@ -664,8 +752,11 @@ def generate_java_adg_spdx(
             plugin_detection=plugin_result,
             jar_path=str(jar_path),
         )
+        analyzed_ok = bool(result)
         if result:
             results.append(result)
+
+        build_written = False
 
         # Build: full dependency graph for this module, from the
         # captured metadata (build_deps) or the co-located live
@@ -685,9 +776,33 @@ def generate_java_adg_spdx(
                 plugin_detection=plugin_result,
                 jar_path=str(jar_path),
             )
+            build_written = bool(result)
             if result:
                 results.append(result)
 
+        # Record this JAR in the hand-off manifest only when the full
+        # build + analyzed pair was written (the contract requires
+        # both per artifact).
+        if analyzed_ok and build_written:
+            artifact = _jar_artifact_record(
+                identity_index, jar_path, bin_name,
+            )
+            if artifact is not None:
+                sboms.append({
+                    "artifact": artifact,
+                    "analyzed": str(analyzed_path),
+                    "build": str(build_path),
+                })
+            else:
+                print(
+                    f"[WARN] {bin_name}: no OmniBOR identity "
+                    f"available; omitted from hand-off manifest"
+                )
+
+    _emit_handoff_manifest(
+        spdx_dir, repo_name, lang, mode, commit_sha,
+        vcs_uri, build_id or run_ts, sboms,
+    )
     return results
 
 

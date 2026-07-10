@@ -260,6 +260,7 @@ def main():
                 paths_cfg, omnibor_cfg, run_ts,
                 vcs_uri=vcs_uri,
                 mode=mode,
+                commit_sha=commit_sha,
             )
     else:
         timing = run_go_pipeline(
@@ -512,6 +513,8 @@ def _run_phase2_only(
     )
     m_vcs = manifest.get("vcs_uri", vcs_uri)
     m_ts = manifest.get("run_ts", run_ts)
+    m_commit = manifest.get("commit_sha") or "NOASSERTION"
+    m_mode = manifest.get("mode", "sidecar")
     tracer = manifest.get("tracer", "unknown")
 
     timing = TimingResult(tracer=tracer)
@@ -521,6 +524,8 @@ def _run_phase2_only(
         pipeline, repo_name, m_repo_cfg,
         paths_cfg, m_omnibor, m_ts,
         vcs_uri=m_vcs,
+        commit_sha=m_commit,
+        mode=m_mode,
     )
     timing.steps.extend(phase2_steps)
     return timing

@@ -251,3 +251,37 @@ def write_identity_index(paths, out_path, algo=DEFAULT_ALGO):
         encoding="utf-8",
     )
     return len(index)
+
+
+def read_identity_index(path):
+    """Load a Phase-1 identity index written by :func:`write_identity_index`.
+
+    Returns the ``{artifact_path: {algo, raw, gitoid}}`` mapping, or an
+    empty dict if the index is absent or unreadable (an offline Phase 2
+    with no index simply has no pre-computed identities).
+    """
+    import json
+
+    p = Path(path)
+    if not p.is_file():
+        return {}
+    try:
+        data = json.loads(p.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+    return data if isinstance(data, dict) else {}
+
+
+def identity_for_basename(index, name):
+    """Return the identity record for artifact file ``name``.
+
+    The index is keyed by absolute build-time paths; matching by
+    basename tolerates path-prefix differences between the build host
+    and the analysis host. Returns the record dict (``algo``/``raw``/
+    ``gitoid``) or ``None`` if no path matches.
+    """
+    suffix = f"/{name}"
+    for key, record in index.items():
+        if key == name or key.endswith(suffix):
+            return record
+    return None
