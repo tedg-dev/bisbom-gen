@@ -64,6 +64,16 @@ PR/issue mapping for recreation once GitHub Issues access returns:
 **continuous requirement applied to every item above**, not a discrete
 deliverable. No A-row is "done" until it passes these gates.
 
+**Multi-distro scope note:** the multi-distro portion of this gate exercises
+the **system-package resolvers** (`dpkg`/`rpm`/`apk` → `pkg:deb`/`pkg:rpm`/`pkg:apk`)
+via `scripts/test-resolvers-multi-distro.sh` — a **C/C++ / system-package**
+concern. The **Java** (Maven/Gradle) path identifies dependencies by
+`pkg:maven` coordinates and never invokes an OS package resolver, so the
+multi-distro *resolver* runs do not apply to Main A. The operative Java
+gates are unit tests, **golden validation**, and the `omnibor-java-testapp`
+CI phase-split run. Full-pipeline multi-distro runs remain an EC2-gated
+harness concern (`bomtrace3` is validated on Debian/Ubuntu only).
+
 **A9 exclusion:** A9 is **backlog and parentless** (GitHub issue #11066,
 Proposed) and is **not** part of the Main A completion gate. It is very
 likely not required for the initial pilot: the universal artifact-based
