@@ -31,6 +31,9 @@ from bomsh_java_fast_io import (  # noqa: E402
     find_suffix_files,
     safe_extract_jar,
     is_zip_file,
+    iter_jar_class_entries,
+    bytes_same_as_file,
+    find_matching_class,
 )
 
 # Well-known git blob object ids (independent of any local git config).
@@ -447,6 +450,171 @@ class TestApplier(unittest.TestCase):
                 "bomsh_create_bom_java.py"
             )
         )
+
+
+def _make_jar(path, members):
+    """Create a JAR (zip) with the given {member_name: bytes} mapping."""
+    with zipfile.ZipFile(path, "w") as archive:
+        for name, data in members.items():
+            archive.writestr(name, data)
+    return path
+
+
+class TestIterJarClassEntries(unittest.TestCase):
+    """iter_jar_class_entries reads .class bytes in sorted member order."""
+
+    def test_returns_sorted_class_entries_with_bytes(self):
+        with tempfile.TemporaryDirectory() as td:
+            jar = _make_jar(os.path.join(td, "a.jar"), {
+                "b/B.class": b"BB",
+                "a/A.class": b"AA",
+                "META-INF/MANIFEST.MF": b"Manifest\n",
+                "a/notes.txt": b"text",
+            })
+            entries = iter_jar_class_entries(jar)
+            self.assertEqual(
+                [name for name, _ in entries],
+                ["a/A.class", "b/B.class"],
+            )
+            self.assertEqual(dict(entries), {
+                "a/A.class": b"AA", "b/B.class": b"BB",
+            })
+
+    def test_excludes_directory_entries(self):
+        with tempfile.TemporaryDirectory() as td:
+            jar = os.path.join(td, "d.jar")
+            with zipfile.ZipFile(jar, "w") as archive:
+                archive.writestr("pkg/", b"")
+                archive.writestr("pkg/C.class", b"CC")
+            self.assertEqual(
+                iter_jar_class_entries(jar), [("pkg/C.class", b"CC")]
+            )
+
+    def test_empty_jar(self):
+        with tempfile.TemporaryDirectory() as td:
+            jar = _make_jar(os.path.join(td, "e.jar"), {})
+            self.assertEqual(iter_jar_class_entries(jar), [])
+
+    def test_bad_zip_uses_extract_fallback(self):
+        # A non-zip file triggers the extract-to-temp fallback, which in
+        # turn falls back to `jar -xf`; with jar unavailable it yields [].
+        with tempfile.TemporaryDirectory() as td:
+            bogus = _write(os.path.join(td, "bad.jar"), b"not a zip")
+            with mock.patch(
+                "bomsh_java_fast_io._jar_extract_fallback"
+            ) as fallback:
+                result = iter_jar_class_entries(bogus)
+            self.assertEqual(result, [])
+            fallback.assert_called_once()
+
+    def test_fallback_reads_extracted_classes(self):
+        with tempfile.TemporaryDirectory() as td:
+            real = _make_jar(os.path.join(td, "r.jar"), {
+                "x/Y.class": b"YY", "x/Z.class": b"ZZ",
+            })
+            with open(real, "rb") as fh:
+                payload = fh.read()
+            # Force the BadZipFile branch even though payload is valid.
+            orig = zipfile.ZipFile
+
+            def _raise(path, *a, **k):
+                if os.path.abspath(path) == os.path.abspath(real):
+                    raise zipfile.BadZipFile("forced")
+                return orig(path, *a, **k)
+
+            with mock.patch.object(zipfile, "ZipFile", _raise):
+                with mock.patch(
+                    "bomsh_java_fast_io._jar_extract_fallback",
+                    lambda jarfile, destdir: orig(real).extractall(destdir),
+                ):
+                    entries = iter_jar_class_entries(real)
+            self.assertEqual(payload[:2], b"PK")  # sanity: it was a real zip
+            self.assertEqual(
+                [name for name, _ in entries],
+                ["x/Y.class", "x/Z.class"],
+            )
+
+
+class TestBytesSameAsFile(unittest.TestCase):
+    """bytes_same_as_file compares in-memory bytes to a file."""
+
+    def test_identical(self):
+        with tempfile.TemporaryDirectory() as td:
+            p = _write(os.path.join(td, "f"), b"hello\n")
+            self.assertTrue(bytes_same_as_file(b"hello\n", p))
+
+    def test_size_mismatch(self):
+        with tempfile.TemporaryDirectory() as td:
+            p = _write(os.path.join(td, "f"), b"hello\n")
+            self.assertFalse(bytes_same_as_file(b"hell", p))
+
+    def test_same_size_different_content(self):
+        with tempfile.TemporaryDirectory() as td:
+            p = _write(os.path.join(td, "f"), b"aaaaa")
+            self.assertFalse(bytes_same_as_file(b"bbbbb", p))
+
+    def test_missing_file(self):
+        self.assertFalse(bytes_same_as_file(b"x", "/no/such/file"))
+
+
+class TestFindMatchingClass(unittest.TestCase):
+    """find_matching_class mirrors upstream find_matching_file_in_dict."""
+
+    def _dict(self, td, mapping):
+        adict = {}
+        for rel, data in mapping.items():
+            path = os.path.join(td, rel)
+            os.makedirs(os.path.dirname(path), exist_ok=True)
+            _write(path, data)
+            adict.setdefault(os.path.basename(rel), []).append(path)
+        return adict
+
+    def test_data_match_returns_workspace_path(self):
+        with tempfile.TemporaryDirectory() as td:
+            adict = self._dict(td, {"a/Foo.class": b"FOO"})
+            match = find_matching_class(
+                "/tmp/x/Foo.class", adict, class_data=b"FOO"
+            )
+            self.assertEqual(match, adict["Foo.class"][0])
+
+    def test_data_no_content_match(self):
+        with tempfile.TemporaryDirectory() as td:
+            adict = self._dict(td, {"a/Foo.class": b"FOO"})
+            self.assertEqual(
+                find_matching_class(
+                    "/tmp/x/Foo.class", adict, class_data=b"BAR"
+                ),
+                "",
+            )
+
+    def test_no_basename_candidate(self):
+        self.assertEqual(
+            find_matching_class("/tmp/x/Nope.class", {}, class_data=b"X"),
+            "",
+        )
+
+    def test_path_mode_matches_file_content(self):
+        with tempfile.TemporaryDirectory() as td:
+            adict = self._dict(td, {"a/Foo.class": b"FOO"})
+            os.makedirs(os.path.join(td, "probe"))
+            probe = _write(os.path.join(td, "probe/Foo.class"), b"FOO")
+            self.assertEqual(
+                find_matching_class(probe, adict),
+                adict["Foo.class"][0],
+            )
+
+    def test_picks_first_content_match(self):
+        with tempfile.TemporaryDirectory() as td:
+            adict = self._dict(td, {"a/Foo.class": b"FOO"})
+            # A second same-basename candidate with matching content.
+            second = os.path.join(td, "b", "Foo.class")
+            os.makedirs(os.path.dirname(second))
+            _write(second, b"FOO")
+            adict["Foo.class"].append(second)
+            match = find_matching_class(
+                "/tmp/x/Foo.class", adict, class_data=b"FOO"
+            )
+            self.assertEqual(match, adict["Foo.class"][0])
 
 
 if __name__ == "__main__":

@@ -296,6 +296,11 @@ COPY docker/patches/bomsh_java_fast_io.py /opt/bomsh/scripts/bomsh_java_fast_io.
 COPY docker/patches/apply_fast_io.py /tmp/apply_fast_io.py
 RUN python3 /tmp/apply_fast_io.py && rm /tmp/apply_fast_io.py
 
+# Performance: read .class bytes straight from each JAR in memory instead of
+# extracting to a temp dir, walking, and rmtree-ing. Same treedb output.
+COPY docker/patches/apply_inmemory_jar.py /tmp/apply_inmemory_jar.py
+RUN python3 /tmp/apply_inmemory_jar.py && rm /tmp/apply_inmemory_jar.py
+
 # Go-specific bomtrace2 config (watches go compile/link tools + openat syscall)
 COPY docker/bomtrace_go.conf /opt/bomsh/bin/bomtrace_go.conf
 
@@ -376,6 +381,13 @@ COPY docker/patches/apply_fast_io.py \
     /tmp/apply_fast_io.py
 RUN python3 /tmp/apply_fast_io.py && \
     rm /tmp/apply_fast_io.py
+
+# In-memory JAR class processing (same as standalone): read .class bytes
+# from the archive instead of extract -> walk -> rmtree. Same treedb output.
+COPY docker/patches/apply_inmemory_jar.py \
+    /tmp/apply_inmemory_jar.py
+RUN python3 /tmp/apply_inmemory_jar.py && \
+    rm /tmp/apply_inmemory_jar.py
 
 ENV PATH="/opt/bomsh/bin:/opt/bomsh/scripts:${PATH}"
 
