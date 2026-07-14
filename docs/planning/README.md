@@ -50,13 +50,13 @@ PR/issue mapping for recreation once GitHub Issues access returns:
 |-----|-------|--------|---------|
 | AF | Java Phase 1 capture foundation — build-tool detection + shared treedb helper | Merged (issue **In Review**) | #11069 / PRs #199, #200 |
 | A1 | Phase 2 generates SBOMs from Phase 1 metadata, no source tree (phase-isolation core) | Merged | SI-4 (Java) / #11003 / PR #194 |
-| A2 | Phase 2 output set + hand-off manifest | Scoped | #11004 → [java/java-phase2-11004-handoff-scope.md](java/java-phase2-11004-handoff-scope.md) |
+| A2 | Phase 2 output set + hand-off manifest | Merged | #11004 / PR #210 → [java/java-phase2-11004-handoff-scope.md](java/java-phase2-11004-handoff-scope.md) |
 | A3 | Build efficiency — reuse captured dependency data (no double resolution) | Delivered via A1 | US-1 |
 | A4 | Build efficiency — single-invocation multi-module Gradle capture | Merged | US-2 / PR #196 |
 | A5 | Build efficiency — overlap independent post-build steps only when measurable | Optional / low (measure first) | US-3 |
 | A6 | Treedb SBOM-generation speedup (retro) | Delivered | SI-R1 / PRs #189, #187, #191 |
 | A7 | Deliver Java build evidence to Corona (Java delivery slice) | Postponed — out of charter (Corona / Phase 2-incorporation team owns delivery + verification) | SI-5 (Java) |
-| A8 | Build efficiency — fully in-memory JAR class processing (no extract-to-disk) | Deferred (validate on EC2) | US-4 |
+| A8 | Build efficiency — fully in-memory JAR class processing (no extract-to-disk) | Deferred (validate on EC2) — **parentless** (detached from #11005 so a deferred item does not gate the parent's completion) | US-4 / #11055 |
 | A9 | Support non-Maven/Gradle Java builds (Ant/Ivy, Bazel, `make`) | **Backlog** — parentless issue, not in the initial pilot; **excluded from the Main A completion gate** | #11066 (Proposed) / [java/java-nonmaven-gradle-build-tools-subissue.md](java/java-nonmaven-gradle-build-tools-subissue.md) |
 
 **Standing gate (not a sub-issue):** testing — golden validation, the

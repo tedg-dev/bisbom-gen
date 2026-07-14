@@ -4,7 +4,7 @@
 |---|---|
 | **Purpose** | Durable record tying each drafted Main issue and sub-issue to the PR(s) that implement it, so the hierarchy can be recreated and linked once GitHub Projects/Issues access is restored. |
 | **Maintained by** | Cascade (update as PRs merge) |
-| **Last updated** | 2026-07-08 |
+| **Last updated** | 2026-07-14 |
 
 ---
 
@@ -45,6 +45,7 @@ theme / planning doc) -> **sub-issues** (drafted in the matching planning doc).
 | PR | Title | Theme -> sub-issue (index label) | GitHub issue | Status |
 |---|---|---|---|---|
 | `tedg-dev/omnibor-analysis#194` | Phase 2 generates SBOMs from Phase 1 metadata, no source tree | Java Phase 2 -> **A1** / SI-4 (Java) | #11003 | Merged |
+| `tedg-dev/omnibor-analysis#210` | Phase 2 SBOM hand-off manifest | Java Phase 2 -> **A2** | #11004 | Merged |
 | `tedg-dev/omnibor-analysis#196` | Single-invocation Gradle dependency capture (US-2) | Phase 1 Build-Speed -> **A4** / US-2 | #11006 | Merged |
 | `tedg-dev/omnibor-analysis#200` | Java build-tool detection + `java_build_tool` override | Phase 1 Java capture -> **AF** (pilot foundation) | #11069 | Merged |
 | `tedg-dev/omnibor-analysis#199` | Shared `_generate_java_treedb` helper (DRY) | Phase 1 Java capture -> **AF** (pilot foundation) | #11069 | Merged |
@@ -70,8 +71,7 @@ docs activity and carries a datetimestamped activity log.
 
 | Item | Theme -> sub-issue (index label) | GitHub issue | Status |
 |---|---|---|---|
-| Phase 2 output set + hand-off manifest | Java Phase 2 -> **A2** | #11004 (re-scoped) | Scoped, no PR |
-| In-memory JAR class processing (no extract-to-disk) | Phase 1 Build-Speed -> **A8** / US-4 | #11055 | Deferred (validate on EC2), no PR |
+| In-memory JAR class processing (no extract-to-disk) | Phase 1 Build-Speed -> **A8** / US-4 | #11055 (**parentless** — detached from #11005) | Deferred (validate on EC2), no PR |
 | Support non-Maven/Gradle Java builds (Ant/Ivy, Bazel, `make`) | Phase 1 Java capture -> **A9** | #11066 (backlog, Proposed; parentless) | Backlog — **excluded from the Main A gate**. `tedg-dev/omnibor-analysis#202` (Draft, `Proposed` label — tables it for the pilot, fail-fast on ivy/ant/make/bazel); `#201` (Draft, `backlog` label — Ivy parser/reader) |
 | Overlap independent post-build steps (measure first) | Phase 1 Build-Speed -> **A5** / US-3 | #11007 | Optional / low, no PR |
 | Deliver Java build evidence to Corona | **A7** / SI-5 (Java) | — | Postponed — out of charter |
@@ -89,8 +89,9 @@ The 13 themed issues (#11000–#11013), the pilot-foundation issue
 **#11069** (In Review, child of #11005), the parentless A9 backlog issue
 **#11066**, and the living documentation tracker **#11071** (In Review,
 parentless) are live on the Corona project board (#255). Sub-issue parent
-links are established (#11069 → #11005; #11066 and #11071 are intentionally
-parentless). Assignee: `tedg_cisco`.
+links: #11069 → #11005; #11066, #11071, and **#11055 (A8)** are parentless
+(#11055 was detached from #11005 on 2026-07-14 so a deferred item does not
+gate the parent's completion). Assignee: `tedg_cisco`.
 
 The current GitHub main issue structure (#11002, #11005, #11008) does not
 map 1:1 to the planning index's Main A / B / C. See the restructuring
