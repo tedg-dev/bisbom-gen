@@ -343,6 +343,18 @@ omnibor_java:
   strace_opts: -f -s99999 --seccomp-bpf -e trace=openat -qqq
   create_bom_script: bomsh_create_bom_java.py
   strace_logfile: /tmp/strace_java_logfile
+  # Sidecar inline hashing (generic, Maven + Gradle). When true, the
+  # LD_PRELOAD shim (libomnibor_java_intercept.so) computes each
+  # .class/.jar git-blob SHA-1 + SHA-256 gitoid inline during the build
+  # and generate_adg() assembles the treedb from the capture log instead
+  # of a post-build workspace rescan. The native build is untouched
+  # (env-only injection). Default false: enable ONLY after the shim is
+  # golden-validated on EC2 (byte-identical treedb vs the rescan).
+  # See docs/sidecar/java/inline-hashing-interception-design.md.
+  java_inline_hash: false
+  # Optional override; defaults to
+  # /opt/omnibor/lib/libomnibor_java_intercept.so in the image.
+  # inline_shim_path: /opt/omnibor/lib/libomnibor_java_intercept.so
 pipeline:
   # Syft manifest-based SBOM generation.  Disabled by default
   # because OmniBOR build-time SBOMs are the primary output.

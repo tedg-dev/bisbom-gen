@@ -296,6 +296,20 @@ COPY docker/patches/bomsh_java_fast_io.py /opt/bomsh/scripts/bomsh_java_fast_io.
 COPY docker/patches/apply_fast_io.py /tmp/apply_fast_io.py
 RUN python3 /tmp/apply_fast_io.py && rm /tmp/apply_fast_io.py
 
+# Java inline-hashing shim (sidecar): an LD_PRELOAD library that computes
+# each .class/.jar git-blob SHA-1 + SHA-256 gitoid inline as the build
+# finalizes it, appending a JSONL capture log.  generate_adg() then
+# assembles the OmniBOR treedb from that log instead of rescanning the
+# workspace.  Enabled per-run via config (omnibor.java_inline_hash) which
+# injects LD_PRELOAD + OMNIBOR_CAPTURE_LOG; the native build is untouched.
+# See docs/sidecar/java/inline-hashing-interception-design.md.
+COPY docker/shim/omnibor_java_intercept.c /tmp/omnibor_java_intercept.c
+RUN mkdir -p /opt/omnibor/lib && \
+    gcc -shared -fPIC -O2 \
+        -o /opt/omnibor/lib/libomnibor_java_intercept.so \
+        /tmp/omnibor_java_intercept.c -ldl -lcrypto -lpthread && \
+    rm /tmp/omnibor_java_intercept.c
+
 # Go-specific bomtrace2 config (watches go compile/link tools + openat syscall)
 COPY docker/bomtrace_go.conf /opt/bomsh/bin/bomtrace_go.conf
 
@@ -376,6 +390,13 @@ COPY docker/patches/apply_fast_io.py \
     /tmp/apply_fast_io.py
 RUN python3 /tmp/apply_fast_io.py && \
     rm /tmp/apply_fast_io.py
+
+# Java inline-hashing shim: reuse the artifact compiled in the standalone
+# stage so the lean sidecar image needs no C toolchain.  libcrypto is
+# already present (openjdk/maven depend on libssl) for the runtime link.
+COPY --from=standalone \
+    /opt/omnibor/lib/libomnibor_java_intercept.so \
+    /opt/omnibor/lib/libomnibor_java_intercept.so
 
 ENV PATH="/opt/bomsh/bin:/opt/bomsh/scripts:${PATH}"
 

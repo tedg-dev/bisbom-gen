@@ -17,10 +17,177 @@ Design reference:
     Implementation Design §4.4 — Interception Strategy
 """
 
+import hashlib
 import json
+import os
 import time
 from abc import ABC, abstractmethod
 from pathlib import Path
+
+from app.pipeline.java_capture import (
+    CAPTURE_LOG_ENV,
+    assemble_treedb,
+    read_capture_log,
+)
+
+
+def build_inline_hash_env(shim_path, capture_log, extra=None):
+    """Return the env additions that enable inline hashing.
+
+    The only build-visible change in inline mode: load the ``LD_PRELOAD``
+    shim and point it at a capture log.  The native build command,
+    ``pom.xml``/``build.gradle``, and ``settings.gradle`` are untouched
+    (sidecar constraint C2/C3).
+
+    Args:
+        shim_path: Absolute path to ``libomnibor_java_intercept.so``.
+        capture_log: Absolute path the shim appends capture events to.
+        extra: Optional extra env vars (e.g. Gradle daemon disable).
+
+    Returns:
+        Dict of environment variables to set for the build.
+    """
+    env = {"LD_PRELOAD": shim_path, CAPTURE_LOG_ENV: capture_log}
+    if extra:
+        env.update(extra)
+    return env
+
+
+def prepare_capture_log(capture_log):
+    """Create the capture-log directory and clear any stale log.
+
+    The shim opens the log with ``O_CREAT | O_APPEND`` but does not create
+    parent directories, and a stale log from a previous run would pollute
+    the assembled treedb.  Called before the build so every run starts
+    from a clean, writable capture log.
+    """
+    parent = os.path.dirname(capture_log)
+    if parent:
+        os.makedirs(parent, exist_ok=True)
+    try:
+        os.remove(capture_log)
+    except FileNotFoundError:
+        pass
+
+
+def _git_blob_sha1(path):
+    """Git-blob ``SHA-1`` of a file: ``SHA-1("blob <len>\\0" + data)``.
+
+    Matches ``docker/patches/bomsh_java_fast_io.py:git_blob_hash`` so the
+    assembled treedb keys are identical to the legacy rescan's.
+    """
+    data = Path(path).read_bytes()
+    sha = hashlib.sha1()
+    sha.update(b"blob %d\0" % len(data))
+    sha.update(data)
+    return sha.hexdigest()
+
+
+def make_source_resolver(repo_dir):
+    """Build a class -> source ``.java`` resolver over *repo_dir*.
+
+    Indexes source files once (a cheap walk — sources are far fewer than
+    ``.class`` files and are never zipped), then resolves each class's
+    ``SourceFile`` attribute + fully-qualified name to the matching
+    ``.java`` path and its git-blob ``SHA-1``.  This is the only
+    filesystem read the inline path performs, and it touches sources
+    only — never the ``.class``/``.jar`` bytes the shim already hashed.
+
+    Returns:
+        A ``(source_file, class_name) -> (path, sha1) | None`` callable.
+    """
+    index = {}
+    for root, _dirs, files in os.walk(repo_dir):
+        for name in files:
+            if name.endswith(".java"):
+                index.setdefault(name, []).append(
+                    os.path.join(root, name)
+                )
+
+    def resolve(source_file, class_name):
+        if not source_file:
+            return None
+        candidates = index.get(source_file)
+        if not candidates:
+            return None
+        if class_name and "." in class_name:
+            pkg = class_name.rsplit(".", 1)[0].replace(".", "/")
+            wanted = pkg + "/" + source_file
+            for path in candidates:
+                norm = path.replace(os.sep, "/")
+                if norm.endswith(wanted):
+                    return path, _git_blob_sha1(path)
+        if len(candidates) == 1:
+            return candidates[0], _git_blob_sha1(candidates[0])
+        return None
+
+    return resolve
+
+
+def assemble_treedb_from_capture(
+    capture_log, repo_dir, meta_dir, substeps, resolver=None,
+):
+    """Assemble the bomsh treedb from the inline capture log.
+
+    Replaces the post-build workspace rescan: reads the shim's capture
+    events and writes ``bomsh_omnibor_treedb`` in the exact bomsh schema.
+    Fails loudly (returns False) if the capture log is missing or empty —
+    in the enterprise inline path there is no silent rescan fallback
+    (design C4/C5).
+
+    Appends a ``treedb`` timing entry to *substeps*.
+    """
+    t0 = time.monotonic()
+    events = read_capture_log(capture_log)
+    if not events:
+        substeps.append({
+            "name": "treedb",
+            "tool": "inline-assemble",
+            "wall_sec": round(time.monotonic() - t0, 2),
+        })
+        print(
+            "[ERROR] inline capture log missing or empty: "
+            f"{capture_log}"
+        )
+        return False
+    if resolver is None:
+        resolver = make_source_resolver(repo_dir)
+    treedb = assemble_treedb(events, resolve_source=resolver)
+    treedb_file = Path(meta_dir) / "bomsh_omnibor_treedb"
+    with open(treedb_file, "w", encoding="utf-8") as handle:
+        json.dump(treedb, handle)
+    treedb_sec = time.monotonic() - t0
+    substeps.append({
+        "name": "treedb",
+        "tool": "inline-assemble",
+        "wall_sec": round(treedb_sec, 2),
+    })
+    print(
+        f"[OK] OmniBOR treedb assembled from {len(events)} "
+        f"capture events \u2192 {treedb_file} "
+        f"({treedb_sec:.1f}s)"
+    )
+    return True
+
+
+def build_java_treedb(
+    inline_hash, capture_log, runner, repo_dir,
+    meta_dir, omnibor_cfg, substeps,
+):
+    """Build the Java treedb via inline assembly or legacy rescan.
+
+    Shared by the Maven and Gradle sidecar strategies so both pick the
+    treedb source identically (DRY).  Inline assembly is used when the
+    strategy was configured for inline hashing and a capture-log path is
+    known; otherwise the legacy post-build rescan runs.
+    """
+    if inline_hash and capture_log:
+        return assemble_treedb_from_capture(
+            capture_log, repo_dir, meta_dir, substeps,
+        )
+    return _generate_java_treedb(
+        runner, repo_dir, meta_dir, omnibor_cfg, substeps,
+    )
 
 
 def _write_adg_substeps(bom_path, substeps):
@@ -336,22 +503,39 @@ class MavenDepTreeStrategy(InterceptionStrategy):
     pipeline as standalone mode.
     """
 
-    def __init__(self, runner=None, maven_modules=None):
+    def __init__(
+        self, runner=None, maven_modules=None,
+        inline_hash=False, shim_path=None, capture_log=None,
+    ):
         from app.runner import CommandRunner
         self._runner = runner or CommandRunner()
         self._maven_modules = maven_modules
+        self._inline_hash = inline_hash
+        self._shim_path = shim_path
+        self._capture_log = capture_log
 
     @property
     def name(self):
         """Return the instrumentation method."""
+        if self._inline_hash:
+            return "maven-inline-hash"
         return "maven-dep-tree"
 
     def instrument_command(self, build_cmd, repo_dir):
-        """Return the build command unmodified — no strace.
+        """Return the build command with optional inline-hash env.
+
+        In inline mode the command is still unchanged; only the
+        ``LD_PRELOAD`` shim + capture-log env are added (sidecar C2/C3).
 
         Returns:
-            ``(build_cmd, {})`` — no env vars needed.
+            ``(build_cmd, env)`` — *env* is empty unless inline hashing
+            is enabled.
         """
+        if self._inline_hash and self._shim_path and self._capture_log:
+            prepare_capture_log(self._capture_log)
+            return build_cmd, build_inline_hash_env(
+                self._shim_path, self._capture_log,
+            )
         return build_cmd, {}
 
     def generate_adg(self, repo_dir, bom_dir, omnibor_cfg):
@@ -385,11 +569,12 @@ class MavenDepTreeStrategy(InterceptionStrategy):
         meta_dir = bom_path / "metadata" / "bomsh"
         meta_dir.mkdir(parents=True, exist_ok=True)
 
-        # Step 1: Generate OmniBOR treedb via JAR
-        # introspection — same bomsh script as standalone
-        # mode, without strace log.  Build-tool-agnostic and
-        # shared by all Java sidecar strategies.
-        if not _generate_java_treedb(
+        # Step 1: Build the OmniBOR treedb — inline assembly from the
+        # shim's capture log when inline hashing is enabled, else the
+        # legacy post-build rescan.  Shared by all Java sidecar
+        # strategies (DRY) and build-tool-agnostic.
+        if not build_java_treedb(
+            self._inline_hash, self._capture_log,
             self._runner, repo_dir, meta_dir,
             omnibor_cfg, substeps,
         ):
@@ -453,21 +638,41 @@ class GradleDepTreeStrategy(InterceptionStrategy):
     pipeline as standalone mode.
     """
 
-    def __init__(self, runner=None):
+    def __init__(
+        self, runner=None,
+        inline_hash=False, shim_path=None, capture_log=None,
+    ):
         from app.runner import CommandRunner
         self._runner = runner or CommandRunner()
+        self._inline_hash = inline_hash
+        self._shim_path = shim_path
+        self._capture_log = capture_log
 
     @property
     def name(self):
         """Return the instrumentation method."""
+        if self._inline_hash:
+            return "gradle-inline-hash"
         return "gradle-dep-tree"
 
     def instrument_command(self, build_cmd, repo_dir):
-        """Return the build command unmodified — no strace.
+        """Return the build command with optional inline-hash env.
+
+        In inline mode the command is unchanged; the ``LD_PRELOAD`` shim,
+        capture-log path, and a Gradle-daemon-disable flag are added via
+        env only so every compiling JVM inherits the preload (sidecar
+        C2/C3).
 
         Returns:
-            ``(build_cmd, {})`` — no env vars needed.
+            ``(build_cmd, env)`` — *env* is empty unless inline hashing
+            is enabled.
         """
+        if self._inline_hash and self._shim_path and self._capture_log:
+            prepare_capture_log(self._capture_log)
+            return build_cmd, build_inline_hash_env(
+                self._shim_path, self._capture_log,
+                extra={"GRADLE_OPTS": "-Dorg.gradle.daemon=false"},
+            )
         return build_cmd, {}
 
     def generate_adg(self, repo_dir, bom_dir, omnibor_cfg):
@@ -498,11 +703,12 @@ class GradleDepTreeStrategy(InterceptionStrategy):
         meta_dir = bom_path / "metadata" / "bomsh"
         meta_dir.mkdir(parents=True, exist_ok=True)
 
-        # Step 1: Generate OmniBOR treedb via JAR
-        # introspection — same bomsh script as standalone
-        # mode, without strace log.  Build-tool-agnostic and
-        # shared by all Java sidecar strategies.
-        if not _generate_java_treedb(
+        # Step 1: Build the OmniBOR treedb — inline assembly from the
+        # shim's capture log when inline hashing is enabled, else the
+        # legacy post-build rescan.  Shared by all Java sidecar
+        # strategies (DRY) and build-tool-agnostic.
+        if not build_java_treedb(
+            self._inline_hash, self._capture_log,
             self._runner, repo_dir, meta_dir,
             omnibor_cfg, substeps,
         ):
