@@ -6,7 +6,7 @@
 | **Epic** | Single epic — this main issue is added to it later by the issues team |
 | **Author** | Ted G. |
 | **Drafted** | 2026-06-24 (Cascade) |
-| **Status** | US-2 delivered & merged (PR `tedg-dev/omnibor-analysis#196`, golden-clean on bc-java + spring-boot); US-4 added (deferred, in-memory JAR processing); US-3 optional/low; US-1 moved — see below |
+| **Status** | US-2 delivered & merged (PR `tedg-dev/omnibor-analysis#196`, golden-clean on bc-java + spring-boot); US-5 implemented (inline GitOID capture, EC2 golden-validation pending); US-4 added (deferred, in-memory JAR processing); US-3 optional/low; US-1 moved — see below |
 | **Scope** | **Java builds** (Maven and Gradle). Other languages capture inline during the build and are not affected. |
 | **Detailed design** | `docs/sidecar/java/phase1-build-speed-design.md` (single engineering reference — design, evidence, code-level plan). |
 
@@ -168,6 +168,63 @@ Reading `.class` entries from the zip in memory and hashing with
 in-memory data rather than file paths; mirrors the existing fast-IO /
 classreader patches in `docker/patches/`. Deferred per the follow-up noted in
 `retro-subissue-java-treedb-perf.md`.
+
+---
+
+## US-5 — Capture GitOIDs inline during the build (eliminate the post-build rescan)
+
+**Status:** Implemented (Python assembler + Maven/Gradle strategy wiring +
+config flag + `LD_PRELOAD` shim); **byte-identity EC2 golden-validation
+pending**. The config flag (`omnibor_java.java_inline_hash`) stays `false`
+until the shim is validated golden-clean on a real build host. PR
+`tedg-dev/omnibor-analysis#TBD`.
+
+**Applies to:** Java builds (Maven and Gradle), sidecar / phase-isolated mode
+
+**Estimate:** ~3 days
+
+**Priority:** High — removes the post-build workspace rescan that dominates
+Phase 1 wall time and is **impossible in a phase-isolated sidecar** where the
+build workspace is destroyed when the job ends. Directly serves the Main A
+constraint of lowest possible impact on the enterprise build phase.
+
+**User Story**
+
+AS A product build team running Java builds in a phase-isolated CI/CD pipeline,
+I WANT the OmniBOR GitOIDs for my compiled classes and JARs computed inline as
+the build produces them,
+SO THAT SBOM evidence is captured without a post-build workspace rescan and
+without changing my build commands.
+
+**Why this matters**
+
+Today the Java `generate_adg()` defers all gitoid/treedb work to a post-build
+workspace rescan (`bomsh_create_bom_java.py`: `find` + unzip + re-hash of every
+`.class`/`.jar`). That rescan cannot run in a phase-isolated sidecar because the
+workspace no longer exists, and even where it can, it dominates Phase 1 time.
+Every treedb input is derivable from the bytes of each artifact at the instant
+the build writes it, so capturing inline turns `generate_adg()` into an assembly
+step over an append-only capture log.
+
+**Acceptance Criteria**
+
+- Given a Java build with inline hashing enabled, when the build finalizes each
+  `.class`/`.jar`, then its git-blob SHA-1 and SHA-256 gitoid are captured to an
+  append-only log with no change to the build command.
+- Given the capture log, when `generate_adg()` runs, then it assembles the
+  OmniBOR treedb from the log with no workspace rescan (no `find`, unzip, or
+  re-hash), and fails loudly if the log is missing or incomplete.
+- Given the assembled treedb, when compared to the legacy rescan result on a
+  real build host, then the treedb and the SBOM are byte-identical
+  (golden-clean).
+- Given the native build, when inline hashing is enabled, then
+  `pom.xml`/`build.gradle` and the `mvn`/`gradle` invocation are unchanged
+  (env-only injection) and build-phase overhead stays within a few percent.
+- Given both Maven and Gradle projects, when inline hashing runs, then one
+  generic code path handles both (no per-repo or per-tool logic).
+
+**Design reference:** `docs/sidecar/java/inline-hashing-interception-design.md`
+(with `inline-hashing-explained.md` and the four sequence/mechanism diagrams).
 
 ---
 

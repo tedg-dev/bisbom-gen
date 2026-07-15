@@ -233,14 +233,45 @@ def _detect_java_build_tool(repo_dir, repo_cfg=None):
     return "unknown"
 
 
+_DEFAULT_INLINE_SHIM = (
+    "/opt/omnibor/lib/libomnibor_java_intercept.so"
+)
+
+
+def _java_inline_config(omnibor_cfg, repo_dir):
+    """Resolve inline-hashing config for a Java sidecar build.
+
+    Config-driven (never per-repo hardcoded): inline hashing is enabled
+    by ``omnibor.java_inline_hash`` and the shim path is overridable via
+    ``omnibor.inline_shim_path``.  The capture log lives at a
+    deterministic workspace-relative path shared by ``instrument_command``
+    (the shim writes it during the build) and ``generate_adg`` (the
+    assembler reads it) \u2014 matching the CI/CD YAML example in the design.
+
+    Returns:
+        ``(inline_hash, shim_path, capture_log)``.
+    """
+    cfg = omnibor_cfg or {}
+    inline = bool(cfg.get("java_inline_hash"))
+    if not inline:
+        return False, None, None
+    shim_path = cfg.get("inline_shim_path", _DEFAULT_INLINE_SHIM)
+    capture_log = str(
+        Path(repo_dir) / ".omnibor" / "capture.jsonl"
+    )
+    return True, shim_path, capture_log
+
+
 def _select_java_strategy(
-    repo_name, repo_cfg, paths_cfg, mode,
+    repo_name, repo_cfg, paths_cfg, mode, omnibor_cfg=None,
 ):
     """Select interception strategy for Java builds.
 
     In sidecar mode, uses dep:tree strategies that avoid
     strace entirely.  Detects the build tool via
-    ``_detect_java_build_tool``.
+    ``_detect_java_build_tool``.  When ``omnibor.java_inline_hash`` is
+    set, the strategy also injects the ``LD_PRELOAD`` inline-hashing shim
+    and assembles the treedb from its capture log instead of rescanning.
 
     In standalone mode, returns None (legacy strace path).
     """
@@ -251,12 +282,18 @@ def _select_java_strategy(
         Path(paths_cfg["repos_dir"]) / repo_name
     )
     tool = _detect_java_build_tool(str(repo_dir), repo_cfg)
+    inline, shim_path, capture_log = _java_inline_config(
+        omnibor_cfg, repo_dir,
+    )
 
     if tool == "gradle":
         from app.pipeline.interception import (
             GradleDepTreeStrategy,
         )
-        return GradleDepTreeStrategy()
+        return GradleDepTreeStrategy(
+            inline_hash=inline, shim_path=shim_path,
+            capture_log=capture_log,
+        )
 
     if tool not in ("maven", "unknown"):
         logger.info(
@@ -274,6 +311,8 @@ def _select_java_strategy(
     )
     return MavenDepTreeStrategy(
         maven_modules=maven_modules,
+        inline_hash=inline, shim_path=shim_path,
+        capture_log=capture_log,
     )
 
 
@@ -293,6 +332,7 @@ def run_java_phase1(
     """
     strategy = _select_java_strategy(
         repo_name, repo_cfg, paths_cfg, mode,
+        omnibor_cfg=omnibor_java_cfg,
     )
     tracer = strategy.name if strategy else "strace"
     timing = TimingResult(tracer=tracer)
