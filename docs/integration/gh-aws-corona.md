@@ -747,7 +747,7 @@ env:
     MVN_VER: "3.9.8"
     OPERATOR_URL: https://d1nzmqdbw8u7lo.cloudfront.net
     OIDC_AUDIENCE: on-prem                  # deployment-mode hint (on-prem | cloud)
-    TENANT_ID: '["cd71c989-...", "75fc2214-..."]'  # tenant UUIDs for metadata
+    TENANT_ID: ${{ vars.TENANT_ID }}         # repo variable (Settings → Variables)
 
 jobs:
     # ... pre-commit and build jobs omitted for brevity ...
@@ -859,8 +859,10 @@ jobs:
                     BODY=$(jq -n \
                       --arg repository '${{ github.repository }}' \
                       --arg job_id '${{ env.JOB_ID }}' \
+                      --arg tenant_id '${{ vars.TENANT_ID }}' \
                       --argjson metadata "$META" \
                       '{repository: $repository, job_id: $job_id,
+                       tenant_id: $tenant_id,
                        files: ["phase1.tar.gz"], metadata: $metadata}')
                     RESPONSE=$(curl -sS -f -X POST \
                       "${{ env.OPERATOR_URL }}/v1/upload-url" \
