@@ -176,7 +176,8 @@ classreader patches in `docker/patches/`. Deferred per the follow-up noted in
 **Status:** Implemented (Python assembler + Maven/Gradle strategy wiring +
 config flag + `LD_PRELOAD` shim); **byte-identity EC2 golden-validation
 pending**. The config flag (`omnibor_java.java_inline_hash`) stays `false`
-until the shim is validated golden-clean on a real build host. PR
+until the shim is validated golden-clean on a real build host. GitHub
+sub-issue **#11097** (child of #11005, status **Ready**); PR
 `tedg-dev/omnibor-analysis#212`.
 
 **Applies to:** Java builds (Maven and Gradle), sidecar / phase-isolated mode

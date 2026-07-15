@@ -46,7 +46,7 @@ theme / planning doc) -> **sub-issues** (drafted in the matching planning doc).
 |---|---|---|---|---|
 | `tedg-dev/omnibor-analysis#194` | Phase 2 generates SBOMs from Phase 1 metadata, no source tree | Java Phase 2 -> **A1** / SI-4 (Java) | #11003 | Merged |
 | `tedg-dev/omnibor-analysis#196` | Single-invocation Gradle dependency capture (US-2) | Phase 1 Build-Speed -> **A4** / US-2 | #11006 | Merged |
-| `tedg-dev/omnibor-analysis#212` | Java inline-hashing interception (sidecar Phase 1, eliminate post-build rescan) | Phase 1 Build-Speed -> **A10** / US-5 | #11005 | Open (flag off; EC2 golden-validation pending) |
+| `tedg-dev/omnibor-analysis#212` | Java inline-hashing interception (sidecar Phase 1, eliminate post-build rescan) | Phase 1 Build-Speed -> **A10** / US-5 | #11097 (child of #11005, Ready) | Open (flag off; EC2 golden-validation pending) |
 | `tedg-dev/omnibor-analysis#200` | Java build-tool detection + `java_build_tool` override | Phase 1 Java capture -> **AF** (pilot foundation) | #11069 | Merged |
 | `tedg-dev/omnibor-analysis#199` | Shared `_generate_java_treedb` helper (DRY) | Phase 1 Java capture -> **AF** (pilot foundation) | #11069 | Merged |
 | `tedg-dev/omnibor-analysis#198` | Main A scope refinement + design draft | Java Main A scope (comment on #11002) | #11002 | Merged |
