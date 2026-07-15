@@ -50,35 +50,42 @@ func main() {
 	// Build API server options
 	var apiOpts []api.Option
 
-	// Set up presigned URL broker if DATABASE_URL is configured
-	var validator *oidc.Validator
-	if cfg.DatabaseURL != "" {
-		pool, err := pgxpool.New(ctx, cfg.DatabaseURL)
-		if err != nil {
-			log.Fatalf("[FATAL] Failed to connect to database: %v", err)
-		}
-		defer pool.Close()
+	// Set up presigned URL broker
+	hasOIDC := len(cfg.OIDC.Issuers) > 0
 
-		store := whitelist.NewStore(pool)
-		if err := store.Migrate(ctx); err != nil {
-			log.Fatalf("[FATAL] Failed to migrate whitelist table: %v", err)
-		}
-		log.Printf("[INFO] Repo whitelist table ready")
-
-		validator = oidc.NewValidator(cfg.OIDC)
+	if hasOIDC {
+		validator := oidc.NewValidator(cfg.OIDC)
 		defer validator.Close()
 
 		s3Client := s3.NewFromConfig(awsCfg)
 
-		uploadHandler := api.NewUploadHandler(validator, store, s3Client, cfg.S3Bucket)
-		whitelistHandler := api.NewWhitelistHandler(store)
+		var store *whitelist.Store
 
-		apiOpts = append(apiOpts,
-			api.WithUploadHandler(uploadHandler),
-			api.WithWhitelistHandler(whitelistHandler),
-		)
+		// Database + whitelist are only needed when whitelist is enabled
+		if cfg.WhitelistEnabled {
+			if cfg.DatabaseURL == "" {
+				log.Fatalf("[FATAL] DATABASE_URL is required when WHITELIST_ENABLED=true")
+			}
+			pool, err := pgxpool.New(ctx, cfg.DatabaseURL)
+			if err != nil {
+				log.Fatalf("[FATAL] Failed to connect to database: %v", err)
+			}
+			defer pool.Close()
 
-		log.Printf("[INFO] Presigned URL broker enabled")
+			store = whitelist.NewStore(pool)
+			if err := store.Migrate(ctx); err != nil {
+				log.Fatalf("[FATAL] Failed to migrate whitelist table: %v", err)
+			}
+			log.Printf("[INFO] Repo whitelist table ready")
+
+			whitelistHandler := api.NewWhitelistHandler(store)
+			apiOpts = append(apiOpts, api.WithWhitelistHandler(whitelistHandler))
+		}
+
+		uploadHandler := api.NewUploadHandler(validator, store, cfg.WhitelistEnabled, s3Client, cfg.S3Bucket)
+		apiOpts = append(apiOpts, api.WithUploadHandler(uploadHandler))
+
+		log.Printf("[INFO] Presigned URL broker enabled (whitelist=%v)", cfg.WhitelistEnabled)
 		log.Printf("[INFO] OIDC issuers: %v", cfg.OIDC.IssuerURLs())
 	}
 

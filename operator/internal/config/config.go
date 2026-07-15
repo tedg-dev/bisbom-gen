@@ -43,8 +43,9 @@ type Config struct {
 	APIAddr string // Listen address for REST API (default: ":8080")
 
 	// Presigned URL broker (optional — skipped if DatabaseURL is empty)
-	DatabaseURL string       // Postgres connection string for repo_whitelist
-	OIDC        *oidc.Config // OIDC validation settings
+	DatabaseURL      string       // Postgres connection string for repo_whitelist
+	OIDC             *oidc.Config // OIDC validation settings
+	WhitelistEnabled bool         // When false, skip repo whitelist check (OIDC only)
 
 	// ECS-specific (required when LAUNCH_MODE=ecs)
 	ECSCluster        string // ECS cluster ARN or name
@@ -105,6 +106,10 @@ func Load() (*Config, error) {
 	}
 
 	cfg.DatabaseURL = os.Getenv("DATABASE_URL")
+
+	// Whitelist mode: default true for backward compatibility
+	wlEnv := os.Getenv("WHITELIST_ENABLED")
+	cfg.WhitelistEnabled = wlEnv == "" || wlEnv == "true" || wlEnv == "1"
 
 	// Parse OIDC config from environment
 	cfg.OIDC = parseOIDCConfig()

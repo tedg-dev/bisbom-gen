@@ -106,16 +106,16 @@ adding a `/v1/upload-url` endpoint, it becomes a **presigned URL
 broker**:
 
 ```
-┌──────────────────┐   ① OIDC token    ┌──────────────────┐
-│  CI Runner       │ ────────────────→  │  Operator        │
-│  (sidecar)       │                    │  /v1/upload-url  │
-│                  │   ② presigned URLs │                  │
-│                  │ ←────────────────  │                  │
-│                  │                    └────────┬─────────┘
-│                  │   ③ HTTP PUT                │
-│                  │ ────────────────→  ┌────────┴─────────┐
-└──────────────────┘                    │       S3         │
-                                        └──────────────────┘
+┌──────────────────┐   ① OIDC token     ┌──────────────────┐
+│  CI Runner       │ ────────────────→   │  Operator        │
+│  (sidecar)       │                     │  /v1/upload-url  │
+│                  │  ② presigned URLs  │                  │
+│                  │ ←────────────────   │                  │
+│                  │                     └────────┬─────────┘
+│                  │   ③ HTTP PUT                 │
+│                  │ ────────────────→   ┌────────┴─────────┐
+└──────────────────┘                     │       S3         │
+                                         └──────────────────┘
 ```
 
 | Aspect | Direct OIDC (deprecated) | Presigned URL broker |
@@ -133,7 +133,7 @@ All artifacts for a build are stored under a single job directory:
 
 ```
 s3://omnibor-spdx-artifacts/<owner>/<repo>/<datetime>_<sha12>_<run_id>/
-├── phase1.tar.gz   ← single archive: treedb, dep:tree, manifest (Phase 2 inputs)
+├── phase1.tar.gz   ← single archive: treedb, dep:tree, manifest, ssvs_meta.json
 ├── build.tar.gz    ← single archive: JARs, class files (optional)
 └── spdx/           ← all SPDX outputs (flat, colocated)
     ├── <artifact>_build.spdx.json
@@ -286,11 +286,32 @@ Authorization: Bearer <OIDC_TOKEN>
 Content-Type: application/json
 
 {
-  "repo": "kkaple/WebGoat",
+  "repository": "CiscoSecurityServices/WebGoat",
   "job_id": "20260701-131500_abc123def456_12345",
-  "files": ["phase1.tar.gz"]
+  "files": ["phase1.tar.gz"],
+  "tenant_id": "cd71c989-264a-4f1c-9aae-64bf036fccfc",
+  "metadata": {
+    "tenant_id": ["cd71c989-...", "75fc2214-..."],
+    "repository": "CiscoSecurityServices/WebGoat",
+    "ref": "refs/heads/main",
+    "sha": "abc123def456...",
+    "tag": "v1.2.0",
+    "run_id": "12345",
+    "run_number": "42",
+    "actor": "kak_cisco",
+    "event_name": "push",
+    "job_id": "20260701-131500_abc123def456_12345",
+    "sidecar_image": "ghcr.io/kkaple/omnibor-sidecar:dev",
+    "oidc_audience": "on-prem"
+  }
 }
 ```
+
+The `tenant_id` field is **required** when `WHITELIST_ENABLED=true`
+and optional otherwise. The `metadata` field is always optional. When
+present, the operator logs both for auditing but does not act on them.
+The same metadata is also bundled as `ssvs_meta.json` inside
+`phase1.tar.gz` for downstream consumers.
 
 **Response (200 OK):**
 
@@ -323,8 +344,14 @@ chain. Every rejection is logged with structured details for auditing.
 2. **Verify signature** — validate the JWT signature against the JWKS
 3. **Standard claims:**
    - `iss` — must match a configured issuer
-   - `aud` — must be the operator's expected audience
+   - `aud` — **not enforced** (deployment-mode hint; see below)
    - `exp` — must not be expired
+
+**OIDC audience as deployment hint:** The `aud` claim carries a
+deployment-mode hint (`on-prem` or `cloud`) configured in the CI
+workflow. The operator logs the audience value but does not validate
+it — any audience is accepted. This allows the same operator to
+serve workflows from different deployment contexts without rejection.
 
 #### Step 2: Cisco Ownership Verification (3-Tier)
 
@@ -359,7 +386,7 @@ all of these:
 
 ```yaml
 oidc:
-  audience: "omnibor-operator"   # expected aud claim
+  # audience is NOT enforced — logged as a deployment hint only
 
   issuers:
     - url: https://token.actions.githubusercontent.com
@@ -370,14 +397,23 @@ oidc:
   # Tier 2: for github.com tokens — enterprise claim
   enterprise_allowlist:
     - cisco
+    - cisco-emu                  # EMU enterprise
 
   # Tier 3: for github.com tokens without enterprise claim
   org_allowlist:
     - CiscoDevNet
     - cisco
     - cisco-open
-    - kkaple                     # dev/test
 ```
+
+**Production hardening — removing Tier 3:** The org allowlist is a
+temporary escape hatch for legacy github.com orgs that do not carry
+an `enterprise` claim in their OIDC token. To enforce proper enterprise
+claims in production, set `OIDC_ORG_ALLOWLIST` to empty (or omit it).
+With an empty org allowlist, any github.com token without a valid
+`enterprise` claim (Tier 2) will be rejected — effectively requiring
+all uploads to originate from Cisco enterprise orgs (EMU, Enterprise
+Cloud) or trusted GHE instances (Tier 1).
 
 **Validation pseudocode:**
 
@@ -411,6 +447,21 @@ func validateOwnership(claims *Claims, cfg *OIDCConfig) error {
 ```
 
 #### Step 3: Repository Whitelist (Database)
+
+> **Whitelist mode (`WHITELIST_ENABLED`):** This step is controlled by
+> the `WHITELIST_ENABLED` environment variable (default: `true`).
+>
+> - **`WHITELIST_ENABLED=true`** — Step 3 runs; `tenant_id` is
+>   **required** in the `/v1/upload-url` request body; `DATABASE_URL`
+>   must be set.
+> - **`WHITELIST_ENABLED=false`** — Step 3 is skipped entirely; no
+>   database is needed for upload validation; only OIDC ownership
+>   (Steps 1 + 2) and sub-claim matching (Step 4) are enforced.
+>   `tenant_id` in the request body is optional.
+>
+> Use `WHITELIST_ENABLED=false` for early deployments where OIDC
+> ownership verification is sufficient and per-repo enrollment is
+> not yet required.
 
 After ownership is verified, the operator checks whether the specific
 repository has been enrolled in the **repo whitelist**. This is a
@@ -518,6 +569,11 @@ type RejectionLog struct {
 **Example log output:**
 
 ```
+# Successful upload with metadata
+[OIDC OK] repo=CiscoSecurityServices/WebGoat actor=kak_cisco job=20260713-... files=1 audience=[on-prem]
+[META] repo=CiscoSecurityServices/WebGoat job=20260713-... metadata={"tenant_id":["cd71c989-..."],...}
+
+# Rejections
 [OIDC REJECT] reason=unknown_issuer iss=https://evil.com repo=foo/bar actor=attacker
 [OIDC REJECT] reason=enterprise_not_allowed iss=github.com enterprise=acme repo=acme/tool actor=bob
 [OIDC REJECT] reason=org_not_allowed iss=github.com owner=random-user repo=random-user/app actor=random-user
@@ -532,10 +588,10 @@ type RejectionLog struct {
 | `invalid_signature` | 1 | JWT signature verification failed |
 | `expired_token` | 1 | Token `exp` is in the past |
 | `unknown_issuer` | 1 | `iss` not in configured issuers |
-| `invalid_audience` | 1 | `aud` doesn't match expected value |
+| `invalid_audience` | 1 | Reserved (audience not currently enforced) |
 | `enterprise_not_allowed` | 2 | `enterprise` claim present but not in allowlist |
 | `org_not_allowed` | 2 | `repository_owner` not in org allowlist (no enterprise claim) |
-| `repo_not_whitelisted` | 3 | Repository not in database whitelist |
+| `repo_not_whitelisted` | 3 | Repository not in database whitelist (only when `WHITELIST_ENABLED=true`) |
 | `sub_mismatch` | 4 | `sub` claim doesn't match the requested repo |
 
 #### Full Validation Chain Summary
@@ -543,13 +599,13 @@ type RejectionLog struct {
 ```
 Token arrives at POST /v1/upload-url
   │
-  ├─ Step 1: Signature + standard claims (JWKS, iss, aud, exp)
-  │   └─ FAIL → 401 + log(invalid_signature | expired_token | unknown_issuer | invalid_audience)
+  ├─ Step 1: Signature + standard claims (JWKS, iss, exp; aud logged but not enforced)
+  │   └─ FAIL → 401 + log(invalid_signature | expired_token | unknown_issuer)
   │
   ├─ Step 2: Cisco ownership (3-tier: issuer → enterprise → org)
   │   └─ FAIL → 403 + log(enterprise_not_allowed | org_not_allowed)
   │
-  ├─ Step 3: Repo whitelist (database lookup)
+  ├─ Step 3: Repo whitelist (ONLY when WHITELIST_ENABLED=true; requires tenant_id in body)
   │   └─ FAIL → 403 + log(repo_not_whitelisted)
   │
   ├─ Step 4: Sub claim matches requested repo
@@ -648,8 +704,11 @@ steps are additions for OmniBOR SBOM generation:
 |------|---------|
 | `permissions: id-token: write` | OIDC token for operator authentication |
 | `env: SIDECAR_IMAGE`, `OPERATOR_URL` | Sidecar image and operator endpoint |
+| `env: OIDC_AUDIENCE` | Deployment-mode hint in OIDC token (`on-prem` or `cloud`) |
+| `env: TENANT_ID` | JSON array of tenant UUIDs for metadata |
 | Login to GHCR + pull sidecar | Fetches the OmniBOR sidecar container image |
-| Phase 1 + Upload | Sidecar runs analysis AND uploads to S3 via presigned URLs |
+| Build `ssvs_meta.json` | Captures pipeline metadata (tenant, repo, tag, sha, actor) |
+| Phase 1 + Upload | Sidecar runs analysis; metadata bundled in tar.gz and sent with presigned URL request |
 
 **Removed** (compared to deprecated architecture):
 
@@ -686,7 +745,9 @@ permissions:
 env:
     SIDECAR_IMAGE: ghcr.io/kkaple/omnibor-sidecar:dev
     MVN_VER: "3.9.8"
-    OPERATOR_URL: https://operator.internal:8080
+    OPERATOR_URL: https://d1nzmqdbw8u7lo.cloudfront.net
+    OIDC_AUDIENCE: on-prem                  # deployment-mode hint (on-prem | cloud)
+    TENANT_ID: '["cd71c989-...", "75fc2214-..."]'  # tenant UUIDs for metadata
 
 jobs:
     # ... pre-commit and build jobs omitted for brevity ...
@@ -699,14 +760,8 @@ jobs:
         steps:
             -   name: Checkout
                 uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
-
-            -   name: Get OIDC token
-                id: oidc
-                uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea  # v7.0.1
                 with:
-                    script: |
-                        const token = await core.getIDToken('omnibor-operator');
-                        core.setOutput('token', token);
+                    fetch-tags: true        # needed for git tag resolution
 
             -   name: Set timestamp
                 run: echo "TS=$(date -u +'%Y%m%d-%H%M%S')" >> "$GITHUB_ENV"
@@ -728,20 +783,20 @@ jobs:
                       '
 
             -   name: Login to GHCR
-                uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772  # v3.4.0
-                with:
-                    registry: ghcr.io
-                    username: ${{ github.actor }}
-                    password: ${{ secrets.GITHUB_TOKEN }}
+                run: |
+                    echo "${{ secrets.GITHUB_TOKEN }}" | \
+                      docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
             -   name: Pull sidecar image
                 run: docker pull "$SIDECAR_IMAGE"
 
             -   name: "Phase 1: Build Result Processing"
                 run: |
+                    mkdir -p "${{ github.workspace }}/spdx-output"
                     docker run --rm \
                       -v "${{ github.workspace }}:/workspace/repos/WebGoat" \
                       -v "${{ github.workspace }}/spdx-output:/workspace/output" \
+                      -e OMNIBOR_MODE=sidecar \
                       "$SIDECAR_IMAGE" \
                       python3 /workspace/app/analyze.py \
                         --repo WebGoat \
@@ -749,22 +804,72 @@ jobs:
                         --phase build \
                         --skip-clone
 
-            -   name: Bundle Phase 1 artifacts
+            -   name: Get OIDC token
+                id: oidc
+                run: |
+                    OIDC_TOKEN=$(curl -sS \
+                      -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+                      "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=${{ env.OIDC_AUDIENCE }}" \
+                      | jq -r '.value')
+                    echo "::add-mask::${OIDC_TOKEN}"
+                    echo "OIDC_TOKEN=${OIDC_TOKEN}" >> "$GITHUB_ENV"
+
+            -   name: Build ssvs_meta.json
                 run: |
                     SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-12)
                     JOB_ID="${{ env.TS }}_${SHORT_SHA}_${{ github.run_id }}"
                     echo "JOB_ID=${JOB_ID}" >> "$GITHUB_ENV"
+                    GIT_TAG=$(git tag --points-at HEAD 2>/dev/null | head -n 1)
+                    jq -n \
+                      --argjson tenant_id '${{ env.TENANT_ID }}' \
+                      --arg repository '${{ github.repository }}' \
+                      --arg ref '${{ github.ref }}' \
+                      --arg sha '${{ github.sha }}' \
+                      --arg tag "${GIT_TAG}" \
+                      --arg run_id '${{ github.run_id }}' \
+                      --arg run_number '${{ github.run_number }}' \
+                      --arg actor '${{ github.actor }}' \
+                      --arg event_name '${{ github.event_name }}' \
+                      --arg job_id "${JOB_ID}" \
+                      --arg sidecar_image '${{ env.SIDECAR_IMAGE }}' \
+                      --arg oidc_audience '${{ env.OIDC_AUDIENCE }}' \
+                      '{
+                        tenant_id: $tenant_id,
+                        repository: $repository,
+                        ref: $ref,
+                        sha: $sha,
+                        tag: (if $tag == "" then null else $tag end),
+                        run_id: $run_id,
+                        run_number: $run_number,
+                        actor: $actor,
+                        event_name: $event_name,
+                        job_id: $job_id,
+                        sidecar_image: $sidecar_image,
+                        oidc_audience: $oidc_audience
+                      }' > spdx-output/ssvs_meta.json
+
+            -   name: Bundle Phase 1 artifacts
+                run: |
                     tar czf /tmp/phase1.tar.gz -C spdx-output .
+                    echo "[INFO] Phase 1 bundle: $(du -h /tmp/phase1.tar.gz | cut -f1)"
 
             -   name: Upload Phase 1 via presigned URL
                 run: |
+                    META=$(cat spdx-output/ssvs_meta.json)
+                    BODY=$(jq -n \
+                      --arg repository '${{ github.repository }}' \
+                      --arg job_id '${{ env.JOB_ID }}' \
+                      --argjson metadata "$META" \
+                      '{repository: $repository, job_id: $job_id,
+                       files: ["phase1.tar.gz"], metadata: $metadata}')
                     RESPONSE=$(curl -sS -f -X POST \
                       "${{ env.OPERATOR_URL }}/v1/upload-url" \
-                      -H "Authorization: Bearer ${{ steps.oidc.outputs.token }}" \
+                      -H "Authorization: Bearer ${OIDC_TOKEN}" \
                       -H "Content-Type: application/json" \
-                      -d "{\"repository\":\"${{ github.repository }}\",\"job_id\":\"${{ env.JOB_ID }}\",\"files\":[\"phase1.tar.gz\"]}")
+                      -d "$BODY")
                     URL=$(echo "$RESPONSE" | jq -r '.urls["phase1.tar.gz"]')
                     curl -sS -f -X PUT -T /tmp/phase1.tar.gz "$URL"
+                    echo "[INFO] Phase 1 upload complete"
 ```
 
 ### Triggering the Workflow
@@ -943,15 +1048,16 @@ loop:
     downloadFile("s3://bucket/" + jobPrefix + "/" + archiveFile, workDir)
     extractTarGz(workDir + "/" + archiveFile, workDir + "/phase1/")
 
-    // Launch Phase 2 (Docker mode: mount local files; ECS mode: pass S3 paths)
+    // Launch Phase 2 (ECS mode: pass S3 paths; sidecar reads repo_name from manifest)
     ecs.RunTask({
         taskDefinition: "omnibor-phase2",
         overrides: {
             containerOverrides: [{
+                command: ["/bin/bash", "/workspace/sidecar-entrypoint.sh"],
                 environment: [
-                    {S3_INPUT_PATH:  "s3://bucket/" + jobPrefix + "/phase1/"},
+                    {S3_INPUT_PATH:  "s3://bucket/" + jobPrefix + "/phase1.tar.gz"},
                     {S3_OUTPUT_PATH: "s3://bucket/" + jobPrefix + "/spdx/"},
-                    {REPO_NAME:      repoName},
+                    {REPO_NAME:      repoName},  // sidecar overrides with manifest repo_name
                 ],
             }],
         },
@@ -1056,18 +1162,26 @@ const operatorTaskDef = new ecs.FargateTaskDefinition(this, 'OperatorTask', {
 });
 
 operatorTaskDef.addContainer('operator', {
-  image: ecs.ContainerImage.fromRegistry('ghcr.io/tedg-dev/omnibor-operator:latest'),
+  image: ecs.ContainerImage.fromRegistry('ghcr.io/kkaple/omnibor-operator:dev'),
   environment: {
     SQS_QUEUE_URL: queue.queueUrl,
-    ECS_CLUSTER: cluster.clusterArn,
-    PHASE2_TASK_DEF: 'omnibor-phase2',
     S3_BUCKET: bucket.bucketName,
-    // Presigned URL broker config
-    OIDC_ISSUERS: 'https://token.actions.githubusercontent.com,https://gh-xr.scm.engit.cisco.com/_services/token',
-    // Postgres (enrollment + subscriptions)
+    API_ADDR: ':8080',
     DATABASE_URL: 'postgres://operator:***@db:5432/operator?sslmode=require',
-    // NATS (subscription fan-out notifications)
-    NATS_URL: 'nats://nats:4222',
+    SIDECAR_IMAGE: 'ghcr.io/kkaple/omnibor-sidecar:dev',
+    // OIDC validation (audience not enforced — used as hint only)
+    OIDC_ISSUERS: [
+      'https://token.actions.githubusercontent.com|github.com',
+      'https://gh-xr.scm.engit.cisco.com/_services/token|ghe',
+    ].join(','),
+    OIDC_ENTERPRISE_ALLOWLIST: 'cisco,cisco-emu',
+    OIDC_ORG_ALLOWLIST: 'CiscoDevNet,cisco,cisco-open',
+    // ECS launch mode for Phase 2
+    LAUNCH_MODE: 'ecs',
+    ECS_CLUSTER: cluster.clusterArn,
+    ECS_TASK_DEFINITION: 'omnibor-phase2',
+    ECS_SUBNETS: cdk.Fn.join(',', privateSubnets.subnetIds),
+    ECS_SECURITY_GROUP: phase2Sg.securityGroupId,
   },
   portMappings: [{ containerPort: 8080 }],
   logging: ecs.LogDrivers.awsLogs({

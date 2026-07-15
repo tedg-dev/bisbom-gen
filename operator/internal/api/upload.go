@@ -18,9 +18,11 @@ import (
 
 // UploadURLRequest is the JSON body for POST /v1/upload-url.
 type UploadURLRequest struct {
-	Repository string   `json:"repository"`
-	JobID      string   `json:"job_id"`
-	Files      []string `json:"files"`
+	Repository string                 `json:"repository"`
+	JobID      string                 `json:"job_id"`
+	Files      []string               `json:"files"`
+	TenantID   string                 `json:"tenant_id,omitempty"`
+	Metadata   map[string]interface{} `json:"metadata,omitempty"`
 }
 
 // UploadURLResponse contains presigned URLs keyed by filename.
@@ -29,27 +31,33 @@ type UploadURLResponse struct {
 }
 
 // UploadHandler handles POST /v1/upload-url requests.
-// It validates the OIDC token, checks ownership and whitelist,
-// then returns presigned S3 PUT URLs.
+// It validates the OIDC token, checks ownership and optionally
+// the repo whitelist, then returns presigned S3 PUT URLs.
 type UploadHandler struct {
-	validator      *oidc.Validator
-	whitelistStore *whitelist.Store
-	s3Presigner    *s3.PresignClient
-	bucket         string
+	validator        *oidc.Validator
+	whitelistStore   *whitelist.Store
+	whitelistEnabled bool
+	s3Presigner      *s3.PresignClient
+	bucket           string
 }
 
 // NewUploadHandler creates an UploadHandler.
+// When whitelistEnabled is true, the handler requires a tenant_id
+// in the request body and checks the repo whitelist (Step 3).
+// When false, only OIDC validation (Steps 1, 2, 4) is performed.
 func NewUploadHandler(
 	validator *oidc.Validator,
 	store *whitelist.Store,
+	whitelistEnabled bool,
 	s3Client *s3.Client,
 	bucket string,
 ) *UploadHandler {
 	return &UploadHandler{
-		validator:      validator,
-		whitelistStore: store,
-		s3Presigner:    s3.NewPresignClient(s3Client),
-		bucket:         bucket,
+		validator:        validator,
+		whitelistStore:   store,
+		whitelistEnabled: whitelistEnabled,
+		s3Presigner:      s3.NewPresignClient(s3Client),
+		bucket:           bucket,
 	}
 }
 
@@ -79,6 +87,12 @@ func (h *UploadHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// tenant_id is required when whitelist is enabled
+	if h.whitelistEnabled && req.TenantID == "" {
+		http.Error(w, `{"error":"tenant_id is required when whitelist is enabled"}`, http.StatusBadRequest)
+		return
+	}
+
 	// Step 1: Validate token signature + standard claims
 	claims, err := h.validator.ValidateToken(r.Context(), tokenStr)
 	if err != nil {
@@ -92,20 +106,22 @@ func (h *UploadHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Step 3: Check repo whitelist
-	whitelisted, err := h.whitelistStore.IsRepoWhitelisted(r.Context(), req.Repository)
-	if err != nil {
-		log.Printf("[ERROR] whitelist check failed: %v", err)
-		http.Error(w, `{"error":"internal error"}`, http.StatusInternalServerError)
-		return
-	}
-	if !whitelisted {
-		verr := &oidc.ValidationError{
-			Reason: oidc.ReasonRepoNotWhitelisted,
-			Err:    fmt.Errorf("repository %q not whitelisted", req.Repository),
+	// Step 3: Check repo whitelist (skipped when whitelist is disabled)
+	if h.whitelistEnabled {
+		whitelisted, err := h.whitelistStore.IsRepoWhitelisted(r.Context(), req.TenantID, req.Repository)
+		if err != nil {
+			log.Printf("[ERROR] whitelist check failed: %v", err)
+			http.Error(w, `{"error":"internal error"}`, http.StatusInternalServerError)
+			return
 		}
-		h.rejectWithLog(w, http.StatusForbidden, verr, claims)
-		return
+		if !whitelisted {
+			verr := &oidc.ValidationError{
+				Reason: oidc.ReasonRepoNotWhitelisted,
+				Err:    fmt.Errorf("repository %q not whitelisted", req.Repository),
+			}
+			h.rejectWithLog(w, http.StatusForbidden, verr, claims)
+			return
+		}
 	}
 
 	// Step 4: Validate sub claim matches requested repo
@@ -122,8 +138,16 @@ func (h *UploadHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Printf("[OIDC OK] repo=%s actor=%s job=%s files=%d",
-		req.Repository, claims.Actor, req.JobID, len(req.Files))
+	aud, _ := claims.GetAudience()
+	log.Printf("[OIDC OK] repo=%s actor=%s job=%s files=%d audience=%v tenant=%s whitelist=%v",
+		req.Repository, claims.Actor, req.JobID, len(req.Files), aud, req.TenantID, h.whitelistEnabled)
+
+	// Log request metadata if present
+	if len(req.Metadata) > 0 {
+		metaJSON, _ := json.Marshal(req.Metadata)
+		log.Printf("[META] repo=%s job=%s metadata=%s",
+			req.Repository, req.JobID, string(metaJSON))
+	}
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(UploadURLResponse{URLs: urls})

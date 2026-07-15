@@ -68,17 +68,17 @@ func (s *Store) Migrate(ctx context.Context) error {
 	return nil
 }
 
-// IsRepoWhitelisted checks whether any tenant has whitelisted
-// the given repository. Used during upload-url validation —
-// not tenant-scoped.
-func (s *Store) IsRepoWhitelisted(ctx context.Context, repository string) (bool, error) {
+// IsRepoWhitelisted checks whether the given tenant has
+// whitelisted the given repository. Used during upload-url
+// validation — scoped to the requesting tenant's entries.
+func (s *Store) IsRepoWhitelisted(ctx context.Context, tenantID, repository string) (bool, error) {
 	var exists bool
 	err := s.pool.QueryRow(ctx, `
 		SELECT EXISTS(
 			SELECT 1 FROM repo_whitelist
-			WHERE repository = $1 AND enabled = TRUE
+			WHERE tenant_id = $1 AND repository = $2 AND enabled = TRUE
 		)
-	`, repository).Scan(&exists)
+	`, tenantID, repository).Scan(&exists)
 	if err != nil {
 		return false, fmt.Errorf("check whitelist: %w", err)
 	}
