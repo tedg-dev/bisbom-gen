@@ -122,9 +122,9 @@ class TestAssembleTreedb(unittest.TestCase):
             "class_name": "com.example.App",
         }]
 
-        def resolver(source_file, class_name):
+        def resolver(source_file, class_path):
             self.assertEqual(source_file, "App.java")
-            self.assertEqual(class_name, "com.example.App")
+            self.assertEqual(class_path, "/t/App.class")
             return ("/src/com/example/App.java", "src1")
 
         tree = assemble_treedb(events, resolve_source=resolver)
@@ -151,7 +151,7 @@ class TestAssembleTreedb(unittest.TestCase):
             "sha1": "cls1", "source_file": "App.java",
         }]
         tree = assemble_treedb(
-            events, resolve_source=lambda s, c: None,
+            events, resolve_source=lambda s, p: None,
         )
         self.assertEqual(tree["cls1"]["hash_tree"], [])
 
@@ -161,29 +161,193 @@ class TestAssembleTreedb(unittest.TestCase):
             "sha1": "cls1", "source_file": "App.java",
         }]
         tree = assemble_treedb(
-            events, resolve_source=lambda s, c: ("/x.java", ""),
+            events, resolve_source=lambda s, p: ("/x.java", ""),
         )
         self.assertEqual(tree["cls1"]["hash_tree"], [])
         self.assertNotIn("", tree)
 
-    def test_jar_links_members(self):
-        events = [{
-            "kind": KIND_JAR, "path": "/t/app.jar",
-            "sha1": "jar1",
-            "entries": [
-                {"name": "com/example/App.class", "sha1": "cls1"},
-                {"name": "com/example/B.class", "sha1": "cls2"},
-                {"name": "meta.txt"},  # no sha1 -> skipped
-            ],
-        }]
+    def test_jar_links_members_by_content(self):
+        # Members carry their own git-blob sha1 (from the shim); each is
+        # linked to the captured class keyed by that sha1.  A non-.class
+        # member without a sha1 is skipped.
+        events = [
+            {"kind": KIND_CLASS, "path": "/t/App.class",
+             "sha1": "cls1", "class_name": "com.example.App"},
+            {"kind": KIND_CLASS, "path": "/t/B.class",
+             "sha1": "cls2", "class_name": "com.example.B"},
+            {"kind": KIND_JAR, "path": "/t/app.jar", "sha1": "jar1",
+             "entries": [
+                 {"name": "com/example/App.class", "sha1": "cls1"},
+                 {"name": "com/example/B.class", "sha1": "cls2"},
+                 {"name": "meta.txt"},  # no sha1 -> skipped
+             ]},
+        ]
         tree = assemble_treedb(events)
         self.assertEqual(
             tree["jar1"]["hash_tree"], ["cls1", "cls2"],
         )
 
-    def test_jar_links_members_by_name(self):
-        # No member sha1 recorded: correlate zip entry name to the
-        # captured class hash via its fully-qualified class name.
+    def test_jar_drops_member_with_unmatched_sha1(self):
+        # A member whose content matches no captured class (e.g. a
+        # build-rewritten module-info.class) is dropped, matching the
+        # rescan which finds no workspace file with identical content.
+        events = [
+            {"kind": KIND_CLASS, "path": "/t/App.class",
+             "sha1": "cls1", "class_name": "com.example.App"},
+            {"kind": KIND_JAR, "path": "/t/app.jar", "sha1": "jar1",
+             "entries": [
+                 {"name": "com/example/App.class", "sha1": "cls1"},
+                 {"name": "META-INF/versions/11/module-info.class",
+                  "sha1": "rewritten"},  # no matching class -> dropped
+             ]},
+        ]
+        tree = assemble_treedb(events)
+        self.assertEqual(tree["jar1"]["hash_tree"], ["cls1"])
+        self.assertNotIn("rewritten", tree)
+
+    def test_jar_multirelease_member_by_content(self):
+        # A versioned member is linked purely by content, regardless of
+        # the on-disk write path of the captured class (here a Gradle
+        # separate source-set dir, unrelated to META-INF/versions).
+        events = [
+            {"kind": KIND_CLASS,
+             "path": "/t/build/classes/java/java11/org/j/H.class",
+             "sha1": "v11", "class_name": "org.j.H"},
+            {"kind": KIND_JAR, "path": "/t/app.jar", "sha1": "jar1",
+             "entries": [
+                 {"name": "META-INF/versions/11/org/j/H.class",
+                  "sha1": "v11"},
+             ]},
+        ]
+        tree = assemble_treedb(events)
+        self.assertEqual(tree["jar1"]["hash_tree"], ["v11"])
+
+    def test_base_and_versioned_variants_by_content(self):
+        # A base class and its versioned variant share a fully-qualified
+        # name but differ in bytes; each member binds to its own variant
+        # by content sha1 (name-based correlation cannot disambiguate).
+        events = [
+            {"kind": KIND_CLASS, "path": "/t/main/org/j/H.class",
+             "sha1": "base", "class_name": "org.j.H"},
+            {"kind": KIND_CLASS, "path": "/t/java9/org/j/H.class",
+             "sha1": "v9", "class_name": "org.j.H"},
+            {"kind": KIND_JAR, "path": "/t/app.jar", "sha1": "jar1",
+             "entries": [
+                 {"name": "org/j/H.class", "sha1": "base"},
+                 {"name": "META-INF/versions/9/org/j/H.class",
+                  "sha1": "v9"},
+             ]},
+        ]
+        tree = assemble_treedb(events)
+        self.assertEqual(tree["jar1"]["hash_tree"], ["base", "v9"])
+
+    def test_mrjar_staging_copy_does_not_steal_source(self):
+        # The same versioned bytes are captured twice: once at the java9
+        # module's compiler output and once as a Multi-Release JAR
+        # META-INF/versions/9 staging copy under a *different* module's
+        # tree.  Source must resolve from the primary compiler-output
+        # path (its true origin), never the staging copy.
+        def resolver(_source_file, class_path):
+            if "api-java9" in class_path:
+                return ("/r/api-java9/src/H.java", "j9src")
+            return ("/r/api/src/H.java", "basesrc")
+
+        events = [
+            {"kind": KIND_CLASS,
+             "path": "/r/api-java9/target/classes/org/j/H.class",
+             "sha1": "v9", "source_file": "H.java"},
+            {"kind": KIND_CLASS,
+             "path": "/r/api/target/classes/org/j/H.class",
+             "sha1": "base", "source_file": "H.java"},
+            {"kind": KIND_CLASS,
+             "path": ("/r/api/target/classes/META-INF/versions/9"
+                      "/org/j/H.class"),
+             "sha1": "v9", "source_file": "H.java"},
+        ]
+        tree = assemble_treedb(events, resolve_source=resolver)
+        self.assertEqual(
+            tree["v9"]["file_path"],
+            "/r/api-java9/target/classes/org/j/H.class",
+        )
+        self.assertEqual(tree["v9"]["hash_tree"], ["j9src"])
+        self.assertEqual(tree["base"]["hash_tree"], ["basesrc"])
+
+    def test_mrjar_staging_preference_is_order_independent(self):
+        # Even when the staging copy is captured *before* the primary
+        # compiler output, the primary path still wins.
+        def resolver(_source_file, class_path):
+            if "api-java9" in class_path:
+                return ("/r/api-java9/src/H.java", "j9src")
+            return ("/r/api/src/H.java", "basesrc")
+
+        events = [
+            {"kind": KIND_CLASS,
+             "path": ("/r/api/target/classes/META-INF/versions/9"
+                      "/org/j/H.class"),
+             "sha1": "v9", "source_file": "H.java"},
+            {"kind": KIND_CLASS,
+             "path": "/r/api-java9/target/classes/org/j/H.class",
+             "sha1": "v9", "source_file": "H.java"},
+        ]
+        tree = assemble_treedb(events, resolve_source=resolver)
+        self.assertEqual(
+            tree["v9"]["file_path"],
+            "/r/api-java9/target/classes/org/j/H.class",
+        )
+        self.assertEqual(tree["v9"]["hash_tree"], ["j9src"])
+
+    def test_canonical_prefers_lexicographically_smallest_path(self):
+        # The same class compiled identically in sibling modules yields
+        # one content-addressed entry; its file_path must be the
+        # lexicographically smallest (matching the sorted-first rescan),
+        # not whichever module happened to be captured first.
+        events = [
+            {"kind": KIND_CLASS,
+             "path": "/r/core/target/classes/o/package-info.class",
+             "sha1": "pi", "source_file": "package-info.java"},
+            {"kind": KIND_CLASS,
+             "path": "/r/cli/target/classes/o/package-info.class",
+             "sha1": "pi", "source_file": "package-info.java"},
+        ]
+        tree = assemble_treedb(events)
+        self.assertEqual(
+            tree["pi"]["file_path"],
+            "/r/cli/target/classes/o/package-info.class",
+        )
+
+    def test_shared_source_leaf_prefers_jar_member(self):
+        # A base class and a non-member java9 sibling compile from
+        # byte-identical source (same src sha), so both map to one
+        # content-addressed source leaf.  Although the java9 class is
+        # captured first, only the base class is a JAR member, so the
+        # shared leaf's path must be the member's (base) source.
+        def resolver(_source_file, class_path):
+            if "api-java9" in class_path:
+                return ("/r/api-java9/src/H.java", "srcsha")
+            return ("/r/api/src/H.java", "srcsha")
+
+        events = [
+            {"kind": KIND_CLASS,
+             "path": "/r/api-java9/target/classes/o/H.class",
+             "sha1": "v9", "source_file": "H.java"},
+            {"kind": KIND_CLASS,
+             "path": "/r/api/target/classes/o/H.class",
+             "sha1": "base", "source_file": "H.java"},
+            {"kind": KIND_JAR, "path": "/r/api/build/libs/api.jar",
+             "sha1": "jar1",
+             "entries": [{"name": "o/H.class", "sha1": "base"}]},
+        ]
+        tree = assemble_treedb(events, resolve_source=resolver)
+        self.assertEqual(tree["jar1"]["hash_tree"], ["base"])
+        self.assertEqual(
+            tree["srcsha"]["file_path"], "/r/api/src/H.java",
+        )
+        self.assertEqual(tree["base"]["hash_tree"], ["srcsha"])
+        self.assertEqual(tree["v9"]["hash_tree"], ["srcsha"])
+
+    def test_jar_legacy_name_fallback(self):
+        # Legacy capture logs with no member sha1 fall back to matching
+        # the central-directory name to a captured class's FQN.
         events = [
             {"kind": KIND_CLASS, "path": "/t/classes/com/x/App.class",
              "sha1": "cls1", "class_name": "com.x.App"},
@@ -201,18 +365,6 @@ class TestAssembleTreedb(unittest.TestCase):
         self.assertEqual(
             tree["jar1"]["hash_tree"], ["cls1", "cls2"],
         )
-
-    def test_jar_member_sha1_wins_over_name(self):
-        events = [
-            {"kind": KIND_CLASS, "path": "/t/App.class",
-             "sha1": "byname", "class_name": "com.x.App"},
-            {"kind": KIND_JAR, "path": "/t/app.jar", "sha1": "jar1",
-             "entries": [
-                 {"name": "com/x/App.class", "sha1": "bysha"},
-             ]},
-        ]
-        tree = assemble_treedb(events)
-        self.assertEqual(tree["jar1"]["hash_tree"], ["bysha"])
 
     def test_skips_event_missing_sha_or_path(self):
         events = [

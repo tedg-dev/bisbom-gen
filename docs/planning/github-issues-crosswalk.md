@@ -4,7 +4,7 @@
 |---|---|
 | **Purpose** | Durable record tying each drafted Main issue and sub-issue to the PR(s) that implement it, so the hierarchy can be recreated and linked once GitHub Projects/Issues access is restored. |
 | **Maintained by** | Cascade (update as PRs merge) |
-| **Last updated** | 2026-07-08 |
+| **Last updated** | 2026-07-16 |
 
 ---
 
@@ -34,7 +34,7 @@ theme / planning doc) -> **sub-issues** (drafted in the matching planning doc).
 | Main issue (GitHub title) | Planning doc | Sub-issues | GitHub issue # |
 |---|---|---|---|
 | Java Phase 2: Generate SBOMs From Phase 1 Metadata Without the Source Tree | `java-phase2-consume-dep-capture-subissue.md` | A1 (#11003), A2 (#11004) | #11002 |
-| Phase 1 Build-Speed & Efficiency (Java) | `java/phase1-build-speed-subissues.md` | AF (#11069), A4 (#11006), A5 (#11007) | #11005 |
+| Phase 1 Build-Speed & Efficiency (Java) | `java/phase1-build-speed-subissues.md` | AF (#11069), A4 (#11006), A5 (#11007), A10 (#11097), A11 (#11100) | #11005 |
 | Faster SBOM Generation for Java Builds (Retrospective) | `java/retro-subissue-java-treedb-perf.md` | SI-R1 | #11000 |
 | Build-Based SBOM Capture & Delivery (Sidecar + Phase Isolation) | `sidecar-phase-isolation-subissues.md` | B1 (#11009), B2 (#11010), B3 (#11011), B4 (#11012), C1/C2 (#11013) | #11008 |
 
@@ -46,7 +46,7 @@ theme / planning doc) -> **sub-issues** (drafted in the matching planning doc).
 |---|---|---|---|---|
 | `tedg-dev/omnibor-analysis#194` | Phase 2 generates SBOMs from Phase 1 metadata, no source tree | Java Phase 2 -> **A1** / SI-4 (Java) | #11003 | Merged |
 | `tedg-dev/omnibor-analysis#196` | Single-invocation Gradle dependency capture (US-2) | Phase 1 Build-Speed -> **A4** / US-2 | #11006 | Merged |
-| `tedg-dev/omnibor-analysis#212` | Java inline-hashing interception (sidecar Phase 1, eliminate post-build rescan) | Phase 1 Build-Speed -> **A10** / US-5 | #11097 (child of #11005, Ready) | Open (flag off; EC2 golden-validation pending) |
+| `tedg-dev/omnibor-analysis#212` | Java inline-hashing interception (sidecar Phase 1, eliminate post-build rescan) | Phase 1 Build-Speed -> **A10** / US-5 | #11097 (child of #11005, In Development) | Merged (flag off; golden-validation tracked as A11 / #11100) |
 | `tedg-dev/omnibor-analysis#200` | Java build-tool detection + `java_build_tool` override | Phase 1 Java capture -> **AF** (pilot foundation) | #11069 | Merged |
 | `tedg-dev/omnibor-analysis#199` | Shared `_generate_java_treedb` helper (DRY) | Phase 1 Java capture -> **AF** (pilot foundation) | #11069 | Merged |
 | `tedg-dev/omnibor-analysis#198` | Main A scope refinement + design draft | Java Main A scope (comment on #11002) | #11002 | Merged |
@@ -75,6 +75,7 @@ docs activity and carries a datetimestamped activity log.
 | In-memory JAR class processing (no extract-to-disk) | Phase 1 Build-Speed -> **A8** / US-4 | #11055 | Deferred (validate on EC2), no PR |
 | Support non-Maven/Gradle Java builds (Ant/Ivy, Bazel, `make`) | Phase 1 Java capture -> **A9** | #11066 (backlog, Proposed; parentless) | Backlog — **excluded from the Main A gate**. `tedg-dev/omnibor-analysis#202` (Draft, `Proposed` label — tables it for the pilot, fail-fast on ivy/ant/make/bazel); `#201` (Draft, `backlog` label — Ivy parser/reader) |
 | Overlap independent post-build steps (measure first) | Phase 1 Build-Speed -> **A5** / US-3 | #11007 | Optional / low, no PR |
+| Inline-hashing golden-clean validation (MRJAR/multi-module correctness + build-logic JAR exclusion) | Phase 1 Build-Speed -> **A11** / US-6 | #11100 (child of #11005, In Development) | Implemented on `feat/java-inline-hashing`, golden-clean on all 7 Java repos; PR pending |
 | Deliver Java build evidence to Corona | **A7** / SI-5 (Java) | — | Postponed — out of charter |
 | Agree on C/C++ build observation | Main B -> **B1** / SI-1 | #11009 | Blocked on Main A |
 | Auto-capture C/C++ components | Main B -> **B2** / SI-2 | #11010 | Blocked on Main A |
@@ -87,10 +88,12 @@ docs activity and carries a datetimestamped activity log.
 ## Issue structure notes
 
 The 13 themed issues (#11000–#11013), the pilot-foundation issue
-**#11069** (In Review, child of #11005), the parentless A9 backlog issue
-**#11066**, and the living documentation tracker **#11071** (In Review,
-parentless) are live on the Corona project board (#255). Sub-issue parent
-links are established (#11069 → #11005; #11066 and #11071 are intentionally
+**#11069** (In Review, child of #11005), the inline-hashing sub-issues
+**#11097** (In Development) and **#11100** (In Development) — both children
+of #11005, the parentless A9 backlog issue **#11066**, and the living
+documentation tracker **#11071** (In Review, parentless) are live on the
+Corona project board (#255). Sub-issue parent links are established
+(#11069, #11097, #11100 → #11005; #11066 and #11071 are intentionally
 parentless). Assignee: `tedg_cisco`.
 
 The current GitHub main issue structure (#11002, #11005, #11008) does not

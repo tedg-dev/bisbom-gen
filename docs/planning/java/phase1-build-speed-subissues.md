@@ -6,7 +6,7 @@
 | **Epic** | Single epic — this main issue is added to it later by the issues team |
 | **Author** | Ted G. |
 | **Drafted** | 2026-06-24 (Cascade) |
-| **Status** | US-2 delivered & merged (PR `tedg-dev/omnibor-analysis#196`, golden-clean on bc-java + spring-boot); US-5 implemented (inline GitOID capture, EC2 golden-validation pending); US-4 added (deferred, in-memory JAR processing); US-3 optional/low; US-1 moved — see below |
+| **Status** | US-2 delivered & merged (PR `tedg-dev/omnibor-analysis#196`, golden-clean on bc-java + spring-boot); US-5 delivered & merged (inline GitOID capture, PR `tedg-dev/omnibor-analysis#212`; #11097 In Development); US-6 added (inline-hashing golden-clean validation — MRJAR/multi-module correctness + build-logic JAR exclusion — #11100 In Development, golden-clean on all 7 Java repos, PR pending); US-4 deferred (in-memory JAR processing); US-3 optional/low; US-1 moved — see below |
 | **Scope** | **Java builds** (Maven and Gradle). Other languages capture inline during the build and are not affected. |
 | **Detailed design** | `docs/sidecar/java/phase1-build-speed-design.md` (single engineering reference — design, evidence, code-level plan). |
 
@@ -173,12 +173,13 @@ classreader patches in `docker/patches/`. Deferred per the follow-up noted in
 
 ## US-5 — Capture GitOIDs inline during the build (eliminate the post-build rescan)
 
-**Status:** Implemented (Python assembler + Maven/Gradle strategy wiring +
-config flag + `LD_PRELOAD` shim); **byte-identity EC2 golden-validation
-pending**. The config flag (`omnibor_java.java_inline_hash`) stays `false`
-until the shim is validated golden-clean on a real build host. GitHub
-sub-issue **#11097** (child of #11005, status **Ready**); PR
-`tedg-dev/omnibor-analysis#212`.
+**Status:** Delivered & merged (Python assembler + Maven/Gradle strategy
+wiring + config flag + `LD_PRELOAD` shim) in PR
+`tedg-dev/omnibor-analysis#212`. The config flag
+(`omnibor_java.java_inline_hash`) stays `false` until the shim is validated
+byte-identical (golden-clean) on a real build host — that validation is
+tracked as **US-6** (below). GitHub sub-issue **#11097** (child of #11005,
+status **In Development**).
 
 **Applies to:** Java builds (Maven and Gradle), sidecar / phase-isolated mode
 
@@ -226,6 +227,60 @@ step over an append-only capture log.
 
 **Design reference:** `docs/sidecar/java/inline-hashing-interception-design.md`
 (with `inline-hashing-explained.md` and the four sequence/mechanism diagrams).
+
+---
+
+## US-6 — Validate inline hashing golden-clean (MRJAR/multi-module correctness + build-logic JAR exclusion)
+
+**Status:** Implemented on branch `feat/java-inline-hashing` (follow-on to
+the merged US-5 / PR `tedg-dev/omnibor-analysis#212`); **golden-clean on all
+seven Java repos at package and file level**; PR pending. GitHub sub-issue
+**#11100** (child of #11005, status **In Development**).
+
+**Applies to:** Java builds (Maven and Gradle), sidecar / phase-isolated mode
+
+**Estimate:** ~2 days
+
+**Priority:** High — this is the byte-identity gate that lets the
+`omnibor_java.java_inline_hash` flag be turned on. US-5 shipped the inline
+path with the flag off pending exactly this validation.
+
+**User Story**
+
+AS A product build team using Java inline-hashing sidecar capture,
+I WANT the inline-assembled OmniBOR treedb to be byte-identical to the legacy
+workspace rescan across Multi-Release and multi-module Java builds, with
+build-logic JARs excluded from product SBOMs,
+SO THAT inline hashing can be enabled with SBOM output that exactly matches the
+approved golden baselines.
+
+**Why this matters**
+
+Validating US-5 against real multi-module and Multi-Release JAR (MRJAR) repos
+(`logging-log4j2`, `spring-boot`, `dependency-check`) surfaced differences
+versus the legacy rescan in JAR-member correlation and source attribution,
+plus one class of over-inclusion (Gradle `buildSrc` build-logic JARs). Making
+the inline output byte-identical and correctly scoped is the remaining
+"golden-clean" acceptance criterion of US-5 and the gate to enabling the flag.
+
+**Acceptance Criteria**
+
+- Given an MRJAR build, when the treedb is assembled from the capture log,
+  then JAR members are correlated by content (git-blob SHA-1), not name, and
+  versioned `META-INF/versions/<N>/` members are retained.
+- Given a class compiled identically into a base module and a sibling module,
+  when its source and canonical path are resolved, then the attribution is
+  byte-identical to the legacy rescan (deterministic, order-independent).
+- Given a Gradle project with a reserved `buildSrc` directory, when product
+  SBOM targets are selected, then build-logic JARs are excluded generically
+  (not by repo name), consistent across sidecar and standalone modes.
+- Given all configured Java repos, when run on a real build host, then every
+  SBOM is golden-clean at package AND file level.
+- Given both Maven and Gradle projects, when the above runs, then one generic,
+  config-driven code path handles both.
+
+**Design reference:** `docs/sidecar/java/inline-hashing-interception-design.md`;
+investigation `docs/issues/gradle-buildsrc-not-a-product-sbom-target.md`.
 
 ---
 

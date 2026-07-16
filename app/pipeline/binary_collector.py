@@ -35,6 +35,15 @@ class BinaryCollector:
         "original-",  # Maven shade pre-shade copy
     )
 
+    # Reserved build-logic directories whose compiled output configures
+    # the build itself and is never part of a published artifact.  Gradle
+    # reserves ``buildSrc`` for exactly this purpose, so a JAR produced
+    # under it (e.g. ``buildSrc/build/libs/buildSrc.jar``) is build tooling
+    # — not a shippable component — and must not be a product SBOM target.
+    _BUILD_LOGIC_DIRS = (
+        "buildSrc",
+    )
+
     @staticmethod
     def _is_auxiliary_jar(filename):
         """Return True if JAR is a test/sources/javadoc
@@ -51,6 +60,36 @@ class BinaryCollector:
                 for p in
                 BinaryCollector._JAR_SKIP_PREFIXES
             )
+        )
+
+    @staticmethod
+    def _is_build_logic_jar(path):
+        """Return True if *path* is a build-logic JAR — produced under a
+        reserved build-logic directory (Gradle ``buildSrc``) and therefore
+        build tooling rather than a shipped product component."""
+        # Inspect ancestor directories only; the JAR's own filename is
+        # irrelevant (a ``buildSrc`` directory is the signal, not a name).
+        ancestors = Path(path).parts[:-1]
+        return any(
+            d in ancestors
+            for d in BinaryCollector._BUILD_LOGIC_DIRS
+        )
+
+    @staticmethod
+    def is_non_product_jar(path):
+        """Return True if *path* is not a shippable product JAR.
+
+        Combines the filename-classified auxiliary artifacts
+        (tests/sources/javadoc/shade copies) with path-classified
+        build-logic JARs (Gradle ``buildSrc``).  Used everywhere the
+        ``output_binaries`` globs are expanded so every mode
+        (standalone, sidecar) applies one consistent product-JAR
+        definition.
+        """
+        p = Path(path)
+        return (
+            BinaryCollector._is_auxiliary_jar(p.name)
+            or BinaryCollector._is_build_logic_jar(p)
         )
 
     @staticmethod
@@ -88,8 +127,8 @@ class BinaryCollector:
             if '*' in rel_path or '?' in rel_path:
                 matches = [
                     m for m in repo_dir.glob(rel_path)
-                    if not BinaryCollector._is_auxiliary_jar(
-                        m.name
+                    if not BinaryCollector.is_non_product_jar(
+                        m
                     )
                 ]
                 skipped = len(
@@ -98,8 +137,8 @@ class BinaryCollector:
                 if skipped:
                     print(
                         f"[INFO] Skipped {skipped} "
-                        f"auxiliary JAR(s) "
-                        f"(tests/sources/javadoc)"
+                        f"non-product JAR(s) "
+                        f"(tests/sources/javadoc/build-logic)"
                     )
                 if not matches:
                     print(

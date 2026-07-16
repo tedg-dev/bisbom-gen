@@ -24,6 +24,7 @@ is unit-testable in isolation.
 """
 
 import json
+import re
 
 # Environment variable the shim reads for the capture-log path.  Set by
 # the interception strategy (and, in production, the CI/CD YAML) — never
@@ -33,6 +34,37 @@ CAPTURE_LOG_ENV = "OMNIBOR_CAPTURE_LOG"
 # Event ``kind`` discriminants written by the shim.
 KIND_CLASS = "class"
 KIND_JAR = "jar"
+
+# A ``.class`` physically located under a ``META-INF/versions/<N>/``
+# segment is a Multi-Release JAR *packaging copy* (JEP 238), not a
+# compiler-output/source location: the build copies an already-compiled
+# versioned class into this staging path during JAR assembly.  Its
+# filesystem path therefore must never be used to attribute source
+# provenance (its directory tree sits under a different module than the
+# source that produced it).  Matched to prefer the primary
+# compiler-output path when the same content is captured at both.
+_MRJAR_VERSION_RE = re.compile(r"/META-INF/versions/\d+/")
+
+
+def _is_versioned_staging_path(path):
+    """True if *path* is a Multi-Release JAR ``META-INF/versions/<N>/`` copy."""
+    return bool(_MRJAR_VERSION_RE.search(path))
+
+
+def _prefer_canonical(new_path, cur_path):
+    """True if *new_path* should replace *cur_path* as a content's canonical.
+
+    A non-staging (primary compiler-output) path always beats a
+    ``META-INF/versions/<N>/`` staging copy; among paths of equal
+    staging-ness the lexicographically-smallest wins, matching the legacy
+    rescan's sorted-first content match and keeping the choice independent
+    of capture order.
+    """
+    new_staging = _is_versioned_staging_path(new_path)
+    cur_staging = _is_versioned_staging_path(cur_path)
+    if new_staging != cur_staging:
+        return cur_staging
+    return new_path < cur_path
 
 
 def read_capture_log(path):
@@ -134,24 +166,40 @@ def assemble_treedb(events, resolve_source=None):
 
     - a ``.class`` event yields a ``{file_path, hash_tree: [src_sha1]}``
       entry; ``resolve_source`` maps the class's ``SourceFile`` attribute
-      + fully-qualified name to the source ``.java`` path and its git-blob
-      ``SHA-1`` (a leaf entry).  When the source cannot be resolved the
-      class's ``hash_tree`` is empty (matching bomsh's behaviour for a
-      class with no locatable source).
+      + the class's own write path to the source ``.java`` path (by path
+      similarity) and its git-blob ``SHA-1`` (a leaf entry).  When the
+      source cannot be resolved the class's ``hash_tree`` is empty
+      (matching bomsh's behaviour for a class with no locatable source).
     - a ``.jar`` event yields a ``{file_path, hash_tree: [member_sha1s]}``
-      entry.  A member is linked by its ``sha1`` when the shim recorded
-      one, else by matching the central-directory entry ``name`` to a
-      captured class's git-blob ``SHA-1`` — either way no re-hash and no
-      unzip are needed (the member bytes equal the on-disk ``.class``
-      bytes already captured).
+      entry.  Each ``.class`` member carries its own git-blob ``SHA-1``
+      (computed by the shim from the member's *uncompressed* bytes), so a
+      member is linked purely **by content** — exactly how the legacy
+      rescan correlates an extracted member to a workspace class
+      (basename + byte-identical).  This is correct for every JAR layout:
+
+      * ordinary (root) members whose bytes match a captured class;
+      * Multi-Release members (``META-INF/versions/<N>/...``) whose bytes
+        match a captured version-specific class, regardless of where that
+        class was written on disk (Maven in-tree ``META-INF/versions`` or
+        Gradle separate source-set output);
+      * base/versioned pairs that share a fully-qualified name but differ
+        in bytes — each member binds to its own variant by content;
+      * members the build *rewrote* while packaging (e.g. a transformed
+        ``module-info.class``) whose bytes match no captured class — these
+        are dropped, matching the rescan (which finds no workspace file
+        with identical content and excludes them from the SBOM).
+
+    A member without a recorded ``sha1`` (legacy capture logs) falls back
+    to name correlation against the class fully-qualified name.
 
     Two passes are used so JAR members resolve regardless of event order:
-    classes/sources first (to build the name index), then JARs.
+    classes/sources first (to key the treedb by content ``SHA-1`` and
+    build the legacy name index), then JARs.
 
     Args:
         events: Iterable of capture-event dicts (see module docstring).
         resolve_source: Optional callable
-            ``(source_file, class_name) -> (src_path, src_sha1)`` or
+            ``(source_file, class_path) -> (src_path, src_sha1)`` or
             ``None``.  Injected so the caller owns all filesystem access
             and this function stays pure/testable.  When omitted, classes
             get an empty ``hash_tree``.
@@ -164,18 +212,42 @@ def assemble_treedb(events, resolve_source=None):
     treedb = {}
     class_sha_by_relpath = {}
 
-    for event in events:
-        if event.get("kind") != KIND_CLASS:
-            continue
-        sha1 = event.get("sha1")
-        path = event.get("path")
-        if not sha1 or not path:
-            continue
-        _assemble_class(treedb, event, sha1, path, resolve_source)
+    class_events = [
+        e for e in events
+        if e.get("kind") == KIND_CLASS and e.get("sha1") and e.get("path")
+    ]
+
+    # Choose one canonical event per content ``SHA-1`` to own the treedb
+    # entry's ``file_path`` and source resolution.  Identical bytes may be
+    # captured at more than one path — most notably a class compiled once
+    # into its module's output tree and then copied into a Multi-Release
+    # JAR ``META-INF/versions/<N>/`` staging directory, or the same class
+    # (e.g. a shared ``package-info``) compiled identically in sibling
+    # modules.  A primary compiler-output path always wins over a staging
+    # copy so source attribution reflects the class's true origin; among
+    # otherwise-equal paths the lexicographically-smallest wins, matching
+    # the legacy rescan (which scans a sorted file list and keeps the first
+    # content match) — both are independent of capture order.
+    canonical = {}
+    for event in class_events:
+        sha1 = event["sha1"]
+        chosen = canonical.get(sha1)
+        if chosen is None or _prefer_canonical(event["path"], chosen["path"]):
+            canonical[sha1] = event
+
+    # Pass 1 — create every class entry (``file_path`` only; source
+    # resolution is deferred to pass 3).
+    for sha1, event in canonical.items():
+        _add_entry(treedb, sha1, event["path"])
+
+    for event in class_events:
         relpath = _class_relpath(event.get("class_name", ""))
         if relpath:
-            class_sha_by_relpath.setdefault(relpath, sha1)
+            class_sha_by_relpath.setdefault(relpath, event["sha1"])
 
+    # Pass 2 — link every JAR to its member classes by content, recording
+    # which class ``SHA-1``s are actually members of some analyzed JAR.
+    member_shas = set()
     for event in events:
         if event.get("kind") != KIND_JAR:
             continue
@@ -183,19 +255,37 @@ def assemble_treedb(events, resolve_source=None):
         path = event.get("path")
         if not sha1 or not path:
             continue
-        _assemble_jar(treedb, event, sha1, path, class_sha_by_relpath)
+        member_shas |= _assemble_jar(
+            treedb, event, sha1, path, class_sha_by_relpath,
+        )
+
+    # Pass 3 — resolve each class's source leaf, JAR members first.  When
+    # two classes compile from byte-identical source (the same source file
+    # duplicated across sibling modules — e.g. a base module and its
+    # Multi-Release companion), both resolve to one content-addressed leaf
+    # whose ``file_path`` is kept from whichever class is resolved first.
+    # Resolving members before non-members guarantees a shipped (JAR
+    # member) class owns that path, exactly as bomsh — which only ever
+    # walks JAR members — does, instead of a compiled-but-unshipped
+    # sibling seeding it.
+    ordered = [s for s in canonical if s in member_shas]
+    ordered += [s for s in canonical if s not in member_shas]
+    for sha1 in ordered:
+        _resolve_class_source(
+            treedb, canonical[sha1], sha1, resolve_source,
+        )
 
     return treedb
 
 
-def _assemble_class(treedb, event, sha1, path, resolve_source):
-    """Add one ``.class`` entry (and its resolved source leaf)."""
-    entry = _add_entry(treedb, sha1, path)
+def _resolve_class_source(treedb, event, sha1, resolve_source):
+    """Attach a class entry's resolved source leaf to its ``hash_tree``."""
+    entry = treedb[sha1]
     hash_tree = []
     if resolve_source is not None:
         resolved = resolve_source(
             event.get("source_file", ""),
-            event.get("class_name", ""),
+            event["path"],
         )
         if resolved is not None:
             src_path, src_sha1 = resolved
@@ -206,19 +296,33 @@ def _assemble_class(treedb, event, sha1, path, resolve_source):
 
 
 def _assemble_jar(treedb, event, sha1, path, class_sha_by_relpath):
-    """Add one ``.jar`` entry linking to its member classes.
+    """Add one ``.jar`` entry linking to its member classes by content.
 
-    Each member is linked by its recorded ``sha1`` when present, else by
-    matching its central-directory ``name`` to a captured class hash.
+    Correlation is by the member's git-blob ``SHA-1`` (recorded by the
+    shim from the member's uncompressed bytes), matching the legacy
+    rescan's basename+content match:
+
+    - a member whose ``sha1`` keys a captured class is linked to it;
+    - a member whose ``sha1`` matches no captured class (e.g. a
+      build-rewritten ``module-info.class``) is dropped, as the rescan
+      finds no workspace file with identical content;
+    - a member lacking a recorded ``sha1`` (legacy logs) falls back to
+      matching its central-directory ``name`` to a captured class's
+      fully-qualified name.
+
+    Returns the set of member class ``SHA-1``s linked, so the caller can
+    resolve JAR-member source leaves ahead of non-member ones.
     """
     entry = _add_entry(treedb, sha1, path)
     members = []
     for member in event.get("entries", []):
         member_sha1 = member.get("sha1")
-        if not member_sha1:
-            member_sha1 = class_sha_by_relpath.get(
-                member.get("name"),
-            )
         if member_sha1:
-            members.append(member_sha1)
+            if member_sha1 in treedb:
+                members.append(member_sha1)
+            continue
+        name_sha1 = class_sha_by_relpath.get(member.get("name"))
+        if name_sha1:
+            members.append(name_sha1)
     entry["hash_tree"] = members
+    return set(members)

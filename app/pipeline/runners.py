@@ -311,15 +311,21 @@ def main():
         baseline=baseline,
     )
 
-    # Console summary
-    p1 = timing.phase1_total
+    # Console summary — report the native CI/CD build, the
+    # sidecar metadata work (create + store for Phase 2), and
+    # Phase 2 SPDX generation separately so the build-stage
+    # impact is never conflated with the sidecar cost.
+    build_t = timing.build_total
+    sidecar_t = timing.sidecar_total
     p2 = timing.phase2_total
     status = "COMPLETE" if success else "FAILED"
     print(f"\n{'#'*60}")
     print(f"  Analysis {status}: {args.repo}")
     print(
-        f"  Build: {p1:.1f}s  "
-        f"Analysis: {p2:.1f}s  "
+        f"  CI/CD build: {build_t:.1f}s  "
+        f"Sidecar (metadata create+store): "
+        f"{sidecar_t:.1f}s  "
+        f"Phase 2 (SPDX): {p2:.1f}s  "
         f"Total: {duration:.1f}s"
     )
     if baseline:
@@ -392,6 +398,7 @@ def _run_phase1_only(
     Returns ``TimingResult``.
     """
     from app.pipeline.manifest import write_manifest
+    from app.pipeline.timing import StepTimer
 
     timing, _ = run_java_phase1(
         pipeline, repo_name, repo_cfg,
@@ -444,25 +451,33 @@ def _run_phase1_only(
         "spdx_dir": str(spdx_dir),
     }
 
-    manifest_path = write_manifest(
-        manifest_dir=str(bom_dir),
-        repo_name=repo_name,
-        language=lang,
-        mode=mode,
-        tracer=timing.tracer,
-        run_ts=run_ts,
-        commit_sha=commit_sha,
-        vcs_uri=vcs_uri,
-        artifacts=artifacts,
-        paths=paths,
-        repo_cfg={
-            k: repo_cfg[k] for k in (
-                "output_binaries", "language",
-                "build_steps",
-            ) if k in repo_cfg
-        },
-        omnibor_cfg=omnibor_cfg,
+    # Time the manifest write as sidecar work: it is the
+    # "store build metadata for Phase 2 access" step, distinct
+    # from the native build and from Phase 2 SPDX generation.
+    manifest_timer = StepTimer(
+        "manifest", "phase1", category="sidecar",
     )
+    with manifest_timer:
+        manifest_path = write_manifest(
+            manifest_dir=str(bom_dir),
+            repo_name=repo_name,
+            language=lang,
+            mode=mode,
+            tracer=timing.tracer,
+            run_ts=run_ts,
+            commit_sha=commit_sha,
+            vcs_uri=vcs_uri,
+            artifacts=artifacts,
+            paths=paths,
+            repo_cfg={
+                k: repo_cfg[k] for k in (
+                    "output_binaries", "language",
+                    "build_steps",
+                ) if k in repo_cfg
+            },
+            omnibor_cfg=omnibor_cfg,
+        )
+    timing.steps.append(manifest_timer.metrics)
     print(
         f"[OK] Phase 1 manifest: {manifest_path}"
     )

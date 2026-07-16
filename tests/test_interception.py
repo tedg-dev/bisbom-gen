@@ -12,6 +12,7 @@ from pathlib import Path
 from unittest.mock import patch, MagicMock
 
 import json
+import os
 import tempfile
 
 from app.pipeline.interception import (
@@ -452,38 +453,84 @@ class TestMakeSourceResolver(unittest.TestCase):
         (src / "App.java").write_bytes(b"class App {}")
         return td
 
-    def test_resolves_by_package_path(self):
+    def test_resolves_by_path_similarity(self):
         with tempfile.TemporaryDirectory() as td:
             self._make_repo(td)
             resolve = make_source_resolver(td)
-            result = resolve("App.java", "com.x.App")
+            class_path = f"{td}/target/classes/com/x/App.class"
+            result = resolve("App.java", class_path)
             self.assertIsNotNone(result)
             path, sha1 = result
-            self.assertTrue(path.endswith("com/x/App.java"))
+            self.assertTrue(
+                path.endswith("src/main/java/com/x/App.java")
+            )
             self.assertEqual(len(sha1), 40)
 
     def test_returns_none_for_empty_source(self):
         with tempfile.TemporaryDirectory() as td:
             resolve = make_source_resolver(td)
-            self.assertIsNone(resolve("", "com.x.App"))
+            self.assertIsNone(resolve("", f"{td}/a/App.class"))
+
+    def test_returns_none_for_empty_class_path(self):
+        with tempfile.TemporaryDirectory() as td:
+            self._make_repo(td)
+            resolve = make_source_resolver(td)
+            self.assertIsNone(resolve("App.java", ""))
 
     def test_returns_none_when_absent(self):
         with tempfile.TemporaryDirectory() as td:
             resolve = make_source_resolver(td)
             self.assertIsNone(
-                resolve("Missing.java", "com.x.Missing"),
+                resolve("Missing.java", f"{td}/a/Missing.class"),
             )
 
-    def test_unique_basename_fallback(self):
+    def test_disambiguates_when_repo_dir_relative_class_abs(self):
+        # Production condition: the source index is walked from a
+        # *relative* repo_dir while the shim records *absolute* class
+        # paths.  Both must be normalised to absolute so the class
+        # resolves to the source in its own module, not a sibling.
         with tempfile.TemporaryDirectory() as td:
-            src = Path(td) / "weird"
-            src.mkdir(parents=True)
-            (src / "Solo.java").write_bytes(b"x")
+            base = (Path(td) / "api" / "src" / "main" / "java"
+                    / "o" / "p")
+            v9 = (Path(td) / "api-java9" / "src" / "main" / "java"
+                  / "o" / "p")
+            base.mkdir(parents=True)
+            v9.mkdir(parents=True)
+            (base / "Provider.java").write_bytes(b"base")
+            (v9 / "Provider.java").write_bytes(b"v9")
+            cwd = os.getcwd()
+            try:
+                os.chdir(td)
+                resolve = make_source_resolver(".")
+                v9_cls = (f"{td}/api-java9/target/classes"
+                          "/o/p/Provider.class")
+                v9_src, _ = resolve("Provider.java", v9_cls)
+            finally:
+                os.chdir(cwd)
+            self.assertIn("api-java9", v9_src)
+
+    def test_base_vs_versioned_disambiguated_by_path(self):
+        # The same fully-qualified class exists in a base module and a
+        # java9 companion module.  The resolver must pick the source in
+        # the class's own module tree (path similarity), not the sibling.
+        with tempfile.TemporaryDirectory() as td:
+            base = (Path(td) / "api" / "src" / "main" / "java"
+                    / "o" / "p")
+            v9 = (Path(td) / "api-java9" / "src" / "main" / "java"
+                  / "o" / "p")
+            base.mkdir(parents=True)
+            v9.mkdir(parents=True)
+            (base / "Provider.java").write_bytes(b"base")
+            (v9 / "Provider.java").write_bytes(b"v9")
             resolve = make_source_resolver(td)
-            # class_name package does not match the dir, but the
-            # basename is unique -> fallback resolves it.
-            result = resolve("Solo.java", "totally.other.Solo")
-            self.assertIsNotNone(result)
+            base_cls = f"{td}/api/target/classes/o/p/Provider.class"
+            v9_cls = (
+                f"{td}/api-java9/target/classes/o/p/Provider.class"
+            )
+            base_src, _ = resolve("Provider.java", base_cls)
+            v9_src, _ = resolve("Provider.java", v9_cls)
+            self.assertIn("/api/src/", base_src)
+            self.assertIn("/api-java9/src/", v9_src)
 
 
 class TestAssembleTreedbFromCapture(unittest.TestCase):
