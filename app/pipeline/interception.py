@@ -609,6 +609,7 @@ class MavenDepTreeStrategy(InterceptionStrategy):
         Returns:
             True on success, False on failure.
         """
+        from concurrent.futures import ThreadPoolExecutor
         from app.pipeline.maven_dep_tree_parser import (
             parse_text_output,
             run_maven_dep_tree,
@@ -620,38 +621,64 @@ class MavenDepTreeStrategy(InterceptionStrategy):
         meta_dir = bom_path / "metadata" / "bomsh"
         meta_dir.mkdir(parents=True, exist_ok=True)
 
-        # Step 1: Build the OmniBOR treedb — inline assembly from the
-        # shim's capture log when inline hashing is enabled, else the
-        # legacy post-build rescan.  Shared by all Java sidecar
-        # strategies (DRY) and build-tool-agnostic.
-        if not build_java_treedb(
-            self._inline_hash, self._capture_log,
-            self._runner, repo_dir, meta_dir,
-            omnibor_cfg, substeps,
-        ):
-            _write_adg_substeps(bom_path, substeps)
-            return False
+        # Run treedb assembly and dependency resolution in parallel.
+        # Both tasks are I/O-bound (subprocess calls + file I/O) and
+        # independent (no shared state). Total time = max(treedb, deptree)
+        # instead of sum.
+        with ThreadPoolExecutor(max_workers=2) as executor:
+            # Task 1: Build the OmniBOR treedb
+            treedb_future = executor.submit(
+                build_java_treedb,
+                self._inline_hash, self._capture_log,
+                self._runner, repo_dir, meta_dir,
+                omnibor_cfg, substeps,
+            )
 
-        # Step 2: Capture Maven dependency graph (per-module).
-        # Default text output is parsed into per-module subtrees so
-        # Phase 2 can generate per-module ``_build`` SBOMs from this
-        # metadata alone, with no source-tree access.
-        t0 = time.monotonic()
-        tree_output = run_maven_dep_tree(
-            repo_dir, runner=self._runner,
-            maven_modules=self._maven_modules,
+            # Task 2: Capture Maven dependency graph
+            deptree_future = executor.submit(
+                run_maven_dep_tree,
+                repo_dir, runner=self._runner,
+                maven_modules=self._maven_modules,
+            )
+
+            # Wait for both tasks to complete
+            treedb_ok = treedb_future.result()
+            if not treedb_ok:
+                _write_adg_substeps(bom_path, substeps)
+                return False
+
+            tree_output = deptree_future.result()
+
+        # Find treedb timing from substeps
+        treedb_sec = next(
+            (s["wall_sec"] for s in substeps if s["name"] == "treedb"),
+            0.0,
         )
-        deptree_sec = time.monotonic() - t0
-        substeps.append({
-            "name": "dep_tree",
-            "tool": "mvn dependency:tree",
-            "wall_sec": round(deptree_sec, 2),
-        })
+
+        # Measure dep-tree parsing time (subprocess time is in deptree_future)
+        t0 = time.monotonic()
         if tree_output is None:
             _write_adg_substeps(bom_path, substeps)
             return False
 
         modules = parse_text_output(tree_output)
+        deptree_sec = time.monotonic() - t0
+
+        # Report parallel execution savings
+        total_seq = treedb_sec + deptree_sec
+        total_par = max(treedb_sec, deptree_sec)
+        savings = total_seq - total_par
+        print(
+            f"[OK] Parallel execution: treedb={treedb_sec:.1f}s, "
+            f"dep-tree={deptree_sec:.1f}s, "
+            f"total={total_par:.1f}s (saved {savings:.1f}s vs sequential)"
+        )
+
+        substeps.append({
+            "name": "dep_tree",
+            "tool": "mvn dependency:tree",
+            "wall_sec": round(deptree_sec, 2),
+        })
         capture = {"tool": "maven", "modules": modules}
         if not modules:
             print(
@@ -744,6 +771,7 @@ class GradleDepTreeStrategy(InterceptionStrategy):
         Returns:
             True on success, False on failure.
         """
+        from concurrent.futures import ThreadPoolExecutor
         from app.pipeline.gradle_dep_tree_parser import (
             get_all_gradle_deps,
         )
@@ -754,26 +782,54 @@ class GradleDepTreeStrategy(InterceptionStrategy):
         meta_dir = bom_path / "metadata" / "bomsh"
         meta_dir.mkdir(parents=True, exist_ok=True)
 
-        # Step 1: Build the OmniBOR treedb — inline assembly from the
-        # shim's capture log when inline hashing is enabled, else the
-        # legacy post-build rescan.  Shared by all Java sidecar
-        # strategies (DRY) and build-tool-agnostic.
-        if not build_java_treedb(
-            self._inline_hash, self._capture_log,
-            self._runner, repo_dir, meta_dir,
-            omnibor_cfg, substeps,
-        ):
-            _write_adg_substeps(bom_path, substeps)
-            return False
+        # Run treedb assembly and dependency resolution in parallel.
+        # Both tasks are I/O-bound (subprocess calls + file I/O) and
+        # independent (no shared state). Total time = max(treedb, deptree)
+        # instead of sum.
+        with ThreadPoolExecutor(max_workers=2) as executor:
+            # Task 1: Build the OmniBOR treedb
+            treedb_future = executor.submit(
+                build_java_treedb,
+                self._inline_hash, self._capture_log,
+                self._runner, repo_dir, meta_dir,
+                omnibor_cfg, substeps,
+            )
 
-        # Step 2: Capture Gradle dependency graph (per-subproject).
-        # Captured per subproject so Phase 2 can generate per-module
-        # ``_build`` SBOMs from this metadata alone, with no
-        # source-tree access.
+            # Task 2: Capture Gradle dependency graph
+            deptree_future = executor.submit(
+                get_all_gradle_deps, repo_dir,
+            )
+
+            # Wait for both tasks to complete
+            treedb_ok = treedb_future.result()
+            if not treedb_ok:
+                _write_adg_substeps(bom_path, substeps)
+                return False
+
+            modules = deptree_future.result()
+
+        # Extract dep-tree timing from substeps (added by get_all_gradle_deps
+        # is not instrumented, so we measure it here)
         t0 = time.monotonic()
-        modules = get_all_gradle_deps(repo_dir)
         capture = {"tool": "gradle", "modules": modules}
         deptree_sec = time.monotonic() - t0
+
+        # Find treedb timing from substeps
+        treedb_sec = next(
+            (s["wall_sec"] for s in substeps if s["name"] == "treedb"),
+            0.0,
+        )
+
+        # Report parallel execution savings
+        total_seq = treedb_sec + deptree_sec
+        total_par = max(treedb_sec, deptree_sec)
+        savings = total_seq - total_par
+        print(
+            f"[OK] Parallel execution: treedb={treedb_sec:.1f}s, "
+            f"dep-tree={deptree_sec:.1f}s, "
+            f"total={total_par:.1f}s (saved {savings:.1f}s vs sequential)"
+        )
+
         substeps.append({
             "name": "dep_tree",
             "tool": "gradlew dependencies",
@@ -793,7 +849,6 @@ class GradleDepTreeStrategy(InterceptionStrategy):
         print(
             f"[OK] Gradle dep:tree: {len(modules)} subprojects, "
             f"{dep_total} dependencies → {out_file}"
-            f" ({deptree_sec:.1f}s)"
         )
         _write_adg_substeps(bom_path, substeps)
         return True

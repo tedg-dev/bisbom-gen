@@ -16,10 +16,12 @@ indicates Gradle resolved to a different version.
 ``(*)`` means the subtree was already listed.
 """
 
+import json
 import os
 import re
 import subprocess
 import tempfile
+import time
 from pathlib import Path
 from typing import List
 
@@ -39,13 +41,70 @@ def _normalize_project_key(project):
     return project if project.startswith(":") else ":" + project
 
 
-# Init script that registers a single-configuration dependency report
-# task (``omniborDeps``) on every project exposing a ``runtimeClasspath``
-# configuration. One Gradle invocation with this init script emits every
-# module's runtime dependency tree, replacing one ``gradlew`` process per
-# subproject. Registration is deferred to ``afterEvaluate`` because the
-# Java plugin (which creates ``runtimeClasspath``) is applied during
-# project evaluation, after the init script's ``allprojects`` closure runs.
+# Init script that uses Gradle's ResolutionResult API to extract
+# dependency graphs as JSON. This is faster than DependencyReportTask
+# because it skips ASCII tree formatting and outputs structured data
+# directly. Industry best practice per Gradle documentation.
+_OMNIBOR_INIT_SCRIPT_JSON = """\
+import groovy.json.JsonOutput
+import org.gradle.api.artifacts.result.ResolvedDependencyResult
+
+allprojects { p ->
+    p.afterEvaluate {
+        def config = p.configurations.findByName('runtimeClasspath')
+        if (config != null) {
+            p.tasks.register('omniborDepsJson') {
+                def configName = 'runtimeClasspath'
+                doLast {
+                    def cfg = p.configurations.getByName(configName)
+                    def result = cfg.incoming.resolutionResult
+                    def root = result.root
+
+                    def collectDeps
+                    collectDeps = { component, depth, parent ->
+                        def deps = []
+                        component.dependencies.each { dep ->
+                            if (dep instanceof ResolvedDependencyResult) {
+                                def selected = dep.selected
+                                def modVer = selected.moduleVersion
+                                if (modVer != null) {
+                                    def depMap = [
+                                        groupId: modVer.group ?: '',
+                                        artifactId: modVer.name ?: '',
+                                        version: modVer.version ?: '',
+                                        scope: 'runtime',
+                                        depth: depth,
+                                        direct: (depth == 1),
+                                        parent: parent
+                                    ]
+                                    deps << depMap
+                                    def parentId = modVer.group + ':' + modVer.name
+                                    deps.addAll(collectDeps(selected, depth + 1, parentId))
+                                }
+                            }
+                        }
+                        return deps
+                    }
+
+                    def allDeps = collectDeps(root, 1, null)
+
+                    def output = [
+                        key: p.path,
+                        project: (p.path == ':' ? null : p.path.substring(1)),
+                        deps: allDeps
+                    ]
+
+                    println '===OMNIBOR_JSON_START==='
+                    println JsonOutput.toJson(output)
+                    println '===OMNIBOR_JSON_END==='
+                }
+            }
+        }
+    }
+}
+"""
+
+# Legacy text-based init script (fallback)
 _OMNIBOR_INIT_SCRIPT = """\
 import org.gradle.api.tasks.diagnostics.DependencyReportTask
 
@@ -92,6 +151,7 @@ def run_gradle_all_dep_trees(repo_dir, runner=None):
         return None
 
     init_file = None
+    t0 = time.monotonic()
     try:
         with tempfile.NamedTemporaryFile(
             mode="w", suffix=".gradle", delete=False, encoding="utf-8",
@@ -107,12 +167,28 @@ def run_gradle_all_dep_trees(repo_dir, runner=None):
             cwd=str(repo_path),
             capture_output=True,
             text=True,
-            timeout=600,
+            timeout=900,
             check=False,
         )
-        return result.stdout or None
+        elapsed = time.monotonic() - t0
+        if result.returncode != 0:
+            print(
+                f"[WARN] Gradle omniborDeps failed after {elapsed:.1f}s "
+                f"(returncode={result.returncode}): {result.stderr[:300]}"
+            )
+            return None
+        if not result.stdout:
+            print(
+                f"[WARN] Gradle omniborDeps produced no output after {elapsed:.1f}s"
+            )
+            return None
+        print(
+            f"[OK] Gradle omniborDeps single-invocation succeeded in {elapsed:.1f}s"
+        )
+        return result.stdout
     except subprocess.TimeoutExpired:
-        print("[WARN] Gradle omniborDeps timed out (600s)")
+        elapsed = time.monotonic() - t0
+        print(f"[WARN] Gradle omniborDeps timed out after {elapsed:.1f}s")
         return None
     except FileNotFoundError:
         print("[WARN] gradlew not found on PATH")
@@ -123,6 +199,117 @@ def run_gradle_all_dep_trees(repo_dir, runner=None):
                 os.unlink(init_file)
             except OSError:
                 pass
+
+
+def run_gradle_all_dep_trees_json(repo_dir, runner=None):
+    """Run gradlew with JSON ResolutionResult API init script.
+
+    Faster than text-based DependencyReportTask because it skips
+    ASCII tree formatting. Uses Gradle's ResolutionResult API
+    (industry best practice per Gradle documentation).
+
+    Includes --parallel and --configuration-cache flags for
+    maximum performance.
+
+    Args:
+        repo_dir: Path to repository root.
+        runner: Unused; kept for API consistency.
+
+    Returns:
+        Raw stdout string, or None on failure.
+    """
+    repo_path = Path(repo_dir)
+    gradlew = repo_path / "gradlew"
+    if not gradlew.exists():
+        print(f"[WARN] No gradlew found in {repo_dir}")
+        return None
+
+    init_file = None
+    t0 = time.monotonic()
+    try:
+        with tempfile.NamedTemporaryFile(
+            mode="w", suffix=".gradle", delete=False, encoding="utf-8",
+        ) as handle:
+            handle.write(_OMNIBOR_INIT_SCRIPT_JSON)
+            init_file = handle.name
+        result = subprocess.run(
+            [
+                str(gradlew), "omniborDepsJson",
+                "--init-script", init_file,
+                "--offline", "--continue",
+                "--parallel", "--max-workers=4",
+                "--configuration-cache",
+            ],
+            cwd=str(repo_path),
+            capture_output=True,
+            text=True,
+            timeout=900,
+            check=False,
+        )
+        elapsed = time.monotonic() - t0
+        if result.returncode != 0:
+            print(
+                f"[WARN] Gradle omniborDepsJson failed after {elapsed:.1f}s "
+                f"(returncode={result.returncode}): {result.stderr[:300]}"
+            )
+            return None
+        if not result.stdout:
+            print(
+                f"[WARN] Gradle omniborDepsJson produced no output after {elapsed:.1f}s"
+            )
+            return None
+        print(
+            f"[OK] Gradle omniborDepsJson (JSON API + parallel + cache) "
+            f"succeeded in {elapsed:.1f}s"
+        )
+        return result.stdout
+    except subprocess.TimeoutExpired:
+        elapsed = time.monotonic() - t0
+        print(f"[WARN] Gradle omniborDepsJson timed out after {elapsed:.1f}s")
+        return None
+    except FileNotFoundError:
+        print("[WARN] gradlew not found on PATH")
+        return None
+    finally:
+        if init_file:
+            try:
+                os.unlink(init_file)
+            except OSError:
+                pass
+
+
+def _parse_json_dep_output(output):
+    """Parse JSON dependency output from omniborDepsJson task.
+
+    Extracts JSON blocks delimited by ===OMNIBOR_JSON_START=== markers
+    and converts to the same structure as text parser output.
+
+    Args:
+        output: Raw stdout from gradlew omniborDepsJson.
+
+    Returns:
+        Dict mapping project keys to module dicts with deps list.
+    """
+    modules = {}
+    lines = output.split('\n')
+    i = 0
+    while i < len(lines):
+        if lines[i].strip() == '===OMNIBOR_JSON_START===':
+            j = i + 1
+            while j < len(lines) and lines[j].strip() != '===OMNIBOR_JSON_END===':
+                j += 1
+            if j < len(lines):
+                json_text = '\n'.join(lines[i+1:j])
+                try:
+                    module_data = json.loads(json_text)
+                    modules[module_data['key']] = module_data
+                except json.JSONDecodeError as e:
+                    print(f"[WARN] Failed to parse JSON for project: {e}")
+            i = j + 1
+        else:
+            i += 1
+
+    return modules
 
 
 def _split_dep_report_sections(output):
@@ -294,7 +481,28 @@ def get_all_gradle_deps(
           (``groupId``, ``artifactId``, ``version``, ``scope``,
           ``direct``, ``optional``, ``parent``, ``depth``).
     """
-    # Primary: one invocation reports every module via the init script.
+    # Primary: JSON API (fastest - no text formatting overhead)
+    output = run_gradle_all_dep_trees_json(repo_dir)
+    if output:
+        modules_dict = _parse_json_dep_output(output)
+        if modules_dict:
+            modules = []
+            for key, module_data in modules_dict.items():
+                modules.append({
+                    "key": key,
+                    "project": module_data.get("project"),
+                    "deps": module_data.get("deps", []),
+                })
+            print(
+                f"[OK] Gradle JSON API: parsed {len(modules)} modules"
+            )
+            return modules
+        print(
+            "[WARN] Gradle JSON API produced no parseable modules; "
+            "falling back to text API"
+        )
+
+    # Fallback 1: Text-based single invocation
     output = run_gradle_all_dep_trees(repo_dir)
     sections = _split_dep_report_sections(output) if output else {}
     if sections:
@@ -306,10 +514,16 @@ def get_all_gradle_deps(
                 "project": project,
                 "deps": parse_gradle_dep_tree(section_text),
             })
+        print(
+            f"[OK] Gradle text API (fallback): parsed {len(modules)} modules"
+        )
         return modules
 
-    # Fallback: one invocation per subproject, for builds where the
-    # aggregated init-script report yielded no parseable sections.
+    # Fallback 2: Per-subproject invocations
+    print(
+        "[WARN] Both JSON and text APIs failed; "
+        "falling back to per-subproject invocations"
+    )
     return _get_all_gradle_deps_per_subproject(
         repo_dir, include_subprojects,
     )
