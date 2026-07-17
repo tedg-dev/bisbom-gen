@@ -194,11 +194,16 @@ shared `build_java_treedb()` dispatcher ("assemble-from-capture" vs legacy scan)
 | Capture-log reader + treedb assembler | `app/pipeline/java_capture.py` |
 | Inline-hash helpers + strategy wiring | `app/pipeline/interception.py` |
 | Config-driven selection | `app/pipeline/lang_runners.py` (`_java_inline_config`, `_select_java_strategy`) |
-| Config flag | `app/config.yaml` (`omnibor_java.java_inline_hash`, default false) |
+| Config flag | `app/config.yaml` (`omnibor_java.java_inline_hash`, default **true**) |
 | `LD_PRELOAD` shim | `docker/shim/omnibor_java_intercept.c` (built in the Docker `standalone` stage, copied into `sidecar`) |
 
-Byte-identical treedb vs the legacy rescan is validated on EC2 (see §7, §10);
-the flag stays `false` until that gate passes.
+Byte-identical treedb vs the legacy rescan was validated on EC2 (see §7, §10):
+all 8 Java repos are golden-clean at package **and** file level with the flag
+on, so `java_inline_hash` defaults to `true` — this is the mandatory inline
+path (C4). The flag remains as an explicit override: set it to `false` to
+force the legacy post-build rescan on a platform where the shim cannot
+interpose (musl/Alpine or a statically-linked launcher, V4), where the inline
+path otherwise fails loudly rather than silently rescanning.
 
 ---
 

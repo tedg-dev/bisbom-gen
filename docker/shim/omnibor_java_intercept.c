@@ -37,7 +37,7 @@
  *
  * Build:
  *   gcc -shared -fPIC -O2 -o libomnibor_java_intercept.so \
- *       omnibor_java_intercept.c -ldl -lcrypto -lpthread
+ *       omnibor_java_intercept.c -ldl -lcrypto -lpthread -lz
  */
 
 #define _GNU_SOURCE
@@ -53,6 +53,7 @@
 #include <unistd.h>
 
 #include <openssl/evp.h>
+#include <zlib.h>
 
 /* Forward declarations for the little-endian zip readers (defined
  * after append_jar_entries, which is their first user). */
@@ -83,47 +84,47 @@ static void init_reals(void)
 }
 
 /* ------------------------------------------------------------------ */
-/* fd -> path table for write-opened artifacts (mutex-guarded).       */
+/* fd -> path table for write-opened artifacts.                       */
+/*                                                                    */
+/* The shim interposes close() on EVERY file the build touches        */
+/* (sockets, classpath jars, temp files — potentially millions of     */
+/* calls).  The lookup on that hot path must therefore be O(1) with   */
+/* no lock: a close() of an untracked fd (the overwhelmingly common   */
+/* case) must not scan or serialize.  Since fds are small integers,   */
+/* a plain array indexed directly by fd gives O(1) lookup, and        */
+/* distinct fds touch distinct slots so no mutex is needed.  Only     */
+/* actual .class/.jar write fds ever hold a non-NULL slot.  Per-slot  */
+/* pointer accesses use C11 atomics (lock-free on the target) so a    */
+/* reused fd cannot tear between a concurrent put and take.           */
+/*                                                                    */
+/* FD_TABLE_MAX bounds the directly-indexed range; an fd at or above  */
+/* it is simply not tracked (a write to fd >= 65536 would require the */
+/* process to hold that many open fds, which no real build does).     */
 /* ------------------------------------------------------------------ */
 
-#define FD_TABLE_MAX 4096
+#define FD_TABLE_MAX 65536
 
-struct fd_entry {
-    int fd;
-    char *path;
-};
-
-static struct fd_entry fd_table[FD_TABLE_MAX];
-static pthread_mutex_t fd_lock = PTHREAD_MUTEX_INITIALIZER;
+static char *fd_path[FD_TABLE_MAX];  /* fd_path[fd]: strdup'd path or NULL */
 
 static void fd_table_put(int fd, const char *path)
 {
-    pthread_mutex_lock(&fd_lock);
-    for (int i = 0; i < FD_TABLE_MAX; i++) {
-        if (fd_table[i].fd == 0 && fd_table[i].path == NULL) {
-            fd_table[i].fd = fd;
-            fd_table[i].path = strdup(path);
-            break;
-        }
-    }
-    pthread_mutex_unlock(&fd_lock);
+    if (fd < 0 || fd >= FD_TABLE_MAX)
+        return;
+    char *dup = strdup(path);
+    /* Replace any stale entry left by a reused fd; free the old one. */
+    char *old = __atomic_exchange_n(&fd_path[fd], dup, __ATOMIC_ACQ_REL);
+    free(old);
 }
 
 /* Remove and return the tracked path for fd (caller frees). */
 static char *fd_table_take(int fd)
 {
-    char *path = NULL;
-    pthread_mutex_lock(&fd_lock);
-    for (int i = 0; i < FD_TABLE_MAX; i++) {
-        if (fd_table[i].fd == fd && fd_table[i].path != NULL) {
-            path = fd_table[i].path;
-            fd_table[i].fd = 0;
-            fd_table[i].path = NULL;
-            break;
-        }
-    }
-    pthread_mutex_unlock(&fd_lock);
-    return path;
+    if (fd < 0 || fd >= FD_TABLE_MAX)
+        return NULL;
+    /* Fast path: untracked fd — a single relaxed load, no store. */
+    if (!__atomic_load_n(&fd_path[fd], __ATOMIC_ACQUIRE))
+        return NULL;
+    return __atomic_exchange_n(&fd_path[fd], NULL, __ATOMIC_ACQ_REL);
 }
 
 /* ------------------------------------------------------------------ */
@@ -460,10 +461,88 @@ static void emit_class(const char *path, const char *sha1,
 }
 
 /*
- * List JAR central-directory member names (no inflate) into a JSON
- * "entries" array of {"name": ...}.  Member git-blob SHA-1 is correlated
- * by name to the already-captured .class events in the Python assembler,
- * so no member bytes are decompressed here.
+ * Compute the git-blob SHA-1 of one JAR member from its *uncompressed*
+ * bytes.  The member is located via its local-header offset (the local
+ * header's own name/extra lengths are authoritative — they may differ
+ * from the central-directory record).  STORED (0) and DEFLATE (8) are
+ * supported; anything else (or a ZIP64/torn entry) returns -1 and the
+ * caller emits the member name without a hash (Python falls back to
+ * name correlation).  Returns 0 on success.
+ */
+static int hash_jar_member(FILE *f, uint32_t local_off, uint16_t method,
+                           uint32_t comp_size, uint32_t usize,
+                           char *sha1_hex)
+{
+    if (fseek(f, (long)local_off, SEEK_SET) != 0)
+        return -1;
+    unsigned char lh[30];
+    if (fread(lh, 1, 30, f) != 30)
+        return -1;
+    if (!(lh[0] == 0x50 && lh[1] == 0x4b && lh[2] == 0x03 && lh[3] == 0x04))
+        return -1;
+    uint16_t lnlen = (uint16_t)(lh[26] | (lh[27] << 8));
+    uint16_t lelen = (uint16_t)(lh[28] | (lh[29] << 8));
+    if (fseek(f, (long)lnlen + lelen, SEEK_CUR) != 0)
+        return -1;
+
+    unsigned char *comp = malloc(comp_size ? comp_size : 1);
+    if (!comp)
+        return -1;
+    if (comp_size && fread(comp, 1, comp_size, f) != comp_size) {
+        free(comp);
+        return -1;
+    }
+
+    unsigned char *raw = comp;
+    int raw_owned = 0;
+    if (method == 8) {
+        raw = malloc(usize ? usize : 1);
+        if (!raw) { free(comp); return -1; }
+        raw_owned = 1;
+        z_stream zs;
+        memset(&zs, 0, sizeof(zs));
+        if (inflateInit2(&zs, -MAX_WBITS) != Z_OK) {
+            free(comp); free(raw); return -1;
+        }
+        zs.next_in = comp;
+        zs.avail_in = comp_size;
+        zs.next_out = raw;
+        zs.avail_out = usize;
+        int rc = inflate(&zs, Z_FINISH);
+        inflateEnd(&zs);
+        if ((rc != Z_STREAM_END && rc != Z_OK) || zs.total_out != usize) {
+            free(comp); free(raw); return -1;
+        }
+    } else if (method != 0) {
+        free(comp);
+        return -1;
+    }
+
+    EVP_MD_CTX *c = EVP_MD_CTX_new();
+    if (!c) { free(comp); if (raw_owned) free(raw); return -1; }
+    EVP_DigestInit_ex(c, EVP_sha1(), NULL);
+    char header[64];
+    int hlen = snprintf(header, sizeof(header), "blob %u", usize);
+    EVP_DigestUpdate(c, header, (size_t)hlen + 1);
+    EVP_DigestUpdate(c, raw, usize);
+    unsigned char d[EVP_MAX_MD_SIZE];
+    unsigned int dl = 0;
+    EVP_DigestFinal_ex(c, d, &dl);
+    EVP_MD_CTX_free(c);
+    hex_encode(d, dl, sha1_hex);
+
+    free(comp);
+    if (raw_owned) free(raw);
+    return 0;
+}
+
+/*
+ * List JAR central-directory members into a JSON "entries" array of
+ * {"name": ..., "sha1": ...} objects.  Each .class member's git-blob
+ * SHA-1 is computed from its uncompressed bytes so the Python assembler
+ * correlates members to captured classes purely by content (matching
+ * the legacy rescan's basename+content match).  A member whose bytes
+ * cannot be hashed is emitted name-only for name-based fallback.
  */
 static void append_jar_entries(const char *path, char *out, size_t cap)
 {
@@ -506,25 +585,43 @@ static void append_jar_entries(const char *path, char *out, size_t cap)
         if (!(hdr[0] == 0x50 && hdr[1] == 0x4b &&
               hdr[2] == 0x01 && hdr[3] == 0x02))
             break;
+        uint16_t method = (uint16_t)(hdr[10] | (hdr[11] << 8));
+        uint32_t comp_size = le32(hdr + 20);
+        uint32_t usize = le32(hdr + 24);
         uint16_t nlen = hdr[28] | (hdr[29] << 8);
         uint16_t elen = hdr[30] | (hdr[31] << 8);
         uint16_t clen = hdr[32] | (hdr[33] << 8);
+        uint32_t local_off = le32(hdr + 42);
         char name[1024];
         uint16_t rn = nlen < sizeof(name) - 1 ? nlen : sizeof(name) - 1;
         if (fread(name, 1, rn, f) != rn) break;
         name[rn] = '\0';
         if (nlen > rn) fseek(f, nlen - rn, SEEK_CUR);
         fseek(f, elen + clen, SEEK_CUR);
+        long next_cd = ftell(f);
 
         if (!has_suffix(name, ".class"))
             continue;
+
+        char msha[41];
+        int have_sha = hash_jar_member(f, local_off, method,
+                                       comp_size, usize, msha) == 0;
+        fseek(f, next_cd, SEEK_SET);
+
         char esc[1200];
         json_escape(name, esc, sizeof(esc));
-        int need = snprintf(NULL, 0, "%s{\"name\":\"%s\"}",
-                            first ? "" : ",", esc);
-        if (o + (size_t)need + 2 >= cap) break;
-        o += snprintf(out + o, cap - o, "%s{\"name\":\"%s\"}",
-                      first ? "" : ",", esc);
+        char obj[1400];
+        if (have_sha)
+            snprintf(obj, sizeof(obj),
+                     "%s{\"name\":\"%s\",\"sha1\":\"%s\"}",
+                     first ? "" : ",", esc, msha);
+        else
+            snprintf(obj, sizeof(obj), "%s{\"name\":\"%s\"}",
+                     first ? "" : ",", esc);
+        size_t need = strlen(obj);
+        if (o + need + 2 >= cap) break;
+        memcpy(out + o, obj, need);
+        o += need;
         first = 0;
     }
 

@@ -49,6 +49,25 @@ tests/golden/spdx/
 
 ## Changelog
 
+### 2026-07-16 — feat/java-inline-hashing: retire buildSrc baselines
+
+**Root cause:** `buildSrc/build/libs/buildSrc.jar` is Gradle **build
+logic** (compiled to configure the build, never shipped in a product
+artifact), not a product component. The legacy on-disk rescan could not
+distinguish it from a product JAR and baselined it; a generic
+build-logic-JAR filter now excludes it from the SBOM target set. See
+`docs/issues/gradle-buildsrc-not-a-product-sbom-target.md`.
+
+| Repo | File | Change |
+|------|------|--------|
+| java/spring-boot | `buildSrc_analyzed.spdx.json` | **Removed** — build-logic JAR, not a product SBOM target |
+| java/spring-boot | `buildSrc_build.spdx.json` | **Removed** — same cause |
+
+Retired files are kept locally under the gitignored `tests/golden/_archive/`
+as a short-term backup; the four spring-boot product baselines
+(`spring-boot-3.4.4_*`, `spring-boot-configuration-processor-3.4.4_*`)
+are unchanged and still match.
+
 ### 2026-05-14 — PR #TBD: Full re-run golden refresh
 
 **Root cause:** PR #178 (`ac7c476`) changed `java_generator.py` to make

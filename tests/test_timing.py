@@ -13,10 +13,14 @@ from unittest.mock import patch
 
 from app.pipeline.builder import BuildResult
 from app.pipeline.timing import (
+    CATEGORY_BUILD,
+    CATEGORY_PHASE2,
+    CATEGORY_SIDECAR,
     CONTENTION_THRESHOLD,
     StepMetrics,
     TimingResult,
     StepTimer,
+    categorize_step,
     infer_parallelism,
     save_runtime_json,
     load_baseline,
@@ -795,6 +799,195 @@ class TestInferParallelism(unittest.TestCase):
                 "env JAVA_HOME=/usr mvn install",
                 cpu_count=4,
             ), 1,
+        )
+
+
+# ============================================================
+# categorize_step
+# ============================================================
+
+class TestCategorizeStep(unittest.TestCase):
+    """Tests for categorize_step()."""
+
+    def test_phase2_always_phase2(self):
+        self.assertEqual(
+            categorize_step("anything", "phase2"),
+            CATEGORY_PHASE2,
+        )
+
+    def test_build_lifecycle_steps(self):
+        for name in ("clean", "prebuild", "build"):
+            self.assertEqual(
+                categorize_step(name, "phase1"),
+                CATEGORY_BUILD,
+            )
+
+    def test_sidecar_steps(self):
+        for name in ("adg", "identity_index", "manifest"):
+            self.assertEqual(
+                categorize_step(name, "phase1"),
+                CATEGORY_SIDECAR,
+            )
+
+    def test_unknown_phase1_defaults_to_build(self):
+        self.assertEqual(
+            categorize_step("mystery", "phase1"),
+            CATEGORY_BUILD,
+        )
+
+
+# ============================================================
+# StepMetrics.category / resolved_category
+# ============================================================
+
+class TestStepMetricsCategory(unittest.TestCase):
+    """Tests for the category field and resolution."""
+
+    def test_default_category_empty(self):
+        m = StepMetrics(name="build", phase="phase1")
+        self.assertEqual(m.category, "")
+
+    def test_resolved_from_name_when_unset(self):
+        m = StepMetrics(name="adg", phase="phase1")
+        self.assertEqual(
+            m.resolved_category, CATEGORY_SIDECAR,
+        )
+
+    def test_explicit_category_wins(self):
+        m = StepMetrics(
+            name="build", phase="phase1",
+            category=CATEGORY_SIDECAR,
+        )
+        self.assertEqual(
+            m.resolved_category, CATEGORY_SIDECAR,
+        )
+
+    def test_to_dict_includes_resolved_category(self):
+        m = StepMetrics(name="manifest", phase="phase1")
+        d = m.to_dict()
+        self.assertEqual(d["category"], CATEGORY_SIDECAR)
+
+
+# ============================================================
+# TimingResult category totals
+# ============================================================
+
+class TestTimingResultCategories(unittest.TestCase):
+    """Tests for build/sidecar category grouping."""
+
+    def _mixed(self):
+        return TimingResult(
+            tracer="dep:tree",
+            success=True,
+            steps=[
+                StepMetrics(
+                    name="clean", phase="phase1",
+                    wall_sec=2.0,
+                ),
+                StepMetrics(
+                    name="build", phase="phase1",
+                    wall_sec=10.0,
+                ),
+                StepMetrics(
+                    name="adg", phase="phase1",
+                    wall_sec=5.0,
+                ),
+                StepMetrics(
+                    name="identity_index", phase="phase1",
+                    wall_sec=1.0,
+                ),
+                StepMetrics(
+                    name="manifest", phase="phase1",
+                    wall_sec=0.5,
+                ),
+                StepMetrics(
+                    name="spdx_gen", phase="phase2",
+                    wall_sec=3.0,
+                ),
+            ],
+        )
+
+    def test_build_steps(self):
+        t = self._mixed()
+        self.assertEqual(
+            [s.name for s in t.build_steps],
+            ["clean", "build"],
+        )
+
+    def test_sidecar_steps(self):
+        t = self._mixed()
+        self.assertEqual(
+            [s.name for s in t.sidecar_steps],
+            ["adg", "identity_index", "manifest"],
+        )
+
+    def test_build_total(self):
+        self.assertAlmostEqual(
+            self._mixed().build_total, 12.0,
+        )
+
+    def test_sidecar_total(self):
+        self.assertAlmostEqual(
+            self._mixed().sidecar_total, 6.5,
+        )
+
+    def test_phase1_total_equals_build_plus_sidecar(self):
+        t = self._mixed()
+        self.assertAlmostEqual(
+            t.phase1_total,
+            t.build_total + t.sidecar_total,
+        )
+
+    def test_to_dict_has_category_totals(self):
+        d = self._mixed().to_dict()
+        self.assertEqual(d["build_total_sec"], 12.0)
+        self.assertEqual(d["sidecar_total_sec"], 6.5)
+        self.assertEqual(d["phase2_total_sec"], 3.0)
+
+    def test_step_dicts_have_category(self):
+        d = self._mixed().to_dict()
+        cats = {
+            s["name"]: s["category"] for s in d["steps"]
+        }
+        self.assertEqual(cats["build"], CATEGORY_BUILD)
+        self.assertEqual(cats["adg"], CATEGORY_SIDECAR)
+        self.assertEqual(
+            cats["spdx_gen"], CATEGORY_PHASE2,
+        )
+
+
+# ============================================================
+# StepTimer category
+# ============================================================
+
+class TestStepTimerCategory(unittest.TestCase):
+    """Tests for StepTimer category assignment."""
+
+    def test_explicit_category(self):
+        timer = StepTimer(
+            "manifest", "phase1",
+            category=CATEGORY_SIDECAR,
+        )
+        with timer:
+            _ = sum(range(10))
+        self.assertEqual(
+            timer.metrics.category, CATEGORY_SIDECAR,
+        )
+
+    def test_derived_category_when_unset(self):
+        timer = StepTimer("adg", "phase1")
+        with timer:
+            _ = sum(range(10))
+        self.assertEqual(
+            timer.metrics.category, CATEGORY_SIDECAR,
+        )
+
+    def test_build_step_category(self):
+        timer = StepTimer("build", "phase1")
+        with timer:
+            _ = sum(range(10))
+        self.assertEqual(
+            timer.metrics.category, CATEGORY_BUILD,
         )
 
 

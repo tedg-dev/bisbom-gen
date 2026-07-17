@@ -2426,6 +2426,69 @@ class TestBinaryCollector(unittest.TestCase):
                 Path(result[0][1]).name,
             )
 
+    def test_is_build_logic_jar(self):
+        # A JAR under a reserved Gradle ``buildSrc`` directory is
+        # build tooling, not a product component.
+        self.assertTrue(
+            BinaryCollector._is_build_logic_jar(
+                "spring-boot/buildSrc/build/libs/buildSrc.jar"
+            )
+        )
+        # A product module JAR is not build-logic, even though the
+        # word appears in the filename rather than an ancestor dir.
+        self.assertFalse(
+            BinaryCollector._is_build_logic_jar(
+                "spring-boot/core/build/libs/spring-boot-3.4.4.jar"
+            )
+        )
+
+    def test_is_non_product_jar_combines_rules(self):
+        self.assertTrue(
+            BinaryCollector.is_non_product_jar(
+                "m/target/foo-sources.jar"
+            )
+        )
+        self.assertTrue(
+            BinaryCollector.is_non_product_jar(
+                "r/buildSrc/build/libs/buildSrc.jar"
+            )
+        )
+        self.assertFalse(
+            BinaryCollector.is_non_product_jar(
+                "r/core/build/libs/app-1.0.jar"
+            )
+        )
+
+    @patch("app.pipeline.binary_collector.timestamp", return_value="2026-02-12_1300")
+    def test_collect_skips_build_logic_jar(self, _ts):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            repo_dir = Path(tmpdir) / "repos" / "spring-boot"
+            core = repo_dir / "core" / "build" / "libs"
+            bsrc = repo_dir / "buildSrc" / "build" / "libs"
+            core.mkdir(parents=True)
+            bsrc.mkdir(parents=True)
+            (core / "spring-boot-3.4.4.jar").write_bytes(b"prod")
+            (bsrc / "buildSrc.jar").write_bytes(b"tooling")
+
+            paths = {
+                "repos_dir": str(Path(tmpdir) / "repos"),
+                "output_dir": str(Path(tmpdir) / "output"),
+            }
+            cfg = {
+                "output_binaries": ["**/build/libs/*.jar"],
+                "language": "java",
+            }
+
+            with patch("builtins.print"):
+                result = BinaryCollector.collect(
+                    "spring-boot", cfg, paths
+                )
+            self.assertEqual(len(result), 1)
+            self.assertEqual(
+                Path(result[0][1]).name,
+                "spring-boot-3.4.4.jar",
+            )
+
     @patch("app.pipeline.binary_collector.timestamp", return_value="2026-02-12_1300")
     def test_collect_glob_no_match(self, _ts):
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -4172,6 +4235,56 @@ class TestAdgSpdxStep(unittest.TestCase):
                 calls[0].kwargs.get("binary_name"),
                 "nmap",
             )
+
+    def test_generate_glob_excludes_build_logic_jar(self):
+        """Glob expansion drops build-logic JARs (Gradle buildSrc),
+        keeping only product JARs as SBOM targets."""
+        from analyze import AdgSpdxStep
+        with tempfile.TemporaryDirectory() as td:
+            repo_dir = Path(td) / "repos" / "springboot"
+            core = repo_dir / "core" / "build" / "libs"
+            bsrc = repo_dir / "buildSrc" / "build" / "libs"
+            core.mkdir(parents=True)
+            bsrc.mkdir(parents=True)
+            (core / "spring-boot-3.4.4.jar").write_bytes(b"PK")
+            (bsrc / "buildSrc.jar").write_bytes(b"PK")
+            bom_dir = (
+                Path(td) / "omnibor" / "java" / "springboot"
+                / "2026-02-12_1300" / "metadata" / "springboot"
+            )
+            bom_dir.mkdir(parents=True)
+
+            paths = {
+                "output_dir": td,
+                "repos_dir": str(Path(td) / "repos"),
+            }
+            repo_cfg = {
+                "output_binaries": ["**/build/libs/*.jar"],
+                "language": "java",
+            }
+
+            mock_gen = MagicMock()
+            mock_gen.generate.side_effect = [
+                "a_analyzed.spdx.json",
+                "a_build.spdx.json",
+            ]
+            with patch(
+                "spdx_from_adg.AdgSpdxGenerator",
+                return_value=mock_gen,
+            ):
+                result = AdgSpdxStep.generate(
+                    "springboot", repo_cfg, paths,
+                    run_ts="2026-02-12_1300",
+                )
+
+            # Only the product JAR yields SBOMs (analyzed + build);
+            # the buildSrc build-logic JAR is excluded.
+            self.assertEqual(len(result), 2)
+            names = [
+                c.kwargs.get("binary_name")
+                for c in mock_gen.generate.call_args_list
+            ]
+            self.assertNotIn("buildSrc", names)
 
     def test_generate_with_shared_lib(self):
         """Lines 991-1002: direct_only=True when shared

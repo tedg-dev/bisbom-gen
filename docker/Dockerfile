@@ -307,7 +307,7 @@ COPY docker/shim/omnibor_java_intercept.c /tmp/omnibor_java_intercept.c
 RUN mkdir -p /opt/omnibor/lib && \
     gcc -shared -fPIC -O2 \
         -o /opt/omnibor/lib/libomnibor_java_intercept.so \
-        /tmp/omnibor_java_intercept.c -ldl -lcrypto -lpthread && \
+        /tmp/omnibor_java_intercept.c -ldl -lcrypto -lpthread -lz && \
     rm /tmp/omnibor_java_intercept.c
 
 # Go-specific bomtrace2 config (watches go compile/link tools + openat syscall)

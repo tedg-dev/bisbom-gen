@@ -358,10 +358,18 @@ def run_java_phase1(
     # identity for files removed by workspace cleanup (design of
     # record: project/artifact-identity.md, Java caveats).  bomsh's
     # SHA-1 treedb is used only to enumerate node paths (topology).
+    # Timed as sidecar work: it is part of creating the build
+    # metadata Phase 2 consumes, not the native build.
     if timing.success:
-        _persist_identity_index(
-            repo_name, repo_cfg, paths_cfg, run_ts,
+        timer = StepTimer(
+            "identity_index", "phase1",
+            category="sidecar",
         )
+        with timer:
+            _persist_identity_index(
+                repo_name, repo_cfg, paths_cfg, run_ts,
+            )
+        timing.steps.append(timer.metrics)
 
     return timing, strategy
 
@@ -654,15 +662,15 @@ def generate_java_adg_spdx(
             if p.exists():
                 jar_paths.append(p)
 
-    # Filter to production JARs only
+    # Filter to product JARs only — drops auxiliary artifacts
+    # (tests/sources/javadoc) and build-logic JARs (Gradle ``buildSrc``,
+    # which configures the build and ships in no product artifact).
     from app.pipeline.binary_collector import (
         BinaryCollector,
     )
     jar_paths = [
         p for p in jar_paths
-        if not BinaryCollector._is_auxiliary_jar(
-            p.name
-        )
+        if not BinaryCollector.is_non_product_jar(p)
     ]
 
     if not jar_paths:

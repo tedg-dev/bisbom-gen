@@ -83,43 +83,94 @@ def _git_blob_sha1(path):
     return sha.hexdigest()
 
 
+def _prefix_match_len(tokens1, tokens2):
+    """Count identical leading tokens shared by two token lists.
+
+    Mirrors bomsh's ``get_list_similarity_score``: stops at the first
+    differing position.
+    """
+    limit = min(len(tokens1), len(tokens2))
+    count = 0
+    for i in range(limit):
+        if tokens1[i] == tokens2[i]:
+            count += 1
+        else:
+            break
+    return count
+
+
+def _path_similarity_score(path1, path2):
+    """Path-similarity score between two ``/``-separated paths.
+
+    Byte-for-byte port of bomsh's ``get_file_path_similarity_score``:
+    the number of shared leading tokens (from the filesystem root) plus
+    the number of shared trailing *directory* tokens (from the deepest
+    directory upward, excluding the file name).  This ranks a class's
+    own module/source-set tree above a sibling tree that merely shares
+    the package suffix — the key to disambiguating base vs versioned
+    (Multi-Release) variants of the same fully-qualified class.
+    """
+    tokens1 = path1.split("/")
+    tokens2 = path2.split("/")
+    leading = _prefix_match_len(tokens1, tokens2)
+    trailing = _prefix_match_len(tokens1[:-1][::-1], tokens2[:-1][::-1])
+    return leading + trailing
+
+
 def make_source_resolver(repo_dir):
     """Build a class -> source ``.java`` resolver over *repo_dir*.
 
-    Indexes source files once (a cheap walk — sources are far fewer than
-    ``.class`` files and are never zipped), then resolves each class's
-    ``SourceFile`` attribute + fully-qualified name to the matching
-    ``.java`` path and its git-blob ``SHA-1``.  This is the only
-    filesystem read the inline path performs, and it touches sources
-    only — never the ``.class``/``.jar`` bytes the shim already hashed.
+    Indexes source files once by basename (a cheap walk — sources are
+    far fewer than ``.class`` files and are never zipped), then resolves
+    each class to its ``.java`` path by **path similarity** to the
+    class's own write path, exactly as ``bomsh_create_bom_java.py`` does
+    in the legacy rescan (``find_java_file_in_dict``): candidates sharing
+    the ``SourceFile`` basename are scored by
+    :func:`_path_similarity_score` against the class-file path and the
+    best (highest-scoring, score >= 3) wins.  This is the only filesystem
+    read the inline path performs, and it touches sources only — never
+    the ``.class``/``.jar`` bytes the shim already hashed.
 
     Returns:
-        A ``(source_file, class_name) -> (path, sha1) | None`` callable.
+        A ``(source_file, class_path) -> (path, sha1) | None`` callable.
     """
+    # Each candidate keeps the walk path (used for the digest and the
+    # value returned to the caller, so downstream repo-prefix stripping is
+    # unchanged) alongside its absolute form (used only for scoring).
     index = {}
     for root, _dirs, files in os.walk(repo_dir):
         for name in files:
             if name.endswith(".java"):
-                index.setdefault(name, []).append(
-                    os.path.join(root, name)
-                )
+                walk_path = os.path.join(root, name)
+                index.setdefault(name, []).append((
+                    walk_path,
+                    os.path.abspath(walk_path).replace(os.sep, "/"),
+                ))
 
-    def resolve(source_file, class_name):
-        if not source_file:
+    def resolve(source_file, class_path):
+        if not source_file or not class_path:
             return None
         candidates = index.get(source_file)
         if not candidates:
             return None
-        if class_name and "." in class_name:
-            pkg = class_name.rsplit(".", 1)[0].replace(".", "/")
-            wanted = pkg + "/" + source_file
-            for path in candidates:
-                norm = path.replace(os.sep, "/")
-                if norm.endswith(wanted):
-                    return path, _git_blob_sha1(path)
-        if len(candidates) == 1:
-            return candidates[0], _git_blob_sha1(candidates[0])
-        return None
+        # Score against the *absolute* class path.  The shim records
+        # absolute write paths while the source index may be walked from a
+        # relative repo_dir; normalising both to absolute is what makes the
+        # shared leading tokens (…/<module>/) line up, so a class resolves
+        # to the source in its own module/source-set rather than a sibling
+        # (e.g. base vs Multi-Release java9 module).  bomsh requires a
+        # score strictly greater than 2 before accepting a match.
+        cpath = os.path.abspath(class_path).replace(os.sep, "/")
+        best_file = None
+        best_score = 2
+        for walk_path, abs_path in candidates:
+            score = _path_similarity_score(cpath, abs_path)
+            if score > best_score:
+                best_score = score
+                best_file = walk_path
+        if best_file is None:
+            return None
+        return best_file, _git_blob_sha1(best_file)
 
     return resolve
 
