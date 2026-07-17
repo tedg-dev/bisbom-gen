@@ -176,9 +176,10 @@ classreader patches in `docker/patches/`. Deferred per the follow-up noted in
 **Status:** Delivered & merged (Python assembler + Maven/Gradle strategy
 wiring + config flag + `LD_PRELOAD` shim) in PR
 `tedg-dev/omnibor-analysis#212`. The config flag
-(`omnibor_java.java_inline_hash`) stays `false` until the shim is validated
-byte-identical (golden-clean) on a real build host — that validation is
-tracked as **US-6** (below). GitHub sub-issue **#11097** (child of #11005,
+(`omnibor_java.java_inline_hash`) now defaults to `true` after the byte-identity
+gate (US-6) passed golden-clean on the EC2 build host; it remains as an explicit
+override to force the legacy rescan on platforms where the shim cannot interpose
+(musl/Alpine, V4). GitHub sub-issue **#11097** (child of #11005,
 status **In Development**).
 
 **Applies to:** Java builds (Maven and Gradle), sidecar / phase-isolated mode
@@ -234,7 +235,9 @@ step over an append-only capture log.
 
 **Status:** Implemented on branch `feat/java-inline-hashing` (follow-on to
 the merged US-5 / PR `tedg-dev/omnibor-analysis#212`); **golden-clean on all
-seven Java repos at package and file level**; PR pending. GitHub sub-issue
+eight Java repos at package and file level** (re-validated on EC2 with the flag
+on — spring-boot and dependency-check confirmed 0 file diffs); the flag is now
+defaulted `true` in the same PR (#213). GitHub sub-issue
 **#11100** (child of #11005, status **In Development**).
 
 **Applies to:** Java builds (Maven and Gradle), sidecar / phase-isolated mode

@@ -343,15 +343,17 @@ omnibor_java:
   strace_opts: -f -s99999 --seccomp-bpf -e trace=openat -qqq
   create_bom_script: bomsh_create_bom_java.py
   strace_logfile: /tmp/strace_java_logfile
-  # Sidecar inline hashing (generic, Maven + Gradle). When true, the
-  # LD_PRELOAD shim (libomnibor_java_intercept.so) computes each
+  # Sidecar inline hashing (generic, Maven + Gradle). The default path:
+  # the LD_PRELOAD shim (libomnibor_java_intercept.so) computes each
   # .class/.jar git-blob SHA-1 + SHA-256 gitoid inline during the build
   # and generate_adg() assembles the treedb from the capture log instead
   # of a post-build workspace rescan. The native build is untouched
-  # (env-only injection). Default false: enable ONLY after the shim is
-  # golden-validated on EC2 (byte-identical treedb vs the rescan).
+  # (env-only injection). This is the mandatory inline path (design C4):
+  # on a platform where the shim cannot interpose (musl/Alpine or a
+  # statically-linked launcher, design V4) the inline path fails loudly;
+  # set this to false to force the legacy post-build rescan on such hosts.
   # See docs/sidecar/java/inline-hashing-interception-design.md.
-  java_inline_hash: false
+  java_inline_hash: true
   # Optional override; defaults to
   # /opt/omnibor/lib/libomnibor_java_intercept.so in the image.
   # inline_shim_path: /opt/omnibor/lib/libomnibor_java_intercept.so

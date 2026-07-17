@@ -84,47 +84,47 @@ static void init_reals(void)
 }
 
 /* ------------------------------------------------------------------ */
-/* fd -> path table for write-opened artifacts (mutex-guarded).       */
+/* fd -> path table for write-opened artifacts.                       */
+/*                                                                    */
+/* The shim interposes close() on EVERY file the build touches        */
+/* (sockets, classpath jars, temp files — potentially millions of     */
+/* calls).  The lookup on that hot path must therefore be O(1) with   */
+/* no lock: a close() of an untracked fd (the overwhelmingly common   */
+/* case) must not scan or serialize.  Since fds are small integers,   */
+/* a plain array indexed directly by fd gives O(1) lookup, and        */
+/* distinct fds touch distinct slots so no mutex is needed.  Only     */
+/* actual .class/.jar write fds ever hold a non-NULL slot.  Per-slot  */
+/* pointer accesses use C11 atomics (lock-free on the target) so a    */
+/* reused fd cannot tear between a concurrent put and take.           */
+/*                                                                    */
+/* FD_TABLE_MAX bounds the directly-indexed range; an fd at or above  */
+/* it is simply not tracked (a write to fd >= 65536 would require the */
+/* process to hold that many open fds, which no real build does).     */
 /* ------------------------------------------------------------------ */
 
-#define FD_TABLE_MAX 4096
+#define FD_TABLE_MAX 65536
 
-struct fd_entry {
-    int fd;
-    char *path;
-};
-
-static struct fd_entry fd_table[FD_TABLE_MAX];
-static pthread_mutex_t fd_lock = PTHREAD_MUTEX_INITIALIZER;
+static char *fd_path[FD_TABLE_MAX];  /* fd_path[fd]: strdup'd path or NULL */
 
 static void fd_table_put(int fd, const char *path)
 {
-    pthread_mutex_lock(&fd_lock);
-    for (int i = 0; i < FD_TABLE_MAX; i++) {
-        if (fd_table[i].fd == 0 && fd_table[i].path == NULL) {
-            fd_table[i].fd = fd;
-            fd_table[i].path = strdup(path);
-            break;
-        }
-    }
-    pthread_mutex_unlock(&fd_lock);
+    if (fd < 0 || fd >= FD_TABLE_MAX)
+        return;
+    char *dup = strdup(path);
+    /* Replace any stale entry left by a reused fd; free the old one. */
+    char *old = __atomic_exchange_n(&fd_path[fd], dup, __ATOMIC_ACQ_REL);
+    free(old);
 }
 
 /* Remove and return the tracked path for fd (caller frees). */
 static char *fd_table_take(int fd)
 {
-    char *path = NULL;
-    pthread_mutex_lock(&fd_lock);
-    for (int i = 0; i < FD_TABLE_MAX; i++) {
-        if (fd_table[i].fd == fd && fd_table[i].path != NULL) {
-            path = fd_table[i].path;
-            fd_table[i].fd = 0;
-            fd_table[i].path = NULL;
-            break;
-        }
-    }
-    pthread_mutex_unlock(&fd_lock);
-    return path;
+    if (fd < 0 || fd >= FD_TABLE_MAX)
+        return NULL;
+    /* Fast path: untracked fd — a single relaxed load, no store. */
+    if (!__atomic_load_n(&fd_path[fd], __ATOMIC_ACQUIRE))
+        return NULL;
+    return __atomic_exchange_n(&fd_path[fd], NULL, __ATOMIC_ACQ_REL);
 }
 
 /* ------------------------------------------------------------------ */
