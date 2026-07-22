@@ -58,8 +58,9 @@ PR/issue mapping for recreation once GitHub Issues access returns:
 | A7 | Deliver Java build evidence to Corona (Java delivery slice) | Postponed — out of charter (Corona / Phase 2-incorporation team owns delivery + verification) | SI-5 (Java) |
 | A8 | Build efficiency — fully in-memory JAR class processing (no extract-to-disk) | Deferred (validate on EC2) | US-4 |
 | A9 | Support non-Maven/Gradle Java builds (Ant/Ivy, Bazel, `make`) | **Backlog** — parentless issue, not in the initial pilot; **excluded from the Main A completion gate** | #11066 (Proposed) / [java/java-nonmaven-gradle-build-tools-subissue.md](java/java-nonmaven-gradle-build-tools-subissue.md) |
-| A10 | Build efficiency — inline GitOID capture during the build (eliminate post-build rescan) | Delivered & merged (PR #212); flag off by default until golden-validated (see A11) | US-5 / #11097 (child of #11005, In Development) / PR tedg-dev/omnibor-analysis#212 — [java/phase1-build-speed-subissues.md](java/phase1-build-speed-subissues.md) |
+| A10 | Build efficiency — inline GitOID capture during the build (eliminate post-build rescan) | Delivered & merged (PR #212); flag off by default until golden-validated (see A11) | US-5 / #11097 (child of #11005, In Review) / PR tedg-dev/omnibor-analysis#212 — [java/phase1-build-speed-subissues.md](java/phase1-build-speed-subissues.md) |
 | A11 | Inline-hashing golden-clean validation — MRJAR/multi-module correctness + build-logic JAR exclusion | Implemented on `feat/java-inline-hashing`; golden-clean on all 7 Java repos; PR pending | US-6 / #11100 (child of #11005, In Development) — [java/phase1-build-speed-subissues.md](java/phase1-build-speed-subissues.md) |
+| A12 | Build efficiency — capture the Gradle dependency graph during the build (eliminate the post-build re-resolution) | **In Development** (Walk 21); design doc merged, no code PR yet | #11104 (child of #11005) — [../sidecar/java/gradle-inline-dep-capture-design.md](../sidecar/java/gradle-inline-dep-capture-design.md) |
 
 **Standing gate (not a sub-issue):** testing — golden validation, the
 `regression-gate`, and multi-distro runs (Ubuntu/RHEL/Alpine) — is a
