@@ -12,6 +12,11 @@ covers keeping issue *content* accurate) and `pr-workflow.md` (PRs).
 
 ## 1. Account and Location
 
+**GitHub Issues access is ALWAYS available — it is NOT intermittent.**
+NEVER claim issue access is unavailable or limited, and NEVER defer
+creating an issue to the planning crosswalk as a substitute. The
+crosswalk mirrors the live board; it is never a stand-in for it.
+
 - **Issues** live under `CiscoSecurityServices/gambit` on github.com
   (migrated from the former `tedg-cisco` org).
 - **All issue operations** (view, edit, status, labels, project board)

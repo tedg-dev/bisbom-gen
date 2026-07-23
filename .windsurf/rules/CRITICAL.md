@@ -125,6 +125,28 @@ Violating any rule marked NEVER is a critical failure.
 
 ---
 
+## Before Every GitHub Issue / Board Operation
+
+- [ ] **ALWAYS** use the `gh` account `tedg_cisco` for ALL issue and
+  project-board operations. Run `gh auth switch --user tedg_cisco`
+  before any `gh issue` / `gh api .../gambit/...` / `gh project` call.
+  The default `tedg-dev` account CANNOT resolve the issues repo.
+- [ ] **Issues live in `CiscoSecurityServices/gambit`** (Corona board
+  `#255`) — NOT in `tedg-dev/omnibor-analysis`. PRs live in
+  `tedg-dev/omnibor-analysis` (account `tedg-dev`); reference cross-repo
+  as `tedg-dev/omnibor-analysis#<n>`.
+- [ ] **GitHub Issues access is ALWAYS available — it is NOT
+  intermittent.** NEVER claim it is unavailable/limited, and NEVER
+  defer issue creation to the planning crosswalk as a substitute.
+- [ ] **NEVER** start NEW/additional work (bug, refactor, pivot,
+  uncovered scope) before creating its own gambit sub-issue, moving it
+  to In Development, linking its parent Main issue, assigning the
+  current Walk, and setting the `Build-Instrumented SBOM` epic.
+- [ ] **Reference**: `workflow/github-issue-management.md` for field ids,
+  status pairing, Walk assignment, and epic assignment.
+
+---
+
 ## Before Every AWS / Remote Operation
 
 - [ ] **NEVER** hardcode EC2 instance IDs. Read from

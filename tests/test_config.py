@@ -2,14 +2,23 @@
 Tests for app/config.py — mode selection and config resolution.
 """
 
+import tempfile
 import unittest
+from pathlib import Path
+
+import yaml
 
 from unittest.mock import patch
 
 from app.config import (
+    load_config,
     resolve_omnibor_cfg,
     resolve_paths,
+    validate_build_profile,
+    validate_repos,
     _is_nested_format,
+    BUILD_TOOLS,
+    BUILD_STRUCTURES,
     VALID_MODES,
     DEFAULT_MODE,
     _LANG_OMNIBOR_KEYS,
@@ -280,6 +289,196 @@ class TestResolvePaths(unittest.TestCase):
         self.assertEqual(
             paths["bomsh_dir"], "/opt/bomsh",
         )
+
+
+class TestValidateBuildProfile(unittest.TestCase):
+    """Tests for validate_build_profile()."""
+
+    def test_minimal_valid(self):
+        validate_build_profile(
+            {"tool": "maven", "structure": "single-module"},
+            "r",
+        )
+
+    def test_full_valid(self):
+        validate_build_profile(
+            {
+                "tool": "gradle",
+                "structure": "multi-module",
+                "dsl": "groovy",
+                "tool_version": "8.13",
+                "traits": ["dependency-management"],
+            },
+            "r",
+        )
+
+    def test_not_a_dict(self):
+        with self.assertRaises(ValueError):
+            validate_build_profile(["tool"], "r")
+
+    def test_bad_tool(self):
+        with self.assertRaises(ValueError) as ctx:
+            validate_build_profile(
+                {"tool": "bazel",
+                 "structure": "single-module"},
+                "r",
+            )
+        self.assertIn("tool", str(ctx.exception))
+
+    def test_bad_structure(self):
+        with self.assertRaises(ValueError) as ctx:
+            validate_build_profile(
+                {"tool": "maven", "structure": "mono"},
+                "r",
+            )
+        self.assertIn("structure", str(ctx.exception))
+
+    def test_dsl_non_str(self):
+        with self.assertRaises(ValueError):
+            validate_build_profile(
+                {"tool": "gradle",
+                 "structure": "multi-module",
+                 "dsl": 42},
+                "r",
+            )
+
+    def test_tool_version_non_str(self):
+        # An unquoted YAML float like 8.13 must be rejected.
+        with self.assertRaises(ValueError):
+            validate_build_profile(
+                {"tool": "gradle",
+                 "structure": "multi-module",
+                 "tool_version": 8.13},
+                "r",
+            )
+
+    def test_java_home_valid(self):
+        validate_build_profile(
+            {
+                "tool": "gradle",
+                "structure": "single-module",
+                "java_home": "/usr/lib/jvm/java-17-openjdk-amd64",
+            },
+            "r",
+        )
+
+    def test_java_home_non_str(self):
+        with self.assertRaises(ValueError) as ctx:
+            validate_build_profile(
+                {"tool": "gradle",
+                 "structure": "single-module",
+                 "java_home": 17},
+                "r",
+            )
+        self.assertIn("java_home", str(ctx.exception))
+
+    def test_traits_not_list(self):
+        with self.assertRaises(ValueError):
+            validate_build_profile(
+                {"tool": "maven",
+                 "structure": "single-module",
+                 "traits": "reactor"},
+                "r",
+            )
+
+    def test_traits_non_str_element(self):
+        with self.assertRaises(ValueError):
+            validate_build_profile(
+                {"tool": "maven",
+                 "structure": "single-module",
+                 "traits": ["ok", 3]},
+                "r",
+            )
+
+
+class TestValidateRepos(unittest.TestCase):
+    """Tests for validate_repos()."""
+
+    def test_non_dict_config(self):
+        self.assertEqual(validate_repos("x"), "x")
+
+    def test_no_repos_section(self):
+        cfg = {"test": True}
+        self.assertIs(validate_repos(cfg), cfg)
+
+    def test_repos_not_dict(self):
+        cfg = {"repos": []}
+        self.assertIs(validate_repos(cfg), cfg)
+
+    def test_valid_repos(self):
+        cfg = {
+            "repos": {
+                "a": {
+                    "build_profile": {
+                        "tool": "go",
+                        "structure": "single-module",
+                    },
+                },
+            },
+        }
+        self.assertIs(validate_repos(cfg), cfg)
+
+    def test_missing_build_profile_raises(self):
+        cfg = {"repos": {"a": {"url": "x"}}}
+        with self.assertRaises(ValueError) as ctx:
+            validate_repos(cfg)
+        self.assertIn("build_profile", str(ctx.exception))
+
+    def test_repo_not_dict_raises(self):
+        cfg = {"repos": {"a": "not-a-dict"}}
+        with self.assertRaises(ValueError):
+            validate_repos(cfg)
+
+    def test_invalid_profile_propagates(self):
+        cfg = {
+            "repos": {
+                "a": {"build_profile": {"tool": "nope"}},
+            },
+        }
+        with self.assertRaises(ValueError):
+            validate_repos(cfg)
+
+
+class TestLoadConfigValidation(unittest.TestCase):
+    """Tests for validation wiring in load_config()."""
+
+    def _write(self, data):
+        tmp = tempfile.NamedTemporaryFile(
+            mode="w", suffix=".yaml", delete=False,
+        )
+        yaml.dump(data, tmp)
+        tmp.close()
+        return Path(tmp.name)
+
+    def test_real_config_validates(self):
+        config = load_config()
+        self.assertIn("repos", config)
+        for name, cfg in config["repos"].items():
+            self.assertIn(
+                "build_profile", cfg,
+                f"{name} missing build_profile",
+            )
+            prof = cfg["build_profile"]
+            self.assertIn(prof["tool"], BUILD_TOOLS)
+            self.assertIn(
+                prof["structure"], BUILD_STRUCTURES
+            )
+
+    def test_invalid_repo_raises_on_load(self):
+        path = self._write({"repos": {"a": {"url": "x"}}})
+        try:
+            with self.assertRaises(ValueError):
+                load_config(path)
+        finally:
+            path.unlink()
+
+    def test_validate_false_skips(self):
+        path = self._write({"repos": {"a": {"url": "x"}}})
+        try:
+            cfg = load_config(path, validate=False)
+            self.assertIn("repos", cfg)
+        finally:
+            path.unlink()
 
 
 if __name__ == "__main__":

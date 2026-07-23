@@ -1,0 +1,12 @@
+// Isolates: a composite build where an included build provides a
+// PRODUCTION dependency via dependency substitution. The included build's
+// projects are NOT part of the root build's allprojects, so the current
+// allprojects-based capture cannot see them. This fixture is the spec for
+// the future fix (enumerate included builds).
+rootProject.name = 'composite-substitution'
+
+includeBuild('included-lib') {
+    dependencySubstitution {
+        substitute module('com.example:libutil') using project(':')
+    }
+}

@@ -2,8 +2,8 @@
 Java inline-hashing capture log — reader and treedb assembler.
 
 Design of record:
-    ``docs/sidecar/java/inline-hashing-interception-design.md``
-    ``docs/sidecar/java/inline-hashing-explained.md``
+    ``docs/sidecar/java/reference/inline-hashing-interception-design.md``
+    ``docs/sidecar/java/reference/inline-hashing-explained.md``
 
 In sidecar mode the CI/CD build phase is **ephemeral**: the workspace is
 destroyed when the build job ends, and every byte Phase 2 needs must be

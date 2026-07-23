@@ -125,10 +125,14 @@ def main():
     build_steps = discovery.steps.generate(
         build_system, flags
     )
+    build_profile = discovery.config.build_profile_for(
+        build_system
+    )
     entry = discovery.config.generate_entry(
         repo_info, build_steps,
         binaries, description,
         apt_deps=apt_packages,
+        build_profile=build_profile,
     )
 
     # Display YAML

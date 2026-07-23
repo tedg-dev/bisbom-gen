@@ -67,12 +67,18 @@ class AdgSpdxStep:
             BinaryCollector,
         )
         repo_dir = Path(repos_dir) / repo_name
+        excluded = BinaryCollector.excluded_binaries(
+            repo_dir, repo_cfg.get("exclude_binaries", []),
+        )
         expanded_bins = []
         for rel_path in bins:
             if '*' in rel_path or '?' in rel_path:
                 matches = [
                     m for m in repo_dir.glob(rel_path)
-                    if not BinaryCollector.is_non_product_jar(m)
+                    if not BinaryCollector.is_non_product_jar(
+                        m, repo_dir,
+                    )
+                    and m not in excluded
                 ]
                 expanded_bins.extend(
                     str(m.relative_to(repo_dir))

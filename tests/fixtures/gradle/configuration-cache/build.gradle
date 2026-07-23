@@ -1,0 +1,6 @@
+subprojects {
+    apply plugin: 'java-library'
+    repositories {
+        maven { url = uri("${rootDir}/../local-repo") }
+    }
+}

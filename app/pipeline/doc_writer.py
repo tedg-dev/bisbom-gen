@@ -69,12 +69,33 @@ class DocWriter:
             )
 
         elif lang == "java":
-            if "-DskipTests" not in joined:
-                warnings.append(
-                    "Missing -DskipTests in "
-                    "mvn package"
+            profile = repo_cfg.get("build_profile") or {}
+            tool = profile.get("tool")
+            if tool == "gradle":
+                # Gradle's `jar`/`assemble` tasks do not run tests, so a
+                # release build needs no test-skipping flag. Warn only if
+                # the build steps explicitly invoke a test-running task.
+                test_tasks = {"test", "check", "build"}
+                invoked = sorted(
+                    test_tasks.intersection(joined.split())
                 )
-            reason = "mvn package -DskipTests"
+                if invoked:
+                    warnings.append(
+                        "Gradle build_steps invoke test task(s) "
+                        f"{invoked}; use 'jar'/'assemble' for "
+                        "release artifacts"
+                    )
+                reason = (
+                    "gradle jar/assemble "
+                    "(tests not bound to jar task)"
+                )
+            else:
+                # Maven (default): a release package must skip tests.
+                if "-DskipTests" not in joined:
+                    warnings.append(
+                        "Missing -DskipTests in mvn package"
+                    )
+                reason = "mvn package -DskipTests"
 
         else:
             reason = "unknown language"
@@ -132,8 +153,11 @@ class DocWriter:
             f"- **Description:** "
             f"{repo_cfg.get('description', 'N/A')}"
             "\n\n"
-            "## Build Steps\n\n"
         )
+        content += _format_build_profile(
+            repo_cfg.get("build_profile")
+        )
+        content += "## Build Steps\n\n"
         for i, step in enumerate(
             repo_cfg["build_steps"], 1
         ):
@@ -279,6 +303,36 @@ _PHASE_LABELS = {
     "phase1": "Phase 1: Build Interception",
     "phase2": "Phase 2: Post-Build Analysis",
 }
+
+
+def _format_build_profile(profile):
+    """Render a repo's build_profile as a headerless metadata table.
+
+    Returns an empty string when no profile is present so callers can
+    concatenate unconditionally. Optional fields (dsl, tool_version,
+    traits) are only shown when set.
+    """
+    if not isinstance(profile, dict) or not profile:
+        return ""
+    rows = [
+        ("Tool", profile.get("tool", "")),
+        ("Structure", profile.get("structure", "")),
+    ]
+    if profile.get("dsl"):
+        rows.append(("DSL", profile["dsl"]))
+    if profile.get("tool_version"):
+        rows.append(
+            ("Tool version", profile["tool_version"])
+        )
+    traits = profile.get("traits") or []
+    if traits:
+        rows.append(("Traits", ", ".join(traits)))
+
+    out = "## Build Profile\n\n|  |  |\n| --- | --- |\n"
+    for key, val in rows:
+        out += f"| **{key}** | {val} |\n"
+    out += "\n"
+    return out
 
 
 def _format_timing_table(timing):

@@ -1,0 +1,12 @@
+plugins {
+    id 'java-library'
+}
+
+repositories {
+    maven { url = uri("${rootDir}/../local-repo") }
+}
+
+dependencies {
+    // Resolved to the included build ':' via dependencySubstitution.
+    implementation 'com.example:libutil:1.0'
+}

@@ -287,7 +287,7 @@ The `.drawio` sources are committed. Per the repo convention
 installed draw.io desktop app:
 
 ```bash
-cd docs/sidecar/java
+cd docs/sidecar/java/reference
 for f in java-inline-*.drawio; do
   /Applications/draw.io.app/Contents/MacOS/draw.io -x -f png -o "${f%.drawio}.png" "$f" --no-sandbox
 done
