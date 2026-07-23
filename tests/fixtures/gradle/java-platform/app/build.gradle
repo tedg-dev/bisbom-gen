@@ -1,0 +1,13 @@
+plugins {
+    id 'java-library'
+}
+
+repositories {
+    maven { url = uri("${rootDir}/../local-repo") }
+}
+
+dependencies {
+    implementation platform(project(':platform'))
+    // Version supplied by the platform constraint above.
+    implementation 'com.example:libutil'
+}

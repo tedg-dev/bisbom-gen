@@ -1,0 +1,14 @@
+plugins {
+    id 'java-library'
+}
+
+group = 'com.example'
+version = '1.0'
+
+repositories {
+    maven { url = uri("${rootDir}/../../local-repo") }
+}
+
+dependencies {
+    implementation 'com.example:libcore:1.0'
+}

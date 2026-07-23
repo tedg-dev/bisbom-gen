@@ -507,8 +507,10 @@ class JavaSpdxGenerator:
         #     Phase 1 capture (no source tree touched).
         #   - co-located dev/test fallback: *deps* is None, so resolve
         #     live via mvn dependency:tree / ./gradlew dependencies.
-        # Filter to only runtime deps (compile, runtime, provided);
-        # exclude test scope — those aren't in the final JAR.
+        # Keep the scopes recorded in the SBOM (compile, runtime,
+        # provided); exclude test scope — not part of the shipped
+        # artifact.  Per-dependency scope is preserved in each SPDX
+        # package's comment; this set is simply "everything non-test".
         if deps is not None:
             all_deps = deps
         else:
@@ -532,7 +534,7 @@ class JavaSpdxGenerator:
         )
         print(
             f"[{bin_name}] {build_sys} dependencies: "
-            f"{len(maven_deps)} runtime "
+            f"{len(maven_deps)} non-test "
             f"({direct} direct, "
             f"{trans} transitive), "
             f"{test_deps} test excluded"

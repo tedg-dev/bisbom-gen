@@ -39,11 +39,13 @@ Includes ALL testing. Must be 100% complete (every sub-item *and* its
 testing) before Main B or Main C begins.
 
 Detail: build-speed sub-issues [java/phase1-build-speed-subissues.md](java/phase1-build-speed-subissues.md)
-(A3–A5) with engineering design [../sidecar/java/phase1-build-speed-design.md](../sidecar/java/phase1-build-speed-design.md);
+(A3–A5) with engineering design [../sidecar/java/reference/phase1-build-speed-design.md](../sidecar/java/reference/phase1-build-speed-design.md);
 Java Phase 2 main issue `java-phase2-consume-dep-capture-subissue.md`
 (delivered in PR #194); treedb retro [java/retro-subissue-java-treedb-perf.md](java/retro-subissue-java-treedb-perf.md).
 
-PR/issue mapping for recreation once GitHub Issues access returns:
+PR/issue mapping (the crosswalk mirrors the live `CiscoSecurityServices/gambit`
+issues; it is a convenience index, NOT a substitute — GitHub Issues access is
+always available via the `tedg_cisco` account):
 [github-issues-crosswalk.md](github-issues-crosswalk.md).
 
 | Sub | Title | Status | Maps to |

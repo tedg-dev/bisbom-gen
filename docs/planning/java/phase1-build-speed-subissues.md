@@ -8,7 +8,7 @@
 | **Drafted** | 2026-06-24 (Cascade) |
 | **Status** | US-2 delivered & merged (PR `tedg-dev/omnibor-analysis#196`, golden-clean on bc-java + spring-boot); US-5 delivered & merged (inline GitOID capture, PR `tedg-dev/omnibor-analysis#212`; #11097 In Development); US-6 added (inline-hashing golden-clean validation — MRJAR/multi-module correctness + build-logic JAR exclusion — #11100 In Development, golden-clean on all 7 Java repos, PR pending); US-4 deferred (in-memory JAR processing); US-3 optional/low; US-1 moved — see below |
 | **Scope** | **Java builds** (Maven and Gradle). Other languages capture inline during the build and are not affected. |
-| **Detailed design** | `docs/sidecar/java/phase1-build-speed-design.md` (single engineering reference — design, evidence, code-level plan). |
+| **Detailed design** | `docs/sidecar/java/reference/phase1-build-speed-design.md` (single engineering reference — design, evidence, code-level plan). |
 
 ---
 
@@ -226,7 +226,7 @@ step over an append-only capture log.
 - Given both Maven and Gradle projects, when inline hashing runs, then one
   generic code path handles both (no per-repo or per-tool logic).
 
-**Design reference:** `docs/sidecar/java/inline-hashing-interception-design.md`
+**Design reference:** `docs/sidecar/java/reference/inline-hashing-interception-design.md`
 (with `inline-hashing-explained.md` and the four sequence/mechanism diagrams).
 
 ---
@@ -282,7 +282,7 @@ the inline output byte-identical and correctly scoped is the remaining
 - Given both Maven and Gradle projects, when the above runs, then one generic,
   config-driven code path handles both.
 
-**Design reference:** `docs/sidecar/java/inline-hashing-interception-design.md`;
+**Design reference:** `docs/sidecar/java/reference/inline-hashing-interception-design.md`;
 investigation `docs/issues/gradle-buildsrc-not-a-product-sbom-target.md`.
 
 ---

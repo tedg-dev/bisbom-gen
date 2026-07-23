@@ -10,14 +10,23 @@ from datetime import datetime
 from pathlib import Path
 
 
-def load_config(config_path=None):
-    """Load config.yaml from the given path or script directory."""
+def load_config(config_path=None, validate=True):
+    """Load config.yaml from the given path or script directory.
+
+    When ``validate`` is true (the default), every repo entry that
+    declares a ``build_profile`` is validated against the controlled
+    vocabulary, and any repo lacking one is rejected. Pass
+    ``validate=False`` to load raw YAML without schema enforcement.
+    """
     if config_path is None:
         config_path = (
             Path(__file__).parent / "config.yaml"
         )
     with open(config_path, "r", encoding="utf-8") as f:
-        return yaml.safe_load(f)
+        config = yaml.safe_load(f)
+    if validate:
+        validate_repos(config)
+    return config
 
 
 def timestamp():
@@ -40,6 +49,124 @@ DEFAULT_MODE = "standalone"
 
 # Valid phase isolation phases
 VALID_PHASES = ("build", "spdx")
+
+# ── build_profile schema ─────────────────────────────
+# Controlled vocabulary for the per-repo ``build_profile`` block, which
+# records the build-tool "flavor" of each repository in a generic,
+# language-agnostic way. ``traits`` is an open list of additive factual
+# descriptors (e.g. ``reactor``, ``vendored``, ``skip-tests``).
+BUILD_TOOLS = frozenset({
+    "autotools", "make", "cmake", "meson",
+    "cargo", "go", "maven", "gradle",
+})
+BUILD_STRUCTURES = frozenset({
+    "single-module", "multi-module", "workspace",
+})
+
+
+def validate_build_profile(profile, repo_name="<unknown>"):
+    """Validate a single ``build_profile`` mapping.
+
+    Args:
+        profile: The ``build_profile`` value from a repo entry.
+        repo_name: Repo name, used only for error messages.
+
+    Raises:
+        ValueError: If the profile is malformed or uses a value
+            outside the controlled vocabulary.
+    """
+    if not isinstance(profile, dict):
+        raise ValueError(
+            f"repo '{repo_name}': build_profile must be a "
+            f"mapping, got {type(profile).__name__}"
+        )
+
+    tool = profile.get("tool")
+    if tool not in BUILD_TOOLS:
+        raise ValueError(
+            f"repo '{repo_name}': build_profile.tool '{tool}' "
+            f"is not one of {sorted(BUILD_TOOLS)}"
+        )
+
+    structure = profile.get("structure")
+    if structure not in BUILD_STRUCTURES:
+        raise ValueError(
+            f"repo '{repo_name}': build_profile.structure "
+            f"'{structure}' is not one of "
+            f"{sorted(BUILD_STRUCTURES)}"
+        )
+
+    dsl = profile.get("dsl")
+    if dsl is not None and not isinstance(dsl, str):
+        raise ValueError(
+            f"repo '{repo_name}': build_profile.dsl must be a "
+            f"string or omitted, got {type(dsl).__name__}"
+        )
+
+    tool_version = profile.get("tool_version")
+    if tool_version is not None and not isinstance(
+        tool_version, str
+    ):
+        raise ValueError(
+            f"repo '{repo_name}': build_profile.tool_version "
+            f"must be a quoted string or omitted, got "
+            f"{type(tool_version).__name__}"
+        )
+
+    java_home = profile.get("java_home")
+    if java_home is not None and not isinstance(java_home, str):
+        raise ValueError(
+            f"repo '{repo_name}': build_profile.java_home must be "
+            f"a string (absolute JDK path) or omitted, got "
+            f"{type(java_home).__name__}"
+        )
+
+    traits = profile.get("traits", [])
+    if not isinstance(traits, list) or not all(
+        isinstance(t, str) for t in traits
+    ):
+        raise ValueError(
+            f"repo '{repo_name}': build_profile.traits must be "
+            f"a list of strings"
+        )
+
+
+def validate_repos(config):
+    """Validate the ``build_profile`` of every repo in a config.
+
+    Every repo entry MUST declare a valid ``build_profile``. Configs
+    without a ``repos`` section (e.g. minimal test fixtures) pass
+    unchanged.
+
+    Args:
+        config: The full parsed config dict.
+
+    Returns:
+        The same config dict, for chaining.
+
+    Raises:
+        ValueError: If any repo is missing ``build_profile`` or the
+            profile fails validation.
+    """
+    if not isinstance(config, dict):
+        return config
+    repos = config.get("repos")
+    if not isinstance(repos, dict):
+        return config
+    for repo_name, repo_cfg in repos.items():
+        if (
+            not isinstance(repo_cfg, dict)
+            or "build_profile" not in repo_cfg
+        ):
+            raise ValueError(
+                f"repo '{repo_name}': missing required "
+                f"build_profile"
+            )
+        validate_build_profile(
+            repo_cfg["build_profile"], repo_name
+        )
+    return config
+
 
 # Maps language names to their omnibor config keys
 _LANG_OMNIBOR_KEYS = {

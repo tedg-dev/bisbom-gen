@@ -29,6 +29,13 @@ def pytest_configure(config):
         "a running Docker daemon and omnibor-env image "
         "(deselect with '-m \"not docker_integration\"')",
     )
+    config.addinivalue_line(
+        "markers",
+        "gradle_matrix: marks the Gradle-version "
+        "compatibility-matrix tests (opt-in via "
+        "OMNIBOR_GRADLE_MATRIX=1 with a bootstrap "
+        "'gradle' on PATH)",
+    )
 
 
 def has_binary(name: str) -> bool:

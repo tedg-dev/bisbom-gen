@@ -643,6 +643,45 @@ class TestBomtraceBuilder(unittest.TestCase):
             "bomtrace3", build_call[0][0],
         )
 
+    def test_build_applies_java_home(self):
+        # JAVA_HOME selection is exercised through the public build()
+        # API (not the private helper) so the test asserts real
+        # behavior without reaching into protected internals. The
+        # no-java_home early-return path is covered by every other
+        # build() test (their configs declare no java_home).
+        runner = MagicMock()
+        runner.run.return_value = 0
+        builder = BomtraceBuilder(runner)
+        repo_cfg, paths, omnibor = self._cfg()
+        repo_cfg["build_profile"] = {
+            "tool": "gradle",
+            "structure": "single-module",
+            "java_home": "/opt/jdk17",
+        }
+        saved = {
+            "JAVA_HOME": os.environ.get("JAVA_HOME"),
+            "PATH": os.environ.get("PATH"),
+        }
+        try:
+            with patch("builtins.print"):
+                builder.build(
+                    "curl", repo_cfg, paths, omnibor,
+                )
+            self.assertEqual(
+                os.environ["JAVA_HOME"], "/opt/jdk17",
+            )
+            self.assertTrue(
+                os.environ["PATH"].startswith(
+                    "/opt/jdk17/bin",
+                ),
+            )
+        finally:
+            for key, val in saved.items():
+                if val is None:
+                    os.environ.pop(key, None)
+                else:
+                    os.environ[key] = val
+
 
 class TestBomtraceBuilderBaseline(unittest.TestCase):
     """Tests for BomtraceBuilder.build_baseline()."""
@@ -2489,6 +2528,197 @@ class TestBinaryCollector(unittest.TestCase):
                 "spring-boot-3.4.4.jar",
             )
 
+    def test_included_build_dirs_kotlin(self):
+        # includeBuild(...) parsed from settings.gradle.kts (Kotlin,
+        # parenthesised form).
+        with tempfile.TemporaryDirectory() as tmpdir:
+            repo = Path(tmpdir)
+            (repo / "settings.gradle.kts").write_text(
+                'rootProject.name = "caffeine"\n'
+                'includeBuild("gradle/plugins")\n',
+                encoding="utf-8",
+            )
+            self.assertEqual(
+                BinaryCollector.included_build_dirs(repo),
+                {"gradle/plugins"},
+            )
+
+    def test_included_build_dirs_groovy_no_parens(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            repo = Path(tmpdir)
+            (repo / "settings.gradle").write_text(
+                "includeBuild 'build-logic'\n",
+                encoding="utf-8",
+            )
+            self.assertEqual(
+                BinaryCollector.included_build_dirs(repo),
+                {"build-logic"},
+            )
+
+    def test_included_build_dirs_none(self):
+        self.assertEqual(
+            BinaryCollector.included_build_dirs(None), set()
+        )
+
+    def test_included_build_dirs_read_error(self):
+        # A settings file that exists but cannot be read is skipped
+        # (no crash), yielding no included-build dirs.
+        with tempfile.TemporaryDirectory() as tmpdir:
+            repo = Path(tmpdir)
+            (repo / "settings.gradle").write_text(
+                "x", encoding="utf-8",
+            )
+            with patch(
+                "pathlib.Path.read_text",
+                side_effect=OSError("boom"),
+            ):
+                self.assertEqual(
+                    BinaryCollector.included_build_dirs(repo),
+                    set(),
+                )
+
+    def test_ancestors_contain_edges(self):
+        self.assertFalse(
+            BinaryCollector._ancestors_contain(("a", "b"), ())
+        )
+        self.assertTrue(
+            BinaryCollector._ancestors_contain(
+                ("x", "gradle", "plugins", "build"),
+                ("gradle", "plugins"),
+            )
+        )
+        self.assertFalse(
+            BinaryCollector._ancestors_contain(
+                ("gradle",), ("gradle", "plugins"),
+            )
+        )
+
+    def test_is_build_logic_jar_included_build(self):
+        # A JAR under an includeBuild(...) composite build is
+        # build-logic; a sibling product module JAR is not.
+        self.assertTrue(
+            BinaryCollector._is_build_logic_jar(
+                "caffeine/gradle/plugins/build/libs/plugins.jar",
+                ("gradle/plugins",),
+            )
+        )
+        self.assertFalse(
+            BinaryCollector._is_build_logic_jar(
+                "caffeine/caffeine/build/libs/caffeine-3.2.4.jar",
+                ("gradle/plugins",),
+            )
+        )
+
+    @patch("app.pipeline.binary_collector.timestamp", return_value="2026-02-12_1300")
+    def test_collect_skips_included_build_jar(self, _ts):
+        # Mirrors caffeine: an includeBuild("gradle/plugins")
+        # composite build's plugins.jar must not be collected as a
+        # product, while the real product JAR is.
+        with tempfile.TemporaryDirectory() as tmpdir:
+            repo_dir = Path(tmpdir) / "repos" / "caffeine"
+            prod = repo_dir / "caffeine" / "build" / "libs"
+            plugins = (
+                repo_dir / "gradle" / "plugins"
+                / "build" / "libs"
+            )
+            prod.mkdir(parents=True)
+            plugins.mkdir(parents=True)
+            (prod / "caffeine-3.2.4.jar").write_bytes(b"prod")
+            (plugins / "plugins.jar").write_bytes(b"tooling")
+            (repo_dir / "settings.gradle.kts").write_text(
+                'includeBuild("gradle/plugins")\n',
+                encoding="utf-8",
+            )
+
+            paths = {
+                "repos_dir": str(Path(tmpdir) / "repos"),
+                "output_dir": str(Path(tmpdir) / "output"),
+            }
+            cfg = {
+                "output_binaries": ["**/build/libs/*.jar"],
+                "language": "java",
+            }
+            with patch("builtins.print"):
+                result = BinaryCollector.collect(
+                    "caffeine", cfg, paths
+                )
+            self.assertEqual(len(result), 1)
+            self.assertEqual(
+                Path(result[0][1]).name,
+                "caffeine-3.2.4.jar",
+            )
+
+    def test_excluded_binaries_resolves_globs(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            repo = Path(tmpdir)
+            checks = repo / "custom-checks" / "build" / "libs"
+            api = repo / "api" / "all" / "build" / "libs"
+            checks.mkdir(parents=True)
+            api.mkdir(parents=True)
+            (checks / "otel-custom-checks.jar").write_bytes(b"x")
+            (api / "otel-api.jar").write_bytes(b"y")
+            excluded = BinaryCollector.excluded_binaries(
+                repo, ["**/custom-checks/build/libs/*.jar"],
+            )
+            self.assertEqual(
+                {p.name for p in excluded},
+                {"otel-custom-checks.jar"},
+            )
+
+    def test_excluded_binaries_empty(self):
+        self.assertEqual(
+            BinaryCollector.excluded_binaries(None, ["*.jar"]),
+            set(),
+        )
+        with tempfile.TemporaryDirectory() as tmpdir:
+            self.assertEqual(
+                BinaryCollector.excluded_binaries(
+                    Path(tmpdir), [],
+                ),
+                set(),
+            )
+
+    @patch("app.pipeline.binary_collector.timestamp", return_value="2026-02-12_1300")
+    def test_collect_honors_exclude_binaries(self, _ts):
+        # Mirrors opentelemetry-java: a normal :custom-checks
+        # subproject JAR is config-excluded from the product set
+        # while the real product JAR is collected.
+        with tempfile.TemporaryDirectory() as tmpdir:
+            repo_dir = Path(tmpdir) / "repos" / "otel"
+            api = repo_dir / "api" / "all" / "build" / "libs"
+            checks = (
+                repo_dir / "custom-checks" / "build" / "libs"
+            )
+            api.mkdir(parents=True)
+            checks.mkdir(parents=True)
+            (api / "opentelemetry-api-1.64.0.jar").write_bytes(
+                b"prod"
+            )
+            (
+                checks
+                / "opentelemetry-custom-checks-1.64.0.jar"
+            ).write_bytes(b"tool")
+            paths = {
+                "repos_dir": str(Path(tmpdir) / "repos"),
+                "output_dir": str(Path(tmpdir) / "output"),
+            }
+            cfg = {
+                "output_binaries": ["**/build/libs/*.jar"],
+                "exclude_binaries": [
+                    "**/custom-checks/build/libs/*.jar"
+                ],
+                "language": "java",
+            }
+            with patch("builtins.print"):
+                result = BinaryCollector.collect(
+                    "otel", cfg, paths
+                )
+            self.assertEqual(len(result), 1)
+            self.assertEqual(
+                Path(result[0][1]).name,
+                "opentelemetry-api-1.64.0.jar",
+            )
+
     @patch("app.pipeline.binary_collector.timestamp", return_value="2026-02-12_1300")
     def test_collect_glob_no_match(self, _ts):
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -2879,6 +3109,65 @@ class TestDocWriter(unittest.TestCase):
             )
             self.assertIn("RELEASE", content)
 
+    def test_write_build_doc_full_build_profile(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            paths = {"output_dir": tmpdir}
+            cfg = {
+                "url": "https://github.com/x/y.git",
+                "branch": "main",
+                "build_steps": ["./gradlew build"],
+                "output_binaries": ["build/libs/y.jar"],
+                "language": "java",
+                "build_profile": {
+                    "tool": "gradle",
+                    "structure": "multi-module",
+                    "dsl": "groovy",
+                    "tool_version": "8.13",
+                    "traits": [
+                        "dependency-management",
+                    ],
+                },
+            }
+            with patch("builtins.print"):
+                result = DocWriter.write_build_doc(
+                    "y", cfg, paths, True, 10.0,
+                )
+            content = Path(result).read_text()
+            self.assertIn("## Build Profile", content)
+            self.assertIn("gradle", content)
+            self.assertIn("multi-module", content)
+            self.assertIn("groovy", content)
+            self.assertIn("8.13", content)
+            self.assertIn(
+                "dependency-management", content
+            )
+
+    def test_write_build_doc_minimal_build_profile(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            paths = {"output_dir": tmpdir}
+            cfg = {
+                "url": "https://github.com/x/y.git",
+                "branch": "main",
+                "build_steps": ["mvn package"],
+                "output_binaries": ["target/y.jar"],
+                "language": "java",
+                "build_profile": {
+                    "tool": "maven",
+                    "structure": "single-module",
+                },
+            }
+            with patch("builtins.print"):
+                result = DocWriter.write_build_doc(
+                    "y", cfg, paths, True, 10.0,
+                )
+            content = Path(result).read_text()
+            self.assertIn("## Build Profile", content)
+            self.assertIn("maven", content)
+            # Optional rows omitted when absent.
+            self.assertNotIn("DSL", content)
+            self.assertNotIn("Tool version", content)
+            self.assertNotIn("Traits", content)
+
 
 class TestClassifyReleaseBuild(unittest.TestCase):
     """Tests for DocWriter.classify_release_build."""
@@ -3000,6 +3289,32 @@ class TestClassifyReleaseBuild(unittest.TestCase):
         self.assertIn(
             "-DskipTests", rb["warnings"][0]
         )
+
+    def test_java_gradle_release(self):
+        # Gradle's jar task does not run tests, so no -DskipTests
+        # equivalent is required: a clean jar build is a release.
+        cfg = {
+            "language": "java",
+            "build_profile": {"tool": "gradle"},
+            "build_steps": ["./gradlew jar --no-daemon -q"],
+        }
+        rb = DocWriter.classify_release_build(cfg)
+        self.assertTrue(rb["is_release"])
+        self.assertEqual(rb["warnings"], [])
+        self.assertIn("gradle", rb["reason"])
+
+    def test_java_gradle_test_task_warns(self):
+        # The `build` task runs tests; warn to prefer jar/assemble.
+        cfg = {
+            "language": "java",
+            "build_profile": {"tool": "gradle"},
+            "build_steps": [
+                "./gradlew build --no-daemon -q",
+            ],
+        }
+        rb = DocWriter.classify_release_build(cfg)
+        self.assertFalse(rb["is_release"])
+        self.assertIn("test task", rb["warnings"][0])
 
     def test_unknown_language(self):
         cfg = {

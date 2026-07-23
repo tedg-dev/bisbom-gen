@@ -668,9 +668,15 @@ def generate_java_adg_spdx(
     from app.pipeline.binary_collector import (
         BinaryCollector,
     )
+    excluded = BinaryCollector.excluded_binaries(
+        repo_dir, repo_cfg.get("exclude_binaries", []),
+    )
     jar_paths = [
         p for p in jar_paths
-        if not BinaryCollector.is_non_product_jar(p)
+        if not BinaryCollector.is_non_product_jar(
+            p, repo_dir,
+        )
+        and p not in excluded
     ]
 
     if not jar_paths:
