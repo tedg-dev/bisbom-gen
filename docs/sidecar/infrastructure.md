@@ -26,20 +26,19 @@ with strategy details, Phase 1/2 artifacts, and implementation tasks:
 
 ## 1. Executive Summary
 
-The `omnibor-analysis` pipeline supports two execution modes:
-**Standalone** and **Sidecar**. Both are permanent, first-class modes.
+**Sidecar is the only supported execution mode** for `omnibor-analysis`.
+It uses the customer's native toolchains, requires no `SYS_PTRACE`, and is
+the authoritative mode for all enterprise repository build-interception
+SBOM generation — and the baseline from which golden files are generated.
 
-- **Sidecar** is the authoritative mode for all enterprise repository
-  build-interception SBOM generation projects. It uses the customer's
-  native toolchains and does not require `SYS_PTRACE`.
-- **Standalone** is the baseline for `omnibor-analysis` golden file
-  generation and the primary `omnibor-analysis` development/debug mode.
-  It is also used by enterprise teams with isolated black-box build
-  machines, where the Standalone container is customized to include their
-  specific build toolsets, operating systems, and configurations.
-
-**Standalone** always runs the full pipeline (Phase 1 + Phase 2) in a
-single container. There is no phase split for Standalone.
+> **Standalone mode is deprecated — do not offer it as an option.** It was
+> the initial implementation of the core omnibor/bomsh repositories and the
+> earliest `omnibor-analysis` testing (ptrace-based `bomtrace3`/`bomtrace2`,
+> requiring `SYS_PTRACE`). It is **no longer used** for enterprise work. The
+> only remaining possibility is a rare (~1%) embedded-systems corner case;
+> it is not part of the enterprise flow and must not be presented as a
+> co-equal choice. Legacy standalone code paths may still exist in the tree
+> but are not a supported deployment.
 
 **Sidecar** can run either way:
 - **Sidecar full** — Phase 1 + Phase 2 in one container (primary customer mode)
@@ -48,14 +47,14 @@ single container. There is no phase split for Standalone.
 
 This document describes the shared infrastructure:
 
-1. **Two modes: Standalone and Sidecar** — Standalone uses ptrace-based
-   interception (`bomtrace3`/`bomtrace2`) and requires `SYS_PTRACE`.
-   Sidecar uses **transparent** interception mechanisms that do not
-   modify the build invocation and do **not** require `SYS_PTRACE` —
-   build-system-native for Java (`dep:tree`), or kernel/linker-level for
-   C/C++ (`LD_PRELOAD`, eBPF). The specific mechanism varies by
-   language — see per-language design docs for details.
-2. **Phase isolation (Sidecar only)** — Phase 1 (build interception) and
+1. **Sidecar interception (the supported mode)** — transparent interception
+   that does not modify the build invocation and does **not** require
+   `SYS_PTRACE`: build-system-native for Java (`dep:tree`), or
+   kernel/linker-level for C/C++ (`LD_PRELOAD`, eBPF). The specific
+   mechanism varies by language — see per-language design docs for details.
+   (The deprecated standalone path used ptrace `bomtrace3`/`bomtrace2` with
+   `SYS_PTRACE`.)
+2. **Phase isolation (Sidecar)** — Phase 1 (build interception) and
    Phase 2 (SPDX generation) can run independently, connected only by a
    well-defined artifact contract (`phase1_manifest.json`).
 3. **Multiple Phase 2 executors** — Phase 2 can run in the sidecar

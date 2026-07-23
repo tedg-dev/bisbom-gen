@@ -1,18 +1,18 @@
-# Standalone Mode
+# Standalone Mode (Deprecated)
+
+> **Deprecated — not a deployment option.** Standalone mode was the initial
+> ptrace-based implementation of the core omnibor/bomsh repositories and the
+> earliest `omnibor-analysis` testing. **Sidecar is the only supported
+> mode.** Standalone must **not** be used or offered as an option; the sole
+> remaining possibility is a rare (~1%) embedded-systems corner case. This
+> page is retained as historical/technical reference for that corner case
+> only.
 
 Standalone mode uses ptrace-based build interception via
 `bomtrace3` (C/C++) and `bomtrace2` (Go/Rust) to trace every
-compiler and linker invocation during a build. It produces the most
-thorough provenance data but requires Linux `SYS_PTRACE` capability.
-
-**Sidecar mode is the baseline for enterprise deployment.** Standalone
-mode is retained for two purposes:
-
-1. **Regression reference** — standalone output is compared against
-   golden files (generated from sidecar mode) to verify structural
-   equivalence across modes
-2. **Isolated build environments** — engineering teams whose build
-   systems are black-box or lack internet/intranet access
+compiler and linker invocation during a build. It produces thorough
+provenance data but requires Linux `SYS_PTRACE` capability, which
+enterprise Kubernetes/OpenShift environments typically prohibit.
 
 ---
 
@@ -68,15 +68,14 @@ for standalone mode.
 - **Build overhead** — 15–60% build time increase depending on project
   size and file count
 
-## When to Use Standalone vs. Sidecar
+## Status: Deprecated — use Sidecar
 
-| Criterion | Standalone | Sidecar |
-|-----------|-----------|---------|
-| Enterprise CI/CD | No (`SYS_PTRACE` blocked) | **Yes** |
-| Golden file baseline | No (compared against) | **Yes** (authoritative) |
-| Phase isolation (separate hosts) | No | **Yes** |
-| Black-box builds without internet | **Yes** | No |
-| RHEL / Alpine / hardened kernels | Limited | **Yes** |
+Sidecar is the only supported mode for every scenario — enterprise CI/CD,
+the golden-file baseline, phase isolation, and RHEL/Alpine/hardened
+kernels. Standalone is **not** recommended for any of these. Its only
+conceivable remaining use is a rare (~1%) embedded-systems corner case
+where sidecar interception is genuinely unavailable; even there it is a
+last resort, not a supported deployment.
 
 ---
 

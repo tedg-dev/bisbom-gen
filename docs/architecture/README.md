@@ -17,7 +17,7 @@ see [docs/sidecar/](../sidecar/).
 |----------|-------------|
 | [Technical Overview](technical-overview.md) | High-level system overview for stakeholders |
 | [App Architecture](app-architecture.md) | Pipeline structure, module dependencies, data flow |
-| [Standalone Mode](standalone-mode.md) | Legacy ptrace-based mode (golden files, isolated builds) |
+| [Standalone Mode](standalone-mode.md) | Deprecated ptrace-based mode (initial implementation; ~1% embedded corner case only) |
 | [Platform Support](platform-support.md) | Supported OSes, architectures, container requirements |
 | [Analyzed vs Build SBOMs](analyzed-vs-build-sboms.md) | CISA SBOM types and two-file approach rationale |
 | [Stable Tag Pinning](stable-tag-pinning.md) | Repo version pinning policy |

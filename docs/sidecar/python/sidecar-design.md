@@ -7,9 +7,10 @@
 
 ---
 
-> **Supported modes**: See `../infrastructure.md` §1
-> for the authoritative definition of Standalone and Sidecar modes.
-> All modes apply to Python.
+> **Supported mode — Sidecar only.** See `../infrastructure.md` §1.
+> Sidecar is the sole supported mode; **standalone is deprecated** — the
+> initial ptrace-based implementation, retained only for a rare ~1%
+> embedded corner case — and must not be offered as an option.
 
 ---
 

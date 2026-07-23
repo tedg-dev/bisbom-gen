@@ -19,9 +19,10 @@ The entire `omnibor-analysis` project exists to serve enterprise C/C++
 
 **Standalone mode is being phased out.** It exists only as:
 
-- A legacy fallback for extreme corner cases where a dev team forks
-  and embeds their own OS, tools, and build orchestration into
-  standalone mode (which would be a fork they own)
+- A deprecated fallback for a rare (~1%) embedded-systems corner case
+  where sidecar interception is genuinely unavailable (e.g. a team that
+  forks and embeds their own OS, tools, and build orchestration — a fork
+  they own)
 
 - A transitional baseline — golden files are being **migrated from
   standalone to sidecar** as each language gets sidecar support (Java

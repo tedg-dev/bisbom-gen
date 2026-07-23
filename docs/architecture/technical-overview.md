@@ -25,12 +25,14 @@ uniformly across all languages — so bomsh's internal `SHA-1` treedb
 never surfaces in the SBOM. This is the design of record; see
 `.windsurf/rules/project/artifact-identity.md`.
 
-The project supports two execution modes:
+**Sidecar is the only supported execution mode** (no `SYS_PTRACE`
+required), used for all enterprise CI/CD SBOM generation and as the
+golden-file baseline:
 
-| Mode | Mechanism | Requires `SYS_PTRACE` | Primary Use |
-|------|-----------|:---------------------:|-------------|
-| **Sidecar** (baseline) | Language-specific strategies (dep:tree, `-toolexec`, `RUSTC_WRAPPER`, `CC=` wrapper) | No | Enterprise CI/CD |
-| **Standalone** (legacy) | `bomtrace3`/`bomtrace2` ptrace-based tracing | Yes | Golden file generation, isolated builds |
+| Mode | Mechanism | Requires `SYS_PTRACE` | Status |
+|------|-----------|:---------------------:|--------|
+| **Sidecar** | Language-specific strategies (dep:tree, `-toolexec`, `RUSTC_WRAPPER`, `LD_PRELOAD`) | No | **Supported (only mode)** |
+| **Standalone** | `bomtrace3`/`bomtrace2` ptrace-based tracing | Yes | **Deprecated** — initial implementation; ~1% embedded corner case only |
 
 ### Sidecar Mode — Per-Language Strategies
 
@@ -41,7 +43,8 @@ The project supports two execution modes:
 | **Go** | `-toolexec` wrapper (planned) | Module compilation, stdlib inclusion |
 | **Rust** | `RUSTC_WRAPPER` (planned) | Crate compilation, `rustc` invocations |
 
-For standalone mode details, see [Standalone Mode](standalone-mode.md).
+For the deprecated standalone mode (embedded corner case only), see
+[Standalone Mode](standalone-mode.md).
 
 ---
 

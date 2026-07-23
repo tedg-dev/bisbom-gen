@@ -11,6 +11,12 @@
 | **Schedule detail** | [q4fy26-implementation-schedule.md](q4fy26-implementation-schedule.md) |
 | **Source docs** | [sidecar-implementation-design.md](../_archived/design-evolution/sidecar-implementation-design.md), [sidecar-refactoring-plan.md](../_archived/design-evolution/sidecar-refactoring-plan.md) |
 
+> **Modes note (historical):** This is a point-in-time Q4FY26 issue plan that
+> treats standalone as the then-current baseline being migrated to sidecar.
+> **Sidecar is now the only supported mode**; standalone is deprecated
+> (initial implementation, ~1% embedded corner case). Read the standalone
+> references below as that migration context, not as a current option.
+
 ---
 
 ## Phase 1: Infrastructure + Java Pilot (Weeks 1–4)

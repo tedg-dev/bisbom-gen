@@ -9,6 +9,12 @@
 
 ---
 
+> **Modes note (updated):** This is an older design doc. **Sidecar is the
+> only supported mode**; standalone (ptrace-based) is **deprecated** — the
+> initial implementation, retained only for a rare ~1% embedded corner
+> case. Any reference below to standalone as a "current default" or a
+> co-equal mode is historical; read it as the deprecated legacy path.
+
 ## Table of Contents
 
 1. [Problem Statement](#1-problem-statement)
@@ -107,8 +113,10 @@ retry policy.
 
 ### P4. Backward Compatibility
 
-Mode (standalone vs. sidecar) and execution model (single-phase
-vs. two-phase) are **orthogonal**. Any combination is valid:
+**Sidecar is the only supported mode** (standalone is deprecated — a rare
+~1% embedded corner case). Historically, mode and execution model
+(single-phase vs. two-phase) were **orthogonal** and any combination was
+valid:
 
 <table>
 <tr>
@@ -118,12 +126,12 @@ vs. two-phase) are **orthogonal**. Any combination is valid:
 </tr>
 <tr>
   <td><strong>Standalone</strong></td>
-  <td><code>analyze.py --repo curl</code><br>Current default for C/C++, Go, Rust</td>
+  <td><code>analyze.py --repo curl</code><br><em>Deprecated legacy path (formerly the C/C++, Go, Rust default)</em></td>
   <td><code>analyze.py --repo curl --phase build</code><br>then <code>--phase spdx</code></td>
 </tr>
 <tr>
   <td><strong>Sidecar</strong></td>
-  <td><code>analyze.py --repo jsoup --mode sidecar</code><br>Current default for Java sidecar</td>
+  <td><code>analyze.py --repo jsoup --mode sidecar</code><br>Supported mode (Java today; all languages target sidecar)</td>
   <td><code>analyze.py --repo jsoup --mode sidecar --phase build</code><br>then <code>--phase spdx</code></td>
 </tr>
 </table>
