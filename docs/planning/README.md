@@ -52,7 +52,7 @@ always available via the `tedg_cisco` account):
 |-----|-------|--------|---------|
 | AF | Java Phase 1 capture foundation — build-tool detection + shared treedb helper | Merged (issue **In Review**) | #11069 / PRs #199, #200 |
 | A1 | Phase 2 generates SBOMs from Phase 1 metadata, no source tree (phase-isolation core) | Merged | SI-4 (Java) / #11003 / PR #194 |
-| A2 | Phase 2 output set + hand-off manifest | Scoped | #11004 → [java/java-phase2-11004-handoff-scope.md](java/java-phase2-11004-handoff-scope.md) |
+| A2 | Phase 2 output set + hand-off manifest | Closed — not planned (#11004): peer team integrates Phase 2 into Corona directly, so no hand-off boundary is needed; Java charter complete at #11003 (A1) | #11004 → [java/java-phase2-11004-handoff-scope.md](java/java-phase2-11004-handoff-scope.md) |
 | A3 | Build efficiency — reuse captured dependency data (no double resolution) | Delivered via A1 | US-1 |
 | A4 | Build efficiency — single-invocation multi-module Gradle capture | Merged | US-2 / PR #196 |
 | A5 | Build efficiency — overlap independent post-build steps only when measurable | Closed — won't do (#11007, not planned): Phase 2 is out-of-band and inline hashing (A10) already removed the hot path | US-3 |
