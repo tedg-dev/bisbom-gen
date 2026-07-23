@@ -8,9 +8,9 @@
 | **Applies to** | Java (Maven and Gradle) sidecar mode |
 | **Author** | Ted G. |
 | **Drafted** | 2026-06-24 (Cascade) |
-| **Status** | Draft — docs only, awaiting approval before any code |
+| **Status** | ✅ Delivered — A1 (#11003) implemented and merged in `tedg-dev/omnibor-analysis#194`; A2 (#11004, hand-off manifest) scoped |
 | **Estimate** | ~3 AI-days (implementation + tests), excluding EC2 golden validation |
-| **Planned sub-issues** | (1) Generate from metadata — Maven and Gradle (see `phase2-consume-dependency-capture-design.md` §8); (2) Deliver Java SBOMs to Corona (Java slice of SI-5) |
+| **Planned sub-issues** | (1) Generate from metadata — Maven and Gradle (see `docs/sidecar/phase2-consume-dep-capture.md` §8); (2) Deliver Java SBOMs to Corona (Java slice of SI-5) |
 | **Design** | `docs/sidecar/phase2-consume-dep-capture.md` |
 
 ---
@@ -35,20 +35,28 @@ Within that model:
   duplicate some of Phase 1's processing, but it must **never read the
   source tree**.
 
-Today, for Java, Phase 2 **violates** this constraint:
+As built (delivered in `tedg-dev/omnibor-analysis#194`), Java Phase 2
+satisfies this constraint:
 
 - Phase 1 (`MavenDepTreeStrategy` / `GradleDepTreeStrategy` in
-  `app/pipeline/interception.py`) writes `maven_deps.json` /
-  `gradle_deps.json`, but **no code reads them** (verified by search).
-- Phase 2 (`_generate_java_spdx` in `app/pipeline/lang_runners.py`)
-  re-runs `mvn dependency:tree` / `gradlew dependencies` **against the
-  source workspace** (`pom_dir`), once per output JAR.
+  `app/pipeline/interception.py`) captures **per-module** dependency
+  subtrees to `maven_deps.json` / `gradle_deps.json`, parsed from the
+  default `mvn dependency:tree` **text** output by
+  `app/pipeline/maven_dep_tree_parser.py:parse_text_output` (Gradle:
+  `gradle_dep_tree_parser.get_all_gradle_deps`). The capture de-duplicates
+  **within** a module only — a component shared by two modules appears
+  under both — and preserves the `optional` flag.
+- Phase 2 (`generate_java_adg_spdx()` in `app/pipeline/lang_runners.py`)
+  reads that capture via `app/spdx/dep_capture_reader.py`
+  (`load_capture()` → `get_module_deps()`), resolving each output JAR to
+  its module from artifact metadata (JAR filename / build-output path) —
+  with **no source-tree access** and no `mvn dependency:tree` /
+  `gradlew dependencies` re-run.
 
-So the current split is incorrect with respect to the hard constraint:
-Phase 2 cannot run at all without the source tree. Separately, the Phase 1
-capture is **lossy** (reactor-wide, globally de-duplicated by
-`(groupId, artifactId)`, and missing the `optional` flag), so it is not yet
-thorough enough for Phase 2 to rely on.
+The enterprise split therefore works with no source tree. A live-resolution
+fallback remains **only** for co-located dev/test runs where the source
+tree happens to be present; it never generates golden files (golden files
+are sidecar-generated, where the capture is always present).
 
 ---
 

@@ -1,8 +1,10 @@
 # Sidecar & Phase Isolation — Java
 
 > **Parent doc**: `../infrastructure.md`
-> **Status**: Sidecar mode ✅ implemented; Phase isolation pending
-> **Date**: 2026-06-12
+> **Status**: Sidecar mode ✅ implemented; Phase 1/2 split (`--phase`) ✅
+> implemented (Java). Phase 2 generates SBOMs from Phase 1 metadata with
+> **no source-tree access** (`tedg-dev/omnibor-analysis#194`, merged).
+> **Date**: 2026-06-12 (status updated 2026-07-23)
 
 ---
 
@@ -24,7 +26,8 @@
 | `_select_java_strategy()` | ✅ Auto-detects Maven vs Gradle |
 | Phase 1/2 timing tags | ✅ Properly assigned |
 | `--mode sidecar` for Java | ✅ **Works end-to-end** |
-| Phase 1/2 split (`--phase`) | ❌ Not yet implemented |
+| Phase 1/2 split (`--phase`) | ✅ Implemented (Java) — `--phase build` writes the manifest, `--phase spdx --manifest` consumes it (`_run_phase1_only()` / `_run_phase2_only()` in `runners.py`) |
+| Phase 2 from metadata (no source tree) | ✅ Implemented (Java) — `dep_capture_reader.py` consumes `maven_deps.json` / `gradle_deps.json` |
 
 **Java is the reference implementation for sidecar mode.** The patterns
 established here — `_select_java_strategy()`, strategy-based dispatch in
@@ -99,7 +102,9 @@ runners.py main()
 - **Output**:
   1. Treedb via `bomsh_create_bom_java.py` (uses `SourceFile` bytecode
      attribute + path similarity instead of strace log)
-  2. `maven_deps.json` via `mvn dependency:tree -DoutputType=dot`
+  2. `maven_deps.json` via `mvn dependency:tree` (default **text** output,
+     parsed per-module by `maven_dep_tree_parser.parse_text_output`; text is
+     the only format carrying `optional` with no plugin-version requirement)
 - **Multi-module support**: `_extract_maven_modules()` passes `-pl` from
   build steps to `run_maven_dep_tree()`
 
@@ -178,7 +183,7 @@ by their JAR's gitOID + `purl`.
 | Operation | Module | Needs JAR? | Needs Source Tree? | Needs Treedb? |
 |-----------|--------|-----------|-------------------|---------------|
 | `JavaSpdxGenerator.generate()` | `java_generator.py` | ❌ (path only) | ❌ | ✅ |
-| Maven/Gradle dep parsing | `java_generator.py` | ❌ | ❌ (reads `pom.xml` in `repo_dir`) | ❌ |
+| Maven/Gradle dep parsing | `dep_capture_reader.py` | ❌ | ❌ (reads Phase 1 `maven_deps.json` / `gradle_deps.json`) | ❌ |
 | `BinaryCollector` (copy JARs) | `binary_collector.py` | ✅ | ❌ | ❌ |
 | `MetadataCollector` | `metadata_collector.py` | ❌ | ✅ (repo metadata) | ❌ |
 
@@ -196,13 +201,13 @@ by their JAR's gitOID + `purl`.
 - `phase1_manifest.json`
 - `bom_dir/metadata/bomsh/bomsh_omnibor_treedb`
 - `bom_dir/maven_deps.json` or `bom_dir/gradle_deps.json`
-- `pom.xml` / `build.gradle` (for version/groupId resolution)
+- (No `pom.xml` / `build.gradle` needed — dependency data is captured in Phase 1.)
 
-**Note**: `pom.xml` dependency resolution currently happens at Phase 2 time
-via `get_maven_deps()` / `get_gradle_deps()`. For cross-host, these could
-either:
-- Be pre-parsed in Phase 1 and included in the manifest, or
-- The `pom.xml`/`build.gradle` files could be copied to `bom_dir` during Phase 1
+**Note**: Dependency resolution runs in **Phase 1** and is captured to
+`maven_deps.json` / `gradle_deps.json`. Phase 2 reads that capture via
+`app/spdx/dep_capture_reader.py` (`load_capture()` / `get_module_deps()`)
+and never touches the source tree. The earlier "resolve at Phase 2 time"
+approach was superseded by `tedg-dev/omnibor-analysis#194` (merged).
 
 ---
 
@@ -236,6 +241,13 @@ The sidecar section is simpler because:
 ---
 
 ## 6. Phase Split Design
+
+> **✅ Delivered.** The design below is implemented for Java in
+> `app/pipeline/runners.py` (`_run_phase1_only()` / `_run_phase2_only()`,
+> gated by `--phase` + `_validate_phase_args()`) and
+> `app/pipeline/lang_runners.py` (`run_java_phase1()` / `run_java_phase2()`).
+> The code sketches below are the original design, retained as a record;
+> shipped signatures may differ in detail.
 
 ### 6.1 `run_java_phase1()`
 

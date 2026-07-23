@@ -4,7 +4,7 @@
 |---|---|
 | **Purpose** | Durable record tying each drafted Main issue and sub-issue to the PR(s) that implement it, so the hierarchy can be recreated and linked once GitHub Projects/Issues access is restored. |
 | **Maintained by** | Cascade (update as PRs merge) |
-| **Last updated** | 2026-07-22 |
+| **Last updated** | 2026-07-23 |
 
 ---
 
@@ -81,7 +81,7 @@ docs activity and carries a datetimestamped activity log.
 | Phase 2 output set + hand-off manifest | Java Phase 2 -> **A2** | #11004 (re-scoped) | Scoped, no PR |
 | In-memory JAR class processing (no extract-to-disk) | Phase 1 Build-Speed -> **A8** / US-4 | #11055 | Deferred (validate on EC2), no PR |
 | Support non-Maven/Gradle Java builds (Ant/Ivy, Bazel, `make`) | Phase 1 Java capture -> **A9** | #11066 (backlog, Proposed; parentless) | Backlog — **excluded from the Main A gate**. `tedg-dev/omnibor-analysis#202` (Draft, `Proposed` label — tables it for the pilot, fail-fast on ivy/ant/make/bazel); `#201` (Draft, `backlog` label — Ivy parser/reader) |
-| Overlap independent post-build steps (measure first) | Phase 1 Build-Speed -> **A5** / US-3 | #11007 | Optional / low, no PR |
+| ~~Overlap independent post-build steps (measure first)~~ | Phase 1 Build-Speed -> **A5** / US-3 | #11007 | **Closed — won't do (not planned)**: Phase 2 is out-of-band (non-critical wall-clock) and inline hashing (A10 / #11097) already removed the hot path. Closing it let parent #11005 derive to **In Review** (all remaining children In Review). |
 | Deliver Java build evidence to Corona | **A7** / SI-5 (Java) | — | Postponed — out of charter |
 | Agree on C/C++ build observation | Main B -> **B1** / SI-1 | #11009 | Blocked on Main A |
 | Auto-capture C/C++ components | Main B -> **B2** / SI-2 | #11010 | Blocked on Main A |

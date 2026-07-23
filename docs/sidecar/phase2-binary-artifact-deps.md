@@ -111,19 +111,21 @@ documents for the initial SPDX.
 ## 5. Java Is the Exception
 
 Java's `generate_java_adg_spdx()` only needs JAR **paths** (for
-treedb key lookup), never reads JAR content. The actual SPDX content
-comes from the treedb + `mvn dependency:tree` /
-`./gradlew dependencies`.
+treedb key lookup), never reads JAR content. The SPDX dependency content
+comes from the treedb + the **Phase 1 dependency capture**
+(`maven_deps.json` / `gradle_deps.json`), read via
+`app/spdx/dep_capture_reader.py`.
 
-The sidecar-async-spdx-architecture.md correctly notes:
+> **Superseded (`tedg-dev/omnibor-analysis#194`):** an earlier version of
+> this doc (and `async-spdx-architecture.md`) stated Java Phase 2 re-runs
+> `mvn dependency:tree` / `./gradlew dependencies` and therefore requires
+> JDK/Gradle/Maven. As built, Java Phase 2 consumes the Phase 1 capture and
+> needs **no build tools and no source tree** — like C/C++, it needs only
+> Python.
 
-> Java is the only language where Phase 2 requires build tools (JDK,
-> Gradle, Maven) because dep:tree resolution invokes the build system.
-> For C/C++, Rust, and Go, Phase 2 needs only Python and the OS
-> package database.
-
-The doc correctly identifies Java's dependency on build tools but
-**under-states** C/C++/Rust/Go's dependency on the actual binary files.
+The key contrast this doc draws still holds: unlike C/C++/Rust/Go, Java
+Phase 2 does **not** need the actual binary files — and it no longer needs
+build tools either.
 
 ---
 
@@ -238,7 +240,7 @@ exist before the build starts and are NOT build outputs.
 | `Makefile`, `Makefile.in` | `VendoredVersionDetector.detect()` | C/C++ | VERSION = x.y.z variables |
 | `package.json`, `Cargo.toml`, `pom.xml` | `VendoredVersionDetector.detect()` | Any | Structured version files |
 | Root-level files + `include/*.h` + `src/*.h` | `_detect_repo_version()` in `collect_metadata.py` | All | Repo's own version detection |
-| `pom.xml` / `build.gradle` | `generate_java_adg_spdx()` | Java | Module root detection (existence check only) |
+| `pom.xml` / `build.gradle` | `generate_java_adg_spdx()` (dev/test live fallback only) | Java | **Not read in the enterprise path** — module resolution uses the Phase 1 capture (`dep_capture_reader.py`); these are read only in the co-located dev/test fallback |
 
 ### 7.5. System Environment Probes — Executed at Runtime
 

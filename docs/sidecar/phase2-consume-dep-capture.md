@@ -4,7 +4,7 @@
 |---|---|
 | **Date** | 2026-06-24 |
 | **Authors** | Ted G. (architect), Cascade AI |
-| **Status** | Draft design — docs only, awaiting approval before any code |
+| **Status** | ✅ Delivered — implemented and merged in `tedg-dev/omnibor-analysis#194` (A1 / #11003). Sections below describe the as-built design. |
 | **Applies to** | Java (Maven and Gradle) sidecar mode |
 | **Objective** | Phase 2 produces fully accurate Java SBOMs from Phase 1 metadata alone, with no source-tree access; Phase 1 stays fast |
 | **Sub-issue** | `docs/planning/java-phase2-consume-dep-capture-subissue.md` |
@@ -21,7 +21,7 @@
 5. [Capture Format (Per-Module)](#5-capture-format-per-module)
 6. [When Metadata Is Missing](#6-when-metadata-is-missing)
 7. [Testing Plan](#7-testing-plan)
-8. [Open Decisions for the User](#8-open-decisions-for-the-user)
+8. [Decisions (Resolved)](#8-open-decisions-for-the-user)
 
 ---
 
@@ -54,47 +54,45 @@ access to the source tree** — while Phase 1 stays fast.
 
 <a id="2-current-state-verified-facts"></a>
 
-## 2. Current State (Verified Facts)
+## 2. As Built (delivered in `tedg-dev/omnibor-analysis#194`)
 
-**Phase 1 capture (`maven_deps.json`)** is produced by `parse_dot_output()`
-in `app/pipeline/maven_dep_tree_parser.py`. Properties:
+> This section originally documented the pre-implementation state (Phase 1
+> captured a lossy, globally-deduped DOT parse; Phase 2 re-ran the resolver
+> against the source tree). That state no longer exists — the design in the
+> sections below is shipped. Current behavior:
 
-- Covers the **whole reactor** (all `digraph` blocks in
-  `mvn dependency:tree -DoutputType=dot`).
-- **Globally de-duplicated** by `(groupId, artifactId)` across all modules.
-- Fields per entry: `groupId`, `artifactId`, `version`, `scope`,
-  `packaging`, `direct`, `parent`, `is_test`, `module`.
-- `module` is set to the owning module's **coordinate** for **direct**
-  deps, and `None` for transitives.
-- `parent` is the parent **artifactId** for transitives, `None` for direct.
-- Does **not** carry the `optional` flag.
+**Phase 1 capture (`maven_deps.json`)** is produced by `parse_text_output()`
+in `app/pipeline/maven_dep_tree_parser.py` from the **default text** output
+of the single `mvn dependency:tree` invocation Phase 1 already runs:
+
+- Retains a **per-module** subtree (one entry per reactor module), keyed by
+  the module coordinate `groupId:artifactId`.
+- De-duplicates **within** a module only — a component shared by two modules
+  appears under **both** (no cross-module loss).
+- Each dep carries `groupId`, `artifactId`, `version`, `scope`, `direct`,
+  `optional`, `parent`, `depth` (the shape produced by
+  `app/spdx/maven_parser.py:parse_dep_tree`, reused per module).
+- **Preserves the `optional` flag** (the ` (optional)` text suffix).
 
 **Phase 1 capture (`gradle_deps.json`)** is produced by
-`get_all_gradle_deps()` in `app/pipeline/gradle_dep_tree_parser.py`.
-Properties: globally de-duplicated by `(groupId, artifactId)`; `scope`
-forced to `compile`; `module` set per subproject for subproject deps,
-`None` for root.
+`get_all_gradle_deps()` in `app/pipeline/gradle_dep_tree_parser.py`, with a
+per-subproject module structure.
 
-**Phase 2 consumption today** (`_generate_java_spdx` in
+**Phase 2 consumption** (`generate_java_adg_spdx()` in
 `app/pipeline/lang_runners.py`):
 
-- Iterates each output JAR, derives the JAR's module directory
-  (`pom_dir`) by walking up to a build file.
-- Calls `JavaSpdxGenerator.generate(pom_dir=...)`, which runs the resolver
-  **live, per module** via `app/spdx/maven_parser.py:get_maven_deps`
-  (Maven, text output, `parse_dep_tree`) or
-  `app/spdx/gradle_parser.py:get_gradle_deps` (Gradle).
-- The live Maven text parser **keeps `optional`** and does **not**
-  de-duplicate within a module.
+- Loads the capture via `app/spdx/dep_capture_reader.py:load_capture()`.
+- Resolves each output JAR to its capture module with `get_module_deps()`
+  — matching on the JAR's artifactId / subproject name, falling back to the
+  module directory encoded in the JAR path, then to a single-module
+  capture. This uses **artifact metadata only**; **no source tree** is read
+  and **no** `mvn dependency:tree` / `gradlew dependencies` is re-run.
+- A live-resolution fallback remains only for co-located dev/test runs; it
+  never generates golden files.
 
 **Scope of impact:** Only the `_build` SBOM uses the dependency graph.
 The `_analyzed` SBOM strips build-tool and dependency packages, so it is
-**unaffected** by this change.
-
-**The core defect:** today's Phase 2 dependency step reads the source tree
-(`pom_dir`). Even setting aside the capture's lossiness, this alone makes
-Phase 2 non-runnable in the enterprise split. Fixing it requires Phase 2 to
-obtain its dependency data from Phase 1 metadata instead.
+**unaffected**.
 
 ---
 
@@ -245,36 +243,41 @@ to the capture key.
 
 ## 5. Capture Format (Per-Module)
 
-The captured file becomes a mapping from module key to that module's
-dependency list, each entry retaining `optional`:
+The captured file is a **list** of per-module entries, each with its module
+`key` and a `deps` list whose entries retain `optional` (as built by
+`parse_text_output()`):
 
 ```json
 {
   "tool": "maven",
-  "modules": {
-    "com.example:core": [
-      {"groupId": "org.apache.commons", "artifactId": "commons-lang3",
-       "version": "3.14.0", "scope": "compile", "direct": true,
-       "optional": false, "parent": null},
-      {"groupId": "...", "artifactId": "...", "parent": "commons-lang3"}
-    ],
-    "com.example:cli": [
-      {"groupId": "org.apache.commons", "artifactId": "commons-lang3",
-       "version": "3.14.0", "scope": "compile", "direct": true,
-       "optional": false, "parent": null}
-    ]
-  }
+  "modules": [
+    {"key": "com.example:core", "groupId": "com.example",
+     "artifactId": "core", "version": "1.0", "packaging": "jar",
+     "deps": [
+       {"groupId": "org.apache.commons", "artifactId": "commons-lang3",
+        "version": "3.14.0", "scope": "compile", "direct": true,
+        "optional": false, "parent": null},
+       {"groupId": "...", "artifactId": "...", "parent": "commons-lang3"}
+     ]},
+    {"key": "com.example:cli", "groupId": "com.example",
+     "artifactId": "cli", "version": "1.0", "packaging": "jar",
+     "deps": [
+       {"groupId": "org.apache.commons", "artifactId": "commons-lang3",
+        "version": "3.14.0", "scope": "compile", "direct": true,
+        "optional": false, "parent": null}
+     ]}
+  ]
 }
 ```
 
 `commons-lang3` appears under **both** modules — that is the whole point.
-Maven module key = module coordinate (for example `groupId:artifactId`).
-Gradle module key = subproject path (for example `:core`), with the root
-project under a well-known key. Within a module, de-duplication is by
-`(groupId, artifactId)` (Maven resolves one version per artifact per
-module); **across** modules there is no de-duplication.
+Maven module `key` = module coordinate `groupId:artifactId`. Gradle module
+`key` = subproject path (for example `:core`), with the root project under
+`":"`. Within a module, de-duplication is by `(groupId, artifactId)`
+(Maven resolves one version per artifact per module); **across** modules
+there is no de-duplication.
 
-This format change is internal (nothing else reads the file). The
+This format is internal (only `dep_capture_reader.py` reads it). The
 `_analyzed` SBOM is unaffected.
 
 ---
@@ -327,7 +330,7 @@ auto-applied.
 
 <a id="8-open-decisions-for-the-user"></a>
 
-## 8. Open Decisions for the User
+## 8. Decisions (Resolved)
 
 1. **Approved (with corrected mechanism):** retain per-module attribution
    and the `optional` flag from the single `dependency:tree` invocation,
@@ -345,4 +348,8 @@ auto-applied.
 4. **Sequencing:** Maven first (most multi-module goldens) then Gradle, or
    both together?
 
-No code will be written until these are settled and you approve.
+> **Status:** All decisions above are resolved and the design is
+> **delivered** (`tedg-dev/omnibor-analysis#194`, merged): default **text**
+> capture, JAR→module via artifact metadata (treedb `jar_map` backup),
+> fail-loud on missing metadata in the enterprise path with a
+> dev/test-only live fallback, and Maven + Gradle both shipped.

@@ -55,13 +55,13 @@ always available via the `tedg_cisco` account):
 | A2 | Phase 2 output set + hand-off manifest | Scoped | #11004 → [java/java-phase2-11004-handoff-scope.md](java/java-phase2-11004-handoff-scope.md) |
 | A3 | Build efficiency — reuse captured dependency data (no double resolution) | Delivered via A1 | US-1 |
 | A4 | Build efficiency — single-invocation multi-module Gradle capture | Merged | US-2 / PR #196 |
-| A5 | Build efficiency — overlap independent post-build steps only when measurable | Optional / low (measure first) | US-3 |
+| A5 | Build efficiency — overlap independent post-build steps only when measurable | Closed — won't do (#11007, not planned): Phase 2 is out-of-band and inline hashing (A10) already removed the hot path | US-3 |
 | A6 | Treedb SBOM-generation speedup (retro) | Delivered | SI-R1 / PRs #189, #187, #191 |
 | A7 | Deliver Java build evidence to Corona (Java delivery slice) | Postponed — out of charter (Corona / Phase 2-incorporation team owns delivery + verification) | SI-5 (Java) |
 | A8 | Build efficiency — fully in-memory JAR class processing (no extract-to-disk) | Deferred (validate on EC2) | US-4 |
 | A9 | Support non-Maven/Gradle Java builds (Ant/Ivy, Bazel, `make`) | **Backlog** — parentless issue, not in the initial pilot; **excluded from the Main A completion gate** | #11066 (Proposed) / [java/java-nonmaven-gradle-build-tools-subissue.md](java/java-nonmaven-gradle-build-tools-subissue.md) |
-| A10 | Build efficiency — inline GitOID capture during the build (eliminate post-build rescan) | Delivered & merged (PR #212); flag off by default until golden-validated (see A11) | US-5 / #11097 (child of #11005, In Review) / PR tedg-dev/omnibor-analysis#212 — [java/phase1-build-speed-subissues.md](java/phase1-build-speed-subissues.md) |
-| A11 | Inline-hashing golden-clean validation — MRJAR/multi-module correctness + build-logic JAR exclusion | Implemented on `feat/java-inline-hashing`; golden-clean on all 7 Java repos; PR pending | US-6 / #11100 (child of #11005, In Development) — [java/phase1-build-speed-subissues.md](java/phase1-build-speed-subissues.md) |
+| A10 | Build efficiency — inline GitOID capture during the build (eliminate post-build rescan) | Delivered & merged (PR #212); **enabled by default** (`java_inline_hash: true`), golden-validated via A11 (PR #213) | US-5 / #11097 (child of #11005, In Review) / PR tedg-dev/omnibor-analysis#212 — [java/phase1-build-speed-subissues.md](java/phase1-build-speed-subissues.md) |
+| A11 | Inline-hashing golden-clean validation — MRJAR/multi-module correctness + build-logic JAR exclusion | **Merged (PR #213)**; golden-clean on all 7 Java repos; A10 flag enabled by default | US-6 / #11100 (child of #11005, In Review) — [java/phase1-build-speed-subissues.md](java/phase1-build-speed-subissues.md) |
 | A12 | Build efficiency — capture the Gradle dependency graph during the build (eliminate the post-build re-resolution) | **In Development** (Walk 21); design doc merged, no code PR yet | #11104 (child of #11005) — [../sidecar/java/gradle-inline-dep-capture-design.md](../sidecar/java/gradle-inline-dep-capture-design.md) |
 
 **Standing gate (not a sub-issue):** testing — golden validation, the

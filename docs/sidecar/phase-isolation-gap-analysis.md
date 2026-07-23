@@ -9,7 +9,10 @@
 
 > **Date**: June 16, 2026
 >
-> **Status**: Architecture gap analysis — Phase 2 cannot run independently
+> **Status**: Architecture gap analysis. **Java: RESOLVED** — Phase 2 runs
+> from Phase 1 metadata with no `repo_dir` access, and the `--phase` split
+> is implemented (delivered in `tedg-dev/omnibor-analysis#194`).
+> **C/C++, Rust, Go: still open** — this audit remains valid for them.
 >
 > **Requirement**: Phase isolation is MANDATORY. Phase 2 must operate
 > exclusively on Phase 1 artifacts (treedb, manifest, `bom_dir`). Phase 2
@@ -20,8 +23,8 @@
 
 ## 1. The Problem
 
-Phase 2 (SPDX generation) currently reads directly from `repo_dir` in
-multiple places across all languages. In an ephemeral CI/CD environment,
+Phase 2 (SPDX generation) reads directly from `repo_dir` in multiple
+places for **C/C++, Rust, and Go** (Java is now resolved — see §2.1). In an ephemeral CI/CD environment,
 `repo_dir` is destroyed when the build stage (Phase 1) exits. Phase 2
 runs in a different process, container, or host — the source tree, object
 files, and build outputs are gone.
@@ -36,7 +39,13 @@ requires Phase 2 to work without `repo_dir`.
 
 ## 2. Complete Audit: What Phase 2 Reads from `repo_dir`
 
-### 2.1 Java (sidecar implemented, phase split NOT implemented)
+### 2.1 Java — RESOLVED (Phase 2 is metadata-only; delivered in `tedg-dev/omnibor-analysis#194`)
+
+> **✅ Java gap closed.** Java Phase 2 no longer reads `repo_dir`: it
+> consumes the Phase 1 capture (`maven_deps.json` / `gradle_deps.json`) via
+> `app/spdx/dep_capture_reader.py`, and the `--phase build` / `--phase spdx`
+> split is implemented (`runners.py`). The table below is the **original
+> pre-fix audit**, retained for history.
 
 | Phase 2 Operation | File | What it reads from `repo_dir` | How it reads |
 |---|---|---|---|
@@ -53,9 +62,10 @@ requires Phase 2 to work without `repo_dir`.
 | JAR module detection | `lang_runners.py:452` | Walks up from JAR path to find `pom.xml`/`build.gradle` | `Path.exists()` |
 | `BinaryCollector.collect()` | `binary_collector.py:90` | Copies JARs from `repo_dir` | `shutil.copy2()` |
 
-**Irony**: Phase 1 sidecar already runs `mvn dependency:tree` and saves
-`maven_deps.json` to `bom_dir`. Phase 2 ignores this and re-runs the
-same command against the live source tree.
+**Resolved (was an irony):** Phase 1 sidecar runs `mvn dependency:tree`
+and saves `maven_deps.json` to `bom_dir`; Phase 2 now **reads that capture**
+instead of re-running the command against the source tree (delivered in
+`tedg-dev/omnibor-analysis#194`).
 
 ### 2.2 C/C++ (sidecar NOT implemented, standalone only)
 
@@ -515,7 +525,7 @@ Phase 2 runs on a different host/container/time. It has NO access to
 | Phase 2 Input | Source | Currently exists? |
 |---|---|---|
 | Treedb | `bom_dir/metadata/bomsh/bomsh_omnibor_treedb` | ✅ |
-| Dependency graph | `bom_dir/maven_deps.json` or `gradle_deps.json` | ✅ (but Phase 2 ignores it) |
+| Dependency graph | `bom_dir/maven_deps.json` or `gradle_deps.json` | ✅ (Java Phase 2 consumes it — `#194`) |
 | Project metadata | `bom_dir/project_metadata.json` | ❌ Must create |
 | Binary copies | `bom_dir/binaries/` | ❌ Must create |
 | Static files | `bom_dir/source_snapshot/` | ❌ Must create |
@@ -528,15 +538,15 @@ Phase 2 runs on a different host/container/time. It has NO access to
 
 | Item | Status | Action needed |
 |---|---|---|
-| `maven_deps.json` capture | ✅ Phase 1 sidecar already does this | Wire Phase 2 to read it instead of re-running `mvn dep:tree` |
-| `gradle_deps.json` capture | ✅ Phase 1 sidecar already does this | Wire Phase 2 to read it instead of re-running `./gradlew dependencies` |
+| `maven_deps.json` capture | ✅ Phase 1 captures; ✅ Phase 2 consumes it (`#194`) | Done — no more `mvn dep:tree` re-run in Phase 2 |
+| `gradle_deps.json` capture | ✅ Phase 1 captures; ✅ Phase 2 consumes it (`#194`) | Done — no more `./gradlew dependencies` re-run in Phase 2 |
 | `project_metadata.json` | ❌ Does not exist | Create writer (version, groupId, build system, plugins) |
 | `resolved_binaries.json` | ❌ Does not exist | Create writer (resolved globs → actual paths) |
 | Static file copies to `bom_dir` | ❌ Not done | Copy `pom.xml`, `Cargo.lock`, `go.mod`, etc. |
 | Binary copies to `bom_dir` | ❌ Not done | Copy JARs/ELF binaries to `bom_dir/binaries/` |
 | `ldd`/`readelf` capture | ⚠️ Runs in Phase 2 | Move to sidecar post-build capture |
-| Phase 2 reads from `bom_dir` only | ❌ Reads from `repo_dir` | Refactor all parsers and generators |
-| Phase 2 re-runs dep:tree | ❌ Ignores captured JSON | Wire to read `maven_deps.json`/`gradle_deps.json` |
+| Phase 2 reads from `bom_dir` only | ✅ Java (`#194`); ❌ C/C++/Go/Rust still read `repo_dir` | Refactor remaining non-Java parsers/generators |
+| Phase 2 re-runs dep:tree | ✅ Fixed for Java (`#194`) — reads `maven_deps.json`/`gradle_deps.json` | Done for Java |
 | Build completion detection | ❌ Not implemented | eBPF `sched_process_exit` or PID monitoring |
 | `mvn dep:tree -o` (offline) | ❌ Not implemented | Add offline flag to sidecar dep:tree call |
 

@@ -15,6 +15,14 @@
 > case. Any reference below to standalone as a "current default" or a
 > co-equal mode is historical; read it as the deprecated legacy path.
 
+> **Java update (2026-07-23):** For **Java**, Phase 2 no longer needs the
+> source tree or build tools — it consumes the Phase 1 dependency capture
+> (`maven_deps.json` / `gradle_deps.json`) via
+> `app/spdx/dep_capture_reader.py`, and the `--phase build` / `--phase spdx`
+> split is implemented (delivered in `tedg-dev/omnibor-analysis#194`).
+> Statements below that Java Phase 2 re-runs `dep:tree` or requires
+> JDK/Gradle/Maven describe the pre-#194 design and are superseded.
+
 ## Table of Contents
 
 1. [Problem Statement](#1-problem-statement)
@@ -513,7 +521,7 @@ overhead) and the treedb is generated from the raw logfile in seconds.
 | **C/C++** | `apt-cache` dependency validation (pre-build, but can be cached) | Validates system library availability |
 | **Rust** | Cargo registry path resolution for crate detection | Maps `.rlib` files to crate names via `/.cargo/registry/src/` paths |
 | **Go** | `vendor/modules.txt` parsing for module version extraction | Maps Go packages to modules; requires `go mod vendor` pre-build step |
-| **Java** | Gradle/Maven dep:tree resolution (`./gradlew dependencies` per submodule) | Extracts the full dependency graph not captured by treedb alone |
+| **Java** | None (dep graph captured in Phase 1) | Phase 2 reads `maven_deps.json` / `gradle_deps.json`; **no** `dep:tree` re-run (superseded by `#194`) |
 
 ### CLI Interface
 
@@ -538,7 +546,7 @@ Phase 2 has no dependency on the build environment. It needs:
 
 - Python 3.11+ with the `app/` package
 - The treedb/raw logfile artifact from Phase 1
-- Access to the source tree (for Go module parsing, Java dep:tree)
+- Access to the source tree (for Go module parsing; **not** for Java — Java Phase 2 reads the Phase 1 capture, no source tree)
 - The OS package database (for `dpkg-query`/`rpm` metadata collection)
 
 **Language-specific Phase 2 requirements:**
@@ -548,12 +556,13 @@ Phase 2 has no dependency on the build environment. It needs:
 | **C/C++** | None beyond common | SPDX from treedb + system lib metadata |
 | **Rust** | Source tree with `Cargo.lock` | Crate version extraction |
 | **Go** | Source tree with `vendor/modules.txt` | Module version extraction |
-| **Java** | JDK + Gradle/Maven in container | Dep:tree resolution requires build toolchain |
+| **Java** | None (reads Phase 1 capture) | No source tree or build tools needed — dep graph captured in Phase 1 (`#194`) |
 
-**Note:** Java is the only language where Phase 2 requires build tools
-(JDK, Gradle, Maven) because dep:tree resolution invokes the build
-system. For C/C++, Rust, and Go, Phase 2 needs only Python and the
-OS package database.
+**Note (superseded by `#194`):** The original design had Java Phase 2
+re-run `dep:tree`, requiring JDK/Gradle/Maven. As built, Java Phase 2
+consumes the Phase 1 capture and needs **only Python** (like C/C++) — no
+build tools and no source tree. Go still parses `vendor/modules.txt` from
+the source tree.
 
 This means Phase 2 can run:
 
@@ -1220,10 +1229,10 @@ apples-to-apples comparison.
 </tr>
 <tr>
   <td>R1</td>
-  <td>Phase 2 needs access to source tree for dep:tree</td>
+  <td>Phase 2 needs access to source tree for dep:tree (pre-<code>#194</code>)</td>
   <td>Artifact storage grows if source must be preserved</td>
-  <td>Medium</td>
-  <td>dep:tree resolution can run in same workspace; for remote Phase 2, archive only the build metadata (treedb + <code>build.gradle</code>) not the full source</td>
+  <td>Resolved (Java)</td>
+  <td><strong>Resolved for Java (<code>#194</code>):</strong> dep:tree runs in Phase 1 and is captured to <code>maven_deps.json</code>/<code>gradle_deps.json</code>; Java Phase 2 needs no source tree. For C/C++/Go/Rust, archive only the build metadata for remote Phase 2.</td>
 </tr>
 <tr>
   <td>R2</td>
@@ -1241,10 +1250,10 @@ apples-to-apples comparison.
 </tr>
 <tr>
   <td>R4</td>
-  <td>Dep:tree resolution requires JDK/Gradle</td>
-  <td>Phase 2 container must include build tools for Java</td>
-  <td>Medium</td>
-  <td>For Java, dep:tree runs in the same container that has JDK. For C/C++/Go/Rust, Phase 2 needs only Python</td>
+  <td>Dep:tree resolution requires JDK/Gradle (pre-<code>#194</code>)</td>
+  <td>Phase 2 container would need build tools for Java</td>
+  <td>Resolved</td>
+  <td><strong>Resolved (<code>#194</code>):</strong> dep:tree now runs in Phase 1; Java Phase 2 reads the captured JSON and needs only Python, like C/C++/Go/Rust</td>
 </tr>
 <tr>
   <td>R5</td>

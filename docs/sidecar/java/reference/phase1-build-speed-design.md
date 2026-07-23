@@ -93,39 +93,41 @@ equivalents, applied at Docker build time without forking upstream:
 18.6s). `bc-java` remains large in absolute terms (224s) purely due to its
 multi-module output volume.
 
-**Net effect on this plan:** with treedb no longer dominant and dependency
-resolution already offline, the largest *remaining* inefficiency is
-**resolving dependencies twice** (Section 4), and the largest remaining
-*Gradle-specific* cost is **per-subproject query start-up** (Section 5.2).
+**Net effect on this plan:** with treedb no longer dominant, dependency
+resolution already offline, and the duplicate Phase 2 resolution now
+**eliminated** (Section 4, delivered in `tedg-dev/omnibor-analysis#194`),
+the largest remaining *Gradle-specific* cost is **per-subproject query
+start-up** (Section 5.2).
 
 ---
 
-## 4. Core remaining inefficiency: duplicate dependency resolution
+## 4. Duplicate dependency resolution — RESOLVED (delivered in `tedg-dev/omnibor-analysis#194`)
 
-Dependency resolution runs **twice** for Java today — once in Phase 1
-(saved, then ignored) and again in Phase 2.
+> **✅ Delivered.** This section originally described the largest remaining
+> inefficiency — Java resolving dependencies **twice** (Phase 1 saved the
+> graph, Phase 2 ignored it and re-resolved against `repo_dir`). That is
+> fixed: Phase 2 now consumes the Phase 1 capture and never reads the
+> source tree. The original problem statement is preserved below for
+> context.
 
-**Phase 1 resolves and saves the graph:**
+**Original problem (now fixed):** dependency resolution ran **twice** —
+once in Phase 1 (saved, then ignored) and again in Phase 2.
+
+**Phase 1 resolves and saves the graph** (unchanged):
 
 - `app/pipeline/interception.py` — `MavenDepTreeStrategy.generate_adg()`
   runs `run_maven_dep_tree()` and writes `maven_deps.json`.
 - The Gradle strategy writes `gradle_deps.json` the same way.
 
-**Phase 2 ignores those files and resolves again against `repo_dir`:**
+**As built, Phase 2 now consumes that capture** (no second resolution):
 
-- `app/spdx/java_generator.py` — `_get_maven_deps()` calls
-  `get_maven_deps()` / `get_gradle_deps()`.
-- `app/spdx/maven_parser.py` — `get_maven_deps()` runs `mvn dependency:tree`
-  as a fresh subprocess against the source tree.
-- `app/spdx/gradle_parser.py` — `get_gradle_deps()` runs
-  `./gradlew dependencies` similarly.
-
-This is wasteful on two axes:
-
-1. **Time** — a full duplicate resolution (minutes on large repos).
-2. **Phase isolation** — Phase 2 depends on `repo_dir`, which does not exist
-   in an ephemeral CI/CD pipeline where build and reporting run on separate
-   machines. (Full multi-language audit: `../phase-isolation-gap-analysis.md`.)
+- `app/pipeline/lang_runners.py` — `generate_java_adg_spdx()` loads the
+  capture via `app/spdx/dep_capture_reader.py` (`load_capture()` /
+  `get_module_deps()`).
+- No `mvn dependency:tree` / `./gradlew dependencies` re-run and **no
+  `repo_dir` read** in the enterprise path; a live fallback remains only
+  for co-located dev/test runs. (Full multi-language audit:
+  `../phase-isolation-gap-analysis.md`.)
 
 ---
 
@@ -133,27 +135,30 @@ This is wasteful on two axes:
 
 ### 5.1 US-1 — Phase 2 reuses captured dependency data
 
-**Goal:** Phase 2 reads `maven_deps.json` / `gradle_deps.json` from
-`bom_dir` and stops re-running the resolver against `repo_dir`.
+**Status:** ✅ Implemented and merged (`tedg-dev/omnibor-analysis#194`,
+A1 / #11003). Phase 2 consumes the Phase 1 capture; the text below reflects
+the as-built approach.
 
-**Current → target:**
+**Goal (met):** Phase 2 reads `maven_deps.json` / `gradle_deps.json` from
+`bom_dir` and no longer re-runs the resolver against `repo_dir`.
 
-- Current: `java_generator._get_maven_deps()` → live
-  `get_maven_deps()` / `get_gradle_deps()` against `repo_dir`.
-- Target: load the captured JSON from `bom_dir`; fall back to the live
-  command **only** if the JSON is absent (e.g. legacy runs), with a clear
-  warning.
+**As built:**
 
-**Format-compatibility risk (must verify):**
+- `generate_java_adg_spdx()` loads the captured JSON from `bom_dir` via
+  `app/spdx/dep_capture_reader.py`; it falls back to the live
+  `get_maven_deps()` / `get_gradle_deps()` **only** when the capture is
+  absent (co-located dev/test), with a clear warning.
 
-- Phase 1 writes JSON parsed from `mvn dependency:tree -DoutputType=dot`
-  (`parse_dot_output`).
-- Phase 2 currently parses the **text** form (`parse_dep_tree`).
-- The downstream SPDX generator expects dependency dicts with
-  `groupId`, `artifactId`, `version`, `scope`, `direct`, `optional`,
-  `parent`. The implementation must confirm the captured JSON carries the
-  identical field set/semantics so the SPDX does not change. This is the
-  primary reason golden validation is mandatory (Section 7).
+**Format compatibility (resolved):**
+
+- Phase 1 captures the default `mvn dependency:tree` **text** output
+  (`parse_text_output`) — not DOT — because text is the only universally
+  available format carrying `optional`.
+- The captured per-module `deps` use the same dict shape the SPDX
+  generator already consumes (`groupId`, `artifactId`, `version`, `scope`,
+  `direct`, `optional`, `parent`, `depth`), produced by the shared
+  `app/spdx/maven_parser.py:parse_dep_tree`, so the SPDX is unchanged.
+  Golden validation confirmed parity (Section 7).
 
 **Files likely touched:**
 
