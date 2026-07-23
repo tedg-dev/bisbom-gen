@@ -79,7 +79,7 @@ docs activity and carries a datetimestamped activity log.
 | Item | Theme -> sub-issue (index label) | GitHub issue | Status |
 |---|---|---|---|
 | ~~Phase 2 output set + hand-off manifest~~ | Java Phase 2 -> **A2** | #11004 | **Closed — not planned**: peer team integrates Phase 2 into Corona directly (operator/cdk/gh-aws integration), so no hand-off boundary is needed; Java Phase 1/2 charter complete at #11003 (PR #194). Parent #11002 stays In Review (child #11003 still In Review). |
-| In-memory JAR class processing (no extract-to-disk) | Phase 1 Build-Speed -> **A8** / US-4 | #11055 | Deferred (validate on EC2), no PR |
+| In-memory JAR class processing (no extract-to-disk) | Phase 1 Build-Speed -> **A8** / US-4 | #11055 | **PR `tedg-dev/omnibor-analysis#211` open** — tested (1886 pass, 99% cov) + EC2 golden-validated 2026-07-14 (jsoup/checkstyle identical); synced with `main` (merge `9085301`, mergeable), awaiting review |
 | Support non-Maven/Gradle Java builds (Ant/Ivy, Bazel, `make`) | Phase 1 Java capture -> **A9** | #11066 (backlog, Proposed; parentless) | Backlog — **excluded from the Main A gate**. `tedg-dev/omnibor-analysis#202` (Draft, `Proposed` label — tables it for the pilot, fail-fast on ivy/ant/make/bazel); `#201` (Draft, `backlog` label — Ivy parser/reader) |
 | ~~Overlap independent post-build steps (measure first)~~ | Phase 1 Build-Speed -> **A5** / US-3 | #11007 | **Closed — won't do (not planned)**: Phase 2 is out-of-band (non-critical wall-clock) and inline hashing (A10 / #11097) already removed the hot path. Closing it let parent #11005 derive to **In Review** (all remaining children In Review). |
 | Deliver Java build evidence to Corona | **A7** / SI-5 (Java) | — | Postponed — out of charter |
