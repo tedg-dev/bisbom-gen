@@ -61,6 +61,7 @@ theme / planning doc) -> **sub-issues** (drafted in the matching planning doc).
 | `tedg-dev/omnibor-analysis#193` | Phase 1 build-speed design consolidation | Phase 1 Build-Speed (Java) design reference | — | Merged |
 | `tedg-dev/omnibor-analysis#192` | Phase-isolation planning user stories + C/C++ design relocation | Planning / docs | — | Merged |
 | `tedg-dev/omnibor-analysis#191`, `#189`, `#187` | Treedb SBOM-generation speedup (retro) | Retrospective -> **A6** / SI-R1 | #11000 | Merged |
+| `tedg-dev/omnibor-analysis#216` | Gradle repo enablement (caffeine, opentelemetry-java, rxjava) + release-classifier & JDK bug fixes + build-logic/composite JAR exclusion | Phase 1 Build-Speed -> **A12** / **A11** + bugs | #11104, #11100, #11144, #11145 (all In Review) | Merged |
 
 Index labels (**A1**, **A4**, ...) refer to the rows in
 [`README.md`](README.md), the priority-ordered planning index.
@@ -81,10 +82,6 @@ docs activity and carries a datetimestamped activity log.
 | In-memory JAR class processing (no extract-to-disk) | Phase 1 Build-Speed -> **A8** / US-4 | #11055 | Deferred (validate on EC2), no PR |
 | Support non-Maven/Gradle Java builds (Ant/Ivy, Bazel, `make`) | Phase 1 Java capture -> **A9** | #11066 (backlog, Proposed; parentless) | Backlog — **excluded from the Main A gate**. `tedg-dev/omnibor-analysis#202` (Draft, `Proposed` label — tables it for the pilot, fail-fast on ivy/ant/make/bazel); `#201` (Draft, `backlog` label — Ivy parser/reader) |
 | Overlap independent post-build steps (measure first) | Phase 1 Build-Speed -> **A5** / US-3 | #11007 | Optional / low, no PR |
-| Inline-hashing golden-clean validation (MRJAR/multi-module correctness + build-logic JAR exclusion) | Phase 1 Build-Speed -> **A11** / US-6 | #11100 (child of #11005, In Development) | Implemented on `feat/java-inline-hashing`, golden-clean on all 7 Java repos; PR pending |
-| Gradle in-build dependency capture (eliminate post-build re-resolution) | Phase 1 Build-Speed -> **A12** | #11104 (child of #11005, In Development, Walk 21) | Design doc `docs/sidecar/java/reference/gradle-dependency-capture.md`; capture code + 3 new Gradle repos (caffeine, opentelemetry-java, rxjava) + fixtures/matrix runner + composite/included-build product filtering (`includeBuild(...)` outputs like caffeine's `plugins.jar` excluded) in progress; no code PR yet |
-| Release-build classifier not build-tool-aware (false Maven warnings on Gradle repos) | Phase 1 Build-Speed -> **bug** | #11144 (child of #11005, In Development, Walk 21) | Fix implemented (build-tool-aware `classify_release_build`) + tests; no code PR yet |
-| Per-repo JDK selection for builds (older Gradle needs JDK ≤ 19) | Phase 1 Build-Speed -> **bug** | #11145 (child of #11005, In Development, Walk 21) | Fix implemented (`build_profile.java_home` + `JAVA_HOME` injection; rxjava pinned to JDK 17) + tests; no code PR yet |
 | Deliver Java build evidence to Corona | **A7** / SI-5 (Java) | — | Postponed — out of charter |
 | Agree on C/C++ build observation | Main B -> **B1** / SI-1 | #11009 | Blocked on Main A |
 | Auto-capture C/C++ components | Main B -> **B2** / SI-2 | #11010 | Blocked on Main A |
@@ -98,11 +95,11 @@ docs activity and carries a datetimestamped activity log.
 
 The 13 themed issues (#11000–#11013), the pilot-foundation issue
 **#11069** (In Review, child of #11005), the inline-hashing sub-issues
-**#11097** (In Review) and **#11100** (In Development) — both children
+**#11097** (In Review) and **#11100** (In Review) — both children
 of #11005, the Gradle in-build dependency-capture sub-issue **#11104**
-(In Development, Walk 21, child of #11005), the two Gradle-work bug
+(In Review, Walk 21, child of #11005), the two Gradle-work bug
 sub-issues **#11144** (release-build classifier build-tool awareness)
-and **#11145** (per-repo JDK selection) — both In Development, Walk 21,
+and **#11145** (per-repo JDK selection) — both In Review, Walk 21,
 children of #11005 — the parentless A9 backlog
 issue **#11066**, and the living documentation tracker **#11071**
 (In Review, parentless) are live on the Corona project board (#255).
