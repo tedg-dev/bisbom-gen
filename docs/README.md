@@ -13,7 +13,8 @@
 
 | Directory | Contents |
 |-----------|----------|
-| **[sidecar/](sidecar/)** | All sidecar + phase isolation docs, diagrams, and per-language design. General docs at root; language-specific in `java/`, `c-cpp/`, `go/`, `rust/`, `python/` |
+| **[sidecar/](sidecar/)** | All sidecar + phase isolation docs, diagrams, and per-language design. General docs at root; language-specific in `java/`, `c-cpp/`, `go/`, `rust/`, `python/`. Peer/user-facing docs sit at each language root; deep-detail design/decision docs live in that language's `reference/` subfolder |
+| **[reference/](reference/)** | Project-wide, language-agnostic reference material (schemas, contracts) — e.g. the [`build_profile` schema](reference/build-profile-schema.md) |
 | **[architecture/](architecture/)** | General app architecture, technical overview, standalone mode, platform support |
 | **[guides/](guides/)** | Setup, onboarding, contributing, AWS infrastructure, workflow guide |
 | **[planning/](planning/)** | Issue & sub-issue planning. Living index at [planning/README.md](planning/README.md); per-language sub-issues in `java/`, `c-cpp/`, etc. |

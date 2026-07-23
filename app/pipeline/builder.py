@@ -9,6 +9,7 @@ clean, prebuild, instrumented build, and ADG generation.
 Phase 2 (SPDX generation) lives in ``lang_runners``.
 """
 
+import os
 import shutil
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -47,6 +48,28 @@ class BomtraceBuilder:
     def __init__(self, runner=None):
         self.runner = runner or CommandRunner()
 
+    @staticmethod
+    def _apply_java_home(repo_cfg):
+        """Export ``JAVA_HOME`` when the repo's profile pins a JDK.
+
+        Some build tools must *run* on a specific JDK (e.g. Gradle 7.6.x
+        cannot run on JDK 21). ``build_profile.java_home`` records the
+        in-container JDK path; exporting it into the process environment
+        here ensures the clean, build, and dependency-capture
+        subprocesses (which inherit ``os.environ``) all use that JDK.
+        Repos without ``java_home`` are unaffected (container default).
+        """
+        profile = repo_cfg.get("build_profile") or {}
+        java_home = profile.get("java_home")
+        if not java_home:
+            return
+        os.environ["JAVA_HOME"] = java_home
+        bin_dir = str(Path(java_home) / "bin")
+        os.environ["PATH"] = (
+            bin_dir + os.pathsep + os.environ.get("PATH", "")
+        )
+        print(f"[JDK] JAVA_HOME set to {java_home}")
+
     def build(
         self, repo_name, repo_cfg,
         paths_cfg, omnibor_cfg,
@@ -74,6 +97,10 @@ class BomtraceBuilder:
             Path(paths_cfg["output_dir"])
             / "omnibor" / lang / repo_name / ts
         )
+
+        # Pin the build JDK when the profile requires one (before any
+        # clean/build/dep-capture subprocess runs).
+        self._apply_java_home(repo_cfg)
 
         # --- Phase 1a: Clean ---
         clean_cmd = repo_cfg.get("clean_cmd")
@@ -294,6 +321,10 @@ class BomtraceBuilder:
         bom_dir.mkdir(parents=True, exist_ok=True)
         meta_dir = bom_dir / "metadata" / "bomsh"
         meta_dir.mkdir(parents=True, exist_ok=True)
+
+        # Pin the build JDK when the profile requires one (before any
+        # clean/build subprocess runs).
+        self._apply_java_home(repo_cfg)
 
         strace_opts = omnibor_java_cfg["strace_opts"]
         strace_log = omnibor_java_cfg["strace_logfile"]

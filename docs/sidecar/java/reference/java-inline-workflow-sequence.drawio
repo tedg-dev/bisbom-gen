@@ -1,0 +1,97 @@
+<mxfile host="Electron" agent="Cascade AI">
+  <diagram id="java-inline-workflow" name="End-to-End Workflow">
+    <mxGraphModel dx="1594" dy="1089" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1180" pageHeight="1000" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" parent="1" style="text;html=1;fontSize=20;fontStyle=1;align=center;" value="Exact workflow — Java inline-hashing sidecar, Phase 1 → Phase 2" vertex="1">
+          <mxGeometry height="30" width="1000" x="90" y="12" as="geometry" />
+        </mxCell>
+        <mxCell id="lane1" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e8eaf6;strokeColor=#3949ab;verticalAlign=top;fontSize=11;fontStyle=1;spacingTop=6;fontColor=#3949ab;" value="CI/CD YAML" vertex="1">
+          <mxGeometry height="880" width="210" x="40" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="lane2" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#eaf2fd;strokeColor=#1565c0;verticalAlign=top;fontSize=11;fontStyle=1;spacingTop=6;fontColor=#1565c0;" value="Build JVM + LD_PRELOAD shim (ephemeral)" vertex="1">
+          <mxGeometry height="880" width="250" x="260" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="lane3" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fffdf5;strokeColor=#d6b656;verticalAlign=top;fontSize=11;fontStyle=1;spacingTop=6;fontColor=#b7950b;" value="Phase 1 assembler (ephemeral)" vertex="1">
+          <mxGeometry height="880" width="250" x="520" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="lane4" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff3e6;strokeColor=#d79b00;verticalAlign=top;fontSize=11;fontStyle=1;spacingTop=6;fontColor=#d79b00;" value="Durable store" vertex="1">
+          <mxGeometry height="880" width="180" x="780" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="lane5" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#eafaf1;strokeColor=#1e8449;verticalAlign=top;fontSize=11;fontStyle=1;spacingTop=6;fontColor=#1e8449;" value="Phase 2 (Corona / host)" vertex="1">
+          <mxGeometry height="880" width="200" x="970" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="s1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#c5cae9;strokeColor=#3949ab;fontSize=10;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;" value="&lt;b&gt;1.&lt;/b&gt; export LD_PRELOAD + OMNIBOR_CAPTURE_LOG; (Gradle) GRADLE_OPTS daemon=false" vertex="1">
+          <mxGeometry height="70" width="185" x="55" y="110" as="geometry" />
+        </mxCell>
+        <mxCell id="s2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#c5cae9;strokeColor=#3949ab;fontSize=10;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;" value="&lt;b&gt;2.&lt;/b&gt; run existing build: mvn package (UNCHANGED)" vertex="1">
+          <mxGeometry height="60" width="185" x="55" y="200" as="geometry" />
+        </mxCell>
+        <mxCell id="s3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#bbdefb;strokeColor=#1565c0;fontSize=10;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;" value="&lt;b&gt;3.&lt;/b&gt; javac/jar write .class/.jar; shim hashes each at close() (SHA-1+SHA-256) + parses SourceFile" vertex="1">
+          <mxGeometry height="60" width="220" x="275" y="200" as="geometry" />
+        </mxCell>
+        <mxCell id="s4" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#bbdefb;strokeColor=#1565c0;fontSize=10;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;" value="&lt;b&gt;4.&lt;/b&gt; append events to capture.jsonl (during build)" vertex="1">
+          <mxGeometry height="60" width="220" x="275" y="305" as="geometry" />
+        </mxCell>
+        <mxCell id="s5" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;" value="&lt;b&gt;5.&lt;/b&gt; build returns → generate_adg() assembles treedb from capture.jsonl (no rescan)" vertex="1">
+          <mxGeometry height="80" width="220" x="535" y="380" as="geometry" />
+        </mxCell>
+        <mxCell id="s6" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;" value="&lt;b&gt;6.&lt;/b&gt; mvn dependency:tree → maven_deps.json (declared graph)" vertex="1">
+          <mxGeometry height="53" width="220" x="535" y="487" as="geometry" />
+        </mxCell>
+        <mxCell id="s7" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;" value="&lt;b&gt;7.&lt;/b&gt; write phase1_manifest.json (paths + SHA-256 gitoids)" vertex="1">
+          <mxGeometry height="51" width="220" x="535" y="569" as="geometry" />
+        </mxCell>
+        <mxCell id="s8" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe0b2;strokeColor=#d79b00;fontSize=10;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;" value="&lt;b&gt;8.&lt;/b&gt; CI/CD upload step pushes treedb + deps.json + manifest" vertex="1">
+          <mxGeometry height="75" width="160" x="790" y="635" as="geometry" />
+        </mxCell>
+        <mxCell id="teardown" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fdecea;strokeColor=#c0392b;strokeWidth=2;fontSize=11;fontStyle=1;align=center;verticalAlign=middle;fontColor=#c0392b;" value="9. BUILD JOB ENDS — workspace, JVM, source, JARs destroyed" vertex="1">
+          <mxGeometry height="40" width="510" x="260" y="725" as="geometry" />
+        </mxCell>
+        <mxCell id="s10" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#c8e6c9;strokeColor=#1e8449;fontSize=10;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;" value="&lt;b&gt;10.&lt;/b&gt; Phase 2 downloads artifacts; verify_gitoids()" vertex="1">
+          <mxGeometry height="70" width="170" x="985" y="635" as="geometry" />
+        </mxCell>
+        <mxCell id="s11" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#c8e6c9;strokeColor=#1e8449;fontSize=10;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;" value="&lt;b&gt;11.&lt;/b&gt; JavaSpdxGenerator: _analyzed (treedb) + _build (deps.json) SPDX 2.3" vertex="1">
+          <mxGeometry height="65" width="170" x="985" y="790" as="geometry" />
+        </mxCell>
+        <mxCell id="s12" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#c8e6c9;strokeColor=#1e8449;fontSize=10;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;" value="&lt;b&gt;12.&lt;/b&gt; validate + golden compare; report diffs and STOP" vertex="1">
+          <mxGeometry height="55" width="170" x="985" y="885" as="geometry" />
+        </mxCell>
+        <mxCell id="e12" edge="1" parent="1" source="s1" style="endArrow=classic;strokeColor=#3949ab;strokeWidth=2;" target="s2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e23" edge="1" parent="1" source="s2" style="endArrow=classic;strokeColor=#1565c0;strokeWidth=2;" target="s3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e34" edge="1" parent="1" source="s3" style="endArrow=classic;strokeColor=#1565c0;strokeWidth=2;" target="s4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e45" edge="1" parent="1" source="s4" style="endArrow=classic;strokeColor=#d6b656;strokeWidth=2;" target="s5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e56" edge="1" parent="1" source="s5" style="endArrow=classic;strokeColor=#d6b656;strokeWidth=2;" target="s6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e67" edge="1" parent="1" source="s6" style="endArrow=classic;strokeColor=#d6b656;strokeWidth=2;" target="s7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e78" edge="1" parent="1" source="s7" style="endArrow=classic;strokeColor=#d79b00;strokeWidth=2;" target="s8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e8store" edge="1" parent="1" source="s8" style="endArrow=classic;strokeColor=#d79b00;strokeWidth=2;dashed=1;" target="s10">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e1011" edge="1" parent="1" source="s10" style="endArrow=classic;strokeColor=#1e8449;strokeWidth=2;" target="s11">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e1112" edge="1" parent="1" source="s11" style="endArrow=classic;strokeColor=#1e8449;strokeWidth=2;" target="s12">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="legend" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#999999;fontSize=10;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;" value="Steps 3–4 are the ONLY work added to the developer critical path (inline hashing, +1–3%). Steps 5–8 run after the build command returns, still inside the job, before teardown (step 9). Steps 10–12 are fully decoupled (Phase 2)." vertex="1">
+          <mxGeometry height="119" width="185" x="55" y="300" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

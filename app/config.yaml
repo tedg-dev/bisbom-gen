@@ -3,6 +3,9 @@ repos:
     url: https://github.com/curl/curl.git
     branch: curl-8_19_0
     language: c-cpp
+    build_profile:
+      tool: autotools
+      structure: single-module
     build_steps:
     - autoreconf -fi
     - ./configure --with-openssl --with-zlib --with-nghttp2 --with-libssh2 --with-brotli
@@ -27,6 +30,10 @@ repos:
     url: https://github.com/FFmpeg/FFmpeg.git
     branch: n8.1
     language: c-cpp
+    build_profile:
+      tool: make
+      structure: single-module
+      traits: [custom-configure]
     build_steps:
     - ./configure --enable-gpl --enable-nonfree --enable-shared --disable-static --enable-libx264 --enable-libx265 --enable-libvpx
       --enable-libopus --enable-libmp3lame --enable-libfdk-aac --enable-libfreetype --enable-libfontconfig --enable-libfribidi
@@ -62,6 +69,10 @@ repos:
     url: https://github.com/nmap/nmap.git
     branch: master  # EXCEPTION: nmap has no stable release tags; pinning is not possible
     language: c-cpp
+    build_profile:
+      tool: autotools
+      structure: single-module
+      traits: [vendored]
     build_steps:
     - ./configure --with-libpcre=/usr --with-libz=/usr --with-libssh2=/usr --with-openssl=/usr --with-libdnet=included --with-liblua=included --with-liblinear=included --without-zenmap --without-ndiff
     - make -j$(nproc)
@@ -90,6 +101,10 @@ repos:
     url: https://github.com/redis/redis.git
     branch: "8.0.6"
     language: c-cpp
+    build_profile:
+      tool: make
+      structure: single-module
+      traits: [vendored]
     build_steps:
     - make -j$(nproc)
     clean_cmd: make clean
@@ -110,6 +125,9 @@ repos:
     url: https://github.com/cisco/OpenOSC.git
     branch: v1.0.7
     language: c-cpp
+    build_profile:
+      tool: autotools
+      structure: single-module
     build_steps:
     - autoreconf -vfi
     - ./configure --disable-safec
@@ -126,6 +144,10 @@ repos:
     url: https://github.com/nodejs/node.git
     branch: v22.19.0
     language: c-cpp
+    build_profile:
+      tool: make
+      structure: single-module
+      traits: [gyp, vendored]
     build_steps:
     - ./configure
     - make -j$(nproc) CXXFLAGS='-Wno-error=unused-result'
@@ -161,6 +183,10 @@ repos:
     url: https://github.com/junegunn/fzf.git
     branch: v0.70.0
     language: go
+    build_profile:
+      tool: go
+      structure: single-module
+      traits: [go-modules]
     build_steps:
     - 'go build -a -trimpath -ldflags="-s -w" -o fzf .'
     clean_cmd: rm -f fzf
@@ -171,6 +197,10 @@ repos:
     url: https://github.com/jesseduffield/lazygit.git
     branch: v0.60.0
     language: go
+    build_profile:
+      tool: go
+      structure: single-module
+      traits: [go-modules]
     build_steps:
     - 'go build -a -trimpath -ldflags="-s -w" -o lazygit .'
     clean_cmd: rm -f lazygit
@@ -181,6 +211,10 @@ repos:
     url: https://github.com/schollz/croc.git
     branch: v10.4.2
     language: go
+    build_profile:
+      tool: go
+      structure: single-module
+      traits: [go-modules]
     build_steps:
     - 'go build -a -trimpath -ldflags="-s -w" -o croc .'
     clean_cmd: rm -f croc
@@ -191,6 +225,10 @@ repos:
     url: https://github.com/wagoodman/dive.git
     branch: v0.13.1
     language: go
+    build_profile:
+      tool: go
+      structure: single-module
+      traits: [go-modules]
     build_steps:
     - 'go build -a -trimpath -ldflags="-s -w" -o dive_bin .'
     clean_cmd: rm -f dive_bin
@@ -201,6 +239,10 @@ repos:
     url: https://github.com/dundee/gdu.git
     branch: v5.34.1
     language: go
+    build_profile:
+      tool: go
+      structure: single-module
+      traits: [go-modules]
     build_steps:
     - 'go build -a -trimpath -ldflags="-s -w" -o gdu ./cmd/gdu'
     clean_cmd: rm -f gdu
@@ -211,6 +253,10 @@ repos:
     url: https://github.com/pocketbase/pocketbase.git
     branch: v0.25.9
     language: go
+    build_profile:
+      tool: go
+      structure: single-module
+      traits: [go-modules]
     build_steps:
     - 'go build -a -trimpath -ldflags="-s -w" -o pocketbase ./examples/base'
     clean_cmd: rm -f pocketbase
@@ -221,6 +267,9 @@ repos:
     url: https://github.com/oxipng/oxipng.git
     branch: v10.1.0
     language: rust
+    build_profile:
+      tool: cargo
+      structure: single-module
     build_steps:
     - cargo build --release
     clean_cmd: cargo clean
@@ -231,6 +280,9 @@ repos:
     url: https://github.com/tkellogg/dura.git
     branch: v0.2.0
     language: rust
+    build_profile:
+      tool: cargo
+      structure: single-module
     build_steps:
     - cargo build --release
     clean_cmd: cargo clean
@@ -241,6 +293,10 @@ repos:
     url: https://github.com/jhy/jsoup.git
     branch: jsoup-1.22.1
     language: java
+    build_profile:
+      tool: maven
+      structure: single-module
+      traits: [skip-tests]
     build_steps:
     - mvn package -DskipTests -q
     clean_cmd: mvn clean -q
@@ -251,6 +307,10 @@ repos:
     url: https://github.com/checkstyle/checkstyle.git
     branch: checkstyle-13.3.0
     language: java
+    build_profile:
+      tool: maven
+      structure: single-module
+      traits: [skip-tests]
     build_steps:
     - mvn package -DskipTests -q
     clean_cmd: mvn clean -q
@@ -261,6 +321,10 @@ repos:
     url: https://github.com/yasserg/crawler4j.git
     branch: crawler4j-4.4.0
     language: java
+    build_profile:
+      tool: maven
+      structure: multi-module
+      traits: [reactor, skip-tests]
     build_steps:
     - mvn package -DskipTests -q -pl crawler4j
     clean_cmd: mvn clean -q
@@ -271,6 +335,10 @@ repos:
     url: https://github.com/jeremylong/DependencyCheck.git
     branch: v9.2.0
     language: java
+    build_profile:
+      tool: maven
+      structure: multi-module
+      traits: [reactor, also-make, skip-tests]
     build_steps:
     - mvn package -DskipTests -q -pl cli -am
     clean_cmd: mvn clean -q
@@ -281,6 +349,10 @@ repos:
     url: https://github.com/apache/logging-log4j2.git
     branch: rel/2.24.3
     language: java
+    build_profile:
+      tool: maven
+      structure: multi-module
+      traits: [reactor, also-make, skip-tests]
     build_steps:
     - env JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 mvn install -DskipTests -q -pl log4j-api-java9,log4j-core-java9,log4j-core -am
     clean_cmd: mvn clean -q
@@ -291,6 +363,12 @@ repos:
     url: https://github.com/spring-projects/spring-boot.git
     branch: v3.4.4
     language: java
+    build_profile:
+      tool: gradle
+      structure: multi-module
+      dsl: groovy
+      tool_version: "8.13"
+      traits: [dependency-management]
     build_steps:
     - ./gradlew :spring-boot-project:spring-boot:build -x test -x check --no-daemon -q
     clean_cmd: ./gradlew clean --no-daemon -q
@@ -301,6 +379,12 @@ repos:
     url: https://github.com/bcgit/bc-java.git
     branch: r1rv84
     language: java
+    build_profile:
+      tool: gradle
+      structure: multi-module
+      dsl: groovy
+      tool_version: "9.1.0"
+      traits: [multi-release-jar]
     build_steps:
     - ./gradlew :prov:build -x test -x compileJava25Java --no-daemon -q
     clean_cmd: ./gradlew clean --no-daemon -q
@@ -311,12 +395,69 @@ repos:
     url: https://github.com/tedg-dev/omnibor-java-testapp.git
     branch: main
     language: java
+    build_profile:
+      tool: maven
+      structure: single-module
+      traits: [skip-tests]
     build_steps:
     - mvn package -DskipTests -q
     clean_cmd: mvn clean -q
     description: CI/CD sidecar integration test app (jsoup + log4j2 + bouncy-castle, Maven, tested on Amazon Linux 2023 / Corretto 21)
     output_binaries:
     - '**/target/*.jar'
+  caffeine:
+    url: https://github.com/ben-manes/caffeine.git
+    branch: v3.2.4
+    language: java
+    build_profile:
+      tool: gradle
+      structure: multi-module
+      dsl: kotlin
+      tool_version: "9.5.0"
+      traits: [version-catalog, composite-build]
+    build_steps:
+    - ./gradlew :caffeine:jar --no-daemon -q
+    clean_cmd: ./gradlew clean --no-daemon -q
+    description: Caffeine high-performance caching library (Gradle Kotlin DSL, version catalog, composite build; building core caffeine module)
+    output_binaries:
+    - '**/build/libs/*.jar'
+  opentelemetry-java:
+    url: https://github.com/open-telemetry/opentelemetry-java.git
+    branch: v1.64.0
+    language: java
+    build_profile:
+      tool: gradle
+      structure: multi-module
+      dsl: kotlin
+      tool_version: "9.6.1"
+      traits: [bom]
+    build_steps:
+    - ./gradlew :api:all:jar --no-daemon -q
+    clean_cmd: ./gradlew clean --no-daemon -q
+    description: OpenTelemetry Java API/SDK (Gradle Kotlin DSL, multi-module, Gradle 9.6.1; building opentelemetry-api :api:all)
+    output_binaries:
+    - '**/build/libs/*.jar'
+    # :custom-checks is a normal subproject holding OTel's internal Error
+    # Prone checks applied to its own build — it ships in no published
+    # artifact, so exclude its JAR from the product set.
+    exclude_binaries:
+    - '**/custom-checks/build/libs/*.jar'
+  rxjava:
+    url: https://github.com/ReactiveX/RxJava.git
+    branch: v3.1.10
+    language: java
+    build_profile:
+      tool: gradle
+      structure: single-module
+      dsl: groovy
+      tool_version: "7.6.4"
+      java_home: /usr/lib/jvm/java-17-openjdk-amd64
+    build_steps:
+    - ./gradlew jar --no-daemon -q
+    clean_cmd: ./gradlew clean --no-daemon -q
+    description: RxJava reactive extensions (Gradle Groovy DSL, single-module, Gradle 7.6.4 enterprise floor; runs on JDK 17 — Gradle 7.6 max supported JDK is 19)
+    output_binaries:
+    - '**/build/libs/*.jar'
 paths:
   repos_dir: /workspace/repos
   output_dir: /workspace/output
@@ -343,6 +484,20 @@ omnibor_java:
   strace_opts: -f -s99999 --seccomp-bpf -e trace=openat -qqq
   create_bom_script: bomsh_create_bom_java.py
   strace_logfile: /tmp/strace_java_logfile
+  # Sidecar inline hashing (generic, Maven + Gradle). The default path:
+  # the LD_PRELOAD shim (libomnibor_java_intercept.so) computes each
+  # .class/.jar git-blob SHA-1 + SHA-256 gitoid inline during the build
+  # and generate_adg() assembles the treedb from the capture log instead
+  # of a post-build workspace rescan. The native build is untouched
+  # (env-only injection). This is the mandatory inline path (design C4):
+  # on a platform where the shim cannot interpose (musl/Alpine or a
+  # statically-linked launcher, design V4) the inline path fails loudly;
+  # set this to false to force the legacy post-build rescan on such hosts.
+  # See docs/sidecar/java/reference/inline-hashing-interception-design.md.
+  java_inline_hash: true
+  # Optional override; defaults to
+  # /opt/omnibor/lib/libomnibor_java_intercept.so in the image.
+  # inline_shim_path: /opt/omnibor/lib/libomnibor_java_intercept.so
 pipeline:
   # Syft manifest-based SBOM generation.  Disabled by default
   # because OmniBOR build-time SBOMs are the primary output.
