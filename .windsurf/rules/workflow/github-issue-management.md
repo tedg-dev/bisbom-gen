@@ -96,19 +96,31 @@ crosswalk mirrors the live board; it is never a stand-in for it.
 
 Parent issues MUST always be kept in sync with their sub-issues'
 statuses. There is NO convention of leaving a parent behind while its
-children advance. The parent's status is **derived** from the aggregate
-of its sub-issue statuses:
+children advance, and NO convention of letting a parent run ahead of
+them. The parent's status is **derived** from the aggregate of its
+sub-issue statuses.
 
-- **As soon as ANY sub-issue reaches `Ready` or `In Development`**, the
-  parent MUST be at least `Ready`.
-- **Once the LAST sub-issue reaches `In Development`** (i.e. EVERY
-  sub-issue is at `In Development` or beyond — `In Review`,
-  `Ready to Demo`, `Done`), the parent MUST move to `In Development`.
+**Governing principle: a parent's status equals the LEAST-ADVANCED
+status among all its sub-issues.** A parent may only reach a given
+stage once EVERY sub-issue has reached at least that stage. It never
+advances ahead of its least-advanced child. (Floor: before any child
+starts, a parent may be `Proposed`; as soon as ANY child is `Ready` or
+`In Development`, the parent is at least `Ready`.) Concretely:
 
-In other words: the parent sits at `In Development` only when no
-sub-issue is still below `In Development` (nothing left at `Proposed`
-or `Ready`); otherwise, if at least one sub-issue is `Ready`/`In
-Development`, the parent sits at `Ready`.
+- **At least one sub-issue is `Ready`/`In Development` but any sub-issue
+  is still below `In Development`** (`Proposed`/`Ready`) → parent is
+  `Ready`.
+- **EVERY sub-issue is `In Development` or beyond** (none below
+  `In Development`) → parent is `In Development`.
+- **EVERY sub-issue is `In Review` or beyond** → parent is `In Review`.
+- **EVERY sub-issue is `Ready to Demo` or beyond** → parent is
+  `Ready to Demo`.
+- **EVERY sub-issue is `Done`** → parent is `Done`.
+
+The higher tiers are just as binding as the lower ones: a parent does
+NOT move to `In Review` until ALL of its sub-issues are at `In Review`
+or beyond — even if every child but one is already there. The single
+least-advanced child dictates the parent's status.
 
 **Walk assignment on transition to In Development.** Whenever ANY issue
 or sub-issue reaches `In Development` — whether moved up from `Ready` or
