@@ -30,6 +30,7 @@ import hashlib
 import os
 import shutil
 import subprocess
+import tempfile
 import zipfile
 from concurrent.futures import ThreadPoolExecutor
 
@@ -42,6 +43,9 @@ __all__ = [
     "find_suffix_files",
     "safe_extract_jar",
     "is_zip_file",
+    "iter_jar_class_entries",
+    "bytes_same_as_file",
+    "find_matching_class",
 ]
 
 # Read files in 1 MiB chunks so large JARs do not load fully into memory.
@@ -235,3 +239,84 @@ def is_zip_file(path):
     for the Java build artifacts this tool processes.
     """
     return zipfile.is_zipfile(path)
+
+
+def _iter_class_entries_fallback(jarfile):
+    """Extract-to-temp fallback for archives ``zipfile`` cannot read.
+
+    Preserves parity with the upstream ``jar -xf`` behaviour for the rare
+    non-standard archive: extract to a temp dir, read every ``.class`` as
+    bytes, then remove the temp dir. Member names are the archive-relative
+    paths (POSIX separators) so callers get identical keys to the
+    zip-based path.
+    """
+    destdir = tempfile.mkdtemp(prefix="bomsh_inmem_jar_")
+    try:
+        safe_extract_jar(jarfile, destdir)
+        entries = []
+        for path in find_suffix_files(destdir, ".class"):
+            member = os.path.relpath(path, destdir).replace(os.sep, "/")
+            with open(path, "rb") as handle:
+                entries.append((member, handle.read()))
+        entries.sort(key=lambda item: item[0])
+        return entries
+    finally:
+        shutil.rmtree(destdir, ignore_errors=True)
+
+
+def iter_jar_class_entries(jarfile):
+    """Return sorted ``(member_name, data)`` for every ``.class`` in a JAR.
+
+    Reads each ``.class`` entry's bytes directly from the archive with no
+    extraction to disk (replaces the ``jar -xf`` + walk + ``rmtree``
+    lifecycle). Entries are sorted by member name, which matches the
+    ordering of ``find_suffix_files`` over an extracted tree (a shared
+    prefix does not change the sort). Falls back to extract-to-temp only
+    for archives ``zipfile`` cannot parse.
+    """
+    try:
+        with zipfile.ZipFile(jarfile) as archive:
+            names = sorted(
+                name for name in archive.namelist()
+                if name.endswith(".class") and not name.endswith("/")
+            )
+            return [(name, archive.read(name)) for name in names]
+    except zipfile.BadZipFile:
+        return _iter_class_entries_fallback(jarfile)
+
+
+def bytes_same_as_file(data, path):
+    """Return True if the file at ``path`` has content equal to ``data``.
+
+    Byte-for-byte comparison of in-memory ``data`` against a workspace
+    file. Returns False if the file is missing or unreadable (matching the
+    conservative behaviour of :func:`files_have_same_content`). Compares
+    size first to short-circuit the common mismatch cheaply.
+    """
+    try:
+        if os.path.getsize(path) != len(data):
+            return False
+        with open(path, "rb") as handle:
+            return handle.read() == data
+    except OSError:
+        return False
+
+
+def find_matching_class(classfile, adict, class_data=None):
+    """Find the workspace ``.class`` file matching a JAR entry.
+
+    Mirrors the upstream ``find_matching_file_in_dict``: candidates share
+    the basename of ``classfile`` and must have identical content. When
+    ``class_data`` is provided the comparison is made against the
+    in-memory JAR bytes; otherwise it falls back to a file/file compare
+    (preserving the original path-based behaviour). Returns the matching
+    workspace path or an empty string.
+    """
+    candidates = adict.get(os.path.basename(classfile)) or []
+    for afile in candidates:
+        if class_data is not None:
+            if bytes_same_as_file(class_data, afile):
+                return afile
+        elif files_have_same_content(afile, classfile):
+            return afile
+    return ""

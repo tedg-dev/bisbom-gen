@@ -21,6 +21,8 @@ import apply_fast_javap  # noqa: E402
 from bomsh_java_fast_classreader import (  # noqa: E402
     read_source_file,
     read_source_files,
+    read_source_file_data,
+    read_source_files_data,
     read_class_name,
     read_class_info,
 )
@@ -567,6 +569,53 @@ class TestJavapApplier(unittest.TestCase):
                 "bomsh_create_bom_java.py"
             )
         )
+
+
+class TestReadSourceFileData(unittest.TestCase):
+    """Tests for the in-memory (bytes) SourceFile readers."""
+
+    def test_valid_bytes_match_path_reader(self):
+        data = _build_classfile("Bar.java")
+        self.assertEqual(read_source_file_data(data), "Bar.java")
+
+    def test_parity_with_path_reader(self):
+        data = _build_classfile("Baz.java")
+        with tempfile.NamedTemporaryFile(
+            suffix=".class", delete=False
+        ) as f:
+            f.write(data)
+            path = f.name
+        try:
+            self.assertEqual(
+                read_source_file_data(data), read_source_file(path)
+            )
+        finally:
+            Path(path).unlink()
+
+    def test_empty_bytes(self):
+        self.assertEqual(read_source_file_data(b""), "")
+
+    def test_too_short(self):
+        self.assertEqual(read_source_file_data(b"\x00\x01\x02"), "")
+
+    def test_bad_magic(self):
+        self.assertEqual(read_source_file_data(b"\x00" * 32), "")
+
+    def test_truncated_after_magic(self):
+        data = _build_classfile("Foo.java")[:12]
+        self.assertEqual(read_source_file_data(data), "")
+
+    def test_list_wrapper_parity(self):
+        datas = [
+            _build_classfile("A.java"),
+            _build_classfile("B.java"),
+        ]
+        self.assertEqual(
+            read_source_files_data(datas), ["A.java", "B.java"]
+        )
+
+    def test_list_wrapper_empty(self):
+        self.assertEqual(read_source_files_data([]), [])
 
 
 if __name__ == "__main__":

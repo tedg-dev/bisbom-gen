@@ -198,6 +198,31 @@ def read_source_files(classfiles):
     return [read_source_file(f) for f in classfiles]
 
 
+def read_source_file_data(data):
+    """Read SourceFile attribute from in-memory ``.class`` bytes.
+
+    Byte-based counterpart of :func:`read_source_file` for JAR entries
+    read directly from the archive (no extraction to disk). Returns the
+    source filename or an empty string on any parse error.
+    """
+    if not data or len(data) < 10:
+        return ''
+    if struct.unpack_from('>I', data, 0)[0] != 0xCAFEBABE:
+        return ''
+    try:
+        return _parse_source_file(data)
+    except (struct.error, IndexError, KeyError):
+        return ''
+
+
+def read_source_files_data(datas):
+    """Read SourceFile for a list of in-memory ``.class`` byte objects.
+
+    Byte-based counterpart of :func:`read_source_files`.
+    """
+    return [read_source_file_data(d) for d in datas]
+
+
 def _parse_class_name(data):
     """Parse .class bytecode to extract class name."""
     pos = 8
