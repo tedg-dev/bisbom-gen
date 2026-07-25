@@ -4,10 +4,10 @@
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-        <mxCell id="title" parent="1" style="text;html=1;fontSize=18;fontStyle=1;align=center;verticalAlign=middle;" value="Build-Based SBOMs for Java: Phase 1 in your pipeline, Phase 2 in Corona" vertex="1">
+        <mxCell id="title" parent="1" style="text;html=1;fontSize=18;fontStyle=1;align=center;verticalAlign=middle;" value="Build-Based SBOMs for Java: Phase 1 in the native pipeline, Phase 2 in Corona" vertex="1">
           <mxGeometry height="30" width="1000" x="60" y="10" as="geometry" />
         </mxCell>
-        <mxCell id="subtitle" parent="1" style="text;html=1;fontSize=11;fontStyle=2;align=center;fontColor=#666666;" value="Phase 1 captures build metadata in your CI/CD pipeline. Phase 2 assembles the SBOM in Corona." vertex="1">
+        <mxCell id="subtitle" parent="1" style="text;html=1;fontSize=11;fontStyle=2;align=center;fontColor=#666666;" value="Phase 1 captures build metadata in the native CI/CD pipeline. Phase 2 assembles the SBOM in Corona." vertex="1">
           <mxGeometry height="34" width="1000" x="60" y="42" as="geometry" />
         </mxCell>
         <mxCell id="ent" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#6c8ebf;strokeWidth=2;dashed=1;" value="" vertex="1">
@@ -16,10 +16,10 @@
         <mxCell id="entlabel" parent="1" style="text;html=1;fontSize=13;fontStyle=1;align=left;fontColor=#1a5276;" value="Enterprise CI/CD build space (team-owned)" vertex="1">
           <mxGeometry height="24" width="320" x="159" y="98" as="geometry" />
         </mxCell>
-        <mxCell id="build" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;align=left;verticalAlign=middle;spacingLeft=10;" value="&lt;b&gt;Your Java Build&lt;/b&gt;&#xa;mvn package · gradle build&#xa;&#xa;pom.xml / build.gradle unchanged&#xa;No ptrace · No privileged container" vertex="1">
+        <mxCell id="build" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;align=left;verticalAlign=middle;spacingLeft=10;" value="&lt;b&gt;Native Java Build&lt;/b&gt;&#xa;mvn package · gradle build&#xa;&#xa;pom.xml / build.gradle unchanged&#xa;No ptrace · No privileged container" vertex="1">
           <mxGeometry height="100" width="242.5" x="126.5" y="139" as="geometry" />
         </mxCell>
-        <mxCell id="capture" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontSize=11;align=left;verticalAlign=middle;spacingLeft=10;" value="&lt;b&gt;Phase 1 — build-time metadata&lt;/b&gt;&#xa;(runs after your build, in seconds)&#xa;&#xa;• mvn dependency:tree / gradlew dependencies&#xa;• treedb via bomsh_create_bom_java.py&#xa;• phase1_manifest.json (gitoid-signed)" vertex="1">
+        <mxCell id="capture" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontSize=11;align=left;verticalAlign=middle;spacingLeft=10;" value="&lt;b&gt;Phase 1 — build-time metadata&lt;/b&gt;&#xa;(runs after the native build, in seconds)&#xa;&#xa;• mvn dependency:tree / gradlew dependencies&#xa;• treedb via bomsh_create_bom_java.py&#xa;• phase1_manifest.json (gitoid-signed)" vertex="1">
           <mxGeometry height="107" width="265" x="115" y="280" as="geometry" />
         </mxCell>
         <mxCell id="ebuild" edge="1" parent="1" source="build" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#6c8ebf;strokeWidth=2;" target="capture">
@@ -31,13 +31,13 @@
         <mxCell id="emeta" edge="1" parent="1" source="capture" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#d6b656;strokeWidth=2;" target="meta">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="entnote" parent="1" style="text;html=1;fontSize=10;fontStyle=2;align=left;fontColor=#2980b9;" value="Phase 1 is added to your CI/CD build step, after the build completes." vertex="1">
+        <mxCell id="entnote" parent="1" style="text;html=1;fontSize=10;fontStyle=2;align=left;fontColor=#2980b9;" value="Phase 1 is added to the native CI/CD build step, post-build." vertex="1">
           <mxGeometry height="18" width="320" x="258" y="244" as="geometry" />
         </mxCell>
         <mxCell id="corona" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e9;strokeColor=#2e7d32;strokeWidth=2;" value="" vertex="1">
           <mxGeometry height="325" width="397" x="640" y="90" as="geometry" />
         </mxCell>
-        <mxCell id="coronalabel" parent="1" style="text;html=1;fontSize=13;fontStyle=1;align=left;fontColor=#1b5e20;" value="Corona — central SBOM system (not your build space)" vertex="1">
+        <mxCell id="coronalabel" parent="1" style="text;html=1;fontSize=13;fontStyle=1;align=left;fontColor=#1b5e20;" value="Corona — central SBOM system (not the native build space)" vertex="1">
           <mxGeometry height="24" width="355" x="669" y="98" as="geometry" />
         </mxCell>
         <mxCell id="s3" parent="1" style="shape=datastore;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;strokeWidth=2;fontSize=11;fontStyle=1;" value="Corona S3 intake / Artifactory&#xa;s3://corona-sbom-intake/{product}/{release}/{build}" vertex="1">
@@ -46,7 +46,7 @@
         <mxCell id="phase2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#2e7d32;fontSize=11;align=left;verticalAlign=middle;spacingLeft=10;" value="&lt;b&gt;Phase 2: SPDX generation&lt;/b&gt;&#xa;(runs in Corona, asynchronously)&#xa;&#xa;• reads treedb + Maven/Gradle dep tree&#xa;• assembles + validates SPDX 2.3 SBOM&#xa;• stores under Product / Release / Image" vertex="1">
           <mxGeometry height="108" width="227" x="716" y="246" as="geometry" />
         </mxCell>
-        <mxCell id="coronanote" parent="1" style="text;html=1;fontSize=10;fontStyle=2;align=left;fontColor=#2e7d32;" value="All SBOM assembly happens here — zero added load on your build pipeline." vertex="1">
+        <mxCell id="coronanote" parent="1" style="text;html=1;fontSize=10;fontStyle=2;align=left;fontColor=#2e7d32;" value="All SBOM assembly happens here — zero added load on the native build pipeline." vertex="1">
           <mxGeometry height="26" width="350" x="671.5" y="359" as="geometry" />
         </mxCell>
         <mxCell id="eup" edge="1" parent="1" source="meta" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#d79b00;strokeWidth=3;fontSize=10;fontColor=#b7950b;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="s3" value="upload ~1–2 KB">
@@ -55,7 +55,7 @@
         <mxCell id="es3" edge="1" parent="1" source="s3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#2e7d32;strokeWidth=2;dashed=1;" target="phase2">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="bottomnote" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8eaf6;strokeColor=#3949ab;strokeWidth=2;fontSize=11;fontStyle=0;align=left;verticalAlign=middle;spacingLeft=12;spacingRight=12;" value="&lt;b&gt;What changes in your CI/CD config:&lt;/b&gt; Phase 1 metadata capture is added to your existing build step, after your build completes. No new pipeline steps. Your build scripts (pom.xml / build.gradle) and build invocations (mvn / gradle) are not modified. No privileged runners." vertex="1">
+        <mxCell id="bottomnote" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8eaf6;strokeColor=#3949ab;strokeWidth=2;fontSize=11;fontStyle=0;align=left;verticalAlign=middle;spacingLeft=12;spacingRight=12;" value="&lt;b&gt;What changes in the native CI/CD config:&lt;/b&gt; Phase 1 metadata capture is added to the native build step, after the native build completes. No new pipeline steps. The native build scripts (pom.xml / build.gradle) and build invocations (mvn / gradle) are not modified. No privileged runners." vertex="1">
           <mxGeometry height="46" width="942" x="95" y="430" as="geometry" />
         </mxCell>
       </root>

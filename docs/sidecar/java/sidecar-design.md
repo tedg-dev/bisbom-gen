@@ -1,10 +1,14 @@
 # Sidecar & Phase Isolation — Java
 
-> **Parent doc**: `../infrastructure.md`
-> **Status**: Sidecar mode ✅ implemented; Phase 1/2 split (`--phase`) ✅
-> implemented (Java). Phase 2 generates SBOMs from Phase 1 metadata with
-> **no source-tree access** (`tedg-dev/omnibor-analysis#194`, merged).
-> **Date**: 2026-06-12 (status updated 2026-07-23)
+<table>
+<colgroup><col style="width:16%"><col style="width:84%"></colgroup>
+<tbody>
+<tr><td><strong>Parent doc</strong></td><td><code>../infrastructure.md</code></td></tr>
+<tr><td><strong>Reference guide</strong></td><td><code>reference/inline-hashing-interception-design.md</code> — the delivered, golden-clean <code>LD_PRELOAD</code> inline-hashing sidecar design</td></tr>
+<tr><td><strong>Status</strong></td><td>Sidecar mode ✅ implemented; Phase 1/2 split (<code>--phase</code>) ✅ implemented (Java). Phase 2 generates SBOMs from Phase 1 metadata with <strong>no source-tree access</strong> (<code>tedg-dev/omnibor-analysis#194</code>, merged).</td></tr>
+<tr><td><strong>Date</strong></td><td>2026-06-12 (status updated 2026-07-23)</td></tr>
+</tbody>
+</table>
 
 ---
 
@@ -12,6 +16,14 @@
 > Sidecar is the sole supported mode; **standalone is deprecated** — the
 > initial ptrace-based implementation, retained only for a rare ~1%
 > embedded corner case — and must not be offered as an option.
+
+---
+
+## Architecture Diagram
+
+<a href="java-sbom-phase-split.png"><img src="java-sbom-phase-split.png" width="600" alt="Java Sidecar Phase-Split Architecture — click to enlarge"></a>
+
+*Click image to enlarge. Source: [java-sbom-phase-split.drawio](java-sbom-phase-split.drawio)*
 
 ---
 
@@ -87,15 +99,11 @@ runners.py main()
 
 ## 2. Interception Strategies
 
-### 2.1 Standalone: strace `openat`
+Sidecar is the primary, supported mode — the build runs **unmodified** with
+no `strace` and no `SYS_PTRACE`. The standalone strace path (§2.3) is
+**deprecated**, retained only for the rare ~1% embedded corner case.
 
-- **Mechanism**: `strace -f -s99999 --seccomp-bpf -e trace=openat` prefix
-- **Capability needed**: `SYS_PTRACE` in Docker
-- **Output**: strace log at `/tmp/strace_java_logfile`
-- **ADG**: `bomsh_create_bom_java.py -r <repo_dir> -j <treedb_file>`
-- **Strace log is archived** to `bom_dir/metadata/bomsh/strace_java_logfile`
-
-### 2.2 Sidecar: `MavenDepTreeStrategy`
+### 2.1 Sidecar: `MavenDepTreeStrategy`
 
 - **Mechanism**: Build runs unmodified (no strace prefix)
 - **Capability needed**: None
@@ -108,7 +116,7 @@ runners.py main()
 - **Multi-module support**: `_extract_maven_modules()` passes `-pl` from
   build steps to `run_maven_dep_tree()`
 
-### 2.3 Sidecar: `GradleDepTreeStrategy`
+### 2.2 Sidecar: `GradleDepTreeStrategy`
 
 - **Mechanism**: Build runs unmodified
 - **Capability needed**: None
@@ -116,14 +124,25 @@ runners.py main()
   1. Treedb via `bomsh_create_bom_java.py` (same as Maven sidecar)
   2. `gradle_deps.json` via `./gradlew dependencies` per subproject
 
+### 2.3 Standalone (deprecated): strace `openat`
+
+> **Deprecated** — retained only for the rare ~1% embedded corner case;
+> must not be offered as an option.
+
+- **Mechanism**: `strace -f -s99999 --seccomp-bpf -e trace=openat` prefix
+- **Capability needed**: `SYS_PTRACE` in Docker
+- **Output**: strace log at `/tmp/strace_java_logfile`
+- **ADG**: `bomsh_create_bom_java.py -r <repo_dir> -j <treedb_file>`
+- **Strace log is archived** to `bom_dir/metadata/bomsh/strace_java_logfile`
+
 ### 2.4 Key Difference: Strace Evidence vs Workspace Scan
 
-| Aspect | Standalone (strace) | Sidecar (dep:tree) |
-|--------|--------------------|--------------------|
-| File access evidence | ✅ strace `openat` log | ❌ Workspace scan only |
-| `filesAnalyzed: true` confidence | High (strace-verified) | Medium (SourceFile heuristic) |
-| Dependency graph source | strace + treedb | `mvn dep:tree` / `gradlew dependencies` |
-| `SYS_PTRACE` required | ✅ | ❌ |
+| Aspect | Sidecar (dep:tree) | Standalone (strace) |
+|--------|--------------------|---------------------|
+| File access evidence | ❌ Workspace scan only | ✅ strace `openat` log |
+| `filesAnalyzed: true` confidence | Medium (SourceFile heuristic) | High (strace-verified) |
+| Dependency graph source | `mvn dep:tree` / `gradlew dependencies` | strace + treedb |
+| `SYS_PTRACE` required | ❌ | ✅ |
 
 The downstream SPDX generator (`JavaSpdxGenerator`) handles both cases:
 when `strace_accessed` is populated (standalone), it filters treedb results

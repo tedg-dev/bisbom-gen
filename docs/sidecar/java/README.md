@@ -14,8 +14,8 @@ Peer- and user-facing documents. Read these first.
 
 ## Reference (detailed)
 
-Deep-detail design, decision, and reference material — consult when you need
-to refresh the rationale behind a decision. Lives in [`reference/`](reference/).
+Deep-detail design, decision, and reference material — consult to refresh the
+rationale behind a decision. Lives in [`reference/`](reference/).
 
 | Document | Description |
 |---|---|
@@ -41,8 +41,8 @@ The `java-inline-*` diagrams that accompany the inline-hashing docs live in
 ## Key Facts
 
 - Java sidecar does **NOT** use strace (standalone mode only)
-- Your Java build (`mvn package` / `gradle build`) and build scripts (`pom.xml` / `build.gradle`) are **unchanged**
-- Phase 1 metadata capture is **added to your existing CI/CD build step** — no new pipeline steps, no build modifications
+- The native Java build (`mvn package` / `gradle build`) and build scripts (`pom.xml` / `build.gradle`) are **unchanged**
+- Phase 1 metadata capture is **added to the native CI/CD build step** — no new pipeline steps, no build modifications
 - No strace, no `SYS_PTRACE`, no privileged container
 - All metadata capture is **post-build**:
 

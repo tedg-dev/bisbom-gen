@@ -344,7 +344,7 @@ differ in their interception mechanism and artifact types:
 <tr>
   <td><strong>C/C++</strong></td>
   <td>apt validation, instrumented build, <code>bomsh_create_bom.py</code></td>
-  <td><strong>Standalone:</strong> bomtrace3 (ptrace)<br><strong>Sidecar:</strong> <code>CC=</code>/<code>CXX=</code>/<code>AR=</code>/<code>LD=</code> wrappers</td>
+  <td><strong>Standalone:</strong> bomtrace3 (ptrace)<br><strong>Sidecar:</strong> <code>LD_PRELOAD</code> shim (primary; eBPF/audit node-observer fallbacks). <code>CC=</code>/<code>CXX=</code>/<code>AR=</code>/<code>LD=</code> wrappers are standalone-without-ptrace, <em>not</em> sidecar.</td>
   <td><code>bomsh_hook_raw_logfile</code> &rarr; treedb</td>
   <td>SPDX generation, metadata collection, per-binary ADG SPDX, validation, binary collection</td>
 </tr>

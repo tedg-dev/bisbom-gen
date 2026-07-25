@@ -209,8 +209,9 @@ openssl, redis) are **not enterprise repos** and are **not
 representative** of enterprise build environments. They work with
 `CC=` because they are well-structured open-source projects.
 
-CC= wrappers also have a **critical upstream blocker**: the wrapper
-scripts (`bomsh_cc_wrapper.sh` etc.) don't exist yet in upstream bomsh.
+CC= wrappers also carry an **implementation cost**: the wrapper scripts
+(`bomsh_cc_wrapper.sh` etc.) are not yet built — they would be thin wrappers
+around upstream `bomsh`'s `bomsh_hook2.py`, developed in this repo.
 
 **Bottom line**: `CcWrapperStrategy` may have a niche role for the
 small subset of compliant builds, but it is **not the enterprise C/C++

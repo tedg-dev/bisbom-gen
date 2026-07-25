@@ -158,7 +158,7 @@ outputs.
 ### 6.3. Why Only Finals Matter
 
 - **`ldd <binary>`** — only meaningful on final ELF executables/shared
-  libraries. You can't `ldd` a `.o` file; it has no dynamic section.
+  libraries. A `.o` file cannot be `ldd`'d; it has no dynamic section.
 - **`readelf -d <binary>`** — reads the `NEEDED` entries in the
   dynamic section. Only final linked binaries have this.
 - **`bomsh_sbom.py -F <files>`** — hashes the final artifacts and
@@ -257,7 +257,7 @@ exist before the build starts and are NOT build outputs.
 required by any language for Phase 2 SPDX generation.** Phase 2 needs
 exactly three categories of build-tree files:
 
-1. **Final output binaries** — the same artifacts you would deploy
+1. **Final output binaries** — the same artifacts that get deployed
 2. **Source tree** — the git clone (for lock files, version detection,
    module detection)
 3. **OmniBOR metadata** — JSON/text files produced by Phase 1

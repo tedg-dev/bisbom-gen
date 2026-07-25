@@ -4,19 +4,19 @@
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-        <mxCell id="title" parent="1" style="text;html=1;fontSize=18;fontStyle=1;align=center;verticalAlign=middle;" value="CI/CD integration (Java): Phase 1 added to your build step" vertex="1">
+        <mxCell id="title" parent="1" style="text;html=1;fontSize=18;fontStyle=1;align=center;verticalAlign=middle;" value="CI/CD integration (Java): Phase 1 added to the native build step" vertex="1">
           <mxGeometry height="30" width="1060" x="60" y="10" as="geometry" />
         </mxCell>
-        <mxCell id="subtitle" parent="1" style="text;html=1;fontSize=11;fontStyle=2;align=center;fontColor=#666666;" value="Phase 1 metadata capture is added to your existing CI/CD build step. It runs in seconds, after your build completes. SBOM generation happens in Corona — asynchronous, never blocks Test or Deploy." vertex="1">
+        <mxCell id="subtitle" parent="1" style="text;html=1;fontSize=11;fontStyle=2;align=center;fontColor=#666666;" value="Phase 1 metadata capture is added to the native CI/CD build step. It runs in seconds, after the native build completes. SBOM generation happens in Corona — asynchronous, never blocks Test or Deploy." vertex="1">
           <mxGeometry height="22" width="1100" x="40" y="42" as="geometry" />
         </mxCell>
         <mxCell id="checkout" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=11;fontStyle=1;verticalAlign=middle;" value="Checkout" vertex="1">
           <mxGeometry height="70" width="130" x="40" y="140" as="geometry" />
         </mxCell>
-        <mxCell id="buildstep" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#6c8ebf;strokeWidth=2;dashed=1;fontSize=12;fontStyle=1;verticalAlign=top;align=center;spacingTop=4;container=1;" value="Your CI/CD Build Step" vertex="1">
+        <mxCell id="buildstep" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#6c8ebf;strokeWidth=2;dashed=1;fontSize=12;fontStyle=1;verticalAlign=top;align=center;spacingTop=4;container=1;" value="Native CI/CD Build Step" vertex="1">
           <mxGeometry height="135" width="440" x="210" y="103" as="geometry" />
         </mxCell>
-        <mxCell id="buildst" parent="buildstep" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;verticalAlign=middle;" value="&lt;b&gt;Your Build&lt;/b&gt;&#xa;mvn package /&#xa;gradle build&#xa;(no changes)" vertex="1">
+        <mxCell id="buildst" parent="buildstep" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;verticalAlign=middle;" value="&lt;b&gt;Native Build&lt;/b&gt;&#xa;mvn package /&#xa;gradle build&#xa;(no changes)" vertex="1">
           <mxGeometry height="70" width="160" x="15" y="40" as="geometry" />
         </mxCell>
         <mxCell id="capst" parent="buildstep" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=3;fontSize=11;verticalAlign=middle;" value="&lt;b&gt;+ Phase 1 metadata&lt;/b&gt;&#xa;dep:tree + treedb&#xa;+ manifest&#xa;→ upload to Corona S3&#xa;(seconds)" vertex="1">
@@ -46,13 +46,13 @@
         <mxCell id="ecallout" edge="1" parent="1" source="addcallout" style="edgeStyle=none;rounded=0;strokeColor=#d79b00;strokeWidth=2;endArrow=block;" target="buildstep">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="corona" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e9;strokeColor=#2e7d32;strokeWidth=2;fontSize=11;align=center;verticalAlign=middle;" value="&lt;b&gt;Corona — Phase 2: SPDX generation (asynchronous)&lt;/b&gt;&lt;br&gt;Builds the SBOM from the uploaded metadata, off your build machine.&lt;br&gt;Test and Deploy do not wait for it." vertex="1">
+        <mxCell id="corona" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e9;strokeColor=#2e7d32;strokeWidth=2;fontSize=11;align=center;verticalAlign=middle;" value="&lt;b&gt;Corona — Phase 2: SPDX generation (asynchronous)&lt;/b&gt;&lt;br&gt;Builds the SBOM from the uploaded metadata, off the native build machine.&lt;br&gt;Test and Deploy do not wait for it." vertex="1">
           <mxGeometry height="76" width="373" x="358" y="276" as="geometry" />
         </mxCell>
         <mxCell id="eupload" edge="1" parent="1" source="buildstep" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#d79b00;strokeWidth=2;dashed=1;fontSize=10;fontColor=#b7950b;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="corona" value="metadata upload (~KB)">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="bottomnote" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8eaf6;strokeColor=#3949ab;strokeWidth=2;fontSize=11;fontStyle=0;align=left;verticalAlign=middle;spacingLeft=12;spacingRight=12;" value="&lt;b&gt;What changes:&lt;/b&gt; Phase 1 metadata capture is added to your existing CI/CD build step, after your build completes. No new pipeline steps. Your build scripts (pom.xml / build.gradle) and build invocations (mvn / gradle) are not modified. No privileged runners." vertex="1">
+        <mxCell id="bottomnote" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8eaf6;strokeColor=#3949ab;strokeWidth=2;fontSize=11;fontStyle=0;align=left;verticalAlign=middle;spacingLeft=12;spacingRight=12;" value="&lt;b&gt;What changes:&lt;/b&gt; Phase 1 metadata capture is added to the native CI/CD build step, after the native build completes. No new pipeline steps. The native build scripts (pom.xml / build.gradle) and build invocations (mvn / gradle) are not modified. No privileged runners." vertex="1">
           <mxGeometry height="46" width="860" x="70" y="367" as="geometry" />
         </mxCell>
       </root>

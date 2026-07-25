@@ -11,6 +11,24 @@
 > initial ptrace-based implementation, retained only for a rare ~1%
 > embedded corner case — and must not be offered as an option.
 
+> **Reconciliation note (2026-07-23) — read `../c-cpp/sidecar-design.md` as
+> canonical.** §2.2 below correctly classifies `-toolexec`
+> (`GoToolexecStrategy`) as a **standalone-without-ptrace** cooperation
+> mechanism, **not** a sidecar mechanism. The truly-sidecar Go path is the
+> same as C/C++: an `LD_PRELOAD` shim (**primary**, injected via two
+> CI/CD-YAML env vars) with node-level **eBPF or Linux audit** fallbacks;
+> per-repo `ptrace` is a standalone escape hatch. **Caveat:** the
+> implementation sections below (§2.3 wiring, the §3/§5 tables, §6–§10) still
+> map `mode == "sidecar"` to the `-toolexec` wrapper — that is a residual
+> inconsistency. Per **Resolved Decision #3** in
+> `../c-cpp/sidecar-design.md` (§8), the classification is settled repo-wide
+> (transparent `execve`/linker interception is sidecar; `-toolexec` is
+> standalone-without-ptrace), but Go's typically **statically-linked
+> toolchain** can defeat `LD_PRELOAD`, so Go's concrete primary tier
+> (shim vs node-observer fallback vs standalone `-toolexec`) is validated in
+> this doc separately. Until that wiring lands, read those sections as the
+> *standalone-without-ptrace* path, not the sidecar tier.
+
 ---
 
 ## 1. Current State

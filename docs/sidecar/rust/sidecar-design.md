@@ -11,6 +11,24 @@
 > initial ptrace-based implementation, retained only for a rare ~1%
 > embedded corner case — and must not be offered as an option.
 
+> **Reconciliation note (2026-07-23) — read `../c-cpp/sidecar-design.md` as
+> canonical.** §2.2 below classifies `RUSTC_WRAPPER` (`RustcWrapperStrategy`)
+> as a **standalone-without-ptrace** cooperation mechanism rather than a
+> sidecar mechanism. The truly-sidecar Rust path is the same as C/C++: an
+> `LD_PRELOAD` shim (**primary**, injected via two CI/CD-YAML env vars) with
+> node-level **eBPF or Linux audit** fallbacks; per-repo `ptrace` is a
+> standalone escape hatch. **Nuance:** unlike Go's `-toolexec` (a build-command
+> flag), `RUSTC_WRAPPER` is env-only and does not alter the build command — so
+> whether it also qualifies as sidecar-compatible is addressed by
+> **Resolved Decision #3** in `../c-cpp/sidecar-design.md` (§8): the
+> classification is settled repo-wide (transparent `execve`/linker
+> interception is sidecar; `RUSTC_WRAPPER` is standalone-without-ptrace), and
+> because `rustc` is normally dynamically linked the shim can interpose,
+> but Rust's concrete primary tier is validated in this doc separately.
+> **Caveat:** the implementation sections below (§2.3 wiring, the §3/§5
+> tables, §6–§10) still map `mode == "sidecar"` to the wrapper; until that
+> wiring lands, read them as the *standalone-without-ptrace* path.
+
 ---
 
 ## 1. Current State

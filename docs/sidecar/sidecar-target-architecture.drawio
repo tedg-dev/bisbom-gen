@@ -19,15 +19,15 @@
         </mxCell>
 
         <!-- Team tools -->
-        <mxCell id="teamtools" parent="1" style="rounded=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;fontStyle=1;verticalAlign=middle;align=center;" value="Team's Tools&#xa;&#xa;gcc, go, rustc, mvn&#xa;(YOUR versions)" vertex="1">
+        <mxCell id="teamtools" parent="1" style="rounded=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;fontStyle=1;verticalAlign=middle;align=center;" value="Native Toolchain&#xa;&#xa;gcc, go, rustc, mvn&#xa;(native versions)" vertex="1">
           <mxGeometry height="80" width="140" x="50" y="80" as="geometry" />
         </mxCell>
 
         <!-- Source + binaries -->
-        <mxCell id="source" parent="1" style="rounded=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;fontStyle=1;verticalAlign=middle;align=center;" value="Your Source&#xa;+ Build Config" vertex="1">
+        <mxCell id="source" parent="1" style="rounded=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;fontStyle=1;verticalAlign=middle;align=center;" value="Native Source&#xa;+ Build Config" vertex="1">
           <mxGeometry height="80" width="120" x="210" y="80" as="geometry" />
         </mxCell>
-        <mxCell id="bins" parent="1" style="rounded=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;fontStyle=1;verticalAlign=middle;align=center;" value="Your Production&#xa;Binaries&#xa;(identical to&#xa;normal build)" vertex="1">
+        <mxCell id="bins" parent="1" style="rounded=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;fontStyle=1;verticalAlign=middle;align=center;" value="Native Production&#xa;Binaries&#xa;(identical to&#xa;normal build)" vertex="1">
           <mxGeometry height="80" width="120" x="350" y="80" as="geometry" />
         </mxCell>
 
@@ -41,10 +41,10 @@
         <mxCell id="tier1" parent="1" style="rounded=1;fillColor=#c8e6c9;strokeColor=#2e7d32;fontSize=10;fontStyle=1;verticalAlign=middle;align=center;" value="Primary&#xa;LD_PRELOAD shim&#xa;(1–3% overhead)" vertex="1">
           <mxGeometry height="55" width="80" x="522" y="103" as="geometry" />
         </mxCell>
-        <mxCell id="tier2" parent="1" style="rounded=1;fillColor=#fff9c4;strokeColor=#f9a825;fontSize=10;fontStyle=1;verticalAlign=middle;align=center;" value="Secondary&#xa;eBPF DaemonSet&#xa;(deferrable)" vertex="1">
+        <mxCell id="tier2" parent="1" style="rounded=1;fillColor=#fff9c4;strokeColor=#f9a825;fontSize=10;fontStyle=1;verticalAlign=middle;align=center;" value="Fallback&#xa;eBPF (node-level)&#xa;(deferrable)" vertex="1">
           <mxGeometry height="55" width="80" x="612" y="103" as="geometry" />
         </mxCell>
-        <mxCell id="tier3" parent="1" style="rounded=1;fillColor=#ffccbc;strokeColor=#d84315;fontSize=10;fontStyle=1;verticalAlign=middle;align=center;" value="Tertiary&#xa;Per-repo ptrace&#xa;(fallback)" vertex="1">
+        <mxCell id="tier3" parent="1" style="rounded=1;fillColor=#fff9c4;strokeColor=#f9a825;fontSize=10;fontStyle=1;verticalAlign=middle;align=center;" value="Fallback&#xa;Linux audit (node)&#xa;(deferrable)" vertex="1">
           <mxGeometry height="55" width="80" x="702" y="103" as="geometry" />
         </mxCell>
         <mxCell id="sidecar-note" parent="1" style="text;fontSize=9;fontStyle=2;align=center;fillColor=none;strokeColor=none;fontColor=#666666;" value="Transparent — no build modification" vertex="1">
@@ -60,10 +60,10 @@
         </mxCell>
 
         <!-- Phase 1 data flow -->
-        <mxCell id="phase1-label" parent="1" style="text;fontSize=13;fontStyle=1;align=left;fillColor=none;strokeColor=none;fontColor=#1565c0;" value="Phase 1 — Build Capture (on build host)" vertex="1">
+        <mxCell id="phase1-label" parent="1" style="text;fontSize=13;fontStyle=1;align=left;fillColor=none;strokeColor=none;fontColor=#1565c0;" value="Phase 1 — Build Capture (on native build host)" vertex="1">
           <mxGeometry height="20" width="350" x="40" y="210" as="geometry" />
         </mxCell>
-        <mxCell id="rawlog" parent="1" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;fontStyle=1;verticalAlign=middle;align=center;" value="Raw Logfile&#xa;(same format&#xa;all 3 tiers)" vertex="1">
+        <mxCell id="rawlog" parent="1" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;fontStyle=1;verticalAlign=middle;align=center;" value="Raw Logfile&#xa;(same format,&#xa;all paths)" vertex="1">
           <mxGeometry height="50" width="110" x="50" y="235" as="geometry" />
         </mxCell>
         <mxCell id="bomsh" parent="1" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;fontStyle=1;verticalAlign=middle;align=center;" value="bomsh_create_bom.py&#xa;ADG + Treedb" vertex="1">
@@ -83,7 +83,7 @@
         </mxCell>
 
         <!-- Phase boundary -->
-        <mxCell id="boundary" parent="1" style="shape=line;strokeColor=#e53935;strokeWidth=2;dashed=1;dashPattern=8 4;fontSize=11;fontStyle=1;fontColor=#e53935;align=center;verticalAlign=middle;fillColor=none;" value="PHASE BOUNDARY — manifest shipped to analysis host — binaries NEVER leave build host" vertex="1">
+        <mxCell id="boundary" parent="1" style="shape=line;strokeColor=#e53935;strokeWidth=2;dashed=1;dashPattern=8 4;fontSize=11;fontStyle=1;fontColor=#e53935;align=center;verticalAlign=middle;fillColor=none;" value="PHASE BOUNDARY — manifest shipped to analysis host — native binaries NEVER leave the native build host" vertex="1">
           <mxGeometry height="25" width="780" x="30" y="305" as="geometry" />
         </mxCell>
 
@@ -120,7 +120,7 @@
         <mxCell id="standalone-label" parent="1" style="text;fontSize=11;fontStyle=1;align=center;fillColor=none;strokeColor=none;" value="Standalone Mode (current)" vertex="1">
           <mxGeometry height="18" width="200" x="870" y="215" as="geometry" />
         </mxCell>
-        <mxCell id="standalone-text" parent="1" style="text;fontSize=10;align=left;fillColor=none;strokeColor=none;fontColor=#666666;" value="bomtrace3 via ptrace&#xa;Container gcc (not yours)&#xa;20–60% overhead&#xa;Single-host, no phase split&#xa;Self-contained, portable" vertex="1">
+        <mxCell id="standalone-text" parent="1" style="text;fontSize=10;align=left;fillColor=none;strokeColor=none;fontColor=#666666;" value="bomtrace3 via ptrace&#xa;Container gcc (not the native toolchain)&#xa;20–60% overhead&#xa;Single-host, no phase split&#xa;Self-contained, portable" vertex="1">
           <mxGeometry height="70" width="200" x="870" y="240" as="geometry" />
         </mxCell>
 
