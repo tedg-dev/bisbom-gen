@@ -25,9 +25,10 @@ with full dependency breakdown:
 | **Git** | Version control |
 
 > **Important:** The analysis container runs as Linux x86_64. **Sidecar
-> mode** (the default) does not require `SYS_PTRACE` and works in
-> standard Docker and Kubernetes environments. **Standalone mode**
-> (legacy, for golden file generation) requires `SYS_PTRACE` capability.
+> mode is the only supported mode** — it does not require `SYS_PTRACE` and
+> works in standard Docker and Kubernetes environments. Standalone mode is
+> **deprecated** (the initial ptrace-based implementation, retained only
+> for a rare ~1% embedded corner case) and is not a deployment option.
 > See [Platform Support](../architecture/platform-support.md).
 
 ## Step 1: Clone and Open in Windsurf

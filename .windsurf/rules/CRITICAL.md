@@ -147,6 +147,29 @@ Violating any rule marked NEVER is a critical failure.
 
 ---
 
+## Before Every Planning Statement or Change
+
+- [ ] **ALWAYS** check the live `CiscoSecurityServices/gambit` issues and
+  the Corona board (`#255`) via `gh` (as `tedg_cisco`) BEFORE stating,
+  planning, or acting on any plan, status, gate, or dependency. The
+  `docs/planning/` files and `github-issues-crosswalk.md` are **mirrors,
+  not the source of truth** — they may be stale.
+- [ ] **NEVER GUESS** whether an issue exists, its status, its Walk, or a
+  gate state. Query gambit; if you cannot, say so — never fabricate.
+- [ ] **ALWAYS** sync planning and gambit whenever they diverge:
+  - Plan exists in `docs/planning/` but not in gambit → create the gambit
+    issue/sub-issue (parent link, current Walk, `Build-Instrumented SBOM`
+    epic), then record it in the crosswalk.
+  - Gambit issue exists but is missing from the planning docs → add/update
+    the planning row (`README.md`), the per-language planning doc, and the
+    crosswalk.
+  - Status, scope, or acceptance criteria differ → update the mirror to
+    match gambit (gambit wins).
+- [ ] **Reference**: `github-sync.md` (bidirectional planning sync) and
+  `workflow/github-issue-management.md` (field ids, Walk, epic).
+
+---
+
 ## Before Every AWS / Remote Operation
 
 - [ ] **NEVER** hardcode EC2 instance IDs. Read from
@@ -169,6 +192,29 @@ Violating any rule marked NEVER is a critical failure.
 - [ ] **ALWAYS** reference credentials by path and key name — never by
   value.
 - [ ] **NEVER** commit credential files (`.env`, `keys.json`, SSH keys).
+
+---
+
+## Before Every Piece of Writing (docs, diagrams, chat, commits, issues)
+
+- [ ] **ALWAYS** name the **who** (actor), **what** (object), **when**
+  (phase), and **where** (environment) explicitly. **NEVER** use an
+  ambiguous pronoun (`it`, `they`, `this`, `you`) or a bare noun (`the
+  image`, `the platform`, `the build`, `the team`) whose referent the
+  reader must guess.
+- [ ] **NEVER** carry this chat's conversational `you`/`your` into a
+  markdown document or diagram. Documents address their OWN audience
+  (e.g., the **native build team**) — name the actor, do not say `you`.
+- [ ] **NEVER** address the enterprise/native-build audience as `you` in
+  chat when describing the customer scenario. Say "the native build team",
+  not "you". Reserve `you` for the actual chat user.
+- [ ] **ALWAYS** keep the customer's **native build / native CI image /
+  native build team** distinct from the **OmniBOR analysis harness / our
+  image**. Never conflate them.
+- [ ] **NEVER** over-claim to reassure. "The native build never changes"
+  (true) is a different claim from "where a file is placed" (a one-time
+  infra choice with options). State each footprint exactly.
+- [ ] **Reference**: `quality/writing-precision.md`.
 
 ---
 

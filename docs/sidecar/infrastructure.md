@@ -16,7 +16,7 @@ manifest format, CLI flags, config schema, Corona integration, Docker
 setup, and the testing framework. Each language has its own design doc
 with strategy details, Phase 1/2 artifacts, and implementation tasks:
 
-- **`c-cpp/sidecar-design.md`** — truly-sidecar interception (`LD_PRELOAD` → eBPF → per-repo `ptrace`) and version pre-computation. Strategy rationale lives in the reference guide `c-cpp/interception-strategies.md`
+- **`c-cpp/sidecar-design.md`** — truly-sidecar interception (`LD_PRELOAD` shim primary via CI/CD-YAML env; eBPF/audit node-observer fallbacks; `ptrace` = standalone escape hatch) and version pre-computation. Strategy rationale lives in the reference guide `c-cpp/interception-strategies.md`
 - **`java/sidecar-design.md`** — `MavenDepTreeStrategy`/`GradleDepTreeStrategy` (already implemented)
 - **`go/sidecar-design.md`** — `GoToolexecStrategy`, `-a` flag interaction
 - **`rust/sidecar-design.md`** — `RustcWrapperStrategy`, `RUSTC_WRAPPER` vs `RUSTC_WORKSPACE_WRAPPER`
@@ -26,20 +26,19 @@ with strategy details, Phase 1/2 artifacts, and implementation tasks:
 
 ## 1. Executive Summary
 
-The `omnibor-analysis` pipeline supports two execution modes:
-**Standalone** and **Sidecar**. Both are permanent, first-class modes.
+**Sidecar is the only supported execution mode** for `omnibor-analysis`.
+It uses the customer's native toolchains, requires no `SYS_PTRACE`, and is
+the authoritative mode for all enterprise repository build-interception
+SBOM generation — and the baseline from which golden files are generated.
 
-- **Sidecar** is the authoritative mode for all enterprise repository
-  build-interception SBOM generation projects. It uses the customer's
-  native toolchains and does not require `SYS_PTRACE`.
-- **Standalone** is the baseline for `omnibor-analysis` golden file
-  generation and the primary `omnibor-analysis` development/debug mode.
-  It is also used by enterprise teams with isolated black-box build
-  machines, where the Standalone container is customized to include their
-  specific build toolsets, operating systems, and configurations.
-
-**Standalone** always runs the full pipeline (Phase 1 + Phase 2) in a
-single container. There is no phase split for Standalone.
+> **Standalone mode is deprecated — do not offer it as an option.** It was
+> the initial implementation of the core omnibor/bomsh repositories and the
+> earliest `omnibor-analysis` testing (ptrace-based `bomtrace3`/`bomtrace2`,
+> requiring `SYS_PTRACE`). It is **no longer used** for enterprise work. The
+> only remaining possibility is a rare (~1%) embedded-systems corner case;
+> it is not part of the enterprise flow and must not be presented as a
+> co-equal choice. Legacy standalone code paths may still exist in the tree
+> but are not a supported deployment.
 
 **Sidecar** can run either way:
 - **Sidecar full** — Phase 1 + Phase 2 in one container (primary customer mode)
@@ -48,14 +47,14 @@ single container. There is no phase split for Standalone.
 
 This document describes the shared infrastructure:
 
-1. **Two modes: Standalone and Sidecar** — Standalone uses ptrace-based
-   interception (`bomtrace3`/`bomtrace2`) and requires `SYS_PTRACE`.
-   Sidecar uses **transparent** interception mechanisms that do not
-   modify the build invocation and do **not** require `SYS_PTRACE` —
-   build-system-native for Java (`dep:tree`), or kernel/linker-level for
-   C/C++ (`LD_PRELOAD`, eBPF). The specific mechanism varies by
-   language — see per-language design docs for details.
-2. **Phase isolation (Sidecar only)** — Phase 1 (build interception) and
+1. **Sidecar interception (the supported mode)** — transparent interception
+   that does not modify the build invocation and does **not** require
+   `SYS_PTRACE`: build-system-native for Java (`dep:tree`), or
+   kernel/linker-level for C/C++ (`LD_PRELOAD`, eBPF). The specific
+   mechanism varies by language — see per-language design docs for details.
+   (The deprecated standalone path used ptrace `bomtrace3`/`bomtrace2` with
+   `SYS_PTRACE`.)
+2. **Phase isolation (Sidecar)** — Phase 1 (build interception) and
    Phase 2 (SPDX generation) can run independently, connected only by a
    well-defined artifact contract (`phase1_manifest.json`).
 3. **Multiple Phase 2 executors** — Phase 2 can run in the sidecar
@@ -107,9 +106,11 @@ per-language docs listed above.
 > **modify the build invocation** — which the sidecar model forbids. They
 > are valid **standalone-without-ptrace** options, *not* sidecar
 > mechanisms. The truly-sidecar C/C++ path is transparent kernel/linker
-> interception: `LD_PRELOAD` (primary) → eBPF (secondary) → per-repo
-> `ptrace` (tertiary). See `c-cpp/sidecar-design.md` and
-> the reference guide
+> interception: **`LD_PRELOAD` shim (primary)** injected via two CI/CD-YAML
+> env vars (the Java-proven vector), with node-level **eBPF or Linux audit**
+> as *fallbacks* for `LD_PRELOAD`-blind builds. Per-repo `ptrace` is a
+> **standalone escape hatch, not a sidecar tier**. See `c-cpp/sidecar-design.md`
+> and the reference guide
 > `c-cpp/interception-strategies.md`. The
 > analogous Go/Rust re-framing is tracked as an open question and is out
 > of scope here.
@@ -398,8 +399,9 @@ sequentially, connected by an in-memory hand-off (no manifest):
 2. **Phase 2** — SBOM → metadata → SPDX → validate
 
 Same flow as Standalone, but Phase 1 uses **transparent,
-build-unmodifying interception** instead of ptrace (for C/C++:
-`LD_PRELOAD` → eBPF → per-repo `ptrace`; for Java: `dep:tree`). This is
+build-unmodifying interception** instead of ptrace (for C/C++: `LD_PRELOAD`
+shim primary, eBPF/audit node-observer fallbacks; for Java: `dep:tree`).
+Per-repo `ptrace` is a standalone escape hatch, not a sidecar tier. This is
 the **primary customer deployment mode**.
 
 #### Pattern C: Sidecar Phase 1 + Separate Phase 2 (two-stage CI)
@@ -591,9 +593,9 @@ def _select_c_cpp_strategy(repo_name, repo_cfg, paths_cfg, mode):
     if mode != "sidecar":
         return None  # legacy bomtrace3 path (standalone)
     # Truly-sidecar C/C++ interception is transparent (no build change):
-    #   primary   LD_PRELOAD shim (injected by infra)
-    #   secondary eBPF node DaemonSet (static binaries)
-    #   tertiary  per-repo `interception: ptrace` override
+    #   primary    LD_PRELOAD shim (2 CI/CD-YAML env vars; Java-proven)
+    #   fallback   node-level eBPF or Linux audit (LD_PRELOAD-blind builds)
+    #   escape     per-repo `interception: ptrace` = STANDALONE, not sidecar
     # CcWrapperStrategy (CC=/CXX=/AR=/LD=) is NOT sidecar — it is a
     # standalone-without-ptrace option. See sidecar/c-cpp/sidecar-design.md.
     return LdPreloadStrategy()  # pending implementation
@@ -634,10 +636,13 @@ through, mirroring what Java already does.
 | `readelf` (ELF metadata) | ✅ | ❌ | ❌ |
 | `AdgSpdxGenerator` | ❌ (uses treedb) | ✅ (version detection reads source headers) | ✅ |
 
-**Key constraint**: Phase 2 for C/C++ requires both the **binaries** and
-**source tree** to remain available. For cross-host Phase 2 (Pattern C/D),
-binaries must be transferred; source tree access can be replaced by pre-computing
-version metadata in Phase 1 and storing it in the manifest.
+**Key constraint**: the steps that read the **binary** (`bomsh_sbom.py`,
+`ldd`, `readelf`) and the **source tree** (version detection) must run in
+the Phase-1 capture window, where both still exist. For cross-host Phase 2,
+**binaries are never transferred** — run `bomsh_sbom.py` + `ldd`/`readelf`
+in Phase 1 and ship only metadata (no binary egress; CWE-200), and replace
+source-tree scanning by pre-computing version metadata into the manifest.
+See `c-cpp/sidecar-design.md` §4.2.
 
 #### Mitigation for Cross-Host Phase 2
 
@@ -781,27 +786,31 @@ If Corona integration or cross-host Phase 2 requires config:
 
 ---
 
-## 10. Upstream `bomsh` Interception Requirements
+## 10. Interception Components to Implement
 
 ### 10.1 Truly-sidecar C/C++ — `LD_PRELOAD` shim (primary)
 
 The transparent C/C++ sidecar mechanism is an `LD_PRELOAD` shim
-(`libomnibor_intercept.so`) injected by infrastructure (e.g. a K8s
-mutating webhook + init container), never by the build command. It
-interposes `execve`/`open`/`close`, records compiler/linker `argv`,
-hashes inputs and outputs inline, and writes the **same raw logfile
-format** as `bomtrace3` so `bomsh_create_bom.py` works unchanged. This
-shim does not yet exist in upstream bomsh and must be contributed or
-developed. For statically-linked builds an eBPF node DaemonSet is the
-secondary tier; hermetic builds fall back to per-repo `ptrace`. See
-`c-cpp/sidecar-design.md`.
+(`libomnibor_intercept.so`) loaded via two CI/CD-YAML env vars (the
+Java-proven vector; or, on a self-managed cluster, an optional mutating
+webhook + init container), never by editing the build command. It
+interposes `execve`/`posix_spawn`/`close`/`rename`, records compiler/linker
+`argv`, hashes inputs and outputs inline, and writes the **same raw logfile
+format** as `bomtrace3` so `bomsh_create_bom.py` works unchanged. This C/C++
+shim is not yet implemented; it would be built in this repo, mirroring the
+delivered Java `LD_PRELOAD` shim (`docker/shim/omnibor_java_intercept.c`) —
+it is not part of upstream `bomsh`.
+For `LD_PRELOAD`-blind builds on self-managed nodes, a node-level **eBPF or
+Linux audit** observer is the fallback; hermetic builds drop to the
+standalone `ptrace` escape hatch. See `c-cpp/sidecar-design.md`.
 
 ### 10.2 Standalone-without-ptrace — CC/CXX/AR/LD wrappers
 
 The CC/CXX/AR/LD wrappers assumed by `CcWrapperStrategy` support the
 **standalone-without-ptrace** option (not sidecar — they set build
-env vars). They also do not yet exist in upstream bomsh and must be
-contributed or developed:
+env vars). These wrapper scripts are not yet implemented either; they would
+be developed in this repo as thin wrappers around upstream `bomsh`'s
+`bomsh_hook2.py`:
 
 | Wrapper | Purpose | Input | Output |
 |---------|---------|-------|--------|
@@ -813,10 +822,9 @@ contributed or developed:
 **All wrappers must produce the same raw logfile format** as `bomtrace3` so
 that `bomsh_create_bom.py` works without modification.
 
-**Alternative**: If upstream bomsh does not provide these, `bomsh_hook2.py`
-already supports a wrapper mode (`BOMSH_HOOK_PROGRAM_EMBEDDED`). The CC
-wrapper scripts may simply delegate to `bomsh_hook2.py` with the right
-environment variables.
+**Implementation note**: `bomsh_hook2.py` (upstream) already supports a
+wrapper mode (`BOMSH_HOOK_PROGRAM_EMBEDDED`), so the CC wrapper scripts may
+simply delegate to `bomsh_hook2.py` with the right environment variables.
 
 For Go (`-toolexec`) and Rust (`RUSTC_WRAPPER`), `bomsh_hook2.py` already
 has command-line parsers for `go tool compile/link` and `rustc`. The
@@ -961,15 +969,16 @@ pass unchanged. Sidecar image published to GHCR.
 
 | # | Task | Files Modified | Status |
 |---|------|---------------|--------|
-| 7 | Wire `CcWrapperStrategy` into `run_c_cpp_pipeline` | `lang_runners.py` | ❌ Pending — blocked on upstream bomsh wrappers |
+| 7 | Wire `CcWrapperStrategy` into `run_c_cpp_pipeline` | `lang_runners.py` | ❌ Pending — needs the CC/CXX/AR/LD wrappers (built in this repo) |
 | 8 | Wire `GoToolexecStrategy` into `run_go_pipeline` | `lang_runners.py` | ❌ Pending |
 | 9 | Wire `RustcWrapperStrategy` into `run_rust_pipeline` | `lang_runners.py` | ❌ Pending |
 | 10 | Pass `mode=` through all language runners | `runners.py`, `lang_runners.py` | ❌ Pending |
 | 11 | ~~Convert `config.yaml` to nested mode format~~ | ~~`config.yaml`~~ | ✅ Not needed — strategy classes encapsulate mode-specific behavior |
 | 12 | Integration tests: sidecar mode per language | `tests/` | ❌ Pending |
 
-**Deliverable**: `--mode sidecar` works for all languages (requires bomsh
-wrappers for C/C++/Go/Rust — may be blocked on upstream).
+**Deliverable**: `--mode sidecar` works for all languages (requires the
+C/C++ `LD_PRELOAD` shim and the Go/Rust wrapper scripts — all built in this
+repo).
 
 ### Phase III: Phase Split for All Languages — ❌ Pending
 
@@ -1004,7 +1013,7 @@ phase-split architecture from Phases I–IV is a prerequisite.
 
 | Risk | Likelihood | Impact | Mitigation |
 |------|-----------|--------|------------|
-| Upstream bomsh wrappers delayed | High | Blocks sidecar for C/C++/Go/Rust | Java sidecar ships first; wrappers can be prototyped locally |
+| Interception components not yet built | High | Delays non-Java sidecar rollout | Java sidecar ships first; components built in this repo, mirroring the delivered Java shim |
 | Binary transfer size for cross-host | Medium | Large binaries (ffmpeg ~200MB) slow transfer | Compress with `zstd`; only transfer binaries needed by Phase 2 |
 | Treedb path assumptions | Medium | Treedb contains absolute paths that differ across hosts | Manifest includes `repos_dir` so Phase 2 can rebase paths |
 | Source tree needed for version detection | Medium | Blocks cross-host Phase 2 for C/C++ | Version pre-computation in Phase 1 (task #16) |

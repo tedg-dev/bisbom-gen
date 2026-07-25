@@ -4,7 +4,7 @@
 |---|---|
 | **Purpose** | Durable record tying each drafted Main issue and sub-issue to the PR(s) that implement it, so the hierarchy can be recreated and linked once GitHub Projects/Issues access is restored. |
 | **Maintained by** | Cascade (update as PRs merge) |
-| **Last updated** | 2026-07-22 |
+| **Last updated** | 2026-07-24 |
 
 ---
 
@@ -42,7 +42,7 @@ theme / planning doc) -> **sub-issues** (drafted in the matching planning doc).
 | Java Phase 2: Generate SBOMs From Phase 1 Metadata Without the Source Tree | `java-phase2-consume-dep-capture-subissue.md` | A1 (#11003), A2 (#11004) | #11002 |
 | Phase 1 Build-Speed & Efficiency (Java) | `java/phase1-build-speed-subissues.md` | AF (#11069), A4 (#11006), A5 (#11007), A10 (#11097), A11 (#11100), A12 (#11104), bugs #11144, #11145 | #11005 |
 | Faster SBOM Generation for Java Builds (Retrospective) | `java/retro-subissue-java-treedb-perf.md` | SI-R1 | #11000 |
-| Build-Based SBOM Capture & Delivery (Sidecar + Phase Isolation) | `sidecar-phase-isolation-subissues.md` | B1 (#11009), B2 (#11010), B3 (#11011), B4 (#11012), C1/C2 (#11013) | #11008 |
+| Build-Based SBOM Capture & Delivery (Sidecar + Phase Isolation) | `sidecar-phase-isolation-subissues.md`; C/C++ work-item breakdown in `c-cpp/interception-phase-isolation-subissues.md` | B1 (#11009), B2 (#11010), B3 (#11011), B4 (#11012), C1/C2 (#11013) — each B-story decomposed into work items B#.x (drafts) | #11008 |
 
 ---
 
@@ -64,7 +64,12 @@ theme / planning doc) -> **sub-issues** (drafted in the matching planning doc).
 | `tedg-dev/omnibor-analysis#216` | Gradle repo enablement (caffeine, opentelemetry-java, rxjava) + release-classifier & JDK bug fixes + build-logic/composite JAR exclusion | Phase 1 Build-Speed -> **A12** / **A11** + bugs | #11104, #11100, #11144, #11145 (all In Review) | Merged |
 
 Index labels (**A1**, **A4**, ...) refer to the rows in
-[`README.md`](README.md), the priority-ordered planning index.
+[`README.md`](README.md), the priority-ordered planning index. The C/C++
+B-stories (#11009–#11012) are decomposed into concrete work-item sub-issues
+(`B1.1`, `B2.1`, …) in
+[`c-cpp/interception-phase-isolation-subissues.md`](c-cpp/interception-phase-isolation-subissues.md);
+those work-item gambit sub-issues are **drafts, not yet created** (blocked on
+the Main A -> B gate).
 
 **Documentation tracker:** docs-only PRs (e.g. `#192`, `#193`, `#195`,
 `#204`, `#205`, `#206`, `#207`) have no 1:1 theme issue; they are grouped
@@ -78,16 +83,19 @@ docs activity and carries a datetimestamped activity log.
 
 | Item | Theme -> sub-issue (index label) | GitHub issue | Status |
 |---|---|---|---|
-| Phase 2 output set + hand-off manifest | Java Phase 2 -> **A2** | #11004 (re-scoped) | Scoped, no PR |
-| In-memory JAR class processing (no extract-to-disk) | Phase 1 Build-Speed -> **A8** / US-4 | #11055 | Deferred (validate on EC2), no PR |
+| ~~Phase 2 output set + hand-off manifest~~ | Java Phase 2 -> **A2** | #11004 | **Closed — not planned**: peer team integrates Phase 2 into Corona directly (operator/cdk/gh-aws integration), so no hand-off boundary is needed; Java Phase 1/2 charter complete at #11003 (PR #194). Parent #11002 stays In Review (child #11003 still In Review). |
+| In-memory JAR class processing (no extract-to-disk) | Phase 1 Build-Speed -> **A8** / US-4 | #11055 | **PR `tedg-dev/omnibor-analysis#211` open** — tested (1886 pass, 99% cov) + EC2 golden-validated 2026-07-14 (jsoup/checkstyle identical); synced with `main` (merge `9085301`, mergeable), awaiting review |
 | Support non-Maven/Gradle Java builds (Ant/Ivy, Bazel, `make`) | Phase 1 Java capture -> **A9** | #11066 (backlog, Proposed; parentless) | Backlog — **excluded from the Main A gate**. `tedg-dev/omnibor-analysis#202` (Draft, `Proposed` label — tables it for the pilot, fail-fast on ivy/ant/make/bazel); `#201` (Draft, `backlog` label — Ivy parser/reader) |
-| Overlap independent post-build steps (measure first) | Phase 1 Build-Speed -> **A5** / US-3 | #11007 | Optional / low, no PR |
+| ~~Overlap independent post-build steps (measure first)~~ | Phase 1 Build-Speed -> **A5** / US-3 | #11007 | **Closed — won't do (not planned)**: Phase 2 is out-of-band (non-critical wall-clock) and inline hashing (A10 / #11097) already removed the hot path. Closing it let parent #11005 derive to **In Review** (all remaining children In Review). |
 | Deliver Java build evidence to Corona | **A7** / SI-5 (Java) | — | Postponed — out of charter |
-| Agree on C/C++ build observation | Main B -> **B1** / SI-1 | #11009 | Blocked on Main A |
-| Auto-capture C/C++ components | Main B -> **B2** / SI-2 | #11010 | Blocked on Main A |
-| Extend capture to static builds | Main B -> **B3** / SI-3 | #11011 | Blocked on Main A |
-| C/C++ SBOMs from captured data, no workspace | Main B -> **B4** / SI-4 (C/C++) | #11012 | Blocked on Main A |
-| Shared Corona intake + auth + non-Java delivery | Main C -> **C1/C2** / SI-5 (shared) | #11013 | Planned |
+| Agree on C/C++ build observation | Main B -> **B1** / SI-1 (work items B1.1–B1.3) | #11009 | **Ready** (B1.1 #11176 In Development first; B1.2/B1.3 Ready). |
+| B1.1 Ratify interception tier model | Main B -> **B1.1** (child of #11009) | #11176 | **In Development** (Walk 21) |
+| B1.2 Deployment model & injection vector | Main B -> **B1.2** (child of #11009) | #11177 | **Ready** |
+| B1.3 Config schema (nested mode + per-repo override) | Main B -> **B1.3** (child of #11009) | #11178 | **Ready** |
+| Auto-capture C/C++ components (`LD_PRELOAD` primary) | Main B -> **B2** / SI-2 (work items B2.1–B2.5) | #11010 | Ready |
+| Extend capture to static builds (eBPF/audit) | Main B -> **B3** / SI-3 (work items B3.1–B3.3) | #11011 | Ready |
+| C/C++ SBOMs from captured data, no workspace | Main B -> **B4** / SI-4 (C/C++) (work items B4.1–B4.5) | #11012 | Ready |
+| Shared Corona intake + auth + non-Java delivery | Main C -> **C1/C2** / SI-5 (shared) | #11013 | **Closed — not planned** (out of charter; Corona / Phase-2 team owns delivery + auth, consistent with A7 postponed and #11004 closed) |
 
 ---
 

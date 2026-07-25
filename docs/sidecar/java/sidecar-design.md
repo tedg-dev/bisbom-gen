@@ -1,14 +1,29 @@
 # Sidecar & Phase Isolation — Java
 
-> **Parent doc**: `../infrastructure.md`
-> **Status**: Sidecar mode ✅ implemented; Phase isolation pending
-> **Date**: 2026-06-12
+<table>
+<colgroup><col style="width:16%"><col style="width:84%"></colgroup>
+<tbody>
+<tr><td><strong>Parent doc</strong></td><td><code>../infrastructure.md</code></td></tr>
+<tr><td><strong>Reference guide</strong></td><td><code>reference/inline-hashing-interception-design.md</code> — the delivered, golden-clean <code>LD_PRELOAD</code> inline-hashing sidecar design</td></tr>
+<tr><td><strong>Status</strong></td><td>Sidecar mode ✅ implemented; Phase 1/2 split (<code>--phase</code>) ✅ implemented (Java). Phase 2 generates SBOMs from Phase 1 metadata with <strong>no source-tree access</strong> (<code>tedg-dev/omnibor-analysis#194</code>, merged).</td></tr>
+<tr><td><strong>Date</strong></td><td>2026-06-12 (status updated 2026-07-23)</td></tr>
+</tbody>
+</table>
 
 ---
 
-> **Supported modes**: See `../infrastructure.md` §1
-> for the authoritative definition of Standalone and Sidecar modes.
-> All modes apply to Java.
+> **Supported mode — Sidecar only.** See `../infrastructure.md` §1.
+> Sidecar is the sole supported mode; **standalone is deprecated** — the
+> initial ptrace-based implementation, retained only for a rare ~1%
+> embedded corner case — and must not be offered as an option.
+
+---
+
+## Architecture Diagram
+
+<a href="java-sbom-phase-split.png"><img src="java-sbom-phase-split.png" width="600" alt="Java Sidecar Phase-Split Architecture — click to enlarge"></a>
+
+*Click image to enlarge. Source: [java-sbom-phase-split.drawio](java-sbom-phase-split.drawio)*
 
 ---
 
@@ -23,7 +38,8 @@
 | `_select_java_strategy()` | ✅ Auto-detects Maven vs Gradle |
 | Phase 1/2 timing tags | ✅ Properly assigned |
 | `--mode sidecar` for Java | ✅ **Works end-to-end** |
-| Phase 1/2 split (`--phase`) | ❌ Not yet implemented |
+| Phase 1/2 split (`--phase`) | ✅ Implemented (Java) — `--phase build` writes the manifest, `--phase spdx --manifest` consumes it (`_run_phase1_only()` / `_run_phase2_only()` in `runners.py`) |
+| Phase 2 from metadata (no source tree) | ✅ Implemented (Java) — `dep_capture_reader.py` consumes `maven_deps.json` / `gradle_deps.json` |
 
 **Java is the reference implementation for sidecar mode.** The patterns
 established here — `_select_java_strategy()`, strategy-based dispatch in
@@ -83,26 +99,24 @@ runners.py main()
 
 ## 2. Interception Strategies
 
-### 2.1 Standalone: strace `openat`
+Sidecar is the primary, supported mode — the build runs **unmodified** with
+no `strace` and no `SYS_PTRACE`. The standalone strace path (§2.3) is
+**deprecated**, retained only for the rare ~1% embedded corner case.
 
-- **Mechanism**: `strace -f -s99999 --seccomp-bpf -e trace=openat` prefix
-- **Capability needed**: `SYS_PTRACE` in Docker
-- **Output**: strace log at `/tmp/strace_java_logfile`
-- **ADG**: `bomsh_create_bom_java.py -r <repo_dir> -j <treedb_file>`
-- **Strace log is archived** to `bom_dir/metadata/bomsh/strace_java_logfile`
-
-### 2.2 Sidecar: `MavenDepTreeStrategy`
+### 2.1 Sidecar: `MavenDepTreeStrategy`
 
 - **Mechanism**: Build runs unmodified (no strace prefix)
 - **Capability needed**: None
 - **Output**:
   1. Treedb via `bomsh_create_bom_java.py` (uses `SourceFile` bytecode
      attribute + path similarity instead of strace log)
-  2. `maven_deps.json` via `mvn dependency:tree -DoutputType=dot`
+  2. `maven_deps.json` via `mvn dependency:tree` (default **text** output,
+     parsed per-module by `maven_dep_tree_parser.parse_text_output`; text is
+     the only format carrying `optional` with no plugin-version requirement)
 - **Multi-module support**: `_extract_maven_modules()` passes `-pl` from
   build steps to `run_maven_dep_tree()`
 
-### 2.3 Sidecar: `GradleDepTreeStrategy`
+### 2.2 Sidecar: `GradleDepTreeStrategy`
 
 - **Mechanism**: Build runs unmodified
 - **Capability needed**: None
@@ -110,14 +124,25 @@ runners.py main()
   1. Treedb via `bomsh_create_bom_java.py` (same as Maven sidecar)
   2. `gradle_deps.json` via `./gradlew dependencies` per subproject
 
+### 2.3 Standalone (deprecated): strace `openat`
+
+> **Deprecated** — retained only for the rare ~1% embedded corner case;
+> must not be offered as an option.
+
+- **Mechanism**: `strace -f -s99999 --seccomp-bpf -e trace=openat` prefix
+- **Capability needed**: `SYS_PTRACE` in Docker
+- **Output**: strace log at `/tmp/strace_java_logfile`
+- **ADG**: `bomsh_create_bom_java.py -r <repo_dir> -j <treedb_file>`
+- **Strace log is archived** to `bom_dir/metadata/bomsh/strace_java_logfile`
+
 ### 2.4 Key Difference: Strace Evidence vs Workspace Scan
 
-| Aspect | Standalone (strace) | Sidecar (dep:tree) |
-|--------|--------------------|--------------------|
-| File access evidence | ✅ strace `openat` log | ❌ Workspace scan only |
-| `filesAnalyzed: true` confidence | High (strace-verified) | Medium (SourceFile heuristic) |
-| Dependency graph source | strace + treedb | `mvn dep:tree` / `gradlew dependencies` |
-| `SYS_PTRACE` required | ✅ | ❌ |
+| Aspect | Sidecar (dep:tree) | Standalone (strace) |
+|--------|--------------------|---------------------|
+| File access evidence | ❌ Workspace scan only | ✅ strace `openat` log |
+| `filesAnalyzed: true` confidence | Medium (SourceFile heuristic) | High (strace-verified) |
+| Dependency graph source | `mvn dep:tree` / `gradlew dependencies` | strace + treedb |
+| `SYS_PTRACE` required | ❌ | ✅ |
 
 The downstream SPDX generator (`JavaSpdxGenerator`) handles both cases:
 when `strace_accessed` is populated (standalone), it filters treedb results
@@ -177,7 +202,7 @@ by their JAR's gitOID + `purl`.
 | Operation | Module | Needs JAR? | Needs Source Tree? | Needs Treedb? |
 |-----------|--------|-----------|-------------------|---------------|
 | `JavaSpdxGenerator.generate()` | `java_generator.py` | ❌ (path only) | ❌ | ✅ |
-| Maven/Gradle dep parsing | `java_generator.py` | ❌ | ❌ (reads `pom.xml` in `repo_dir`) | ❌ |
+| Maven/Gradle dep parsing | `dep_capture_reader.py` | ❌ | ❌ (reads Phase 1 `maven_deps.json` / `gradle_deps.json`) | ❌ |
 | `BinaryCollector` (copy JARs) | `binary_collector.py` | ✅ | ❌ | ❌ |
 | `MetadataCollector` | `metadata_collector.py` | ❌ | ✅ (repo metadata) | ❌ |
 
@@ -195,13 +220,13 @@ by their JAR's gitOID + `purl`.
 - `phase1_manifest.json`
 - `bom_dir/metadata/bomsh/bomsh_omnibor_treedb`
 - `bom_dir/maven_deps.json` or `bom_dir/gradle_deps.json`
-- `pom.xml` / `build.gradle` (for version/groupId resolution)
+- (No `pom.xml` / `build.gradle` needed — dependency data is captured in Phase 1.)
 
-**Note**: `pom.xml` dependency resolution currently happens at Phase 2 time
-via `get_maven_deps()` / `get_gradle_deps()`. For cross-host, these could
-either:
-- Be pre-parsed in Phase 1 and included in the manifest, or
-- The `pom.xml`/`build.gradle` files could be copied to `bom_dir` during Phase 1
+**Note**: Dependency resolution runs in **Phase 1** and is captured to
+`maven_deps.json` / `gradle_deps.json`. Phase 2 reads that capture via
+`app/spdx/dep_capture_reader.py` (`load_capture()` / `get_module_deps()`)
+and never touches the source tree. The earlier "resolve at Phase 2 time"
+approach was superseded by `tedg-dev/omnibor-analysis#194` (merged).
 
 ---
 
@@ -235,6 +260,13 @@ The sidecar section is simpler because:
 ---
 
 ## 6. Phase Split Design
+
+> **✅ Delivered.** The design below is implemented for Java in
+> `app/pipeline/runners.py` (`_run_phase1_only()` / `_run_phase2_only()`,
+> gated by `--phase` + `_validate_phase_args()`) and
+> `app/pipeline/lang_runners.py` (`run_java_phase1()` / `run_java_phase2()`).
+> The code sketches below are the original design, retained as a record;
+> shipped signatures may differ in detail.
 
 ### 6.1 `run_java_phase1()`
 

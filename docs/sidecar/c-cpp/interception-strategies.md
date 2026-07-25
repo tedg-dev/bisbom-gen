@@ -10,13 +10,29 @@
 
 ## Executive Summary
 
-For true sidecar C/C++ build interception on enterprise build machines,
-there are **two categories of approach**: kernel-level observation
-(universal — work regardless of build system) and environment-level
-overrides (limited applicability — work when the build cooperates).
+> **Reconciled 2026-07-23 — read `sidecar-design.md` as canonical.** This
+> guide is the deep strategy *reference* (coverage matrices, OS/kernel
+> landscape). Its original §8 ranked Linux audit as the "primary" tier; that
+> ranking is **corrected** here. For the project's **ephemeral CI/CD
+> build-step model** — matching the delivered, golden-clean Java sidecar —
+> the primary tier is the **`LD_PRELOAD` shim injected via two pipeline-YAML
+> env vars**, because it needs **no node-level capabilities or daemons**.
+> Kernel observers (eBPF, audit) are **fallbacks** for `LD_PRELOAD`-blind
+> builds on self-managed build nodes. `ptrace` is standalone-only, never a
+> sidecar tier (see §1).
 
-For the majority of enterprise builds (10+ years old, hardcoded paths,
-proprietary orchestration), only kernel-level observation is reliable.
+For true sidecar C/C++ build interception there are **two categories of
+approach**: environment-level interception (`LD_PRELOAD`) and kernel-level
+observation (eBPF, audit). Which is primary depends on the **deployment
+model**:
+
+- **Ephemeral CI/CD runner (the target here)** — an ephemeral runner cannot
+  load a node daemon or add audit rules, so `LD_PRELOAD` (pipeline-YAML env
+  vars) is the only portable sidecar mechanism, and is the **primary** tier.
+- **Self-managed build farm (operator-owned nodes)** — kernel observers become
+  available as **fallbacks** for the minority of builds that defeat
+  `LD_PRELOAD` (statically-linked tools, musl/Alpine, `env -i`).
+
 All seven strategies compared (assuming a **30-minute baseline build
 with `make -j16`** on a 16-core machine, where `-jN` tells Make to run
 up to N compilation jobs in parallel). Build-time overhead includes
@@ -578,7 +594,7 @@ content hashes.
 - **Requires `CAP_SYS_ADMIN`**: The broadest, most sensitive capability.
   If the enterprise won't grant `CAP_BPF`, they certainly won't grant
   `CAP_SYS_ADMIN`.
-- **No argv capture**: fanotify tells you THAT a file was executed, not
+- **No argv capture**: fanotify reports THAT a file was executed, not
   what arguments it received. Useless for knowing which `.c` file was
   compiled into which `.o` file.
 - **Kernel 5.1+ for FAN_OPEN_EXEC_PERM**: Excludes RHEL 7, RHEL 8,
@@ -588,8 +604,8 @@ content hashes.
   is slow or crashes, the build hangs.
 - **System-wide scope**: Like audit, fanotify monitors all execs on the
   filesystem/mount, not just the build. Must filter by PID.
-- **Less data than audit**: Audit gives you full argv, cwd, uid, ppid.
-  fanotify gives you only the filename and PID.
+- **Less data than audit**: Audit provides full argv, cwd, uid, ppid.
+  fanotify provides only the filename and PID.
 
 **Verdict**: fanotify is **the weakest option** for build interception.
 It provides less data than audit, requires a more sensitive capability,
@@ -629,33 +645,55 @@ mappings. This eliminates fanotify. The remaining sidecar options are:
 
 ## 8. Recommendation: Tiered Strategy
 
-Given the true sidecar constraint and enterprise diversity, recommend
-a **tiered approach** where the sidecar auto-detects the available
-kernel capabilities and selects the best strategy:
+The recommended tiering follows the **deployment model** (see the Executive
+Summary). For the project's ephemeral CI/CD build-step target — matching the
+delivered Java sidecar — `LD_PRELOAD` is primary; kernel observers are
+fallbacks for the minority of builds it cannot see, on self-managed nodes.
 
-### Tier 1: Linux Audit (Primary — Universal Fallback)
+### Tier 1: `LD_PRELOAD` shim (Primary — portable, zero node infra)
 
-- Works on **every enterprise Linux** (RHEL 7+, Ubuntu 14.04+)
-- Already approved in most enterprise security policies
-- Captures full argv (critical for input→output mapping)
-- Lowest capability requirement (`CAP_AUDIT_CONTROL` + `CAP_AUDIT_READ`)
-- Or: security team pre-configures the rule; sidecar only reads
+- Deploys as **two pipeline-YAML env vars** (`LD_PRELOAD` + a config-driven
+  capture/raw-logfile path) before the **unchanged** build command — the
+  only sidecar mechanism that needs **no** node-level capability or daemon,
+  so it works in ephemeral hosted runners.
+- Captures full argv directly at `execve`/`posix_spawn`; hashes inputs and
+  outputs inline in the exit handler (blocks the build only minimally).
+- Covers ~80–90% of enterprise builds (all dynamically-linked, glibc,
+  environment-propagating builds), independent of `$(CC)` vs hardcoded `gcc`.
+- **Proven**: this is exactly the delivered, golden-clean Java sidecar
+  pattern (`../java/reference/inline-hashing-interception-design.md`).
 
-**Implementation**: Add execve audit rule scoped to the build user or
-session. Parse audit log in real-time. Reconstruct process tree from
-PPID. Extract compiler invocations. Hash files post-build.
+**Fails when**: statically-linked build tools, musl libc/Alpine, or builds
+that run `env -i`/unset `LD_PRELOAD`. Those fall through to a kernel observer.
 
-### Tier 2: eBPF (Optimal — When Available)
+### Tier 2: eBPF node observer (Fallback — optimal on self-managed nodes)
 
-- Near-zero overhead (<3%)
-- No build stoppage (tracee never paused)
-- Requires `CAP_BPF` + `CAP_PERFMON` (kernel 5.8+) or `CAP_SYS_ADMIN`
-- Best for high-volume builds (`make -j64`)
+- Near-zero build impact (tracee never paused; hashing async in the daemon).
+- Requires `CAP_BPF` + `CAP_PERFMON` (kernel 5.8+) or `CAP_SYS_ADMIN`;
+  excludes RHEL 7. Needs a privileged node daemon — **not** available in an
+  ephemeral hosted runner.
+- `sched_process_exit` doubles as reliable build-completion detection.
 
-**Implementation**: Load BPF program on `sys_enter_execve` +
-`sched_process_exit`. Capture PID and filename in-kernel. Read
-`/proc/PID/cmdline` from userspace daemon before process exits.
-Fall back to Tier 1 if BPF load fails.
+**Implementation**: Load BPF on `sys_enter_execve` + `sched_process_exit`;
+read `/proc/PID/cmdline` before the process exits.
+
+### Tier 3: Linux audit (Fallback — universal on self-managed Linux)
+
+- Works on **every** self-managed enterprise Linux (RHEL 7+, no `CAP_BPF`);
+  usually already approved for compliance. Captures full argv (no race).
+- Higher overhead (+2–5%), system-wide noise (filter by process tree), and
+  audit-buffer tuning under `-j64`. Needs `CAP_AUDIT_READ` (and
+  `CAP_AUDIT_CONTROL` unless the rule is pre-configured) — node-level, so
+  not available in an ephemeral hosted runner.
+
+**Implementation**: Add an `execve` audit rule scoped to the build session;
+parse the log; reconstruct the process tree from PPID; hash files in the
+post-build capture window.
+
+### Standalone escape hatch: `ptrace` (not a sidecar tier)
+
+For hermetic builds that defeat every sidecar tier, drop the repo into
+standalone mode (`bomtrace3`). `ptrace` is **not** sidecar-viable (§1).
 
 ### Strategy Selection Logic
 

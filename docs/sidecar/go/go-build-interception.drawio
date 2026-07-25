@@ -126,10 +126,10 @@
         <mxCell id="div1" parent="1" style="line;strokeWidth=3;strokeColor=#111111;dashed=1" value="" vertex="1">
           <mxGeometry height="10" width="970" x="40" y="318" as="geometry" />
         </mxCell>
-        <mxCell id="s2-title" parent="1" style="text;html=1;fontSize=16;fontStyle=1" value="Section 2: OmniBOR (bomtrace2) Build Interception for Go" vertex="1">
+        <mxCell id="s2-title" parent="1" style="text;html=1;fontSize=16;fontStyle=1" value="Section 2: OmniBOR (LD_PRELOAD shim) Build Interception for Go" vertex="1">
           <mxGeometry height="25" width="500" x="40" y="338" as="geometry" />
         </mxCell>
-        <mxCell id="bt2" parent="1" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=9;fontStyle=1" value="bomtrace2&#xa;-c bomtrace_go.conf&#xa;(parent process)&#xa;ptrace(PTRACE_TRACEME)" vertex="1">
+        <mxCell id="bt2" parent="1" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=9;fontStyle=1" value="LD_PRELOAD shim&#xa;(libbomsh.so)&#xa;preloaded into build" vertex="1">
           <mxGeometry height="70" width="160" x="40" y="373" as="geometry" />
         </mxCell>
         <mxCell id="gobuild2" parent="1" style="rounded=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10" value="go build&#xa;(child)" vertex="1">
@@ -138,7 +138,7 @@
         <mxCell id="execve-zone" parent="1" style="rounded=0;fillColor=none;strokeColor=#d6b656;strokeWidth=3;dashed=1" value="" vertex="1">
           <mxGeometry height="102" width="430" x="350" y="368" as="geometry" />
         </mxCell>
-        <mxCell id="execve-label" parent="1" style="text;fillColor=#fff2cc;strokeColor=none;fontSize=10;fontStyle=1;align=center" value="bomtrace2 intercepts each execve() syscall via ptrace()" vertex="1">
+        <mxCell id="execve-label" parent="1" style="text;fillColor=#fff2cc;strokeColor=none;fontSize=10;fontStyle=1;align=center" value="LD_PRELOAD shim interposes each execve()/posix_spawn() libc call" vertex="1">
           <mxGeometry height="18" width="429" x="349" y="368" as="geometry" />
         </mxCell>
         <mxCell id="src2" parent="1" style="rounded=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=9" value=".go" vertex="1">
@@ -174,7 +174,7 @@
         <mxCell id="b4" edge="1" parent="1" source="link2" style="exitX=1;exitY=0.5;exitDx=0;exitDy=0;" target="bin2">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="b5" edge="1" parent="1" source="bt2" style="strokeColor=#d6b656;strokeWidth=2" target="gobuild2" value="spawns">
+        <mxCell id="b5" edge="1" parent="1" source="bt2" style="strokeColor=#d6b656;strokeWidth=2" target="gobuild2" value="preloaded into">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="b6" edge="1" parent="1" source="gobuild2" style="dashed=1;strokeColor=#666666;entryX=0;entryY=0.804;entryDx=0;entryDy=0;entryPerimeter=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" target="execve-zone" value="fork+exec">
@@ -200,7 +200,7 @@
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="meta-label" parent="1" style="text;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=8;align=left;spacingLeft=3;verticalAlign=top;rounded=1" value="bomtrace2 captures per execve():&#xa;• tool name (compile, link)&#xa;• input files + SHA-256 hashes&#xa;• output files + SHA-256 hashes" vertex="1">
+        <mxCell id="meta-label" parent="1" style="text;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=8;align=left;spacingLeft=3;verticalAlign=top;rounded=1" value="Shim captures per exec():&#xa;• tool name (compile, link)&#xa;• input files + SHA-256 hashes&#xa;• output files + SHA-256 hashes" vertex="1">
           <mxGeometry height="55" width="150" x="47" y="450" as="geometry" />
         </mxCell>
         <mxCell id="rawlog" parent="1" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=8;align=left;spacingLeft=5;verticalAlign=top" value="bomsh_hook_raw_logfile (text)&#xa;&#xa;One record per execve():&#xa;pid | tool | input_files[] | output_files[]&#xa;     | input_hashes[] | output_hashes[]&#xa;&#xa;Example (compile): main.go,util.go → main.a&#xa;Example (link): *.a → binary" vertex="1">
@@ -224,7 +224,7 @@
         <mxCell id="c4" edge="1" parent="1" source="bomsh-py" target="adg">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="s2-note" parent="1" style="shape=note;size=14;fillColor=#e0e0e0;strokeColor=#9e9e9e;fontSize=9;align=left;spacingLeft=5;verticalAlign=top;whiteSpace=wrap" value="SECTION 2 DATA FLOW (Go-specific):&#xa;1. bomtrace2 spawns go build as child, attaches via ptrace()&#xa;2. Kernel pauses child at every execve() syscall&#xa;3. bomtrace2 inspects: which tool? what inputs? what outputs?&#xa;4. Computes SHA-256 hash (gitoid) of each file&#xa;5. Writes record to raw logfile, resumes child&#xa;6. After build: bomsh_create_bom.py parses logfile:&#xa;   • bomsh_omnibor_treedb: JSON mapping gitoid → path&#xa;   • ADG: per-artifact file listing input gitoids&#xa;&#xa;Key difference from C/C++:&#xa;• Uses bomtrace_go.conf for Go tool detection&#xa;• Go internal tools: compile, link (not gcc/ld)&#xa;• Module sources in vendor/ or GOMODCACHE" vertex="1">
+        <mxCell id="s2-note" parent="1" style="shape=note;size=14;fillColor=#e0e0e0;strokeColor=#9e9e9e;fontSize=9;align=left;spacingLeft=5;verticalAlign=top;whiteSpace=wrap" value="SECTION 2 DATA FLOW (Go-specific):&#xa;1. go build runs with LD_PRELOAD=libbomsh.so (shim in each child)&#xa;2. Shim interposes libc exec() before each tool runs&#xa;3. Shim inspects: which tool? what inputs? what outputs?&#xa;4. Computes SHA-256 hash (gitoid) of each file&#xa;5. Appends record to raw logfile, then calls the real exec()&#xa;6. After build: bomsh_create_bom.py parses logfile:&#xa;   • bomsh_omnibor_treedb: JSON mapping gitoid → path&#xa;   • ADG: per-artifact file listing input gitoids&#xa;&#xa;Caveat (Go static toolchain):&#xa;• Go tools may exec via raw syscalls, defeating LD_PRELOAD&#xa;• Fallback: node-level eBPF / Linux audit&#xa;• ptrace/bomtrace2 remains the standalone escape hatch" vertex="1">
           <mxGeometry height="192" width="250" x="750" y="508" as="geometry" />
         </mxCell>
         <mxCell id="div2" parent="1" style="line;strokeWidth=3;strokeColor=#1D1D1D;dashed=1" value="" vertex="1">

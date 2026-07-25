@@ -25,18 +25,20 @@ testing.** The guiding constraint throughout Main A is the **lowest possible
 impact on the enterprise build phase/cycle in CI/CD** — build and reporting
 may run on different machines, and instrumentation overhead must stay minimal.
 
-**Hard gate:** **ALL** of Main A (every sub-item *and* its testing) MUST be
-100% complete before any work begins on **Main B** (C/C++ deep design
-investigation/validation) or **Main C**. This is the project's standing
-sequencing rule, not a suggestion.
+**Main A → B gate — LIFTED (2026-07-24):** Java (Main A) is functionally
+complete (A8/#11055 and A12/#11104 in final review), so **Main B** (C/C++)
+may now proceed. **Main C** still follows Main B. (Historically this was a
+hard gate requiring 100% of Main A before any Main B work; that gate is now
+cleared per the project lead.)
 
 ## Index
 
 ### Main A — Complete Java Sidecar Phase Isolation (TOP PRIORITY)
 
 **All Java. Focus: lowest impact on the enterprise CI/CD build phase/cycle.**
-Includes ALL testing. Must be 100% complete (every sub-item *and* its
-testing) before Main B or Main C begins.
+Includes ALL testing. (Main A → B gate **lifted** 2026-07-24 — Java
+functionally complete; **Main B may proceed**, A8/#11055 and A12/#11104 in
+final review.)
 
 Detail: build-speed sub-issues [java/phase1-build-speed-subissues.md](java/phase1-build-speed-subissues.md)
 (A3–A5) with engineering design [../sidecar/java/reference/phase1-build-speed-design.md](../sidecar/java/reference/phase1-build-speed-design.md);
@@ -52,16 +54,16 @@ always available via the `tedg_cisco` account):
 |-----|-------|--------|---------|
 | AF | Java Phase 1 capture foundation — build-tool detection + shared treedb helper | Merged (issue **In Review**) | #11069 / PRs #199, #200 |
 | A1 | Phase 2 generates SBOMs from Phase 1 metadata, no source tree (phase-isolation core) | Merged | SI-4 (Java) / #11003 / PR #194 |
-| A2 | Phase 2 output set + hand-off manifest | Scoped | #11004 → [java/java-phase2-11004-handoff-scope.md](java/java-phase2-11004-handoff-scope.md) |
+| A2 | Phase 2 output set + hand-off manifest | Closed — not planned (#11004): peer team integrates Phase 2 into Corona directly, so no hand-off boundary is needed; Java charter complete at #11003 (A1) | #11004 → [java/java-phase2-11004-handoff-scope.md](java/java-phase2-11004-handoff-scope.md) |
 | A3 | Build efficiency — reuse captured dependency data (no double resolution) | Delivered via A1 | US-1 |
 | A4 | Build efficiency — single-invocation multi-module Gradle capture | Merged | US-2 / PR #196 |
-| A5 | Build efficiency — overlap independent post-build steps only when measurable | Optional / low (measure first) | US-3 |
+| A5 | Build efficiency — overlap independent post-build steps only when measurable | Closed — won't do (#11007, not planned): Phase 2 is out-of-band and inline hashing (A10) already removed the hot path | US-3 |
 | A6 | Treedb SBOM-generation speedup (retro) | Delivered | SI-R1 / PRs #189, #187, #191 |
 | A7 | Deliver Java build evidence to Corona (Java delivery slice) | Postponed — out of charter (Corona / Phase 2-incorporation team owns delivery + verification) | SI-5 (Java) |
-| A8 | Build efficiency — fully in-memory JAR class processing (no extract-to-disk) | Deferred (validate on EC2) | US-4 |
+| A8 | Build efficiency — fully in-memory JAR class processing (no extract-to-disk) | **PR #211 open** — tested (1886 pass, 99% cov, patch files 100%) + EC2 golden-validated 2026-07-14 (jsoup/checkstyle identical); synced with `main` (mergeable), awaiting review. Note: EC2 validation predates the inline-hashing default, so A8 now primarily benefits the `java_inline_hash: false` fallback path | US-4 / #11055 |
 | A9 | Support non-Maven/Gradle Java builds (Ant/Ivy, Bazel, `make`) | **Backlog** — parentless issue, not in the initial pilot; **excluded from the Main A completion gate** | #11066 (Proposed) / [java/java-nonmaven-gradle-build-tools-subissue.md](java/java-nonmaven-gradle-build-tools-subissue.md) |
-| A10 | Build efficiency — inline GitOID capture during the build (eliminate post-build rescan) | Delivered & merged (PR #212); flag off by default until golden-validated (see A11) | US-5 / #11097 (child of #11005, In Review) / PR tedg-dev/omnibor-analysis#212 — [java/phase1-build-speed-subissues.md](java/phase1-build-speed-subissues.md) |
-| A11 | Inline-hashing golden-clean validation — MRJAR/multi-module correctness + build-logic JAR exclusion | Implemented on `feat/java-inline-hashing`; golden-clean on all 7 Java repos; PR pending | US-6 / #11100 (child of #11005, In Development) — [java/phase1-build-speed-subissues.md](java/phase1-build-speed-subissues.md) |
+| A10 | Build efficiency — inline GitOID capture during the build (eliminate post-build rescan) | Delivered & merged (PR #212); **enabled by default** (`java_inline_hash: true`), golden-validated via A11 (PR #213) | US-5 / #11097 (child of #11005, In Review) / PR tedg-dev/omnibor-analysis#212 — [java/phase1-build-speed-subissues.md](java/phase1-build-speed-subissues.md) |
+| A11 | Inline-hashing golden-clean validation — MRJAR/multi-module correctness + build-logic JAR exclusion | **Merged (PR #213)**; golden-clean on all 7 Java repos; A10 flag enabled by default | US-6 / #11100 (child of #11005, In Review) — [java/phase1-build-speed-subissues.md](java/phase1-build-speed-subissues.md) |
 | A12 | Build efficiency — capture the Gradle dependency graph during the build (eliminate the post-build re-resolution) | **In Development** (Walk 21); design doc merged, no code PR yet | #11104 (child of #11005) — [../sidecar/java/gradle-inline-dep-capture-design.md](../sidecar/java/gradle-inline-dep-capture-design.md) |
 
 **Standing gate (not a sub-issue):** testing — golden validation, the
@@ -81,17 +83,27 @@ generic build-tool detection + shared treedb helper (#199/#200) is **pilot
 foundation** tracked in #11069 (AF), not under A9. **Java delivery
 completion does not depend on A9.**
 
-### Main B — C/C++ Sidecar Design: Deep Investigation & Validation
+### Main B — C/C++ Sidecar Interception & Phase Isolation
 
-**Blocked until Main A is 100% complete and fully tested.** Detail:
-[sidecar-phase-isolation-subissues.md](sidecar-phase-isolation-subissues.md).
+The **Main A → B gate is lifted** (2026-07-24 — Java functionally complete;
+A8/#11055 and A12/#11104 in final review), so **Main B may proceed**. Epic:
+gambit **#11008**; the four B1–B4 stories (#11009–#11012) plus the epic are
+**Ready** in gambit. The four rows below are the **higher-level user
+stories**
+(cross-language framing in
+[sidecar-phase-isolation-subissues.md](sidecar-phase-isolation-subissues.md));
+each is decomposed into concrete **work-item sub-issues** (`B1.1`, `B2.1`, …)
+in [c-cpp/interception-phase-isolation-subissues.md](c-cpp/interception-phase-isolation-subissues.md),
+grounded in the reconciled design `../sidecar/c-cpp/sidecar-design.md`. The
+gambit work-item sub-issues are **drafts** — created under their parent story
+only when Main B work begins.
 
-| Sub | Title | Lang | Status | Maps to |
-|-----|-------|------|--------|---------|
-| B1 | Agree how we observe C/C++ builds without changing them | C/C++ | Blocked on Main A | SI-1 |
-| B2 | Auto-capture C/C++ components during a normal build | C/C++ | Blocked on Main A | SI-2 |
-| B3 | Extend capture to self-contained (static) builds | C/C++, Go | Blocked on Main A | SI-3 |
-| B4 | C/C++ realization — SBOMs from captured data, no workspace | C/C++ | Blocked on Main A | SI-4 (C/C++) |
+| Sub | Title (higher-level user story) | Work items | Lang | Status | Maps to |
+|-----|-------|------|------|--------|---------|
+| B1 | Agree how we observe C/C++ builds without changing them | B1.1–B1.3 (#11176–#11178) | C/C++ | Ready (B1.1 #11176 In Development) | SI-1 / #11009 |
+| B2 | Auto-capture C/C++ components during a normal build (`LD_PRELOAD` primary) | B2.1–B2.5 | C/C++ | Ready | SI-2 / #11010 |
+| B3 | Extend capture to self-contained (static) builds (eBPF/audit node observers) | B3.1–B3.3 | C/C++, Go | Ready | SI-3 / #11011 |
+| B4 | C/C++ realization — SBOMs from captured data, no workspace | B4.1–B4.5 | C/C++ | Ready | SI-4 (C/C++) / #11012 |
 
 ### Main C — Shared Delivery & Remaining Languages
 
@@ -100,8 +112,8 @@ After Java (Main A); coordinated with / after C/C++ (Main B). Detail:
 
 | Sub | Title | Lang | Status | Maps to |
 |-----|-------|------|--------|---------|
-| C1 | Shared Corona intake + auth model (build once, reuse existing patterns) | all | Planned | SI-5 (shared) |
-| C2 | Deliver build evidence for C/C++, Rust, Go | C/C++, Rust, Go | Planned | SI-5 (non-Java) |
+| C1 | Shared Corona intake + auth model (build once, reuse existing patterns) | all | Out of charter — Corona owns (#11013 closed, not planned) | SI-5 (shared) |
+| C2 | Deliver build evidence for C/C++, Rust, Go | C/C++, Rust, Go | Out of charter — Corona owns (#11013 closed, not planned) | SI-5 (non-Java) |
 | C3 | SI-4 realizations for Rust and Go | Rust, Go | Planned | SI-4 (Rust/Go) |
 
 ## Adding new work
@@ -111,5 +123,5 @@ After Java (Main A); coordinated with / after C/C++ (Main B). Detail:
 3. Put the detail in the matching per-language folder and link it here.
 4. If the work supersedes an existing row, update that row to point here —
    do **not** duplicate the description.
-5. Respect the **Main A → B → C** gate: do not start a lower-priority Main
-   until every sub-item of the higher-priority Main is complete and tested.
+5. Respect **Main** priority order. The **Main A → B gate is lifted**
+   (2026-07-24 — Java functionally complete); **Main C** still follows Main B.

@@ -19,9 +19,10 @@ The entire `omnibor-analysis` project exists to serve enterprise C/C++
 
 **Standalone mode is being phased out.** It exists only as:
 
-- A legacy fallback for extreme corner cases where a dev team forks
-  and embeds their own OS, tools, and build orchestration into
-  standalone mode (which would be a fork they own)
+- A deprecated fallback for a rare (~1%) embedded-systems corner case
+  where sidecar interception is genuinely unavailable (e.g. a team that
+  forks and embeds their own OS, tools, and build orchestration — a fork
+  they own)
 
 - A transitional baseline — golden files are being **migrated from
   standalone to sidecar** as each language gets sidecar support (Java
@@ -208,8 +209,9 @@ openssl, redis) are **not enterprise repos** and are **not
 representative** of enterprise build environments. They work with
 `CC=` because they are well-structured open-source projects.
 
-CC= wrappers also have a **critical upstream blocker**: the wrapper
-scripts (`bomsh_cc_wrapper.sh` etc.) don't exist yet in upstream bomsh.
+CC= wrappers also carry an **implementation cost**: the wrapper scripts
+(`bomsh_cc_wrapper.sh` etc.) are not yet built — they would be thin wrappers
+around upstream `bomsh`'s `bomsh_hook2.py`, developed in this repo.
 
 **Bottom line**: `CcWrapperStrategy` may have a niche role for the
 small subset of compliant builds, but it is **not the enterprise C/C++

@@ -9,6 +9,20 @@
 | **Source documents** | [sidecar-implementation-design.md](../_archived/design-evolution/sidecar-implementation-design.md), [sidecar-refactoring-plan.md](../_archived/design-evolution/sidecar-refactoring-plan.md) |
 | **Issue tracker** | [q4fy26-sidecar-issues.md](q4fy26-sidecar-issues.md) |
 
+> **Modes note (historical):** This is a point-in-time Q4FY26 schedule that
+> treats standalone as the then-current baseline being migrated to sidecar.
+> **Sidecar is now the only supported mode**; standalone is deprecated
+> (initial implementation, ~1% embedded corner case). Read the standalone
+> references below as that migration context, not as a current option.
+>
+> **Interception-mechanism note (historical):** Track D below frames the
+> C/C++ `CC=`/`CXX=`/`AR=`/`LD=` wrappers as the "sidecar" mechanism. That
+> classification is **superseded**: those wrappers modify the build and are
+> now classified as *standalone-without-ptrace*. The current truly-sidecar
+> C/C++ mechanism is the `LD_PRELOAD` shim (**primary**, injected via
+> CI/CD-YAML env vars) with eBPF/audit node-observer fallbacks — see
+> `../sidecar/c-cpp/sidecar-design.md`.
+
 ---
 
 ## Goal

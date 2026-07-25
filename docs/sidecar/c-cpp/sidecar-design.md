@@ -1,24 +1,21 @@
 # Sidecar & Phase Isolation — C/C++
 
-|  |  |
-|---|---|
-| **Parent doc** | `../infrastructure.md` |
-| **Reference guide** | `sidecar-interception-strategies.md` — strategy analysis, coverage matrices, and the enterprise OS/kernel landscape |
-| **Status** | Design proposal — not yet implemented |
-| **Date** | 2026-06-12 (updated 2026-07-01: consolidated the PR #94 revision; compiler wrappers re-labeled standalone-without-ptrace) |
+<table>
+<colgroup><col style="width:16%"><col style="width:84%"></colgroup>
+<tbody>
+<tr><td><strong>Parent doc</strong></td><td><code>../infrastructure.md</code></td></tr>
+<tr><td><strong>Reference guide</strong></td><td><code>interception-strategies.md</code> — strategy analysis, coverage matrices, and the enterprise OS/kernel landscape</td></tr>
+<tr><td><strong>Status</strong></td><td>Proposed design (sidecar). Follows the <strong>delivered, golden-clean Java <code>LD_PRELOAD</code> inline-hashing sidecar</strong> (<code>../java/reference/inline-hashing-interception-design.md</code>) as its proven template.</td></tr>
+<tr><td><strong>Date</strong></td><td>2026-06-12 (revised 2026-07-24)</td></tr>
+</tbody>
+</table>
 
 ---
 
-> **Supported modes**: See `../infrastructure.md` §1
-> for the authoritative definition of Standalone and Sidecar modes.
-> All modes apply to C/C++.
->
-> **Interception model**: The truly-sidecar C/C++ mechanism is transparent
-> kernel/linker interception — `LD_PRELOAD` (primary) → eBPF (secondary) →
-> per-repo `ptrace` (tertiary). Compiler-wrapper injection
-> (`CC=`/`CXX=`/`AR=`/`LD=`, `CcWrapperStrategy`) **modifies the build
-> invocation** and is therefore a **standalone-without-ptrace** option,
-> *not* sidecar. See §2.
+> **Supported mode — Sidecar only.** See `../infrastructure.md` §1.
+> Sidecar is the sole supported mode; **standalone is deprecated** — the
+> initial ptrace-based implementation, retained only for a rare ~1%
+> embedded corner case — and must not be offered as an option.
 
 ---
 
@@ -30,42 +27,42 @@
 
 ---
 
-## 1. Current State
+## 1. Scope and design constraints
 
-| Component | Status |
-|-----------|--------|
-| Standalone pipeline (`bomtrace3`) | ✅ Production — 6 repos (curl, ffmpeg, nmap, redis, openosc, node) |
-| `PtraceStrategy` | ✅ Complete in `interception.py` |
-| `CcWrapperStrategy` skeleton (standalone-without-ptrace) | ✅ Defined in `interception.py` — **not wired to CLI**; *not* a sidecar mechanism (see §2.6) |
-| `LdPreloadStrategy` / `EbpfStrategy` (truly-sidecar) | ❌ Not implemented — see §2.3–2.4 |
-| `run_c_cpp_pipeline()` | ✅ Runs Phase 1 + Phase 2 sequentially, standalone only |
-| Phase 1/2 timing tags | ✅ `StepMetrics.phase` properly assigned |
-| `--mode sidecar` for C/C++ | ❌ Not wired — only Java passes `mode` to its runner |
+This document describes the **design** of C/C++ build interception and
+phase isolation in sidecar mode. Implementation status, work-item
+breakdown, effort, and test plans live with the issue tracker and the
+planning notes
+(`../../planning/c-cpp/interception-phase-isolation-subissues.md`) — not here.
 
-### 1.1 Current Code Path (Standalone)
+**Sidecar is the only supported mode.** The goal is to capture a complete,
+accurate bill of materials from a normal C/C++ build **without changing that
+build**: the build command, `Makefile`/`CMakeLists.txt`, compilers, and
+linkers are byte-for-byte unchanged.
 
-`runners.py main()` calls `run_c_cpp_pipeline()`, which runs:
+Achieving that still requires two things that are **not** part of the native
+build and must be stated explicitly:
 
-1. **Phase 1**
-   - `pipeline.validator.validate()` — apt dependency check
-   - `pipeline.builder.build()` — instrumented build:
-     - `clean_cmd`
-     - prebuild steps (`autoreconf`, `./configure`)
-     - `bomtrace3 make -j$(nproc)` — instrumented build
-     - `bomsh_create_bom.py` — ADG generation
-2. **Phase 2** — `_run_post_build()`
-   - `bomsh_sbom.py` — OmniBOR SBOM
-   - `MetadataCollector.collect()`
-   - `AdgSpdxStep.generate()` — per-binary SPDX
-   - `SpdxValidator.validate()`
-   - `BinaryCollector.collect()`
+- **A one-time platform prerequisite** — the `LD_PRELOAD` interception shim
+  (`libomnibor_intercept.so`) is a **precompiled binary**, built by the
+  OmniBOR tooling (never by the native build) and simply placed on the
+  runner — baked into the runner image or mounted read-only ([§6.1.1](#611-installing-the-shim--what-why-where-how)).
+- **A per-build CI/CD change** — the pipeline YAML adds the environment
+  variables that load the shim (`LD_PRELOAD` pointing at that path) and set
+  the capture-log location ([§2.3](#23-primary-tier--ld_preload-shim-opt-in-via-cicd-yaml)). No build command, build file, or
+  toolchain is touched.
 
-### 1.2 Key Observation
+So the footprint is precisely: **the native build is unchanged; the shim is
+installed once by the platform team; and a few environment variables are
+added to the CI/CD pipeline YAML.**
 
-`run_c_cpp_pipeline()` does **not** accept a `mode` parameter — it always
-uses the legacy `bomtrace3` path (hardcoded in `builder.build()` when
-`strategy=None`). The `CcWrapperStrategy` class exists but is never
-instantiated by any runner.
+| Design constraint | Statement |
+|---|---|
+| **Native build unchanged** | The native build command, build files, and toolchain are never modified. |
+| **Ephemeral-runner-first** | The primary mechanism must work in a hosted, ephemeral build runner with no node-level infrastructure or elevated capabilities. |
+| **Phase isolation** | Phase 2 (SPDX generation) operates only on Phase 1 artifacts; it never reads the source tree, which no longer exists when Phase 2 runs. |
+| **Proven precedent** | The design follows the delivered, golden-clean Java `LD_PRELOAD` inline-hashing sidecar (`../java/reference/inline-hashing-interception-design.md`). |
+| **Standalone out of scope** | The legacy `ptrace`/`bomtrace3` standalone path is deprecated (~1% hermetic corner case) and is not part of this design ([§2.5](#25-standalone-mode--out-of-scope)). |
 
 ---
 
@@ -75,584 +72,399 @@ C/C++ is the hardest sidecar case and the most important — legacy
 enterprise platforms are overwhelmingly C/C++. Getting the phase-isolation
 model right here is the priority. Full strategy analysis, coverage
 matrices, and the enterprise OS/kernel landscape live in the reference
-guide `sidecar-interception-strategies.md`.
+guide `interception-strategies.md`.
 
-### 2.1 Strategy taxonomy
+**Interception model.** The sidecar mechanism is **transparent
+kernel/dynamic-linker interception** that observes the compiler and linker
+calls the native build already makes — it never modifies the build
+invocation. Anything that changes the build command, its environment, or its
+build files (for example `CC=`/`CXX=` compiler wrappers, or a `ptrace`
+runner) is **not** sidecar; those belong to the deprecated standalone path
+and are out of scope here ([§2.5](#25-standalone-mode--out-of-scope)).
 
-| Category | Strategies | Modifies build invocation? | Mode |
+### 2.1 Two interception families
+
+| Family | How it observes the build | Changes the build? | In scope? |
 |---|---|---|---|
-| **Standalone (ptrace)** | `PtraceStrategy` (`bomtrace3`/`bomtrace2`) | No (wraps the *runner*, needs `SYS_PTRACE`) | standalone |
-| **Standalone (no ptrace)** | `CcWrapperStrategy` (`CC=`/`CXX=`/`AR=`/`LD=`) | **Yes** (sets build env vars) | standalone alt — **not sidecar** |
-| **Sidecar (transparent)** | `LdPreloadStrategy`, `EbpfStrategy` | **No** (kernel/linker-level, injected by infra) | sidecar |
+| **Transparent sidecar** | Dynamic-linker preload, or a node-level kernel observer, intercepts `execve`/file events below the build system | **No** — injected by infrastructure | **Yes** |
+| **Build-invocation modification** | Compiler wrappers or a `ptrace` runner wrap the build | **Yes** — sets build env vars or wraps the command | No — standalone ([§2.5](#25-standalone-mode--out-of-scope)) |
 
-Key correction: env-var/wrapper injection is a useful **standalone**
-option, but it is explicitly **not** a sidecar mechanism. The sidecar must
-intercept at the kernel or dynamic-linker level, transparent to the build
-system (industry precedent: Istio, Dynatrace, and Vault all inject via
-mutating webhooks + `LD_PRELOAD`).
+The sidecar must intercept at the kernel or dynamic-linker level,
+transparent to the build system (industry precedent: Istio, Dynatrace, and
+Vault all inject via mutating webhooks + `LD_PRELOAD`).
 
-### 2.2 Three-tier sidecar model
+### 2.2 Sidecar tier model
 
-| Tier | Mechanism | Coverage | In-band overhead | Static binaries? | Build modification |
-|---|---|---|---|---|---|
-| **Primary** | `LD_PRELOAD` shim injected by K8s mutating webhook (init container + shared `emptyDir`) | ~80% — all dynamically-linked builds, any build system | +1–3% | No | None |
-| **Secondary** | Node-level **eBPF** DaemonSet on kernel tracepoints | All languages incl. statically-linked | Minimal kernel cost | Yes | None |
-| **Tertiary** | Per-repo `interception: ptrace` override (`bomtrace3`) | Hermetic builds (Bazel, Nix, Yocto) | 20–60% (ptrace) | Yes | None (needs `SYS_PTRACE`) |
+The primary sidecar mechanism is the `LD_PRELOAD` shim, because it is the
+only tier that deploys as **CI/CD-YAML environment variables** and therefore
+works in an **ephemeral** build runner with no node-level infrastructure or
+elevated capabilities. Node-level kernel observers (eBPF, Linux audit) are
+**fallbacks** for `LD_PRELOAD`-blind builds, and apply only when the native
+build runs on a self-managed build node — they need capabilities/daemons an
+ephemeral hosted runner does not grant.
+
+<table>
+<colgroup><col style="width:11%"><col style="width:23%"><col style="width:18%"><col style="width:22%"><col style="width:14%"><col style="width:12%"></colgroup>
+<thead>
+<tr><th>Tier</th><th>Mechanism</th><th>Deploys as</th><th>Coverage</th><th>In-band overhead</th><th>Static binaries?</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>Primary</strong></td><td><code>LD_PRELOAD</code> shim (<code>libomnibor_intercept.so</code>)</td><td>2 CI/CD-YAML env vars</td><td>~80–90% — dynamically-linked compilers/linkers, any build system</td><td>+1–3% (inline hashing only)</td><td>No</td></tr>
+<tr><td><strong>Fallback A</strong></td><td>Node-level <strong>eBPF</strong> on kernel tracepoints</td><td>privileged node daemon (<code>CAP_BPF</code>/<code>CAP_SYS_ADMIN</code>)</td><td>static + dynamic builds</td><td>minimal (async hashing)</td><td>Yes</td></tr>
+<tr><td><strong>Fallback B</strong></td><td>Node-level <strong>Linux audit</strong> <code>execve</code> rule</td><td>audit rule + reader (<code>CAP_AUDIT_READ</code>)</td><td>universal on self-managed Linux (RHEL 7+)</td><td>+2–5% (noisier, log parsing)</td><td>Yes</td></tr>
+<tr><td><strong>Escape hatch</strong></td><td>Per-repo <code>interception: ptrace</code> (<code>bomtrace3</code>) — <strong>standalone, not sidecar</strong></td><td>build-command wrapper (<code>SYS_PTRACE</code>)</td><td>hermetic builds (Bazel, Nix, Yocto)</td><td>20–60%</td><td>Yes</td></tr>
+</tbody>
+</table>
 
 Resolution order: per-repo `interception` override > global `mode` >
-default. Hermetic build systems opt into the tertiary tier per-project
-without affecting others.
+default (`ld_preload`). Hermetic build systems that defeat every sidecar
+tier opt into the standalone `ptrace` escape hatch per-project without
+affecting others.
 
-### 2.3 Primary tier — `LD_PRELOAD` shim
+### 2.3 Primary tier — `LD_PRELOAD` shim (opt-in via CI/CD YAML)
 
-A small shared library (`libomnibor_intercept.so`) is injected via
-`LD_PRELOAD`, set by infrastructure (a K8s `MutatingAdmissionWebhook` +
-init container that copies the shim into a shared volume), never by the
-build command. The shim interposes `execve`, `open`/`openat`, and `close`
-to:
+**What the native build team changes: one pipeline step. What the native
+build changes: nothing.** The native build command,
+`Makefile`/`CMakeLists.txt`, compilers, and linkers are byte-for-byte
+unchanged.
+
+Interception is performed by a small *observability library* (industry
+term: a **"shim"**) that the native build team's platform team installs
+on the build runner ([§6.1.1](#611-installing-the-shim--what-why-where-how) covers what, why, where, and how).
+The native build opts into it through `LD_PRELOAD`, the standard Linux
+dynamic-linker mechanism for loading a library **alongside** the existing
+toolchain — never in place of it. At runtime the library observes the
+compiler/linker calls the native build already makes, hashes the inputs and
+outputs the native build already produces, then hands control to the real
+tool. It does not change compiler inputs, outputs, or the resulting native
+binaries.
+
+The **only** change the native build team makes is two environment variables
+set in the pipeline YAML (Jenkins/GitHub Actions), before the unchanged native
+build command — the same pattern already delivered for Java
+(`../java/reference/inline-hashing-interception-design.md`):
+
+```yaml
+- name: Build (unchanged)
+  run: |
+    export LD_PRELOAD=/opt/omnibor/lib/libomnibor_intercept.so
+    export OMNIBOR_RAW_LOGFILE="$PWD/.omnibor/bomsh_hook_raw_logfile.sha1"
+    make -j"$(nproc)"        # ← identical to the native build's existing command
+```
+
+The `Makefile`/`CMakeLists.txt`/build scripts and the native build command
+are byte-for-byte unchanged; only two env vars are added, in the pipeline YAML
+(`OMNIBOR_RAW_LOGFILE` is config-driven, never hardcoded). On a self-managed
+cluster the same env vars may alternatively be injected by a K8s
+`MutatingAdmissionWebhook` + init container (transparent to the pipeline),
+but that is an optional platform convenience, not a requirement. The shim
+interposes `execve`/`posix_spawn` (compiler/linker argv capture) and
+`close`/`rename` (artifact finalization) to:
 
 1. Record each compiler/linker `argv` to the raw-logfile format consumed
    by `bomsh_create_bom.py`.
 2. Hash compilation inputs and outputs **inline** (gitoid), keeping the
-   data on the build's critical path minimal.
-3. `exec()` the real tool so the build environment is otherwise identical.
+   data on the native build's critical path minimal.
+3. `exec()` the real tool so the native build environment is otherwise
+   identical.
 
-Failure isolation: the shim must never fail the customer build — on any
+Failure isolation: the library must never fail the native build — on any
 internal error it logs and lets the real tool proceed; the SBOM is
-reported incomplete rather than the build broken.
+reported incomplete rather than the native build broken.
 
-### 2.4 Secondary tier — eBPF node DaemonSet
+### 2.4 Fallback tiers — node-level kernel observers (eBPF, audit)
 
-For statically-linked builds (where `LD_PRELOAD` cannot interpose) the
-secondary tier runs a privileged DaemonSet loading eBPF programs on
-`sched_process_exec`, `sched_process_exit`, and `sys_enter_openat`. It
-observes compiler invocations system-wide with no pod modification. The
-`sched_process_exit` tracepoint also provides reliable **build-completion
-detection** for the post-build capture window. Requires `CAP_BPF` /
-`CAP_SYS_ADMIN` on the DaemonSet.
+The fallback tiers apply **only** when `LD_PRELOAD` cannot interpose
+(statically-linked build tools, musl libc/Alpine, or builds that run
+`env -i`) **and** the native build runs on a **self-managed build node**.
 
-### 2.5 Tertiary tier — per-repo `ptrace` override
+**These fallbacks require altering the build environment.** Unlike the
+primary tier — a pure CI/CD-YAML env-var change that adds nothing to the
+build node — each fallback requires the platform team to install a
+**privileged, node-level component** (a BPF-loading daemon, or an `execve`
+audit rule plus a reader) and to grant it **elevated Linux capabilities**
+(`CAP_BPF`/`CAP_SYS_ADMIN`, or `CAP_AUDIT_READ`/`CAP_AUDIT_CONTROL`). That
+is an infrastructure change to the build node itself: the native build
+command and files remain unchanged, but the **node no longer runs
+unmodified**, and an ephemeral hosted runner will not permit it. They are
+therefore fallbacks, never the default.
 
-For hermetic build systems that defeat both `LD_PRELOAD` and eBPF, a
-per-repo `interception: ptrace` setting falls back to the existing
-`PtraceStrategy` (`bomtrace3`), reusing the production standalone ADG path
-unchanged. The `build_system` field is recorded in the SPDX `creationInfo`
-comment for traceability.
+- **eBPF** (`Fallback A`): a privileged node daemon loads BPF programs on
+  `sched_process_exec`, `sched_process_exit`, and `sys_enter_openat`,
+  observing compiler invocations system-wide with no pod modification.
+  `sched_process_exit` also gives reliable **build-completion detection**
+  for the post-build capture window. Needs `CAP_BPF`/`CAP_PERFMON`
+  (kernel 5.8+) or `CAP_SYS_ADMIN` (4.18–5.7); excludes RHEL 7.
+- **Linux audit** (`Fallback B`): an `execve` audit rule logs full argv for
+  every process; a reader reconstructs the build process tree. This is the
+  **universal** fallback on self-managed Linux (RHEL 7+, no `CAP_BPF`) and
+  is usually already approved for compliance — at the cost of higher
+  overhead (+2–5%), system-wide noise (must filter by process tree), and
+  audit-buffer tuning under `-j64`. Needs `CAP_AUDIT_READ` (and
+  `CAP_AUDIT_CONTROL` unless the rule is pre-configured).
 
-### 2.6 `CcWrapperStrategy` — standalone-without-ptrace (not sidecar)
+See `interception-strategies.md` for the full eBPF/audit coverage and
+capability analysis.
 
-The implemented `CcWrapperStrategy` (`@app/pipeline/interception.py`) sets
-`CC`/`CXX`/`AR`/`LD` to OmniBOR wrapper scripts. This works without
-`SYS_PTRACE`, but it **changes the build command's environment**, which the
-sidecar model forbids. It is retained as a valid
-**standalone-without-ptrace** option for environments that cannot use
-ptrace and can tolerate a build-env change. Its ADG step reuses
-`PtraceStrategy.generate_adg()` because the raw-logfile format is identical.
+### 2.5 Standalone mode — out of scope
 
-Approaches ruled out by the zero-modification (sidecar) constraint:
-
-| Approach | Why not sidecar |
-|---|---|
-| `CC=/opt/omnibor/gcc-wrapper make` | Sets a build env var (changes invocation) |
-| `bear -- make`, `cov-build make` | Wraps/changes the build command |
-| `RUSTC_WRAPPER=`, `go build -toolexec=` | Requires env/flag on the build command |
-| Makefile / lifecycle hooks | Modifies the project's build config |
-
-```python
-# From interception.py — retained as a standalone-without-ptrace option:
-class CcWrapperStrategy(InterceptionStrategy):
-    def instrument_command(self, build_cmd, repo_dir):
-        d = self._wrapper_dir
-        env = {
-            "CC": f"{d}/bomsh_cc_wrapper.sh",
-            "CXX": f"{d}/bomsh_cxx_wrapper.sh",
-            "AR": f"{d}/bomsh_ar_wrapper.sh",
-            "LD": f"{d}/bomsh_ld_wrapper.sh",
-        }
-        return build_cmd, env
-
-    def generate_adg(self, repo_dir, bom_dir, omnibor_cfg):
-        # Delegates to PtraceStrategy.generate_adg() — identical
-        # raw-logfile format.
-        strategy = PtraceStrategy()
-        return strategy.generate_adg(repo_dir, bom_dir, omnibor_cfg)
-```
-
-### 2.7 Wiring the sidecar strategy to the pipeline
-
-`_select_c_cpp_strategy()` in `lang_runners.py` selects the transparent
-sidecar strategy (primary `LD_PRELOAD`), falling back to the legacy
-standalone `bomtrace3` path when not in sidecar mode:
-
-```python
-def _select_c_cpp_strategy(repo_name, repo_cfg, paths_cfg, mode):
-    """Select interception strategy for C/C++ builds.
-
-    Sidecar mode uses transparent kernel/linker interception
-    (LD_PRELOAD primary; eBPF or per-repo ptrace per tier).
-    Standalone mode returns None (legacy bomtrace3 path).
-    """
-    if mode != "sidecar":
-        return None
-    # Per-repo `interception` override selects the tier; default primary.
-    from app.pipeline.interception import LdPreloadStrategy
-    return LdPreloadStrategy()  # pending implementation
-```
-
-`run_c_cpp_pipeline()` accepts a `mode=` parameter and passes the selected
-strategy into Phase 1 (see §7 for the full phase-split signatures).
+Two older approaches change the build and are therefore **not sidecar**:
+per-repo `ptrace` (`bomtrace3`), which requires the tracer to be the build's
+parent or share its PID namespace; and `CC=`/`CXX=`/`AR=`/`LD=` compiler
+wrappers, which set build environment variables. Both belong to the
+deprecated standalone path, retained only for the ~1% hermetic corner case
+(Bazel, Nix, Yocto). Neither is offered as a sidecar option; for details,
+see the reference guide `interception-strategies.md`.
 
 ---
 
-## 3. Phase 1 Artifacts
+## 3. Phase 1 artifacts
 
-| Artifact | Standalone | Sidecar | Location |
-|----------|-----------|---------|----------|
-| Raw logfile | ✅ `bomtrace3` writes | ✅ `LD_PRELOAD` shim (or eBPF) writes same format | `/tmp/bomsh_hook_raw_logfile.sha1` |
-| Treedb (`bomsh_omnibor_treedb`) | ✅ `bomsh_create_bom.py` | ✅ same script (from `LD_PRELOAD`/eBPF capture) | `bom_dir/metadata/bomsh/` |
-| `bomsh_omnibor_doc_mapping` | ✅ | ✅ | `bom_dir/metadata/bomsh/` |
-| `bomsh_hook_raw_logfile` (archived) | ✅ | ✅ | `bom_dir/metadata/bomsh/` |
-| Output binaries (ELF) | ✅ in `repo_dir` | ✅ in `repo_dir` | Per `output_binaries` config |
-| `phase1_manifest.json` | ✅ (when `--phase build`) | ✅ | `bom_dir/phase1_manifest.json` |
+Phase 1 runs inside the ephemeral build environment, where two actors share
+one workspace volume: the **native build** (its unchanged toolchain, source
+tree, and output binaries) and the **OmniBOR sidecar** (the companion process
+that performs interception and post-build capture on that same volume). The
+table shows where each artifact originates. Every artifact uses the format
+the ADG tooling already reads, so no downstream tool changes.
+
+<table>
+<colgroup><col style="width:26%"><col style="width:34%"><col style="width:20%"><col style="width:20%"></colgroup>
+<thead>
+<tr><th>Artifact</th><th>Produced by</th><th>Resides on</th><th>Location</th></tr>
+</thead>
+<tbody>
+<tr><td>Native source tree</td><td>The native build (unchanged)</td><td><strong>Native build</strong></td><td>build workspace (shared volume)</td></tr>
+<tr><td>Output binaries (ELF)</td><td>The native build (unchanged)</td><td><strong>Native build</strong></td><td>per <code>output_binaries</code> config (measured in place; not shipped off-host)</td></tr>
+<tr><td>Raw logfile</td><td>The interception shim (or node observer), inline during the build</td><td><strong>Native build</strong> (written to the shared volume)</td><td>config-driven raw-logfile path</td></tr>
+<tr><td>Treedb + document mapping</td><td>Sidecar — ADG generation over the raw logfile</td><td><strong>Sidecar</strong></td><td><code>bom_dir/metadata/bomsh/</code></td></tr>
+<tr><td>Archived raw logfile</td><td>Sidecar — copied into the BOM directory for provenance</td><td><strong>Sidecar</strong></td><td><code>bom_dir/metadata/bomsh/</code></td></tr>
+<tr><td>Binary-derived facts + version map</td><td>Sidecar — captured in the Phase-1 window while binary and source still exist ([§4.1](#41-version-detection-across-the-phase-boundary), [§4.2](#42-binary-derived-facts-belong-in-phase-1-not-phase-2))</td><td><strong>Sidecar</strong></td><td><code>bom_dir</code> / manifest</td></tr>
+<tr><td>Phase 1 manifest</td><td>Sidecar — written by the CLI phase layer</td><td><strong>Sidecar</strong></td><td><code>bom_dir/phase1_manifest.json</code></td></tr>
+</tbody>
+</table>
+
+Before the ephemeral build environment is destroyed, the sidecar pushes the
+Phase-1 **metadata** (treedb, manifest, per-artifact SPDX) to the **Corona
+artifactory** (its S3 intake bucket / durable storage). **Native binaries are
+measured in the Phase-1 window and never leave the native build host — no
+binary egress** ([§4.2](#42-binary-derived-facts-belong-in-phase-1-not-phase-2)).
+Phase 2 (the Corona agent) runs on a different host and reads **only** from
+the artifactory; it never touches the native build workspace.
 
 ---
 
-## 4. Phase 2 Requirements
+## 4. Phase 2 requirements
 
-| Operation | Module | Needs Binary? | Needs Source Tree? | Needs Treedb? |
-|-----------|--------|---------------|-------------------|---------------|
-| `bomsh_sbom.py` (re-hashes artifacts) | `spdx_generator.py` | ✅ re-hashes via `-F` | ❌ | ✅ |
-| `collect_dynamic_libs.py` (`ldd`/`readelf`) | `metadata_collector.py` (`MetadataCollector`) | ✅ to **produce** `dynamic_libs.json` | ❌ | ❌ |
-| `AdgSpdxGenerator` (per-binary SPDX) | `spdx/generator.py` | ❌ reads `dynamic_libs.json` | ✅ (version detection) | ✅ |
-| OmniBOR `ExternalRef` injection | `spdx_generator._inject_omnibor_refs` | ❌ reads raw logfile + `doc_mapping` | ❌ | ✅ |
-| `BinaryCollector` (archival copy) | `binary_collector.py` | ✅ copies binaries | ❌ | ❌ |
+Phase 2 assembles the SPDX documents. The design question is which inputs
+each step needs, so that anything requiring the **binary** or the **source
+tree** is moved into the Phase-1 capture window (where both still exist),
+leaving Phase 2 needing only Phase-1 metadata.
 
-Only `bomsh_sbom.py` and the `ldd`/`readelf` capture actually read the
-binary; the SPDX assembly and `ExternalRef` injection are already
-metadata-driven. See §4.2 for why the binary-reading steps belong in
+<table>
+<colgroup><col style="width:46%"><col style="width:18%"><col style="width:18%"><col style="width:18%"></colgroup>
+<thead>
+<tr><th>Operation</th><th>Needs binary?</th><th>Needs source tree?</th><th>Needs treedb?</th></tr>
+</thead>
+<tbody>
+<tr><td>Artifact hashing / OmniBOR SBOM</td><td>Yes</td><td>No</td><td>Yes</td></tr>
+<tr><td>Dynamic-dependency capture (<code>ldd</code>/<code>readelf</code>)</td><td>Yes</td><td>No</td><td>No</td></tr>
+<tr><td>Per-binary SPDX assembly</td><td>No</td><td>Yes (version detection)</td><td>Yes</td></tr>
+<tr><td>OmniBOR external-reference injection</td><td>No</td><td>No</td><td>Yes</td></tr>
+<tr><td>Archival binary copy</td><td>Yes</td><td>No</td><td>No</td></tr>
+</tbody>
+</table>
+
+Only artifact hashing and the `ldd`/`readelf` capture actually read the
+binary; SPDX assembly and reference injection are already metadata-driven.
+The two source-tree/binary needs — version detection ([§4.1](#41-version-detection-across-the-phase-boundary)) and
+binary-derived facts ([§4.2](#42-binary-derived-facts-belong-in-phase-1-not-phase-2)) — are the only things that must move into
 Phase 1.
 
-### 4.1 Source Tree Dependency for Version Detection
+### 4.1 Version detection across the phase boundary
 
-The `AdgSpdxGenerator` calls `version_detector.py` which scans source
-headers (`VERSION`, `configure.ac`, `CMakeLists.txt`, `#define` macros) to
-detect vendored library versions. This is the **primary reason** Phase 2
-needs the source tree for C/C++.
+Version detection reads source files (`VERSION`/`RELEASE` files, structured
+manifests, `configure.ac`, `CMakeLists.txt`, `meson.build`, `*.pc.in`,
+`#define *_VERSION` macros, `Makefile` `VERSION=`), in priority order. That
+source dependency is the **primary reason** a naive Phase 2 would need the
+source tree for C/C++.
 
-**Mitigation for cross-host Phase 2**: Pre-compute versions in Phase 1
-and include them in the manifest:
-
-```python
-# Phase 1 post-step:
-from app.spdx.version_detector import detect_version_from_source
-versions = {}
-for vdir in repo_cfg.get("vendored_dirs", []):
-    ver = detect_version_from_source(repo_dir, vdir)
-    if ver:
-        versions[vdir] = ver
-manifest["precomputed_versions"] = versions
-```
-
-Phase 2 reads `precomputed_versions` from the manifest, bypassing source
-tree scanning.
+**Design resolution — pre-compute in Phase 1, consult the map in Phase 2.**
+The vendored libraries and their source paths are already derivable in
+Phase 1 from the same grouping the SPDX emitter uses. Run the **existing**
+version detector over them while the source tree is still present, and
+record a generic `{library: version}` map in the Phase 1 manifest. Phase 2
+then prefers that map before any source scan. This reuses the detector
+unchanged — no new version logic, nothing repo-specific — and moves only
+*when* detection runs (Phase 1 instead of Phase 2).
 
 ### 4.2 Binary-derived facts belong in Phase 1 (not Phase 2)
 
-The phase boundary is defined by **the binary**, not by "hashing vs
-assembly": any step that reads the binary must run where the binary is
-guaranteed present — the Phase-1 capture window in the ephemeral build
-environment. `bomsh_sbom.py` re-hashing the artifact at Phase 2 is a
-**standalone-mode assumption** that must not cross into the sidecar phase
-split, because:
+The phase boundary is defined by **the binary**: any step that reads the
+binary must run where the binary is guaranteed present — the Phase-1 capture
+window in the ephemeral build environment. Re-reading the artifact at
+Phase 2 is a standalone-mode assumption that must not cross into the sidecar
+phase split, because:
 
-1. **Phase 1 already hashes the binary.** The raw logfile records
-   `outfile: <sha1> path: <path>` (`_inject_omnibor_refs`), and
-   `bomsh_omnibor_doc_mapping` maps `sha1 → OmniBOR doc id`. The full
-   `binary → gitoid → ADG-doc-id` chain is already resolved in Phase-1
-   artifacts; re-hashing at Phase 2 is redundant.
-2. **No artifact-derived fact needs Phase 2.** bomsh's `SHA-1` treedb/gitoid
-   (ADG topology lookup only), the raw `SHA-256` + `SHA-256` gitOID that the
-   SBOM surfaces, size, ELF metadata (`readelf`), and dynamic deps
-   (`ldd` → `dynamic_libs.json`) are all Phase-1-capturable. The `SHA-256`
-   identity is computed by reading each artifact while it still exists at
-   Phase 1 (bomsh's `SHA-1` values never surface in the SBOM). See the design
-   of record: `.windsurf/rules/project/artifact-identity.md`.
-3. **Binaries are often proprietary customer IP** — egressing them to S3 or
-   an analysis host is a data-exfiltration surface (CWE-200). Capturing
-   facts in Phase 1 keeps binaries on the build host.
+1. **Phase 1 already hashes the binary.** The raw logfile and document
+   mapping already resolve the full `binary → gitoid → ADG-document` chain
+   in Phase-1 artifacts; re-hashing at Phase 2 is redundant.
+2. **No artifact-derived fact needs Phase 2.** The SBOM identity
+   (`SHA-256` raw + `SHA-256` gitOID), size, ELF metadata, and dynamic
+   dependencies are all capturable while the artifact still exists in
+   Phase 1. (bomsh's internal `SHA-1` treedb is topology lookup only and
+   never surfaces in the SBOM — see the design of record,
+   `.windsurf/rules/project/artifact-identity.md`.)
+3. **Binaries are often proprietary customer IP.** Egressing them to an
+   analysis host is a data-exfiltration surface (CWE-200); capturing facts
+   in Phase 1 keeps binaries on the build host.
 
-**Resolution — two ways to draw the line:**
+**Design resolution — assemble the SPDX in the Phase-1 window.** The SBOM
+step runs where the treedb and the binaries are both local, emits the small
+per-artifact SPDX plus metadata, and Phase 2 performs only the
+metadata-driven merge, patch, and validation it already does. This removes
+the binary dependency with **zero binary egress**. A future refinement —
+capturing a structured facts-map in Phase 1 and assembling the SPDX in
+Phase 2 — remains possible but is not required.
 
-| | Binary-facts captured | SPDX document assembled | Upstream change | Binary egress |
-|---|---|---|---|---|
-| **Pilot** | Phase 1 | **Phase 1** (run `bomsh_sbom.py` in capture window) | None | None |
-| **Future** | Phase 1 (structured map) | Phase 2 (assemble from treedb + map) | small Phase-2 assembler *or* upstream `bomsh` flag to accept precomputed gitoids | None |
-
-Adopt the **pilot** first: `bomsh_sbom.py` runs in the Phase-1 capture
-window (treedb `-b` and binaries `-F` are both local there), emits the
-small per-artifact SPDX + metadata, and Phase 2 does only the
-metadata-driven merge/patch/validate it already performs. This eliminates
-the binary dependency with **zero upstream work and zero binary egress**.
-This supersedes any notion that Phase 2 must transfer binaries.
-
-For reference, the binary sizes that this avoids shipping:
-
-| Repo | Binary | Approximate Size |
-|------|--------|-----------------|
-| curl | `src/.libs/curl` + `lib/.libs/libcurl.so` | ~5 MB |
-| ffmpeg | 9 binaries/libraries | ~200 MB |
-| nmap | `nmap` + `ncat` + `nping` | ~15 MB |
-| redis | `redis-server` + `redis-cli` | ~10 MB |
-| openosc | `libopenosc.so` | ~1 MB |
-| node | `out/Release/node` | ~80 MB |
-
-Under the Phase-1 capture resolution these binaries are **not** shipped at
-all. If an interim build ever must ship a binary (before the pilot lands),
-compress with `zstd`; only ffmpeg and node are a size concern.
+This mirrors the **delivered Java Phase 1**, which already persists artifact
+identity while build intermediates still exist and verifies those identities
+from the manifest in Phase 2 — a working precedent for capturing
+binary-derived facts in Phase 1. Because build outputs can be large
+(hundreds of MB for media or runtime builds), keeping them on the build host
+avoids both the egress cost and the exfiltration risk.
 
 ---
 
-## 5. Config Schema
+## 5. Configuration contract
 
-### 5.1 Current (flat format — standalone only)
-
-```yaml
-omnibor:
-  tracer: bomtrace3
-  create_bom_script: bomsh_create_bom.py
-  sbom_script: bomsh_sbom.py
-  raw_logfile: /tmp/bomsh_hook_raw_logfile.sha1
-```
-
-### 5.2 Target (nested mode format)
+Configuration is **nested by mode**; sidecar mode selects the `sidecar`
+sub-key. A per-repo `interception` override picks a specific tier for
+hermetic or statically-linked builds. No repo names ever appear in
+executable code — behavior is entirely config-driven.
 
 ```yaml
 omnibor:
-  standalone:
-    tracer: bomtrace3
-    create_bom_script: bomsh_create_bom.py
-    sbom_script: bomsh_sbom.py
-    raw_logfile: /tmp/bomsh_hook_raw_logfile.sha1
   sidecar:
-    # Truly-sidecar: transparent LD_PRELOAD shim injected by infra.
     preload_lib: /opt/omnibor/lib/libomnibor_intercept.so
-    interception: ld_preload   # ld_preload (default) | ebpf | ptrace
+    interception: ld_preload      # ld_preload (default) | ebpf | audit
     create_bom_script: bomsh_create_bom.py
     sbom_script: bomsh_sbom.py
-    raw_logfile: /tmp/bomsh_hook_raw_logfile.sha1
-    # wrapper_dir is used ONLY by the standalone-without-ptrace
-    # CcWrapperStrategy option (§2.6), not by the sidecar tiers.
-    wrapper_dir: /opt/bomsh/bin
+    raw_logfile: <config-driven path>
+  standalone:                     # deprecated, out of scope (§2.5)
+    tracer: bomtrace3
 ```
 
-`resolve_omnibor_cfg()` in `config.py` already handles both formats — the
-nested format auto-selects based on `config["mode"]`. A per-repo
-`interception` override (`ld_preload` | `ebpf` | `ptrace`) selects the
-tier for hermetic or statically-linked builds.
+The config layer auto-selects the sub-key from the active mode and remains
+backward-compatible with the legacy flat format.
 
 ---
 
-## 6. Upstream `bomsh` Interception Requirements
+## 6. Interception components
 
 ### 6.1 Truly-sidecar — `LD_PRELOAD` shim (primary)
 
 The transparent sidecar mechanism is an `LD_PRELOAD` shim
-(`libomnibor_intercept.so`) injected by infrastructure, never by the build
-command (see §2.3). Because it interposes at the exec/dynamic-linker level,
+(`libomnibor_intercept.so`) loaded via two CI/CD-YAML env vars (or, on a
+self-managed cluster, by an optional mutating webhook), never by editing the
+build command (see [§2.3](#23-primary-tier--ld_preload-shim-opt-in-via-cicd-yaml)). The platform team installs the shim on the build
+runner once ([§6.1.1](#611-installing-the-shim--what-why-where-how)); `LD_PRELOAD` then references it by path. Because it
+interposes at the exec/dynamic-linker level,
 it captures compiler **and** linker invocations regardless of whether the
 Makefile uses `$(CC)` or hardcodes `gcc` — avoiding the wrapper option's
 biggest coverage gap. It writes the **same raw logfile format** as
-`bomtrace3` so `bomsh_create_bom.py` works unchanged. The shim does not yet
-exist in upstream bomsh and must be contributed or developed.
+`bomtrace3` so `bomsh_create_bom.py` works unchanged. It mirrors the
+delivered, golden-clean Java `LD_PRELOAD` shim
+(`docker/shim/omnibor_java_intercept.c`) and is a component of this repo, not
+part of upstream `bomsh` — its only `bomsh` coupling is the raw-logfile
+format above, which the ADG step consumes unchanged.
 
-### 6.2 Standalone-without-ptrace — CC/CXX/AR/LD wrappers
+#### 6.1.1 Installing the shim — what, why, where, how
 
-The CC/CXX/AR/LD wrappers assumed by `CcWrapperStrategy` (§2.6) support the
-standalone-without-ptrace option **only** (not sidecar). They also **do not
-yet exist in upstream bomsh** and must be contributed or developed.
+The diagram's *"Platform Team · one-time setup — installs the OmniBOR
+interception shim on the build runner"* box maps to the following. This is a
+**one-time platform action**, entirely separate from — and invisible to —
+any build:
 
-| Wrapper | Purpose | Intercepts | Output |
-|---------|---------|-----------|--------|
-| `bomsh_cc_wrapper.sh` | Wrap `gcc`/`clang` | `.c` → `.o` compilation | Appends to raw logfile |
-| `bomsh_cxx_wrapper.sh` | Wrap `g++`/`clang++` | `.cpp` → `.o` compilation | Appends to raw logfile |
-| `bomsh_ar_wrapper.sh` | Wrap `ar` | `.o` → `.a` archiving | Appends to raw logfile |
-| `bomsh_ld_wrapper.sh` | Wrap `ld`/`gold`/`lld` | `.o` → binary linking | Appends to raw logfile |
-
-#### 6.2.1 Wrapper implementation approach
-
-**Option A**: Shell scripts that call `bomsh_hook2.py` in embedded mode:
-
-```bash
-#!/bin/bash
-# bomsh_cc_wrapper.sh
-REAL_CC=$(which gcc)  # or detect from PATH minus wrapper dir
-bomsh_hook2.py --hook-program "$REAL_CC" "$@"
-```
-
-`bomsh_hook2.py` already has logic to parse GCC command lines
-(`get_all_subfiles_in_gcc_cmdline`) and record input/output file mappings.
-The wrapper just needs to invoke it with the correct arguments.
-
-**Option B**: `bomsh_hook2.py` natively supports `BOMSH_HOOK_PROGRAM_EMBEDDED`
-environment variable. Set it to the real compiler path, then invoke
-`bomsh_hook2.py` as if it were the compiler:
-
-```bash
-#!/bin/bash
-export BOMSH_HOOK_PROGRAM_EMBEDDED=$(which gcc)
-exec bomsh_hook2.py "$@"
-```
-
-**All wrappers must produce the same raw logfile format** as `bomtrace3` so
-that `bomsh_create_bom.py` works without modification.
-
-#### 6.2.2 Wrapper build-system compatibility
-
-| Build System | `CC=` Support | Notes |
-|-------------|--------------|-------|
-| autoconf/make | ✅ Native | `./configure CC=wrapper` or env var |
-| CMake | ✅ via `-DCMAKE_C_COMPILER=` | Or env `CC=` before cmake |
-| Meson | ✅ via `--native-file` or env | Cross-file or `CC=` |
-| Plain Makefile | ✅ if Makefile uses `$(CC)` | Most do; some hardcode `gcc` |
-
-**Risk (wrappers only)**: Some Makefiles hardcode `gcc`/`g++` instead of
-using `$(CC)`/`$(CXX)`. For those repos, the **wrapper** option misses
-compilation events. The truly-sidecar `LD_PRELOAD` tier (§6.1) is
-**unaffected** — it interposes below the build system. Wrapper mitigation:
-document per-repo compatibility in `config.yaml` with a
-`sidecar_compatible: true/false` field.
-
----
-
-## 7. Phase Split Design
-
-### 7.1 `run_c_cpp_phase1()`
-
-```python
-def run_c_cpp_phase1(
-    pipeline, repo_name, repo_cfg,
-    paths_cfg, omnibor_cfg, run_ts,
-    mode="standalone",
-    vcs_uri="NOASSERTION",
-    commit_sha=None,
-):
-    """C/C++ Phase 1: validate → build → treedb → manifest.
-
-    Returns TimingResult with Phase 1 steps only.
-    """
-    strategy = _select_c_cpp_strategy(
-        repo_name, repo_cfg, paths_cfg, mode,
-    )
-    tracer = strategy.name if strategy else "bomtrace3"
-    timing = TimingResult(tracer=tracer)
-
-    # Validate apt dependencies
-    deps_ok, missing = pipeline.validator.validate(repo_cfg)
-    if not deps_ok:
-        ...
-
-    # Build (Phase 1)
-    build_result = pipeline.builder.build(
-        repo_name, repo_cfg, paths_cfg, omnibor_cfg,
-        run_ts=run_ts, strategy=strategy,
-    )
-    timing.steps.extend(build_result.steps)
-    timing.success = build_result.success
-
-    if build_result.success:
-        # Write manifest for Phase 2
-        ManifestWriter().write(
-            bom_dir=build_result.bom_dir,
-            repo_name=repo_name,
-            repo_cfg=repo_cfg,
-            paths_cfg=paths_cfg,
-            omnibor_cfg=omnibor_cfg,
-            run_ts=run_ts,
-            tracer=tracer,
-            mode=mode,
-            commit_sha=commit_sha,
-            vcs_uri=vcs_uri,
-            binaries=build_result.binaries,
-        )
-
-    return timing
-```
-
-### 7.2 `run_c_cpp_phase2()`
-
-```python
-def run_c_cpp_phase2(
-    pipeline, repo_name, repo_cfg,
-    paths_cfg, omnibor_cfg, run_ts,
-    vcs_uri="NOASSERTION",
-    manifest=None,
-):
-    """C/C++ Phase 2: SBOM → metadata → SPDX → validate → collect.
-
-    When manifest is provided, reads paths from it.
-    Otherwise uses the same in-memory paths as today.
-
-    Returns TimingResult with Phase 2 steps only.
-    """
-    if manifest:
-        ctx = ManifestReader().read(manifest)
-        # Override paths from manifest
-        ...
-
-    timing = TimingResult(tracer="phase2-only")
-    timing.steps.extend(
-        _run_post_build(
-            pipeline, repo_name, repo_cfg,
-            paths_cfg, run_ts,
-            sbom_fn=lambda: pipeline.spdx_gen.generate(...),
-            spdx_gen_fn=lambda: pipeline.adg_spdx.generate(...),
-        )
-    )
-    timing.success = True
-    return timing
-```
-
-### 7.3 `run_c_cpp_pipeline()` (backward compatible)
-
-```python
-def run_c_cpp_pipeline(
-    pipeline, repo_name, repo_cfg,
-    paths_cfg, omnibor_cfg, run_ts,
-    vcs_uri="NOASSERTION",
-    mode="standalone",
-):
-    """C/C++ full pipeline: Phase 1 + Phase 2.
-
-    Backward compatible — identical behavior to current code.
-    """
-    # Phase 1
-    timing = run_c_cpp_phase1(
-        pipeline, repo_name, repo_cfg,
-        paths_cfg, omnibor_cfg, run_ts,
-        mode=mode, vcs_uri=vcs_uri,
-    )
-    if not timing.success:
-        return timing
-
-    # Phase 2
-    timing2 = run_c_cpp_phase2(
-        pipeline, repo_name, repo_cfg,
-        paths_cfg, omnibor_cfg, run_ts,
-        vcs_uri=vcs_uri,
-    )
-    timing.steps.extend(timing2.steps)
-    return timing
-```
-
----
-
-## 8. Testing
-
-### 8.1 Unit Tests
-
-| Test | What it validates |
-|------|-------------------|
-| `test_select_c_cpp_strategy_standalone` | Returns `None` (legacy path) |
-| `test_select_c_cpp_strategy_sidecar` | Returns `LdPreloadStrategy` (sidecar primary tier) |
-| `test_cc_wrapper_instrument_command` | Standalone-without-ptrace: correct `CC`/`CXX`/`AR`/`LD` env vars |
-| `test_cc_wrapper_generate_adg` | Standalone-without-ptrace: delegates to `PtraceStrategy.generate_adg()` |
-| `test_c_cpp_phase1_writes_manifest` | `--phase build` produces `phase1_manifest.json` |
-| `test_c_cpp_phase2_reads_manifest` | `--phase spdx --manifest ...` runs Phase 2 |
-| `test_c_cpp_pipeline_unchanged` | No `--phase` runs both phases identically |
-
-### 8.2 Integration Tests (EC2)
-
-| Test | Command | Validates |
-|------|---------|-----------|
-| Standalone full | `--repo curl` | Current behavior unchanged |
-| Sidecar full | `--repo curl --mode sidecar` | `LD_PRELOAD` shim produces valid SPDX |
-| Phase split | `--repo curl --phase build` then `--phase spdx` | Output matches standalone golden |
-| Golden comparison | All modes | SPDX matches standalone golden files |
-
-### 8.3 Build System Compatibility Matrix
-
-The `$(CC)` column below matters **only** for the standalone-without-ptrace
-wrapper option (§2.6). The truly-sidecar `LD_PRELOAD` tier interposes below
-the build system, so all repos are expected compatible regardless of
-`$(CC)` usage. Test sidecar mode against all 6 C/C++ repos:
-
-| Repo | Build System | `$(CC)` Used? | Sidecar Compatible? |
-|------|-------------|--------------|---------------------|
-| curl | autoconf/make | ✅ | ✅ Expected |
-| ffmpeg | custom configure/make | ✅ | ✅ Expected |
-| nmap | autoconf/make | ✅ | ✅ Expected |
-| redis | plain Makefile | ✅ (uses `$(CC)`) | ✅ Expected |
-| openosc | autoconf/make | ✅ | ✅ Expected |
-| node | GYP/make + custom | ⚠️ Verify | ⚠️ May need testing |
-
----
-
-## 9. Implementation Tasks
-
-| # | Task | Effort | Depends On |
-|---|------|--------|------------|
-| 1 | Add `mode=` param to `run_c_cpp_pipeline()` | 0.25d | — |
-| 2 | Implement `_select_c_cpp_strategy()` | 0.25d | — |
-| 3 | Pass `mode` from `runners.py` → `run_c_cpp_pipeline()` | 0.25d | Task 1 |
-| 4 | Split into `run_c_cpp_phase1()` / `run_c_cpp_phase2()` | 0.5d | Infra manifest module |
-| 5 | Develop `LD_PRELOAD` shim (`libomnibor_intercept.so`) + injection | 3d | External/infra dependency |
-| 6 | Add version pre-computation for cross-host Phase 2 | 0.5d | Task 4 |
-| 7 | Convert `config.yaml` `omnibor:` to nested format | 0.25d | — |
-| 8 | Unit tests | 0.5d | Tasks 1-4 |
-| 9 | Integration tests on EC2 (sidecar mode) | 1d | Task 5 |
-| 10 | Golden file comparison for sidecar output | 0.5d | Task 9 |
-| 11 | (Deferred) eBPF DaemonSet for statically-linked builds | 3d | Task 5 |
-
-**Critical path blocker**: Task 5 (the `LD_PRELOAD` shim). Without the
-shim, the sidecar primary tier cannot be tested end-to-end. The wiring
-(tasks 1-4, 6-8) can proceed in parallel. The eBPF secondary tier (task
-11) is deferrable and only needed for statically-linked builds.
-
----
-
-## 10. Risks
-
-| Risk | Likelihood | Impact | Mitigation |
-|------|-----------|--------|------------|
-| `LD_PRELOAD` shim not yet built | **High** | Blocks sidecar E2E testing | Prototype shim locally; ship Java sidecar first; tertiary `ptrace` tier works today |
-| Statically-linked builds defeat `LD_PRELOAD` | Medium | Missed events for static builds | eBPF secondary tier (task 11); or per-repo `ptrace` override |
-| Makefile hardcodes `gcc` | **Low** (sidecar) | Only affects the wrapper option; `LD_PRELOAD` is unaffected | Use `LD_PRELOAD`; wrappers need `sidecar_compatible` flag |
-| Binary transfer size (ffmpeg, node) | **Low** (resolved) | Would slow cross-host Phase 2 | Run `bomsh_sbom.py` + `ldd`/`readelf` in the Phase-1 capture window; ship metadata only, no binary egress (§4.2) |
-| Source tree needed for version detection | Medium | Blocks cross-host Phase 2 | Version pre-computation in Phase 1 manifest |
-| `libtool` relinking changes binary hash | Low | `bomsh_sbom.py` `ExternalRef` injection fails | Already mitigated by `_inject_omnibor_refs()` in `spdx_generator.py` |
-
----
-
-## 11. Effort and ROI (AI-days)
-
-| Work Item | Effort |
+| Question | Answer |
 |---|---|
-| Design (this consolidation) | ~2 |
-| `LD_PRELOAD` shim + plumbing (primary) | ~3 |
-| eBPF DaemonSet (secondary, deferrable) | ~3 |
-| ptrace override (tertiary, mostly exists) | ~0.5 |
+| **What** | `libomnibor_intercept.so` — a small `LD_PRELOAD` interposer (tens of KB), **not** the full OmniBOR toolchain. It records compiler/linker `argv`, inline-hashes inputs/outputs, then `exec()`s the real tool. |
+| **Why** | The dynamic loader honours `LD_PRELOAD` by loading a `.so` **by path** into every compiler/linker process, so the file must already exist on the build runner before the pipeline sets the env var. Installing it once keeps the per-build change to just two env vars and leaves the native build byte-for-byte unchanged. |
+| **Where** | A known, stable path on the build runner — e.g. `/opt/omnibor/lib/libomnibor_intercept.so`, the config-driven `preload_lib` value from [§5](#5-configuration-contract). Never hardcoded in the build. |
 
-Recommendation: **primary `LD_PRELOAD` first** (covers ~80% with ~3%
-overhead and zero build modification); the eBPF secondary tier is
-deferrable and only needed for statically-linked builds.
+**How** — the platform team picks one placement option (preference order):
+
+1. **Baked into the CI runner image** — `COPY`/package-install the `.so`
+   into the image the pipeline already runs on. Best for ephemeral hosted
+   runners: the shim ships with the image, with no runtime mount.
+2. **Mounted read-only at the known path** — for self-managed runners or
+   K8s pods with a fixed image, a host mount / volume provides the `.so`
+   at the `preload_lib` path.
+3. **K8s `MutatingAdmissionWebhook` + init container** — injects both the
+   `.so` and the two env vars transparently on a self-managed cluster
+   (optional convenience, not a requirement).
+
+The native build never compiles, links, or bundles the shim — it only
+references an already-present file via `LD_PRELOAD` ([§2.3](#23-primary-tier--ld_preload-shim-opt-in-via-cicd-yaml)).
+
+### 6.2 Standalone wrappers — out of scope
+
+The `CC=`/`CXX=`/`AR=`/`LD=` compiler wrappers belong to the deprecated
+standalone-without-ptrace path ([§2.5](#25-standalone-mode--out-of-scope)), not to the sidecar design. Their
+mechanism and build-system compatibility are documented in the reference
+guide `interception-strategies.md`.
 
 ---
 
-## 12. Open Questions
+## 7. Phase-split design
 
-1. **Webhook ownership** — is the K8s mutating-webhook + init-container
-   injection in scope for this repo, or owned by a platform team (we just
-   ship the shim + manifest)?
-2. **Upstream bomsh** — should the `LD_PRELOAD` shim live in `omnibor/bomsh`
-   (like the wrappers) or in this repo?
-3. **Rust/Go** — `GoToolexecStrategy` (`-toolexec`) and `RustcWrapperStrategy`
-   (`RUSTC_WRAPPER`) share the same wrapper-vs-sidecar concern. Apply the
-   same tier model to them, or keep this revision scoped to C/C++ for now?
-4. **Binaries vs metadata to S3 (resolved principle)** — no artifact-derived
-   fact needs Phase 2: hashes, ELF/`ldd` metadata, and ADG resolution are
-   all Phase-1-capturable, and Phase 1 already records artifact hashes in
-   the raw logfile. The only open choice is *where the SPDX document is
-   assembled*: run `bomsh_sbom.py` in the Phase-1 capture window (pilot,
-   zero upstream change) vs. capture a structured artifact→facts map and
-   assemble in Phase 2 (lets Corona re-generate without re-capture). Either
-   way, binaries never leave the build host. See §4.2.
+Sidecar mode splits the pipeline into two independently-runnable phases that
+communicate only through the Phase 1 manifest and the artifacts it
+enumerates. The building blocks already exist and are **reused generically**,
+not reinvented:
+
+- A **manifest** carries the run identity, artifact paths, and per-artifact
+  `SHA-256` gitoids, written, read, and verified by a shared,
+  language-agnostic layer.
+- **Per-language phase runners** do build/capture (Phase 1) and SPDX
+  assembly (Phase 2) only; they do not own the manifest.
+- The **CLI phase layer** owns the manifest and the `--mode` / `--phase` /
+  `--manifest` flags (`--phase` requires sidecar mode; `--phase spdx`
+  requires a manifest).
+
+| Phase | Responsibility | Constraint |
+|---|---|---|
+| **Phase 1** (`--phase build`) | Build + capture; binary-fact capture ([§4.2](#42-binary-derived-facts-belong-in-phase-1-not-phase-2)) and version pre-computation ([§4.1](#41-version-detection-across-the-phase-boundary)) run here, while binary and source still exist | Mirrors the delivered Java Phase 1 |
+| **Phase 2** (`--phase spdx`) | Metadata-driven SPDX assembly, validation, and hand-off | Reads only the manifest + Phase-1 artifacts; never the source tree |
+
+**DRY across languages.** The CLI phase layer dispatches to the per-language
+phase runner keyed by the language it already resolves, so the manifest
+logic, gitoid verification, and flag validation are shared unchanged — C/C++
+adds its two phase runners, not a parallel manifest path. The single-pass
+entry point stays backward-compatible: with no `--phase`, it runs both
+phases in sequence exactly as today.
+
+---
+
+## 8. Design decisions
+
+1. **Injection vector — CI/CD-YAML environment variables.** The delivered
+   Java sidecar injects the shim purely via environment: the build command
+   is returned unchanged plus the `LD_PRELOAD` and capture-log variables.
+   C/C++ uses the identical vector. The K8s mutating-webhook + init-container
+   path is an optional self-managed-cluster convenience, not a requirement.
+2. **Shim ownership — this repo, not upstream `bomsh`.** The proven Java
+   shim lives in this repo and is built into the image; the C/C++ shim
+   follows that precedent, extending the same scaffold with
+   `execve`/`posix_spawn` argv capture. Its only `bomsh` coupling is the
+   raw-logfile format.
+3. **Go/Rust — classification settled; primary tier validated per language.**
+   Transparent exec/linker interception is the sidecar mechanism;
+   `-toolexec`/`RUSTC_WRAPPER` are standalone-without-ptrace. Because a
+   statically-linked toolchain (Go especially) can defeat `LD_PRELOAD` and
+   push capture to a node observer, the concrete Go/Rust primary tier is
+   decided in their own docs. This does not block C/C++.
+4. **Binaries vs metadata — assemble SPDX in the Phase-1 window; no binary
+   egress.** Grounded by the delivered Java Phase 1, which persists artifact
+   identity while intermediates exist and verifies it from the manifest in
+   Phase 2. C/C++ runs the binary-reading steps in the Phase-1 capture window
+   and ships metadata only ([§4.2](#42-binary-derived-facts-belong-in-phase-1-not-phase-2)).
