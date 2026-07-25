@@ -62,6 +62,8 @@ theme / planning doc) -> **sub-issues** (drafted in the matching planning doc).
 | `tedg-dev/omnibor-analysis#192` | Phase-isolation planning user stories + C/C++ design relocation | Planning / docs | — | Merged |
 | `tedg-dev/omnibor-analysis#191`, `#189`, `#187` | Treedb SBOM-generation speedup (retro) | Retrospective -> **A6** / SI-R1 | #11000 | Merged |
 | `tedg-dev/omnibor-analysis#216` | Gradle repo enablement (caffeine, opentelemetry-java, rxjava) + release-classifier & JDK bug fixes + build-logic/composite JAR exclusion | Phase 1 Build-Speed -> **A12** / **A11** + bugs | #11104, #11100, #11144, #11145 (all In Review) | Merged |
+| `tedg-dev/omnibor-analysis#211` | In-memory JAR class processing (no extract-to-disk) | Phase 1 Build-Speed -> **A8** / US-4 | #11055 | Merged |
+| `tedg-dev/omnibor-analysis#218` | Sidecar-only doc reorg + C/C++ design/residency + planning sync | Planning / docs (Main B enablement) | — | Merged (Part of #11071; C/C++ design slice #11176) |
 
 Index labels (**A1**, **A4**, ...) refer to the rows in
 [`README.md`](README.md), the priority-ordered planning index. The C/C++
@@ -72,7 +74,7 @@ those work-item gambit sub-issues are **drafts, not yet created** (blocked on
 the Main A -> B gate).
 
 **Documentation tracker:** docs-only PRs (e.g. `#192`, `#193`, `#195`,
-`#204`, `#205`, `#206`, `#207`) have no 1:1 theme issue; they are grouped
+`#204`, `#205`, `#206`, `#207`, `#218`) have no 1:1 theme issue; they are grouped
 under the living documentation tracker **#11071** (In Review), which each
 docs PR references with a `Part of` line. The tracker's status moves with
 docs activity and carries a datetimestamped activity log.
@@ -84,7 +86,6 @@ docs activity and carries a datetimestamped activity log.
 | Item | Theme -> sub-issue (index label) | GitHub issue | Status |
 |---|---|---|---|
 | ~~Phase 2 output set + hand-off manifest~~ | Java Phase 2 -> **A2** | #11004 | **Closed — not planned**: peer team integrates Phase 2 into Corona directly (operator/cdk/gh-aws integration), so no hand-off boundary is needed; Java Phase 1/2 charter complete at #11003 (PR #194). Parent #11002 stays In Review (child #11003 still In Review). |
-| In-memory JAR class processing (no extract-to-disk) | Phase 1 Build-Speed -> **A8** / US-4 | #11055 | **PR `tedg-dev/omnibor-analysis#211` open** — tested (1886 pass, 99% cov) + EC2 golden-validated 2026-07-14 (jsoup/checkstyle identical); synced with `main` (merge `9085301`, mergeable), awaiting review |
 | Support non-Maven/Gradle Java builds (Ant/Ivy, Bazel, `make`) | Phase 1 Java capture -> **A9** | #11066 (backlog, Proposed; parentless) | Backlog — **excluded from the Main A gate**. `tedg-dev/omnibor-analysis#202` (Draft, `Proposed` label — tables it for the pilot, fail-fast on ivy/ant/make/bazel); `#201` (Draft, `backlog` label — Ivy parser/reader) |
 | ~~Overlap independent post-build steps (measure first)~~ | Phase 1 Build-Speed -> **A5** / US-3 | #11007 | **Closed — won't do (not planned)**: Phase 2 is out-of-band (non-critical wall-clock) and inline hashing (A10 / #11097) already removed the hot path. Closing it let parent #11005 derive to **In Review** (all remaining children In Review). |
 | Deliver Java build evidence to Corona | **A7** / SI-5 (Java) | — | Postponed — out of charter |

@@ -26,7 +26,7 @@ impact on the enterprise build phase/cycle in CI/CD** — build and reporting
 may run on different machines, and instrumentation overhead must stay minimal.
 
 **Main A → B gate — LIFTED (2026-07-24):** Java (Main A) is functionally
-complete (A8/#11055 and A12/#11104 in final review), so **Main B** (C/C++)
+complete (A8/#11055 merged via PR #211; A12/#11104 In Development), so **Main B** (C/C++)
 may now proceed. **Main C** still follows Main B. (Historically this was a
 hard gate requiring 100% of Main A before any Main B work; that gate is now
 cleared per the project lead.)
@@ -37,8 +37,8 @@ cleared per the project lead.)
 
 **All Java. Focus: lowest impact on the enterprise CI/CD build phase/cycle.**
 Includes ALL testing. (Main A → B gate **lifted** 2026-07-24 — Java
-functionally complete; **Main B may proceed**, A8/#11055 and A12/#11104 in
-final review.)
+functionally complete; **Main B may proceed**; A8/#11055 (PR #211) merged,
+A12/#11104 In Development.)
 
 Detail: build-speed sub-issues [java/phase1-build-speed-subissues.md](java/phase1-build-speed-subissues.md)
 (A3–A5) with engineering design [../sidecar/java/reference/phase1-build-speed-design.md](../sidecar/java/reference/phase1-build-speed-design.md);
@@ -60,7 +60,7 @@ always available via the `tedg_cisco` account):
 | A5 | Build efficiency — overlap independent post-build steps only when measurable | Closed — won't do (#11007, not planned): Phase 2 is out-of-band and inline hashing (A10) already removed the hot path | US-3 |
 | A6 | Treedb SBOM-generation speedup (retro) | Delivered | SI-R1 / PRs #189, #187, #191 |
 | A7 | Deliver Java build evidence to Corona (Java delivery slice) | Postponed — out of charter (Corona / Phase 2-incorporation team owns delivery + verification) | SI-5 (Java) |
-| A8 | Build efficiency — fully in-memory JAR class processing (no extract-to-disk) | **PR #211 open** — tested (1886 pass, 99% cov, patch files 100%) + EC2 golden-validated 2026-07-14 (jsoup/checkstyle identical); synced with `main` (mergeable), awaiting review. Note: EC2 validation predates the inline-hashing default, so A8 now primarily benefits the `java_inline_hash: false` fallback path | US-4 / #11055 |
+| A8 | Build efficiency — fully in-memory JAR class processing (no extract-to-disk) | **Merged (PR #211)** — tested (1886 pass, 99% cov, patch files 100%) + EC2 golden-validated 2026-07-14 (jsoup/checkstyle identical). Note: EC2 validation predates the inline-hashing default, so A8 now primarily benefits the `java_inline_hash: false` fallback path | US-4 / #11055 |
 | A9 | Support non-Maven/Gradle Java builds (Ant/Ivy, Bazel, `make`) | **Backlog** — parentless issue, not in the initial pilot; **excluded from the Main A completion gate** | #11066 (Proposed) / [java/java-nonmaven-gradle-build-tools-subissue.md](java/java-nonmaven-gradle-build-tools-subissue.md) |
 | A10 | Build efficiency — inline GitOID capture during the build (eliminate post-build rescan) | Delivered & merged (PR #212); **enabled by default** (`java_inline_hash: true`), golden-validated via A11 (PR #213) | US-5 / #11097 (child of #11005, In Review) / PR tedg-dev/omnibor-analysis#212 — [java/phase1-build-speed-subissues.md](java/phase1-build-speed-subissues.md) |
 | A11 | Inline-hashing golden-clean validation — MRJAR/multi-module correctness + build-logic JAR exclusion | **Merged (PR #213)**; golden-clean on all 7 Java repos; A10 flag enabled by default | US-6 / #11100 (child of #11005, In Review) — [java/phase1-build-speed-subissues.md](java/phase1-build-speed-subissues.md) |
@@ -86,7 +86,7 @@ completion does not depend on A9.**
 ### Main B — C/C++ Sidecar Interception & Phase Isolation
 
 The **Main A → B gate is lifted** (2026-07-24 — Java functionally complete;
-A8/#11055 and A12/#11104 in final review), so **Main B may proceed**. Epic:
+A8/#11055 (PR #211) merged; A12/#11104 In Development), so **Main B may proceed**. Epic:
 gambit **#11008**; the four B1–B4 stories (#11009–#11012) plus the epic are
 **Ready** in gambit. The four rows below are the **higher-level user
 stories**
