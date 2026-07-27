@@ -1,6 +1,6 @@
 # Version Detection
 
-This document describes how omnibor-analysis detects version information for
+This document describes how bisbom-gen detects version information for
 both the **root package** (the project being built) and **vendored (statically
 linked) libraries** from source code. It covers root version extraction from
 config tags, the 12 vendored detection strategies, real-world patterns that

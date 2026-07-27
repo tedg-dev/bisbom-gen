@@ -14,10 +14,10 @@ Whenever a `.drawio` file is modified in the repository, Cascade MUST regenerate
 
 ## Example
 
-If `docs/architecture/omnibor-analysis-workflow.drawio` is modified:
+If `docs/architecture/bisbom-gen-workflow.drawio` is modified:
 
 ```bash
-/Applications/draw.io.app/Contents/MacOS/draw.io --export --format png --output docs/architecture/omnibor-analysis-workflow.png docs/architecture/omnibor-analysis-workflow.drawio
+/Applications/draw.io.app/Contents/MacOS/draw.io --export --format png --output docs/architecture/bisbom-gen-workflow.png docs/architecture/bisbom-gen-workflow.drawio
 ```
 
 ## Workflow
@@ -28,7 +28,7 @@ If `docs/architecture/omnibor-analysis-workflow.drawio` is modified:
 
 ## Known Locations
 
-- `docs/architecture/omnibor-analysis-workflow.drawio` → `docs/architecture/omnibor-analysis-workflow.png`
+- `docs/architecture/bisbom-gen-workflow.drawio` → `docs/architecture/bisbom-gen-workflow.png`
 - `docs/architecture/ci-cd-integration.drawio` → `docs/architecture/ci-cd-integration.png`
 
 ## Regenerating HTML Visualizations from SPDX JSON

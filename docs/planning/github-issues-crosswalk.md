@@ -4,7 +4,7 @@
 |---|---|
 | **Purpose** | Durable record tying each drafted Main issue and sub-issue to the PR(s) that implement it, so the hierarchy can be recreated and linked once GitHub Projects/Issues access is restored. |
 | **Maintained by** | Cascade (update as PRs merge) |
-| **Last updated** | 2026-07-24 |
+| **Last updated** | 2026-07-27 |
 
 ---
 
@@ -89,14 +89,15 @@ docs activity and carries a datetimestamped activity log.
 | Support non-Maven/Gradle Java builds (Ant/Ivy, Bazel, `make`) | Phase 1 Java capture -> **A9** | #11066 (backlog, Proposed; parentless) | Backlog — **excluded from the Main A gate**. `tedg-dev/omnibor-analysis#202` (Draft, `Proposed` label — tables it for the pilot, fail-fast on ivy/ant/make/bazel); `#201` (Draft, `backlog` label — Ivy parser/reader) |
 | ~~Overlap independent post-build steps (measure first)~~ | Phase 1 Build-Speed -> **A5** / US-3 | #11007 | **Closed — won't do (not planned)**: Phase 2 is out-of-band (non-critical wall-clock) and inline hashing (A10 / #11097) already removed the hot path. Closing it let parent #11005 derive to **In Review** (all remaining children In Review). |
 | Deliver Java build evidence to Corona | **A7** / SI-5 (Java) | — | Postponed — out of charter |
-| Agree on C/C++ build observation | Main B -> **B1** / SI-1 (work items B1.1–B1.3) | #11009 | **Ready** (B1.1 #11176 In Development first; B1.2/B1.3 Ready). |
-| B1.1 Ratify interception tier model | Main B -> **B1.1** (child of #11009) | #11176 | **In Development** (Walk 21) |
+| Agree on C/C++ build observation | Main B -> **B1** / SI-1 (work items B1.1–B1.3) | #11009 | **Ready** (B1.1–B1.3 all Ready; C/C++ work paused while the rebrand initiative #11194 takes priority). |
+| B1.1 Ratify interception tier model | Main B -> **B1.1** (child of #11009) | #11176 | **Ready** (moved back from In Development while the rebrand #11194 takes priority) |
 | B1.2 Deployment model & injection vector | Main B -> **B1.2** (child of #11009) | #11177 | **Ready** |
 | B1.3 Config schema (nested mode + per-repo override) | Main B -> **B1.3** (child of #11009) | #11178 | **Ready** |
 | Auto-capture C/C++ components (`LD_PRELOAD` primary) | Main B -> **B2** / SI-2 (work items B2.1–B2.5) | #11010 | Ready |
 | Extend capture to static builds (eBPF/audit) | Main B -> **B3** / SI-3 (work items B3.1–B3.3) | #11011 | Ready |
 | C/C++ SBOMs from captured data, no workspace | Main B -> **B4** / SI-4 (C/C++) (work items B4.1–B4.5) | #11012 | Ready |
 | Shared Corona intake + auth + non-Java delivery | Main C -> **C1/C2** / SI-5 (shared) | #11013 | **Closed — not planned** (out of charter; Corona / Phase-2 team owns delivery + auth, consistent with A7 postponed and #11004 closed) |
+| Rebrand as build-interception SBOM; obfuscate OmniBOR/bomsh tooling | Project / rebrand (parentless Main issue) | #11194 | **In Development** (Walk 21, Priority Med, assignee `tedg_cisco`). Repo renames + staged docs then machinery scrub; precedes the CiscoSecurityServices org migration. |
 
 ---
 

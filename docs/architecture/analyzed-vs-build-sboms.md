@@ -1,6 +1,6 @@
 # Analyzed vs. Build SBOMs: Two-File Approach
 
-This document explains why omnibor-analysis generates **two** distinct SPDX 2.3
+This document explains why bisbom-gen generates **two** distinct SPDX 2.3
 SBOMs per binary artifact, what each contains, and how the design aligns with
 CISA guidance and industry best practices.
 
@@ -23,7 +23,7 @@ CISA guidance and industry best practices.
 
 ## 1. Background: The Problem with a Single SBOM
 
-Early versions of omnibor-analysis produced a single `_adg.spdx.json` file per
+Early versions of bisbom-gen produced a single `_adg.spdx.json` file per
 binary. This combined everything the build system touched into one document:
 vendored libraries compiled into the binary, dynamically linked system
 libraries, transitive Maven dependencies, and build tools like GCC or the Go

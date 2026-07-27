@@ -1,4 +1,4 @@
-# OmniBOR Analysis — Workflow Guide
+# Build-Interception SBOM Generation — Workflow Guide
 
 This guide explains the three core workflows, when to use them, and recommended practices.
 
@@ -6,9 +6,9 @@ This guide explains the three core workflows, when to use them, and recommended 
 
 | Workflow | Purpose | When to Use |
 |----------|---------|-------------|
-| `/add-repo` | Register a new C/C++ project for analysis | Once per target project |
+| `/add-repo` | Register a new C/C++ project for SBOM generation | Once per target project |
 | `/run-analysis` | Build-intercept a repo and generate SBOMs | Each time you want a fresh SBOM |
-| `/run-comparison` | Compare OmniBOR SBOM vs binary scanner SBOM | After analysis + binary scan import |
+| `/run-comparison` | Compare bisbom-gen SBOM vs binary scanner SBOM | After SBOM generation + binary scan import |
 
 ## Recommended Order
 
@@ -23,7 +23,7 @@ This guide explains the three core workflows, when to use them, and recommended 
 
 ## `/add-repo` — Add a New Target Repository
 
-Registers a new project so the analysis pipeline knows how to clone, configure, and build it. Supports C/C++, Rust, Go, and Java. Uses `app/add_repo.py` to **auto-discover** repo metadata from GitHub.
+Registers a new project so the pipeline knows how to clone, configure, and build it. Supports C/C++, Rust, Go, and Java. Uses `app/add_repo.py` to **auto-discover** repo metadata from GitHub.
 
 ### Usage
 
@@ -106,16 +106,16 @@ Accepts: repo name (`curl`), owner/repo (`curl/curl`), or full GitHub URL.
 
 ---
 
-## `/run-analysis` — Run Build Interception Analysis
+## `/run-analysis` — Run Build Interception
 
-Instruments a build with `bomtrace3`/`bomtrace2` (C/C++, Rust, Go) or strace (Java) to capture every compiler/linker invocation, then generates OmniBOR Artifact Dependency Graphs (ADG) and SPDX SBOMs.
+Instruments a build with `bomtrace3`/`bomtrace2` (C/C++, Rust, Go) or strace (Java) to capture every compiler/linker invocation, then generates Artifact Dependency Graphs (ADG) and SPDX SBOMs.
 
 ### What it does (7 steps)
 
 1. **Clone** — shallow clone of the target repo into `repos/<name>/`
 2. **Dependency check** — validates that required apt packages are installed
-3. **Instrumented build** — runs `bomtrace3 make` to intercept all compiler/linker calls, then `bomsh_create_bom.py` processes the raw logfile into OmniBOR ADG
-4. **OmniBOR SPDX** — `bomsh_sbom.py` creates SPDX SBOM from ADG with OmniBOR ExternalRef
+3. **Instrumented build** — runs `bomtrace3 make` to intercept all compiler/linker calls, then `bomsh_create_bom.py` processes the raw logfile into an ADG
+4. **SPDX** — `bomsh_sbom.py` creates the SPDX SBOM from the ADG
 5. **Metadata + dynamic libs** — `collect_metadata.py` resolves system files to dpkg packages; `collect_dynamic_libs.py` identifies per-binary dynamic dependencies via ldd/readelf
 6. **Per-binary ADG SPDX** — `spdx_from_adg.py` generates one SPDX per output binary with vendored (`STATIC_LINK`), dynamic (`DYNAMIC_LINK`), and build tool breakdown + interactive HTML visualization
 7. **Validation + docs** — JSON Schema + semantic validation of all SPDX files, binary collection, timestamped build log and runtime metrics
@@ -123,7 +123,7 @@ Instruments a build with `bomtrace3`/`bomtrace2` (C/C++, Rust, Go) or strace (Ja
 ### Commands
 
 ```bash
-# Full analysis (clone + build + SBOM)
+# Full run (clone + build + SBOM)
 docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
   python3 /workspace/app/analyze.py --repo curl
 
@@ -140,7 +140,7 @@ docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
 
 | Artifact | Path |
 |----------|------|
-| OmniBOR ADG | `output/omnibor/{lang}/<repo>/<ts>/` |
+| ADG (build provenance) | `output/omnibor/{lang}/<repo>/<ts>/` |
 | Component metadata | `output/omnibor/{lang}/<repo>/<ts>/metadata/component_metadata.json` |
 | Dynamic libs (per binary) | `output/omnibor/{lang}/<repo>/<ts>/metadata/<binary>/dynamic_libs.json` |
 | SPDX SBOM (analyzed) | `output/spdx/{lang}/<repo>/<ts>/<binary>_analyzed.spdx.json` |
@@ -158,9 +158,9 @@ docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
 
 ---
 
-## `/run-comparison` — Compare OmniBOR vs Binary Scan SBOMs
+## `/run-comparison` — Compare bisbom-gen vs Binary Scan SBOMs
 
-Compares an OmniBOR-generated SPDX SBOM against a proprietary binary scanner's SPDX SBOM (e.g., from Black Duck BDBA, Snyk, etc.).
+Compares a bisbom-gen SPDX SBOM against a proprietary binary scanner's SPDX SBOM (e.g., from Black Duck BDBA, Snyk, etc.).
 
 ### What it does
 
@@ -170,7 +170,7 @@ Compares an OmniBOR-generated SPDX SBOM against a proprietary binary scanner's S
 
 ### Prerequisites
 
-- Run `/run-analysis` first to generate the OmniBOR SBOM
+- Run `/run-analysis` first to generate the bisbom-gen SBOM
 - Place the binary scanner's SPDX export in `output/binary-scan/<repo>/`
 
 ### Commands
@@ -192,16 +192,16 @@ docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
 
 - **Summary table** — package counts, overlap percentage, version agreement
 - **Common packages** — detected by both methods, with version match/mismatch
-- **OmniBOR only** — build-time dependencies not found by binary scanner
+- **bisbom-gen only** — build-time dependencies not found by binary scanner
 - **Binary scan only** — pre-compiled/commercial components not seen during build
 - **Version mismatches** — same package, different version detected
-- **Analysis notes** — strengths of each method
+- **Comparison notes** — strengths of each method
 
 ### Interpreting results
 
 | Finding | Meaning |
 |---------|---------|
-| High OmniBOR-only count | Build interception sees transitive/header-only deps binary scanner misses |
+| High bisbom-gen-only count | Build interception sees transitive/header-only deps binary scanner misses |
 | High binary-only count | Pre-compiled SDKs, static libs, or vendor binaries not compiled from source |
 | Version mismatches | Different detection methods resolve versions differently |
 | High overlap + version agreement | Both methods are consistent — high confidence in SBOM accuracy |
@@ -209,8 +209,8 @@ docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
 ### Recommendations
 
 - **Binary scanner export format** — must be SPDX 2.3 JSON. If your scanner exports CycloneDX or CSV, convert to SPDX first
-- **Run comparison after every analysis** — comparing OmniBOR build-time SBOMs against binary scan SBOMs is valuable for validating completeness
-- **Version mismatches are normal** — binary scanners detect runtime versions while OmniBOR sees source versions
+- **Run comparison after every run** — comparing bisbom-gen build-time SBOMs against binary scan SBOMs is valuable for validating completeness
+- **Version mismatches are normal** — binary scanners detect runtime versions while bisbom-gen sees source versions
 
 ---
 
@@ -220,7 +220,7 @@ docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
 # 1. Build the Docker environment (one-time, or after Dockerfile changes)
 docker-compose -f docker/docker-compose.yml build
 
-# 2. Run analysis on curl
+# 2. Run bisbom-gen on curl
 docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
   python3 /workspace/app/analyze.py --repo curl
 
@@ -233,6 +233,6 @@ docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
 
 # 5. Review results
 ls output/spdx/curl/          # SPDX SBOMs
-ls output/omnibor/curl/        # OmniBOR ADG
+ls output/omnibor/curl/        # ADG (build provenance)
 ls output/build-logs/c-cpp/curl/  # Build logs and comparison reports
 ```

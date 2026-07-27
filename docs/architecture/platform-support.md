@@ -97,7 +97,7 @@ Enabling native ARM64 standalone container support requires:
 3. **Test ptrace behavior** — ARM64 ptrace has subtle differences in syscall entry/exit handling
 4. **Multi-arch Docker build** — add `linux/arm64` platform to `docker buildx`
 
-This is a **code-level change to bomtrace3** in the upstream `omnibor/bomsh` repository, not a configuration or build change in `omnibor-analysis`.
+This is a **code-level change to `bomtrace3`** in its upstream source, not a configuration or build change in bisbom-gen.
 
 <a id="diagram-language"></a>
 

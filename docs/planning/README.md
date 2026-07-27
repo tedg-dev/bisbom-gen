@@ -31,6 +31,13 @@ may now proceed. **Main C** still follows Main B. (Historically this was a
 hard gate requiring 100% of Main A before any Main B work; that gate is now
 cleared per the project lead.)
 
+**Current active work — Project Rebrand (Main R, #11194):** the project is
+being repositioned publicly as **build-interception SBOM** generation, with the
+underlying tooling (OmniBOR/bomsh) de-emphasized in public-facing framing.
+This cross-cutting rebrand is **In Development now and takes priority over
+C/C++ (Main B)** — B1.1 (#11176) was moved back to `Ready` for it — and
+**precedes** the CiscoSecurityServices org migration. See **Main R** below.
+
 ## Index
 
 ### Main A — Complete Java Sidecar Phase Isolation (TOP PRIORITY)
@@ -100,7 +107,7 @@ only when Main B work begins.
 
 | Sub | Title (higher-level user story) | Work items | Lang | Status | Maps to |
 |-----|-------|------|------|--------|---------|
-| B1 | Agree how we observe C/C++ builds without changing them | B1.1–B1.3 (#11176–#11178) | C/C++ | Ready (B1.1 #11176 In Development) | SI-1 / #11009 |
+| B1 | Agree how we observe C/C++ builds without changing them | B1.1–B1.3 (#11176–#11178) | C/C++ | Ready (B1.1–B1.3 all Ready; paused for rebrand #11194) | SI-1 / #11009 |
 | B2 | Auto-capture C/C++ components during a normal build (`LD_PRELOAD` primary) | B2.1–B2.5 | C/C++ | Ready | SI-2 / #11010 |
 | B3 | Extend capture to self-contained (static) builds (eBPF/audit node observers) | B3.1–B3.3 | C/C++, Go | Ready | SI-3 / #11011 |
 | B4 | C/C++ realization — SBOMs from captured data, no workspace | B4.1–B4.5 | C/C++ | Ready | SI-4 (C/C++) / #11012 |
@@ -115,6 +122,20 @@ After Java (Main A); coordinated with / after C/C++ (Main B). Detail:
 | C1 | Shared Corona intake + auth model (build once, reuse existing patterns) | all | Out of charter — Corona owns (#11013 closed, not planned) | SI-5 (shared) |
 | C2 | Deliver build evidence for C/C++, Rust, Go | C/C++, Rust, Go | Out of charter — Corona owns (#11013 closed, not planned) | SI-5 (non-Java) |
 | C3 | SI-4 realizations for Rust and Go | Rust, Go | Planned | SI-4 (Rust/Go) |
+
+### Main R — Project Rebrand & Tooling Obfuscation (active, cross-cutting)
+
+Reposition the project publicly as **Build-Interception SBOM Generation**
+(`bisbom-gen`); de-emphasize OmniBOR/bomsh in public-facing framing. Repo renames (`omnibor-analysis` → `bisbom-gen`;
+`omnibor-java-testapp` → `bisbom-java-testapp`), staged so the low-risk docs
+rebrand lands separately from the higher-risk code-identifier scrub. Precedes
+the CiscoSecurityServices org migration.
+
+| Sub | Title | Stage | Status | Maps to |
+|-----|-------|-------|--------|---------|
+| R1 | Public-facing docs rebrand (README, architecture, guides, ONBOARDING) + planning/rule sync | Stage 0 + A | In Development (Walk 21) | #11194 |
+| R2 | Machinery / code-identifier scrub (GHCR `bisbom-sidecar`, `bisbom*` config/identifiers, `.windsurf/`) | Stage B | Planned (names finalized) | #11194 |
+| R3 | Repo renames + reference cutover (git remotes, config, terraform, workflow, docs) | Stage C | Planned | #11194 |
 
 ## Adding new work
 

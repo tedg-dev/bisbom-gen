@@ -6,9 +6,9 @@ see [docs/sidecar/](../sidecar/).
 
 ## Pipeline Overview
 
-[![OmniBOR Analysis Workflow](https://raw.githubusercontent.com/tedg-dev/omnibor-analysis/main/docs/architecture/omnibor-analysis-workflow.png)](https://github.com/tedg-dev/omnibor-analysis/blob/main/docs/architecture/omnibor-analysis-workflow.png)
+[![Build-Interception SBOM Generation Workflow](https://raw.githubusercontent.com/tedg-dev/bisbom-gen/main/docs/architecture/bisbom-gen-workflow.png)](https://github.com/tedg-dev/bisbom-gen/blob/main/docs/architecture/bisbom-gen-workflow.png)
 
-> **Click to view full size.** Shows the complete analysis pipeline:
+> **Click to view full size.** Shows the complete pipeline:
 > clone → build → instrument → SPDX generation → visualization.
 
 ## Technical Documentation

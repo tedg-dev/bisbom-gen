@@ -1,8 +1,8 @@
 # Standalone Mode (Deprecated)
 
 > **Deprecated — not a deployment option.** Standalone mode was the initial
-> ptrace-based implementation of the core omnibor/bomsh repositories and the
-> earliest `omnibor-analysis` testing. **Sidecar is the only supported
+> ptrace-based implementation and the earliest bisbom-gen testing.
+> **Sidecar is the only supported
 > mode.** Standalone must **not** be used or offered as an option; the sole
 > remaining possibility is a rare (~1%) embedded-systems corner case. This
 > page is retained as historical/technical reference for that corner case
