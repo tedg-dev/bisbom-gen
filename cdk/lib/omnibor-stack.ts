@@ -66,7 +66,7 @@ export class OmniborStack extends cdk.Stack {
     // Bucket already exists in this account — import by name
     const bucket = s3.Bucket.fromBucketName(
       this, 'ArtifactBucket',
-      `omnibor-spdx-artifacts-${this.account}`,
+      'omnibor-spdx-artifacts',
     );
 
     // ================================================================
@@ -85,9 +85,14 @@ export class OmniborStack extends cdk.Stack {
       },
     });
 
-    // NOTE: S3 event notification (phase1_manifest.json -> SQS) must be
+    // NOTE: S3 event notification (suffix: ssvs_meta.json -> SQS) must be
     // configured manually since the bucket is imported, not CDK-managed.
-    // aws s3api put-bucket-notification-configuration ...
+    // When the operator moves to its own CDK stack with a managed bucket,
+    // this becomes: bucket.addEventNotification(OBJECT_CREATED, sqsDest, {suffix: 'ssvs_meta.json'})
+    // Manual command:
+    //   aws s3api put-bucket-notification-configuration --bucket <bucket> --notification-configuration \
+    //     '{"QueueConfigurations":[{"QueueArn":"<queue-arn>","Events":["s3:ObjectCreated:*"],
+    //       "Filter":{"Key":{"FilterRules":[{"Name":"suffix","Value":"ssvs_meta.json"}]}}}]}'
 
     // ================================================================
     // DynamoDB — SPDX index + dependency graph

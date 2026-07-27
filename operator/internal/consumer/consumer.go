@@ -69,6 +69,11 @@ func (c *Consumer) Run(ctx context.Context) error {
 				// Test events and skippable messages should be deleted, not retried
 				if errors.Is(err, errTestEvent) {
 					log.Printf("[INFO] Skipping test event: %s", aws.ToString(msg.MessageId))
+				} else if errors.Is(err, errFilesNotReady) {
+					// Files not yet uploaded — let SQS retry after visibility timeout
+					log.Printf("[WAIT] Files not ready for %s, will retry: %v",
+						aws.ToString(msg.MessageId), err)
+					continue
 				} else {
 					log.Printf("[ERROR] Failed to process message %s: %v",
 						aws.ToString(msg.MessageId), err)
@@ -89,7 +94,9 @@ func (c *Consumer) Run(ctx context.Context) error {
 	}
 }
 
-// handleMessage parses the S3 event from the SQS message and triggers Phase 2.
+// handleMessage parses the S3 event from the SQS message, reads
+// ssvs_meta.json, validates expected files are present, and routes
+// the job based on what was uploaded.
 func (c *Consumer) handleMessage(ctx context.Context, msg types.Message) error {
 	body := aws.ToString(msg.Body)
 	log.Printf("[INFO] Received message: %s", aws.ToString(msg.MessageId))
@@ -101,23 +108,51 @@ func (c *Consumer) handleMessage(ctx context.Context, msg types.Message) error {
 
 	log.Printf("[INFO] S3 key: %s", s3Key)
 
-	// Extract path components:
-	// tar.gz mode: <owner>/<repo>/<job_id>/phase1.tar.gz
-	// legacy mode: <owner>/<repo>/<job_id>/phase1/.../<filename>
+	// Extract job prefix: <owner>/<repo>/<job_id>
+	// S3 key: <owner>/<repo>/<job_id>/ssvs_meta.json
 	jobPrefix, err := extractJobPrefix(s3Key)
 	if err != nil {
 		return fmt.Errorf("extract job prefix: %w", err)
 	}
 
-	// Determine archive filename (e.g., "phase1.tar.gz") or empty for legacy
-	archiveFile := ""
-	parts := strings.Split(s3Key, "/")
-	if len(parts) >= 4 && strings.HasSuffix(parts[3], ".tar.gz") {
-		archiveFile = parts[3]
+	// Read ssvs_meta.json — the file that triggered this notification
+	meta, err := c.runner.ReadSsvsMeta(ctx, jobPrefix)
+	if err != nil {
+		return fmt.Errorf("read ssvs_meta.json: %w", err)
 	}
 
-	log.Printf("[INFO] Job prefix: %s (archive: %q)", jobPrefix, archiveFile)
-	return c.runner.RunPhase2(ctx, jobPrefix, archiveFile)
+	log.Printf("[INFO] Job prefix: %s repo: %s files: %v", jobPrefix, meta.Repository, meta.Files)
+
+	// Validate that all declared files are present in S3
+	if len(meta.Files) > 0 {
+		if err := c.runner.ValidateFilesReady(ctx, jobPrefix, meta.Files); err != nil {
+			return err // errFilesNotReady triggers SQS retry
+		}
+	}
+
+	// Route based on what files were uploaded
+	return c.routeJob(ctx, jobPrefix, meta)
+}
+
+// routeJob decides how to process the upload based on the declared files.
+func (c *Consumer) routeJob(ctx context.Context, jobPrefix string, meta *SsvsMeta) error {
+	hasPhase1 := false
+	for _, f := range meta.Files {
+		if f == "phase1.tar.gz" {
+			hasPhase1 = true
+			break
+		}
+	}
+
+	if hasPhase1 {
+		// Phase 1 artifacts present — launch sidecar for SPDX generation
+		log.Printf("[INFO] Routing to Phase 2 sidecar (phase1.tar.gz present)")
+		return c.runner.RunPhase2(ctx, jobPrefix, "phase1.tar.gz")
+	}
+
+	// No phase1.tar.gz — assume pre-built SPDX, route to indexing
+	log.Printf("[INFO] No phase1.tar.gz — routing to index-only")
+	return c.runner.IndexOnly(ctx, jobPrefix, meta)
 }
 
 // errTestEvent is returned when an S3 test event is received.

@@ -74,6 +74,67 @@ func NewRunner(cfg *config.Config, awsCfg aws.Config) *Runner {
 	return r
 }
 
+// SsvsMeta is the pipeline metadata file uploaded by CI workflows.
+// The S3 event notification triggers on this file, and the operator
+// reads it to determine what artifacts were uploaded and how to
+// process them.
+type SsvsMeta struct {
+	Files        []string `json:"files"`
+	TenantID     string   `json:"tenant_id,omitempty"`
+	Repository   string   `json:"repository"`
+	Ref          string   `json:"ref,omitempty"`
+	SHA          string   `json:"sha,omitempty"`
+	Tag          *string  `json:"tag"`
+	RunID        string   `json:"run_id,omitempty"`
+	RunNumber    string   `json:"run_number,omitempty"`
+	Actor        string   `json:"actor,omitempty"`
+	EventName    string   `json:"event_name,omitempty"`
+	JobID        string   `json:"job_id,omitempty"`
+	SidecarImage string   `json:"sidecar_image,omitempty"`
+	OIDCAudience string   `json:"oidc_audience,omitempty"`
+}
+
+// errFilesNotReady is returned when ssvs_meta.json arrived but
+// expected artifact files are not yet in S3. The SQS message
+// will be retried after the visibility timeout expires.
+var errFilesNotReady = fmt.Errorf("expected files not yet uploaded")
+
+// ReadSsvsMeta downloads and parses ssvs_meta.json from S3.
+func (r *Runner) ReadSsvsMeta(ctx context.Context, jobPrefix string) (*SsvsMeta, error) {
+	key := jobPrefix + "/ssvs_meta.json"
+	out, err := r.s3Client.GetObject(ctx, &s3.GetObjectInput{
+		Bucket: &r.cfg.S3Bucket,
+		Key:    &key,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("get ssvs_meta.json: %w", err)
+	}
+	defer out.Body.Close()
+
+	var meta SsvsMeta
+	if err := json.NewDecoder(out.Body).Decode(&meta); err != nil {
+		return nil, fmt.Errorf("decode ssvs_meta.json: %w", err)
+	}
+	return &meta, nil
+}
+
+// ValidateFilesReady checks that all files declared in ssvs_meta.json
+// are present in S3. Returns errFilesNotReady if any are missing.
+func (r *Runner) ValidateFilesReady(ctx context.Context, jobPrefix string, expectedFiles []string) error {
+	for _, f := range expectedFiles {
+		key := jobPrefix + "/" + f
+		_, err := r.s3Client.HeadObject(ctx, &s3.HeadObjectInput{
+			Bucket: &r.cfg.S3Bucket,
+			Key:    &key,
+		})
+		if err != nil {
+			log.Printf("[WAIT] File not yet available: s3://%s/%s", r.cfg.S3Bucket, key)
+			return fmt.Errorf("%w: %s", errFilesNotReady, f)
+		}
+	}
+	return nil
+}
+
 // RunPhase2 downloads artifacts from S3 and launches the sidecar container.
 // jobPrefix is the S3 path: <owner>/<repo>/<job_id>
 // archiveFile is the tar.gz filename (e.g., "phase1.tar.gz") or empty for legacy multi-file mode.
@@ -173,6 +234,54 @@ func (r *Runner) RunPhase2(ctx context.Context, jobPrefix string, archiveFile st
 	}
 
 	log.Printf("[INFO] Phase 2 complete for %s/%s", repoName, jobID)
+	return nil
+}
+
+// IndexOnly indexes SPDX documents that were uploaded directly by the
+// CI pipeline (no phase1.tar.gz). Skips sidecar launch entirely.
+// It reads each SPDX file listed in ssvs_meta.json, extracts checksums
+// from the root package, and writes DynamoDB records.
+func (r *Runner) IndexOnly(ctx context.Context, jobPrefix string, meta *SsvsMeta) error {
+	if r.indexer == nil {
+		log.Printf("[INFO] Index-only mode skipped (indexer not configured)")
+		return nil
+	}
+
+	// Filter the files list to only SPDX documents
+	var spdxFiles []string
+	for _, f := range meta.Files {
+		if strings.HasSuffix(f, ".spdx.json") || strings.HasSuffix(f, ".spdx.json.gz") {
+			spdxFiles = append(spdxFiles, f)
+		}
+	}
+
+	if len(spdxFiles) == 0 {
+		log.Printf("[WARN] No SPDX files found in ssvs_meta.json files list")
+		return nil
+	}
+
+	log.Printf("[INFO] Index-only mode for %s (%d SPDX files)", jobPrefix, len(spdxFiles))
+
+	directMeta := indexer.SpdxDirectMeta{
+		Repository: meta.Repository,
+		CommitSHA:  meta.SHA,
+	}
+
+	results, err := r.indexer.IndexSpdxDirect(ctx, jobPrefix, spdxFiles, directMeta)
+	if err != nil {
+		return fmt.Errorf("index spdx direct: %w", err)
+	}
+
+	// Publish sbom-tree requests for graph-indexed artifacts
+	for _, art := range results {
+		if art.GraphIndexed && r.sbomTreeQueueURL != "" {
+			if err := r.publishSbomTreeRequest(ctx, art, jobPrefix); err != nil {
+				log.Printf("[WARN] Failed to publish sbom-tree request for %s: %v",
+					art.SHA256[:12], err)
+			}
+		}
+	}
+
 	return nil
 }
 

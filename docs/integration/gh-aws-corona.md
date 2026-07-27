@@ -821,7 +821,7 @@ jobs:
                     echo "JOB_ID=${JOB_ID}" >> "$GITHUB_ENV"
                     GIT_TAG=$(git tag --points-at HEAD 2>/dev/null | head -n 1)
                     jq -n \
-                      --argjson tenant_id '${{ env.TENANT_ID }}' \
+                      --arg tenant_id '${{ env.TENANT_ID }}' \
                       --arg repository '${{ github.repository }}' \
                       --arg ref '${{ github.ref }}' \
                       --arg sha '${{ github.sha }}' \

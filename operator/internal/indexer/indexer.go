@@ -3,6 +3,8 @@
 package indexer
 
 import (
+	"bytes"
+	"compress/gzip"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -193,6 +195,196 @@ func (ix *Indexer) Index(ctx context.Context, jobPrefix string) ([]IndexedArtifa
 
 	log.Printf("[INDEX] Indexed %d/%d artifacts", len(results), len(manifest.Artifacts.Binaries))
 	return results, nil
+}
+
+// SpdxDirectMeta provides pipeline context for SPDX-direct indexing.
+// Fields are sourced from ssvs_meta.json.
+type SpdxDirectMeta struct {
+	Repository string
+	CommitSHA  string
+}
+
+// IndexSpdxDirect indexes pre-built SPDX documents that were uploaded
+// directly by a CI pipeline (no Phase 1 manifest). Each file in
+// spdxKeys is read from S3, the root package checksums are extracted,
+// and DynamoDB records are written. Supports gzip-compressed files.
+func (ix *Indexer) IndexSpdxDirect(
+	ctx context.Context,
+	jobPrefix string,
+	spdxKeys []string,
+	meta SpdxDirectMeta,
+) ([]IndexedArtifact, error) {
+	var results []IndexedArtifact
+
+	for _, key := range spdxKeys {
+		s3Key := jobPrefix + "/" + key
+		doc, err := ix.loadSpdxDocMaybeGzip(ctx, s3Key)
+		if err != nil {
+			log.Printf("[INDEX] Failed to load %s: %v", key, err)
+			continue
+		}
+
+		rootPkg := findRootPackage(doc)
+		if rootPkg == nil {
+			log.Printf("[INDEX] No root package found in %s", key)
+			continue
+		}
+
+		sha256, sha1 := extractChecksums(rootPkg)
+		if sha256 == "" {
+			log.Printf("[INDEX] No SHA-256 in root package of %s", key)
+			continue
+		}
+
+		// Infer language from PURL scheme
+		purl := extractPurl(rootPkg)
+		language := languageFromPurl(purl)
+
+		// Derive VCS URI from repository field
+		vcsURI := ""
+		if meta.Repository != "" {
+			vcsURI = "https://github.com/" + meta.Repository
+		}
+
+		spdxS3 := fmt.Sprintf("s3://%s/%s", ix.bucket, s3Key)
+		record := SpdxRecord{
+			ArtifactSHA:  sha256,
+			BuildSpdxS3:  spdxS3,
+			ArtifactPath: rootPkg.PackageFileName,
+			RepoName:     repoNameFromRepository(meta.Repository),
+			Language:     language,
+			CommitSHA:    meta.CommitSHA,
+			VcsURI:       vcsURI,
+		}
+
+		if err := ix.putRecord(ctx, record); err != nil {
+			return nil, fmt.Errorf("put record for %s: %w", sha256[:12], err)
+		}
+		log.Printf("[INDEX] Indexed SHA-256 %s → %s (direct)", sha256[:12], key)
+
+		if sha1 != "" {
+			record.ArtifactSHA = sha1
+			if err := ix.putRecord(ctx, record); err != nil {
+				return nil, fmt.Errorf("put sha1 record for %s: %w", sha1[:12], err)
+			}
+			log.Printf("[INDEX] Indexed SHA-1   %s → %s (direct)", sha1[:12], key)
+		}
+
+		stem := jarStem(rootPkg.PackageFileName)
+		result := IndexedArtifact{SHA256: sha256, SHA1: sha1, Name: stem}
+
+		// Index dependency graph
+		if ix.graphTable != "" {
+			if err := ix.IndexGraph(ctx, sha256, s3Key, ix.graphTable); err != nil {
+				log.Printf("[GRAPH] Error indexing graph for %s: %v", sha256[:12], err)
+			} else {
+				result.GraphIndexed = true
+			}
+		}
+
+		results = append(results, result)
+	}
+
+	log.Printf("[INDEX] Direct-indexed %d SPDX documents", len(results))
+	return results, nil
+}
+
+// loadSpdxDocMaybeGzip reads an SPDX JSON document from S3, transparently
+// decompressing gzip if the content starts with the gzip magic bytes.
+func (ix *Indexer) loadSpdxDocMaybeGzip(ctx context.Context, s3Key string) (*spdxDoc, error) {
+	out, err := ix.s3Client.GetObject(ctx, &s3.GetObjectInput{
+		Bucket: &ix.bucket,
+		Key:    &s3Key,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("get %s: %w", s3Key, err)
+	}
+	defer out.Body.Close()
+
+	data, err := io.ReadAll(out.Body)
+	if err != nil {
+		return nil, fmt.Errorf("read %s: %w", s3Key, err)
+	}
+
+	// Detect gzip: magic bytes 0x1f 0x8b
+	if len(data) >= 2 && data[0] == 0x1f && data[1] == 0x8b {
+		gz, err := gzip.NewReader(bytes.NewReader(data))
+		if err != nil {
+			return nil, fmt.Errorf("gzip open %s: %w", s3Key, err)
+		}
+		defer gz.Close()
+		data, err = io.ReadAll(gz)
+		if err != nil {
+			return nil, fmt.Errorf("gzip read %s: %w", s3Key, err)
+		}
+	}
+
+	var doc spdxDoc
+	if err := json.Unmarshal(data, &doc); err != nil {
+		return nil, fmt.Errorf("parse %s: %w", s3Key, err)
+	}
+	return &doc, nil
+}
+
+// findRootPackage returns the first SPDX package with
+// primaryPackagePurpose "APPLICATION", or the first package with
+// checksums if no APPLICATION package exists.
+func findRootPackage(doc *spdxDoc) *spdxPackage {
+	// Prefer APPLICATION purpose
+	for i := range doc.Packages {
+		if doc.Packages[i].PrimaryPackagePurpose == "APPLICATION" && len(doc.Packages[i].Checksums) > 0 {
+			return &doc.Packages[i]
+		}
+	}
+	// Fallback: first package with checksums
+	for i := range doc.Packages {
+		if len(doc.Packages[i].Checksums) > 0 {
+			return &doc.Packages[i]
+		}
+	}
+	return nil
+}
+
+// extractChecksums returns the SHA-256 and SHA-1 values from a package.
+func extractChecksums(pkg *spdxPackage) (sha256, sha1 string) {
+	for _, c := range pkg.Checksums {
+		switch c.Algorithm {
+		case "SHA256":
+			sha256 = c.ChecksumValue
+		case "SHA1":
+			sha1 = c.ChecksumValue
+		}
+	}
+	return
+}
+
+// languageFromPurl infers the programming language from a PURL scheme.
+func languageFromPurl(purl string) string {
+	switch {
+	case strings.HasPrefix(purl, "pkg:maven/"):
+		return "java"
+	case strings.HasPrefix(purl, "pkg:npm/"):
+		return "javascript"
+	case strings.HasPrefix(purl, "pkg:pypi/"):
+		return "python"
+	case strings.HasPrefix(purl, "pkg:cargo/"):
+		return "rust"
+	case strings.HasPrefix(purl, "pkg:golang/"):
+		return "go"
+	case strings.HasPrefix(purl, "pkg:nuget/"):
+		return "csharp"
+	default:
+		return ""
+	}
+}
+
+// repoNameFromRepository extracts the repo name from "owner/repo".
+func repoNameFromRepository(repository string) string {
+	parts := strings.Split(repository, "/")
+	if len(parts) >= 2 {
+		return parts[len(parts)-1]
+	}
+	return repository
 }
 
 // buildSpdxKeyFromURI strips the s3://bucket/ prefix to get the S3 key.

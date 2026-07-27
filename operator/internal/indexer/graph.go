@@ -42,12 +42,21 @@ type spdxDoc struct {
 
 // spdxPackage is a single package from the SPDX packages array.
 type spdxPackage struct {
-	SPDXID       string        `json:"SPDXID"`
-	Name         string        `json:"name"`
-	VersionInfo  string        `json:"versionInfo"`
-	Supplier     string        `json:"supplier,omitempty"`
-	Comment      string        `json:"comment,omitempty"`
-	ExternalRefs []externalRef `json:"externalRefs,omitempty"`
+	SPDXID                string         `json:"SPDXID"`
+	Name                  string         `json:"name"`
+	VersionInfo           string         `json:"versionInfo"`
+	Supplier              string         `json:"supplier,omitempty"`
+	Comment               string         `json:"comment,omitempty"`
+	ExternalRefs          []externalRef  `json:"externalRefs,omitempty"`
+	PackageFileName       string         `json:"packageFileName,omitempty"`
+	PrimaryPackagePurpose string         `json:"primaryPackagePurpose,omitempty"`
+	Checksums             []spdxChecksum `json:"checksums,omitempty"`
+}
+
+// spdxChecksum is a single checksum entry in an SPDX package.
+type spdxChecksum struct {
+	Algorithm     string `json:"algorithm"`
+	ChecksumValue string `json:"checksumValue"`
 }
 
 // externalRef is a package external reference (PURL, CPE, etc.).
