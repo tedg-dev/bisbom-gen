@@ -1,5 +1,5 @@
 """
-Binary collection for OmniBOR Analysis.
+Binary collection for bisbom-gen.
 
 Copies output binaries from the build tree into timestamped
 output directories for preservation.

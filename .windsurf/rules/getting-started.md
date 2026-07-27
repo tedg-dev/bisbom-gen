@@ -2,7 +2,7 @@
 description: First-time setup instructions for new contributors using Windsurf Cascade
 ---
 
-# Getting Started with OmniBOR Analysis
+# Getting Started with bisbom-gen
 
 This rule provides context for Cascade AI when a new contributor opens this project
 for the first time in Windsurf IDE.

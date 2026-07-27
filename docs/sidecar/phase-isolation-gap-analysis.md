@@ -193,13 +193,13 @@ before any other libraries.
 spec:
   initContainers:
     - name: omnibor-init
-      image: omnibor-env:init
+      image: bisbom-env:init
       command: ["cp", "/opt/omnibor/libintercept.so", "/omnibor/"]
       volumeMounts:
         - name: omnibor-lib
           mountPath: /omnibor
-    - name: omnibor-sidecar
-      image: omnibor-env:sidecar
+    - name: bisbom-sidecar
+      image: bisbom-env:sidecar
       restartPolicy: Always    # K8s 1.28+ native sidecar
       volumeMounts:
         - name: workspace

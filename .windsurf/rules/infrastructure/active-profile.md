@@ -1,5 +1,5 @@
 ---
-description: Infrastructure profiles for OmniBOR analysis build hosts
+description: Infrastructure profiles for bisbom-gen analysis build hosts
 ---
 
 # Build Host Profiles
@@ -62,7 +62,7 @@ aws ec2 stop-instances --profile ted-admin --instance-ids i-02ef4bf118d6bae90 --
 
 ```bash
 ssh omnibor-build "cd /home/ubuntu/omnibor-analysis && git pull origin main"
-ssh omnibor-build "cd /home/ubuntu/omnibor-analysis && docker-compose -f docker/docker-compose.yml run --rm omnibor-env python3 /workspace/app/analyze.py --repo <REPO_NAME>"
+ssh omnibor-build "cd /home/ubuntu/omnibor-analysis && docker-compose -f docker/docker-compose.yml run --rm bisbom-env python3 /workspace/app/analyze.py --repo <REPO_NAME>"
 ```
 
 ### Syncing Results
@@ -116,7 +116,7 @@ Always-on host — no start/stop needed.
 Requires proxy override via `docker-compose.override.yml` (see `/cisco-lab-proxy`).
 
 ```bash
-ssh omnibor-build "cd ~/omnibor-analysis && docker compose -f docker/docker-compose.yml -f docker/docker-compose.override.yml run --rm omnibor-env python3 /workspace/app/analyze.py --repo <REPO_NAME>"
+ssh omnibor-build "cd ~/omnibor-analysis && docker compose -f docker/docker-compose.yml -f docker/docker-compose.override.yml run --rm bisbom-env python3 /workspace/app/analyze.py --repo <REPO_NAME>"
 ```
 
 ### Syncing Results

@@ -149,10 +149,10 @@ before committing:
 ```bash
 # Build and verify
 docker-compose -f docker/docker-compose.yml build
-docker-compose -f docker/docker-compose.yml run --rm omnibor-env bomtrace3 --version
+docker-compose -f docker/docker-compose.yml run --rm bisbom-env bomtrace3 --version
 
 # Run SBOM generation
-docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
+docker-compose -f docker/docker-compose.yml run --rm bisbom-env \
   python3 /workspace/app/analyze.py --repo curl
 ```
 
@@ -239,7 +239,7 @@ git add output/**/<new-lang>/.gitkeep
 ### 5. Test the build manually first
 
 ```bash
-docker-compose -f docker/docker-compose.yml run --rm omnibor-env bash
+docker-compose -f docker/docker-compose.yml run --rm bisbom-env bash
 cd /workspace/repos
 git clone --depth 1 https://github.com/org/newrepo.git
 cd newrepo
@@ -249,7 +249,7 @@ cd newrepo
 ### 6. Run SBOM generation
 
 ```bash
-docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
+docker-compose -f docker/docker-compose.yml run --rm bisbom-env \
   python3 /workspace/app/analyze.py --repo newrepo
 ```
 

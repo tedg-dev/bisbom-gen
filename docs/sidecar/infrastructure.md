@@ -878,11 +878,11 @@ COPY requirements.txt /workspace/requirements.txt
 `docker/docker-compose.yml` defines both services:
 
 ```yaml
-omnibor-standalone:
+bisbom-standalone:
   build: { target: standalone }
   cap_add: [SYS_PTRACE]  # required for bomtrace
 
-omnibor-sidecar:
+bisbom-sidecar:
   build: { target: sidecar }
   # No SYS_PTRACE needed
 ```

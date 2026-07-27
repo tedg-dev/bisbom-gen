@@ -473,10 +473,10 @@ class TestJavaInlineConfig(unittest.TestCase):
         )
         self.assertTrue(inline)
         self.assertTrue(shim.endswith(
-            "libomnibor_java_intercept.so",
+            "libbisbom_java_intercept.so",
         ))
         self.assertEqual(
-            cap, "/workspace/repos/app/.omnibor/capture.jsonl",
+            cap, "/workspace/repos/app/.bisbom/capture.jsonl",
         )
 
     def test_enabled_custom_shim_path(self):
@@ -498,7 +498,7 @@ class TestJavaInlineConfig(unittest.TestCase):
         strategy = _select_java_strategy(
             "jsoup", {"build_steps": ["mvn package"]},
             {"repos_dir": "/workspace/repos"}, "sidecar",
-            omnibor_cfg={"java_inline_hash": True},
+            bisbom_cfg={"java_inline_hash": True},
         )
         self.assertIsInstance(strategy, MavenDepTreeStrategy)
         self.assertEqual(strategy.name, "maven-inline-hash")
@@ -512,7 +512,7 @@ class TestJavaInlineConfig(unittest.TestCase):
         strategy = _select_java_strategy(
             "checkstyle", {"build_steps": ["./gradlew build"]},
             {"repos_dir": "/workspace/repos"}, "sidecar",
-            omnibor_cfg={"java_inline_hash": True},
+            bisbom_cfg={"java_inline_hash": True},
         )
         self.assertIsInstance(strategy, GradleDepTreeStrategy)
         self.assertEqual(strategy.name, "gradle-inline-hash")

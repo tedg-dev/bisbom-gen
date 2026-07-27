@@ -1063,7 +1063,7 @@ class TestConfigGenerator(unittest.TestCase):
                     )
             self.assertTrue(
                 (Path(tmpdir) / "output"
-                 / "omnibor" / "test").exists()
+                 / "bisbom" / "test").exists()
             )
             self.assertTrue(
                 (Path(tmpdir) / "output"

@@ -17,13 +17,13 @@ description: Rules for Docker container usage in this project
 Enter the container interactively:
 
 ```bash
-docker-compose -f docker/docker-compose.yml run --rm omnibor-env bash
+docker-compose -f docker/docker-compose.yml run --rm bisbom-env bash
 ```
 
 Run analysis directly:
 
 ```bash
-docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
+docker-compose -f docker/docker-compose.yml run --rm bisbom-env \
   python3 /workspace/app/analyze.py --repo <REPO_NAME>
 ```
 
@@ -48,7 +48,7 @@ Templates are provided for DigitalOcean, AWS EC2, and local Linux.
 General pattern for remote execution:
 
 ```bash
-ssh <SSH_ALIAS> "cd <REPO_PATH> && docker-compose -f docker/docker-compose.yml run --rm omnibor-env python3 /workspace/app/analyze.py --repo <REPO_NAME>"
+ssh <SSH_ALIAS> "cd <REPO_PATH> && docker-compose -f docker/docker-compose.yml run --rm bisbom-env python3 /workspace/app/analyze.py --repo <REPO_NAME>"
 ```
 
 General pattern for syncing results:

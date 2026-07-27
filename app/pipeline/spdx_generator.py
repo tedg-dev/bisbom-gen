@@ -331,7 +331,7 @@ class SpdxGenerator:
         lang = lang_subdir(repo_cfg)
         bom_dir = (
             Path(paths_cfg["output_dir"])
-            / "omnibor" / lang / repo_name / ts
+            / "bisbom" / lang / repo_name / ts
         )
         spdx_dir = (
             Path(paths_cfg["output_dir"])

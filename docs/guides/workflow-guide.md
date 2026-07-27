@@ -101,7 +101,7 @@ Accepts: repo name (`curl`), owner/repo (`curl/curl`), or full GitHub URL.
 ### Recommendations
 
 - **Start with curl or nmap** — they build fast and produce rich SBOMs with both vendored and dynamic deps
-- **Test manually first** — enter the container with `docker-compose run --rm omnibor-env bash`, clone the repo, and verify the build works before running `analyze.py`
+- **Test manually first** — enter the container with `docker-compose run --rm bisbom-env bash`, clone the repo, and verify the build works before running `analyze.py`
 - **Review before writing** — always run without `--write` first to verify the generated config
 
 ---
@@ -124,15 +124,15 @@ Instruments a build with `bomtrace3`/`bomtrace2` (C/C++, Rust, Go) or strace (Ja
 
 ```bash
 # Full run (clone + build + SBOM)
-docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
+docker-compose -f docker/docker-compose.yml run --rm bisbom-env \
   python3 /workspace/app/analyze.py --repo curl
 
 # Skip clone (repo already in repos/)
-docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
+docker-compose -f docker/docker-compose.yml run --rm bisbom-env \
   python3 /workspace/app/analyze.py --repo curl --skip-clone
 
 # List available repos
-docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
+docker-compose -f docker/docker-compose.yml run --rm bisbom-env \
   python3 /workspace/app/analyze.py --list
 ```
 
@@ -177,14 +177,14 @@ Compares a bisbom-gen SPDX SBOM against a proprietary binary scanner's SPDX SBOM
 
 ```bash
 # Auto-detect latest files
-docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
+docker-compose -f docker/docker-compose.yml run --rm bisbom-env \
   python3 /workspace/app/compare.py --repo curl
 
 # Specify files explicitly
-docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
+docker-compose -f docker/docker-compose.yml run --rm bisbom-env \
   python3 /workspace/app/compare.py \
     --repo curl \
-    --omnibor-file /workspace/output/spdx/curl/curl_omnibor_2026-02-10_1430.spdx.json \
+    --bisbom-file /workspace/output/spdx/curl/curl_omnibor_2026-02-10_1430.spdx.json \
     --binary-file /workspace/output/binary-scan/curl/bdba_export.spdx.json
 ```
 
@@ -221,14 +221,14 @@ docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
 docker-compose -f docker/docker-compose.yml build
 
 # 2. Run bisbom-gen on curl
-docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
+docker-compose -f docker/docker-compose.yml run --rm bisbom-env \
   python3 /workspace/app/analyze.py --repo curl
 
 # 3. (Optional) Place a binary scan SBOM
 cp ~/downloads/bdba_curl.spdx.json output/binary-scan/curl/
 
 # 4. Run comparison
-docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
+docker-compose -f docker/docker-compose.yml run --rm bisbom-env \
   python3 /workspace/app/compare.py --repo curl
 
 # 5. Review results

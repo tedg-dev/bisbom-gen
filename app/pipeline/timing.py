@@ -1,5 +1,5 @@
 """
-Per-step timing and CPU monitoring for OmniBOR Analysis.
+Per-step timing and CPU monitoring for bisbom-gen.
 
 Provides ``StepTimer`` for measuring wall-clock time, CPU
 usage, and load average for each pipeline step.  Results

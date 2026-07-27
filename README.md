@@ -112,7 +112,7 @@ First build takes **10-20 minutes** (compiles bomtrace from patched strace sourc
 
 ```bash
 # Check bomtrace3
-docker-compose -f docker/docker-compose.yml run --rm omnibor-env bomtrace3 --version
+docker-compose -f docker/docker-compose.yml run --rm bisbom-env bomtrace3 --version
 
 ```
 
@@ -122,15 +122,15 @@ docker-compose -f docker/docker-compose.yml run --rm omnibor-env bomtrace3 --ver
 
 ```bash
 # List available repos
-docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
+docker-compose -f docker/docker-compose.yml run --rm bisbom-env \
   python3 /workspace/app/analyze.py --list
 
 # Full run: clone → build → instrument → generate SBOMs → write docs
-docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
+docker-compose -f docker/docker-compose.yml run --rm bisbom-env \
   python3 /workspace/app/analyze.py --repo curl
 
 # Re-run without cloning (repo already exists)
-docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
+docker-compose -f docker/docker-compose.yml run --rm bisbom-env \
   python3 /workspace/app/analyze.py --repo curl --skip-clone
 
 ```
@@ -138,7 +138,7 @@ docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
 ### Interactive container access
 
 ```bash
-docker-compose -f docker/docker-compose.yml run --rm omnibor-env bash
+docker-compose -f docker/docker-compose.yml run --rm bisbom-env bash
 ```
 
 ## Target Repositories

@@ -387,7 +387,7 @@ class TestAssembleTreedb(unittest.TestCase):
         )
 
     def test_env_constant_exposed(self):
-        self.assertEqual(CAPTURE_LOG_ENV, "OMNIBOR_CAPTURE_LOG")
+        self.assertEqual(CAPTURE_LOG_ENV, "BISBOM_CAPTURE_LOG")
 
 
 if __name__ == "__main__":

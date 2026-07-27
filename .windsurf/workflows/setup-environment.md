@@ -79,7 +79,7 @@ docker --version 2>/dev/null || echo "Docker not available locally — you may n
 
 If Docker is available locally:
 ```bash
-docker-compose -f docker/docker-compose.yml run --rm omnibor-env bomtrace3 --version 2>/dev/null || echo "Container image not built yet — run /docker-build workflow"
+docker-compose -f docker/docker-compose.yml run --rm bisbom-env bomtrace3 --version 2>/dev/null || echo "Container image not built yet — run /docker-build workflow"
 ```
 
 ## 6. Check for existing output artifacts

@@ -7,7 +7,7 @@ cd /home/ubuntu/omnibor-analysis
 
 REPOS="${*:-bc-java checkstyle crawler4j dependency-check jsoup logging-log4j2 spring-boot}"
 mkdir -p /tmp/jval
-DC="docker compose -f docker/docker-compose.yml run --rm --remove-orphans omnibor-sidecar"
+DC="docker compose -f docker/docker-compose.yml run --rm --remove-orphans bisbom-sidecar"
 
 for r in $REPOS; do
     echo "=== $r START $(date -u +%H:%M:%S) ==="

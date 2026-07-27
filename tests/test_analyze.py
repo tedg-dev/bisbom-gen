@@ -42,7 +42,7 @@ class TestLoadConfig(unittest.TestCase):
         config = load_config()
         self.assertIn("repos", config)
         self.assertIn("paths", config)
-        self.assertIn("omnibor", config)
+        self.assertIn("bisbom", config)
 
     def test_loads_custom_path(self):
         import yaml
@@ -848,7 +848,7 @@ class TestBomtraceBuilderJava(unittest.TestCase):
             self.assertEqual(runner.run.call_count, 3)
             # Verify strace log was archived
             bom_dir = list(
-                (Path(td) / "output" / "omnibor"
+                (Path(td) / "output" / "bisbom"
                  / "java" / "myapp").iterdir()
             )[0]
             archive = (
@@ -1546,7 +1546,7 @@ class TestSpdxGeneratorMetadata(unittest.TestCase):
                 )
             bom_dir = str(
                 Path(td) / "output"
-                / "omnibor" / "c-cpp" / "curl"
+                / "bisbom" / "c-cpp" / "curl"
                 / "2026-02-12_1300"
             )
             mock_patch.assert_called_once_with(
@@ -4498,7 +4498,7 @@ class TestAdgSpdxStep(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             # Create dirs
             bom_dir = (
-                Path(td) / "omnibor" / "c-cpp"
+                Path(td) / "bisbom" / "c-cpp"
                 / "nmap" / "2026-02-12_1300"
                 / "metadata" / "nmap"
             )
@@ -4564,7 +4564,7 @@ class TestAdgSpdxStep(unittest.TestCase):
             (core / "spring-boot-3.4.4.jar").write_bytes(b"PK")
             (bsrc / "buildSrc.jar").write_bytes(b"PK")
             bom_dir = (
-                Path(td) / "omnibor" / "java" / "springboot"
+                Path(td) / "bisbom" / "java" / "springboot"
                 / "2026-02-12_1300" / "metadata" / "springboot"
             )
             bom_dir.mkdir(parents=True)
@@ -4608,7 +4608,7 @@ class TestAdgSpdxStep(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             # Create per-binary metadata dir
             meta = (
-                Path(td) / "omnibor" / "c-cpp"
+                Path(td) / "bisbom" / "c-cpp"
                 / "curl" / "2026-02-12_1300"
                 / "metadata" / "curl"
             )
@@ -4687,7 +4687,7 @@ class TestMetadataCollector(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             # Set up directory structure
             bom_dir = (
-                Path(td) / "omnibor" / "c-cpp"
+                Path(td) / "bisbom" / "c-cpp"
                 / "nmap" / "2026-02-12_1300"
             )
             meta_dir = bom_dir / "metadata"
@@ -4763,7 +4763,7 @@ class TestMetadataCollector(unittest.TestCase):
         """Skips collection if dynamic_libs.json exists."""
         with tempfile.TemporaryDirectory() as td:
             bom_dir = (
-                Path(td) / "omnibor" / "c-cpp"
+                Path(td) / "bisbom" / "c-cpp"
                 / "nmap" / "2026-02-12_1300"
             )
             meta_dir = bom_dir / "metadata"
@@ -4811,7 +4811,7 @@ class TestMetadataCollector(unittest.TestCase):
         """Warns and continues if binary doesn't exist."""
         with tempfile.TemporaryDirectory() as td:
             bom_dir = (
-                Path(td) / "omnibor" / "c-cpp"
+                Path(td) / "bisbom" / "c-cpp"
                 / "nmap" / "2026-02-12_1300"
             )
             meta_dir = bom_dir / "metadata"
@@ -4847,7 +4847,7 @@ class TestMetadataCollector(unittest.TestCase):
         """Returns False if collect_metadata raises."""
         with tempfile.TemporaryDirectory() as td:
             bom_dir = (
-                Path(td) / "omnibor" / "c-cpp"
+                Path(td) / "bisbom" / "c-cpp"
                 / "nmap" / "2026-02-12_1300"
             )
             meta_dir = bom_dir / "metadata"

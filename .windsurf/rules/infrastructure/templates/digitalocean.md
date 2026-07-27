@@ -82,10 +82,10 @@ ssh omnibor-build "curl -fsSL https://get.docker.com | sh"
 ssh omnibor-build "cd /root/omnibor-analysis && git pull origin main"
 
 # Run analysis
-ssh omnibor-build "cd /root/omnibor-analysis && docker-compose -f docker/docker-compose.yml run --rm omnibor-env python3 /workspace/app/analyze.py --repo <REPO_NAME>"
+ssh omnibor-build "cd /root/omnibor-analysis && docker-compose -f docker/docker-compose.yml run --rm bisbom-env python3 /workspace/app/analyze.py --repo <REPO_NAME>"
 
 # Enter container interactively
-ssh omnibor-build "cd /root/omnibor-analysis && docker-compose -f docker/docker-compose.yml run --rm omnibor-env bash"
+ssh omnibor-build "cd /root/omnibor-analysis && docker-compose -f docker/docker-compose.yml run --rm bisbom-env bash"
 
 # Rebuild Docker image
 ssh omnibor-build "cd /root/omnibor-analysis && docker-compose -f docker/docker-compose.yml build"

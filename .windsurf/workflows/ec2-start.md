@@ -117,7 +117,7 @@ If a full rebuild is needed, add `--no-cache` (takes 10-20 min).
 
 ```bash
 ssh <SSH_ALIAS> "cd <REPO_PATH> && \
-  docker compose -f docker/docker-compose.yml run --rm omnibor-env \
+  docker compose -f docker/docker-compose.yml run --rm bisbom-env \
   bash -c 'which bomtrace2 && which bomtrace3 && syft version && go version && \
   echo \"bomtrace_go.conf:\" && head -1 /opt/bomsh/bin/bomtrace_go.conf'"
 ```

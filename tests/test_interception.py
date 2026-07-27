@@ -404,7 +404,7 @@ class TestBuildInlineHashEnv(unittest.TestCase):
         env = build_inline_hash_env("/lib/shim.so", "/w/cap.jsonl")
         self.assertEqual(env["LD_PRELOAD"], "/lib/shim.so")
         self.assertEqual(
-            env["OMNIBOR_CAPTURE_LOG"], "/w/cap.jsonl",
+            env["BISBOM_CAPTURE_LOG"], "/w/cap.jsonl",
         )
 
     def test_extra_merged(self):
@@ -636,7 +636,7 @@ class TestStrategyInlineBehavior(unittest.TestCase):
     """Maven/Gradle inline-hash instrument_command + naming."""
 
     def _cap(self, td):
-        return str(Path(td) / ".omnibor" / "c.jsonl")
+        return str(Path(td) / ".bisbom" / "c.jsonl")
 
     def test_maven_inline_name(self):
         s = MavenDepTreeStrategy(
@@ -655,7 +655,7 @@ class TestStrategyInlineBehavior(unittest.TestCase):
             cmd, env = s.instrument_command("mvn package", td)
             self.assertEqual(cmd, "mvn package")
             self.assertEqual(env["LD_PRELOAD"], "/lib/shim.so")
-            self.assertEqual(env["OMNIBOR_CAPTURE_LOG"], cap)
+            self.assertEqual(env["BISBOM_CAPTURE_LOG"], cap)
             self.assertTrue(Path(cap).parent.is_dir())
 
     def test_maven_no_env_without_shim(self):

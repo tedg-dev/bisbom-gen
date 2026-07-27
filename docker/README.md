@@ -17,7 +17,7 @@ Linux container for OmniBOR build interception.
 
 ```bash
 docker-compose -f docker/docker-compose.yml build
-docker-compose -f docker/docker-compose.yml run --rm omnibor-env bash
+docker-compose -f docker/docker-compose.yml run --rm bisbom-env bash
 ```
 
 The `repos/`, `output/`, `app/`, and `docs/` directories are mounted as volumes so artifacts persist on the host.

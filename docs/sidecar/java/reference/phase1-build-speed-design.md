@@ -7,7 +7,7 @@
 | **Consolidates** | `docs/_archived/performance/phase-isolation-build-time-analysis.md`, the Java-efficiency portions of `../phase-isolation-gap-analysis.md`, and `docs/_archived/performance/bomsh-java-performance-optimization.md` |
 | **Scope** | Java builds (Maven and Gradle). Other languages capture inline during the build and have no separate dependency-resolution step. |
 | **Status** | Active design; baseline + US-1 + US-2 delivered (US-2 validated golden-clean on bc-java + spring-boot); US-3 conditional |
-| **Author** | OmniBOR Analysis project |
+| **Author** | bisbom-gen project |
 | **Drafted** | 2026-06-24 (Cascade) |
 
 > This is the **single detailed engineering reference** for Phase 1

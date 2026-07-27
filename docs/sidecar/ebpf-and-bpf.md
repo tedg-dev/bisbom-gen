@@ -1,4 +1,4 @@
-# eBPF and BPF in OmniBOR Analysis
+# eBPF and BPF in bisbom-gen
 
 This document catalogs all eBPF and BPF usage, proposals, and external
 projects relevant to OmniBOR build interception.

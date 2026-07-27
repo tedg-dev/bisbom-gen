@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-OmniBOR Analysis — Main orchestration script (shim).
+bisbom-gen — Main orchestration script (shim).
 
 This module re-exports all classes, functions, and the CLI
 entry point from the refactored ``app.pipeline`` and

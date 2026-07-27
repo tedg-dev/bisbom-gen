@@ -797,7 +797,7 @@ class TestGenerateJavaAdgSpdxBranches(unittest.TestCase):
             jar.write_bytes(b"PK")
 
             bom_dir = (
-                Path(td) / "output" / "omnibor"
+                Path(td) / "output" / "bisbom"
                 / "java" / "myapp" / "ts1"
             )
             bom_dir.mkdir(parents=True)
@@ -863,13 +863,13 @@ class TestMainJavaDispatch(unittest.TestCase):
                 "output_dir": "/tmp/out",
                 "repos_dir": "/tmp/repos",
             },
-            "omnibor": {
+            "bisbom": {
                 "tracer": "bomtrace3",
                 "create_bom_script": "bom.py",
                 "sbom_script": "sbom.py",
                 "raw_logfile": "/tmp/log",
             },
-            "omnibor_java": {
+            "bisbom_java": {
                 "strace_opts": "-f",
                 "create_bom_script": "bom.py",
                 "strace_logfile": "/tmp/log",
@@ -925,13 +925,13 @@ class TestMainJavaDispatch(unittest.TestCase):
                 "output_dir": "/tmp/out",
                 "repos_dir": "/tmp/repos",
             },
-            "omnibor": {
+            "bisbom": {
                 "tracer": "bomtrace3",
                 "create_bom_script": "bom.py",
                 "sbom_script": "sbom.py",
                 "raw_logfile": "/tmp/log",
             },
-            "omnibor_rust": {
+            "bisbom_rust": {
                 "tracer": "bomtrace2",
                 "create_bom_script": "bom.py",
                 "sbom_script": "sbom.py",
@@ -977,7 +977,7 @@ class TestPhase1IdentityIndex(unittest.TestCase):
 
     def _write_treedb(self, paths_cfg, run_ts, treedb):
         meta = (
-            Path(paths_cfg["output_dir"]) / "omnibor"
+            Path(paths_cfg["output_dir"]) / "bisbom"
             / "java" / "myapp" / run_ts
             / "metadata" / "bomsh"
         )

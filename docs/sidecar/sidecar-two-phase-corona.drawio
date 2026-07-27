@@ -337,7 +337,7 @@
         <mxCell id="c_corona_desc" parent="1" style="text;html=1;fontSize=10;fontStyle=2;fontColor=#2e7d32;align=left;" value="Ingests SBOMs from multiple sources • Manages Product → Release → Image lifecycle • Tracks vulnerabilities • Single pane of glass" vertex="1">
           <mxGeometry height="18" width="900" x="65" y="461" as="geometry" />
         </mxCell>
-        <mxCell id="c_agent" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#c8e6c9;strokeColor=#2e7d32;strokeWidth=2;fontSize=11;fontStyle=1;" value="OmniBOR Analysis Agent (New Daemon)&lt;br&gt;&lt;br&gt;• Watches S3 prefix for new manifests&lt;br&gt;• Downloads treedb + metadata&lt;br&gt;• Verifies SHA-256 integrity&lt;br&gt;• Runs Phase 2 pipeline (Python)&lt;br&gt;• Retries on transient failures&lt;br&gt;• Reports status back to PR" vertex="1">
+        <mxCell id="c_agent" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#c8e6c9;strokeColor=#2e7d32;strokeWidth=2;fontSize=11;fontStyle=1;" value="bisbom-gen Agent (New Daemon)&lt;br&gt;&lt;br&gt;• Watches S3 prefix for new manifests&lt;br&gt;• Downloads treedb + metadata&lt;br&gt;• Verifies SHA-256 integrity&lt;br&gt;• Runs Phase 2 pipeline (Python)&lt;br&gt;• Retries on transient failures&lt;br&gt;• Reports status back to PR" vertex="1">
           <mxGeometry height="150" width="240" x="100" y="498" as="geometry" />
         </mxCell>
         <mxCell id="c_e6" edge="1" parent="1" source="c_s3" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#d79b00;strokeWidth=3;dashed=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" target="c_agent">

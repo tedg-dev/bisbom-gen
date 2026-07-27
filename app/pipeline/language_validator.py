@@ -1,5 +1,5 @@
 """
-Language validation for OmniBOR analysis.
+Language validation for bisbom-gen analysis.
 
 Checks that a repository's primary languages are supported by the
 current OmniBOR/bomsh installation before cloning.

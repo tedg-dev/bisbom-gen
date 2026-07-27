@@ -1,1 +1,1 @@
-# app/ package — OmniBOR Analysis
+# app/ package — bisbom-gen

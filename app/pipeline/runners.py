@@ -1,5 +1,5 @@
 """
-CLI entry point for OmniBOR Analysis.
+CLI entry point for Build-Interception SBOM Generation.
 
 Contains main() which dispatches to language-specific
 pipeline runners in app.pipeline.lang_runners.
@@ -11,7 +11,7 @@ import sys
 from pathlib import Path
 
 from app.config import (
-    lang_subdir, load_config, resolve_omnibor_cfg,
+    lang_subdir, load_config, resolve_bisbom_cfg,
     timestamp, VALID_MODES, DEFAULT_MODE,
     VALID_PHASES,
 )
@@ -34,7 +34,7 @@ from app.pipeline.lang_runners import (
 def main():
     parser = argparse.ArgumentParser(
         description=(
-            "OmniBOR Analysis — Build interception "
+            "Build interception "
             "and SBOM generation"
         )
     )
@@ -127,15 +127,15 @@ def main():
     repo_cfg = config["repos"][args.repo]
     paths_cfg = config["paths"]
 
-    # Language-aware omnibor config lookup
+    # Language-aware bisbom config lookup
     lang = lang_subdir(repo_cfg)
-    omnibor_cfg = resolve_omnibor_cfg(config, lang)
+    bisbom_cfg = resolve_bisbom_cfg(config, lang)
 
     # Single timestamp for the entire run — all
     # output folders use this consistently:
     #   output/binaries/{lang}/{repo}/{run_ts}/
     #   output/spdx/{lang}/{repo}/{run_ts}/
-    #   output/omnibor/{lang}/{repo}/{run_ts}/
+    #   output/bisbom/{lang}/{repo}/{run_ts}/
     #   output/build-logs/{lang}/{repo}/{run_ts}/
     #   output/runtime/{lang}/{repo}/{run_ts}/
     # Phase 2-only: reuse Phase 1's timestamp so all
@@ -149,7 +149,7 @@ def main():
         run_ts = timestamp()
 
     print(f"\n{'#'*60}")
-    print(f"  OmniBOR Analysis: {args.repo}")
+    print(f"  Build-Interception SBOM Generation: {args.repo}")
     desc = repo_cfg.get("description", "")
     print(f"  {desc}")
     print(f"{'#'*60}\n")
@@ -228,13 +228,13 @@ def main():
     if lang == "c-cpp":
         timing = run_c_cpp_pipeline(
             pipeline, args.repo, repo_cfg,
-            paths_cfg, omnibor_cfg, run_ts,
+            paths_cfg, bisbom_cfg, run_ts,
             vcs_uri=vcs_uri,
         )
     elif lang == "rust":
         timing = run_rust_pipeline(
             pipeline, args.repo, repo_cfg,
-            paths_cfg, omnibor_cfg, run_ts,
+            paths_cfg, bisbom_cfg, run_ts,
             vcs_uri=vcs_uri,
         )
     elif lang == "java":
@@ -242,7 +242,7 @@ def main():
         if args.phase == "build":
             timing = _run_phase1_only(
                 pipeline, args.repo, repo_cfg,
-                paths_cfg, omnibor_cfg, run_ts,
+                paths_cfg, bisbom_cfg, run_ts,
                 mode=mode, lang=lang,
                 commit_sha=commit_sha,
                 vcs_uri=vcs_uri,
@@ -251,13 +251,13 @@ def main():
             timing = _run_phase2_only(
                 pipeline, args.repo,
                 args.manifest, paths_cfg,
-                omnibor_cfg, run_ts,
+                bisbom_cfg, run_ts,
                 vcs_uri=vcs_uri,
             )
         else:
             timing = run_java_pipeline(
                 pipeline, args.repo, repo_cfg,
-                paths_cfg, omnibor_cfg, run_ts,
+                paths_cfg, bisbom_cfg, run_ts,
                 vcs_uri=vcs_uri,
                 mode=mode,
                 commit_sha=commit_sha,
@@ -265,7 +265,7 @@ def main():
     else:
         timing = run_go_pipeline(
             pipeline, args.repo, repo_cfg,
-            paths_cfg, omnibor_cfg, run_ts,
+            paths_cfg, bisbom_cfg, run_ts,
             vcs_uri=vcs_uri,
         )
     success = timing.success
@@ -287,7 +287,7 @@ def main():
     )
 
     # Step 8: Write docs (all languages)
-    raw_logfile = omnibor_cfg.get("raw_logfile")
+    raw_logfile = bisbom_cfg.get("raw_logfile")
     pipeline.docs.write_build_doc(
         args.repo, repo_cfg, paths_cfg,
         success, duration,
@@ -386,7 +386,7 @@ def _validate_phase_args(args, parser):
 
 def _run_phase1_only(
     pipeline, repo_name, repo_cfg,
-    paths_cfg, omnibor_cfg, run_ts,
+    paths_cfg, bisbom_cfg, run_ts,
     mode, lang, commit_sha, vcs_uri,
 ):
     """Run Phase 1 only and write manifest.
@@ -402,7 +402,7 @@ def _run_phase1_only(
 
     timing, _ = run_java_phase1(
         pipeline, repo_name, repo_cfg,
-        paths_cfg, omnibor_cfg, run_ts,
+        paths_cfg, bisbom_cfg, run_ts,
         mode=mode,
     )
     if not timing.success:
@@ -411,7 +411,7 @@ def _run_phase1_only(
     # Determine artifact paths for the manifest
     bom_dir = (
         Path(paths_cfg["output_dir"])
-        / "omnibor" / lang / repo_name / run_ts
+        / "bisbom" / lang / repo_name / run_ts
     )
     spdx_dir = (
         Path(paths_cfg["output_dir"])
@@ -441,7 +441,7 @@ def _run_phase1_only(
     }
 
     # Include strace log if present (standalone)
-    strace_log = omnibor_cfg.get("strace_logfile")
+    strace_log = bisbom_cfg.get("strace_logfile")
     if strace_log and Path(strace_log).exists():
         artifacts["strace_log"] = strace_log
 
@@ -475,7 +475,7 @@ def _run_phase1_only(
                     "build_steps",
                 ) if k in repo_cfg
             },
-            omnibor_cfg=omnibor_cfg,
+            bisbom_cfg=bisbom_cfg,
         )
     timing.steps.append(manifest_timer.metrics)
     print(
@@ -488,7 +488,7 @@ def _run_phase1_only(
 def _run_phase2_only(
     pipeline, repo_name,
     manifest_path, paths_cfg,
-    omnibor_cfg, run_ts,
+    bisbom_cfg, run_ts,
     vcs_uri="NOASSERTION",
 ):
     """Run Phase 2 only from a manifest.
@@ -524,7 +524,7 @@ def _run_phase2_only(
     # Use manifest values, fall back to CLI args
     m_repo_cfg = manifest.get("repo_cfg", {})
     m_omnibor = manifest.get(
-        "omnibor_cfg", omnibor_cfg,
+        "bisbom_cfg", bisbom_cfg,
     )
     m_vcs = manifest.get("vcs_uri", vcs_uri)
     m_ts = manifest.get("run_ts", run_ts)

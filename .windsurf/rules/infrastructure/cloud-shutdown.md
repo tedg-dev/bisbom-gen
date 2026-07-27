@@ -24,7 +24,7 @@ If the active profile shows **Provider: Local**, skip this reminder (no cost).
 ## Why This Matters
 
 - Cloud VMs charge per hour/minute even when idle
-- The OmniBOR analysis container only needs to run during active analysis
+- The bisbom-gen analysis container only needs to run during active analysis
 - Stopping the VM preserves disk state; destroying it saves all costs
 - Always verify no analysis is in progress before stopping
 

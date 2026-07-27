@@ -1,5 +1,5 @@
 """
-Repository cloning for OmniBOR Analysis.
+Repository cloning for bisbom-gen.
 
 Handles shallow cloning of target repositories.
 """

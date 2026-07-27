@@ -463,29 +463,29 @@ paths:
   output_dir: /workspace/output
   docs_dir: /workspace/docs
   bomsh_dir: /opt/bomsh
-omnibor:
+bisbom:
   tracer: bomtrace3
   create_bom_script: bomsh_create_bom.py
   sbom_script: bomsh_sbom.py
   raw_logfile: /tmp/bomsh_hook_raw_logfile.sha1
-omnibor_rust:
+bisbom_rust:
   tracer: bomtrace2
   create_bom_script: bomsh_create_bom.py
   sbom_script: bomsh_sbom.py
   raw_logfile: /tmp/bomsh_hook_raw_logfile.sha1
-omnibor_go:
+bisbom_go:
   tracer: bomtrace2 -c /opt/bomsh/bin/bomtrace_go.conf
   create_bom_script: bomsh_create_bom.py
   sbom_script: bomsh_sbom.py
   raw_logfile: /tmp/bomsh_hook_raw_logfile.sha1
-omnibor_java:
+bisbom_java:
   # Java uses strace + bomsh_create_bom_java.py (post-build analysis)
   # instead of bomtrace (build-time interception)
   strace_opts: -f -s99999 --seccomp-bpf -e trace=openat -qqq
   create_bom_script: bomsh_create_bom_java.py
   strace_logfile: /tmp/strace_java_logfile
   # Sidecar inline hashing (generic, Maven + Gradle). The default path:
-  # the LD_PRELOAD shim (libomnibor_java_intercept.so) computes each
+  # the LD_PRELOAD shim (libbisbom_java_intercept.so) computes each
   # .class/.jar git-blob SHA-1 + SHA-256 gitoid inline during the build
   # and generate_adg() assembles the treedb from the capture log instead
   # of a post-build workspace rescan. The native build is untouched
@@ -496,18 +496,18 @@ omnibor_java:
   # See docs/sidecar/java/reference/inline-hashing-interception-design.md.
   java_inline_hash: true
   # Optional override; defaults to
-  # /opt/omnibor/lib/libomnibor_java_intercept.so in the image.
-  # inline_shim_path: /opt/omnibor/lib/libomnibor_java_intercept.so
+  # /opt/bisbom/lib/libbisbom_java_intercept.so in the image.
+  # inline_shim_path: /opt/bisbom/lib/libbisbom_java_intercept.so
 pipeline:
   # Syft manifest-based SBOM generation.  Disabled by default
-  # because OmniBOR build-time SBOMs are the primary output.
+  # because build-interception build-time SBOMs are the primary output.
   # Enable for supplementary manifest-based baseline comparison.
   syft_enabled: false
 docs:
   timestamp_format: '%Y-%m-%d_%H%M'
   types:
   - build
-  - omnibor
+  - bisbom
   - spdx
   - binary-scan
   - comparison

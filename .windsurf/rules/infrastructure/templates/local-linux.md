@@ -58,11 +58,11 @@ sudo systemctl stop docker
 
 ```bash
 # Run analysis (from repo root)
-docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
+docker-compose -f docker/docker-compose.yml run --rm bisbom-env \
   python3 /workspace/app/analyze.py --repo <REPO_NAME>
 
 # Enter container interactively
-docker-compose -f docker/docker-compose.yml run --rm omnibor-env bash
+docker-compose -f docker/docker-compose.yml run --rm bisbom-env bash
 
 # Rebuild Docker image
 docker-compose -f docker/docker-compose.yml build

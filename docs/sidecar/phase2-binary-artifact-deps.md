@@ -495,7 +495,7 @@ library paths using the host's dynamic linker (`ld-linux`). For
 correct results, the Corona agent's container must have the **same
 or equivalent system libraries** as the build container. The
 recommended approach is to run the Corona agent in the same Docker
-image (e.g., `omnibor-env:standalone`) as the build environment, or
+image (e.g., `bisbom-env:standalone`) as the build environment, or
 a derivative that includes the same base packages.
 
 If the Corona agent runs on a different OS or architecture than the

@@ -1,5 +1,5 @@
 """
-Shared configuration utilities for OmniBOR Analysis.
+Shared configuration utilities for Build-Interception SBOM Generation.
 
 Provides config loading, timestamp generation, and language
 subfolder resolution used across the pipeline.
@@ -168,30 +168,30 @@ def validate_repos(config):
     return config
 
 
-# Maps language names to their omnibor config keys
-_LANG_OMNIBOR_KEYS = {
-    "c-cpp": "omnibor",
-    "go": "omnibor_go",
-    "rust": "omnibor_rust",
-    "java": "omnibor_java",
+# Maps language names to their bisbom config keys
+_LANG_BISBOM_KEYS = {
+    "c-cpp": "bisbom",
+    "go": "bisbom_go",
+    "rust": "bisbom_rust",
+    "java": "bisbom_java",
 }
 
 
-def resolve_omnibor_cfg(config, language):
-    """Select the correct omnibor config for a language and mode.
+def resolve_bisbom_cfg(config, language):
+    """Select the correct bisbom config for a language and mode.
 
     Supports two config formats:
 
     **Legacy flat format** (auto-detected)::
 
-        omnibor:
+        bisbom:
           tracer: bomtrace3
           ...
 
     **Nested mode format**::
 
         mode: sidecar
-        omnibor:
+        bisbom:
           standalone:
             tracer: bomtrace3
           sidecar:
@@ -207,11 +207,11 @@ def resolve_omnibor_cfg(config, language):
             ``"java"``).
 
     Returns:
-        The resolved omnibor config dict for the
+        The resolved bisbom config dict for the
         given language and mode.
 
     Raises:
-        KeyError: If the omnibor config key is missing.
+        KeyError: If the bisbom config key is missing.
         ValueError: If the mode is invalid or the mode
             sub-key is missing from a nested config.
     """
@@ -222,8 +222,8 @@ def resolve_omnibor_cfg(config, language):
             f"must be one of {VALID_MODES}"
         )
 
-    cfg_key = _LANG_OMNIBOR_KEYS.get(
-        language, "omnibor",
+    cfg_key = _LANG_BISBOM_KEYS.get(
+        language, "bisbom",
     )
     section = config.get(cfg_key)
     if section is None:

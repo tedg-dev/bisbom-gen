@@ -4,7 +4,7 @@
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-        <mxCell id="main-title" parent="1" style="text;html=1;fontSize=20;fontStyle=1;align=center" value="OmniBOR Analysis: Go Build Interception and SPDX Generation" vertex="1">
+        <mxCell id="main-title" parent="1" style="text;html=1;fontSize=20;fontStyle=1;align=center" value="bisbom-gen: Go Build Interception and SPDX Generation" vertex="1">
           <mxGeometry height="40" width="750" x="120" y="20" as="geometry" />
         </mxCell>
         <mxCell id="legend-box" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#999999;dashed=1" value="" vertex="1">

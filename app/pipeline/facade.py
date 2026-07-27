@@ -1,5 +1,5 @@
 """
-AnalysisPipeline facade for OmniBOR Analysis.
+AnalysisPipeline facade for bisbom-gen.
 
 Composes all pipeline components into a single orchestration class.
 """
@@ -18,7 +18,7 @@ from app.pipeline.doc_writer import DocWriter
 
 
 class AnalysisPipeline:
-    """Orchestrates the full OmniBOR analysis workflow.
+    """Orchestrates the full bisbom-gen analysis workflow.
 
     Composes CommandRunner, RepoCloner,
     BomtraceBuilder, SpdxGenerator, MetadataCollector,

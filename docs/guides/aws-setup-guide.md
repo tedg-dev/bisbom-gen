@@ -386,7 +386,7 @@ Elastic IP, etc.). This file is gitignored — your specific details stay local.
 
 ```bash
 ssh omnibor-build "docker-compose -f ~/omnibor-analysis/docker/docker-compose.yml \
-  run --rm omnibor-env bomtrace3 --version"
+  run --rm bisbom-env bomtrace3 --version"
 ```
 
 ### Run a test SBOM generation
@@ -401,7 +401,7 @@ Or manually:
 
 ```bash
 ssh omnibor-build "cd ~/omnibor-analysis && \
-  docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
+  docker-compose -f docker/docker-compose.yml run --rm bisbom-env \
   python3 /workspace/app/analyze.py --repo redis"
 ```
 

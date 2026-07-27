@@ -175,7 +175,7 @@ class TestRunPhase1Only:
 
             # Manifest should exist in bom_dir
             bom_dir = (
-                Path(td) / "output" / "omnibor"
+                Path(td) / "output" / "bisbom"
                 / "java" / "myapp" / "ts1"
             )
             manifest_path = bom_dir / MANIFEST_FILENAME
@@ -191,7 +191,7 @@ class TestRunPhase1Only:
             assert data["commit_sha"] == "abc123"
             assert len(data["artifacts"]["binaries"]) == 1
             assert "repo_cfg" in data
-            assert "omnibor_cfg" in data
+            assert "bisbom_cfg" in data
 
     @patch(
         "app.pipeline.lang_runners"
@@ -221,7 +221,7 @@ class TestRunPhase1Only:
 
             # No manifest should be written
             bom_dir = (
-                Path(td) / "output" / "omnibor"
+                Path(td) / "output" / "bisbom"
                 / "java" / "myapp" / "ts1"
             )
             assert not (
@@ -271,7 +271,7 @@ class TestRunPhase2Only:
                     "spdx_dir": str(td),
                 },
                 "repo_cfg": repo_cfg,
-                "omnibor_cfg": omnibor,
+                "bisbom_cfg": omnibor,
                 "gitoids": {},
             }
             manifest_file.write_text(
@@ -412,7 +412,7 @@ class TestPhaseRoundTrip:
 
             # Find the manifest
             bom_dir = (
-                Path(td) / "output" / "omnibor"
+                Path(td) / "output" / "bisbom"
                 / "java" / "myapp" / "ts1"
             )
             manifest_path = bom_dir / MANIFEST_FILENAME
@@ -472,7 +472,7 @@ class TestPhaseRoundTrip:
 
             # Read manifest — verify run_ts stored
             bom_dir = (
-                Path(td) / "output" / "omnibor"
+                Path(td) / "output" / "bisbom"
                 / "java" / "myapp" / phase1_ts
             )
             manifest_path = bom_dir / MANIFEST_FILENAME

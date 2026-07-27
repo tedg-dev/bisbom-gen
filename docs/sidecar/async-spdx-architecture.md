@@ -233,7 +233,7 @@ stages:
       docker run --rm \
         -v $WORKSPACE:/workspace/repos/spring-boot \
         -v $WORKSPACE/output:/workspace/output \
-        omnibor-env:sidecar \
+        bisbom-env:sidecar \
         python3 /workspace/app/analyze.py \
           --repo spring-boot --skip-clone --mode sidecar
       # ^^^ This blocks for ~23 minutes
@@ -643,7 +643,7 @@ jobs:
           docker run --rm \
             -v ${{ github.workspace }}:/workspace/repos/spring-boot \
             -v ${{ github.workspace }}/omnibor-output:/workspace/output \
-            omnibor-env:sidecar \
+            bisbom-env:sidecar \
             python3 /workspace/app/analyze.py \
               --repo spring-boot --skip-clone --mode sidecar --phase build
 
@@ -678,7 +678,7 @@ jobs:
           docker run --rm \
             -v ${{ github.workspace }}:/workspace/repos/spring-boot \
             -v ${{ github.workspace }}/omnibor-output:/workspace/output \
-            omnibor-env:sidecar \
+            bisbom-env:sidecar \
             python3 /workspace/app/analyze.py \
               --repo spring-boot --mode sidecar --phase spdx \
               --manifest /workspace/output/omnibor/java/spring-boot/*/phase1_manifest.json
@@ -726,7 +726,7 @@ pipeline {
                     docker run --rm \\
                         -v \${WORKSPACE}:/workspace/repos/spring-boot \\
                         -v \${WORKSPACE}/omnibor-output:/workspace/output \\
-                        omnibor-env:sidecar \\
+                        bisbom-env:sidecar \\
                         python3 /workspace/app/analyze.py \\
                             --repo spring-boot --skip-clone \\
                             --mode sidecar --phase build
@@ -747,7 +747,7 @@ pipeline {
                             docker run --rm \\
                                 -v \${WORKSPACE}:/workspace/repos/spring-boot \\
                                 -v \${WORKSPACE}/omnibor-output:/workspace/output \\
-                                omnibor-env:sidecar \\
+                                bisbom-env:sidecar \\
                                 python3 /workspace/app/analyze.py \\
                                     --repo spring-boot --mode sidecar \\
                                     --phase spdx \\

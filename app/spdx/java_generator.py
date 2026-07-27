@@ -585,7 +585,7 @@ class JavaSpdxGenerator:
         info = {
             "created": created_ts,
             "creators": [
-                "Tool: omnibor-analysis",
+                "Tool: bisbom-gen",
                 "Tool: bomsh_create_bom_java.py",
             ],
             "licenseListVersion": "3.19",

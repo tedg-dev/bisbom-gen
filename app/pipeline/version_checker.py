@@ -11,7 +11,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 # Cache file to avoid repeated checks
-CACHE_FILE = Path.home() / ".cache" / "omnibor-analysis" / "version_check.json"
+CACHE_FILE = Path.home() / ".cache" / "bisbom-gen" / "version_check.json"
 CACHE_TTL_HOURS = 24
 
 BOMSH_REPO = "omnibor/bomsh"
@@ -113,7 +113,7 @@ def should_skip_check():
     if os.environ.get("CI"):
         return True
     # Skip if explicitly disabled
-    if os.environ.get("OMNIBOR_SKIP_VERSION_CHECK"):
+    if os.environ.get("BISBOM_SKIP_VERSION_CHECK"):
         return True
     return False
 

@@ -589,14 +589,14 @@ docker-compose --version
 ### 4c. bomtrace3 check
 
 ```bash
-docker-compose -f docker/docker-compose.yml run --rm omnibor-env bomtrace3 --version
+docker-compose -f docker/docker-compose.yml run --rm bisbom-env bomtrace3 --version
 # Expected: strace -- version 6.11 (or similar)
 ```
 
 ### 4d. Container capabilities check
 
 ```bash
-docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
+docker-compose -f docker/docker-compose.yml run --rm bisbom-env \
   sh -c 'cat /proc/self/status | grep CapEff'
 # Should show capabilities including SYS_PTRACE (bit 19)
 ```
@@ -604,7 +604,7 @@ docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
 ### 4e. Outbound connectivity check
 
 ```bash
-docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
+docker-compose -f docker/docker-compose.yml run --rm bisbom-env \
   sh -c 'curl -s https://github.com > /dev/null && echo "GitHub OK" && \
          curl -s https://registry-1.docker.io > /dev/null && echo "Docker Hub OK"'
 ```
@@ -613,7 +613,7 @@ docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
 
 ```bash
 # Run a fast SBOM generation (redis takes ~2 minutes)
-docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
+docker-compose -f docker/docker-compose.yml run --rm bisbom-env \
   python3 /workspace/app/analyze.py --repo redis
 ```
 
@@ -676,7 +676,7 @@ Choose `redis` for a quick ~2 minute test.
 
 ```bash
 ssh omnibor-build "cd ~/omnibor-analysis && \
-  docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
+  docker-compose -f docker/docker-compose.yml run --rm bisbom-env \
   python3 /workspace/app/analyze.py --repo redis"
 ```
 

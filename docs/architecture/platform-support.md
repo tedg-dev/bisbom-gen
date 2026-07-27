@@ -16,8 +16,8 @@ documented here for that corner case only, not as a deployment option.
 
 | Mode | Container Image | `SYS_PTRACE` | Mechanism | Primary Use |
 |------|----------------|:------------:|-----------|-------------|
-| **Sidecar** (only supported mode) | `omnibor-env:sidecar` | No | Language-specific strategies (dep:tree, `-toolexec`, `RUSTC_WRAPPER`, `LD_PRELOAD`) | Enterprise CI/CD |
-| **Standalone** (deprecated) | `omnibor-env:standalone` | Yes | `bomtrace3`/`bomtrace2` ptrace-based tracing | ~1% embedded corner case only |
+| **Sidecar** (only supported mode) | `bisbom-env:sidecar` | No | Language-specific strategies (dep:tree, `-toolexec`, `RUSTC_WRAPPER`, `LD_PRELOAD`) | Enterprise CI/CD |
+| **Standalone** (deprecated) | `bisbom-env:standalone` | Yes | `bomtrace3`/`bomtrace2` ptrace-based tracing | ~1% embedded corner case only |
 
 ## Host Requirements
 

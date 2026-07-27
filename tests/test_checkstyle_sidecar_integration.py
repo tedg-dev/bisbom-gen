@@ -7,7 +7,7 @@ SPDX against the golden (strace-generated) baseline.
 
 Requirements:
   - Docker daemon running
-  - omnibor-env:standalone image built
+  - bisbom-env:standalone image built
   - Network access (Maven downloads dependencies)
 
 Run::
@@ -37,7 +37,7 @@ from app.spdx.structural_comparator import (
 _has_docker = shutil.which("docker") is not None
 
 
-def _image_exists(tag="omnibor-env:standalone"):
+def _image_exists(tag="bisbom-env:standalone"):
     """Check if the Docker image exists locally."""
     if not _has_docker:
         return False
@@ -60,7 +60,7 @@ skip_no_docker = pytest.mark.skipif(
 skip_no_image = pytest.mark.skipif(
     not _has_image,
     reason=(
-        "omnibor-env:standalone image not built. "
+        "bisbom-env:standalone image not built. "
         "Run: docker compose -f docker/"
         "docker-compose.yml build"
     ),
@@ -120,7 +120,7 @@ class TestCheckstyleMavenSidecar(unittest.TestCase):
                 ":/workspace/app/config.yaml:ro"
             ),
             "-w", "/workspace",
-            "omnibor-env:standalone",
+            "bisbom-env:standalone",
             "python3", "/workspace/app/analyze.py",
             "--repo", "checkstyle",
             "--mode", "sidecar",
