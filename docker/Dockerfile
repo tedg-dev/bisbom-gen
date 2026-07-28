@@ -412,23 +412,12 @@ COPY --from=standalone \
 
 ENV PATH="/opt/bomsh/bin:/opt/bomsh/scripts:${PATH}"
 
-# AWS CLI — required for ECS mode S3 I/O
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    unzip \
-    && curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o /tmp/awscliv2.zip \
-    && unzip -q /tmp/awscliv2.zip -d /tmp \
-    && /tmp/aws/install \
-    && rm -rf /tmp/aws /tmp/awscliv2.zip /var/lib/apt/lists/*
-
 # ── Bake app code into image for standalone CI use ──
 # When pulled from GHCR, the image must be self-contained.
 # Local dev can still override via volume mounts.
 COPY app/ /workspace/app/
 COPY requirements.txt /workspace/requirements.txt
 
-# ECS Phase 2 entrypoint (S3 download → analyze → S3 upload)
-COPY docker/sidecar-entrypoint.sh /workspace/sidecar-entrypoint.sh
-RUN chmod +x /workspace/sidecar-entrypoint.sh
 
 WORKDIR /workspace
 
