@@ -169,8 +169,8 @@ After generation completes, you'll find:
 | SPDX SBOM (analyzed) | `output/spdx/{lang}/{repo}/{ts}/<binary>_analyzed.spdx.json` | Static deps compiled into the binary |
 | SPDX SBOM (build) | `output/spdx/{lang}/{repo}/{ts}/<binary>_build.spdx.json` | Full dependency graph (static + dynamic + transitive) |
 | HTML visualization | `output/spdx/{lang}/{repo}/{ts}/<binary>_*.spdx.html` | Interactive D3.js graph (one per SPDX file) |
-| ADG (build provenance) | `output/omnibor/{lang}/{repo}/{ts}/` | Cryptographic build provenance |
-| Component metadata | `output/omnibor/{lang}/{repo}/{ts}/metadata/` | dpkg package resolution |
+| ADG (build provenance) | `output/bisbom/{lang}/{repo}/{ts}/` | Cryptographic build provenance |
+| Component metadata | `output/bisbom/{lang}/{repo}/{ts}/metadata/` | dpkg package resolution |
 
 `{lang}` is `c-cpp`, `rust`, `go`, or `java`. `{ts}` is `YYYY-MM-DD_HHMM`.
 

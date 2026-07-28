@@ -44,7 +44,7 @@ Achieving that still requires two things that are **not** part of the native
 build and must be stated explicitly:
 
 - **A one-time platform prerequisite** — the `LD_PRELOAD` interception shim
-  (`libomnibor_intercept.so`) is a **precompiled binary**, built by the
+  (`libbisbom_intercept.so`) is a **precompiled binary**, built by the
   OmniBOR tooling (never by the native build) and simply placed on the
   runner — baked into the runner image or mounted read-only ([§6.1.1](#611-installing-the-shim--what-why-where-how)).
 - **A per-build CI/CD change** — the pipeline YAML adds the environment
@@ -109,7 +109,7 @@ ephemeral hosted runner does not grant.
 <tr><th>Tier</th><th>Mechanism</th><th>Deploys as</th><th>Coverage</th><th>In-band overhead</th><th>Static binaries?</th></tr>
 </thead>
 <tbody>
-<tr><td><strong>Primary</strong></td><td><code>LD_PRELOAD</code> shim (<code>libomnibor_intercept.so</code>)</td><td>2 CI/CD-YAML env vars</td><td>~80–90% — dynamically-linked compilers/linkers, any build system</td><td>+1–3% (inline hashing only)</td><td>No</td></tr>
+<tr><td><strong>Primary</strong></td><td><code>LD_PRELOAD</code> shim (<code>libbisbom_intercept.so</code>)</td><td>2 CI/CD-YAML env vars</td><td>~80–90% — dynamically-linked compilers/linkers, any build system</td><td>+1–3% (inline hashing only)</td><td>No</td></tr>
 <tr><td><strong>Fallback A</strong></td><td>Node-level <strong>eBPF</strong> on kernel tracepoints</td><td>privileged node daemon (<code>CAP_BPF</code>/<code>CAP_SYS_ADMIN</code>)</td><td>static + dynamic builds</td><td>minimal (async hashing)</td><td>Yes</td></tr>
 <tr><td><strong>Fallback B</strong></td><td>Node-level <strong>Linux audit</strong> <code>execve</code> rule</td><td>audit rule + reader (<code>CAP_AUDIT_READ</code>)</td><td>universal on self-managed Linux (RHEL 7+)</td><td>+2–5% (noisier, log parsing)</td><td>Yes</td></tr>
 <tr><td><strong>Escape hatch</strong></td><td>Per-repo <code>interception: ptrace</code> (<code>bomtrace3</code>) — <strong>standalone, not sidecar</strong></td><td>build-command wrapper (<code>SYS_PTRACE</code>)</td><td>hermetic builds (Bazel, Nix, Yocto)</td><td>20–60%</td><td>Yes</td></tr>
@@ -147,7 +147,7 @@ build command — the same pattern already delivered for Java
 ```yaml
 - name: Build (unchanged)
   run: |
-    export LD_PRELOAD=/opt/omnibor/lib/libomnibor_intercept.so
+    export LD_PRELOAD=/opt/bisbom/lib/libbisbom_intercept.so
     export OMNIBOR_RAW_LOGFILE="$PWD/.omnibor/bomsh_hook_raw_logfile.sha1"
     make -j"$(nproc)"        # ← identical to the native build's existing command
 ```
@@ -345,7 +345,7 @@ executable code — behavior is entirely config-driven.
 ```yaml
 omnibor:
   sidecar:
-    preload_lib: /opt/omnibor/lib/libomnibor_intercept.so
+    preload_lib: /opt/bisbom/lib/libbisbom_intercept.so
     interception: ld_preload      # ld_preload (default) | ebpf | audit
     create_bom_script: bomsh_create_bom.py
     sbom_script: bomsh_sbom.py
@@ -364,7 +364,7 @@ backward-compatible with the legacy flat format.
 ### 6.1 Truly-sidecar — `LD_PRELOAD` shim (primary)
 
 The transparent sidecar mechanism is an `LD_PRELOAD` shim
-(`libomnibor_intercept.so`) loaded via two CI/CD-YAML env vars (or, on a
+(`libbisbom_intercept.so`) loaded via two CI/CD-YAML env vars (or, on a
 self-managed cluster, by an optional mutating webhook), never by editing the
 build command (see [§2.3](#23-primary-tier--ld_preload-shim-opt-in-via-cicd-yaml)). The platform team installs the shim on the build
 runner once ([§6.1.1](#611-installing-the-shim--what-why-where-how)); `LD_PRELOAD` then references it by path. Because it
@@ -374,7 +374,7 @@ Makefile uses `$(CC)` or hardcodes `gcc` — avoiding the wrapper option's
 biggest coverage gap. It writes the **same raw logfile format** as
 `bomtrace3` so `bomsh_create_bom.py` works unchanged. It mirrors the
 delivered, golden-clean Java `LD_PRELOAD` shim
-(`docker/shim/omnibor_java_intercept.c`) and is a component of this repo, not
+(`docker/shim/bisbom_java_intercept.c`) and is a component of this repo, not
 part of upstream `bomsh` — its only `bomsh` coupling is the raw-logfile
 format above, which the ADG step consumes unchanged.
 
@@ -387,9 +387,9 @@ any build:
 
 | Question | Answer |
 |---|---|
-| **What** | `libomnibor_intercept.so` — a small `LD_PRELOAD` interposer (tens of KB), **not** the full OmniBOR toolchain. It records compiler/linker `argv`, inline-hashes inputs/outputs, then `exec()`s the real tool. |
+| **What** | `libbisbom_intercept.so` — a small `LD_PRELOAD` interposer (tens of KB), **not** the full OmniBOR toolchain. It records compiler/linker `argv`, inline-hashes inputs/outputs, then `exec()`s the real tool. |
 | **Why** | The dynamic loader honours `LD_PRELOAD` by loading a `.so` **by path** into every compiler/linker process, so the file must already exist on the build runner before the pipeline sets the env var. Installing it once keeps the per-build change to just two env vars and leaves the native build byte-for-byte unchanged. |
-| **Where** | A known, stable path on the build runner — e.g. `/opt/omnibor/lib/libomnibor_intercept.so`, the config-driven `preload_lib` value from [§5](#5-configuration-contract). Never hardcoded in the build. |
+| **Where** | A known, stable path on the build runner — e.g. `/opt/bisbom/lib/libbisbom_intercept.so`, the config-driven `preload_lib` value from [§5](#5-configuration-contract). Never hardcoded in the build. |
 
 **How** — the platform team picks one placement option (preference order):
 

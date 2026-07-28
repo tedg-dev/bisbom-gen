@@ -1,6 +1,6 @@
 # Testing Strategy
 
-This directory documents the testing strategy for omnibor-analysis.
+This directory documents the testing strategy for bisbom-gen.
 The goal is **exceptional test coverage** with clear, repeatable
 verification for every code change.
 

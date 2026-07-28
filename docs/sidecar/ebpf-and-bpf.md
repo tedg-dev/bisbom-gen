@@ -201,7 +201,7 @@ the build, associating build artifacts with their corresponding gitoids.
 | **Root required?** | No (`SYS_PTRACE` capability sufficient) | Yes (sudo for eBPF program load) |
 | **Build modification** | None (wraps the build command) | None (observes via kernel) |
 | **Platform** | Linux only | Linux only (eBPF is Linux-specific) |
-| **Maturity** | Production — used for all omnibor-analysis runs | Early stage — limited testing |
+| **Maturity** | Production — used for all bisbom-gen runs | Early stage — limited testing |
 
 ### Potential Impact
 

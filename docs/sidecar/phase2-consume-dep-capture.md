@@ -4,7 +4,7 @@
 |---|---|
 | **Date** | 2026-06-24 |
 | **Authors** | Ted G. (architect), Cascade AI |
-| **Status** | ✅ Delivered — implemented and merged in `tedg-dev/omnibor-analysis#194` (A1 / #11003). Sections below describe the as-built design. |
+| **Status** | ✅ Delivered — implemented and merged in `tedg-dev/bisbom-gen#194` (A1 / #11003). Sections below describe the as-built design. |
 | **Applies to** | Java (Maven and Gradle) sidecar mode |
 | **Objective** | Phase 2 produces fully accurate Java SBOMs from Phase 1 metadata alone, with no source-tree access; Phase 1 stays fast |
 | **Sub-issue** | `docs/planning/java-phase2-consume-dep-capture-subissue.md` |
@@ -54,7 +54,7 @@ access to the source tree** — while Phase 1 stays fast.
 
 <a id="2-current-state-verified-facts"></a>
 
-## 2. As Built (delivered in `tedg-dev/omnibor-analysis#194`)
+## 2. As Built (delivered in `tedg-dev/bisbom-gen#194`)
 
 > This section originally documented the pre-implementation state (Phase 1
 > captured a lossy, globally-deduped DOT parse; Phase 2 re-ran the resolver
@@ -349,7 +349,7 @@ auto-applied.
    both together?
 
 > **Status:** All decisions above are resolved and the design is
-> **delivered** (`tedg-dev/omnibor-analysis#194`, merged): default **text**
+> **delivered** (`tedg-dev/bisbom-gen#194`, merged): default **text**
 > capture, JAR→module via artifact metadata (treedb `jar_map` backup),
 > fail-loud on missing metadata in the enterprise path with a
 > dev/test-only live fallback, and Maven + Gradle both shipped.

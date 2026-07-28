@@ -56,7 +56,7 @@ Finalized from Step 0 real-artifact validation (see design §13.4):
 | Build tool | Repo | Pin | Status / why |
 |---|---|---|---|
 | Ant + Ivy | `apache/ant-ivy` | `2.5.2` | **Confirmed** (§13.3): `ivy:retrieve` produces a real resolution report; unforked `<javac>`. Build: `ant jar`. |
-| Plain `make`/`javac` | new `omnibor-java-make-testapp` | `main` (we own it) | **To create**: controlled `Makefile` -> `javac` -> `jar`; exercises the §8.1 PATH shim |
+| Plain `make`/`javac` | new `bisbom-java-make-testapp` | `main` (we own it) | **To create**: controlled `Makefile` -> `javac` -> `jar`; exercises the §8.1 PATH shim |
 | Bazel + lockfile | candidate `bazelbuild/examples` — **exact path TBD** | commit SHA | `rules_jvm_external` + `maven_install.json` (§13.1). Prior `java-maven` path 404'd; re-confirm. **Gated on Bazel toolchain decision.** |
 | Ant (no Ivy) | optional `apache/ant` | release tag | Lower priority — heavier bootstrap; artifact-only path also covered by the `make` test app |
 
@@ -102,7 +102,7 @@ Finalized from Step 0 real-artifact validation (see design §13.4):
    This step supplements, and is a prerequisite to, the parser designs below
    (no parser is finalized against an assumed format).
 1. **Verifier repos + `make` test app** — add the (investigation-confirmed)
-   repos; create `omnibor-java-make-testapp`.
+   repos; create `bisbom-java-make-testapp`.
 2. **Confirm Bazel toolchain decision** — gate the Bazel verifier.
 3. **Ivy adapter** — parse the Ivy resolution report (format validated in 0).
 4. **Bazel adapter** — parse `maven_install.json` (format validated in 0).

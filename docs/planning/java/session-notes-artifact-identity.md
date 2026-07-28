@@ -115,7 +115,7 @@ duo-sso --profile ted-admin
 # then follow /ec2-start
 
 # 2. Confirm branch
-git -C /Users/tedg/workspace/omnibor-analysis branch --show-current
+git -C /Users/tedg/workspace/bisbom-gen branch --show-current
 # -> fix/java-artifact-identity
 
 # 3. Re-verify locally before any build-host work
