@@ -636,7 +636,7 @@ class JavaSpdxGenerator:
             "SPDXID": "SPDXRef-DOCUMENT",
             "name": f"{self.repo_name}-{clean_name}",
             "documentNamespace": (
-                f"https://omnibor.io/spdx/"
+                f"https://github.com/tedg-dev/bisbom-gen/"
                 f"{self.repo_name}/{doc_uuid}"
             ),
             "creationInfo": self._creation_info(

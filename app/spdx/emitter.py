@@ -49,7 +49,7 @@ class SpdxEmitter:
     """
 
     NAMESPACE_PREFIX = (
-        "https://omnibor.io/bisbom-gen"
+        "https://github.com/tedg-dev/bisbom-gen"
     )
 
     def __init__(

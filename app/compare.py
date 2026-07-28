@@ -223,14 +223,14 @@ def main():
     lang = lang_subdir(repo_cfg)
     pipeline = ComparisonPipeline()
 
-    # Find SPDX files.  The generated SPDX filename still uses the
-    # legacy `_omnibor_` infix (renamed separately in Stage C).
+    # Find SPDX files.  The build-interception SBOM filename uses
+    # the `_bisbom_` infix.
     bisbom_file = (
         args.bisbom_file
         or pipeline.loader.find_latest(
             Path(paths_cfg["output_dir"])
             / "spdx" / lang / args.repo,
-            f"{args.repo}_omnibor_*.spdx.json",
+            f"{args.repo}_bisbom_*.spdx.json",
         )
     )
     binary_file = (

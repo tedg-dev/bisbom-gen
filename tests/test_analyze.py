@@ -1109,7 +1109,7 @@ class TestSpdxGenerator(unittest.TestCase):
                 )
             self.assertIsNotNone(result)
             self.assertIn(
-                "curl_omnibor.spdx.json", result
+                "curl_bisbom.spdx.json", result
             )
             self.assertTrue(Path(result).exists())
 
@@ -1357,13 +1357,13 @@ class TestSpdxGeneratorMetadata(unittest.TestCase):
             )
             self.assertTrue(
                 any(
-                    "omnibor-analysis" in c
+                    "bisbom-gen" in c
                     for c in creators
                 )
             )
             # --- namespace ---
             ns = result["documentNamespace"]
-            self.assertIn("omnibor.io", ns)
+            self.assertIn("bisbom-gen", ns)
             self.assertIn("curl", ns)
             self.assertIn(
                 "a1b2c3d4-e5f6-7890-abcd-"
@@ -1471,7 +1471,7 @@ class TestSpdxGeneratorMetadata(unittest.TestCase):
                 Path(path).read_text()
             )
             ns = result["documentNamespace"]
-            self.assertIn("omnibor.io", ns)
+            self.assertIn("bisbom-gen", ns)
             self.assertIn(
                 "2026-02-12_1300", ns
             )

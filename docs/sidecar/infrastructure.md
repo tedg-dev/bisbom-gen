@@ -889,7 +889,7 @@ bisbom-sidecar:
 
 ### 11.3 GHCR Publication
 
-The sidecar image is auto-published to `ghcr.io/tedg-dev/omnibor-sidecar`
+The sidecar image is auto-published to `ghcr.io/tedg-dev/bisbom-sidecar`
 on every push to `main` that changes `docker/Dockerfile`, `app/**`,
 `requirements.txt`, or the workflow itself. External CI/CD pipelines
 (e.g., `tedg-dev/omnibor-java-testapp`) pull this image for Phase 2.

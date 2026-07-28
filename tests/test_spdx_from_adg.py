@@ -1192,7 +1192,7 @@ class TestSpdxEmitter(unittest.TestCase):
             doc["dataLicense"], "CC0-1.0"
         )
         self.assertIn(
-            "omnibor.io",
+            "bisbom-gen",
             doc["documentNamespace"],
         )
         self.assertEqual(

@@ -27,7 +27,7 @@ permissions:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/omnibor-sidecar
+  IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/bisbom-sidecar
 
 jobs:
   build-and-push:

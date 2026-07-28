@@ -99,13 +99,13 @@ class TestSpdxLoader(unittest.TestCase):
 
     def test_find_latest_existing(self):
         with tempfile.TemporaryDirectory() as tmpdir:
-            p1 = Path(tmpdir) / "a_omnibor_01.spdx.json"
-            p2 = Path(tmpdir) / "a_omnibor_02.spdx.json"
+            p1 = Path(tmpdir) / "a_bisbom_01.spdx.json"
+            p2 = Path(tmpdir) / "a_bisbom_02.spdx.json"
             p1.write_text("{}")
             p2.write_text("{}")
 
             result = SpdxLoader.find_latest(
-                tmpdir, "a_omnibor_*.spdx.json"
+                tmpdir, "a_bisbom_*.spdx.json"
             )
             self.assertIsNotNone(result)
 

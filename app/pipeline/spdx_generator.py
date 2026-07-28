@@ -113,7 +113,7 @@ class SpdxGenerator:
 
     # Namespace prefix for OmniBOR-generated SBOMs
     NAMESPACE_PREFIX = (
-        "https://omnibor.io/omnibor-analysis"
+        "https://github.com/tedg-dev/bisbom-gen"
     )
 
     @staticmethod
@@ -125,7 +125,7 @@ class SpdxGenerator:
 
         1. Replaces ``documentNamespace`` with an
            OmniBOR-based URI (preserving the UUID).
-        2. Adds bomtrace3, bomsh, and omnibor-analysis
+        2. Adds bomtrace3, bomsh, and bisbom-gen
            to ``creationInfo.creators``.
         3. Injects OmniBOR ExternalRefs into packages
            when ``bom_dir`` is provided.
@@ -176,8 +176,8 @@ class SpdxGenerator:
         extra = [
             f"Tool: bomtrace3-{bt_ver}",
             f"Tool: bomsh-{bomsh_ver}",
-            "Tool: omnibor-analysis"
-            " (github.com/tedg-dev/omnibor-analysis)",
+            "Tool: bisbom-gen"
+            " (github.com/tedg-dev/bisbom-gen)",
         ]
 
         for entry in extra:
@@ -383,7 +383,7 @@ class SpdxGenerator:
         # standard .spdx.json extension.
         spdx_file = (
             spdx_dir
-            / f"{repo_name}_omnibor.spdx.json"
+            / f"{repo_name}_bisbom.spdx.json"
         )
         generated = sorted(spdx_dir.glob(
             "*.spdx-json"
