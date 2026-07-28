@@ -3,13 +3,13 @@
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
   "name": "libopenosc.so",
-  "documentNamespace": "https://omnibor.io/omnibor-analysis/libopenosc.so-a8760bb4-a02f-4cc4-9b27-6937f5cd500f",
+  "documentNamespace": "https://github.com/tedg-dev/bisbom-gen/libopenosc.so-367320c5-18c1-40a6-b107-835052811769",
   "creationInfo": {
-    "created": "2026-06-22T20:21:05Z",
+    "created": "2026-07-28T16:40:00Z",
     "creators": [
       "Tool: bomtrace3-unknown",
       "Tool: bomsh-unknown",
-      "Tool: omnibor-analysis (github.com/tedg-dev/omnibor-analysis)"
+      "Tool: bisbom-gen (github.com/tedg-dev/bisbom-gen)"
     ],
     "licenseListVersion": "3.19"
   },
@@ -20,7 +20,7 @@
       "downloadLocation": "https://github.com/cisco/OpenOSC/commit/d1bd20c332c48d37d67ba8eb2f1167b86150e135",
       "filesAnalyzed": true,
       "primaryPackagePurpose": "LIBRARY",
-      "builtDate": "2026-06-22T20:21:05Z",
+      "builtDate": "2026-07-28T16:40:00Z",
       "externalRefs": [],
       "checksums": [],
       "comment": "Built on Ubuntu 22.04.5 LTS with gcc (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0",
@@ -34,7 +34,11 @@
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "03b1089121c583d648cc476f596f3e1f14d938ad"
+          "checksumValue": "0b0bfcb79aa26332bcf84e3a48e821b5b49bb504"
+        },
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "1cf6fa9b07ecbb297bf9612a6db6a7b92ce4f73ad1c103218c6973e77fa79747"
         }
       ]
     },
@@ -44,7 +48,11 @@
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "082e4bfed14d9d0b60c1603b2305073fa94ad84a"
+          "checksumValue": "e8327b4f7d315fc027d514be325e65ab1306d183"
+        },
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "8bd8579ead2d1c731c4624a51a67bd876a32fedaba2d4817a0ce5b07722d44ab"
         }
       ]
     },
@@ -54,7 +62,11 @@
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "2c950f6a24ae818fb63e4f1dfda84459b340c6fb"
+          "checksumValue": "bf63e72a37ef863d07ba1526d44ead51eb1af2f9"
+        },
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "b1841d3017426bdd96ded0f023754128fc770d2b91a37c0fd1522a6d43cd1020"
         }
       ]
     },
@@ -64,7 +76,11 @@
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "a9b3425d8244444110e34a7ff96d675adadf55ad"
+          "checksumValue": "f4b54dfe42562a19ae6ca0d8140aef42f32112d7"
+        },
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "9083413fd969db6dfd4d99992961bd052b6bcbc123c2a4d9a9686cb8902f7fce"
         }
       ]
     },
@@ -74,7 +90,11 @@
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "c3e423d165c3890060eaaee3d6327b8a81f2f2ab"
+          "checksumValue": "7f8ce8d0777238b45324a780c6ef0c3e9da6f221"
+        },
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "862536065793e0d4aef35e5f83d0706f7d18dba98bcd43468d19eab59523ea8a"
         }
       ]
     },
@@ -84,7 +104,11 @@
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "d6b2f63c61bf7606a2faf8fa633019aa7eb1d0fb"
+          "checksumValue": "b2b661621561f0bd236e73e1485fe250b64b2d1a"
+        },
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "767d6c07d39bdf6b342fdcb3d9528bafb8fc5267af766484a01668d570ac243d"
         }
       ]
     },
@@ -94,7 +118,11 @@
       "checksums": [
         {
           "algorithm": "SHA1",
-          "checksumValue": "db341257bc4c70f19810bf5bf3fc02b73b22999a"
+          "checksumValue": "99ce47322632d22798c73d7cf4d6526ab133a46c"
+        },
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "fea471415fd3b722ded130f1f9e50ff57d80f932f2fc00e776cf9e3c59df0fa6"
         }
       ]
     }
