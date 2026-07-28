@@ -1562,7 +1562,7 @@ class TestSpdxEmitter(unittest.TestCase):
             "Tool: bomsh-0.0.1-abc", creators
         )
         self.assertTrue(
-            any("omnibor-analysis" in c for c in creators)
+            any("bisbom-gen" in c for c in creators)
         )
 
 

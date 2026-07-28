@@ -21,7 +21,7 @@ class SpdxGenerator:
     this class patches ``creationInfo.creators`` to
     credit the actual tools that produced the data:
     bomtrace3 (build interception), bomsh (ADG + SPDX
-    enrichment), and omnibor-analysis (orchestration).
+    enrichment), and bisbom-gen (orchestration).
     """
 
     # Bomsh install dir — used to detect git commit

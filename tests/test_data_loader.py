@@ -105,7 +105,7 @@ class TestHttpClient(unittest.TestCase):
     def test_default_user_agent(self):
         client = HttpClient()
         self.assertIn(
-            "omnibor", client.user_agent
+            "bisbom-gen", client.user_agent
         )
 
 

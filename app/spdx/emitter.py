@@ -210,7 +210,7 @@ class SpdxEmitter:
                     f"-{self.bomsh_version}",
                     "Tool: bisbom-gen"
                     " (github.com/tedg-dev"
-                    "/omnibor-analysis)",
+                    "/bisbom-gen)",
                 ],
                 "licenseListVersion": "3.19",
             },

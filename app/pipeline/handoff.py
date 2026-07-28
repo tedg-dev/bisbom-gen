@@ -7,7 +7,7 @@ run directory. It enumerates every SPDX document Phase 2 generated
 (one ``build`` / ``analyzed`` pair per production artifact) and makes
 the set independently verifiable via per-file digests, so any
 downstream consumer can ingest it without reading the source tree,
-the artifacts, or any omnibor-analysis internals.
+the artifacts, or any bisbom-gen internals.
 
 This module is deliberately **language-agnostic** (Java today,
 reusable by the C/C++ flow) and **config-driven** (no hardcoded
@@ -38,7 +38,7 @@ HANDOFF_VERSION = "1.0"
 HANDOFF_FILENAME = "sbom_handoff_manifest.json"
 
 # Producer identity constants (this tool, this phase).
-PRODUCER_TOOL = "omnibor-analysis"
+PRODUCER_TOOL = "bisbom-gen"
 PRODUCER_PHASE = "phase2"
 
 _REQUIRED_FIELDS = frozenset({
