@@ -3,9 +3,9 @@
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
   "name": "ffmpeg",
-  "documentNamespace": "https://omnibor.io/omnibor-analysis/ffmpeg-ed0774df-bb33-4f1c-b019-b787d9ee5e5d",
+  "documentNamespace": "https://omnibor.io/omnibor-analysis/ffmpeg-eced1ea2-9e88-4464-8637-916a898e5f54",
   "creationInfo": {
-    "created": "2026-05-14T18:00:05Z",
+    "created": "2026-06-22T20:52:33Z",
     "creators": [
       "Tool: bomtrace3-unknown",
       "Tool: bomsh-unknown",
@@ -20,7 +20,7 @@
       "downloadLocation": "https://github.com/FFmpeg/FFmpeg/commit/9047fa1b084f76b1b4d065af2d743df1b40dfb56",
       "filesAnalyzed": true,
       "primaryPackagePurpose": "APPLICATION",
-      "builtDate": "2026-05-14T18:00:05Z",
+      "builtDate": "2026-06-22T20:52:33Z",
       "externalRefs": [
         {
           "referenceCategory": "PERSISTENT-ID",
@@ -59,7 +59,7 @@
       "versionInfo": "2.35-0ubuntu3.13",
       "supplier": "Organization: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>",
       "homepage": "https://www.gnu.org/software/libc/libc.html",
-      "packageSourceInfo": "Installed via dpkg package libc6 on Ubuntu 22.04.5 LTS."
+      "sourceInfo": "Installed via dpkg package libc6 on Ubuntu 22.04.5 LTS."
     },
     {
       "SPDXID": "SPDXRef-zlib1g-2",
@@ -83,7 +83,7 @@
       "versionInfo": "1:1.2.11.dfsg-2ubuntu9.2",
       "supplier": "Organization: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>",
       "homepage": "http://zlib.net/",
-      "packageSourceInfo": "Installed via dpkg package zlib1g on Ubuntu 22.04.5 LTS."
+      "sourceInfo": "Installed via dpkg package zlib1g on Ubuntu 22.04.5 LTS."
     },
     {
       "SPDXID": "SPDXRef-libavcodec-3",
@@ -93,7 +93,7 @@
       "primaryPackagePurpose": "LIBRARY",
       "externalRefs": [],
       "comment": "Project-built shared library (direct). sonames: libavcodec.so.62",
-      "packageSourceInfo": "Built from project source as part of ffmpeg build.",
+      "sourceInfo": "Built from project source as part of ffmpeg build.",
       "versionInfo": "8.1"
     },
     {
@@ -104,7 +104,7 @@
       "primaryPackagePurpose": "LIBRARY",
       "externalRefs": [],
       "comment": "Project-built shared library (direct). sonames: libavdevice.so.62",
-      "packageSourceInfo": "Built from project source as part of ffmpeg build.",
+      "sourceInfo": "Built from project source as part of ffmpeg build.",
       "versionInfo": "8.1"
     },
     {
@@ -115,7 +115,7 @@
       "primaryPackagePurpose": "LIBRARY",
       "externalRefs": [],
       "comment": "Project-built shared library (direct). sonames: libavfilter.so.11",
-      "packageSourceInfo": "Built from project source as part of ffmpeg build.",
+      "sourceInfo": "Built from project source as part of ffmpeg build.",
       "versionInfo": "8.1"
     },
     {
@@ -126,7 +126,7 @@
       "primaryPackagePurpose": "LIBRARY",
       "externalRefs": [],
       "comment": "Project-built shared library (direct). sonames: libavformat.so.62",
-      "packageSourceInfo": "Built from project source as part of ffmpeg build.",
+      "sourceInfo": "Built from project source as part of ffmpeg build.",
       "versionInfo": "8.1"
     },
     {
@@ -137,7 +137,7 @@
       "primaryPackagePurpose": "LIBRARY",
       "externalRefs": [],
       "comment": "Project-built shared library (direct). sonames: libavutil.so.60",
-      "packageSourceInfo": "Built from project source as part of ffmpeg build.",
+      "sourceInfo": "Built from project source as part of ffmpeg build.",
       "versionInfo": "8.1"
     },
     {
@@ -148,7 +148,7 @@
       "primaryPackagePurpose": "LIBRARY",
       "externalRefs": [],
       "comment": "Project-built shared library (direct). sonames: libswresample.so.6",
-      "packageSourceInfo": "Built from project source as part of ffmpeg build.",
+      "sourceInfo": "Built from project source as part of ffmpeg build.",
       "versionInfo": "8.1"
     },
     {
@@ -159,7 +159,7 @@
       "primaryPackagePurpose": "LIBRARY",
       "externalRefs": [],
       "comment": "Project-built shared library (direct). sonames: libswscale.so.9",
-      "packageSourceInfo": "Built from project source as part of ffmpeg build.",
+      "sourceInfo": "Built from project source as part of ffmpeg build.",
       "versionInfo": "8.1"
     },
     {
@@ -178,7 +178,7 @@
           "referenceLocator": "cpe:2.3:a:gnu:gcc:11.4.0:*:*:*:*:*:*:*"
         }
       ],
-      "packageSourceInfo": "System-installed build toolchain on Ubuntu 22.04.5 LTS."
+      "sourceInfo": "System-installed build toolchain on Ubuntu 22.04.5 LTS."
     }
   ],
   "files": [

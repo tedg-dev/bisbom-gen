@@ -3,9 +3,9 @@
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
   "name": "libavcodec.so",
-  "documentNamespace": "https://omnibor.io/omnibor-analysis/libavcodec.so-195039b9-83cf-4bce-b079-98fa3822cade",
+  "documentNamespace": "https://omnibor.io/omnibor-analysis/libavcodec.so-3a14f59e-ac72-492f-b269-96a36d4c6d3d",
   "creationInfo": {
-    "created": "2026-05-14T18:00:08Z",
+    "created": "2026-06-22T20:52:36Z",
     "creators": [
       "Tool: bomtrace3-unknown",
       "Tool: bomsh-unknown",
@@ -20,7 +20,7 @@
       "downloadLocation": "https://github.com/FFmpeg/FFmpeg/commit/9047fa1b084f76b1b4d065af2d743df1b40dfb56",
       "filesAnalyzed": true,
       "primaryPackagePurpose": "LIBRARY",
-      "builtDate": "2026-05-14T18:00:08Z",
+      "builtDate": "2026-06-22T20:52:36Z",
       "externalRefs": [],
       "checksums": [],
       "comment": "Built on Ubuntu 22.04.5 LTS with gcc (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0",
@@ -48,7 +48,7 @@
       "versionInfo": "2.0.2-1",
       "supplier": "Organization: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>",
       "homepage": "https://github.com/mstorsjo/fdk-aac",
-      "packageSourceInfo": "Installed via dpkg package libfdk-aac2 on Ubuntu 22.04.5 LTS."
+      "sourceInfo": "Installed via dpkg package libfdk-aac2 on Ubuntu 22.04.5 LTS."
     },
     {
       "SPDXID": "SPDXRef-libgcc-s1-2",
@@ -72,7 +72,7 @@
       "versionInfo": "12.3.0-1ubuntu1~22.04.3",
       "supplier": "Organization: Ubuntu Core developers <ubuntu-devel-discuss@lists.ubuntu.com>",
       "homepage": "http://gcc.gnu.org/",
-      "packageSourceInfo": "Installed via dpkg package libgcc-s1, libstdc++6 on Ubuntu 22.04.5 LTS."
+      "sourceInfo": "Installed via dpkg package libgcc-s1, libstdc++6 on Ubuntu 22.04.5 LTS."
     },
     {
       "SPDXID": "SPDXRef-libc6-3",
@@ -96,7 +96,7 @@
       "versionInfo": "2.35-0ubuntu3.13",
       "supplier": "Organization: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>",
       "homepage": "https://www.gnu.org/software/libc/libc.html",
-      "packageSourceInfo": "Installed via dpkg package libc6 on Ubuntu 22.04.5 LTS."
+      "sourceInfo": "Installed via dpkg package libc6 on Ubuntu 22.04.5 LTS."
     },
     {
       "SPDXID": "SPDXRef-libmp3lame0-4",
@@ -120,7 +120,7 @@
       "versionInfo": "3.100-3build2",
       "supplier": "Organization: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>",
       "homepage": "http://lame.sourceforge.net/",
-      "packageSourceInfo": "Installed via dpkg package libmp3lame0 on Ubuntu 22.04.5 LTS."
+      "sourceInfo": "Installed via dpkg package libmp3lame0 on Ubuntu 22.04.5 LTS."
     },
     {
       "SPDXID": "SPDXRef-libvpx7-5",
@@ -144,7 +144,7 @@
       "versionInfo": "1.11.0-2ubuntu2.5",
       "supplier": "Organization: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>",
       "homepage": "https://www.webmproject.org",
-      "packageSourceInfo": "Installed via dpkg package libvpx7 on Ubuntu 22.04.5 LTS."
+      "sourceInfo": "Installed via dpkg package libvpx7 on Ubuntu 22.04.5 LTS."
     },
     {
       "SPDXID": "SPDXRef-libnuma1-6",
@@ -168,7 +168,7 @@
       "versionInfo": "2.0.14-3ubuntu2",
       "supplier": "Organization: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>",
       "homepage": "https://github.com/numactl/numactl",
-      "packageSourceInfo": "Installed via dpkg package libnuma1 on Ubuntu 22.04.5 LTS."
+      "sourceInfo": "Installed via dpkg package libnuma1 on Ubuntu 22.04.5 LTS."
     },
     {
       "SPDXID": "SPDXRef-libopus0-7",
@@ -192,7 +192,7 @@
       "versionInfo": "1.3.1-0.1build2",
       "supplier": "Organization: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>",
       "homepage": "http://www.opus-codec.org",
-      "packageSourceInfo": "Installed via dpkg package libopus0 on Ubuntu 22.04.5 LTS."
+      "sourceInfo": "Installed via dpkg package libopus0 on Ubuntu 22.04.5 LTS."
     },
     {
       "SPDXID": "SPDXRef-libx264-163-8",
@@ -216,7 +216,7 @@
       "versionInfo": "2:0.163.3060+git5db6aa6-2build1",
       "supplier": "Organization: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>",
       "homepage": "https://www.videolan.org/developers/x264.html",
-      "packageSourceInfo": "Installed via dpkg package libx264-163 on Ubuntu 22.04.5 LTS."
+      "sourceInfo": "Installed via dpkg package libx264-163 on Ubuntu 22.04.5 LTS."
     },
     {
       "SPDXID": "SPDXRef-libx265-199-9",
@@ -240,7 +240,7 @@
       "versionInfo": "3.5-2",
       "supplier": "Organization: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>",
       "homepage": "http://x265.org",
-      "packageSourceInfo": "Installed via dpkg package libx265-199 on Ubuntu 22.04.5 LTS."
+      "sourceInfo": "Installed via dpkg package libx265-199 on Ubuntu 22.04.5 LTS."
     },
     {
       "SPDXID": "SPDXRef-zlib1g-10",
@@ -264,7 +264,7 @@
       "versionInfo": "1:1.2.11.dfsg-2ubuntu9.2",
       "supplier": "Organization: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>",
       "homepage": "http://zlib.net/",
-      "packageSourceInfo": "Installed via dpkg package zlib1g on Ubuntu 22.04.5 LTS."
+      "sourceInfo": "Installed via dpkg package zlib1g on Ubuntu 22.04.5 LTS."
     },
     {
       "SPDXID": "SPDXRef-libavutil-11",
@@ -274,7 +274,7 @@
       "primaryPackagePurpose": "LIBRARY",
       "externalRefs": [],
       "comment": "Project-built shared library (direct). sonames: libavutil.so.60",
-      "packageSourceInfo": "Built from project source as part of ffmpeg build.",
+      "sourceInfo": "Built from project source as part of ffmpeg build.",
       "versionInfo": "8.1"
     },
     {
@@ -285,7 +285,7 @@
       "primaryPackagePurpose": "LIBRARY",
       "externalRefs": [],
       "comment": "Project-built shared library (direct). sonames: libswresample.so.6",
-      "packageSourceInfo": "Built from project source as part of ffmpeg build.",
+      "sourceInfo": "Built from project source as part of ffmpeg build.",
       "versionInfo": "8.1"
     },
     {
@@ -304,7 +304,7 @@
           "referenceLocator": "cpe:2.3:a:gnu:gcc:11.4.0:*:*:*:*:*:*:*"
         }
       ],
-      "packageSourceInfo": "System-installed build toolchain on Ubuntu 22.04.5 LTS."
+      "sourceInfo": "System-installed build toolchain on Ubuntu 22.04.5 LTS."
     }
   ],
   "files": [

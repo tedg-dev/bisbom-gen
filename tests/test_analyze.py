@@ -593,6 +593,38 @@ class TestBomtraceBuilder(unittest.TestCase):
             )
         self.assertFalse(result.success)
 
+    def test_adg_failure_records_real_metrics(self):
+        """On ADG failure the step must record real
+        metrics (not None) so timing aggregation does
+        not crash on ``s.phase``."""
+        runner = MagicMock()
+        runner.run.return_value = 0
+        strategy = MagicMock()
+        strategy.instrument_command.return_value = (
+            "make -j4", {},
+        )
+        strategy.generate_adg.return_value = False
+        builder = BomtraceBuilder(runner)
+        repo_cfg, paths, omnibor = self._cfg()
+
+        with patch("builtins.print"):
+            result = builder.build(
+                "curl", repo_cfg, paths, omnibor,
+                strategy=strategy,
+            )
+        self.assertFalse(result.success)
+        # No None steps slipped in; phase access is safe
+        self.assertTrue(
+            all(s is not None for s in result.steps)
+        )
+        # ADG generation is Phase 1 (metadata capture
+        # within the build step)
+        adg_steps = [
+            s for s in result.steps if s.name == "adg"
+        ]
+        self.assertTrue(len(adg_steps) > 0)
+        self.assertEqual(adg_steps[0].phase, "phase1")
+
     def test_no_strategy_uses_legacy(self):
         runner = MagicMock()
         runner.run.return_value = 0
@@ -610,6 +642,45 @@ class TestBomtraceBuilder(unittest.TestCase):
         self.assertIn(
             "bomtrace3", build_call[0][0],
         )
+
+    def test_build_applies_java_home(self):
+        # JAVA_HOME selection is exercised through the public build()
+        # API (not the private helper) so the test asserts real
+        # behavior without reaching into protected internals. The
+        # no-java_home early-return path is covered by every other
+        # build() test (their configs declare no java_home).
+        runner = MagicMock()
+        runner.run.return_value = 0
+        builder = BomtraceBuilder(runner)
+        repo_cfg, paths, omnibor = self._cfg()
+        repo_cfg["build_profile"] = {
+            "tool": "gradle",
+            "structure": "single-module",
+            "java_home": "/opt/jdk17",
+        }
+        saved = {
+            "JAVA_HOME": os.environ.get("JAVA_HOME"),
+            "PATH": os.environ.get("PATH"),
+        }
+        try:
+            with patch("builtins.print"):
+                builder.build(
+                    "curl", repo_cfg, paths, omnibor,
+                )
+            self.assertEqual(
+                os.environ["JAVA_HOME"], "/opt/jdk17",
+            )
+            self.assertTrue(
+                os.environ["PATH"].startswith(
+                    "/opt/jdk17/bin",
+                ),
+            )
+        finally:
+            for key, val in saved.items():
+                if val is None:
+                    os.environ.pop(key, None)
+                else:
+                    os.environ[key] = val
 
 
 class TestBomtraceBuilderSkipBuild(unittest.TestCase):
@@ -648,11 +719,11 @@ class TestBomtraceBuilderSkipBuild(unittest.TestCase):
                 "WebGoat", repo_cfg, paths, omnibor,
             )
         self.assertTrue(result.success)
-        # Only ADG generation runs (1 call)
-        self.assertEqual(runner.run.call_count, 1)
+        # Everything skipped — no runner calls
+        runner.run.assert_not_called()
 
     def test_skip_build_with_strategy(self):
-        """skip_build + strategy: skips build, runs ADG."""
+        """skip_build + strategy: skips everything."""
         runner = MagicMock()
         runner.run.return_value = 0
         strategy = MagicMock()
@@ -666,10 +737,9 @@ class TestBomtraceBuilderSkipBuild(unittest.TestCase):
                 strategy=strategy,
             )
         self.assertTrue(result.success)
-        # runner.run never called (strategy handles ADG)
+        # Everything skipped — no runner or strategy calls
         runner.run.assert_not_called()
-        strategy.generate_adg.assert_called_once()
-        # instrument_command never called
+        strategy.generate_adg.assert_not_called()
         strategy.instrument_command\
             .assert_not_called()
 
@@ -1437,7 +1507,6 @@ class TestSpdxGeneratorMetadata(unittest.TestCase):
             Path(path).unlink()
 
     def test_patch_no_creation_info(self):
-        import json
         with tempfile.TemporaryDirectory() as td:
             doc = {"spdxVersion": "SPDX-2.3"}
             path = self._write_spdx(td, doc)
@@ -1775,7 +1844,6 @@ class TestSpdxGeneratorMetadata(unittest.TestCase):
 
     def test_inject_refs_bad_mapping_json(self):
         """Graceful when mapping file has invalid JSON."""
-        import json
         with tempfile.TemporaryDirectory() as td:
             meta = (
                 Path(td) / "bom" / "metadata" / "bomsh"
@@ -1819,7 +1887,6 @@ class TestSpdxGeneratorMetadata(unittest.TestCase):
 
     def test_inject_refs_logfile_only(self):
         """Graceful when mapping file is missing."""
-        import json
         with tempfile.TemporaryDirectory() as td:
             meta = (
                 Path(td) / "bom" / "metadata" / "bomsh"
@@ -1954,7 +2021,6 @@ class TestSpdxValidator(unittest.TestCase):
         )
 
     def test_validate_invalid_json(self):
-        import json
         v = SpdxValidator()
         with tempfile.NamedTemporaryFile(
             suffix=".spdx.json", mode="w",
@@ -2245,7 +2311,7 @@ class TestSyftGenerator(unittest.TestCase):
                 with patch(
                     "spdx_visualize.generate_html"
                 ) as mock_viz:
-                    result = gen.generate(
+                    gen.generate(
                         "curl", repo_cfg, paths,
                         run_ts="2026-02-12_1300",
                     )
@@ -2474,6 +2540,260 @@ class TestBinaryCollector(unittest.TestCase):
             self.assertIn(
                 "jsoup-1.17.jar",
                 Path(result[0][1]).name,
+            )
+
+    def test_is_build_logic_jar(self):
+        # A JAR under a reserved Gradle ``buildSrc`` directory is
+        # build tooling, not a product component.
+        self.assertTrue(
+            BinaryCollector._is_build_logic_jar(
+                "spring-boot/buildSrc/build/libs/buildSrc.jar"
+            )
+        )
+        # A product module JAR is not build-logic, even though the
+        # word appears in the filename rather than an ancestor dir.
+        self.assertFalse(
+            BinaryCollector._is_build_logic_jar(
+                "spring-boot/core/build/libs/spring-boot-3.4.4.jar"
+            )
+        )
+
+    def test_is_non_product_jar_combines_rules(self):
+        self.assertTrue(
+            BinaryCollector.is_non_product_jar(
+                "m/target/foo-sources.jar"
+            )
+        )
+        self.assertTrue(
+            BinaryCollector.is_non_product_jar(
+                "r/buildSrc/build/libs/buildSrc.jar"
+            )
+        )
+        self.assertFalse(
+            BinaryCollector.is_non_product_jar(
+                "r/core/build/libs/app-1.0.jar"
+            )
+        )
+
+    @patch("app.pipeline.binary_collector.timestamp", return_value="2026-02-12_1300")
+    def test_collect_skips_build_logic_jar(self, _ts):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            repo_dir = Path(tmpdir) / "repos" / "spring-boot"
+            core = repo_dir / "core" / "build" / "libs"
+            bsrc = repo_dir / "buildSrc" / "build" / "libs"
+            core.mkdir(parents=True)
+            bsrc.mkdir(parents=True)
+            (core / "spring-boot-3.4.4.jar").write_bytes(b"prod")
+            (bsrc / "buildSrc.jar").write_bytes(b"tooling")
+
+            paths = {
+                "repos_dir": str(Path(tmpdir) / "repos"),
+                "output_dir": str(Path(tmpdir) / "output"),
+            }
+            cfg = {
+                "output_binaries": ["**/build/libs/*.jar"],
+                "language": "java",
+            }
+
+            with patch("builtins.print"):
+                result = BinaryCollector.collect(
+                    "spring-boot", cfg, paths
+                )
+            self.assertEqual(len(result), 1)
+            self.assertEqual(
+                Path(result[0][1]).name,
+                "spring-boot-3.4.4.jar",
+            )
+
+    def test_included_build_dirs_kotlin(self):
+        # includeBuild(...) parsed from settings.gradle.kts (Kotlin,
+        # parenthesised form).
+        with tempfile.TemporaryDirectory() as tmpdir:
+            repo = Path(tmpdir)
+            (repo / "settings.gradle.kts").write_text(
+                'rootProject.name = "caffeine"\n'
+                'includeBuild("gradle/plugins")\n',
+                encoding="utf-8",
+            )
+            self.assertEqual(
+                BinaryCollector.included_build_dirs(repo),
+                {"gradle/plugins"},
+            )
+
+    def test_included_build_dirs_groovy_no_parens(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            repo = Path(tmpdir)
+            (repo / "settings.gradle").write_text(
+                "includeBuild 'build-logic'\n",
+                encoding="utf-8",
+            )
+            self.assertEqual(
+                BinaryCollector.included_build_dirs(repo),
+                {"build-logic"},
+            )
+
+    def test_included_build_dirs_none(self):
+        self.assertEqual(
+            BinaryCollector.included_build_dirs(None), set()
+        )
+
+    def test_included_build_dirs_read_error(self):
+        # A settings file that exists but cannot be read is skipped
+        # (no crash), yielding no included-build dirs.
+        with tempfile.TemporaryDirectory() as tmpdir:
+            repo = Path(tmpdir)
+            (repo / "settings.gradle").write_text(
+                "x", encoding="utf-8",
+            )
+            with patch(
+                "pathlib.Path.read_text",
+                side_effect=OSError("boom"),
+            ):
+                self.assertEqual(
+                    BinaryCollector.included_build_dirs(repo),
+                    set(),
+                )
+
+    def test_ancestors_contain_edges(self):
+        self.assertFalse(
+            BinaryCollector._ancestors_contain(("a", "b"), ())
+        )
+        self.assertTrue(
+            BinaryCollector._ancestors_contain(
+                ("x", "gradle", "plugins", "build"),
+                ("gradle", "plugins"),
+            )
+        )
+        self.assertFalse(
+            BinaryCollector._ancestors_contain(
+                ("gradle",), ("gradle", "plugins"),
+            )
+        )
+
+    def test_is_build_logic_jar_included_build(self):
+        # A JAR under an includeBuild(...) composite build is
+        # build-logic; a sibling product module JAR is not.
+        self.assertTrue(
+            BinaryCollector._is_build_logic_jar(
+                "caffeine/gradle/plugins/build/libs/plugins.jar",
+                ("gradle/plugins",),
+            )
+        )
+        self.assertFalse(
+            BinaryCollector._is_build_logic_jar(
+                "caffeine/caffeine/build/libs/caffeine-3.2.4.jar",
+                ("gradle/plugins",),
+            )
+        )
+
+    @patch("app.pipeline.binary_collector.timestamp", return_value="2026-02-12_1300")
+    def test_collect_skips_included_build_jar(self, _ts):
+        # Mirrors caffeine: an includeBuild("gradle/plugins")
+        # composite build's plugins.jar must not be collected as a
+        # product, while the real product JAR is.
+        with tempfile.TemporaryDirectory() as tmpdir:
+            repo_dir = Path(tmpdir) / "repos" / "caffeine"
+            prod = repo_dir / "caffeine" / "build" / "libs"
+            plugins = (
+                repo_dir / "gradle" / "plugins"
+                / "build" / "libs"
+            )
+            prod.mkdir(parents=True)
+            plugins.mkdir(parents=True)
+            (prod / "caffeine-3.2.4.jar").write_bytes(b"prod")
+            (plugins / "plugins.jar").write_bytes(b"tooling")
+            (repo_dir / "settings.gradle.kts").write_text(
+                'includeBuild("gradle/plugins")\n',
+                encoding="utf-8",
+            )
+
+            paths = {
+                "repos_dir": str(Path(tmpdir) / "repos"),
+                "output_dir": str(Path(tmpdir) / "output"),
+            }
+            cfg = {
+                "output_binaries": ["**/build/libs/*.jar"],
+                "language": "java",
+            }
+            with patch("builtins.print"):
+                result = BinaryCollector.collect(
+                    "caffeine", cfg, paths
+                )
+            self.assertEqual(len(result), 1)
+            self.assertEqual(
+                Path(result[0][1]).name,
+                "caffeine-3.2.4.jar",
+            )
+
+    def test_excluded_binaries_resolves_globs(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            repo = Path(tmpdir)
+            checks = repo / "custom-checks" / "build" / "libs"
+            api = repo / "api" / "all" / "build" / "libs"
+            checks.mkdir(parents=True)
+            api.mkdir(parents=True)
+            (checks / "otel-custom-checks.jar").write_bytes(b"x")
+            (api / "otel-api.jar").write_bytes(b"y")
+            excluded = BinaryCollector.excluded_binaries(
+                repo, ["**/custom-checks/build/libs/*.jar"],
+            )
+            self.assertEqual(
+                {p.name for p in excluded},
+                {"otel-custom-checks.jar"},
+            )
+
+    def test_excluded_binaries_empty(self):
+        self.assertEqual(
+            BinaryCollector.excluded_binaries(None, ["*.jar"]),
+            set(),
+        )
+        with tempfile.TemporaryDirectory() as tmpdir:
+            self.assertEqual(
+                BinaryCollector.excluded_binaries(
+                    Path(tmpdir), [],
+                ),
+                set(),
+            )
+
+    @patch("app.pipeline.binary_collector.timestamp", return_value="2026-02-12_1300")
+    def test_collect_honors_exclude_binaries(self, _ts):
+        # Mirrors opentelemetry-java: a normal :custom-checks
+        # subproject JAR is config-excluded from the product set
+        # while the real product JAR is collected.
+        with tempfile.TemporaryDirectory() as tmpdir:
+            repo_dir = Path(tmpdir) / "repos" / "otel"
+            api = repo_dir / "api" / "all" / "build" / "libs"
+            checks = (
+                repo_dir / "custom-checks" / "build" / "libs"
+            )
+            api.mkdir(parents=True)
+            checks.mkdir(parents=True)
+            (api / "opentelemetry-api-1.64.0.jar").write_bytes(
+                b"prod"
+            )
+            (
+                checks
+                / "opentelemetry-custom-checks-1.64.0.jar"
+            ).write_bytes(b"tool")
+            paths = {
+                "repos_dir": str(Path(tmpdir) / "repos"),
+                "output_dir": str(Path(tmpdir) / "output"),
+            }
+            cfg = {
+                "output_binaries": ["**/build/libs/*.jar"],
+                "exclude_binaries": [
+                    "**/custom-checks/build/libs/*.jar"
+                ],
+                "language": "java",
+            }
+            with patch("builtins.print"):
+                result = BinaryCollector.collect(
+                    "otel", cfg, paths
+                )
+            self.assertEqual(len(result), 1)
+            self.assertEqual(
+                Path(result[0][1]).name,
+                "opentelemetry-api-1.64.0.jar",
             )
 
     @patch("app.pipeline.binary_collector.timestamp", return_value="2026-02-12_1300")
@@ -2866,6 +3186,65 @@ class TestDocWriter(unittest.TestCase):
             )
             self.assertIn("RELEASE", content)
 
+    def test_write_build_doc_full_build_profile(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            paths = {"output_dir": tmpdir}
+            cfg = {
+                "url": "https://github.com/x/y.git",
+                "branch": "main",
+                "build_steps": ["./gradlew build"],
+                "output_binaries": ["build/libs/y.jar"],
+                "language": "java",
+                "build_profile": {
+                    "tool": "gradle",
+                    "structure": "multi-module",
+                    "dsl": "groovy",
+                    "tool_version": "8.13",
+                    "traits": [
+                        "dependency-management",
+                    ],
+                },
+            }
+            with patch("builtins.print"):
+                result = DocWriter.write_build_doc(
+                    "y", cfg, paths, True, 10.0,
+                )
+            content = Path(result).read_text()
+            self.assertIn("## Build Profile", content)
+            self.assertIn("gradle", content)
+            self.assertIn("multi-module", content)
+            self.assertIn("groovy", content)
+            self.assertIn("8.13", content)
+            self.assertIn(
+                "dependency-management", content
+            )
+
+    def test_write_build_doc_minimal_build_profile(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            paths = {"output_dir": tmpdir}
+            cfg = {
+                "url": "https://github.com/x/y.git",
+                "branch": "main",
+                "build_steps": ["mvn package"],
+                "output_binaries": ["target/y.jar"],
+                "language": "java",
+                "build_profile": {
+                    "tool": "maven",
+                    "structure": "single-module",
+                },
+            }
+            with patch("builtins.print"):
+                result = DocWriter.write_build_doc(
+                    "y", cfg, paths, True, 10.0,
+                )
+            content = Path(result).read_text()
+            self.assertIn("## Build Profile", content)
+            self.assertIn("maven", content)
+            # Optional rows omitted when absent.
+            self.assertNotIn("DSL", content)
+            self.assertNotIn("Tool version", content)
+            self.assertNotIn("Traits", content)
+
 
 class TestClassifyReleaseBuild(unittest.TestCase):
     """Tests for DocWriter.classify_release_build."""
@@ -2987,6 +3366,32 @@ class TestClassifyReleaseBuild(unittest.TestCase):
         self.assertIn(
             "-DskipTests", rb["warnings"][0]
         )
+
+    def test_java_gradle_release(self):
+        # Gradle's jar task does not run tests, so no -DskipTests
+        # equivalent is required: a clean jar build is a release.
+        cfg = {
+            "language": "java",
+            "build_profile": {"tool": "gradle"},
+            "build_steps": ["./gradlew jar --no-daemon -q"],
+        }
+        rb = DocWriter.classify_release_build(cfg)
+        self.assertTrue(rb["is_release"])
+        self.assertEqual(rb["warnings"], [])
+        self.assertIn("gradle", rb["reason"])
+
+    def test_java_gradle_test_task_warns(self):
+        # The `build` task runs tests; warn to prefer jar/assemble.
+        cfg = {
+            "language": "java",
+            "build_profile": {"tool": "gradle"},
+            "build_steps": [
+                "./gradlew build --no-daemon -q",
+            ],
+        }
+        rb = DocWriter.classify_release_build(cfg)
+        self.assertFalse(rb["is_release"])
+        self.assertIn("test task", rb["warnings"][0])
 
     def test_unknown_language(self):
         cfg = {
@@ -3979,8 +4384,7 @@ class TestSpdxValidatorCoverage(unittest.TestCase):
     """Cover schema validation success and >10 error paths."""
 
     def test_schema_validation_pass(self):
-        """Lines 790, 798-810: schema fetch succeeds,
-        validation passes."""
+        """Vendored schema loads and validation passes."""
         import json as json_mod
         doc = {
             "spdxVersion": "SPDX-2.3",
@@ -3999,34 +4403,82 @@ class TestSpdxValidatorCoverage(unittest.TestCase):
             path = Path(td) / "test.spdx.json"
             path.write_text(json_mod.dumps(doc))
 
-            # Mock schema fetch to return a permissive schema
+            # Vendored schema replaced with a permissive one
             schema = {"type": "object"}
-            mock_resp = MagicMock()
-            mock_resp.read.return_value = (
-                json_mod.dumps(schema).encode()
-            )
-            mock_resp.__enter__ = (
-                lambda s: mock_resp
-            )
-            mock_resp.__exit__ = (
-                lambda s, *a: None
+            (Path(td) / "schema.json").write_text(
+                json_mod.dumps(schema)
             )
 
             v = SpdxValidator()
-            with patch(
-                "urllib.request.urlopen",
-                return_value=mock_resp,
+            with patch.object(
+                SpdxValidator, "SCHEMA_DIR", Path(td),
+            ), patch.object(
+                SpdxValidator, "SCHEMA_FILES",
+                {"SPDX-2.3": "schema.json"},
             ), patch(
                 "builtins.print",
             ):
                 result = v.validate(str(path))
             self.assertTrue(result["schema_ok"])
 
+    def test_unreadable_schema_skips_validation(self):
+        """Missing schema file skips schema validation."""
+        import json as json_mod
+        doc = {
+            "spdxVersion": "SPDX-2.3",
+            "SPDXID": "SPDXRef-DOCUMENT",
+            "name": "test",
+            "packages": [],
+            "relationships": [],
+        }
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / "test.spdx.json"
+            path.write_text(json_mod.dumps(doc))
+
+            v = SpdxValidator()
+            with patch.object(
+                SpdxValidator, "SCHEMA_DIR", Path(td),
+            ), patch.object(
+                SpdxValidator, "SCHEMA_FILES",
+                {"SPDX-2.3": "missing-schema.json"},
+            ), patch.object(
+                v, "_validate_semantic",
+                side_effect=lambda p, r: r,
+            ), patch(
+                "builtins.print",
+            ):
+                result = v.validate(str(path))
+            self.assertIsNone(result["schema_ok"])
+
+    def test_unsupported_version_skips_schema(self):
+        """Unknown SPDX version skips schema validation."""
+        import json as json_mod
+        doc = {
+            "spdxVersion": "SPDX-9.9",
+            "SPDXID": "SPDXRef-DOCUMENT",
+            "name": "test",
+            "packages": [],
+            "relationships": [],
+        }
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / "test.spdx.json"
+            path.write_text(json_mod.dumps(doc))
+
+            v = SpdxValidator()
+            with patch.object(
+                v, "_validate_semantic",
+                side_effect=lambda p, r: r,
+            ), patch(
+                "builtins.print",
+            ):
+                result = v.validate(str(path))
+            self.assertIsNone(result["schema_ok"])
+
     def test_validation_many_schema_errors(self):
         """Lines 868-869, 881-882: >10 errors truncated."""
         import json as json_mod
 
-        doc = {"bad": "doc"}
+        doc = {"spdxVersion": "SPDX-2.3", "bad": "doc"}
         with tempfile.TemporaryDirectory() as td:
             path = Path(td) / "test.spdx.json"
             path.write_text(json_mod.dumps(doc))
@@ -4037,21 +4489,16 @@ class TestSpdxValidatorCoverage(unittest.TestCase):
                 "type": "object",
                 "required": required,
             }
-            mock_resp = MagicMock()
-            mock_resp.read.return_value = (
-                json_mod.dumps(schema).encode()
-            )
-            mock_resp.__enter__ = (
-                lambda s: mock_resp
-            )
-            mock_resp.__exit__ = (
-                lambda s, *a: None
+            (Path(td) / "schema.json").write_text(
+                json_mod.dumps(schema)
             )
 
             v = SpdxValidator()
-            with patch(
-                "urllib.request.urlopen",
-                return_value=mock_resp,
+            with patch.object(
+                SpdxValidator, "SCHEMA_DIR", Path(td),
+            ), patch.object(
+                SpdxValidator, "SCHEMA_FILES",
+                {"SPDX-2.3": "schema.json"},
             ), patch(
                 "builtins.print",
             ):
@@ -4088,9 +4535,9 @@ class TestSpdxValidatorCoverage(unittest.TestCase):
             with patch.object(
                 v, "_validate_semantic",
                 side_effect=_inject_errors,
-            ), patch(
-                "urllib.request.urlopen",
-                side_effect=Exception("no net"),
+            ), patch.object(
+                v, "_schema_path_for",
+                return_value=(None, "SPDX-2.3"),
             ), patch(
                 "builtins.print",
             ):
@@ -4180,6 +4627,56 @@ class TestAdgSpdxStep(unittest.TestCase):
                 calls[0].kwargs.get("binary_name"),
                 "nmap",
             )
+
+    def test_generate_glob_excludes_build_logic_jar(self):
+        """Glob expansion drops build-logic JARs (Gradle buildSrc),
+        keeping only product JARs as SBOM targets."""
+        from analyze import AdgSpdxStep
+        with tempfile.TemporaryDirectory() as td:
+            repo_dir = Path(td) / "repos" / "springboot"
+            core = repo_dir / "core" / "build" / "libs"
+            bsrc = repo_dir / "buildSrc" / "build" / "libs"
+            core.mkdir(parents=True)
+            bsrc.mkdir(parents=True)
+            (core / "spring-boot-3.4.4.jar").write_bytes(b"PK")
+            (bsrc / "buildSrc.jar").write_bytes(b"PK")
+            bom_dir = (
+                Path(td) / "omnibor" / "java" / "springboot"
+                / "2026-02-12_1300" / "metadata" / "springboot"
+            )
+            bom_dir.mkdir(parents=True)
+
+            paths = {
+                "output_dir": td,
+                "repos_dir": str(Path(td) / "repos"),
+            }
+            repo_cfg = {
+                "output_binaries": ["**/build/libs/*.jar"],
+                "language": "java",
+            }
+
+            mock_gen = MagicMock()
+            mock_gen.generate.side_effect = [
+                "a_analyzed.spdx.json",
+                "a_build.spdx.json",
+            ]
+            with patch(
+                "spdx_from_adg.AdgSpdxGenerator",
+                return_value=mock_gen,
+            ):
+                result = AdgSpdxStep.generate(
+                    "springboot", repo_cfg, paths,
+                    run_ts="2026-02-12_1300",
+                )
+
+            # Only the product JAR yields SBOMs (analyzed + build);
+            # the buildSrc build-logic JAR is excluded.
+            self.assertEqual(len(result), 2)
+            names = [
+                c.kwargs.get("binary_name")
+                for c in mock_gen.generate.call_args_list
+            ]
+            self.assertNotIn("buildSrc", names)
 
     def test_generate_with_shared_lib(self):
         """Lines 991-1002: direct_only=True when shared

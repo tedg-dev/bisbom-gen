@@ -1,0 +1,13 @@
+// Isolates: root-only build (no subprojects).
+// Expected capture: one section ':' with libutil -> libcore.
+plugins {
+    id 'java-library'
+}
+
+repositories {
+    maven { url = uri("${rootDir}/../local-repo") }
+}
+
+dependencies {
+    implementation 'com.example:libutil:1.0'
+}

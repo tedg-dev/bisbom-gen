@@ -3,49 +3,49 @@
     {
       "name": "clean",
       "phase": "phase1",
-      "wall_sec": 3.8,
-      "cpu_user_sec": 7.54,
-      "cpu_sys_sec": 0.36,
+      "wall_sec": 1.89,
+      "cpu_user_sec": 5.33,
+      "cpu_sys_sec": 0.25,
       "cpu_count": 4,
       "expected_parallelism": 1,
       "load_avg_start": [
-        1.1,
-        0.62,
-        0.49
+        2.54,
+        2.1,
+        1.14
       ],
       "load_avg_end": [
-        1.1,
-        0.62,
-        0.49
+        2.66,
+        2.14,
+        1.15
       ],
       "contention": false,
-      "cpu_total_sec": 7.9,
-      "cpu_efficiency": 2.08,
+      "cpu_total_sec": 5.58,
+      "cpu_efficiency": 2.96,
       "contention_severity": 0.0
     },
     {
       "name": "build",
       "phase": "phase1",
-      "wall_sec": 120.89,
-      "cpu_user_sec": 311.49,
-      "cpu_sys_sec": 6.04,
+      "wall_sec": 94.82,
+      "cpu_user_sec": 295.26,
+      "cpu_sys_sec": 5.08,
       "cpu_count": 4,
       "expected_parallelism": 1,
       "load_avg_start": [
-        1.1,
-        0.62,
-        0.49
+        2.66,
+        2.14,
+        1.15
       ],
       "load_avg_end": [
-        2.89,
-        1.42,
-        0.8
+        3.11,
+        2.43,
+        1.35
       ],
       "contention": false,
-      "cpu_total_sec": 317.53,
-      "cpu_efficiency": 2.63,
+      "cpu_total_sec": 300.34,
+      "cpu_efficiency": 3.17,
       "contention_severity": 0.0
     }
   ],
-  "run_ts": "2026-05-12_1539"
+  "run_ts": "2026-07-14_2329"
 }

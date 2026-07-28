@@ -4,10 +4,11 @@
 
 ## Overview
 
-The OmniBOR analysis pipeline supports two execution modes with different
-platform requirements. **Sidecar mode** (default, no `SYS_PTRACE` required)
-runs on any Docker host. **Standalone mode** (legacy, ptrace-based) requires
-`SYS_PTRACE` capability and targets Linux x86_64.
+**Sidecar mode is the only supported execution mode** — no `SYS_PTRACE`
+required, runs on any Docker host. The deprecated **standalone mode**
+(initial ptrace-based implementation, retained only for a rare ~1% embedded
+corner case) requires `SYS_PTRACE` and targets Linux x86_64; it is
+documented here for that corner case only, not as a deployment option.
 
 <a id="host-requirements"></a>
 
@@ -15,8 +16,8 @@ runs on any Docker host. **Standalone mode** (legacy, ptrace-based) requires
 
 | Mode | Container Image | `SYS_PTRACE` | Mechanism | Primary Use |
 |------|----------------|:------------:|-----------|-------------|
-| **Sidecar** (default) | `omnibor-env:sidecar` | No | Language-specific strategies (dep:tree, `-toolexec`, `RUSTC_WRAPPER`) | Enterprise CI/CD |
-| **Standalone** (legacy) | `omnibor-env:standalone` | Yes | `bomtrace3`/`bomtrace2` ptrace-based tracing | Golden file generation, dev/debug |
+| **Sidecar** (only supported mode) | `omnibor-env:sidecar` | No | Language-specific strategies (dep:tree, `-toolexec`, `RUSTC_WRAPPER`, `LD_PRELOAD`) | Enterprise CI/CD |
+| **Standalone** (deprecated) | `omnibor-env:standalone` | Yes | `bomtrace3`/`bomtrace2` ptrace-based tracing | ~1% embedded corner case only |
 
 ## Host Requirements
 
@@ -32,7 +33,7 @@ runs on any Docker host. **Standalone mode** (legacy, ptrace-based) requires
 Sidecar mode works in standard Docker and Kubernetes environments without
 privileged capabilities.
 
-### Standalone Mode (legacy)
+### Standalone Mode (deprecated)
 
 | | |
 |---|---|

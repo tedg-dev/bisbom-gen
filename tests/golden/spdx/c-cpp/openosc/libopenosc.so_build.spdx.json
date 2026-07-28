@@ -1,0 +1,196 @@
+{
+  "spdxVersion": "SPDX-2.3",
+  "dataLicense": "CC0-1.0",
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "name": "libopenosc.so",
+  "documentNamespace": "https://omnibor.io/omnibor-analysis/libopenosc.so-b784b287-abb0-4d45-b9ce-f656ddf19456",
+  "creationInfo": {
+    "created": "2026-06-22T20:21:05Z",
+    "creators": [
+      "Tool: bomtrace3-unknown",
+      "Tool: bomsh-unknown",
+      "Tool: omnibor-analysis (github.com/tedg-dev/omnibor-analysis)"
+    ],
+    "licenseListVersion": "3.19"
+  },
+  "packages": [
+    {
+      "SPDXID": "SPDXRef-Package-root",
+      "name": "libopenosc.so",
+      "downloadLocation": "https://github.com/cisco/OpenOSC/commit/d1bd20c332c48d37d67ba8eb2f1167b86150e135",
+      "filesAnalyzed": true,
+      "primaryPackagePurpose": "LIBRARY",
+      "builtDate": "2026-06-22T20:21:05Z",
+      "externalRefs": [],
+      "checksums": [],
+      "comment": "Built on Ubuntu 22.04.5 LTS with gcc (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0",
+      "versionInfo": "1.0.7"
+    },
+    {
+      "SPDXID": "SPDXRef-libc6-1",
+      "name": "libc6",
+      "downloadLocation": "https://www.gnu.org/software/libc/libc.html",
+      "filesAnalyzed": false,
+      "primaryPackagePurpose": "LIBRARY",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:deb/ubuntu/libc6@2.35-0ubuntu3.13?arch=amd64&distro=ubuntu-22.04"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceType": "cpe23Type",
+          "referenceLocator": "cpe:2.3:a:glibc:glibc:2.35:*:*:*:*:*:*:*"
+        }
+      ],
+      "comment": "Dynamically linked (direct). sonames: ld-linux, libc.so.6. dpkg: libc6 (amd64)",
+      "versionInfo": "2.35-0ubuntu3.13",
+      "supplier": "Organization: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>",
+      "homepage": "https://www.gnu.org/software/libc/libc.html",
+      "sourceInfo": "Installed via dpkg package libc6 on Ubuntu 22.04.5 LTS."
+    },
+    {
+      "SPDXID": "SPDXRef-gcc-2",
+      "name": "gcc",
+      "versionInfo": "11.4.0",
+      "supplier": "Organization: Free Software Foundation",
+      "downloadLocation": "https://gcc.gnu.org/",
+      "homepage": "https://gcc.gnu.org/",
+      "filesAnalyzed": false,
+      "primaryPackagePurpose": "APPLICATION",
+      "externalRefs": [
+        {
+          "referenceCategory": "SECURITY",
+          "referenceType": "cpe23Type",
+          "referenceLocator": "cpe:2.3:a:gnu:gcc:11.4.0:*:*:*:*:*:*:*"
+        }
+      ],
+      "sourceInfo": "System-installed build toolchain on Ubuntu 22.04.5 LTS."
+    }
+  ],
+  "files": [
+    {
+      "SPDXID": "SPDXRef-File-openosc-map.c-3",
+      "fileName": "repos/openosc/src/openosc_map.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "03b1089121c583d648cc476f596f3e1f14d938ad"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-openosc-support-priv.h-4",
+      "fileName": "repos/openosc/src/openosc_support_priv.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "082e4bfed14d9d0b60c1603b2305073fa94ad84a"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-openosc-package-info.c-5",
+      "fileName": "repos/openosc/src/openosc_package_info.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "2c950f6a24ae818fb63e4f1dfda84459b340c6fb"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-openosc-common.h-6",
+      "fileName": "repos/openosc/src/openosc_common.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "a9b3425d8244444110e34a7ff96d675adadf55ad"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-openosc-fortify-map.c-7",
+      "fileName": "repos/openosc/src/openosc_fortify_map.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "c3e423d165c3890060eaaee3d6327b8a81f2f2ab"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-openosc-support.c-8",
+      "fileName": "repos/openosc/src/openosc_support.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "d6b2f63c61bf7606a2faf8fa633019aa7eb1d0fb"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-config.h-9",
+      "fileName": "repos/openosc/src/../config.h",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "db341257bc4c70f19810bf5bf3fc02b73b22999a"
+        }
+      ]
+    }
+  ],
+  "relationships": [
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-Package-root"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-libc6-1"
+    },
+    {
+      "spdxElementId": "SPDXRef-gcc-2",
+      "relationshipType": "BUILD_TOOL_OF",
+      "relatedSpdxElement": "SPDXRef-Package-root"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-openosc-map.c-3"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-openosc-support-priv.h-4"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-openosc-package-info.c-5"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-openosc-common.h-6"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-openosc-fortify-map.c-7"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-openosc-support.c-8"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-root",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-File-config.h-9"
+    }
+  ]
+}

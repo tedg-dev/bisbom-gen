@@ -70,4 +70,3 @@ class RepoDiscovery:
             if desc_parts
             else repo_name
         )
-

@@ -1,4 +1,8 @@
 """Tests for Java SPDX generator."""
+# Tests exercise the internal _build_spdx builder directly, which is
+# legitimate for a class's own unit tests.
+# pylint: disable=protected-access
+import hashlib
 import json
 import sys
 import tempfile
@@ -10,6 +14,7 @@ sys.path.insert(
     0, str(Path(__file__).parent.parent / "app")
 )
 
+from app.spdx.identity import ArtifactIdentity
 from app.spdx.java_generator import JavaSpdxGenerator
 
 
@@ -1055,6 +1060,156 @@ class TestBuildSpdx(unittest.TestCase):
         self.assertEqual(len(depends), 1)
 
 
+class TestArtifactIdentity(unittest.TestCase):
+    """Root JAR package must carry OmniBOR identity.
+
+    Regression tests for project/artifact-identity.md: the
+    built JAR's own raw SHA-256 checksum and SHA-256 OmniBOR
+    gitOID (``gitoid:blob:sha256``) must appear on the root
+    package, both computed by reading the built JAR (the
+    identity layer), mirroring the C emitter.
+    """
+
+    def setUp(self):
+        self.gen = JavaSpdxGenerator(
+            bom_dir="/tmp/bom",
+            repos_dir="/tmp/repos",
+            repo_name="myapp",
+        )
+        p1 = patch.object(
+            JavaSpdxGenerator,
+            "_detect_javac_version",
+            return_value=None,
+        )
+        p2 = patch.object(
+            JavaSpdxGenerator,
+            "_detect_maven_version",
+            return_value=None,
+        )
+        p1.start()
+        p2.start()
+        self.addCleanup(p1.stop)
+        self.addCleanup(p2.stop)
+        self._tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self._tmp.cleanup)
+        self.jar_path = Path(self._tmp.name) / "myapp.jar"
+        self.jar_path.write_bytes(b"PK\x03\x04 fake jar bytes")
+        self.ident = ArtifactIdentity.from_file(self.jar_path)
+
+    @staticmethod
+    def _gitoid_refs(root):
+        return [
+            r for r in root["externalRefs"]
+            if r["referenceType"] == "gitoid"
+        ]
+
+    def test_root_has_checksum_and_gitoid(self):
+        doc = self.gen._build_spdx(
+            "myapp.jar", [], [],
+            jar_path=str(self.jar_path),
+        )
+        root = doc["packages"][0]
+        self.assertEqual(
+            root["checksums"],
+            [{
+                "algorithm": "SHA256",
+                "checksumValue": self.ident.raw,
+            }],
+        )
+        refs = self._gitoid_refs(root)
+        self.assertEqual(len(refs), 1)
+        self.assertEqual(
+            refs[0]["referenceCategory"],
+            "PERSISTENT-ID",
+        )
+        self.assertEqual(
+            refs[0]["referenceLocator"],
+            self.ident.gitoid,
+        )
+        self.assertTrue(
+            self.ident.gitoid.startswith(
+                "gitoid:blob:sha256:"
+            )
+        )
+
+    def test_identity_on_analyzed_sbom(self):
+        doc = self.gen._build_spdx(
+            "myapp.jar", [], [],
+            sbom_type="analyzed",
+            jar_path=str(self.jar_path),
+        )
+        root = doc["packages"][0]
+        self.assertEqual(
+            root["checksums"][0]["checksumValue"],
+            self.ident.raw,
+        )
+        self.assertEqual(
+            len(self._gitoid_refs(root)), 1
+        )
+
+    def test_missing_identity_leaves_empty(self):
+        doc = self.gen._build_spdx("myapp.jar", [], [])
+        root = doc["packages"][0]
+        self.assertEqual(root["checksums"], [])
+        self.assertEqual(
+            len(self._gitoid_refs(root)), 0
+        )
+
+    def test_unreadable_jar_leaves_empty(self):
+        doc = self.gen._build_spdx(
+            "myapp.jar", [], [],
+            jar_path="/nonexistent/myapp.jar",
+        )
+        root = doc["packages"][0]
+        self.assertEqual(root["checksums"], [])
+        self.assertEqual(
+            len(self._gitoid_refs(root)), 0
+        )
+
+    def test_purl_ref_still_present_with_identity(self):
+        doc = self.gen._build_spdx(
+            "myapp.jar", [], [],
+            jar_path=str(self.jar_path),
+        )
+        root = doc["packages"][0]
+        purls = [
+            r for r in root["externalRefs"]
+            if r["referenceType"] == "purl"
+        ]
+        self.assertEqual(len(purls), 1)
+
+    def test_source_file_dual_hash_sha1_and_sha256(self):
+        # SPDX 2.3 File entries carry the spec-mandated raw SHA-1
+        # plus the raw SHA-256 identity hash
+        # (project/artifact-identity.md §5.1).
+        src = Path(self._tmp.name) / "App.java"
+        content = b"class App {}\n"
+        src.write_bytes(content)
+        doc = self.gen._build_spdx(
+            "myapp.jar",
+            [{"file_path": str(src)}],
+            [],
+        )
+        self.assertEqual(len(doc["files"]), 1)
+        self.assertEqual(
+            doc["files"][0]["checksums"],
+            [
+                {
+                    "algorithm": "SHA1",
+                    "checksumValue": hashlib.sha1(
+                        content
+                    ).hexdigest(),
+                },
+                {
+                    "algorithm": "SHA256",
+                    "checksumValue": hashlib.sha256(
+                        content
+                    ).hexdigest(),
+                },
+            ],
+        )
+
+
 class TestBuildToolEmission(unittest.TestCase):
     """Tests for javac/maven BUILD_TOOL_OF emission."""
 
@@ -1460,11 +1615,11 @@ class TestIsTestFile(unittest.TestCase):
 
 
 class TestExtractArtifactName(unittest.TestCase):
-    """Tests for _extract_artifact_name."""
+    """Tests for extract_artifact_name."""
 
     def test_simple_versioned_jar(self):
         self.assertEqual(
-            JavaSpdxGenerator._extract_artifact_name(
+            JavaSpdxGenerator.extract_artifact_name(
                 "jsoup-1.17.2.jar"
             ),
             "jsoup",
@@ -1472,7 +1627,7 @@ class TestExtractArtifactName(unittest.TestCase):
 
     def test_multi_part_name(self):
         self.assertEqual(
-            JavaSpdxGenerator._extract_artifact_name(
+            JavaSpdxGenerator.extract_artifact_name(
                 "dependency-check-utils-9.2.0.jar"
             ),
             "dependency-check-utils",
@@ -1480,7 +1635,7 @@ class TestExtractArtifactName(unittest.TestCase):
 
     def test_snapshot_version(self):
         self.assertEqual(
-            JavaSpdxGenerator._extract_artifact_name(
+            JavaSpdxGenerator.extract_artifact_name(
                 "my-lib-1.0-SNAPSHOT.jar"
             ),
             "my-lib",
@@ -1488,7 +1643,7 @@ class TestExtractArtifactName(unittest.TestCase):
 
     def test_three_part_version(self):
         self.assertEqual(
-            JavaSpdxGenerator._extract_artifact_name(
+            JavaSpdxGenerator.extract_artifact_name(
                 "commons-io-2.16.1.jar"
             ),
             "commons-io",
@@ -1497,7 +1652,7 @@ class TestExtractArtifactName(unittest.TestCase):
     def test_no_version(self):
         # If no version pattern, return name without .jar
         self.assertEqual(
-            JavaSpdxGenerator._extract_artifact_name(
+            JavaSpdxGenerator.extract_artifact_name(
                 "mylib.jar"
             ),
             "mylib",
@@ -1505,7 +1660,7 @@ class TestExtractArtifactName(unittest.TestCase):
 
     def test_no_jar_extension(self):
         self.assertEqual(
-            JavaSpdxGenerator._extract_artifact_name(
+            JavaSpdxGenerator.extract_artifact_name(
                 "artifact-1.0.0"
             ),
             "artifact",
@@ -1963,114 +2118,6 @@ class TestAddBuildToolsGradle(unittest.TestCase):
         self.assertIn("javac", names)
 
 
-class TestGenerateChecksums(unittest.TestCase):
-    """Tests for checksums and packageFileName in generate."""
-
-    def setUp(self):
-        p1 = patch.object(
-            JavaSpdxGenerator,
-            "_detect_javac_version",
-            return_value=None,
-        )
-        p2 = patch.object(
-            JavaSpdxGenerator,
-            "_detect_maven_version",
-            return_value=None,
-        )
-        p1.start()
-        p2.start()
-        self.addCleanup(p1.stop)
-        self.addCleanup(p2.stop)
-
-    @patch.object(JavaSpdxGenerator, "_get_maven_deps")
-    def test_checksums_on_root_package(self, mock_deps):
-        """Checksums and packageFileName appear on root."""
-        with tempfile.TemporaryDirectory() as td:
-            repos = Path(td) / "repos"
-            repo = repos / "myapp"
-            repo.mkdir(parents=True)
-            (repo / "pom.xml").write_text(
-                "<project>"
-                "<version>1.0</version>"
-                "</project>"
-            )
-            bom = Path(td) / "bom"
-            bom.mkdir()
-            out = Path(td) / "out" / "test.spdx.json"
-
-            mock_deps.return_value = []
-            jar_files = [
-                {"file_path": "a.java", "sha1": "abc"},
-            ]
-            checksums = {
-                "sha1": "aabbcc",
-                "sha256": "ddeeff",
-            }
-
-            gen = JavaSpdxGenerator(
-                bom_dir=str(bom),
-                repos_dir=str(repos),
-                repo_name="myapp",
-            )
-            gen.generate(
-                str(out),
-                jar_files=jar_files,
-                checksums=checksums,
-                package_file_name="target/app.jar",
-            )
-            doc = json.loads(out.read_text())
-            root = doc["packages"][0]
-            self.assertEqual(
-                root["packageFileName"],
-                "target/app.jar",
-            )
-            self.assertEqual(len(root["checksums"]), 2)
-            algos = {
-                c["algorithm"] for c in root["checksums"]
-            }
-            self.assertEqual(algos, {"SHA1", "SHA256"})
-            vals = {
-                c["checksumValue"]
-                for c in root["checksums"]
-            }
-            self.assertIn("aabbcc", vals)
-            self.assertIn("ddeeff", vals)
-
-    @patch.object(JavaSpdxGenerator, "_get_maven_deps")
-    def test_no_checksums_omits_field(self, mock_deps):
-        """No checksums → no checksums field on root."""
-        with tempfile.TemporaryDirectory() as td:
-            repos = Path(td) / "repos"
-            repo = repos / "myapp"
-            repo.mkdir(parents=True)
-            (repo / "pom.xml").write_text(
-                "<project>"
-                "<version>1.0</version>"
-                "</project>"
-            )
-            bom = Path(td) / "bom"
-            bom.mkdir()
-            out = Path(td) / "out" / "test.spdx.json"
-
-            mock_deps.return_value = []
-            jar_files = [
-                {"file_path": "a.java", "sha1": "abc"},
-            ]
-
-            gen = JavaSpdxGenerator(
-                bom_dir=str(bom),
-                repos_dir=str(repos),
-                repo_name="myapp",
-            )
-            gen.generate(
-                str(out), jar_files=jar_files,
-            )
-            doc = json.loads(out.read_text())
-            root = doc["packages"][0]
-            self.assertNotIn("checksums", root)
-            self.assertNotIn("packageFileName", root)
-
-
 class TestCreationInfo(unittest.TestCase):
     """Tests for _creation_info static method."""
 
@@ -2120,392 +2167,6 @@ class TestCreationInfo(unittest.TestCase):
             "2026-01-01T00:00:00Z", None,
         )
         self.assertNotIn("comment", info)
-
-
-class TestGenerateMulti(unittest.TestCase):
-    """Tests for generate_multi (single-document multi-JAR)."""
-
-    def setUp(self):
-        self.td = tempfile.mkdtemp()
-        repos = Path(self.td) / "repos"
-        repo = repos / "myapp"
-        repo.mkdir(parents=True)
-        (repo / "pom.xml").write_text(
-            '<project><version>1.0.0</version></project>'
-        )
-        bom = Path(self.td) / "bom"
-        bom.mkdir(parents=True)
-        self.gen = JavaSpdxGenerator(
-            bom_dir=str(bom),
-            repos_dir=str(repos),
-            repo_name="myapp",
-        )
-        # Suppress build tool detection
-        p1 = patch.object(
-            JavaSpdxGenerator,
-            "_detect_javac_version",
-            return_value=None,
-        )
-        p2 = patch.object(
-            JavaSpdxGenerator,
-            "_detect_maven_version",
-            return_value=None,
-        )
-        p1.start()
-        p2.start()
-        self.addCleanup(p1.stop)
-        self.addCleanup(p2.stop)
-
-    def tearDown(self):
-        import shutil
-        shutil.rmtree(self.td, ignore_errors=True)
-
-    def _make_jars(self, names, sources=None, deps=None):
-        """Build jar_info dicts for generate_multi."""
-        jars = []
-        for i, name in enumerate(names):
-            jar_files = sources[i] if sources else []
-            jar_info = {
-                "bin_name": name,
-                "jar_files": jar_files,
-            }
-            jars.append(jar_info)
-        return jars
-
-    def test_single_jar_basic(self):
-        out = Path(self.td) / "out.spdx.json"
-        jars = self._make_jars(["myapp-1.0.0.jar"])
-        with patch.object(
-            self.gen, "_get_maven_deps",
-            return_value=[],
-        ):
-            result = self.gen.generate_multi(
-                str(out), jars, sbom_type="build",
-            )
-        self.assertIsNotNone(result)
-        doc = json.loads(out.read_text())
-        self.assertEqual(doc["spdxVersion"], "SPDX-2.3")
-        self.assertEqual(len(doc["packages"]), 1)
-        self.assertEqual(
-            doc["name"], "myapp-build",
-        )
-
-    def test_multi_jar_two_packages(self):
-        out = Path(self.td) / "out.spdx.json"
-        jars = self._make_jars([
-            "app-1.0.0.jar", "utils-1.0.0.jar",
-        ])
-        with patch.object(
-            self.gen, "_get_maven_deps",
-            return_value=[],
-        ):
-            result = self.gen.generate_multi(
-                str(out), jars, sbom_type="build",
-            )
-        doc = json.loads(out.read_text())
-        # Two root packages
-        self.assertEqual(len(doc["packages"]), 2)
-        names = {p["name"] for p in doc["packages"]}
-        self.assertIn("app", names)
-        self.assertIn("utils", names)
-        # Two DESCRIBES relationships
-        describes = [
-            r for r in doc["relationships"]
-            if r["relationshipType"] == "DESCRIBES"
-        ]
-        self.assertEqual(len(describes), 2)
-
-    def test_checksums_on_package(self):
-        out = Path(self.td) / "out.spdx.json"
-        jars = [{
-            "bin_name": "app-1.0.0.jar",
-            "jar_files": [],
-            "checksums": {
-                "sha1": "a" * 40,
-                "sha256": "b" * 64,
-            },
-        }]
-        with patch.object(
-            self.gen, "_get_maven_deps",
-            return_value=[],
-        ):
-            self.gen.generate_multi(
-                str(out), jars, sbom_type="build",
-            )
-        doc = json.loads(out.read_text())
-        pkg = doc["packages"][0]
-        self.assertIn("checksums", pkg)
-        algs = {c["algorithm"] for c in pkg["checksums"]}
-        self.assertIn("SHA1", algs)
-        self.assertIn("SHA256", algs)
-
-    def test_package_file_name(self):
-        out = Path(self.td) / "out.spdx.json"
-        jars = [{
-            "bin_name": "app-1.0.0.jar",
-            "jar_files": [],
-            "package_file_name": "target/app-1.0.0.jar",
-        }]
-        with patch.object(
-            self.gen, "_get_maven_deps",
-            return_value=[],
-        ):
-            self.gen.generate_multi(
-                str(out), jars, sbom_type="build",
-            )
-        doc = json.loads(out.read_text())
-        pkg = doc["packages"][0]
-        self.assertEqual(
-            pkg["packageFileName"],
-            "target/app-1.0.0.jar",
-        )
-
-    def test_no_checksums_when_empty(self):
-        out = Path(self.td) / "out.spdx.json"
-        jars = [{
-            "bin_name": "app-1.0.0.jar",
-            "jar_files": [],
-        }]
-        with patch.object(
-            self.gen, "_get_maven_deps",
-            return_value=[],
-        ):
-            self.gen.generate_multi(
-                str(out), jars, sbom_type="build",
-            )
-        doc = json.loads(out.read_text())
-        pkg = doc["packages"][0]
-        self.assertNotIn("checksums", pkg)
-
-    def test_dep_dedup_across_jars(self):
-        out = Path(self.td) / "out.spdx.json"
-        dep = {
-            "groupId": "com.google",
-            "artifactId": "guava",
-            "version": "33.0",
-            "scope": "compile",
-            "direct": True,
-            "optional": False,
-            "parent": None,
-        }
-        jars = self._make_jars([
-            "app-1.0.0.jar", "utils-1.0.0.jar",
-        ])
-        with patch.object(
-            self.gen, "_get_maven_deps",
-            return_value=[dep],
-        ):
-            self.gen.generate_multi(
-                str(out), jars, sbom_type="build",
-            )
-        doc = json.loads(out.read_text())
-        # 2 root packages + 1 dep (deduped)
-        self.assertEqual(len(doc["packages"]), 3)
-        guava_pkgs = [
-            p for p in doc["packages"]
-            if p["name"] == "guava"
-        ]
-        self.assertEqual(len(guava_pkgs), 1)
-
-    def test_analyzed_mode_no_deps(self):
-        out = Path(self.td) / "out.spdx.json"
-        sources = [[{
-            "file_path": (
-                str(Path(self.td) / "repos/myapp/src/A.java")
-            ),
-            "sha1": "abc123",
-        }]]
-        jars = self._make_jars(
-            ["app-1.0.0.jar"], sources=sources,
-        )
-        self.gen.generate_multi(
-            str(out), jars, sbom_type="analyzed",
-        )
-        doc = json.loads(out.read_text())
-        # 1 root package, no deps
-        self.assertEqual(len(doc["packages"]), 1)
-        self.assertEqual(len(doc["files"]), 1)
-        self.assertEqual(
-            doc["name"], "myapp-analyzed",
-        )
-
-    def test_source_files_across_jars(self):
-        out = Path(self.td) / "out.spdx.json"
-        sources = [
-            [{"file_path": "/repos/myapp/A.java", "sha1": "a1"}],
-            [{"file_path": "/repos/myapp/B.java", "sha1": "b1"}],
-        ]
-        jars = self._make_jars(
-            ["app-1.0.0.jar", "utils-1.0.0.jar"],
-            sources=sources,
-        )
-        self.gen.generate_multi(
-            str(out), jars, sbom_type="analyzed",
-        )
-        doc = json.loads(out.read_text())
-        self.assertEqual(len(doc["files"]), 2)
-        # File IDs should be unique across JARs
-        file_ids = [f["SPDXID"] for f in doc["files"]]
-        self.assertEqual(len(set(file_ids)), 2)
-
-    def test_empty_jars_returns_none(self):
-        out = Path(self.td) / "out.spdx.json"
-        result = self.gen.generate_multi(
-            str(out), [], sbom_type="build",
-        )
-        self.assertIsNone(result)
-
-    def test_jar_with_none_files_skipped(self):
-        out = Path(self.td) / "out.spdx.json"
-        jars = [{
-            "bin_name": "bad.jar",
-            "jar_files": None,
-        }]
-        with patch.object(
-            self.gen, "_get_maven_deps",
-            return_value=[],
-        ):
-            result = self.gen.generate_multi(
-                str(out), jars, sbom_type="build",
-            )
-        # Should still write a doc (just empty packages)
-        # because the JAR was skipped, not errored
-        self.assertIsNotNone(result)
-        doc = json.loads(out.read_text())
-        self.assertEqual(len(doc["packages"]), 0)
-
-    def test_transitive_dep_with_parent(self):
-        """Transitive dep links to its parent package."""
-        out = Path(self.td) / "out.spdx.json"
-        deps = [
-            {
-                "groupId": "com.google",
-                "artifactId": "guava",
-                "version": "33.0",
-                "scope": "compile",
-                "direct": True,
-                "optional": False,
-                "parent": None,
-            },
-            {
-                "groupId": "com.google",
-                "artifactId": "failureaccess",
-                "version": "1.0",
-                "scope": "compile",
-                "direct": False,
-                "optional": False,
-                "parent": "guava",
-            },
-        ]
-        jars = self._make_jars(["app-1.0.0.jar"])
-        with patch.object(
-            self.gen, "_get_maven_deps",
-            return_value=deps,
-        ):
-            self.gen.generate_multi(
-                str(out), jars, sbom_type="build",
-            )
-        doc = json.loads(out.read_text())
-        # 1 root + 2 deps
-        self.assertEqual(len(doc["packages"]), 3)
-        # Transitive dep comment
-        fa_pkg = [
-            p for p in doc["packages"]
-            if p["name"] == "failureaccess"
-        ][0]
-        self.assertIn("Transitive", fa_pkg["comment"])
-        self.assertIn("Required by: guava", fa_pkg["comment"])
-
-    def test_optional_dep_comment(self):
-        out = Path(self.td) / "out.spdx.json"
-        deps = [{
-            "groupId": "com.opt",
-            "artifactId": "optional-lib",
-            "version": "1.0",
-            "scope": "compile",
-            "direct": True,
-            "optional": True,
-            "parent": None,
-        }]
-        jars = self._make_jars(["app-1.0.0.jar"])
-        with patch.object(
-            self.gen, "_get_maven_deps",
-            return_value=deps,
-        ):
-            self.gen.generate_multi(
-                str(out), jars, sbom_type="build",
-            )
-        doc = json.loads(out.read_text())
-        dep_pkg = [
-            p for p in doc["packages"]
-            if p["name"] == "optional-lib"
-        ][0]
-        self.assertIn("Optional", dep_pkg["comment"])
-
-    def test_annotation_placeholder_dep(self):
-        out = Path(self.td) / "out.spdx.json"
-        deps = [{
-            "groupId": "com.google",
-            "artifactId": "listenablefuture",
-            "version": (
-                "9999.0-empty-to-avoid-conflict-with-guava"
-            ),
-            "scope": "compile",
-            "direct": True,
-            "optional": False,
-            "parent": None,
-        }]
-        jars = self._make_jars(["app-1.0.0.jar"])
-        with patch.object(
-            self.gen, "_get_maven_deps",
-            return_value=deps,
-        ):
-            self.gen.generate_multi(
-                str(out), jars, sbom_type="build",
-            )
-        doc = json.loads(out.read_text())
-        dep_pkg = [
-            p for p in doc["packages"]
-            if p["name"] == "listenablefuture"
-        ][0]
-        self.assertIn("Placeholder", dep_pkg["comment"])
-
-    def test_dedup_adds_relationship_only(self):
-        """Second JAR with same dep adds rel, not pkg."""
-        out = Path(self.td) / "out.spdx.json"
-        dep = {
-            "groupId": "com.google",
-            "artifactId": "guava",
-            "version": "33.0",
-            "scope": "compile",
-            "direct": True,
-            "optional": False,
-            "parent": None,
-        }
-        jars = self._make_jars([
-            "app-1.0.0.jar", "utils-1.0.0.jar",
-        ])
-        with patch.object(
-            self.gen, "_get_maven_deps",
-            return_value=[dep],
-        ):
-            self.gen.generate_multi(
-                str(out), jars, sbom_type="build",
-            )
-        doc = json.loads(out.read_text())
-        # Only 1 guava package but 2 DEPENDS_ON rels
-        guava_pkgs = [
-            p for p in doc["packages"]
-            if p["name"] == "guava"
-        ]
-        self.assertEqual(len(guava_pkgs), 1)
-        guava_id = guava_pkgs[0]["SPDXID"]
-        depends = [
-            r for r in doc["relationships"]
-            if r["relatedSpdxElement"] == guava_id
-            and r["relationshipType"] == "DEPENDS_ON"
-        ]
-        self.assertEqual(len(depends), 2)
 
 
 if __name__ == "__main__":

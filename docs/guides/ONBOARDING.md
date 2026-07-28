@@ -25,9 +25,10 @@ with full dependency breakdown:
 | **Git** | Version control |
 
 > **Important:** The analysis container runs as Linux x86_64. **Sidecar
-> mode** (the default) does not require `SYS_PTRACE` and works in
-> standard Docker and Kubernetes environments. **Standalone mode**
-> (legacy, for golden file generation) requires `SYS_PTRACE` capability.
+> mode is the only supported mode** — it does not require `SYS_PTRACE` and
+> works in standard Docker and Kubernetes environments. Standalone mode is
+> **deprecated** (the initial ptrace-based implementation, retained only
+> for a rare ~1% embedded corner case) and is not a deployment option.
 > See [Platform Support](../architecture/platform-support.md).
 
 ## Step 1: Clone and Open in Windsurf
@@ -205,10 +206,10 @@ omnibor-analysis/
 \u251c\u2500\u2500 terraform/              # AWS EC2 infrastructure as code
 \u251c\u2500\u2500 tests/                  # Unit tests (1,450+ tests, 97%+ coverage)
 \u251c\u2500\u2500 docs/                   # Hand-written documentation
-\u2502   \u251c\u2500\u2500 architecture/       # System diagrams and technical design
-\u2502   \u251c\u2500\u2500 features/           # Feature documentation (phase isolation, SBOMs)
+\u2502   \u251c\u2500\u2500 sidecar/            # Sidecar + phase isolation (per-language subdirs)
+\u2502   \u251c\u2500\u2500 architecture/       # General app architecture and technical design
 \u2502   \u251c\u2500\u2500 guides/             # Onboarding, contributing, AWS setup
-\u2502   \u251c\u2500\u2500 deep-dive/          # Sidecar design docs (per-language)
+\u2502   \u251c\u2500\u2500 planning/           # Issue & sub-issue planning docs
 \u2502   \u251c\u2500\u2500 testing/            # Golden file regression testing
 \u2502   \u251c\u2500\u2500 issues/             # Upstream bug tracking
 \u2502   \u2514\u2500\u2500 _archived/          # Historical documents (not current)

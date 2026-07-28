@@ -120,3 +120,9 @@ docs/runtime/
 # ============================================================
 session-notes.md
 progress.txt
+
+# ============================================================
+# Archived golden baselines (local-only backup, not committed)
+# Retired baselines kept around for a few cycles as a safety net.
+# ============================================================
+tests/golden/_archive/

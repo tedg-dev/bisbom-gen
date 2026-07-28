@@ -81,7 +81,7 @@ Verify:
 
 // turbo
 ```bash
-.venv/bin/python3 -m pytest tests/ -x -q --cov=app --cov-report=term-missing 2>&1 | tail -15
+.venv/bin/python3 -m pytest tests/ -x -q --cov=app --cov=docker/patches --cov-report=term-missing 2>&1 | tail -15
 ```
 
 All tests should pass with 97%+ overall coverage.

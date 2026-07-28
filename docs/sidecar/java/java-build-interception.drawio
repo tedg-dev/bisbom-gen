@@ -1,0 +1,93 @@
+<mxfile host="Electron" agent="Cascade AI">
+  <diagram name="Java Phase 1 Sidecar — Build-Based SBOM Generation" id="java-sidecar-p1">
+    <mxGraphModel dx="1099" dy="751" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="920" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" parent="1" style="text;fontSize=20;fontStyle=1;align=center;fillColor=none;strokeColor=none;" value="Java Phase 1 Sidecar — Build-Based SBOM Generation" vertex="1">
+          <mxGeometry height="28" width="700" x="95" y="15" as="geometry" />
+        </mxCell>
+        <mxCell id="subtitle" parent="1" style="text;fontSize=12;fontStyle=2;align=center;fillColor=none;strokeColor=none;fontColor=#666666;" value="Post-build workspace scan + dependency tree capture — no strace, no changes to the native build" vertex="1">
+          <mxGeometry height="18" width="700" x="89" y="43" as="geometry" />
+        </mxCell>
+        <mxCell id="build-box" parent="1" style="rounded=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;fontSize=13;fontStyle=1;verticalAlign=top;align=center;spacingTop=4;" value="Native Build (no changes to this step — no sidecar code runs here)" vertex="1">
+          <mxGeometry height="90" width="550" x="170" y="75" as="geometry" />
+        </mxCell>
+        <mxCell id="src" parent="1" style="rounded=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;fontStyle=1;verticalAlign=middle;align=center;" value="Native Source&#xa;+ build files" vertex="1">
+          <mxGeometry height="50" width="120" x="195" y="103" as="geometry" />
+        </mxCell>
+        <mxCell id="orchestrator" parent="1" style="rounded=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;fontStyle=1;verticalAlign=middle;align=center;" value="mvn / gradle&#xa;+ native JDK" vertex="1">
+          <mxGeometry height="50" width="120" x="370" y="103" as="geometry" />
+        </mxCell>
+        <mxCell id="jars" parent="1" style="rounded=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;fontStyle=1;verticalAlign=middle;align=center;" value="Native JARs&#xa;(unchanged)" vertex="1">
+          <mxGeometry height="50" width="120" x="545" y="103" as="geometry" />
+        </mxCell>
+        <mxCell id="a-src-orch" edge="1" parent="1" source="src" style="endArrow=classic;strokeColor=#6c8ebf;strokeWidth=2;" target="orchestrator">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a-orch-jars" edge="1" parent="1" source="orchestrator" style="endArrow=classic;strokeColor=#82b366;strokeWidth=2;" target="jars">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="platform-note" parent="1" style="text;fontSize=10;fontStyle=3;fontColor=#5c6bc0;align=left;fillColor=none;strokeColor=none;" value="Platform team adds sidecar tooling to CI environment (one-time setup)" vertex="1">
+          <mxGeometry height="15" width="320" x="95" y="172" as="geometry" />
+        </mxCell>
+        <mxCell id="sidecar-outer" parent="1" style="rounded=1;fillColor=#FFFDF7;strokeColor=#d6b656;strokeWidth=3;fontSize=13;fontStyle=1;verticalAlign=top;align=center;spacingTop=5;" value="Sidecar — post-build metadata capture (no strace, no SYS_PTRACE)" vertex="1">
+          <mxGeometry height="340" width="710" x="90" y="204" as="geometry" />
+        </mxCell>
+        <mxCell id="process-box" parent="1" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=2;fontSize=12;fontStyle=1;verticalAlign=top;align=center;spacingTop=4;" value="Post-Build Metadata Capture" vertex="1">
+          <mxGeometry height="120" width="640" x="130" y="246" as="geometry" />
+        </mxCell>
+        <mxCell id="bomsh" parent="1" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;fontStyle=1;verticalAlign=middle;align=center;" value="bomsh_create_bom_java.py&#xa;scans .class SourceFile attributes&#xa;resolves to .java sources" vertex="1">
+          <mxGeometry height="80" width="205" x="210" y="276" as="geometry" />
+        </mxCell>
+        <mxCell id="dep-capture" parent="1" style="rounded=1;fillColor=#c8e6c9;strokeColor=#2e7d32;fontSize=10;fontStyle=1;verticalAlign=middle;align=center;" value="mvn dependency:tree&#xa;full transitive dep graph&#xa;per module" vertex="1">
+          <mxGeometry height="80" width="160" x="520" y="276" as="geometry" />
+        </mxCell>
+        <mxCell id="out-box" parent="1" style="rounded=1;fillColor=#e3f2fd;strokeColor=#1565c0;strokeWidth=2;fontSize=12;fontStyle=1;verticalAlign=top;align=center;spacingTop=4;" value="Phase 1 Outputs" vertex="1">
+          <mxGeometry height="100" width="640" x="130" y="408" as="geometry" />
+        </mxCell>
+        <mxCell id="treedb" parent="1" style="rounded=1;fillColor=#e3f2fd;strokeColor=#1565c0;strokeWidth=2;fontSize=9;fontStyle=1;verticalAlign=middle;align=center;" value="bomsh_omnibor_treedb&#xa;gitoid → file path" vertex="1">
+          <mxGeometry height="50" width="125" x="155" y="443" as="geometry" />
+        </mxCell>
+        <mxCell id="adg" parent="1" style="rounded=1;fillColor=#e3f2fd;strokeColor=#1565c0;strokeWidth=2;fontSize=9;fontStyle=1;verticalAlign=middle;align=center;" value="ADG (.omnibor/)&#xa;JAR → .class + resources" vertex="1">
+          <mxGeometry height="50" width="120" x="315" y="443" as="geometry" />
+        </mxCell>
+        <mxCell id="manifest" parent="1" style="rounded=1;fillColor=#e3f2fd;strokeColor=#1565c0;strokeWidth=2;fontSize=9;fontStyle=1;verticalAlign=middle;align=center;" value="phase1_manifest.json&#xa;treedb + ADG + hashes" vertex="1">
+          <mxGeometry height="50" width="115" x="470" y="443" as="geometry" />
+        </mxCell>
+        <mxCell id="deps-out" parent="1" style="rounded=1;fillColor=#c8e6c9;strokeColor=#2e7d32;strokeWidth=2;fontSize=9;fontStyle=1;verticalAlign=middle;align=center;" value="maven_deps.json&#xa;full dep tree for Phase 2" vertex="1">
+          <mxGeometry height="50" width="120" x="620" y="443" as="geometry" />
+        </mxCell>
+        <mxCell id="a-bomsh-treedb" edge="1" parent="1" source="bomsh" style="endArrow=classic;strokeColor=#1565c0;strokeWidth=2;exitX=0.17;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="treedb">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a-bomsh-adg" edge="1" parent="1" source="bomsh" style="endArrow=classic;strokeColor=#1565c0;strokeWidth=2;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="adg">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a-bomsh-manifest" edge="1" parent="1" source="bomsh" style="endArrow=classic;strokeColor=#1565c0;strokeWidth=2;exitX=0.83;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="manifest">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a-dep-out" edge="1" parent="1" source="dep-capture" style="endArrow=classic;strokeColor=#2e7d32;strokeWidth=2;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="deps-out">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a-build-sidecar" edge="1" parent="1" source="build-box" style="endArrow=classic;strokeColor=#d6b656;strokeWidth=3;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="sidecar-outer">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a-build-sidecar-label" connectable="0" parent="a-build-sidecar" style="edgeLabel;fontSize=10;fillColor=#FFFFFF;strokeColor=none;fontStyle=1;fontColor=#d6b656;" value="build completes" vertex="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="15" y="-12" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="handoff" parent="1" style="rounded=1;fillColor=#e3f2fd;strokeColor=#1565c0;strokeWidth=2;fontSize=11;fontStyle=1;align=center;verticalAlign=middle;" value="Phase 1 outputs shipped to analysis host for Phase 2 SPDX generation — native binaries NEVER leave the native build host" vertex="1">
+          <mxGeometry height="35" width="710" x="90" y="574" as="geometry" />
+        </mxCell>
+        <mxCell id="a-sidecar-handoff" edge="1" parent="1" source="sidecar-outer" style="endArrow=classic;strokeColor=#1565c0;strokeWidth=2;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="handoff">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="flow" parent="1" style="rounded=1;fillColor=#f5f5f5;strokeColor=#cccccc;fontSize=10;fontStyle=1;align=center;verticalAlign=middle;" value="Native build runs normally → sidecar scans workspace post-build → captures dep tree → metadata shipped to Phase 2" vertex="1">
+          <mxGeometry height="25" width="660" x="109" y="624" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -1,0 +1,12 @@
+// Isolates: a java-platform (BOM) project. It has NO runtimeClasspath, so
+// the capture's findByName('runtimeClasspath') guard must skip it cleanly
+// (no section, no error).
+plugins {
+    id 'java-platform'
+}
+
+dependencies {
+    constraints {
+        api 'com.example:libutil:1.0'
+    }
+}

@@ -6,12 +6,33 @@ OmniBOR intercepts compiler/linker invocations during build to create
 an **Artifact Dependency Graph (ADG)** — a cryptographic record of
 every input→output relationship.
 
-The project supports two execution modes:
+### Artifact Identity — gitOID + SHA-256
 
-| Mode | Mechanism | Requires `SYS_PTRACE` | Primary Use |
-|------|-----------|:---------------------:|-------------|
-| **Sidecar** (baseline) | Language-specific strategies (dep:tree, `-toolexec`, `RUSTC_WRAPPER`, `CC=` wrapper) | No | Enterprise CI/CD |
-| **Standalone** (legacy) | `bomtrace3`/`bomtrace2` ptrace-based tracing | Yes | Golden file generation, isolated builds |
+Every artifact (leaf source files, intermediate objects, and built
+packages) carries two distinct `SHA-256` values, plus a third for built
+packages:
+
+| Value | What | Applies to |
+|-------|------|------------|
+| **raw hash** | `SHA-256` of the file bytes | files, objects, packages |
+| **artifact gitOID** | `gitoid:blob:sha256` (git-blob framing + `SHA-256`) | files, objects, packages |
+| **Input Manifest gitOID (OMID)** | gitOID of the OmniBOR Input Manifest (provenance ID) | built packages only |
+
+`SHA-256` is mandated by the OmniBOR specification. The **topology** of
+the ADG (which inputs feed which output) is captured by bomsh per
+language, but the **identity** values are computed by omnibor-analysis
+uniformly across all languages — so bomsh's internal `SHA-1` treedb
+never surfaces in the SBOM. This is the design of record; see
+`.windsurf/rules/project/artifact-identity.md`.
+
+**Sidecar is the only supported execution mode** (no `SYS_PTRACE`
+required), used for all enterprise CI/CD SBOM generation and as the
+golden-file baseline:
+
+| Mode | Mechanism | Requires `SYS_PTRACE` | Status |
+|------|-----------|:---------------------:|--------|
+| **Sidecar** | Language-specific strategies (dep:tree, `-toolexec`, `RUSTC_WRAPPER`, `LD_PRELOAD`) | No | **Supported (only mode)** |
+| **Standalone** | `bomtrace3`/`bomtrace2` ptrace-based tracing | Yes | **Deprecated** — initial implementation; ~1% embedded corner case only |
 
 ### Sidecar Mode — Per-Language Strategies
 
@@ -22,7 +43,8 @@ The project supports two execution modes:
 | **Go** | `-toolexec` wrapper (planned) | Module compilation, stdlib inclusion |
 | **Rust** | `RUSTC_WRAPPER` (planned) | Crate compilation, `rustc` invocations |
 
-For standalone mode details, see [Standalone Mode](standalone-mode.md).
+For the deprecated standalone mode (embedded corner case only), see
+[Standalone Mode](standalone-mode.md).
 
 ---
 
@@ -49,7 +71,7 @@ two-phase pipeline:
 does not require `SYS_PTRACE`.
 
 For the full phase isolation architecture, see
-[Sidecar Phase Isolation Infrastructure](../features/phase-isolation/sidecar-phase-isolation-infrastructure.md).
+[Sidecar Phase Isolation Infrastructure](../sidecar/infrastructure.md).
 
 ---
 

@@ -1,0 +1,187 @@
+{
+  "spdxVersion": "SPDX-2.3",
+  "dataLicense": "CC0-1.0",
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "name": "dependency-check-dependency-check-9.2.0.jar",
+  "documentNamespace": "https://omnibor.io/spdx/dependency-check/f6f593ad-6a8d-41d6-b3c4-6a7fe60509a9",
+  "creationInfo": {
+    "created": "2026-07-10T19:27:09Z",
+    "creators": [
+      "Tool: omnibor-analysis",
+      "Tool: bomsh_create_bom_java.py"
+    ],
+    "licenseListVersion": "3.19",
+    "comment": "maven-assembly-plugin detected \u2014 assembled archive may bundle dependencies not listed in dependency:tree"
+  },
+  "packages": [
+    {
+      "SPDXID": "SPDXRef-Package-dependency-check-9.2.0.jar",
+      "name": "dependency-check",
+      "versionInfo": "9.2.0",
+      "downloadLocation": "https://github.com/jeremylong/DependencyCheck/commit/192b4cdb1e8245c1b202287eadd55d9241ea21d2",
+      "filesAnalyzed": true,
+      "primaryPackagePurpose": "APPLICATION",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/dependency-check/dependency-check"
+        },
+        {
+          "referenceCategory": "PERSISTENT-ID",
+          "referenceType": "gitoid",
+          "referenceLocator": "gitoid:blob:sha256:d38e6302121d23afdaeca39a3d9ad230a31c3aa462cc959bb321dbf59f73daf5"
+        }
+      ],
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "ca0fdd9402a2f2ae9b68a6ad0eb37cb6dd8b81f4b393b6892f79705be9cb7dcc"
+        }
+      ]
+    }
+  ],
+  "files": [
+    {
+      "SPDXID": "SPDXRef-File-0",
+      "fileName": "cli/src/main/java/org/owasp/dependencycheck/App.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "c8a2e4814440312c0ebd8255c858633592e55ed5"
+        },
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "c68900f1fc232d66ed0e861add497a2c96485cbc64a504b630e47384eaaefc63"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-1",
+      "fileName": "cli/target/classes/org/owasp/dependencycheck/App.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "ac4b9aebdfe5a1d202e5589415e45f8c4aaff41a"
+        },
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "2c959b5bb4e63fd2451686f3f9af520cc6f80273de8ed4e464f10aad165c332f"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-2",
+      "fileName": "cli/src/main/java/org/owasp/dependencycheck/CliParser.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "9744bf7e1f6da5a23b89435765bfe2c7816b7a74"
+        },
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "684fee81e0217b196e98ebfb10f81cd07abf409dc35be173cc95059d89f4f321"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-3",
+      "fileName": "cli/target/classes/org/owasp/dependencycheck/CliParser$ARGUMENT.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "0e7c9a951ae0c70d8c94f5e2fdd5bfb77a1a248c"
+        },
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "02ec520ee2133b77e49e157b9315c3806adc19c54bf49a7f26510d2834a671e0"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-4",
+      "fileName": "cli/target/classes/org/owasp/dependencycheck/CliParser.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "c3b7ecb8a5b305cc61a6f822a93cf72ee70496bb"
+        },
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "c80d10cf09b9cd54a22af9549327ce6923ddf13124a06b2f23b1926e0dd81bb9"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-5",
+      "fileName": "cli/src/main/java/org/owasp/dependencycheck/package-info.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "4de2fd1fb180205c3b3bd10deb2bd819fb3dea15"
+        },
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "9cfea6c67a17d325e64b7bd7cadfb3afd9c57626f34cce07c179b66a39b87e0a"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-6",
+      "fileName": "cli/target/classes/org/owasp/dependencycheck/package-info.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "5ea80fc10c1db65bb0209c956d6cbda8e164eec6"
+        },
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "f9b8755c27648ca8f8ac21e4cb958f088b3d3efc4af7f271f6e03f2a4f7c2cbc"
+        }
+      ]
+    }
+  ],
+  "relationships": [
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relatedSpdxElement": "SPDXRef-Package-dependency-check-9.2.0.jar",
+      "relationshipType": "DESCRIBES"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-0",
+      "relatedSpdxElement": "SPDXRef-Package-dependency-check-9.2.0.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-1",
+      "relatedSpdxElement": "SPDXRef-Package-dependency-check-9.2.0.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-2",
+      "relatedSpdxElement": "SPDXRef-Package-dependency-check-9.2.0.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-3",
+      "relatedSpdxElement": "SPDXRef-Package-dependency-check-9.2.0.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-4",
+      "relatedSpdxElement": "SPDXRef-Package-dependency-check-9.2.0.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-5",
+      "relatedSpdxElement": "SPDXRef-Package-dependency-check-9.2.0.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-6",
+      "relatedSpdxElement": "SPDXRef-Package-dependency-check-9.2.0.jar",
+      "relationshipType": "CONTAINED_BY"
+    }
+  ]
+}

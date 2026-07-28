@@ -3,9 +3,9 @@
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
   "name": "libswscale.so",
-  "documentNamespace": "https://omnibor.io/omnibor-analysis/libswscale.so-05cba5dd-a283-41f2-b682-585f3d3bd070",
+  "documentNamespace": "https://omnibor.io/omnibor-analysis/libswscale.so-00b7f760-d32e-4f2d-91ab-4fbbd3e9cb02",
   "creationInfo": {
-    "created": "2026-05-14T18:00:17Z",
+    "created": "2026-06-22T20:52:45Z",
     "creators": [
       "Tool: bomtrace3-unknown",
       "Tool: bomsh-unknown",
@@ -20,7 +20,7 @@
       "downloadLocation": "https://github.com/FFmpeg/FFmpeg/commit/9047fa1b084f76b1b4d065af2d743df1b40dfb56",
       "filesAnalyzed": true,
       "primaryPackagePurpose": "LIBRARY",
-      "builtDate": "2026-05-14T18:00:17Z",
+      "builtDate": "2026-06-22T20:52:45Z",
       "externalRefs": [],
       "checksums": [],
       "comment": "Built on Ubuntu 22.04.5 LTS with gcc (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0",
@@ -48,7 +48,7 @@
       "versionInfo": "2.35-0ubuntu3.13",
       "supplier": "Organization: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>",
       "homepage": "https://www.gnu.org/software/libc/libc.html",
-      "packageSourceInfo": "Installed via dpkg package libc6 on Ubuntu 22.04.5 LTS."
+      "sourceInfo": "Installed via dpkg package libc6 on Ubuntu 22.04.5 LTS."
     },
     {
       "SPDXID": "SPDXRef-libavutil-2",
@@ -58,7 +58,7 @@
       "primaryPackagePurpose": "LIBRARY",
       "externalRefs": [],
       "comment": "Project-built shared library (direct). sonames: libavutil.so.60",
-      "packageSourceInfo": "Built from project source as part of ffmpeg build.",
+      "sourceInfo": "Built from project source as part of ffmpeg build.",
       "versionInfo": "8.1"
     },
     {
@@ -77,7 +77,7 @@
           "referenceLocator": "cpe:2.3:a:gnu:gcc:11.4.0:*:*:*:*:*:*:*"
         }
       ],
-      "packageSourceInfo": "System-installed build toolchain on Ubuntu 22.04.5 LTS."
+      "sourceInfo": "System-installed build toolchain on Ubuntu 22.04.5 LTS."
     }
   ],
   "files": [

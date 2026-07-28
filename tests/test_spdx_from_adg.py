@@ -19,8 +19,6 @@ from spdx_from_adg import (
 )
 from app.version_detection.strategies import (
     parse_version_file,
-    parse_kv_version_file,
-    parse_package_json,
     parse_configure_ac,
     parse_cmakelists,
     parse_meson_build,
@@ -142,6 +140,22 @@ class TestAdgParser(unittest.TestCase):
             result = parser.load_doc_mapping()
             self.assertEqual(
                 result["abc123"], "doc456"
+            )
+
+    def test_load_doc_mapping_gitbom_filename(self):
+        with tempfile.TemporaryDirectory() as td:
+            meta = self._setup_bom_dir(td)
+            mapping = {"jar123": "gitbomdoc"}
+            (
+                meta / "bomsh_gitbom_doc_mapping"
+            ).write_text(json.dumps(mapping))
+
+            parser = AdgParser(
+                str(Path(td) / "bom"), "/repos"
+            )
+            result = parser.load_doc_mapping()
+            self.assertEqual(
+                result["jar123"], "gitbomdoc"
             )
 
     def test_load_doc_mapping_missing(self):
@@ -512,6 +526,283 @@ class TestAdgParser(unittest.TestCase):
                     "module-info" in p
                     for p in paths
                 )
+            )
+
+    def test_get_jar_artifact_ids_basic(self):
+        """Returns each project JAR's own treedb SHA1."""
+        with tempfile.TemporaryDirectory() as td:
+            meta = self._setup_bom_dir(td)
+            treedb = {
+                "jar_sha_123": {
+                    "file_path": (
+                        "/repos/myapp/target/app.jar"
+                    ),
+                    "hash_tree": ["cls_sha"],
+                },
+                "cls_sha": {
+                    "file_path": (
+                        "/repos/myapp/target/"
+                        "classes/App.class"
+                    ),
+                },
+            }
+            (meta / "bomsh_omnibor_treedb").write_text(
+                json.dumps(treedb)
+            )
+            parser = AdgParser(
+                str(Path(td) / "bom"), "/repos"
+            )
+            result = parser.get_jar_artifact_ids()
+            self.assertEqual(
+                result,
+                {"myapp/target/app.jar": "jar_sha_123"},
+            )
+
+    def test_get_jar_artifact_ids_skips_test_jars(self):
+        """Excludes test/system JARs, same as sources."""
+        with tempfile.TemporaryDirectory() as td:
+            meta = self._setup_bom_dir(td)
+            treedb = {
+                "tj": {
+                    "file_path": (
+                        "/repos/myapp/target/"
+                        "app-tests.jar"
+                    ),
+                    "hash_tree": ["c1"],
+                },
+                "sj": {
+                    "file_path": "/usr/lib/rt.jar",
+                    "hash_tree": ["c2"],
+                },
+                "nt": {
+                    "file_path": (
+                        "/repos/myapp/target/x.jar"
+                    ),
+                },
+                "c1": {"file_path": "/f1"},
+                "c2": {"file_path": "/f2"},
+            }
+            (meta / "bomsh_omnibor_treedb").write_text(
+                json.dumps(treedb)
+            )
+            parser = AdgParser(
+                str(Path(td) / "bom"), "/repos"
+            )
+            result = parser.get_jar_artifact_ids()
+            self.assertEqual(result, {})
+
+    def test_jar_artifact_id_key_matches_sources(self):
+        """artifact-id keys align with source-file keys."""
+        with tempfile.TemporaryDirectory() as td:
+            meta = self._setup_bom_dir(td)
+            treedb = {
+                "jar_sha": {
+                    "file_path": (
+                        "/repos/myapp/target/app.jar"
+                    ),
+                    "hash_tree": ["cls_sha"],
+                },
+                "cls_sha": {
+                    "file_path": (
+                        "/repos/myapp/target/"
+                        "classes/App.class"
+                    ),
+                    "hash_tree": ["src_sha"],
+                },
+                "src_sha": {
+                    "file_path": (
+                        "/repos/myapp/src/App.java"
+                    ),
+                },
+            }
+            (meta / "bomsh_omnibor_treedb").write_text(
+                json.dumps(treedb)
+            )
+            parser = AdgParser(
+                str(Path(td) / "bom"), "/repos"
+            )
+            src_keys = set(
+                parser.get_jar_source_files().keys()
+            )
+            id_keys = set(
+                parser.get_jar_artifact_ids().keys()
+            )
+            self.assertEqual(src_keys, id_keys)
+
+    def test_persist_identity_index_writes_sha256(self):
+        """Phase-1 index records raw SHA-256 + gitOID per node,
+        skipping paths that no longer exist on disk
+        (project/artifact-identity.md)."""
+        from app.spdx.identity import (
+            IDENTITY_INDEX_FILENAME,
+            ArtifactIdentity,
+        )
+
+        with tempfile.TemporaryDirectory() as td:
+            meta = self._setup_bom_dir(td)
+            src = Path(td) / "App.java"
+            src.write_bytes(b"class App {}\n")
+            treedb = {
+                "sha1_a": {"file_path": str(src)},
+                "sha1_b": {"file_path": "/gone/Missing.java"},
+            }
+            (meta / "bomsh_omnibor_treedb").write_text(
+                json.dumps(treedb)
+            )
+            parser = AdgParser(
+                str(Path(td) / "bom"), "/repos"
+            )
+            count = parser.persist_identity_index()
+            self.assertEqual(count, 1)
+
+            index_path = meta / IDENTITY_INDEX_FILENAME
+            self.assertTrue(index_path.exists())
+            index = json.loads(index_path.read_text())
+            self.assertIn(str(src), index)
+            self.assertNotIn(
+                "/gone/Missing.java", index
+            )
+            expected = ArtifactIdentity.from_file(src)
+            entry = index[str(src)]
+            self.assertEqual(entry["algo"], "sha256")
+            self.assertEqual(entry["raw"], expected.raw)
+            self.assertEqual(
+                entry["gitoid"], expected.gitoid
+            )
+
+    def test_persist_identity_index_no_treedb(self):
+        """Missing treedb writes nothing and returns 0."""
+        from app.spdx.identity import (
+            IDENTITY_INDEX_FILENAME,
+        )
+
+        with tempfile.TemporaryDirectory() as td:
+            meta = self._setup_bom_dir(td)
+            parser = AdgParser(
+                str(Path(td) / "bom"), "/repos"
+            )
+            self.assertEqual(
+                parser.persist_identity_index(), 0
+            )
+            self.assertFalse(
+                (meta / IDENTITY_INDEX_FILENAME).exists()
+            )
+
+    def test_persist_identity_index_custom_out_path(self):
+        """De-dupes paths, skips empty, honors out_path."""
+        with tempfile.TemporaryDirectory() as td:
+            meta = self._setup_bom_dir(td)
+            src = Path(td) / "App.java"
+            src.write_bytes(b"class App {}\n")
+            treedb = {
+                "s1": {"file_path": str(src)},
+                "s2": {"file_path": str(src)},
+                "s3": {"file_path": ""},
+            }
+            (meta / "bomsh_omnibor_treedb").write_text(
+                json.dumps(treedb)
+            )
+            out = Path(td) / "custom_index.json"
+            parser = AdgParser(
+                str(Path(td) / "bom"), "/repos"
+            )
+            count = parser.persist_identity_index(
+                out_path=str(out)
+            )
+            self.assertEqual(count, 1)
+            self.assertTrue(out.exists())
+            index = json.loads(out.read_text())
+            self.assertEqual(list(index), [str(src)])
+
+    def test_validate_jar_topology_reports_gaps(self):
+        """Class files without a traced .java source are
+        counted (strace capture gap)."""
+        with tempfile.TemporaryDirectory() as td:
+            meta = self._setup_bom_dir(td)
+            treedb = {
+                "jar_sha": {
+                    "file_path": (
+                        "/repos/myapp/target/app.jar"
+                    ),
+                    "hash_tree": ["cls_ok", "cls_gap"],
+                },
+                "cls_ok": {
+                    "file_path": (
+                        "/repos/myapp/target/"
+                        "classes/Ok.class"
+                    ),
+                    "hash_tree": ["src_sha"],
+                },
+                "cls_gap": {
+                    "file_path": (
+                        "/repos/myapp/target/"
+                        "classes/Gap.class"
+                    ),
+                    "hash_tree": [],
+                },
+                "src_sha": {
+                    "file_path": (
+                        "/repos/myapp/src/Ok.java"
+                    ),
+                },
+            }
+            (meta / "bomsh_omnibor_treedb").write_text(
+                json.dumps(treedb)
+            )
+            parser = AdgParser(
+                str(Path(td) / "bom"), "/repos"
+            )
+            report = parser.validate_jar_topology()
+            self.assertEqual(
+                report["myapp/target/app.jar"],
+                {
+                    "classes": 2,
+                    "classes_without_source": 1,
+                },
+            )
+
+    def test_validate_jar_topology_skips_missing_class(self):
+        """hash_tree entries absent from treedb are ignored."""
+        with tempfile.TemporaryDirectory() as td:
+            meta = self._setup_bom_dir(td)
+            treedb = {
+                "jar_sha": {
+                    "file_path": (
+                        "/repos/myapp/target/app.jar"
+                    ),
+                    "hash_tree": ["missing", "notclass"],
+                },
+                "notclass": {
+                    "file_path": (
+                        "/repos/myapp/target/x.txt"
+                    ),
+                    "hash_tree": [],
+                },
+            }
+            (meta / "bomsh_omnibor_treedb").write_text(
+                json.dumps(treedb)
+            )
+            parser = AdgParser(
+                str(Path(td) / "bom"), "/repos"
+            )
+            report = parser.validate_jar_topology()
+            self.assertEqual(
+                report["myapp/target/app.jar"],
+                {
+                    "classes": 0,
+                    "classes_without_source": 0,
+                },
+            )
+
+    def test_validate_jar_topology_no_treedb(self):
+        """Missing treedb yields an empty report."""
+        with tempfile.TemporaryDirectory() as td:
+            self._setup_bom_dir(td)
+            parser = AdgParser(
+                str(Path(td) / "bom"), "/repos"
+            )
+            self.assertEqual(
+                parser.validate_jar_topology(), {}
             )
 
     def test_classify_empty_filepath(self):
@@ -1006,17 +1297,17 @@ class TestSpdxEmitter(unittest.TestCase):
         ]
         self.assertIn("purl", ref_types)
         self.assertIn("cpe23Type", ref_types)
-        # packageSourceInfo for dpkg library
+        # sourceInfo for dpkg library
         self.assertIn(
-            "packageSourceInfo", ssl_pkg
+            "sourceInfo", ssl_pkg
         )
         self.assertIn(
             "Installed via dpkg",
-            ssl_pkg["packageSourceInfo"],
+            ssl_pkg["sourceInfo"],
         )
         self.assertIn(
             "libssl3",
-            ssl_pkg["packageSourceInfo"],
+            ssl_pkg["sourceInfo"],
         )
         # DYNAMIC_LINK relationship
         rels = [
@@ -1132,21 +1423,30 @@ class TestSpdxEmitter(unittest.TestCase):
         self.assertEqual(len(build_rels), 0)
 
     def test_emit_with_omnibor_ref(self):
-        sha = "a" * 40
+        # The built binary's identity is computed by reading
+        # the artifact (raw SHA-256 + SHA-256 gitOID), not from
+        # bomsh's SHA-1 doc_mapping which is topology-only
+        # (project/artifact-identity.md).
+        from app.spdx.identity import ArtifactIdentity
+
         emitter = SpdxEmitter(
             repo_name="curl",
             repo_version="8.19.0",
             distro="Ubuntu 22.04",
             gcc_version="gcc 11.4.0",
         )
-        doc = emitter.emit(
-            components=[],
-            project_files=[],
-            doc_mapping={sha: "omnibor_doc_123"},
-            logfile_hashes={
-                "/repo/src/.libs/curl": sha,
-            },
-        )
+        with tempfile.TemporaryDirectory() as td:
+            bin_path = Path(td) / "curl"
+            bin_path.write_bytes(b"\x7fELF fake curl binary")
+            ident = ArtifactIdentity.from_file(bin_path)
+            doc = emitter.emit(
+                components=[],
+                project_files=[],
+                doc_mapping={("a" * 40): "omnibor_doc_123"},
+                logfile_hashes={
+                    str(bin_path): "a" * 40,
+                },
+            )
         root = doc["packages"][0]
         gitoid_refs = [
             r for r in root["externalRefs"]
@@ -1155,9 +1455,19 @@ class TestSpdxEmitter(unittest.TestCase):
             )
         ]
         self.assertEqual(len(gitoid_refs), 1)
-        self.assertIn(
-            "omnibor_doc_123",
+        self.assertEqual(
             gitoid_refs[0]["referenceLocator"],
+            ident.gitoid,
+        )
+        self.assertTrue(
+            ident.gitoid.startswith("gitoid:blob:sha256:")
+        )
+        self.assertEqual(
+            root["checksums"],
+            [{
+                "algorithm": "SHA256",
+                "checksumValue": ident.raw,
+            }],
         )
 
     def test_emit_with_source_files(self):
@@ -1185,6 +1495,50 @@ class TestSpdxEmitter(unittest.TestCase):
         ]
         self.assertTrue(
             any("main.c" in f for f in fnames)
+        )
+
+    def test_source_file_dual_hash_sha1_and_sha256(self):
+        # SPDX 2.3 File entries carry the spec-mandated raw SHA-1
+        # plus the raw SHA-256 identity hash
+        # (project/artifact-identity.md §5.1).
+        import hashlib
+
+        emitter = SpdxEmitter(
+            repo_name="curl",
+            repo_version="8.19.0",
+            distro="Ubuntu 22.04",
+            gcc_version="gcc 11.4.0",
+        )
+        with tempfile.TemporaryDirectory() as td:
+            src = Path(td) / "repos" / "curl" / "main.c"
+            src.parent.mkdir(parents=True)
+            content = b"int main(void){return 0;}\n"
+            src.write_bytes(content)
+            doc = emitter.emit(
+                components=[],
+                project_files=[
+                    {"sha1": "x", "file_path": str(src)},
+                ],
+                doc_mapping={},
+                logfile_hashes={},
+            )
+        self.assertEqual(len(doc["files"]), 1)
+        self.assertEqual(
+            doc["files"][0]["checksums"],
+            [
+                {
+                    "algorithm": "SHA1",
+                    "checksumValue": hashlib.sha1(
+                        content
+                    ).hexdigest(),
+                },
+                {
+                    "algorithm": "SHA256",
+                    "checksumValue": hashlib.sha256(
+                        content
+                    ).hexdigest(),
+                },
+            ],
         )
 
     def test_creators(self):
@@ -1406,12 +1760,12 @@ class TestSpdxEmitterVendored(unittest.TestCase):
                     pkg["comment"],
                 )
                 self.assertIn(
-                    "packageSourceInfo",
+                    "sourceInfo",
                     pkg,
                 )
                 self.assertIn(
                     "Vendored from",
-                    pkg["packageSourceInfo"],
+                    pkg["sourceInfo"],
                 )
 
     def test_vendored_files_owned_by_lib_package(self):
@@ -2587,17 +2941,17 @@ class TestProjectBuiltLibs(unittest.TestCase):
             avcodec["downloadLocation"],
             "NOASSERTION",
         )
-        # packageSourceInfo for project-built lib
+        # sourceInfo for project-built lib
         self.assertIn(
-            "packageSourceInfo", avcodec
+            "sourceInfo", avcodec
         )
         self.assertIn(
             "Built from project source",
-            avcodec["packageSourceInfo"],
+            avcodec["sourceInfo"],
         )
         self.assertIn(
             "ffmpeg",
-            avcodec["packageSourceInfo"],
+            avcodec["sourceInfo"],
         )
 
     def test_emit_project_built_no_version(self):
@@ -3300,13 +3654,13 @@ class TestGoModuleEmission(unittest.TestCase):
             and r["relationshipType"] == "BUILD_TOOL_OF"
         ]
         self.assertEqual(len(build_rels), 1)
-        # Go compiler packageSourceInfo
+        # Go compiler sourceInfo
         self.assertIn(
-            "packageSourceInfo", go_pkg
+            "sourceInfo", go_pkg
         )
         self.assertIn(
             "Go toolchain",
-            go_pkg["packageSourceInfo"],
+            go_pkg["sourceInfo"],
         )
 
         # Stdlib is DEPENDS_ON from root
@@ -3330,13 +3684,13 @@ class TestGoModuleEmission(unittest.TestCase):
         ]
         self.assertEqual(len(purls), 1)
         self.assertIn("pkg:golang/stdlib", purls[0])
-        # Stdlib packageSourceInfo
+        # Stdlib sourceInfo
         self.assertIn(
-            "packageSourceInfo", stdlib_pkg
+            "sourceInfo", stdlib_pkg
         )
         self.assertIn(
             "Bundled with Go toolchain",
-            stdlib_pkg["packageSourceInfo"],
+            stdlib_pkg["sourceInfo"],
         )
 
     def test_go_module_vendored_package(self):
@@ -3558,19 +3912,19 @@ class TestGoModuleEmission(unittest.TestCase):
                 "indirect",
                 indirect_pkg["comment"],
             )
-            # packageSourceInfo for Go modules
+            # sourceInfo for Go modules
             self.assertIn(
                 "go mod vendor",
-                direct_pkg["packageSourceInfo"],
+                direct_pkg["sourceInfo"],
             )
             self.assertIn(
                 "vendor/github.com/direct/pkg/",
-                direct_pkg["packageSourceInfo"],
+                direct_pkg["sourceInfo"],
             )
             self.assertIn(
                 "Indirect dependency",
                 indirect_pkg[
-                    "packageSourceInfo"
+                    "sourceInfo"
                 ],
             )
 
@@ -4039,12 +4393,12 @@ class TestRustCrateEmission(unittest.TestCase):
         self.assertIn(
             "statically linked", pkg["comment"]
         )
-        # packageSourceInfo mentions crates.io
+        # sourceInfo mentions crates.io
         self.assertIn(
-            "packageSourceInfo", pkg
+            "sourceInfo", pkg
         )
         self.assertIn(
-            "crates.io", pkg["packageSourceInfo"]
+            "crates.io", pkg["sourceInfo"]
         )
 
     def test_rust_crate_purl_with_version(self):

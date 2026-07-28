@@ -5,11 +5,15 @@ Verifies that _select_java_strategy returns the correct
 strategy based on mode and build system (Maven vs Gradle).
 """
 
+import os
+import tempfile
 import unittest
 from unittest.mock import patch, MagicMock
 
 from app.pipeline.lang_runners import (
+    _detect_java_build_tool,
     _extract_maven_modules,
+    _java_inline_config,
     _select_java_strategy,
     run_java_pipeline,
 )
@@ -253,6 +257,160 @@ class TestExtractMavenModules(unittest.TestCase):
         )
 
 
+class TestDetectJavaBuildTool(unittest.TestCase):
+    """Tests for _detect_java_build_tool()."""
+
+    def _detect_with_files(self, *filenames):
+        with tempfile.TemporaryDirectory() as tmp:
+            for name in filenames:
+                open(
+                    os.path.join(tmp, name),
+                    "w", encoding="utf-8",
+                ).close()
+            return _detect_java_build_tool(tmp)
+
+    def test_override_valid(self):
+        self.assertEqual(
+            _detect_java_build_tool(
+                "/nonexistent",
+                {"java_build_tool": "bazel"},
+            ),
+            "bazel",
+        )
+
+    def test_override_normalizes_case_and_space(self):
+        self.assertEqual(
+            _detect_java_build_tool(
+                "/nonexistent",
+                {"java_build_tool": "  Maven "},
+            ),
+            "maven",
+        )
+
+    def test_override_invalid_raises(self):
+        with self.assertRaises(ValueError):
+            _detect_java_build_tool(
+                "/nonexistent",
+                {"java_build_tool": "sbt"},
+            )
+
+    def test_detect_gradle(self):
+        self.assertEqual(
+            self._detect_with_files("build.gradle"),
+            "gradle",
+        )
+
+    def test_detect_maven(self):
+        self.assertEqual(
+            self._detect_with_files("pom.xml"),
+            "maven",
+        )
+
+    def test_detect_ivy(self):
+        self.assertEqual(
+            self._detect_with_files("build.xml", "ivy.xml"),
+            "ivy",
+        )
+
+    def test_detect_ant(self):
+        self.assertEqual(
+            self._detect_with_files("build.xml"),
+            "ant",
+        )
+
+    def test_detect_bazel_workspace(self):
+        self.assertEqual(
+            self._detect_with_files("WORKSPACE"),
+            "bazel",
+        )
+
+    def test_detect_bazel_module(self):
+        self.assertEqual(
+            self._detect_with_files("MODULE.bazel"),
+            "bazel",
+        )
+
+    def test_detect_make(self):
+        self.assertEqual(
+            self._detect_with_files("Makefile"),
+            "make",
+        )
+
+    def test_detect_unknown(self):
+        self.assertEqual(self._detect_with_files(), "unknown")
+
+    def test_precedence_gradle_over_maven(self):
+        self.assertEqual(
+            self._detect_with_files("build.gradle", "pom.xml"),
+            "gradle",
+        )
+
+    def test_precedence_maven_over_ivy(self):
+        self.assertEqual(
+            self._detect_with_files("pom.xml", "ivy.xml"),
+            "maven",
+        )
+
+    def test_precedence_ivy_over_make(self):
+        self.assertEqual(
+            self._detect_with_files("ivy.xml", "Makefile"),
+            "ivy",
+        )
+
+    def test_precedence_make_over_bazel(self):
+        self.assertEqual(
+            self._detect_with_files("Makefile", "WORKSPACE"),
+            "make",
+        )
+
+    def test_repo_cfg_none(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            open(
+                os.path.join(tmp, "pom.xml"),
+                "w", encoding="utf-8",
+            ).close()
+            self.assertEqual(
+                _detect_java_build_tool(tmp), "maven",
+            )
+
+
+class TestSelectJavaStrategyUnsupportedTools(unittest.TestCase):
+    """Detected-but-unimplemented tools fall back to Maven."""
+
+    def _paths(self):
+        return {"repos_dir": "/workspace/repos"}
+
+    def test_override_gradle_returns_gradle(self):
+        cfg = {
+            "java_build_tool": "gradle",
+            "build_steps": ["gradle build"],
+        }
+        strategy = _select_java_strategy(
+            "app", cfg, self._paths(), "sidecar",
+        )
+        self.assertIsInstance(
+            strategy, GradleDepTreeStrategy,
+        )
+
+    def test_override_ivy_falls_back_to_maven_with_log(self):
+        cfg = {
+            "java_build_tool": "ivy",
+            "build_steps": ["ant jar"],
+        }
+        with self.assertLogs(
+            "app.pipeline.lang_runners", level="INFO",
+        ) as logs:
+            strategy = _select_java_strategy(
+                "ant-ivy", cfg, self._paths(), "sidecar",
+            )
+        self.assertIsInstance(
+            strategy, MavenDepTreeStrategy,
+        )
+        self.assertTrue(
+            any("ivy" in m for m in logs.output),
+        )
+
+
 class TestSidecarPassesMavenModules(unittest.TestCase):
     """Verify -pl flows from config to strategy."""
 
@@ -292,6 +450,72 @@ class TestSidecarPassesMavenModules(unittest.TestCase):
         self.assertIsNone(
             strategy._maven_modules,
         )
+
+
+class TestJavaInlineConfig(unittest.TestCase):
+    """Tests for _java_inline_config and inline strategy wiring."""
+
+    def test_disabled_by_default(self):
+        inline, shim, cap = _java_inline_config(None, "/r")
+        self.assertFalse(inline)
+        self.assertIsNone(shim)
+        self.assertIsNone(cap)
+
+    def test_disabled_when_flag_false(self):
+        inline, _shim, _cap = _java_inline_config(
+            {"java_inline_hash": False}, "/r",
+        )
+        self.assertFalse(inline)
+
+    def test_enabled_default_shim_and_capture(self):
+        inline, shim, cap = _java_inline_config(
+            {"java_inline_hash": True}, "/workspace/repos/app",
+        )
+        self.assertTrue(inline)
+        self.assertTrue(shim.endswith(
+            "libomnibor_java_intercept.so",
+        ))
+        self.assertEqual(
+            cap, "/workspace/repos/app/.omnibor/capture.jsonl",
+        )
+
+    def test_enabled_custom_shim_path(self):
+        _inline, shim, _cap = _java_inline_config(
+            {
+                "java_inline_hash": True,
+                "inline_shim_path": "/custom/shim.so",
+            },
+            "/r",
+        )
+        self.assertEqual(shim, "/custom/shim.so")
+
+    @patch(
+        "app.pipeline.lang_runners"
+        "._detect_java_build_tool",
+        return_value="maven",
+    )
+    def test_select_maven_inline(self, _mock):
+        strategy = _select_java_strategy(
+            "jsoup", {"build_steps": ["mvn package"]},
+            {"repos_dir": "/workspace/repos"}, "sidecar",
+            omnibor_cfg={"java_inline_hash": True},
+        )
+        self.assertIsInstance(strategy, MavenDepTreeStrategy)
+        self.assertEqual(strategy.name, "maven-inline-hash")
+
+    @patch(
+        "app.pipeline.lang_runners"
+        "._detect_java_build_tool",
+        return_value="gradle",
+    )
+    def test_select_gradle_inline(self, _mock):
+        strategy = _select_java_strategy(
+            "checkstyle", {"build_steps": ["./gradlew build"]},
+            {"repos_dir": "/workspace/repos"}, "sidecar",
+            omnibor_cfg={"java_inline_hash": True},
+        )
+        self.assertIsInstance(strategy, GradleDepTreeStrategy)
+        self.assertEqual(strategy.name, "gradle-inline-hash")
 
 
 if __name__ == "__main__":

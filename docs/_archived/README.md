@@ -24,3 +24,13 @@ early design iterations, or point-in-time snapshots.
 - **Performance proposals** — research completed; findings are
   summarized in current docs where applicable.
 - **Snapshots** — point-in-time data that is no longer actionable.
+
+## Convention: superseded docs move here
+
+When a document is fully superseded by a consolidated reference (it carries
+a **"Superseded"** banner pointing at the live doc), move it into the most
+fitting subfolder here in the **same** change that consolidates it. These
+archived copies are retained for traceability and detail — useful when
+something appears missing from a live doc — but humans should read the live
+docs, not these. A doc that is only **partially** consolidated and remains
+authoritative for some scope stays in its live location.

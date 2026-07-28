@@ -16,6 +16,8 @@ import hashlib
 import json
 from pathlib import Path
 
+from app.spdx import identity
+
 
 def _sha1(file_path):
     """Compute plain SHA-1 hex digest for a file."""
@@ -335,12 +337,11 @@ def _compute_gitoids(artifacts):
 
 
 def _sha256_gitoid(file_path):
-    """Compute SHA-256 gitoid for a file.
+    """Compute the bare git-blob SHA-256 gitoid hex for a file.
 
-    GitOID format: ``blob <size>\\0<content>``
-    hashed with SHA-256.
+    Delegates to :mod:`app.spdx.identity` so a single git-blob /
+    SHA-256 implementation is shared across Phase 1 and Phase 2.
+    Returns bare hex (the Phase 1 manifest stores gitoids without
+    the ``gitoid:blob:sha256:`` IRI prefix).
     """
-    file_path = Path(file_path)
-    content = file_path.read_bytes()
-    header = f"blob {len(content)}\0".encode("ascii")
-    return hashlib.sha256(header + content).hexdigest()
+    return identity.gitoid_hex(file_path)

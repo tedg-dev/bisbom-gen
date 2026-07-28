@@ -1,0 +1,37 @@
+[flake8]
+# Line length aligned with the project code standard (80-100 range,
+# code-standards.md). 100 chosen to accommodate descriptive names.
+max-line-length = 100
+
+# Black-compatibility: E203 (whitespace before ':') and W503 (line break
+# before binary operator) conflict with Black's formatting.
+extend-ignore = E203, W503
+
+# Directories that are not first-party source.
+exclude =
+    .git,
+    .venv,
+    __pycache__,
+    build,
+    dist,
+    repos,
+    output
+
+# Legitimate, documented exceptions only:
+per-file-ignores =
+    # Embeds tab-indented C source as raw-string literals; pycodestyle
+    # flags tabs/long lines inside the string contents (W191, E101, E501).
+    app/apply_qemu_fallback.py: W191, E101, E501
+    docker/patches/apply_qemu_fallback.py: W191, E101, E501
+    # Build long HTML/CSS/JS string literals for the D3.js visualization;
+    # wrapping embedded markup would break it (E501).
+    app/viz/html_parts.py: E501
+    app/viz/js_interaction.py: E501
+    # Re-export shims must manipulate sys.path before importing app.* so
+    # direct execution works inside Docker (E402).
+    app/analyze.py: E402
+    app/spdx_from_adg.py: E402
+    app/add_repo.py: E402
+    # Tests insert sys.path (for app/ and docker/patches) before importing,
+    # the standard test bootstrap pattern (E402).
+    tests/*: E402

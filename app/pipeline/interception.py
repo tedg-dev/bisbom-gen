@@ -17,7 +17,298 @@ Design reference:
     Implementation Design §4.4 — Interception Strategy
 """
 
+import hashlib
+import json
+import os
+import time
 from abc import ABC, abstractmethod
+from pathlib import Path
+
+from app.pipeline.java_capture import (
+    CAPTURE_LOG_ENV,
+    assemble_treedb,
+    read_capture_log,
+)
+
+
+def build_inline_hash_env(shim_path, capture_log, extra=None):
+    """Return the env additions that enable inline hashing.
+
+    The only build-visible change in inline mode: load the ``LD_PRELOAD``
+    shim and point it at a capture log.  The native build command,
+    ``pom.xml``/``build.gradle``, and ``settings.gradle`` are untouched
+    (sidecar constraint C2/C3).
+
+    Args:
+        shim_path: Absolute path to ``libomnibor_java_intercept.so``.
+        capture_log: Absolute path the shim appends capture events to.
+        extra: Optional extra env vars (e.g. Gradle daemon disable).
+
+    Returns:
+        Dict of environment variables to set for the build.
+    """
+    env = {"LD_PRELOAD": shim_path, CAPTURE_LOG_ENV: capture_log}
+    if extra:
+        env.update(extra)
+    return env
+
+
+def prepare_capture_log(capture_log):
+    """Create the capture-log directory and clear any stale log.
+
+    The shim opens the log with ``O_CREAT | O_APPEND`` but does not create
+    parent directories, and a stale log from a previous run would pollute
+    the assembled treedb.  Called before the build so every run starts
+    from a clean, writable capture log.
+    """
+    parent = os.path.dirname(capture_log)
+    if parent:
+        os.makedirs(parent, exist_ok=True)
+    try:
+        os.remove(capture_log)
+    except FileNotFoundError:
+        pass
+
+
+def _git_blob_sha1(path):
+    """Git-blob ``SHA-1`` of a file: ``SHA-1("blob <len>\\0" + data)``.
+
+    Matches ``docker/patches/bomsh_java_fast_io.py:git_blob_hash`` so the
+    assembled treedb keys are identical to the legacy rescan's.
+    """
+    data = Path(path).read_bytes()
+    sha = hashlib.sha1()
+    sha.update(b"blob %d\0" % len(data))
+    sha.update(data)
+    return sha.hexdigest()
+
+
+def _prefix_match_len(tokens1, tokens2):
+    """Count identical leading tokens shared by two token lists.
+
+    Mirrors bomsh's ``get_list_similarity_score``: stops at the first
+    differing position.
+    """
+    limit = min(len(tokens1), len(tokens2))
+    count = 0
+    for i in range(limit):
+        if tokens1[i] == tokens2[i]:
+            count += 1
+        else:
+            break
+    return count
+
+
+def _path_similarity_score(path1, path2):
+    """Path-similarity score between two ``/``-separated paths.
+
+    Byte-for-byte port of bomsh's ``get_file_path_similarity_score``:
+    the number of shared leading tokens (from the filesystem root) plus
+    the number of shared trailing *directory* tokens (from the deepest
+    directory upward, excluding the file name).  This ranks a class's
+    own module/source-set tree above a sibling tree that merely shares
+    the package suffix — the key to disambiguating base vs versioned
+    (Multi-Release) variants of the same fully-qualified class.
+    """
+    tokens1 = path1.split("/")
+    tokens2 = path2.split("/")
+    leading = _prefix_match_len(tokens1, tokens2)
+    trailing = _prefix_match_len(tokens1[:-1][::-1], tokens2[:-1][::-1])
+    return leading + trailing
+
+
+def make_source_resolver(repo_dir):
+    """Build a class -> source ``.java`` resolver over *repo_dir*.
+
+    Indexes source files once by basename (a cheap walk — sources are
+    far fewer than ``.class`` files and are never zipped), then resolves
+    each class to its ``.java`` path by **path similarity** to the
+    class's own write path, exactly as ``bomsh_create_bom_java.py`` does
+    in the legacy rescan (``find_java_file_in_dict``): candidates sharing
+    the ``SourceFile`` basename are scored by
+    :func:`_path_similarity_score` against the class-file path and the
+    best (highest-scoring, score >= 3) wins.  This is the only filesystem
+    read the inline path performs, and it touches sources only — never
+    the ``.class``/``.jar`` bytes the shim already hashed.
+
+    Returns:
+        A ``(source_file, class_path) -> (path, sha1) | None`` callable.
+    """
+    # Each candidate keeps the walk path (used for the digest and the
+    # value returned to the caller, so downstream repo-prefix stripping is
+    # unchanged) alongside its absolute form (used only for scoring).
+    index = {}
+    for root, _dirs, files in os.walk(repo_dir):
+        for name in files:
+            if name.endswith(".java"):
+                walk_path = os.path.join(root, name)
+                index.setdefault(name, []).append((
+                    walk_path,
+                    os.path.abspath(walk_path).replace(os.sep, "/"),
+                ))
+
+    def resolve(source_file, class_path):
+        if not source_file or not class_path:
+            return None
+        candidates = index.get(source_file)
+        if not candidates:
+            return None
+        # Score against the *absolute* class path.  The shim records
+        # absolute write paths while the source index may be walked from a
+        # relative repo_dir; normalising both to absolute is what makes the
+        # shared leading tokens (…/<module>/) line up, so a class resolves
+        # to the source in its own module/source-set rather than a sibling
+        # (e.g. base vs Multi-Release java9 module).  bomsh requires a
+        # score strictly greater than 2 before accepting a match.
+        cpath = os.path.abspath(class_path).replace(os.sep, "/")
+        best_file = None
+        best_score = 2
+        for walk_path, abs_path in candidates:
+            score = _path_similarity_score(cpath, abs_path)
+            if score > best_score:
+                best_score = score
+                best_file = walk_path
+        if best_file is None:
+            return None
+        return best_file, _git_blob_sha1(best_file)
+
+    return resolve
+
+
+def assemble_treedb_from_capture(
+    capture_log, repo_dir, meta_dir, substeps, resolver=None,
+):
+    """Assemble the bomsh treedb from the inline capture log.
+
+    Replaces the post-build workspace rescan: reads the shim's capture
+    events and writes ``bomsh_omnibor_treedb`` in the exact bomsh schema.
+    Fails loudly (returns False) if the capture log is missing or empty —
+    in the enterprise inline path there is no silent rescan fallback
+    (design C4/C5).
+
+    Appends a ``treedb`` timing entry to *substeps*.
+    """
+    t0 = time.monotonic()
+    events = read_capture_log(capture_log)
+    if not events:
+        substeps.append({
+            "name": "treedb",
+            "tool": "inline-assemble",
+            "wall_sec": round(time.monotonic() - t0, 2),
+        })
+        print(
+            "[ERROR] inline capture log missing or empty: "
+            f"{capture_log}"
+        )
+        return False
+    if resolver is None:
+        resolver = make_source_resolver(repo_dir)
+    treedb = assemble_treedb(events, resolve_source=resolver)
+    treedb_file = Path(meta_dir) / "bomsh_omnibor_treedb"
+    with open(treedb_file, "w", encoding="utf-8") as handle:
+        json.dump(treedb, handle)
+    treedb_sec = time.monotonic() - t0
+    substeps.append({
+        "name": "treedb",
+        "tool": "inline-assemble",
+        "wall_sec": round(treedb_sec, 2),
+    })
+    print(
+        f"[OK] OmniBOR treedb assembled from {len(events)} "
+        f"capture events \u2192 {treedb_file} "
+        f"({treedb_sec:.1f}s)"
+    )
+    return True
+
+
+def build_java_treedb(
+    inline_hash, capture_log, runner, repo_dir,
+    meta_dir, omnibor_cfg, substeps,
+):
+    """Build the Java treedb via inline assembly or legacy rescan.
+
+    Shared by the Maven and Gradle sidecar strategies so both pick the
+    treedb source identically (DRY).  Inline assembly is used when the
+    strategy was configured for inline hashing and a capture-log path is
+    known; otherwise the legacy post-build rescan runs.
+    """
+    if inline_hash and capture_log:
+        return assemble_treedb_from_capture(
+            capture_log, repo_dir, meta_dir, substeps,
+        )
+    return _generate_java_treedb(
+        runner, repo_dir, meta_dir, omnibor_cfg, substeps,
+    )
+
+
+def _write_adg_substeps(bom_path, substeps):
+    """Write ADG sub-step timings to ``adg_substeps.json``.
+
+    Called by ``generate_adg()`` implementations to persist
+    the wall-clock breakdown (treedb vs dep:tree) for
+    performance analysis.
+
+    Args:
+        bom_path: ``Path`` to the OmniBOR output directory.
+        substeps: List of timing dicts with ``name``,
+            ``tool``, and ``wall_sec`` keys.
+    """
+    out = bom_path / "adg_substeps.json"
+    with open(out, "w", encoding="utf-8") as f:
+        json.dump(substeps, f, indent=2)
+
+
+def _generate_java_treedb(
+    runner, repo_dir, meta_dir, omnibor_cfg, substeps,
+):
+    """Generate the OmniBOR treedb for a Java workspace.
+
+    Runs ``bomsh_create_bom_java.py`` to map JAR -> class ->
+    source from the built workspace.  This step is
+    **build-tool-agnostic** (it inspects compiled artifacts,
+    not build files) and is shared by every Java sidecar
+    strategy.  Appends a ``treedb`` timing entry to *substeps*.
+
+    Args:
+        runner: ``CommandRunner`` used to invoke the script.
+        repo_dir: Path to the built repository workspace.
+        meta_dir: ``Path`` to the bomsh metadata directory
+            where the treedb is written.
+        omnibor_cfg: The ``omnibor`` config section.
+        substeps: Mutable list of timing dicts; a ``treedb``
+            entry is appended.
+
+    Returns:
+        True on success, False if the script fails.
+    """
+    create_bom = omnibor_cfg.get(
+        "create_bom_script",
+        "bomsh_create_bom_java.py",
+    )
+    treedb_file = meta_dir / "bomsh_omnibor_treedb"
+    t0 = time.monotonic()
+    rc = runner.run(
+        f"{create_bom} -r {repo_dir} -j {treedb_file} "
+        f"-b {meta_dir} -m",
+        cwd=str(repo_dir),
+        description=(
+            "Generating OmniBOR treedb for Java workspace"
+        ),
+    )
+    treedb_sec = time.monotonic() - t0
+    substeps.append({
+        "name": "treedb",
+        "tool": "bomsh_create_bom_java.py",
+        "wall_sec": round(treedb_sec, 2),
+    })
+    if rc != 0:
+        print("[ERROR] bomsh_create_bom_java.py failed")
+        return False
+    print(
+        f"[OK] OmniBOR treedb written to "
+        f"{treedb_file} ({treedb_sec:.1f}s)"
+    )
+    return True
 
 
 class InterceptionStrategy(ABC):
@@ -263,22 +554,39 @@ class MavenDepTreeStrategy(InterceptionStrategy):
     pipeline as standalone mode.
     """
 
-    def __init__(self, runner=None, maven_modules=None):
+    def __init__(
+        self, runner=None, maven_modules=None,
+        inline_hash=False, shim_path=None, capture_log=None,
+    ):
         from app.runner import CommandRunner
         self._runner = runner or CommandRunner()
         self._maven_modules = maven_modules
+        self._inline_hash = inline_hash
+        self._shim_path = shim_path
+        self._capture_log = capture_log
 
     @property
     def name(self):
         """Return the instrumentation method."""
+        if self._inline_hash:
+            return "maven-inline-hash"
         return "maven-dep-tree"
 
     def instrument_command(self, build_cmd, repo_dir):
-        """Return the build command unmodified — no strace.
+        """Return the build command with optional inline-hash env.
+
+        In inline mode the command is still unchanged; only the
+        ``LD_PRELOAD`` shim + capture-log env are added (sidecar C2/C3).
 
         Returns:
-            ``(build_cmd, {})`` — no env vars needed.
+            ``(build_cmd, env)`` — *env* is empty unless inline hashing
+            is enabled.
         """
+        if self._inline_hash and self._shim_path and self._capture_log:
+            prepare_capture_log(self._capture_log)
+            return build_cmd, build_inline_hash_env(
+                self._shim_path, self._capture_log,
+            )
         return build_cmd, {}
 
     def generate_adg(self, repo_dir, bom_dir, omnibor_cfg):
@@ -294,74 +602,74 @@ class MavenDepTreeStrategy(InterceptionStrategy):
         2. ``mvn dependency:tree`` captures the declared
            Maven dependency graph.
 
+        Sub-step wall-clock timings are written to
+        ``adg_substeps.json`` in *bom_dir* for
+        performance analysis.
+
         Returns:
             True on success, False on failure.
         """
-        import json
-        from pathlib import Path
-
         from app.pipeline.maven_dep_tree_parser import (
-            parse_dot_output,
+            parse_text_output,
             run_maven_dep_tree,
         )
 
+        substeps = []
         bom_path = Path(bom_dir)
         bom_path.mkdir(parents=True, exist_ok=True)
         meta_dir = bom_path / "metadata" / "bomsh"
         meta_dir.mkdir(parents=True, exist_ok=True)
 
-        # Step 1: Generate OmniBOR treedb via JAR
-        # introspection — same bomsh script as
-        # standalone mode, without strace log.
-        create_bom = omnibor_cfg.get(
-            "create_bom_script",
-            "bomsh_create_bom_java.py",
-        )
-        treedb_file = meta_dir / "bomsh_omnibor_treedb"
-        rc = self._runner.run(
-            f"{create_bom} -r {repo_dir} "
-            f"-j {treedb_file}",
-            cwd=str(repo_dir),
-            description=(
-                "Generating OmniBOR treedb "
-                "for Java workspace"
-            ),
-        )
-        if rc != 0:
-            print(
-                "[ERROR] bomsh_create_bom_java.py "
-                "failed"
-            )
+        # Step 1: Build the OmniBOR treedb — inline assembly from the
+        # shim's capture log when inline hashing is enabled, else the
+        # legacy post-build rescan.  Shared by all Java sidecar
+        # strategies (DRY) and build-tool-agnostic.
+        if not build_java_treedb(
+            self._inline_hash, self._capture_log,
+            self._runner, repo_dir, meta_dir,
+            omnibor_cfg, substeps,
+        ):
+            _write_adg_substeps(bom_path, substeps)
             return False
 
-        print(
-            f"[OK] OmniBOR treedb written to "
-            f"{treedb_file}"
-        )
-
-        # Step 2: Capture Maven dependency graph
-        dot_output = run_maven_dep_tree(
+        # Step 2: Capture Maven dependency graph (per-module).
+        # Default text output is parsed into per-module subtrees so
+        # Phase 2 can generate per-module ``_build`` SBOMs from this
+        # metadata alone, with no source-tree access.
+        t0 = time.monotonic()
+        tree_output = run_maven_dep_tree(
             repo_dir, runner=self._runner,
             maven_modules=self._maven_modules,
         )
-        if dot_output is None:
+        deptree_sec = time.monotonic() - t0
+        substeps.append({
+            "name": "dep_tree",
+            "tool": "mvn dependency:tree",
+            "wall_sec": round(deptree_sec, 2),
+        })
+        if tree_output is None:
+            _write_adg_substeps(bom_path, substeps)
             return False
 
-        deps = parse_dot_output(dot_output)
-        if not deps:
+        modules = parse_text_output(tree_output)
+        capture = {"tool": "maven", "modules": modules}
+        if not modules:
             print(
-                "[WARN] No dependencies found in "
+                "[WARN] No modules found in "
                 "mvn dependency:tree output"
             )
 
         out_file = bom_path / "maven_deps.json"
         with open(out_file, "w", encoding="utf-8") as f:
-            json.dump(deps, f, indent=2)
+            json.dump(capture, f, indent=2)
 
+        dep_total = sum(len(m["deps"]) for m in modules)
         print(
-            f"[OK] Maven dep:tree: "
-            f"{len(deps)} dependencies → {out_file}"
+            f"[OK] Maven dep:tree: {len(modules)} modules, "
+            f"{dep_total} dependencies → {out_file}"
+            f" ({deptree_sec:.1f}s)"
         )
+        _write_adg_substeps(bom_path, substeps)
         return True
 
 
@@ -381,21 +689,41 @@ class GradleDepTreeStrategy(InterceptionStrategy):
     pipeline as standalone mode.
     """
 
-    def __init__(self, runner=None):
+    def __init__(
+        self, runner=None,
+        inline_hash=False, shim_path=None, capture_log=None,
+    ):
         from app.runner import CommandRunner
         self._runner = runner or CommandRunner()
+        self._inline_hash = inline_hash
+        self._shim_path = shim_path
+        self._capture_log = capture_log
 
     @property
     def name(self):
         """Return the instrumentation method."""
+        if self._inline_hash:
+            return "gradle-inline-hash"
         return "gradle-dep-tree"
 
     def instrument_command(self, build_cmd, repo_dir):
-        """Return the build command unmodified — no strace.
+        """Return the build command with optional inline-hash env.
+
+        In inline mode the command is unchanged; the ``LD_PRELOAD`` shim,
+        capture-log path, and a Gradle-daemon-disable flag are added via
+        env only so every compiling JVM inherits the preload (sidecar
+        C2/C3).
 
         Returns:
-            ``(build_cmd, {})`` — no env vars needed.
+            ``(build_cmd, env)`` — *env* is empty unless inline hashing
+            is enabled.
         """
+        if self._inline_hash and self._shim_path and self._capture_log:
+            prepare_capture_log(self._capture_log)
+            return build_cmd, build_inline_hash_env(
+                self._shim_path, self._capture_log,
+                extra={"GRADLE_OPTS": "-Dorg.gradle.daemon=false"},
+            )
         return build_cmd, {}
 
     def generate_adg(self, repo_dir, bom_dir, omnibor_cfg):
@@ -409,64 +737,63 @@ class GradleDepTreeStrategy(InterceptionStrategy):
         2. ``./gradlew dependencies`` captures the declared
            Gradle dependency graph per subproject.
 
+        Sub-step wall-clock timings are written to
+        ``adg_substeps.json`` in *bom_dir* for
+        performance analysis.
+
         Returns:
             True on success, False on failure.
         """
-        import json
-        from pathlib import Path
-
         from app.pipeline.gradle_dep_tree_parser import (
             get_all_gradle_deps,
         )
 
+        substeps = []
         bom_path = Path(bom_dir)
         bom_path.mkdir(parents=True, exist_ok=True)
         meta_dir = bom_path / "metadata" / "bomsh"
         meta_dir.mkdir(parents=True, exist_ok=True)
 
-        # Step 1: Generate OmniBOR treedb via JAR
-        # introspection — same bomsh script as
-        # standalone mode, without strace log.
-        create_bom = omnibor_cfg.get(
-            "create_bom_script",
-            "bomsh_create_bom_java.py",
-        )
-        treedb_file = meta_dir / "bomsh_omnibor_treedb"
-        rc = self._runner.run(
-            f"{create_bom} -r {repo_dir} "
-            f"-j {treedb_file}",
-            cwd=str(repo_dir),
-            description=(
-                "Generating OmniBOR treedb "
-                "for Java workspace"
-            ),
-        )
-        if rc != 0:
-            print(
-                "[ERROR] bomsh_create_bom_java.py "
-                "failed"
-            )
+        # Step 1: Build the OmniBOR treedb — inline assembly from the
+        # shim's capture log when inline hashing is enabled, else the
+        # legacy post-build rescan.  Shared by all Java sidecar
+        # strategies (DRY) and build-tool-agnostic.
+        if not build_java_treedb(
+            self._inline_hash, self._capture_log,
+            self._runner, repo_dir, meta_dir,
+            omnibor_cfg, substeps,
+        ):
+            _write_adg_substeps(bom_path, substeps)
             return False
 
-        print(
-            f"[OK] OmniBOR treedb written to "
-            f"{treedb_file}"
-        )
-
-        # Step 2: Capture Gradle dependency graph
-        deps = get_all_gradle_deps(repo_dir)
-        if not deps:
+        # Step 2: Capture Gradle dependency graph (per-subproject).
+        # Captured per subproject so Phase 2 can generate per-module
+        # ``_build`` SBOMs from this metadata alone, with no
+        # source-tree access.
+        t0 = time.monotonic()
+        modules = get_all_gradle_deps(repo_dir)
+        capture = {"tool": "gradle", "modules": modules}
+        deptree_sec = time.monotonic() - t0
+        substeps.append({
+            "name": "dep_tree",
+            "tool": "gradlew dependencies",
+            "wall_sec": round(deptree_sec, 2),
+        })
+        if not modules:
             print(
-                "[WARN] No dependencies found in "
+                "[WARN] No subprojects found in "
                 "Gradle dependency tree"
             )
 
         out_file = bom_path / "gradle_deps.json"
         with open(out_file, "w", encoding="utf-8") as f:
-            json.dump(deps, f, indent=2)
+            json.dump(capture, f, indent=2)
 
+        dep_total = sum(len(m["deps"]) for m in modules)
         print(
-            f"[OK] Gradle dep:tree: "
-            f"{len(deps)} dependencies → {out_file}"
+            f"[OK] Gradle dep:tree: {len(modules)} subprojects, "
+            f"{dep_total} dependencies → {out_file}"
+            f" ({deptree_sec:.1f}s)"
         )
+        _write_adg_substeps(bom_path, substeps)
         return True

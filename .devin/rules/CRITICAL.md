@@ -98,6 +98,10 @@ Violating any rule marked NEVER is a critical failure.
   `project/release-builds.md` for language-specific flags.
 - [ ] **ALWAYS** import SPDX relationship types from
   `app/spdx/relationships.py` — never hardcode strings.
+- [ ] **ALWAYS** attach the built artifact's OmniBOR GitOID + checksum to
+  its root SPDX package, in EVERY language emitter. A root artifact package
+  without a `gitoid` `externalRef` and a `checksums` entry is a critical
+  correctness failure. See `project/artifact-identity.md`.
 
 ---
 
@@ -118,6 +122,51 @@ Violating any rule marked NEVER is a critical failure.
   `git checkout` + stash when you only need to read remote state.
 - [ ] **Reference**: See `infrastructure/github-rulesets.md` for full
   ruleset configuration. Owner merges without review; contributors need 1.
+
+---
+
+## Before Every GitHub Issue / Board Operation
+
+- [ ] **ALWAYS** use the `gh` account `tedg_cisco` for ALL issue and
+  project-board operations. Run `gh auth switch --user tedg_cisco`
+  before any `gh issue` / `gh api .../gambit/...` / `gh project` call.
+  The default `tedg-dev` account CANNOT resolve the issues repo.
+- [ ] **Issues live in `CiscoSecurityServices/gambit`** (Corona board
+  `#255`) — NOT in `tedg-dev/omnibor-analysis`. PRs live in
+  `tedg-dev/omnibor-analysis` (account `tedg-dev`); reference cross-repo
+  as `tedg-dev/omnibor-analysis#<n>`.
+- [ ] **GitHub Issues access is ALWAYS available — it is NOT
+  intermittent.** NEVER claim it is unavailable/limited, and NEVER
+  defer issue creation to the planning crosswalk as a substitute.
+- [ ] **NEVER** start NEW/additional work (bug, refactor, pivot,
+  uncovered scope) before creating its own gambit sub-issue, moving it
+  to In Development, linking its parent Main issue, assigning the
+  current Walk, and setting the `Build-Instrumented SBOM` epic.
+- [ ] **Reference**: `workflow/github-issue-management.md` for field ids,
+  status pairing, Walk assignment, and epic assignment.
+
+---
+
+## Before Every Planning Statement or Change
+
+- [ ] **ALWAYS** check the live `CiscoSecurityServices/gambit` issues and
+  the Corona board (`#255`) via `gh` (as `tedg_cisco`) BEFORE stating,
+  planning, or acting on any plan, status, gate, or dependency. The
+  `docs/planning/` files and `github-issues-crosswalk.md` are **mirrors,
+  not the source of truth** — they may be stale.
+- [ ] **NEVER GUESS** whether an issue exists, its status, its Walk, or a
+  gate state. Query gambit; if you cannot, say so — never fabricate.
+- [ ] **ALWAYS** sync planning and gambit whenever they diverge:
+  - Plan exists in `docs/planning/` but not in gambit → create the gambit
+    issue/sub-issue (parent link, current Walk, `Build-Instrumented SBOM`
+    epic), then record it in the crosswalk.
+  - Gambit issue exists but is missing from the planning docs → add/update
+    the planning row (`README.md`), the per-language planning doc, and the
+    crosswalk.
+  - Status, scope, or acceptance criteria differ → update the mirror to
+    match gambit (gambit wins).
+- [ ] **Reference**: `github-sync.md` (bidirectional planning sync) and
+  `workflow/github-issue-management.md` (field ids, Walk, epic).
 
 ---
 
@@ -143,6 +192,29 @@ Violating any rule marked NEVER is a critical failure.
 - [ ] **ALWAYS** reference credentials by path and key name — never by
   value.
 - [ ] **NEVER** commit credential files (`.env`, `keys.json`, SSH keys).
+
+---
+
+## Before Every Piece of Writing (docs, diagrams, chat, commits, issues)
+
+- [ ] **ALWAYS** name the **who** (actor), **what** (object), **when**
+  (phase), and **where** (environment) explicitly. **NEVER** use an
+  ambiguous pronoun (`it`, `they`, `this`, `you`) or a bare noun (`the
+  image`, `the platform`, `the build`, `the team`) whose referent the
+  reader must guess.
+- [ ] **NEVER** carry this chat's conversational `you`/`your` into a
+  markdown document or diagram. Documents address their OWN audience
+  (e.g., the **native build team**) — name the actor, do not say `you`.
+- [ ] **NEVER** address the enterprise/native-build audience as `you` in
+  chat when describing the customer scenario. Say "the native build team",
+  not "you". Reserve `you` for the actual chat user.
+- [ ] **ALWAYS** keep the customer's **native build / native CI image /
+  native build team** distinct from the **OmniBOR analysis harness / our
+  image**. Never conflate them.
+- [ ] **NEVER** over-claim to reassure. "The native build never changes"
+  (true) is a different claim from "where a file is placed" (a one-time
+  infra choice with options). State each footprint exactly.
+- [ ] **Reference**: `quality/writing-precision.md`.
 
 ---
 

@@ -9,15 +9,47 @@ from pathlib import Path
 class ConfigGenerator:
     """Generates and writes config.yaml entries."""
 
+    # Maps the build-system names emitted by BuildSystemDetector to a
+    # generic build_profile (tool, extra traits). Kept here so /add-repo
+    # produces schema-valid profiles that load_config will accept.
+    _SYSTEM_TO_PROFILE = {
+        "autoconf": ("autotools", []),
+        "configure-only": ("autotools", []),
+        "cmake": ("cmake", []),
+        "meson": ("meson", []),
+        "perl-configure": ("make", ["perl-configure"]),
+        "auto-configure": ("make", ["auto-configure"]),
+        "make-only": ("make", []),
+    }
+
     def __init__(self, config_path=None):
         self.config_path = config_path or (
             Path(__file__).parent / "config.yaml"
         )
 
+    @classmethod
+    def build_profile_for(cls, build_system):
+        """Return a schema-valid build_profile for a detected system.
+
+        Unknown systems fall back to ``make`` with a ``needs-review``
+        trait so the generated entry loads but is clearly flagged for
+        the reviewer.
+        """
+        tool, traits = cls._SYSTEM_TO_PROFILE.get(
+            build_system, ("make", ["needs-review"])
+        )
+        profile = {
+            "tool": tool,
+            "structure": "single-module",
+        }
+        if traits:
+            profile["traits"] = list(traits)
+        return profile
+
     def generate_entry(
         self, repo_info, build_steps,
         output_binaries, description,
-        apt_deps=None,
+        apt_deps=None, build_profile=None,
     ):
         """Generate the YAML config entry as a dict."""
         entry = {
@@ -26,6 +58,11 @@ class ConfigGenerator:
                 f"{repo_info['fullName']}.git"
             ),
             "branch": repo_info["defaultBranch"],
+            "build_profile": (
+                build_profile
+                if build_profile is not None
+                else self.build_profile_for("unknown")
+            ),
             "build_steps": build_steps,
             "clean_cmd": "make clean",
             "description": description,
@@ -95,4 +132,3 @@ class ConfigGenerator:
             lang for lang, _ in top_langs
         )
         return f"~{loc_k:.0f}K LoC, {lang_str}"
-

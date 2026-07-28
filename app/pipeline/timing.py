@@ -31,6 +31,53 @@ from typing import List
 # 70% of expected, flag as contention.
 CONTENTION_THRESHOLD = 0.70
 
+# Step categories.  Orthogonal to the phase1/phase2 split so
+# that the *native CI/CD build* is reported separately from
+# the *sidecar work* (OmniBOR metadata creation + storage)
+# that runs in the same job.
+#   - "build":   the native build lifecycle the customer's
+#                pipeline already runs (clean/prebuild/build).
+#                No OmniBOR-specific work.
+#   - "sidecar": Phase 1 work added to create and store the
+#                build metadata Phase 2 needs (ADG/treedb,
+#                dependency capture, identity index, manifest).
+#   - "phase2":  post-build SBOM generation and validation.
+CATEGORY_BUILD = "build"
+CATEGORY_SIDECAR = "sidecar"
+CATEGORY_PHASE2 = "phase2"
+
+# Phase 1 step names that are native build lifecycle steps.
+_BUILD_STEP_NAMES = frozenset({"clean", "prebuild", "build"})
+# Phase 1 step names that are sidecar (metadata) work.
+_SIDECAR_STEP_NAMES = frozenset({
+    "adg", "identity_index", "manifest",
+})
+
+
+def categorize_step(name, phase):
+    """Classify a step into build / sidecar / phase2.
+
+    The category is derived from the step name and phase so
+    that older ``runtime.json`` files (which predate the
+    explicit ``category`` field) are classified consistently.
+
+    Args:
+        name: Step name (e.g. ``build``, ``adg``, ``manifest``).
+        phase: Either ``phase1`` or ``phase2``.
+
+    Returns:
+        One of ``CATEGORY_BUILD`` / ``CATEGORY_SIDECAR`` /
+        ``CATEGORY_PHASE2``.
+    """
+    if phase == "phase2":
+        return CATEGORY_PHASE2
+    if name in _SIDECAR_STEP_NAMES:
+        return CATEGORY_SIDECAR
+    # Unknown Phase 1 steps default to build (conservative:
+    # never inflate the sidecar figure with unclassified work).
+    return CATEGORY_BUILD
+
+
 # Regex for make -j<N> patterns
 _MAKE_J_RE = re.compile(
     r"-j\s*(\d+|\$\(nproc\))"
@@ -109,6 +156,20 @@ class StepMetrics:
     load_avg_start: tuple = (0.0, 0.0, 0.0)
     load_avg_end: tuple = (0.0, 0.0, 0.0)
     contention: bool = False
+    category: str = ""
+
+    @property
+    def resolved_category(self):
+        """Category, deriving it from name/phase if unset.
+
+        Steps constructed without an explicit ``category``
+        (older callers, hand-built test fixtures) fall back
+        to :func:`categorize_step` so grouping is always
+        well-defined.
+        """
+        return self.category or categorize_step(
+            self.name, self.phase,
+        )
 
     @property
     def cpu_total_sec(self):
@@ -150,6 +211,7 @@ class StepMetrics:
     def to_dict(self):
         """Serialize to dict for JSON storage."""
         d = asdict(self)
+        d["category"] = self.resolved_category
         d["cpu_total_sec"] = round(self.cpu_total_sec, 2)
         d["cpu_efficiency"] = round(
             self.cpu_efficiency, 2
@@ -194,6 +256,43 @@ class TimingResult:
         return [
             s for s in self.steps if s.phase == "phase2"
         ]
+
+    @property
+    def build_steps(self):
+        """Steps that are native CI/CD build lifecycle."""
+        return [
+            s for s in self.steps
+            if s.resolved_category == CATEGORY_BUILD
+        ]
+
+    @property
+    def sidecar_steps(self):
+        """Phase 1 sidecar (metadata create + store) steps."""
+        return [
+            s for s in self.steps
+            if s.resolved_category == CATEGORY_SIDECAR
+        ]
+
+    @property
+    def build_total(self):
+        """Wall-clock time for the native CI/CD build only.
+
+        Excludes all OmniBOR sidecar work — this is the
+        figure to compare against a customer's existing
+        build-stage duration.
+        """
+        return sum(s.wall_sec for s in self.build_steps)
+
+    @property
+    def sidecar_total(self):
+        """Wall-clock time for Phase 1 sidecar work.
+
+        Includes ADG/treedb creation, dependency capture,
+        the identity index, and the manifest write — i.e.
+        the cost of creating and storing the build metadata
+        Phase 2 needs.
+        """
+        return sum(s.wall_sec for s in self.sidecar_steps)
 
     @property
     def phase1_total(self):
@@ -241,6 +340,12 @@ class TimingResult:
         return {
             "tracer": self.tracer,
             "success": self.success,
+            "build_total_sec": round(
+                self.build_total, 2
+            ),
+            "sidecar_total_sec": round(
+                self.sidecar_total, 2
+            ),
             "phase1_total_sec": round(
                 self.phase1_total, 2
             ),
@@ -284,10 +389,12 @@ class StepTimer:
 
     def __init__(
         self, name, phase, expected_parallelism=1,
+        category=None,
     ):
         self._name = name
         self._phase = phase
         self._expected = expected_parallelism
+        self._category = category
         self._start_wall = 0.0
         self._start_self = None
         self._start_children = None
@@ -354,6 +461,9 @@ class StepTimer:
             < expected_eff * CONTENTION_THRESHOLD
         )
 
+        category = self._category or categorize_step(
+            self._name, self._phase,
+        )
         self._metrics = StepMetrics(
             name=self._name,
             phase=self._phase,
@@ -365,6 +475,7 @@ class StepTimer:
             load_avg_start=self._start_load,
             load_avg_end=end_load,
             contention=contention,
+            category=category,
         )
         return False
 

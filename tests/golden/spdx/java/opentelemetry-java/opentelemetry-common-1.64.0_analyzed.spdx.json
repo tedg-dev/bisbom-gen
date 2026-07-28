@@ -1,0 +1,167 @@
+{
+  "spdxVersion": "SPDX-2.3",
+  "dataLicense": "CC0-1.0",
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "name": "opentelemetry-java-opentelemetry-common-1.64.0.jar",
+  "documentNamespace": "https://omnibor.io/spdx/opentelemetry-java/886a1070-19d6-4a42-9c63-e63d68752cd2",
+  "creationInfo": {
+    "created": "2026-07-22T23:03:45Z",
+    "creators": [
+      "Tool: omnibor-analysis",
+      "Tool: bomsh_create_bom_java.py"
+    ],
+    "licenseListVersion": "3.19"
+  },
+  "packages": [
+    {
+      "SPDXID": "SPDXRef-Package-opentelemetry-common-1.64.0.jar",
+      "name": "opentelemetry-common",
+      "versionInfo": "1.64.0",
+      "downloadLocation": "https://github.com/open-telemetry/opentelemetry-java/commit/fd4d9768fc94a8f38935e9abcbaadfd70a8fc852",
+      "filesAnalyzed": true,
+      "primaryPackagePurpose": "APPLICATION",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:maven/opentelemetry-java/opentelemetry-common"
+        },
+        {
+          "referenceCategory": "PERSISTENT-ID",
+          "referenceType": "gitoid",
+          "referenceLocator": "gitoid:blob:sha256:f3668c70c6f01eefc3d16034dd52b373c8af5c0e10bf70afde2632a997de4444"
+        }
+      ],
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "f9fd3a45f09b2c89dc1f768b436b1d9ad770dfa403fea1bae3f81ac1187a9465"
+        }
+      ]
+    }
+  ],
+  "files": [
+    {
+      "SPDXID": "SPDXRef-File-0",
+      "fileName": "common/src/main/java/io/opentelemetry/common/ComponentLoader.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "b45136486aba96e40ec679454956bb483389b06c"
+        },
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "f448eb7460a3195dae9d2587813628633bb8fc24880033bbbf4f441983917f2a"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-1",
+      "fileName": "common/build/classes/java/main/io/opentelemetry/common/ComponentLoader.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "2c589594f79d9fe6113e58ef9a425ec0be27cc6b"
+        },
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "db3d1b27828f5967745a5b1852dc14d846035f447ee76b9a8e72584ad1a6671d"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-2",
+      "fileName": "common/src/main/java/io/opentelemetry/common/ServiceLoaderComponentLoader.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "6a0d25e02514a65c3fe6cf3943911d7abd9e5a4e"
+        },
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "518013775d3cb7850ccacde8fa1c95b3942b67b7be1383398423da15027346df"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-3",
+      "fileName": "common/build/classes/java/main/io/opentelemetry/common/ServiceLoaderComponentLoader.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "29158677eca90d9c59edf269d5b1bc7afc38f333"
+        },
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "ad4b16105c60853c501b63710de705d4dd05e80e209741c6ad3786b92ca4546b"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-4",
+      "fileName": "common/src/main/java/io/opentelemetry/common/impl/ApiUsageLogger.java",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "151dea7dc9703d59e07af926dfef466c9d323b6d"
+        },
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "a81e96c2dd5e543f7e8fc62b4d42753068fefedce1df8f22f20208c998a9e7de"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-5",
+      "fileName": "common/build/classes/java/main/io/opentelemetry/common/impl/ApiUsageLogger.class",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "f6b14fde6203ab746dfd45e12cfc210f16b7dcb2"
+        },
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "e6b48b4ae09cd03408d4a4d1bb08aff0e9e709a168343f60f52ca208275aebef"
+        }
+      ]
+    }
+  ],
+  "relationships": [
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relatedSpdxElement": "SPDXRef-Package-opentelemetry-common-1.64.0.jar",
+      "relationshipType": "DESCRIBES"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-0",
+      "relatedSpdxElement": "SPDXRef-Package-opentelemetry-common-1.64.0.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-1",
+      "relatedSpdxElement": "SPDXRef-Package-opentelemetry-common-1.64.0.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-2",
+      "relatedSpdxElement": "SPDXRef-Package-opentelemetry-common-1.64.0.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-3",
+      "relatedSpdxElement": "SPDXRef-Package-opentelemetry-common-1.64.0.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-4",
+      "relatedSpdxElement": "SPDXRef-Package-opentelemetry-common-1.64.0.jar",
+      "relationshipType": "CONTAINED_BY"
+    },
+    {
+      "spdxElementId": "SPDXRef-File-5",
+      "relatedSpdxElement": "SPDXRef-Package-opentelemetry-common-1.64.0.jar",
+      "relationshipType": "CONTAINED_BY"
+    }
+  ]
+}

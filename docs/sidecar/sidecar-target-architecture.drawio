@@ -1,0 +1,143 @@
+<mxfile host="Electron" agent="Cascade AI">
+  <diagram id="target-arch" name="Target Architecture (Sidecar + Standalone Modes)">
+    <mxGraphModel dx="1100" dy="780" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1200" pageHeight="800" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Title -->
+        <mxCell id="title" parent="1" style="text;fontSize=16;fontStyle=1;align=center;fillColor=none;strokeColor=none;" value="OmniBOR Target Architecture — Sidecar + Standalone Modes" vertex="1">
+          <mxGeometry height="25" width="600" x="250" y="10" as="geometry" />
+        </mxCell>
+
+        <!-- Host environment -->
+        <mxCell id="host" parent="1" style="rounded=1;fillColor=#f5f5f5;strokeColor=#666666;strokeWidth=2;" value="" vertex="1">
+          <mxGeometry height="250" width="780" x="30" y="45" as="geometry" />
+        </mxCell>
+        <mxCell id="hostlabel" parent="1" style="text;fontSize=14;fontStyle=1;align=left;verticalAlign=top;fillColor=none;strokeColor=none;" value="Host Build Environment (K8s pod, VM, container, or bare metal)" vertex="1">
+          <mxGeometry height="25" width="500" x="40" y="48" as="geometry" />
+        </mxCell>
+
+        <!-- Team tools -->
+        <mxCell id="teamtools" parent="1" style="rounded=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;fontStyle=1;verticalAlign=middle;align=center;" value="Native Toolchain&#xa;&#xa;gcc, go, rustc, mvn&#xa;(native versions)" vertex="1">
+          <mxGeometry height="80" width="140" x="50" y="80" as="geometry" />
+        </mxCell>
+
+        <!-- Source + binaries -->
+        <mxCell id="source" parent="1" style="rounded=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;fontStyle=1;verticalAlign=middle;align=center;" value="Native Source&#xa;+ Build Config" vertex="1">
+          <mxGeometry height="80" width="120" x="210" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="bins" parent="1" style="rounded=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;fontStyle=1;verticalAlign=middle;align=center;" value="Native Production&#xa;Binaries&#xa;(identical to&#xa;normal build)" vertex="1">
+          <mxGeometry height="80" width="120" x="350" y="80" as="geometry" />
+        </mxCell>
+
+        <!-- Sidecar interception -->
+        <mxCell id="sidecar" parent="1" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=2;" value="" vertex="1">
+          <mxGeometry height="130" width="280" x="510" y="75" as="geometry" />
+        </mxCell>
+        <mxCell id="sidecarlabel" parent="1" style="text;fontSize=12;fontStyle=1;align=left;verticalAlign=top;fillColor=none;strokeColor=none;" value="OmniBOR Sidecar Interception" vertex="1">
+          <mxGeometry height="20" width="250" x="520" y="78" as="geometry" />
+        </mxCell>
+        <mxCell id="tier1" parent="1" style="rounded=1;fillColor=#c8e6c9;strokeColor=#2e7d32;fontSize=10;fontStyle=1;verticalAlign=middle;align=center;" value="Primary&#xa;LD_PRELOAD shim&#xa;(1–3% overhead)" vertex="1">
+          <mxGeometry height="55" width="80" x="522" y="103" as="geometry" />
+        </mxCell>
+        <mxCell id="tier2" parent="1" style="rounded=1;fillColor=#fff9c4;strokeColor=#f9a825;fontSize=10;fontStyle=1;verticalAlign=middle;align=center;" value="Fallback&#xa;eBPF (node-level)&#xa;(deferrable)" vertex="1">
+          <mxGeometry height="55" width="80" x="612" y="103" as="geometry" />
+        </mxCell>
+        <mxCell id="tier3" parent="1" style="rounded=1;fillColor=#fff9c4;strokeColor=#f9a825;fontSize=10;fontStyle=1;verticalAlign=middle;align=center;" value="Fallback&#xa;Linux audit (node)&#xa;(deferrable)" vertex="1">
+          <mxGeometry height="55" width="80" x="702" y="103" as="geometry" />
+        </mxCell>
+        <mxCell id="sidecar-note" parent="1" style="text;fontSize=9;fontStyle=2;align=center;fillColor=none;strokeColor=none;fontColor=#666666;" value="Transparent — no build modification" vertex="1">
+          <mxGeometry height="15" width="260" x="520" y="165" as="geometry" />
+        </mxCell>
+
+        <!-- K8s injection -->
+        <mxCell id="k8s" parent="1" style="rounded=1;fillColor=#e8eaf6;strokeColor=#5c6bc0;fontSize=11;fontStyle=1;verticalAlign=middle;align=center;" value="K8s Mutating Webhook&#xa;+ init container&#xa;(injects LD_PRELOAD)" vertex="1">
+          <mxGeometry height="70" width="170" x="860" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="a-k8s-sidecar" edge="1" parent="1" source="k8s" style="endArrow=classic;strokeColor=#5c6bc0;strokeWidth=2;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.3;entryDx=0;entryDy=0;" target="sidecar">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Phase 1 data flow -->
+        <mxCell id="phase1-label" parent="1" style="text;fontSize=13;fontStyle=1;align=left;fillColor=none;strokeColor=none;fontColor=#1565c0;" value="Phase 1 — Build Capture (on native build host)" vertex="1">
+          <mxGeometry height="20" width="350" x="40" y="210" as="geometry" />
+        </mxCell>
+        <mxCell id="rawlog" parent="1" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;fontStyle=1;verticalAlign=middle;align=center;" value="Raw Logfile&#xa;(same format,&#xa;all paths)" vertex="1">
+          <mxGeometry height="50" width="110" x="50" y="235" as="geometry" />
+        </mxCell>
+        <mxCell id="bomsh" parent="1" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;fontStyle=1;verticalAlign=middle;align=center;" value="bomsh_create_bom.py&#xa;ADG + Treedb" vertex="1">
+          <mxGeometry height="50" width="130" x="195" y="235" as="geometry" />
+        </mxCell>
+        <mxCell id="manifest" parent="1" style="rounded=1;fillColor=#e3f2fd;strokeColor=#1565c0;fontSize=10;fontStyle=1;verticalAlign=middle;align=center;" value="phase1_manifest.json&#xa;(treedb + versions +&#xa;binary hashes)" vertex="1">
+          <mxGeometry height="50" width="140" x="360" y="235" as="geometry" />
+        </mxCell>
+        <mxCell id="a-sidecar-rawlog" edge="1" parent="1" source="sidecar" style="endArrow=classic;strokeColor=#d6b656;strokeWidth=2;exitX=0.2;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="rawlog">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a-rawlog-bomsh" edge="1" parent="1" source="rawlog" style="endArrow=classic;strokeColor=#d6b656;strokeWidth=2;" target="bomsh">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a-bomsh-manifest" edge="1" parent="1" source="bomsh" style="endArrow=classic;strokeColor=#1565c0;strokeWidth=2;" target="manifest">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Phase boundary -->
+        <mxCell id="boundary" parent="1" style="shape=line;strokeColor=#e53935;strokeWidth=2;dashed=1;dashPattern=8 4;fontSize=11;fontStyle=1;fontColor=#e53935;align=center;verticalAlign=middle;fillColor=none;" value="PHASE BOUNDARY — manifest shipped to analysis host — native binaries NEVER leave the native build host" vertex="1">
+          <mxGeometry height="25" width="780" x="30" y="305" as="geometry" />
+        </mxCell>
+
+        <!-- Phase 2 -->
+        <mxCell id="phase2-box" parent="1" style="rounded=1;fillColor=none;strokeColor=#6a1b9a;strokeWidth=2;" value="" vertex="1">
+          <mxGeometry height="110" width="500" x="30" y="340" as="geometry" />
+        </mxCell>
+        <mxCell id="phase2-label" parent="1" style="text;fontSize=13;fontStyle=1;align=left;fillColor=none;strokeColor=none;fontColor=#6a1b9a;" value="Phase 2 — SPDX Generation (analysis host, metadata only)" vertex="1">
+          <mxGeometry height="20" width="450" x="40" y="345" as="geometry" />
+        </mxCell>
+        <mxCell id="pipeline" parent="1" style="rounded=1;fillColor=#e6d0de;strokeColor=#996185;fontSize=10;fontStyle=1;verticalAlign=middle;align=center;" value="omnibor-analysis Pipeline&#xa;spdx_from_adg.py&#xa;(reads manifest only)" vertex="1">
+          <mxGeometry height="55" width="150" x="50" y="375" as="geometry" />
+        </mxCell>
+        <mxCell id="spdx" parent="1" style="rounded=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;fontStyle=1;verticalAlign=middle;align=center;" value="SPDX 2.3 JSON SBOM" vertex="1">
+          <mxGeometry height="45" width="150" x="230" y="380" as="geometry" />
+        </mxCell>
+        <mxCell id="html" parent="1" style="rounded=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;fontStyle=1;verticalAlign=middle;align=center;" value="D3.js HTML Viz" vertex="1">
+          <mxGeometry height="45" width="110" x="400" y="380" as="geometry" />
+        </mxCell>
+        <mxCell id="a-manifest-pipeline" edge="1" parent="1" source="manifest" style="endArrow=classic;strokeColor=#6a1b9a;strokeWidth=2;exitX=0.3;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="pipeline">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a-pipeline-spdx" edge="1" parent="1" source="pipeline" style="endArrow=classic;strokeColor=#82b366;strokeWidth=2;" target="spdx">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a-pipeline-html" edge="1" parent="1" source="pipeline" style="endArrow=classic;strokeColor=#82b366;strokeWidth=1;dashed=1;" target="html">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Standalone mode (right side) -->
+        <mxCell id="standalone-box" parent="1" style="rounded=1;fillColor=#f5f5f5;strokeColor=#999999;strokeWidth=1;dashed=1;" value="" vertex="1">
+          <mxGeometry height="110" width="220" x="860" y="210" as="geometry" />
+        </mxCell>
+        <mxCell id="standalone-label" parent="1" style="text;fontSize=11;fontStyle=1;align=center;fillColor=none;strokeColor=none;" value="Standalone Mode (current)" vertex="1">
+          <mxGeometry height="18" width="200" x="870" y="215" as="geometry" />
+        </mxCell>
+        <mxCell id="standalone-text" parent="1" style="text;fontSize=10;align=left;fillColor=none;strokeColor=none;fontColor=#666666;" value="bomtrace3 via ptrace&#xa;Container gcc (not the native toolchain)&#xa;20–60% overhead&#xa;Single-host, no phase split&#xa;Self-contained, portable" vertex="1">
+          <mxGeometry height="70" width="200" x="870" y="240" as="geometry" />
+        </mxCell>
+
+        <!-- NOT sidecar note -->
+        <mxCell id="notsidecar" parent="1" style="rounded=1;fillColor=#ffebee;strokeColor=#c62828;fontSize=10;fontStyle=1;verticalAlign=top;align=center;spacingTop=3;" value="NOT Sidecar" vertex="1">
+          <mxGeometry height="75" width="220" x="860" y="340" as="geometry" />
+        </mxCell>
+        <mxCell id="notsidecar-text" parent="1" style="text;fontSize=9;align=left;fillColor=none;strokeColor=none;fontColor=#666666;" value="CC=/CXX= wrappers (CcWrapperStrategy)&#xa;MODIFIES build env vars.&#xa;Retained as standalone-without-ptrace." vertex="1">
+          <mxGeometry height="45" width="210" x="865" y="362" as="geometry" />
+        </mxCell>
+
+        <!-- Data flow footer -->
+        <mxCell id="flow" parent="1" style="rounded=1;fillColor=#e6d0de;strokeColor=#996185;fontSize=11;fontStyle=1;align=center;verticalAlign=middle;" value="Phase 1: LD_PRELOAD → Raw Logfile → Treedb/ADG → Manifest  |  Phase 2: Manifest → SPDX 2.3 JSON" vertex="1">
+          <mxGeometry height="25" width="700" x="30" y="465" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

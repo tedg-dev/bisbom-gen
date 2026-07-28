@@ -332,5 +332,60 @@ class TestProjectBuiltDetection(unittest.TestCase):
             )
 
 
+class TestDefaultResolverAndLdLinux(unittest.TestCase):
+    """Cover the default-resolver import and ld-linux/not-found branches."""
+
+    @patch("app.spdx.package_resolver.auto_detect_resolver")
+    @patch("app.collect_dynamic_libs.subprocess.check_output")
+    @patch("app.collect_dynamic_libs.os.path.realpath")
+    def test_default_resolver_and_ld_linux(
+        self, mock_realpath, mock_subproc, mock_auto,
+    ):
+        ldd_out = (
+            "\tlinux-vdso.so.1 (0x00007fff)\n"
+            "\tlibmissing.so.1 => not found\n"
+            "\tlibc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 "
+            "(0x00007f00)\n"
+            "\t/lib64/ld-linux-x86-64.so.2 (0x00007f01)\n"
+        )
+        readelf_out = (
+            " 0x0000000000000001 (NEEDED) Shared library:"
+            " [libc.so.6]\n"
+        )
+        mock_realpath.side_effect = lambda p: p
+
+        def subproc(cmd, **kwargs):
+            if cmd[0] == "ldd":
+                return ldd_out
+            if cmd[0] == "readelf":
+                return readelf_out
+            raise AssertionError(f"unexpected: {cmd}")
+
+        mock_subproc.side_effect = subproc
+        mock_auto.return_value = FakeResolver({
+            "/lib/x86_64-linux-gnu/libc.so.6": ResolvedPackage(
+                name="libc6", version="2.35",
+            ),
+        })
+
+        with tempfile.TemporaryDirectory() as td:
+            with patch("builtins.print"):
+                # resolver omitted -> default auto_detect path (24-27).
+                main("/fake/bin", td)
+            out = json.loads(
+                (Path(td) / "dynamic_libs.json").read_text()
+            )
+
+        mock_auto.assert_called_once()
+        self.assertIn("ld-linux", out["dynamic_libs"])
+        self.assertFalse(
+            out["dynamic_libs"]["ld-linux"]["direct"]
+        )
+        # "not found" sonames are recorded as project-built libs.
+        self.assertIn(
+            "libmissing.so.1", out["project_built_libs"]
+        )
+
+
 if __name__ == "__main__":
     unittest.main()

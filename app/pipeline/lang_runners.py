@@ -10,11 +10,22 @@ metrics for Phase 1 (build interception) and Phase 2
 (post-build analysis).
 """
 
+import logging
 import sys
 from pathlib import Path
 
 from app.config import lang_subdir
+from app.pipeline import handoff
 from app.pipeline.timing import StepTimer, TimingResult
+from app.spdx import identity
+from app.spdx.identity import IDENTITY_INDEX_FILENAME
+
+logger = logging.getLogger(__name__)
+
+# Java build tools recognized by _detect_java_build_tool().
+_KNOWN_JAVA_BUILD_TOOLS = (
+    "gradle", "maven", "ivy", "ant", "make", "bazel",
+)
 
 
 # ============================================================
@@ -169,30 +180,128 @@ def _extract_maven_modules(build_steps):
     return None
 
 
+def _detect_java_build_tool(repo_dir, repo_cfg=None):
+    """Detect the Java build tool for a repository.
+
+    Returns one of ``gradle`` / ``maven`` / ``ivy`` / ``ant`` /
+    ``make`` / ``bazel``, or ``unknown`` when no signal matches.
+
+    A ``java_build_tool`` field in the repo config overrides
+    detection (config-driven, never repo-name-keyed). Otherwise
+    detection is a pure function over the repo's top-level build
+    files, using this precedence: ``gradle`` > ``maven`` >
+    ``ivy`` > ``ant`` > ``make`` > ``bazel``. Maven and Gradle
+    are checked first because their build files unambiguously
+    identify the primary build; ``bazel`` is last because its
+    Java share is tiny and a native strategy is deferred.
+
+    Raises:
+        ValueError: if ``java_build_tool`` is set to an
+            unrecognized value.
+    """
+    override = (repo_cfg or {}).get("java_build_tool")
+    if override:
+        tool = str(override).strip().lower()
+        if tool not in _KNOWN_JAVA_BUILD_TOOLS:
+            raise ValueError(
+                f"Unknown java_build_tool '{override}'; expected "
+                f"one of {_KNOWN_JAVA_BUILD_TOOLS}"
+            )
+        return tool
+
+    from app.spdx.gradle_parser import is_gradle_project
+
+    repo_path = Path(repo_dir)
+    if is_gradle_project(str(repo_path)):
+        return "gradle"
+    if (repo_path / "pom.xml").exists():
+        return "maven"
+    if (repo_path / "ivy.xml").exists():
+        return "ivy"
+    if (repo_path / "build.xml").exists():
+        return "ant"
+    if any(
+        (repo_path / f).exists()
+        for f in ("Makefile", "makefile", "GNUmakefile")
+    ):
+        return "make"
+    if any(
+        (repo_path / f).exists()
+        for f in ("WORKSPACE", "WORKSPACE.bazel", "MODULE.bazel")
+    ):
+        return "bazel"
+    return "unknown"
+
+
+_DEFAULT_INLINE_SHIM = (
+    "/opt/omnibor/lib/libomnibor_java_intercept.so"
+)
+
+
+def _java_inline_config(omnibor_cfg, repo_dir):
+    """Resolve inline-hashing config for a Java sidecar build.
+
+    Config-driven (never per-repo hardcoded): inline hashing is enabled
+    by ``omnibor.java_inline_hash`` and the shim path is overridable via
+    ``omnibor.inline_shim_path``.  The capture log lives at a
+    deterministic workspace-relative path shared by ``instrument_command``
+    (the shim writes it during the build) and ``generate_adg`` (the
+    assembler reads it) \u2014 matching the CI/CD YAML example in the design.
+
+    Returns:
+        ``(inline_hash, shim_path, capture_log)``.
+    """
+    cfg = omnibor_cfg or {}
+    inline = bool(cfg.get("java_inline_hash"))
+    if not inline:
+        return False, None, None
+    shim_path = cfg.get("inline_shim_path", _DEFAULT_INLINE_SHIM)
+    capture_log = str(
+        Path(repo_dir) / ".omnibor" / "capture.jsonl"
+    )
+    return True, shim_path, capture_log
+
+
 def _select_java_strategy(
-    repo_name, repo_cfg, paths_cfg, mode,
+    repo_name, repo_cfg, paths_cfg, mode, omnibor_cfg=None,
 ):
     """Select interception strategy for Java builds.
 
     In sidecar mode, uses dep:tree strategies that avoid
-    strace entirely.  Detects Maven vs Gradle from the
-    repo's build configuration.
+    strace entirely.  Detects the build tool via
+    ``_detect_java_build_tool``.  When ``omnibor.java_inline_hash`` is
+    set, the strategy also injects the ``LD_PRELOAD`` inline-hashing shim
+    and assembles the treedb from its capture log instead of rescanning.
 
     In standalone mode, returns None (legacy strace path).
     """
     if mode != "sidecar":
         return None
 
-    from app.spdx.gradle_parser import is_gradle_project
-
     repo_dir = (
         Path(paths_cfg["repos_dir"]) / repo_name
     )
-    if is_gradle_project(str(repo_dir)):
+    tool = _detect_java_build_tool(str(repo_dir), repo_cfg)
+    inline, shim_path, capture_log = _java_inline_config(
+        omnibor_cfg, repo_dir,
+    )
+
+    if tool == "gradle":
         from app.pipeline.interception import (
             GradleDepTreeStrategy,
         )
-        return GradleDepTreeStrategy()
+        return GradleDepTreeStrategy(
+            inline_hash=inline, shim_path=shim_path,
+            capture_log=capture_log,
+        )
+
+    if tool not in ("maven", "unknown"):
+        logger.info(
+            "Java build tool '%s' detected for %s; native "
+            "dependency capture is not yet implemented \u2014 "
+            "falling back to the Maven dep:tree strategy",
+            tool, repo_name,
+        )
 
     from app.pipeline.interception import (
         MavenDepTreeStrategy,
@@ -202,6 +311,8 @@ def _select_java_strategy(
     )
     return MavenDepTreeStrategy(
         maven_modules=maven_modules,
+        inline_hash=inline, shim_path=shim_path,
+        capture_log=capture_log,
     )
 
 
@@ -221,6 +332,7 @@ def run_java_phase1(
     """
     strategy = _select_java_strategy(
         repo_name, repo_cfg, paths_cfg, mode,
+        omnibor_cfg=omnibor_java_cfg,
     )
     tracer = strategy.name if strategy else "strace"
     timing = TimingResult(tracer=tracer)
@@ -240,19 +352,76 @@ def run_java_phase1(
         )
     timing.steps.extend(build_result.steps)
     timing.success = build_result.success
+
+    # Persist the SHA-256 identity index while build intermediates
+    # (.class) still exist, so an offline Phase 2 can surface
+    # identity for files removed by workspace cleanup (design of
+    # record: project/artifact-identity.md, Java caveats).  bomsh's
+    # SHA-1 treedb is used only to enumerate node paths (topology).
+    # Timed as sidecar work: it is part of creating the build
+    # metadata Phase 2 consumes, not the native build.
+    if timing.success:
+        timer = StepTimer(
+            "identity_index", "phase1",
+            category="sidecar",
+        )
+        with timer:
+            _persist_identity_index(
+                repo_name, repo_cfg, paths_cfg, run_ts,
+            )
+        timing.steps.append(timer.metrics)
+
     return timing, strategy
+
+
+def _persist_identity_index(
+    repo_name, repo_cfg, paths_cfg, run_ts,
+):
+    """Write the Phase-1 identity index for a Java run.
+
+    Generic across standalone and sidecar modes: both write the
+    bomsh treedb to the same ``bom_dir``.  Failure to persist the
+    index is non-fatal (logged, not raised) so it never breaks a
+    successful build.
+    """
+    from app.spdx.parser import AdgParser
+
+    lang = lang_subdir(repo_cfg)
+    bom_dir = (
+        Path(paths_cfg["output_dir"])
+        / "omnibor" / lang / repo_name / run_ts
+    )
+    try:
+        count = AdgParser(
+            str(bom_dir), paths_cfg["repos_dir"],
+        ).persist_identity_index()
+    except (OSError, ValueError) as exc:
+        print(
+            f"[WARN] identity index not written for "
+            f"{repo_name}: {exc}"
+        )
+        return
+    print(
+        f"[OK] identity index: {count} artifacts "
+        f"({bom_dir}/metadata/bomsh/"
+        f"bomsh_identity_index.json)"
+    )
 
 
 def run_java_phase2(
     pipeline, repo_name, repo_cfg,
     paths_cfg, omnibor_java_cfg, run_ts,
     vcs_uri="NOASSERTION",
+    commit_sha="NOASSERTION",
+    mode="standalone",
+    build_id=None,
     manifest_binaries=None,
 ):
     """Java Phase 2: SPDX generation + validation.
 
     Runs post-build analysis: OmniBOR SBOM, metadata,
-    per-binary SPDX, validation, binary collection.
+    per-binary SPDX, validation, binary collection, and the
+    Phase 2 SBOM hand-off manifest.
 
     Args:
         manifest_binaries: optional enriched binary list
@@ -275,6 +444,9 @@ def run_java_phase2(
                 repo_name, repo_cfg,
                 paths_cfg, run_ts,
                 vcs_uri=vcs_uri,
+                commit_sha=commit_sha,
+                mode=mode,
+                build_id=build_id,
                 manifest_binaries=manifest_binaries,
             )
         ),
@@ -286,6 +458,7 @@ def run_java_pipeline(
     paths_cfg, omnibor_java_cfg, run_ts,
     vcs_uri="NOASSERTION",
     mode="standalone",
+    commit_sha="NOASSERTION",
 ):
     """Java pipeline: build + SPDX generation.
 
@@ -311,14 +484,107 @@ def run_java_pipeline(
             pipeline, repo_name, repo_cfg,
             paths_cfg, omnibor_java_cfg, run_ts,
             vcs_uri=vcs_uri,
+            commit_sha=commit_sha,
+            mode=mode,
         )
     )
     return timing
 
 
+def _find_module_dir(jar_path):
+    """Find the build-module directory for an output JAR.
+
+    Walks up from the JAR's build-output directory to the nearest
+    ancestor containing a build file (``pom.xml`` /
+    ``build.gradle`` / ``build.gradle.kts``). Used only by the
+    co-located dev/test live-resolution fallback; the enterprise
+    path never reads the source tree.
+
+    Returns the module directory as a string, or None if not found.
+    """
+    jar_dir = jar_path.parent
+    build_files = (
+        "pom.xml", "build.gradle", "build.gradle.kts",
+    )
+    for parent in [
+        jar_dir, jar_dir.parent, jar_dir.parent.parent,
+    ]:
+        if any(
+            (parent / bf).exists() for bf in build_files
+        ):
+            return str(parent)
+    return None
+
+
+def _jar_artifact_record(index, jar_path, bin_name):
+    """Resolve a JAR's OmniBOR identity for the hand-off manifest.
+
+    Prefers the Phase-1 identity index (canonical, works offline);
+    falls back to reading the JAR when it is still on disk (co-located
+    run). Returns a ``{name, sha256, gitoid}`` record, or ``None`` when
+    identity is unavailable (offline Phase 2 with no index entry).
+    """
+    record = identity.identity_for_basename(index, bin_name)
+    if record is not None:
+        return {
+            "name": bin_name,
+            "sha256": record["raw"],
+            "gitoid": record["gitoid"],
+        }
+    ident = identity.try_from_file(jar_path)
+    if ident is not None:
+        return {
+            "name": bin_name,
+            "sha256": ident.raw,
+            "gitoid": ident.gitoid,
+        }
+    return None
+
+
+def _emit_handoff_manifest(
+    spdx_dir, repo_name, lang, mode,
+    commit_sha, vcs_uri, build_id, sboms,
+):
+    """Write the Phase 2 SBOM hand-off manifest for a Java run.
+
+    The manifest is a consumer-agnostic output descriptor enumerating
+    every generated SBOM pair (see
+    ``docs/sidecar/java/phase2-handoff-contract.md``). A run that
+    produced no complete pair writes no manifest.
+    """
+    if not sboms:
+        print(
+            f"[WARN] {repo_name}: no complete SBOM pairs — "
+            f"hand-off manifest not written"
+        )
+        return None
+    try:
+        path = handoff.write_handoff_manifest(
+            spdx_dir,
+            repo_name=repo_name,
+            language=lang,
+            mode=mode,
+            commit_sha=commit_sha,
+            vcs_uri=vcs_uri,
+            build_id=build_id,
+            sboms=sboms,
+        )
+    except handoff.HandoffError as exc:
+        print(f"[ERROR] hand-off manifest not written: {exc}")
+        return None
+    print(
+        f"[OK] Hand-off manifest: {path} "
+        f"({len(sboms)} artifact(s))"
+    )
+    return path
+
+
 def generate_java_adg_spdx(
     repo_name, repo_cfg, paths_cfg, run_ts,
     vcs_uri="NOASSERTION",
+    commit_sha="NOASSERTION",
+    mode="standalone",
+    build_id=None,
     manifest_binaries=None,
 ):
     """Generate per-binary Java SPDX.
@@ -327,18 +593,17 @@ def generate_java_adg_spdx(
       - _analyzed: only source files in the JAR
       - _build: full Maven dependency graph
 
-    Each JAR's root package includes ``packageFileName``
-    and ``checksums`` (SHA-1, SHA-256) when manifest
-    binaries are provided, for unambiguous binary-to-SPDX
-    correlation.
-
-    Args:
-        manifest_binaries: optional list of enriched
-            binary dicts from the manifest (with
-            ``path``, ``sha1``, ``sha256`` keys).
+    For multi-module Maven projects, each output JAR
+    gets its own SPDX pair with only the files that
+    were compiled into that specific JAR (traced via
+    bomsh treedb hash_tree).
     """
     from app.pipeline.maven_plugin_detector import (
         detect_repackaging_plugins,
+    )
+    from app.spdx.dep_capture_reader import (
+        get_module_deps,
+        load_capture,
     )
     from app.spdx.java_generator import JavaSpdxGenerator
     from app.spdx.parser import AdgParser
@@ -364,6 +629,23 @@ def generate_java_adg_spdx(
         print(f"[ERROR] {e}")
         return []
 
+    # OmniBOR artifact identity per JAR is computed by reading the
+    # built JAR itself in the generator (raw SHA-256 + SHA-256
+    # gitOID); bomsh's SHA-1 treedb is topology only and is not
+    # surfaced (see project/artifact-identity.md).
+
+    # Topology completeness: warn when a JAR's .class files do not
+    # trace back to a .java source (strace capture gap).  Design of
+    # record Java caveat (project/artifact-identity.md).
+    for rel, stats in parser.validate_jar_topology().items():
+        missing = stats["classes_without_source"]
+        if missing:
+            print(
+                f"[WARN] {rel}: {missing}/{stats['classes']} "
+                f".class files have no traced .java source "
+                f"(strace capture gap — topology incomplete)"
+            )
+
     # Parse strace openat log — the set of files
     # actually opened during the build.  Mirrors
     # how C/C++ uses load_raw_logfile_hashes() to
@@ -376,48 +658,33 @@ def generate_java_adg_spdx(
             f"accessed during build"
         )
 
-    # Resolve JARs: prefer manifest_binaries (exact
-    # paths from Phase 1) over re-globbing, since the
-    # orchestrator mounts build output and the glob
-    # may not match the mount structure.
+    # Resolve output_binaries globs to actual JARs
+    bins = repo_cfg.get("output_binaries", [])
+    jar_paths = []
+    for pattern in bins:
+        if "*" in pattern or "?" in pattern:
+            jar_paths.extend(repo_dir.glob(pattern))
+        else:
+            p = repo_dir / pattern
+            if p.exists():
+                jar_paths.append(p)
+
+    # Filter to product JARs only — drops auxiliary artifacts
+    # (tests/sources/javadoc) and build-logic JARs (Gradle ``buildSrc``,
+    # which configures the build and ships in no product artifact).
     from app.pipeline.binary_collector import (
         BinaryCollector,
     )
-
-    jar_paths = []
-    if manifest_binaries:
-        for entry in manifest_binaries:
-            p = Path(
-                entry["path"]
-                if isinstance(entry, dict)
-                else entry
-            )
-            if not BinaryCollector._is_auxiliary_jar(
-                p.name
-            ):
-                jar_paths.append(p)
-        if jar_paths:
-            print(
-                f"[OK] Using {len(jar_paths)} "
-                f"JAR(s) from manifest"
-            )
-    if not jar_paths:
-        bins = repo_cfg.get("output_binaries", [])
-        for pattern in bins:
-            if "*" in pattern or "?" in pattern:
-                jar_paths.extend(
-                    repo_dir.glob(pattern)
-                )
-            else:
-                p = repo_dir / pattern
-                if p.exists():
-                    jar_paths.append(p)
-        jar_paths = [
-            p for p in jar_paths
-            if not BinaryCollector._is_auxiliary_jar(
-                p.name
-            )
-        ]
+    excluded = BinaryCollector.excluded_binaries(
+        repo_dir, repo_cfg.get("exclude_binaries", []),
+    )
+    jar_paths = [
+        p for p in jar_paths
+        if not BinaryCollector.is_non_product_jar(
+            p, repo_dir,
+        )
+        and p not in excluded
+    ]
 
     if not jar_paths:
         print(
@@ -425,18 +692,6 @@ def generate_java_adg_spdx(
             f"{repo_name}"
         )
         return []
-
-    # Build index of manifest checksums by filename
-    # for correlation with SPDX packages
-    checksums_by_name = {}
-    if manifest_binaries:
-        for entry in manifest_binaries:
-            if isinstance(entry, dict):
-                p = Path(entry["path"])
-                checksums_by_name[p.name] = {
-                    "sha1": entry.get("sha1", ""),
-                    "sha256": entry.get("sha256", ""),
-                }
 
     # Detect shade/assembly plugins for SPDX annotation
     plugin_result = detect_repackaging_plugins(
@@ -454,8 +709,26 @@ def generate_java_adg_spdx(
         vcs_uri=vcs_uri,
     )
 
+    # Phase 2 generates _build SBOMs from the Phase 1 dependency
+    # capture (no source-tree access).  ``source_present`` marks a
+    # co-located dev/test run, where a live-resolution fallback is
+    # permitted if the capture is missing; the enterprise path
+    # (no source tree) fails loudly instead.
+    capture = load_capture(bom_dir)
+    source_present = repo_dir.exists()
+
+    # Phase-1 identity index: canonical source for each JAR's raw
+    # SHA-256 + gitOID in the hand-off manifest (works offline, no
+    # workspace re-read). Empty when absent; a co-located fallback
+    # reads the JAR directly (see _jar_artifact_record).
+    identity_index = identity.read_identity_index(
+        bom_dir / "metadata" / "bomsh" / IDENTITY_INDEX_FILENAME
+    )
+
     results = []
+    sboms = []
     for jar_path in jar_paths:
+        jar_name = jar_path.stem  # e.g. jsoup-1.22.1
         bin_name = jar_path.name  # e.g. jsoup-1.22.1.jar
 
         # Find matching treedb entry by JAR path.
@@ -488,31 +761,45 @@ def generate_java_adg_spdx(
             )
             continue
 
-        # Determine module dir for per-module dependency
-        # resolution (Maven: pom.xml, Gradle: build.gradle)
+        # Resolve this JAR's dependency subtree from the Phase 1
+        # capture (no source-tree access).  The module is identified
+        # from artifact metadata that travels with the JAR: its
+        # artifactId / subproject name and its build-output path.
+        artifact_name = (
+            JavaSpdxGenerator.extract_artifact_name(bin_name)
+        )
+        build_deps = None
+        if capture is not None:
+            build_deps = get_module_deps(
+                capture, artifact_name, rel_jar,
+            )
+
+        # Decide the _build dependency source.  Per design, the
+        # enterprise path (no source tree) fails loudly when the
+        # capture lacks this module; a co-located dev/test run may
+        # fall back to live resolution from the source tree.
         pom_dir = None
-        jar_dir = jar_path.parent
-        # Walk up from build output dir to find module root
-        build_files = (
-            "pom.xml", "build.gradle", "build.gradle.kts"
-        )
-        for parent in [
-            jar_dir, jar_dir.parent,
-            jar_dir.parent.parent,
-        ]:
-            if any(
-                (parent / bf).exists()
-                for bf in build_files
-            ):
-                pom_dir = str(parent)
-                break
+        build_ok = True
+        if build_deps is None:
+            if source_present:
+                print(
+                    f"[WARN] {bin_name}: no Phase 1 dependency "
+                    f"metadata; falling back to live resolution "
+                    f"(co-located dev/test path)"
+                )
+                pom_dir = _find_module_dir(jar_path)
+            else:
+                print(
+                    f"[ERROR] {bin_name}: no Phase 1 dependency "
+                    f"metadata and no source tree — cannot "
+                    f"generate _build SBOM (enterprise Phase 2 "
+                    f"requires the capture); skipping _build"
+                )
+                build_ok = False
 
-        jar_name = jar_path.stem  # e.g. jsoup-1.22.1
-        jar_checksums = checksums_by_name.get(
-            bin_name, {}
-        )
-
-        # Analyzed: only source files in this JAR
+        # Analyzed: only source files in this JAR.  It never needs
+        # dependencies, so pass deps=[] to keep it off the source
+        # tree entirely.
         analyzed_path = (
             spdx_dir
             / f"{jar_name}_analyzed.spdx.json"
@@ -522,32 +809,61 @@ def generate_java_adg_spdx(
             binary_name=bin_name,
             sbom_type="analyzed",
             jar_files=jar_files,
-            pom_dir=pom_dir,
+            deps=[],
             plugin_detection=plugin_result,
-            checksums=jar_checksums,
-            package_file_name=rel_jar,
+            jar_path=str(jar_path),
         )
+        analyzed_ok = bool(result)
         if result:
             results.append(result)
 
-        # Build: full dependency graph for this module
-        build_path = (
-            spdx_dir
-            / f"{jar_name}_build.spdx.json"
-        )
-        result = gen.generate(
-            output_path=str(build_path),
-            binary_name=bin_name,
-            sbom_type="build",
-            jar_files=jar_files,
-            pom_dir=pom_dir,
-            plugin_detection=plugin_result,
-            checksums=jar_checksums,
-            package_file_name=rel_jar,
-        )
-        if result:
-            results.append(result)
+        build_written = False
 
+        # Build: full dependency graph for this module, from the
+        # captured metadata (build_deps) or the co-located live
+        # fallback (build_deps is None with pom_dir set).
+        if build_ok:
+            build_path = (
+                spdx_dir
+                / f"{jar_name}_build.spdx.json"
+            )
+            result = gen.generate(
+                output_path=str(build_path),
+                binary_name=bin_name,
+                sbom_type="build",
+                jar_files=jar_files,
+                pom_dir=pom_dir,
+                deps=build_deps,
+                plugin_detection=plugin_result,
+                jar_path=str(jar_path),
+            )
+            build_written = bool(result)
+            if result:
+                results.append(result)
+
+        # Record this JAR in the hand-off manifest only when the full
+        # build + analyzed pair was written (the contract requires
+        # both per artifact).
+        if analyzed_ok and build_written:
+            artifact = _jar_artifact_record(
+                identity_index, jar_path, bin_name,
+            )
+            if artifact is not None:
+                sboms.append({
+                    "artifact": artifact,
+                    "analyzed": str(analyzed_path),
+                    "build": str(build_path),
+                })
+            else:
+                print(
+                    f"[WARN] {bin_name}: no OmniBOR identity "
+                    f"available; omitted from hand-off manifest"
+                )
+
+    _emit_handoff_manifest(
+        spdx_dir, repo_name, lang, mode, commit_sha,
+        vcs_uri, build_id or run_ts, sboms,
+    )
     return results
 
 

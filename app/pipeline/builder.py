@@ -4,11 +4,12 @@ Instrumented build with bomtrace for OmniBOR Analysis.
 Runs pre-build steps, the instrumented build via bomtrace3/bomtrace2,
 and generates OmniBOR ADG documents.
 
-Each phase is timed separately via ``StepTimer`` so
-callers can report Phase 1 (build interception) vs
-Phase 2 (post-build analysis) accurately.
+All steps here are Phase 1 (build + metadata capture):
+clean, prebuild, instrumented build, and ADG generation.
+Phase 2 (SPDX generation) lives in ``lang_runners``.
 """
 
+import os
 import shutil
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -47,6 +48,28 @@ class BomtraceBuilder:
     def __init__(self, runner=None):
         self.runner = runner or CommandRunner()
 
+    @staticmethod
+    def _apply_java_home(repo_cfg):
+        """Export ``JAVA_HOME`` when the repo's profile pins a JDK.
+
+        Some build tools must *run* on a specific JDK (e.g. Gradle 7.6.x
+        cannot run on JDK 21). ``build_profile.java_home`` records the
+        in-container JDK path; exporting it into the process environment
+        here ensures the clean, build, and dependency-capture
+        subprocesses (which inherit ``os.environ``) all use that JDK.
+        Repos without ``java_home`` are unaffected (container default).
+        """
+        profile = repo_cfg.get("build_profile") or {}
+        java_home = profile.get("java_home")
+        if not java_home:
+            return
+        os.environ["JAVA_HOME"] = java_home
+        bin_dir = str(Path(java_home) / "bin")
+        os.environ["PATH"] = (
+            bin_dir + os.pathsep + os.environ.get("PATH", "")
+        )
+        print(f"[JDK] JAVA_HOME set to {java_home}")
+
     def build(
         self, repo_name, repo_cfg,
         paths_cfg, omnibor_cfg,
@@ -75,6 +98,10 @@ class BomtraceBuilder:
             / "omnibor" / lang / repo_name / ts
         )
 
+        # Pin the build JDK when the profile requires one (before any
+        # clean/build/dep-capture subprocess runs).
+        self._apply_java_home(repo_cfg)
+
         skip_build = repo_cfg.get("skip_build", False)
         if skip_build:
             print(
@@ -102,22 +129,19 @@ class BomtraceBuilder:
             build_steps = repo_cfg["build_steps"]
             pre_steps = build_steps[:-1]
             if pre_steps:
-                timer = StepTimer(
-                    "prebuild", "phase1",
-                )
+                timer = StepTimer("prebuild", "phase1")
                 with timer:
                     for step in pre_steps:
                         rc = self.runner.run(
                             step, cwd=str(repo_dir),
                             description=(
-                                f"Pre-build: "
-                                f"{step[:60]}"
+                                f"Pre-build: {step[:60]}"
                             ),
                         )
                         if rc != 0:
                             print(
-                                "[ERROR] Pre-build "
-                                f"step failed: {step}"
+                                "[ERROR] Pre-build step "
+                                f"failed: {step}"
                             )
                             result.steps.append(
                                 timer.metrics
@@ -161,41 +185,40 @@ class BomtraceBuilder:
                 )
                 return result
 
-        # --- Phase 2a: ADG generation ---
-        timer = StepTimer("adg", "phase2")
-        with timer:
-            if strategy:
-                ok = strategy.generate_adg(
-                    str(repo_dir), str(bom_dir),
-                    omnibor_cfg,
-                )
-                if not ok:
-                    print(
-                        "[ERROR] ADG generation failed"
+            # --- Phase 1d: ADG generation ---
+            timer = StepTimer("adg", "phase1")
+            adg_ok = True
+            with timer:
+                if strategy:
+                    adg_ok = bool(
+                        strategy.generate_adg(
+                            str(repo_dir), str(bom_dir),
+                            omnibor_cfg,
+                        )
                     )
-                    result.steps.append(timer.metrics)
-                    return result
-            else:
-                create_bom = (
-                    omnibor_cfg["create_bom_script"]
-                )
-                raw_logfile = omnibor_cfg["raw_logfile"]
-                rc = self.runner.run(
-                    f"{create_bom} -r {raw_logfile} "
-                    f"-b {bom_dir}",
-                    cwd=str(repo_dir),
-                    description=(
-                        "Generating OmniBOR ADG "
-                        "documents"
-                    ),
-                )
-                if rc != 0:
-                    print(
-                        "[ERROR] ADG generation failed"
+                else:
+                    create_bom = (
+                        omnibor_cfg["create_bom_script"]
                     )
-                    result.steps.append(timer.metrics)
-                    return result
-        result.steps.append(timer.metrics)
+                    raw_logfile = omnibor_cfg["raw_logfile"]
+                    rc = self.runner.run(
+                        f"{create_bom} -r {raw_logfile} "
+                        f"-b {bom_dir}",
+                        cwd=str(repo_dir),
+                        description=(
+                            "Generating OmniBOR ADG "
+                            "documents"
+                        ),
+                    )
+                    adg_ok = rc == 0
+            # Append metrics AFTER the timer context exits so
+            # the step records real timing (timer.metrics is
+            # None until __exit__ runs).  This holds for both
+            # the success and failure paths.
+            result.steps.append(timer.metrics)
+            if not adg_ok:
+                print("[ERROR] ADG generation failed")
+                return result
 
         print(
             "[OK] OmniBOR ADG documents "
@@ -312,6 +335,10 @@ class BomtraceBuilder:
         meta_dir = bom_dir / "metadata" / "bomsh"
         meta_dir.mkdir(parents=True, exist_ok=True)
 
+        # Pin the build JDK when the profile requires one (before any
+        # clean/build subprocess runs).
+        self._apply_java_home(repo_cfg)
+
         strace_opts = omnibor_java_cfg["strace_opts"]
         strace_log = omnibor_java_cfg["strace_logfile"]
         create_bom = omnibor_java_cfg["create_bom_script"]
@@ -391,15 +418,15 @@ class BomtraceBuilder:
             print("[ERROR] Instrumented build failed")
             return result
 
-        # --- Phase 2a: ADG generation ---
-        timer = StepTimer("adg", "phase2")
+        # --- Phase 1d: ADG generation ---
+        timer = StepTimer("adg", "phase1")
         with timer:
             treedb_file = (
                 meta_dir / "bomsh_omnibor_treedb"
             )
             rc = self.runner.run(
                 f"{create_bom} -r {repo_dir} "
-                f"-j {treedb_file}",
+                f"-j {treedb_file} -b {meta_dir} -m",
                 cwd=str(repo_dir),
                 description=(
                     "Generating OmniBOR treedb "
