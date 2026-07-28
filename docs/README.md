@@ -31,7 +31,7 @@ Build logs and SBOM output are generated per-run and live under
 |------|----------|
 | `output/build-logs/{lang}/{repo}/{ts}/` | Build environment logs |
 | `output/spdx/{lang}/{repo}/{ts}/` | SPDX SBOMs + HTML visualizations |
-| `output/omnibor/{lang}/{repo}/{ts}/` | ADG documents (build provenance) |
+| `output/bisbom/{lang}/{repo}/{ts}/` | ADG documents (build provenance) |
 | `output/binaries/{lang}/{repo}/{ts}/` | Compiled output binaries |
 
 **Path convention:** `{lang}` is `c-cpp`, `rust`, `go`, or `java`.

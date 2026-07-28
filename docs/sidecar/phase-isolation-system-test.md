@@ -60,7 +60,7 @@ docker compose run --rm -T bisbom-sidecar \
 
 1. Builds the repo inside a fresh sidecar container
 2. Writes `phase1_manifest.json` to
-   `output/omnibor/<lang>/<repo>/<ts>/`
+   `output/bisbom/<lang>/<repo>/<ts>/`
 3. The manifest includes:
    - `version` — manifest schema version (`"1.0"`)
    - `repo_name` — repository name
@@ -83,7 +83,7 @@ docker compose run --rm -T bisbom-sidecar \
 The test script parses the Phase 1 log for:
 
 ```
-Phase 1 manifest: /workspace/output/omnibor/<lang>/<repo>/<ts>/phase1_manifest.json
+Phase 1 manifest: /workspace/output/bisbom/<lang>/<repo>/<ts>/phase1_manifest.json
 ```
 
 ### Pre-Phase 2 Assertions

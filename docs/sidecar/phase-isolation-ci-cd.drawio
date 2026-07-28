@@ -7,7 +7,7 @@
         <mxCell id="title" parent="1" style="text;html=1;fontSize=18;fontStyle=1;align=center;verticalAlign=middle;" value="Phase Isolation in CI/CD — Separate Jobs with Artifact Transfer" vertex="1">
           <mxGeometry height="30" width="1000" x="150" y="15" as="geometry" />
         </mxCell>
-        <mxCell id="subtitle" parent="1" style="text;html=1;fontSize=10;fontStyle=2;align=center;fontColor=#666666;" value="Validated against &lt;b&gt;tedg-dev/omnibor-java-testapp&lt;/b&gt;.&amp;nbsp; &amp;nbsp;&lt;b&gt;Job 1&lt;/b&gt; (customer build site) produces artifacts.&amp;nbsp; &amp;nbsp;&lt;b&gt;Job 2&lt;/b&gt; (analysis service) consumes them via GitHub Actions artifact mechanism — no shared filesystem." vertex="1">
+        <mxCell id="subtitle" parent="1" style="text;html=1;fontSize=10;fontStyle=2;align=center;fontColor=#666666;" value="Validated against &lt;b&gt;tedg-dev/bisbom-java-testapp&lt;/b&gt;.&amp;nbsp; &amp;nbsp;&lt;b&gt;Job 1&lt;/b&gt; (customer build site) produces artifacts.&amp;nbsp; &amp;nbsp;&lt;b&gt;Job 2&lt;/b&gt; (analysis service) consumes them via GitHub Actions artifact mechanism — no shared filesystem." vertex="1">
           <mxGeometry height="18" width="1100" x="100" y="45" as="geometry" />
         </mxCell>
         <mxCell id="job1_box" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;dashed=0;" value="" vertex="1">
@@ -174,7 +174,7 @@
         <mxCell id="local_desc" parent="1" style="text;html=1;fontSize=9;fontStyle=2;align=left;fontColor=#7b1fa2;" value="Download CI artifacts locally via GitHub CLI (industry standard)" vertex="1">
           <mxGeometry height="16" width="275" x="840" y="305" as="geometry" />
         </mxCell>
-        <mxCell id="local_cmd1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#7b1fa2;fontSize=9;align=left;fontFamily=Courier New;" value="# Download SPDX output&#xa;gh run download &lt;run-id&gt; \&#xa;  -R tedg-dev/omnibor-java-testapp \&#xa;  -n spdx-output -D ./output/" vertex="1">
+        <mxCell id="local_cmd1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#7b1fa2;fontSize=9;align=left;fontFamily=Courier New;" value="# Download SPDX output&#xa;gh run download &lt;run-id&gt; \&#xa;  -R tedg-dev/bisbom-java-testapp \&#xa;  -n spdx-output -D ./output/" vertex="1">
           <mxGeometry height="60" width="255" x="842" y="327" as="geometry" />
         </mxCell>
         <mxCell id="local_cmd2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#7b1fa2;fontSize=9;align=left;fontFamily=Courier New;" value="# Or download Phase 1 artifacts&#xa;# to run Phase 2 locally in Docker&#xa;gh run download &lt;run-id&gt; \&#xa;  -n phase1-artifacts -D ./phase1/" vertex="1">

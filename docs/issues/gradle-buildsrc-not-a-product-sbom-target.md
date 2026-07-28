@@ -83,7 +83,7 @@ software, so `buildSrc` must not be a product SBOM target.
 
 Phase 1 sidecar interception recorded **zero** class events for
 `buildSrc`. The `LD_PRELOAD` shim
-(`libomnibor_java_intercept.so`) intercepts artifact writes in the main
+(`libbisbom_java_intercept.so`) intercepts artifact writes in the main
 build process, but Gradle compiles `buildSrc` during its **initialization
 phase** through a separate mechanism whose process environment the shim
 does not reach. Phase 2 then correctly reported:

@@ -333,13 +333,13 @@ The instance runs `user-data.sh` on first boot which:
 > rsync -avz --exclude '.git' --exclude '__pycache__' --exclude '.venv' \
 >   --exclude 'output/' --exclude 'terraform/.terraform/' \
 >   --exclude 'terraform/terraform.tfstate*' --exclude 'terraform/terraform.tfvars' \
->   -e ssh ./ omnibor-build:~/omnibor-analysis/
+>   -e ssh ./ omnibor-build:~/bisbom-gen/
 > ```
 >
 > Then build the Docker image manually:
 >
 > ```bash
-> ssh omnibor-build "cd ~/omnibor-analysis && docker-compose -f docker/docker-compose.yml build"
+> ssh omnibor-build "cd ~/bisbom-gen && docker-compose -f docker/docker-compose.yml build"
 > ```
 
 Check bootstrap progress:
@@ -385,7 +385,7 @@ Elastic IP, etc.). This file is gitignored — your specific details stay local.
 ### Check Docker and bomtrace3
 
 ```bash
-ssh omnibor-build "docker-compose -f ~/omnibor-analysis/docker/docker-compose.yml \
+ssh omnibor-build "docker-compose -f ~/bisbom-gen/docker/docker-compose.yml \
   run --rm bisbom-env bomtrace3 --version"
 ```
 
@@ -400,7 +400,7 @@ ssh omnibor-build "docker-compose -f ~/omnibor-analysis/docker/docker-compose.ym
 Or manually:
 
 ```bash
-ssh omnibor-build "cd ~/omnibor-analysis && \
+ssh omnibor-build "cd ~/bisbom-gen && \
   docker-compose -f docker/docker-compose.yml run --rm bisbom-env \
   python3 /workspace/app/analyze.py --repo redis"
 ```
@@ -408,7 +408,7 @@ ssh omnibor-build "cd ~/omnibor-analysis && \
 ### Sync results back
 
 ```bash
-rsync -avz omnibor-build:~/omnibor-analysis/output/ output/
+rsync -avz omnibor-build:~/bisbom-gen/output/ output/
 ```
 
 ---
@@ -512,7 +512,7 @@ key pair. **All data on the instance will be lost** — sync results first!
 
 ```bash
 # Sync results before destroying
-rsync -avz omnibor-build:~/omnibor-analysis/output/ output/
+rsync -avz omnibor-build:~/bisbom-gen/output/ output/
 
 # Then destroy
 terraform destroy

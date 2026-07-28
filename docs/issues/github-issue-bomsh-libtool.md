@@ -30,13 +30,13 @@ This affects a large class of open-source projects that use autotools/libtool, i
 
    ```bash
    bomsh_create_bom.py -r /tmp/bomsh_hook_raw_logfile.sha1 \
-       -b /output/omnibor/curl
+       -b /output/bisbom/curl
    ```
 
 3. Generate SPDX SBOM with ExternalRefs:
 
    ```bash
-   bomsh_sbom.py -b /output/omnibor/curl \
+   bomsh_sbom.py -b /output/bisbom/curl \
        -F /repos/curl/src/.libs/curl \
        -O /output/spdx/curl \
        -s spdx-json --force_insert
@@ -126,7 +126,7 @@ We implemented a post-processing step in our pipeline that:
 3. Matches SPDX package names to binary basenames
 4. Injects `PERSISTENT-ID` gitoid ExternalRefs referencing the matched OmniBOR document
 
-This workaround is available at: https://github.com/tedg-dev/omnibor-analysis
+This workaround is available at: https://github.com/tedg-dev/bisbom-gen
 
 ## Impact
 

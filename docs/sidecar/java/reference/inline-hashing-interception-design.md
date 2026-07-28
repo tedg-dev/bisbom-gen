@@ -19,7 +19,7 @@ them**. Every other language already does this — C/C++ via `CC`/`CXX`/`AR`/`LD
 wrappers, Go via `-toolexec`, Rust via `RUSTC_WRAPPER`, standalone via
 `bomtrace3` (see `app/pipeline/interception.py`). Java is the **only**
 strategy whose `instrument_command()` is a no-op
-(`@/Users/tedg/workspace/omnibor-analysis/app/pipeline/interception.py:349-355`
+(`@/Users/tedg/workspace/bisbom-gen/app/pipeline/interception.py:349-355`
 and `:465-471`): the build runs uninstrumented and **all** gitoid/treedb work
 is deferred to a post-build workspace rescan in `generate_adg()` →
 `_generate_java_treedb()` (`:43-93`), which runs `bomsh_create_bom_java.py`.
@@ -42,7 +42,7 @@ Measured `adg` (treedb + `dep:tree`) wall time, sidecar, warm caches, EC2:
 | `logging-log4j2` | — | 4.8 s | — |
 | `jsoup` | — | 3.0 s | — |
 | `crawler4j` | — | 2.3 s | — |
-| `omnibor-java-testapp` | — | 2.2 s | — |
+| `bisbom-java-testapp` | — | 2.2 s | — |
 
 The interception overhead itself is ~free today (−1.1 s .. +1.8 s) **only
 because nothing is intercepted**. The goal is to move the hashing inline so
@@ -96,7 +96,7 @@ step over a capture log — no `find`, no unzip, no re-hash.
 
 ### 4.1 Interposition mechanism — `LD_PRELOAD` shim (sidecar, no build change)
 
-A small shared library (`libomnibor_java_intercept.so`) is loaded into the
+A small shared library (`libbisbom_java_intercept.so`) is loaded into the
 build's JVM processes via `LD_PRELOAD`, exported **from the CI/CD YAML** before
 the existing build step runs. This is the direct Java analog of the C/C++
 sidecar shim described in `infrastructure.md` §10.1, and it satisfies C1–C3:
@@ -168,7 +168,7 @@ non-enterprise path (mirrors `phase2-consume-dep-capture.md` §6).
 ```yaml
 - name: Build (unchanged)
   run: |
-    export LD_PRELOAD=/opt/omnibor/lib/libomnibor_java_intercept.so
+    export LD_PRELOAD=/opt/bisbom/lib/libbisbom_java_intercept.so
     export OMNIBOR_CAPTURE_LOG="$PWD/.omnibor/capture.jsonl"
     mvn -B package -DskipTests      # ← identical to the customer's existing command
 ```
@@ -195,7 +195,7 @@ shared `build_java_treedb()` dispatcher ("assemble-from-capture" vs legacy scan)
 | Inline-hash helpers + strategy wiring | `app/pipeline/interception.py` |
 | Config-driven selection | `app/pipeline/lang_runners.py` (`_java_inline_config`, `_select_java_strategy`) |
 | Config flag | `app/config.yaml` (`omnibor_java.java_inline_hash`, default **true**) |
-| `LD_PRELOAD` shim | `docker/shim/omnibor_java_intercept.c` (built in the Docker `standalone` stage, copied into `sidecar`) |
+| `LD_PRELOAD` shim | `docker/shim/bisbom_java_intercept.c` (built in the Docker `standalone` stage, copied into `sidecar`) |
 
 Byte-identical treedb vs the legacy rescan was validated on EC2 (see §7, §10):
 all 8 Java repos are golden-clean at package **and** file level with the flag
@@ -279,7 +279,7 @@ rescan across all eight Java repos, warm caches, on EC2.
 ## 10. Staged delivery (each stage gated on approval)
 
 1. This design doc — approve before any code.
-2. Prototype shim + capture-log assembler; prove V1/V2 on `omnibor-java-testapp`
+2. Prototype shim + capture-log assembler; prove V1/V2 on `bisbom-java-testapp`
    and `dependency-check`; treedb byte-identical.
 3. `JavaInlineHashStrategy` wired via config; Maven + Gradle share it.
 4. Measurement across all eight repos (§8); golden validation (§6).

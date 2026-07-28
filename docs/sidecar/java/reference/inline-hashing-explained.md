@@ -24,7 +24,7 @@ the actual code. Read the diagrams in order:
 ## 1. What is currently INCORRECTLY implemented (AI Hallucination)
 
 Java sidecar is the **only** interception strategy that does **no** inline
-work. Verified in `@/Users/tedg/workspace/omnibor-analysis/app/pipeline/interception.py`:
+work. Verified in `@/Users/tedg/workspace/bisbom-gen/app/pipeline/interception.py`:
 
 - `MavenDepTreeStrategy.instrument_command()` (`:349-355`) and
   `GradleDepTreeStrategy.instrument_command()` (`:465-471`) both
@@ -35,7 +35,7 @@ work. Verified in `@/Users/tedg/workspace/omnibor-analysis/app/pipeline/intercep
   as a **post-build workspace rescan**.
 
 That rescan is the cost. Per the fast-IO module docstring
-(`@/Users/tedg/workspace/omnibor-analysis/docker/patches/bomsh_java_fast_io.py`),
+(`@/Users/tedg/workspace/bisbom-gen/docker/patches/bomsh_java_fast_io.py`),
 for a JAR with N `.class` files the upstream flow spawns "~3N subprocesses"
 plus `find` and `jar -xf` per JAR. Concretely it does:
 
@@ -46,7 +46,7 @@ plus `find` and `jar -xf` per JAR. Concretely it does:
 
 The treedb record it builds is
 `{"outfile": (git_blob_sha1(jar), jar), "infiles": [...]}` (source:
-`@/Users/tedg/workspace/omnibor-analysis/docker/patches/README-bomsh_java_sourcefile.md`),
+`@/Users/tedg/workspace/bisbom-gen/docker/patches/README-bomsh_java_sourcefile.md`),
 mapping JAR → `.class` → source.
 
 **Measured cost** (EC2, sidecar, warm caches) — this is *after* the ~12x
@@ -59,12 +59,12 @@ fast-path optimization already merged:
 | `bc-java` | — | 18.5 s | large |
 | `checkstyle` | — | 6.3 s | moderate |
 | `logging-log4j2` | — | 4.8 s | moderate |
-| `jsoup` / `crawler4j` / `omnibor-java-testapp` | — | 2–3 s | small |
+| `jsoup` / `crawler4j` / `bisbom-java-testapp` | — | 2–3 s | small |
 
 The left half of **Diagram 1** depicts this current path.
 
 The phase-split plumbing already exists and is CI-validated for Java:
-`@/Users/tedg/workspace/omnibor-analysis/app/pipeline/manifest.py`
+`@/Users/tedg/workspace/bisbom-gen/app/pipeline/manifest.py`
 (`write_manifest`/`read_manifest`/`verify_gitoids`), the `--phase build`/`--phase spdx`
 flags, and `run_java_phase1`/`run_java_phase2`. What is missing is the **inline
 hashing** that the interception rule requires.
@@ -83,7 +83,7 @@ already follow. For Java the sidecar-legal mechanism is an `LD_PRELOAD` shim
 injected via the CI/CD YAML (matching the C/C++ sidecar direction in
 `infrastructure.md` §10.1):
 
-- A shared library `libomnibor_java_intercept.so` is loaded into the build's
+- A shared library `libbisbom_java_intercept.so` is loaded into the build's
   JVM processes by exporting `LD_PRELOAD` in the pipeline YAML.
 - It interposes libc `close()` / `rename()` / `renameat()`. When a finalized
   path under the build root is a `.class` or `.jar`, it computes the git-blob

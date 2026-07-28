@@ -2,7 +2,7 @@
 
 > **Date**: June 10, 2026
 > **Status**: Investigation complete — recommendation provided
-> **Prerequisite reading**: `ebpf-and-bpf-in-omnibor.md` (same directory)
+> **Prerequisite reading**: `ebpf-and-bpf.md` (same directory)
 
 ---
 
@@ -179,7 +179,7 @@ parses argv, tracks PID lifecycle, and hashes output files post-exit.
 
 **Without repo access, we cannot evaluate ebomf's output format,
 accuracy, or integration feasibility.** The evaluation steps in
-`ebpf-and-bpf-in-omnibor.md` Appendix A remain blocked on access.
+`ebpf-and-bpf.md` Appendix A remain blocked on access.
 
 ---
 
@@ -271,7 +271,7 @@ config, so they coexist without conflict.
 1. **Wire `CcWrapperStrategy`** to the pipeline (low effort, covers
    open-source repos and compliant enterprise builds)
 2. **Get ebomf access** — evaluate output format, accuracy, and
-   integration feasibility per Appendix A of `ebpf-and-bpf-in-omnibor.md`
+   integration feasibility per Appendix A of `ebpf-and-bpf.md`
 3. **If ebomf is blocked**: prototype a minimal eBPF interceptor that
    traces `sys_enter_execve` + `sys_exit_execve`, captures compiler
    invocations, and produces raw logfile compatible with

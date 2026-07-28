@@ -14,8 +14,8 @@
 >
 > | Old repo | New repo (current) |
 > |---|---|
-> | `tedg-dev/omnibor-analysis` | `tedg-dev/bisbom-gen` |
-> | `tedg-dev/omnibor-java-testapp` | `tedg-dev/bisbom-java-testapp` |
+> | `tedg-dev/bisbom-gen` | `tedg-dev/bisbom-gen` |
+> | `tedg-dev/bisbom-java-testapp` | `tedg-dev/bisbom-java-testapp` |
 >
 > GitHub redirects the old URLs, but this doc uses the current `bisbom-*`
 > names. Local git remotes still point at the old URL until updated (see 5.1).
@@ -71,7 +71,7 @@ The supported-source list includes `GitHub.com`; the target
 | Not migrated | Consequence for these repos |
 |---|---|
 | **Actions secrets & variables** | `publish-sidecar.yml` uses only the built-in `GITHUB_TOKEN`, so nothing to re-add — but verify org Actions policy allows the workflow and `packages: write`. |
-| **GHCR packages** | `ghcr.io/tedg-dev/omnibor-sidecar` stays under `tedg-dev`. The workflow uses `ghcr.io/${{ github.repository_owner }}/...`, so **future** builds auto-publish under `ghcr.io/ciscosecurityservices/...`. Old tags must be re-published or re-pulled and re-tagged. |
+| **GHCR packages** | `ghcr.io/tedg-dev/bisbom-sidecar` stays under `tedg-dev`. The workflow uses `ghcr.io/${{ github.repository_owner }}/...`, so **future** builds auto-publish under `ghcr.io/ciscosecurityservices/...`. Old tags must be re-published or re-pulled and re-tagged. |
 | **Rulesets & branch protection** | Ruleset A (`16035780`) and the legacy branch protection must be **recreated** in the org repo. Org/enterprise-level rulesets may also newly apply. |
 | **Webhooks** | Migrated but **disabled**; re-enable if any exist. |
 | **Projects (classic / v2)** | Not moved. The planning board is already project `#255` in the org, so likely not applicable. |
@@ -147,7 +147,7 @@ git remote set-url origin https://github.com/CiscoSecurityServices/bisbom-gen.gi
 ```
 
 Redirects from the old URL work automatically, **but are permanently destroyed
-if anything is ever recreated at `tedg-dev/omnibor-analysis`** — so update all
+if anything is ever recreated at `tedg-dev/bisbom-gen`** — so update all
 clones promptly. Also update the EC2 host clone (per the `/ec2-start` sync flow)
 and switch local `gh`/git auth to operate as `tedg_cisco`, since `tedg-dev` will
 lose access to EMU repos.
@@ -156,10 +156,10 @@ lose access to EMU repos.
 
 | File | Reference to update |
 |---|---|
-| `app/config.yaml:395` | `omnibor-java-testapp` clone URL → new org |
+| `app/config.yaml:395` | `bisbom-java-testapp` clone URL → new org |
 | `terraform/variables.tf:50` | `repo_url` default → new org |
 | `terraform/terraform.tfvars.example:26` | `repo_url` example → new org |
-| `.github/workflows/publish-sidecar.yml:4-5` | comment referencing `tedg-dev/omnibor-java-testapp` (cosmetic; image path already generic via `github.repository_owner`) |
+| `.github/workflows/publish-sidecar.yml:4-5` | comment referencing `tedg-dev/bisbom-java-testapp` (cosmetic; image path already generic via `github.repository_owner`) |
 
 ### 5.3 Documentation links
 
@@ -174,7 +174,7 @@ notably:
 - `.windsurf/` rules and workflows
 
 A single scripted find-replace
-(`tedg-dev/omnibor-analysis` → `CiscoSecurityServices/omnibor-analysis`, and the
+(`tedg-dev/bisbom-gen` → `CiscoSecurityServices/bisbom-gen`, and the
 testapp equivalent) is appropriate — it is a mechanical URL rename. **Exception:**
 review `output/build-logs/**` historical logs; those are generated artifacts and
 arguably should be left as-is because they record what happened at the time.
@@ -182,8 +182,8 @@ arguably should be left as-is because they record what happened at the time.
 ### 5.4 Cross-repo issue references
 
 Issues already live in `CiscoSecurityServices/gambit`, and PRs were referenced as
-`tedg-dev/omnibor-analysis#<n>`. After migration, PRs live at
-`CiscoSecurityServices/omnibor-analysis#<n>` — update the `.windsurf`
+`tedg-dev/bisbom-gen#<n>`. After migration, PRs live at
+`CiscoSecurityServices/bisbom-gen#<n>` — update the `.windsurf`
 issue-management rules and `docs/planning/github-issues-crosswalk.md` accordingly.
 
 ### 5.5 Rulesets / branch protection
@@ -199,7 +199,7 @@ after transfer.
 ### 5.6 GHCR packages
 
 Trigger one `publish-sidecar.yml` run in the new org to populate
-`ghcr.io/ciscosecurityservices/omnibor-sidecar`, then verify visibility and
+`ghcr.io/ciscosecurityservices/bisbom-sidecar`, then verify visibility and
 permissions. Retire the old `tedg-dev` package once consumers are cut over.
 
 ---
@@ -207,8 +207,8 @@ permissions. Retire the old `tedg-dev` package once consumers are cut over.
 ## 6. Recommended order
 
 1. Confirm GEI is enabled and the migrator role is granted to `tedg_cisco` (blocking prerequisite).
-2. **Trial-run** migrate `omnibor-java-testapp` first (smaller; it is the analysis *target*) → validate → production migrate.
-3. Trial-run then migrate `omnibor-analysis`.
+2. **Trial-run** migrate `bisbom-java-testapp` first (smaller; it is the analysis *target*) → validate → production migrate.
+3. Trial-run then migrate `bisbom-gen`.
 4. Recreate rulesets / branch protection; re-run the sidecar publish workflow.
 5. Land the reference-update PRs (remotes already switched locally); update the EC2 host and `gh` auth.
 6. Update planning / crosswalk docs.
@@ -228,7 +228,7 @@ Commands run during research (all read-only):
 
 | Check | Result |
 |---|---|
-| `git remote -v` | `origin` → `https://github.com/tedg-dev/omnibor-analysis.git` |
+| `git remote -v` | `origin` → `https://github.com/tedg-dev/bisbom-gen.git` |
 | `gh auth status` | Accounts `tedg-dev` (active), `tedg_cisco` (`admin:enterprise`), `tedg-cisco` |
 | `gh api orgs/CiscoSecurityServices` as `tedg-dev` | **404 Not Found** (no visibility) |
 | `gh api orgs/CiscoSecurityServices` as `tedg_cisco` | `type: Organization`, `members_can_create_repositories: true` |

@@ -3,11 +3,11 @@
 |  |  |
 |---|---|
 | **Issue** | `#11004` (A2), sub-issue of `#11002` (Java Phase 2 Main) |
-| **Predecessor** | `#11003` (A1) — Phase 2 generates SBOMs from Phase 1 metadata (PR `tedg-dev/omnibor-analysis#194`, merged) |
+| **Predecessor** | `#11003` (A1) — Phase 2 generates SBOMs from Phase 1 metadata (PR `tedg-dev/bisbom-gen#194`, merged) |
 | **Scope doc** | `docs/planning/java/java-phase2-11004-handoff-scope.md` |
 | **Status** | Ownership RESOLVED by USER 2026-07-09; boundary-contract doc elevated to top priority |
 | **Drafted** | 2026-07-08 (Cascade), captured from session |
-| **Revised** | 2026-07-09 — USER review: `#11004` confirmed ours (implementation sub-issue of `#11002`); deliver-to-Corona (A7/SI-5) is the other team's; boundary contract prioritized first; added `omnibor-java-testapp` currency audit |
+| **Revised** | 2026-07-09 — USER review: `#11004` confirmed ours (implementation sub-issue of `#11002`); deliver-to-Corona (A7/SI-5) is the other team's; boundary contract prioritized first; added `bisbom-java-testapp` currency audit |
 
 ---
 
@@ -110,16 +110,16 @@ self-consistent and relocatable.
 
 ---
 
-## Milestone 4b — `omnibor-java-testapp` currency audit
+## Milestone 4b — `bisbom-java-testapp` currency audit
 
-The USER owns `tedg-dev/omnibor-java-testapp` and requires it to ALWAYS
+The USER owns `tedg-dev/bisbom-java-testapp` and requires it to ALWAYS
 exercise the latest architecture (refactors, bug fixes, features).
 
 Verified state (2026-07-09):
 
 - `config.yaml` pins `branch: main` (intentionally tracks latest; the sole
   repo not on a stable tag — acceptable for a controlled system-test app).
-- Most recent run: `output/spdx/java/omnibor-java-testapp/2026-06-29_2312/`
+- Most recent run: `output/spdx/java/bisbom-java-testapp/2026-06-29_2312/`
   (post-`#11003`); golden baseline exists (`_analyzed` + `_build`).
 - **Coverage gap:** the app is **Maven-only** (`mvn package`); it does not
   exercise the Gradle capture path (`#11006` / A4).

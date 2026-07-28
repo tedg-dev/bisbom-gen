@@ -13,7 +13,7 @@
         <mxCell id="cicd" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#333333;strokeWidth=2;dashed=1;" value="" vertex="1">
           <mxGeometry height="440" width="1540" x="30" y="80" as="geometry" />
         </mxCell>
-        <mxCell id="cicdlabel" parent="1" style="text;html=1;fontSize=14;fontStyle=1;align=left;verticalAlign=top;" value="CI/CD Pipeline (Team-Owned)&amp;nbsp; &amp;nbsp;&lt;font color=&quot;#7f6003&quot; style=&quot;font-size: 10px; font-weight: normal;&quot;&gt;&lt;i&gt;OmniBOR Sidecar (/opt/omnibor/) provides Phase 1 + Phase 2 tooling&lt;/i&gt;&lt;/font&gt;" vertex="1">
+        <mxCell id="cicdlabel" parent="1" style="text;html=1;fontSize=14;fontStyle=1;align=left;verticalAlign=top;" value="CI/CD Pipeline (Team-Owned)&amp;nbsp; &amp;nbsp;&lt;font color=&quot;#7f6003&quot; style=&quot;font-size: 10px; font-weight: normal;&quot;&gt;&lt;i&gt;OmniBOR Sidecar (/opt/bisbom/) provides Phase 1 + Phase 2 tooling&lt;/i&gt;&lt;/font&gt;" vertex="1">
           <mxGeometry height="40" width="550" x="80" y="80" as="geometry" />
         </mxCell>
         <mxCell id="p1box" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;" value="" vertex="1">
@@ -296,7 +296,7 @@
         <mxCell id="c_cicd" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#333333;strokeWidth=2;dashed=1;" value="" vertex="1">
           <mxGeometry height="280" width="700" x="30" y="80" as="geometry" />
         </mxCell>
-        <mxCell id="c_cicd_label" parent="1" style="text;html=1;fontSize=14;fontStyle=1;align=left;fontColor=#1a5276;" value="CI/CD Pipeline (Team-Owned)&amp;nbsp; &amp;nbsp;&lt;font color=&quot;#7f6003&quot; style=&quot;font-size: 10px; font-weight: normal;&quot;&gt;&lt;i&gt;OmniBOR Sidecar (/opt/omnibor/) — Phase 1 only (Phase 2 → Corona)&lt;/i&gt;&lt;/font&gt;" vertex="1">
+        <mxCell id="c_cicd_label" parent="1" style="text;html=1;fontSize=14;fontStyle=1;align=left;fontColor=#1a5276;" value="CI/CD Pipeline (Team-Owned)&amp;nbsp; &amp;nbsp;&lt;font color=&quot;#7f6003&quot; style=&quot;font-size: 10px; font-weight: normal;&quot;&gt;&lt;i&gt;OmniBOR Sidecar (/opt/bisbom/) — Phase 1 only (Phase 2 → Corona)&lt;/i&gt;&lt;/font&gt;" vertex="1">
           <mxGeometry height="40" width="450" x="52" y="83" as="geometry" />
         </mxCell>
         <mxCell id="c_cicd_note" parent="1" style="text;html=1;fontSize=10;fontStyle=2;fontColor=#2980b9;align=left;" value="Only Phase 1 runs here.  No SPDX generation.  No dep:tree.  No metadata collection." vertex="1">

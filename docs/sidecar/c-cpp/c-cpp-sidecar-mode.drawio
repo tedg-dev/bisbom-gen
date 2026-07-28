@@ -35,7 +35,7 @@
         <mxCell id="bins" parent="1" style="rounded=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;fontStyle=1;verticalAlign=middle;align=center;" value="Native Binaries&#xa;(identical to&#xa;normal build)" vertex="1">
           <mxGeometry height="70" width="130" x="510" y="261" as="geometry" />
         </mxCell>
-        <mxCell id="shim" parent="1" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=2;fontSize=11;fontStyle=1;verticalAlign=middle;align=center;" value="OmniBOR interception shim&#xa;libomnibor_intercept.so&#xa;(loaded via LD_PRELOAD)" vertex="1">
+        <mxCell id="shim" parent="1" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=2;fontSize=11;fontStyle=1;verticalAlign=middle;align=center;" value="OmniBOR interception shim&#xa;libbisbom_intercept.so&#xa;(loaded via LD_PRELOAD)" vertex="1">
           <mxGeometry height="70" width="160" x="670" y="261" as="geometry" />
         </mxCell>
         <mxCell id="a-src-bins" edge="1" parent="1" source="src" style="endArrow=classic;strokeColor=#82b366;strokeWidth=2;" target="bins">

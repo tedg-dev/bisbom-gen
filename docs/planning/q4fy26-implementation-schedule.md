@@ -253,10 +253,10 @@ Phase 1 has **three parallel tracks** with no dependencies between them. All thr
 </tr>
 <tr>
   <td>C7</td>
-  <td><strong>Dual-mode Dockerfile</strong><br>Multi-stage Dockerfile: <code>standalone</code> stage (full), <code>sidecar</code> stage (tools only)<br><code>FROM omnibor-env:standalone</code> extensibility for Standalone (custom)<br>Design: <a href="sidecar-refactoring-plan.md#52-dual-mode-container-image">refactoring-plan §5.2</a></td>
+  <td><strong>Dual-mode Dockerfile</strong><br>Multi-stage Dockerfile: <code>standalone</code> stage (full), <code>sidecar</code> stage (tools only)<br><code>FROM bisbom-env:standalone</code> extensibility for Standalone (custom)<br>Design: <a href="sidecar-refactoring-plan.md#52-dual-mode-container-image">refactoring-plan §5.2</a></td>
   <td>1.5d</td>
   <td>W3–4</td>
-  <td>Two image tags buildable; sidecar image &lt;300MB; standalone image unchanged; <code>FROM omnibor-env:standalone</code> works for custom images</td>
+  <td>Two image tags buildable; sidecar image &lt;300MB; standalone image unchanged; <code>FROM bisbom-env:standalone</code> works for custom images</td>
 </tr>
 <tr>
   <td>C8</td>
@@ -279,7 +279,7 @@ Phase 1 has **three parallel tracks** with no dependencies between them. All thr
 - [ ] Package resolution works on Ubuntu, RHEL 8/9, Alpine 3.18+
 - [ ] PURLs use correct scheme per distro
 - [ ] `SYS_PTRACE` not required for Java sidecar builds
-- [ ] Docker Hub has `omnibor-env:sidecar` and `omnibor-env:standalone` tags
+- [ ] Docker Hub has `bisbom-env:sidecar` and `bisbom-env:standalone` tags
 - [ ] All existing standalone tests pass (zero regressions)
 - [ ] Coverage ≥97%
 

@@ -140,9 +140,9 @@ docker-compose -f docker/docker-compose.yml run --rm bisbom-env \
 
 | Artifact | Path |
 |----------|------|
-| ADG (build provenance) | `output/omnibor/{lang}/<repo>/<ts>/` |
-| Component metadata | `output/omnibor/{lang}/<repo>/<ts>/metadata/component_metadata.json` |
-| Dynamic libs (per binary) | `output/omnibor/{lang}/<repo>/<ts>/metadata/<binary>/dynamic_libs.json` |
+| ADG (build provenance) | `output/bisbom/{lang}/<repo>/<ts>/` |
+| Component metadata | `output/bisbom/{lang}/<repo>/<ts>/metadata/component_metadata.json` |
+| Dynamic libs (per binary) | `output/bisbom/{lang}/<repo>/<ts>/metadata/<binary>/dynamic_libs.json` |
 | SPDX SBOM (analyzed) | `output/spdx/{lang}/<repo>/<ts>/<binary>_analyzed.spdx.json` |
 | SPDX SBOM (build) | `output/spdx/{lang}/<repo>/<ts>/<binary>_build.spdx.json` |
 | Visualization (per binary) | `output/spdx/{lang}/<repo>/<ts>/<binary>_*.spdx.html` |
@@ -184,7 +184,7 @@ docker-compose -f docker/docker-compose.yml run --rm bisbom-env \
 docker-compose -f docker/docker-compose.yml run --rm bisbom-env \
   python3 /workspace/app/compare.py \
     --repo curl \
-    --bisbom-file /workspace/output/spdx/curl/curl_omnibor_2026-02-10_1430.spdx.json \
+    --bisbom-file /workspace/output/spdx/curl/curl_bisbom_2026-02-10_1430.spdx.json \
     --binary-file /workspace/output/binary-scan/curl/bdba_export.spdx.json
 ```
 
@@ -233,6 +233,6 @@ docker-compose -f docker/docker-compose.yml run --rm bisbom-env \
 
 # 5. Review results
 ls output/spdx/curl/          # SPDX SBOMs
-ls output/omnibor/curl/        # ADG (build provenance)
+ls output/bisbom/curl/        # ADG (build provenance)
 ls output/build-logs/c-cpp/curl/  # Build logs and comparison reports
 ```

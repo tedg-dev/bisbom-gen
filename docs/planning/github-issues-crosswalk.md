@@ -14,9 +14,9 @@ This file is the single place that maps every drafted Main issue and
 sub-issue to its implementing PR(s) and GitHub issue number.
 
 Issues live under **CiscoSecurityServices/gambit** (migrated from the
-former `tedg-cisco` org). PRs live in **tedg-dev/omnibor-analysis**.
+former `tedg-cisco` org). PRs live in **tedg-dev/bisbom-gen**.
 Always reference PRs with the fully-qualified cross-repo form
-`tedg-dev/omnibor-analysis#<n>` — never a bare `#<n>`, which would not
+`tedg-dev/bisbom-gen#<n>` — never a bare `#<n>`, which would not
 link across repos. The Corona project board is **#255** (renumbered from
 #12 during the org migration).
 
@@ -50,20 +50,20 @@ theme / planning doc) -> **sub-issues** (drafted in the matching planning doc).
 
 | PR | Title | Theme -> sub-issue (index label) | GitHub issue | Status |
 |---|---|---|---|---|
-| `tedg-dev/omnibor-analysis#194` | Phase 2 generates SBOMs from Phase 1 metadata, no source tree | Java Phase 2 -> **A1** / SI-4 (Java) | #11003 | Merged |
-| `tedg-dev/omnibor-analysis#196` | Single-invocation Gradle dependency capture (US-2) | Phase 1 Build-Speed -> **A4** / US-2 | #11006 | Merged |
-| `tedg-dev/omnibor-analysis#212` | Java inline-hashing interception (sidecar Phase 1, eliminate post-build rescan) | Phase 1 Build-Speed -> **A10** / US-5 | #11097 (child of #11005, In Review) | Merged (flag off; golden-validation tracked as A11 / #11100) |
-| `tedg-dev/omnibor-analysis#200` | Java build-tool detection + `java_build_tool` override | Phase 1 Java capture -> **AF** (pilot foundation) | #11069 | Merged |
-| `tedg-dev/omnibor-analysis#199` | Shared `_generate_java_treedb` helper (DRY) | Phase 1 Java capture -> **AF** (pilot foundation) | #11069 | Merged |
-| `tedg-dev/omnibor-analysis#198` | Main A scope refinement + design draft | Java Main A scope (comment on #11002) | #11002 | Merged |
-| `tedg-dev/omnibor-analysis#204` | C/C++ sidecar docs consolidation + reorg | Planning / docs (Main B enablement) | — | Merged |
-| `tedg-dev/omnibor-analysis#195` | Java build-based SBOM sell doc + diagrams + planning reorg | Java Main A enablement (supporting docs) | — | Merged |
-| `tedg-dev/omnibor-analysis#193` | Phase 1 build-speed design consolidation | Phase 1 Build-Speed (Java) design reference | — | Merged |
-| `tedg-dev/omnibor-analysis#192` | Phase-isolation planning user stories + C/C++ design relocation | Planning / docs | — | Merged |
-| `tedg-dev/omnibor-analysis#191`, `#189`, `#187` | Treedb SBOM-generation speedup (retro) | Retrospective -> **A6** / SI-R1 | #11000 | Merged |
-| `tedg-dev/omnibor-analysis#216` | Gradle repo enablement (caffeine, opentelemetry-java, rxjava) + release-classifier & JDK bug fixes + build-logic/composite JAR exclusion | Phase 1 Build-Speed -> **A12** / **A11** + bugs | #11104, #11100, #11144, #11145 (all In Review) | Merged |
-| `tedg-dev/omnibor-analysis#211` | In-memory JAR class processing (no extract-to-disk) | Phase 1 Build-Speed -> **A8** / US-4 | #11055 | Merged |
-| `tedg-dev/omnibor-analysis#218` | Sidecar-only doc reorg + C/C++ design/residency + planning sync | Planning / docs (Main B enablement) | — | Merged (Part of #11071; C/C++ design slice #11176) |
+| `tedg-dev/bisbom-gen#194` | Phase 2 generates SBOMs from Phase 1 metadata, no source tree | Java Phase 2 -> **A1** / SI-4 (Java) | #11003 | Merged |
+| `tedg-dev/bisbom-gen#196` | Single-invocation Gradle dependency capture (US-2) | Phase 1 Build-Speed -> **A4** / US-2 | #11006 | Merged |
+| `tedg-dev/bisbom-gen#212` | Java inline-hashing interception (sidecar Phase 1, eliminate post-build rescan) | Phase 1 Build-Speed -> **A10** / US-5 | #11097 (child of #11005, In Review) | Merged (flag off; golden-validation tracked as A11 / #11100) |
+| `tedg-dev/bisbom-gen#200` | Java build-tool detection + `java_build_tool` override | Phase 1 Java capture -> **AF** (pilot foundation) | #11069 | Merged |
+| `tedg-dev/bisbom-gen#199` | Shared `_generate_java_treedb` helper (DRY) | Phase 1 Java capture -> **AF** (pilot foundation) | #11069 | Merged |
+| `tedg-dev/bisbom-gen#198` | Main A scope refinement + design draft | Java Main A scope (comment on #11002) | #11002 | Merged |
+| `tedg-dev/bisbom-gen#204` | C/C++ sidecar docs consolidation + reorg | Planning / docs (Main B enablement) | — | Merged |
+| `tedg-dev/bisbom-gen#195` | Java build-based SBOM sell doc + diagrams + planning reorg | Java Main A enablement (supporting docs) | — | Merged |
+| `tedg-dev/bisbom-gen#193` | Phase 1 build-speed design consolidation | Phase 1 Build-Speed (Java) design reference | — | Merged |
+| `tedg-dev/bisbom-gen#192` | Phase-isolation planning user stories + C/C++ design relocation | Planning / docs | — | Merged |
+| `tedg-dev/bisbom-gen#191`, `#189`, `#187` | Treedb SBOM-generation speedup (retro) | Retrospective -> **A6** / SI-R1 | #11000 | Merged |
+| `tedg-dev/bisbom-gen#216` | Gradle repo enablement (caffeine, opentelemetry-java, rxjava) + release-classifier & JDK bug fixes + build-logic/composite JAR exclusion | Phase 1 Build-Speed -> **A12** / **A11** + bugs | #11104, #11100, #11144, #11145 (all In Review) | Merged |
+| `tedg-dev/bisbom-gen#211` | In-memory JAR class processing (no extract-to-disk) | Phase 1 Build-Speed -> **A8** / US-4 | #11055 | Merged |
+| `tedg-dev/bisbom-gen#218` | Sidecar-only doc reorg + C/C++ design/residency + planning sync | Planning / docs (Main B enablement) | — | Merged (Part of #11071; C/C++ design slice #11176) |
 
 Index labels (**A1**, **A4**, ...) refer to the rows in
 [`README.md`](README.md), the priority-ordered planning index. The C/C++
@@ -86,7 +86,7 @@ docs activity and carries a datetimestamped activity log.
 | Item | Theme -> sub-issue (index label) | GitHub issue | Status |
 |---|---|---|---|
 | ~~Phase 2 output set + hand-off manifest~~ | Java Phase 2 -> **A2** | #11004 | **Closed — not planned**: peer team integrates Phase 2 into Corona directly (operator/cdk/gh-aws integration), so no hand-off boundary is needed; Java Phase 1/2 charter complete at #11003 (PR #194). Parent #11002 stays In Review (child #11003 still In Review). |
-| Support non-Maven/Gradle Java builds (Ant/Ivy, Bazel, `make`) | Phase 1 Java capture -> **A9** | #11066 (backlog, Proposed; parentless) | Backlog — **excluded from the Main A gate**. `tedg-dev/omnibor-analysis#202` (Draft, `Proposed` label — tables it for the pilot, fail-fast on ivy/ant/make/bazel); `#201` (Draft, `backlog` label — Ivy parser/reader) |
+| Support non-Maven/Gradle Java builds (Ant/Ivy, Bazel, `make`) | Phase 1 Java capture -> **A9** | #11066 (backlog, Proposed; parentless) | Backlog — **excluded from the Main A gate**. `tedg-dev/bisbom-gen#202` (Draft, `Proposed` label — tables it for the pilot, fail-fast on ivy/ant/make/bazel); `#201` (Draft, `backlog` label — Ivy parser/reader) |
 | ~~Overlap independent post-build steps (measure first)~~ | Phase 1 Build-Speed -> **A5** / US-3 | #11007 | **Closed — won't do (not planned)**: Phase 2 is out-of-band (non-critical wall-clock) and inline hashing (A10 / #11097) already removed the hot path. Closing it let parent #11005 derive to **In Review** (all remaining children In Review). |
 | Deliver Java build evidence to Corona | **A7** / SI-5 (Java) | — | Postponed — out of charter |
 | Agree on C/C++ build observation | Main B -> **B1** / SI-1 (work items B1.1–B1.3) | #11009 | **Ready** (B1.1–B1.3 all Ready; C/C++ work paused while the rebrand initiative #11194 takes priority). |
@@ -124,5 +124,5 @@ plan in `README.md` for how to align them.
 
 **Formatting rules** — in GitHub issue text, use plain **"days"** (never
 "AI-days"); keep User Story keywords **ALL CAPS** (AS A / I WANT /
-SO THAT). Reference PRs as `tedg-dev/omnibor-analysis#<n>` (cross-repo
+SO THAT). Reference PRs as `tedg-dev/bisbom-gen#<n>` (cross-repo
 links).

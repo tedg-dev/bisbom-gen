@@ -7,7 +7,7 @@
 | **Working weeks** | 7 weeks across May 5 – July 11, 2026 |
 | **Vacation** | **May 17 – June 10** (no work scheduled) |
 | **Total issues** | 30 work items + 4 tracking epics |
-| **Milestones** | [Phase 1: Java Pilot Ready](https://github.com/tedg-dev/omnibor-analysis/milestone/1) (Jun 20) · [Phase 2: C/C++ Pilot Ready](https://github.com/tedg-dev/omnibor-analysis/milestone/2) (Jul 11) |
+| **Milestones** | [Phase 1: Java Pilot Ready](https://github.com/tedg-dev/bisbom-gen/milestone/1) (Jun 20) · [Phase 2: C/C++ Pilot Ready](https://github.com/tedg-dev/bisbom-gen/milestone/2) (Jul 11) |
 | **Schedule detail** | [q4fy26-implementation-schedule.md](q4fy26-implementation-schedule.md) |
 | **Source docs** | [sidecar-implementation-design.md](../_archived/design-evolution/sidecar-implementation-design.md), [sidecar-refactoring-plan.md](../_archived/design-evolution/sidecar-refactoring-plan.md) |
 
@@ -45,7 +45,7 @@ integration testing.
 
 ### Phase 1 / Track A: Package Resolver Abstraction
 
-**Epic:** [#129](https://github.com/tedg-dev/omnibor-analysis/issues/129)
+**Epic:** [#129](https://github.com/tedg-dev/bisbom-gen/issues/129)
 · **Branch:** `feat/package-resolver` · **Effort:** ~9 days
 
 > **Why first:** Blocks ALL enterprise deployment. Pipeline hardcodes
@@ -53,24 +53,24 @@ integration testing.
 
 | Issue | Title | Est. | Week | Depends On |
 |-------|-------|------|------|-----------|
-| [#95](https://github.com/tedg-dev/omnibor-analysis/issues/95) | [A1] Create PackageResolver ABC | 0.5d | W1 | — |
-| [#96](https://github.com/tedg-dev/omnibor-analysis/issues/96) | [A2] Implement DpkgResolver | 1d | W1 | #95 |
-| [#97](https://github.com/tedg-dev/omnibor-analysis/issues/97) | [A3] Implement RpmResolver | 1.5d | W1–2 | #95 |
-| [#98](https://github.com/tedg-dev/omnibor-analysis/issues/98) | [A4] Implement ApkResolver | 1d | W2 | #95 |
-| [#99](https://github.com/tedg-dev/omnibor-analysis/issues/99) | [A5] Implement auto_detect_resolver() | 0.5d | W2 | #96, #97, #98 |
+| [#95](https://github.com/tedg-dev/bisbom-gen/issues/95) | [A1] Create PackageResolver ABC | 0.5d | W1 | — |
+| [#96](https://github.com/tedg-dev/bisbom-gen/issues/96) | [A2] Implement DpkgResolver | 1d | W1 | #95 |
+| [#97](https://github.com/tedg-dev/bisbom-gen/issues/97) | [A3] Implement RpmResolver | 1.5d | W1–2 | #95 |
+| [#98](https://github.com/tedg-dev/bisbom-gen/issues/98) | [A4] Implement ApkResolver | 1d | W2 | #95 |
+| [#99](https://github.com/tedg-dev/bisbom-gen/issues/99) | [A5] Implement auto_detect_resolver() | 0.5d | W2 | #96, #97, #98 |
 | | **— VACATION: May 17 – Jun 10 —** | | | |
-| [#100](https://github.com/tedg-dev/omnibor-analysis/issues/100) | [A6] Refactor collect_metadata.py | 1d | W3 | #96, #99 |
-| [#101](https://github.com/tedg-dev/omnibor-analysis/issues/101) | [A7] Refactor collect_dynamic_libs.py | 0.5d | W3 | #96, #99 |
-| [#102](https://github.com/tedg-dev/omnibor-analysis/issues/102) | [A8] Refactor resolver.py PURL generation | 1d | W3 | #99 |
-| [#103](https://github.com/tedg-dev/omnibor-analysis/issues/103) | [A9] Refactor pipeline/validator.py | 0.5d | W3 | #99 |
-| [#104](https://github.com/tedg-dev/omnibor-analysis/issues/104) | [A10] RPM integration testing (RHEL 8/9) | 1d | W4 | #97, #100, #102 |
-| [#105](https://github.com/tedg-dev/omnibor-analysis/issues/105) | [A11] Alpine integration testing | 0.5d | W4 | #98, #100, #102 |
+| [#100](https://github.com/tedg-dev/bisbom-gen/issues/100) | [A6] Refactor collect_metadata.py | 1d | W3 | #96, #99 |
+| [#101](https://github.com/tedg-dev/bisbom-gen/issues/101) | [A7] Refactor collect_dynamic_libs.py | 0.5d | W3 | #96, #99 |
+| [#102](https://github.com/tedg-dev/bisbom-gen/issues/102) | [A8] Refactor resolver.py PURL generation | 1d | W3 | #99 |
+| [#103](https://github.com/tedg-dev/bisbom-gen/issues/103) | [A9] Refactor pipeline/validator.py | 0.5d | W3 | #99 |
+| [#104](https://github.com/tedg-dev/bisbom-gen/issues/104) | [A10] RPM integration testing (RHEL 8/9) | 1d | W4 | #97, #100, #102 |
+| [#105](https://github.com/tedg-dev/bisbom-gen/issues/105) | [A11] Alpine integration testing | 0.5d | W4 | #98, #100, #102 |
 
 ---
 
 ### Phase 1 / Track B: Java dep:tree Optimization
 
-**Epic:** [#130](https://github.com/tedg-dev/omnibor-analysis/issues/130)
+**Epic:** [#130](https://github.com/tedg-dev/bisbom-gen/issues/130)
 · **Branch:** `feat/java-dep-tree` · **Effort:** ~7.5 days
 
 > **Why:** Java already works via strace, but enterprise security blocks
@@ -78,20 +78,20 @@ integration testing.
 
 | Issue | Title | Est. | Week | Depends On |
 |-------|-------|------|------|-----------|
-| [#106](https://github.com/tedg-dev/omnibor-analysis/issues/106) | [B1] Create MavenDepTreeStrategy | 2d | W1 | — |
-| [#107](https://github.com/tedg-dev/omnibor-analysis/issues/107) | [B2] Maven shade/assembly plugin detection | 1d | W1–2 | #106 |
-| [#108](https://github.com/tedg-dev/omnibor-analysis/issues/108) | [B3] Create GradleDepTreeStrategy | 1.5d | W2 | — |
-| [#109](https://github.com/tedg-dev/omnibor-analysis/issues/109) | [B4] Wire dep:tree strategies into Java pipeline | 1d | W2 | #106, #108 |
+| [#106](https://github.com/tedg-dev/bisbom-gen/issues/106) | [B1] Create MavenDepTreeStrategy | 2d | W1 | — |
+| [#107](https://github.com/tedg-dev/bisbom-gen/issues/107) | [B2] Maven shade/assembly plugin detection | 1d | W1–2 | #106 |
+| [#108](https://github.com/tedg-dev/bisbom-gen/issues/108) | [B3] Create GradleDepTreeStrategy | 1.5d | W2 | — |
+| [#109](https://github.com/tedg-dev/bisbom-gen/issues/109) | [B4] Wire dep:tree strategies into Java pipeline | 1d | W2 | #106, #108 |
 | | **— VACATION: May 17 – Jun 10 —** | | | |
-| [#110](https://github.com/tedg-dev/omnibor-analysis/issues/110) | [B5] Integration test: jsoup Maven sidecar | 0.5d | W3 | #109 |
-| [#111](https://github.com/tedg-dev/omnibor-analysis/issues/111) | [B6] Integration test: checkstyle shade plugin | 0.5d | W3 | #109, #107 |
-| [#112](https://github.com/tedg-dev/omnibor-analysis/issues/112) | [B7] Integration test: Java on RHEL | 1d | W4 | #109, #97 |
+| [#110](https://github.com/tedg-dev/bisbom-gen/issues/110) | [B5] Integration test: jsoup Maven sidecar | 0.5d | W3 | #109 |
+| [#111](https://github.com/tedg-dev/bisbom-gen/issues/111) | [B6] Integration test: checkstyle shade plugin | 0.5d | W3 | #109, #107 |
+| [#112](https://github.com/tedg-dev/bisbom-gen/issues/112) | [B7] Integration test: Java on RHEL | 1d | W4 | #109, #97 |
 
 ---
 
 ### Phase 1 / Track C: Config + Infrastructure
 
-**Epic:** [#131](https://github.com/tedg-dev/omnibor-analysis/issues/131)
+**Epic:** [#131](https://github.com/tedg-dev/bisbom-gen/issues/131)
 · **Branches:** `feat/config-mode-schema`, `feat/dual-mode-docker`
 · **Effort:** ~8.5 days
 
@@ -100,15 +100,15 @@ integration testing.
 
 | Issue | Title | Est. | Week | Depends On |
 |-------|-------|------|------|-----------|
-| [#113](https://github.com/tedg-dev/omnibor-analysis/issues/113) | [C1] CommandRunner.run() env support | 0.5d | W1 | — |
-| [#114](https://github.com/tedg-dev/omnibor-analysis/issues/114) | [C2] Config schema mode selection | 1.5d | W1–2 | — |
-| [#115](https://github.com/tedg-dev/omnibor-analysis/issues/115) | [C3] InterceptionStrategy ABC + PtraceStrategy | 1d | W2 | — |
-| [#116](https://github.com/tedg-dev/omnibor-analysis/issues/116) | [C4] Refactor builder.py to use strategy | 1d | W2 | #113, #115 |
+| [#113](https://github.com/tedg-dev/bisbom-gen/issues/113) | [C1] CommandRunner.run() env support | 0.5d | W1 | — |
+| [#114](https://github.com/tedg-dev/bisbom-gen/issues/114) | [C2] Config schema mode selection | 1.5d | W1–2 | — |
+| [#115](https://github.com/tedg-dev/bisbom-gen/issues/115) | [C3] InterceptionStrategy ABC + PtraceStrategy | 1d | W2 | — |
+| [#116](https://github.com/tedg-dev/bisbom-gen/issues/116) | [C4] Refactor builder.py to use strategy | 1d | W2 | #113, #115 |
 | | **— VACATION: May 17 – Jun 10 —** | | | |
-| [#117](https://github.com/tedg-dev/omnibor-analysis/issues/117) | [C5] Path abstraction layer (14 hardcoded paths) | 1.5d | W3 | #114 |
-| [#118](https://github.com/tedg-dev/omnibor-analysis/issues/118) | [C6] analyze.py --mode CLI flag | 0.5d | W3 | #114 |
-| [#119](https://github.com/tedg-dev/omnibor-analysis/issues/119) | [C7] Dual-mode Dockerfile | 1.5d | W3–4 | — |
-| [#120](https://github.com/tedg-dev/omnibor-analysis/issues/120) | [C8] End-to-end standalone regression gate | 1d | W4 | #116, #117, #118 |
+| [#117](https://github.com/tedg-dev/bisbom-gen/issues/117) | [C5] Path abstraction layer (14 hardcoded paths) | 1.5d | W3 | #114 |
+| [#118](https://github.com/tedg-dev/bisbom-gen/issues/118) | [C6] analyze.py --mode CLI flag | 0.5d | W3 | #114 |
+| [#119](https://github.com/tedg-dev/bisbom-gen/issues/119) | [C7] Dual-mode Dockerfile | 1.5d | W3–4 | — |
+| [#120](https://github.com/tedg-dev/bisbom-gen/issues/120) | [C8] End-to-end standalone regression gate | 1d | W4 | #116, #117, #118 |
 
 ---
 
@@ -118,7 +118,7 @@ integration testing.
 - [ ] Package resolution works on Ubuntu, RHEL 8/9, Alpine 3.18+
 - [ ] PURLs use correct scheme per distro
 - [ ] `SYS_PTRACE` not required for Java sidecar builds
-- [ ] Docker Hub has `omnibor-env:sidecar` and `omnibor-env:standalone` tags
+- [ ] Docker Hub has `bisbom-env:sidecar` and `bisbom-env:standalone` tags
 - [ ] All existing standalone tests pass (zero regressions)
 - [ ] Coverage ≥97%
 
@@ -135,7 +135,7 @@ bomtrace3. No `SYS_PTRACE` required.
 
 ### Phase 2 / Track D: C/C++ Sidecar
 
-**Epic:** [#132](https://github.com/tedg-dev/omnibor-analysis/issues/132)
+**Epic:** [#132](https://github.com/tedg-dev/bisbom-gen/issues/132)
 · **Branch:** `feat/cc-sidecar` · **Effort:** ~7 days
 
 > **Upstream dependency:** C/C++ wrapper binaries (`gcc-wrapper`,
@@ -145,14 +145,14 @@ bomtrace3. No `SYS_PTRACE` required.
 
 | Issue | Title | Est. | Week | Depends On |
 |-------|-------|------|------|-----------|
-| [#121](https://github.com/tedg-dev/omnibor-analysis/issues/121) | [D1] Implement CcWrapperStrategy | 1.5d | W5 | #113, #115 |
-| [#122](https://github.com/tedg-dev/omnibor-analysis/issues/122) | [D2] Wire CcWrapperStrategy into C/C++ pipeline | 0.5d | W5 | #121 |
-| [#123](https://github.com/tedg-dev/omnibor-analysis/issues/123) | [D3] Refactor emitter.py compiler info | 1d | W5 | #121 |
-| [#124](https://github.com/tedg-dev/omnibor-analysis/issues/124) | [D4] Integration test: curl sidecar Ubuntu | 1d | W6 | #122 |
-| [#125](https://github.com/tedg-dev/omnibor-analysis/issues/125) | [D5] Integration test: ffmpeg sidecar multi-binary | 0.5d | W6 | #122 |
-| [#126](https://github.com/tedg-dev/omnibor-analysis/issues/126) | [D6] Integration test: C/C++ sidecar on RHEL | 1d | W6–7 | #122, #97 |
-| [#127](https://github.com/tedg-dev/omnibor-analysis/issues/127) | [D7] Wrapper chaining test: ccache + OmniBOR | 0.5d | W7 | #122 |
-| [#128](https://github.com/tedg-dev/omnibor-analysis/issues/128) | [D8] End-to-end regression: all languages, both modes | 1d | W7 | #122, #109, #120 |
+| [#121](https://github.com/tedg-dev/bisbom-gen/issues/121) | [D1] Implement CcWrapperStrategy | 1.5d | W5 | #113, #115 |
+| [#122](https://github.com/tedg-dev/bisbom-gen/issues/122) | [D2] Wire CcWrapperStrategy into C/C++ pipeline | 0.5d | W5 | #121 |
+| [#123](https://github.com/tedg-dev/bisbom-gen/issues/123) | [D3] Refactor emitter.py compiler info | 1d | W5 | #121 |
+| [#124](https://github.com/tedg-dev/bisbom-gen/issues/124) | [D4] Integration test: curl sidecar Ubuntu | 1d | W6 | #122 |
+| [#125](https://github.com/tedg-dev/bisbom-gen/issues/125) | [D5] Integration test: ffmpeg sidecar multi-binary | 0.5d | W6 | #122 |
+| [#126](https://github.com/tedg-dev/bisbom-gen/issues/126) | [D6] Integration test: C/C++ sidecar on RHEL | 1d | W6–7 | #122, #97 |
+| [#127](https://github.com/tedg-dev/bisbom-gen/issues/127) | [D7] Wrapper chaining test: ccache + OmniBOR | 0.5d | W7 | #122 |
+| [#128](https://github.com/tedg-dev/bisbom-gen/issues/128) | [D8] End-to-end regression: all languages, both modes | 1d | W7 | #122, #109, #120 |
 
 ---
 
@@ -186,14 +186,14 @@ bomtrace3. No `SYS_PTRACE` required.
 
 | Resource | Link |
 |----------|------|
-| **All Phase 1 issues** | [`label:phase-1`](https://github.com/tedg-dev/omnibor-analysis/labels/phase-1) |
-| **All Phase 2 issues** | [`label:phase-2`](https://github.com/tedg-dev/omnibor-analysis/labels/phase-2) |
-| **Track A epic** | [#129](https://github.com/tedg-dev/omnibor-analysis/issues/129) |
-| **Track B epic** | [#130](https://github.com/tedg-dev/omnibor-analysis/issues/130) |
-| **Track C epic** | [#131](https://github.com/tedg-dev/omnibor-analysis/issues/131) |
-| **Track D epic** | [#132](https://github.com/tedg-dev/omnibor-analysis/issues/132) |
-| **Milestone 1** | [Phase 1: Java Pilot Ready](https://github.com/tedg-dev/omnibor-analysis/milestone/1) |
-| **Milestone 2** | [Phase 2: C/C++ Pilot Ready](https://github.com/tedg-dev/omnibor-analysis/milestone/2) |
+| **All Phase 1 issues** | [`label:phase-1`](https://github.com/tedg-dev/bisbom-gen/labels/phase-1) |
+| **All Phase 2 issues** | [`label:phase-2`](https://github.com/tedg-dev/bisbom-gen/labels/phase-2) |
+| **Track A epic** | [#129](https://github.com/tedg-dev/bisbom-gen/issues/129) |
+| **Track B epic** | [#130](https://github.com/tedg-dev/bisbom-gen/issues/130) |
+| **Track C epic** | [#131](https://github.com/tedg-dev/bisbom-gen/issues/131) |
+| **Track D epic** | [#132](https://github.com/tedg-dev/bisbom-gen/issues/132) |
+| **Milestone 1** | [Phase 1: Java Pilot Ready](https://github.com/tedg-dev/bisbom-gen/milestone/1) |
+| **Milestone 2** | [Phase 2: C/C++ Pilot Ready](https://github.com/tedg-dev/bisbom-gen/milestone/2) |
 | **Detailed schedule** | [q4fy26-implementation-schedule.md](q4fy26-implementation-schedule.md) |
 
 ---

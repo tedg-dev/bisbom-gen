@@ -143,7 +143,7 @@ build-flavor coverage:
 
 | Repo | `tool` | `dsl` | `structure` | `tool_version` | `java_home` |
 |------|--------|-------|-------------|----------------|-------------|
-| `jsoup`, `checkstyle`, `omnibor-java-testapp` | maven | — | single-module | — | — |
+| `jsoup`, `checkstyle`, `bisbom-java-testapp` | maven | — | single-module | — | — |
 | `crawler4j`, `dependency-check`, `logging-log4j2` | maven | — | multi-module | — | — |
 | `spring-boot` | gradle | groovy | multi-module | `8.13` | — |
 | `bc-java` | gradle | groovy | multi-module | `9.1.0` | — |

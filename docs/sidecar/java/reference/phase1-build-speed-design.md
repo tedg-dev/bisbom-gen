@@ -95,13 +95,13 @@ multi-module output volume.
 
 **Net effect on this plan:** with treedb no longer dominant, dependency
 resolution already offline, and the duplicate Phase 2 resolution now
-**eliminated** (Section 4, delivered in `tedg-dev/omnibor-analysis#194`),
+**eliminated** (Section 4, delivered in `tedg-dev/bisbom-gen#194`),
 the largest remaining *Gradle-specific* cost is **per-subproject query
 start-up** (Section 5.2).
 
 ---
 
-## 4. Duplicate dependency resolution — RESOLVED (delivered in `tedg-dev/omnibor-analysis#194`)
+## 4. Duplicate dependency resolution — RESOLVED (delivered in `tedg-dev/bisbom-gen#194`)
 
 > **✅ Delivered.** This section originally described the largest remaining
 > inefficiency — Java resolving dependencies **twice** (Phase 1 saved the
@@ -135,7 +135,7 @@ once in Phase 1 (saved, then ignored) and again in Phase 2.
 
 ### 5.1 US-1 — Phase 2 reuses captured dependency data
 
-**Status:** ✅ Implemented and merged (`tedg-dev/omnibor-analysis#194`,
+**Status:** ✅ Implemented and merged (`tedg-dev/bisbom-gen#194`,
 A1 / #11003). Phase 2 consumes the Phase 1 capture; the text below reflects
 the as-built approach.
 

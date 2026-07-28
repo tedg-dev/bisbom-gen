@@ -142,7 +142,7 @@ C/C++ builds observed automatically so their software components are captured,
 SO THAT I receive a complete, accurate bill of materials without changing how
 I build.
 
-### B2.1 — `libomnibor_intercept.so` `LD_PRELOAD` shim
+### B2.1 — `libbisbom_intercept.so` `LD_PRELOAD` shim
 
 **Estimate:** ~3 AI-days · **Priority:** High · **Critical path.**
 
@@ -151,7 +151,7 @@ I build.
 computes git-blob `SHA-1` + `SHA-256` gitoid inline, and appends the **same
 raw-logfile format** `bomtrace3` produces (so `bomsh_create_bom.py` is
 unchanged). Extends the delivered Java shim scaffold
-(`docker/shim/omnibor_java_intercept.c`). Fails open — never breaks the build.
+(`docker/shim/bisbom_java_intercept.c`). Fails open — never breaks the build.
 
 **Acceptance Criteria**
 
@@ -208,7 +208,7 @@ unchanged). Extends the delivered Java shim scaffold
 **Estimate:** ~0.5 AI-days · **Priority:** Medium
 
 **Deliverable:** Build the shim in the Docker `standalone` stage, copy into
-`sidecar`, install at `/opt/omnibor/lib/libomnibor_intercept.so`; document the
+`sidecar`, install at `/opt/bisbom/lib/libbisbom_intercept.so`; document the
 two-env-var CI/CD-YAML snippet (Jenkins/GitHub Actions).
 
 **Acceptance Criteria**

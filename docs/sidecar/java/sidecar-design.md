@@ -5,7 +5,7 @@
 <tbody>
 <tr><td><strong>Parent doc</strong></td><td><code>../infrastructure.md</code></td></tr>
 <tr><td><strong>Reference guide</strong></td><td><code>reference/inline-hashing-interception-design.md</code> — the delivered, golden-clean <code>LD_PRELOAD</code> inline-hashing sidecar design</td></tr>
-<tr><td><strong>Status</strong></td><td>Sidecar mode ✅ implemented; Phase 1/2 split (<code>--phase</code>) ✅ implemented (Java). Phase 2 generates SBOMs from Phase 1 metadata with <strong>no source-tree access</strong> (<code>tedg-dev/omnibor-analysis#194</code>, merged).</td></tr>
+<tr><td><strong>Status</strong></td><td>Sidecar mode ✅ implemented; Phase 1/2 split (<code>--phase</code>) ✅ implemented (Java). Phase 2 generates SBOMs from Phase 1 metadata with <strong>no source-tree access</strong> (<code>tedg-dev/bisbom-gen#194</code>, merged).</td></tr>
 <tr><td><strong>Date</strong></td><td>2026-06-12 (status updated 2026-07-23)</td></tr>
 </tbody>
 </table>
@@ -93,7 +93,7 @@ runners.py main()
 | logging-log4j2 | Maven | Multi (`-pl log4j-core -am`) | ✅ |
 | spring-boot | Gradle | Multi (`:spring-boot:build`) | ✅ |
 | bc-java | Gradle | Multi (`:prov:build`) | ✅ |
-| `omnibor-java-testapp` | Maven | Single (CI test app) | ✅ |
+| `bisbom-java-testapp` | Maven | Single (CI test app) | ✅ |
 
 ---
 
@@ -226,7 +226,7 @@ by their JAR's gitOID + `purl`.
 `maven_deps.json` / `gradle_deps.json`. Phase 2 reads that capture via
 `app/spdx/dep_capture_reader.py` (`load_capture()` / `get_module_deps()`)
 and never touches the source tree. The earlier "resolve at Phase 2 time"
-approach was superseded by `tedg-dev/omnibor-analysis#194` (merged).
+approach was superseded by `tedg-dev/bisbom-gen#194` (merged).
 
 ---
 
