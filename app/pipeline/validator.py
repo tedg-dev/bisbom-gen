@@ -1,5 +1,5 @@
 """
-Dependency validation for OmniBOR Analysis.
+Dependency validation for bisbom-gen.
 
 Checks that required system packages are installed before
 attempting an instrumented build.  Uses the ``PackageResolver``

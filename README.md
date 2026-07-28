@@ -1,6 +1,6 @@
-# OmniBOR Analysis
+# Build-Interception SBOM Generation
 
-> SPDX SBOM generation via [OmniBOR](https://omnibor.io/) build interception for C/C++, Rust, Go, and Java projects.
+> **bisbom-gen** — **B**uild-**I**nterception **SBOM** **gen**eration: SPDX 2.3 SBOMs produced at build time for Java, C/C++, Rust, Go, and Python projects.
 
 [![License](https://img.shields.io/badge/license-TBD-lightgrey.svg)](#license)
 
@@ -20,7 +20,7 @@
 
 ## Overview
 
-This project instruments C/C++, Rust, Go, and Java open-source builds with [OmniBOR/Bomsh](https://github.com/omnibor/bomsh) to generate **SPDX 2.3 SBOMs** via build interception. For each compiled binary, it produces a full dependency graph capturing:
+This project instruments C/C++, Rust, Go, and Java open-source builds to generate **SPDX 2.3 SBOMs** via build interception — observing the compiler and linker as the build runs, with no changes to the build itself. For each compiled binary, it produces a full dependency graph capturing:
 
 - **Static dependencies** (STATIC_LINK) — vendored libraries compiled into the binary
 - **Dynamic dependencies** (DYNAMIC_LINK) — system shared libraries resolved via ldd/readelf
@@ -43,14 +43,14 @@ For detailed documentation, see the [`docs/`](docs/) directory:
 
 ### What is Build Interception?
 
-Build interception hooks into the compiler and linker during a software build to observe exactly which source files are compiled into which output artifacts. [OmniBOR's Bomtrace](https://github.com/omnibor/bomsh) uses `strace` to intercept these calls and produce an **Artifact Dependency Graph (ADG)** — a cryptographically verifiable record of what was built from what. C/C++ builds use bomtrace3; Rust and Go builds use bomtrace2. Java uses strace-based post-build analysis. See [Analyzed vs Build SBOMs](docs/architecture/analyzed-vs-build-sboms.md) and [Stable Tag Pinning](docs/architecture/stable-tag-pinning.md) for details.
+Build interception hooks into the compiler and linker during a software build to observe exactly which source files are compiled into which output artifacts. A build tracer uses `strace` to intercept these calls and produce an **Artifact Dependency Graph (ADG)** — a cryptographically verifiable record of what was built from what. The toolchain uses bomtrace (bomtrace3 for C/C++, bomtrace2 for Rust and Go), with Java using strace-based post-build analysis. See [Analyzed vs Build SBOMs](docs/architecture/analyzed-vs-build-sboms.md) and [Stable Tag Pinning](docs/architecture/stable-tag-pinning.md) for details.
 
 ## Project Structure
 
 ```
-omnibor-analysis/
+bisbom-gen/
 ├── app/                    Orchestration scripts and modular packages
-│   ├── pipeline/           Analysis pipeline (clone, build, instrument, generate SBOMs)
+│   ├── pipeline/           Build-interception pipeline (clone, build, instrument, generate SBOMs)
 │   ├── spdx/              Per-binary SPDX 2.3 generation from ADG data
 │   ├── viz/               D3.js visualization package (extract, styles, JS templates)
 │   ├── version_detection/ Root + vendored package version detection (12 strategies)
@@ -81,15 +81,15 @@ omnibor-analysis/
 | **Python** | 3.11+ | For orchestration scripts |
 | **Git** | 2.x+ | For cloning target repositories |
 
-> **Note:** All C/C++ compilation and OmniBOR instrumentation happens inside the Docker container. You do **not** need gcc, clang, or any build tools installed on your host machine.
+> **Note:** All C/C++ compilation and build-interception instrumentation happens inside the Docker container. You do **not** need gcc, clang, or any build tools installed on your host machine.
 
 ## Getting Started
 
 ### 1. Clone this repository
 
 ```bash
-git clone https://github.com/tedg-dev/omnibor-analysis.git
-cd omnibor-analysis
+git clone https://github.com/tedg-dev/bisbom-gen.git
+cd bisbom-gen
 ```
 
 ### 2. Build the Docker environment
@@ -102,7 +102,7 @@ This builds an Ubuntu 22.04 container with:
 - gcc, clang, make, cmake, autoconf
 - Rust toolchain (rustup + stable)
 - Go SDK 1.26.0
-- bomtrace2 and bomtrace3 (compiled from [omnibor/bomsh](https://github.com/omnibor/bomsh))
+- bomtrace2 and bomtrace3 (the build tracers, compiled from source)
 - [Syft](https://github.com/anchore/syft) (used internally by bomsh_sbom.py for baseline SPDX scaffolding)
 - All build dependencies for target repositories
 
@@ -112,25 +112,25 @@ First build takes **10-20 minutes** (compiles bomtrace from patched strace sourc
 
 ```bash
 # Check bomtrace3
-docker-compose -f docker/docker-compose.yml run --rm omnibor-env bomtrace3 --version
+docker-compose -f docker/docker-compose.yml run --rm bisbom-env bomtrace3 --version
 
 ```
 
 ## Usage
 
-### Run analysis on a target repository
+### Run bisbom-gen on a target repository
 
 ```bash
 # List available repos
-docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
+docker-compose -f docker/docker-compose.yml run --rm bisbom-env \
   python3 /workspace/app/analyze.py --list
 
-# Full analysis: clone → build → instrument → generate SBOMs → write docs
-docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
+# Full run: clone → build → instrument → generate SBOMs → write docs
+docker-compose -f docker/docker-compose.yml run --rm bisbom-env \
   python3 /workspace/app/analyze.py --repo curl
 
 # Re-run without cloning (repo already exists)
-docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
+docker-compose -f docker/docker-compose.yml run --rm bisbom-env \
   python3 /workspace/app/analyze.py --repo curl --skip-clone
 
 ```
@@ -138,7 +138,7 @@ docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
 ### Interactive container access
 
 ```bash
-docker-compose -f docker/docker-compose.yml run --rm omnibor-env bash
+docker-compose -f docker/docker-compose.yml run --rm bisbom-env bash
 ```
 
 ## Target Repositories
@@ -187,7 +187,7 @@ Go modules are classified as direct or indirect from `go.mod`. Each gets a `pkg:
 | [logging-log4j2](https://github.com/apache/logging-log4j2) | ~10 | ~20 | Apache Log4j2 logging framework, Maven multi-module |
 | [spring-boot](https://github.com/spring-projects/spring-boot) | ~50 | ~70 | Spring Boot framework, Gradle multi-module |
 | [bc-java](https://github.com/bcgit/bc-java) | ~10 | ~5 | Bouncy Castle crypto library, Gradle multi-module |
-| [omnibor-java-testapp](https://github.com/tedg-dev/omnibor-java-testapp) | 2 | 3 | Internal test app for pipeline validation |
+| [bisbom-java-testapp](https://github.com/tedg-dev/bisbom-java-testapp) | 2 | 3 | Internal test app for pipeline validation |
 
 Java sidecar mode uses `MavenDepTreeStrategy` or `GradleDepTreeStrategy` — no `SYS_PTRACE` needed. Standalone mode uses strace-based post-build analysis. Maven dependencies are classified as direct (depth 1) or transitive (depth 2+) via BFS.
 
@@ -197,13 +197,13 @@ To add a new target repository, see [CONTRIBUTING.md](docs/guides/CONTRIBUTING.m
 
 ### SPDX Output Files (per binary)
 
-Each analysis run produces SPDX files per output binary:
+Each run produces SPDX files per output binary:
 
 | File | CISA Type | Purpose |
 |------|-----------|----------|
 | `<binary>_analyzed.spdx.json` | Analyzed | Components compiled into the binary (STATIC_LINK only). For vulnerability scanning and license compliance. |
 | `<binary>_build.spdx.json` | Build | Full dependency graph: static + dynamic + build tools + transitive deps. For build reproducibility and supply chain audit. |
-| `<binary>_omnibor.spdx.json` | — | OmniBOR artifact identity. Cryptographic hashes for provenance tracking. No dependency relationships (by design). |
+| `<binary>_omnibor.spdx.json` | — | Build-provenance artifact identity. Cryptographic hashes for provenance tracking. No dependency relationships (by design). |
 
 Each `.spdx.json` has a corresponding `.spdx.html` interactive D3.js visualization. See [Analyzed vs Build SBOMs](docs/architecture/analyzed-vs-build-sboms.md) for the rationale behind the two-file approach.
 
@@ -211,7 +211,7 @@ Each `.spdx.json` has a corresponding `.spdx.html` interactive D3.js visualizati
 
 | Path | Contents |
 |------|----------|
-| `output/omnibor/{lang}/{repo}/{ts}/` | OmniBOR ADG documents from bomsh |
+| `output/omnibor/{lang}/{repo}/{ts}/` | ADG documents (build provenance) |
 | `output/spdx/{lang}/{repo}/{ts}/` | SPDX SBOM files + HTML visualizations |
 | `output/binaries/{lang}/{repo}/{ts}/` | Collected output binaries |
 
@@ -225,7 +225,7 @@ Each `.spdx.json` has a corresponding `.spdx.html` interactive D3.js visualizati
 
 ## Runtime Performance
 
-Wall-clock times on EC2 `c6i.xlarge` (4 vCPU, 8 GB). **Capture** is the instrumented build (bomtrace + compilation). **SPDX** is post-build analysis (OmniBOR ADG, SPDX generation, validation, binary collection).
+Wall-clock times on EC2 `c6i.xlarge` (4 vCPU, 8 GB). **Capture** is the instrumented build (build interception + compilation). **SPDX** is post-build analysis (ADG assembly, SPDX generation, validation, binary collection).
 
 ### C/C++ (bomtrace3 + strace)
 
@@ -270,7 +270,3 @@ See [CONTRIBUTING.md](docs/guides/CONTRIBUTING.md) for guidelines on:
 ## License
 
 TBD — License to be determined.
-
----
-
-*Built with [OmniBOR/Bomsh](https://github.com/omnibor/bomsh) | [omnibor.io](https://omnibor.io)*

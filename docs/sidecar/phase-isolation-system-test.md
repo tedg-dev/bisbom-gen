@@ -51,7 +51,7 @@ All three patterns use the same CLI interface (`--phase build`,
 ### Phase 1 — Container A (build + manifest)
 
 ```bash
-docker compose run --rm -T omnibor-sidecar \
+docker compose run --rm -T bisbom-sidecar \
   bash -c "echo CONTAINER_ID=\$(hostname) && \
     cd /workspace && python3 app/analyze.py \
     --repo <repo> --mode sidecar --phase build \
@@ -101,7 +101,7 @@ Before starting Container B, the test:
 ### Phase 2 — Container B (SPDX generation)
 
 ```bash
-docker compose run --rm -T omnibor-sidecar \
+docker compose run --rm -T bisbom-sidecar \
   bash -c "echo CONTAINER_ID=\$(hostname) && \
     cd /workspace && python3 app/analyze.py \
     --repo <repo> --mode sidecar --phase spdx \

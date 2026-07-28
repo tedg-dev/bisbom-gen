@@ -105,7 +105,7 @@ class ConfigGenerator:
         """Create the output directory structure."""
         base = Path(__file__).parent.parent
         dirs = [
-            base / "output" / "omnibor" / repo_name,
+            base / "output" / "bisbom" / repo_name,
             base / "output" / "spdx" / repo_name,
             base / "output" / "binary-scan"
             / repo_name,

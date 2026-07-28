@@ -31,7 +31,7 @@ If **Provider** is `Local`, skip SSH prefixes and run Docker commands directly.
 **Local Docker host (Provider: Local):**
 
 ```bash
-docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
+docker-compose -f docker/docker-compose.yml run --rm bisbom-env \
   python3 /workspace/app/analyze.py --repo <REPO_NAME>
 ```
 
@@ -43,38 +43,38 @@ repo path from the active profile:
 
 ```bash
 rsync -avz --exclude=.git --exclude=.venv --exclude=repos --exclude=output ./ <SSH_ALIAS>:<REPO_PATH>/
-ssh <SSH_ALIAS> "cd <REPO_PATH> && docker compose -f docker/docker-compose.yml run --rm --remove-orphans omnibor-env python3 /workspace/app/analyze.py --repo <REPO_NAME>"
+ssh <SSH_ALIAS> "cd <REPO_PATH> && docker compose -f docker/docker-compose.yml run --rm --remove-orphans bisbom-env python3 /workspace/app/analyze.py --repo <REPO_NAME>"
 ```
 
 ## 1b. Java sidecar mode (dep:tree, no SYS_PTRACE)
 
-Java repos are analyzed with the `omnibor-sidecar` service in
+Java repos are analyzed with the `bisbom-sidecar` service in
 **sidecar mode** — dependency capture via `mvn`/`gradle`
 `dependency:tree`, which does not require `SYS_PTRACE`:
 
 ```bash
-docker compose -f docker/docker-compose.yml run --rm --remove-orphans omnibor-sidecar \
+docker compose -f docker/docker-compose.yml run --rm --remove-orphans bisbom-sidecar \
   python3 /workspace/app/analyze.py --repo <REPO_NAME> --mode sidecar
 ```
 
 ## 2. Re-run without cloning (repo already exists)
 
 ```bash
-docker compose -f docker/docker-compose.yml run --rm --remove-orphans omnibor-env \
+docker compose -f docker/docker-compose.yml run --rm --remove-orphans bisbom-env \
   python3 /workspace/app/analyze.py --repo <REPO_NAME> --skip-clone
 ```
 
 ## 3. Generate only a Syft manifest SBOM (no build)
 
 ```bash
-docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
+docker-compose -f docker/docker-compose.yml run --rm bisbom-env \
   python3 /workspace/app/analyze.py --repo <REPO_NAME> --syft-only
 ```
 
 ## 4. List available repos
 
 ```bash
-docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
+docker-compose -f docker/docker-compose.yml run --rm bisbom-env \
   python3 /workspace/app/analyze.py --list
 ```
 

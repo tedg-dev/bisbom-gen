@@ -141,7 +141,7 @@ that needs outbound network access from containers on Cisco lab hosts:
 
 ```yaml
 services:
-  omnibor-env:  # change to match your service name
+  bisbom-env:  # change to match your service name
     environment:
       - HTTP_PROXY=http://proxy-wsa.esl.cisco.com:80
       - HTTPS_PROXY=http://proxy-wsa.esl.cisco.com:80

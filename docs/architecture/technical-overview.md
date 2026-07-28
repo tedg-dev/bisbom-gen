@@ -1,9 +1,11 @@
-# OmniBOR Analysis: Technical Overview
+# Build-Interception SBOM Generation: Technical Overview
 
-## 1. How OmniBOR Works (Build Interception)
+> Also referred to by its short name, **bisbom-gen**.
 
-OmniBOR intercepts compiler/linker invocations during build to create
-an **Artifact Dependency Graph (ADG)** — a cryptographic record of
+## 1. How Build Interception Works
+
+**bisbom-gen** intercepts compiler/linker invocations during the build to
+create an **Artifact Dependency Graph (ADG)** — a cryptographic record of
 every input→output relationship.
 
 ### Artifact Identity — gitOID + SHA-256
@@ -16,14 +18,14 @@ packages:
 |-------|------|------------|
 | **raw hash** | `SHA-256` of the file bytes | files, objects, packages |
 | **artifact gitOID** | `gitoid:blob:sha256` (git-blob framing + `SHA-256`) | files, objects, packages |
-| **Input Manifest gitOID (OMID)** | gitOID of the OmniBOR Input Manifest (provenance ID) | built packages only |
+| **Input Manifest gitOID** | gitOID of the Input Manifest (provenance identifier) | built packages only |
 
-`SHA-256` is mandated by the OmniBOR specification. The **topology** of
-the ADG (which inputs feed which output) is captured by bomsh per
-language, but the **identity** values are computed by omnibor-analysis
-uniformly across all languages — so bomsh's internal `SHA-1` treedb
-never surfaces in the SBOM. This is the design of record; see
-`.windsurf/rules/project/artifact-identity.md`.
+All artifact identity uses `SHA-256`. The **topology** of the ADG (which
+inputs feed which output) is captured during build interception per
+language, but the **identity** values are computed by bisbom-gen
+uniformly across all languages — so the interception layer's internal
+`SHA-1` values never surface in the SBOM. This is the design of record;
+see `.windsurf/rules/project/artifact-identity.md`.
 
 **Sidecar is the only supported execution mode** (no `SYS_PTRACE`
 required), used for all enterprise CI/CD SBOM generation and as the
@@ -48,9 +50,9 @@ For the deprecated standalone mode (embedded corner case only), see
 
 ---
 
-## 2. omnibor-analysis Integration
+## 2. bisbom-gen Integration
 
-**omnibor-analysis** wraps OmniBOR/bomsh tools into a reproducible
+**bisbom-gen** wraps build-interception tooling into a reproducible
 two-phase pipeline:
 
 - **Phase 1 (Build Interception)** — runs in the customer's build
@@ -60,12 +62,12 @@ two-phase pipeline:
 
 | Component | Source | Role |
 |-----------|--------|------|
-| `app/pipeline/facade.py` | omnibor-analysis | Pipeline orchestration |
-| `app/pipeline/manifest.py` | omnibor-analysis | Phase 1/2 manifest + gitoid verification |
-| `app/spdx/generator.py` | omnibor-analysis | ADG → enriched per-binary SPDX |
-| `app/spdx/java_generator.py` | omnibor-analysis | Java: dep:tree → SPDX |
-| `app/version_detection/` | omnibor-analysis | Root version + 12 vendored detection strategies |
-| `app/spdx_visualize.py` | omnibor-analysis | SPDX → interactive D3.js HTML |
+| `app/pipeline/facade.py` | bisbom-gen | Pipeline orchestration |
+| `app/pipeline/manifest.py` | bisbom-gen | Phase 1/2 manifest + gitoid verification |
+| `app/spdx/generator.py` | bisbom-gen | ADG → enriched per-binary SPDX |
+| `app/spdx/java_generator.py` | bisbom-gen | Java: dep:tree → SPDX |
+| `app/version_detection/` | bisbom-gen | Root version + 12 vendored detection strategies |
+| `app/spdx_visualize.py` | bisbom-gen | SPDX → interactive D3.js HTML |
 
 **Environment:** Docker container (Ubuntu 22.04 x86_64). Sidecar mode
 does not require `SYS_PTRACE`.
@@ -125,11 +127,11 @@ Each HTML visualization is a **force-directed D3.js graph** showing the binary's
 
 ## 5. Architecture Diagram
 
-See: [omnibor-analysis-workflow.png](https://github.com/tedg-dev/omnibor-analysis/blob/main/docs/architecture/omnibor-analysis-workflow.png)
+See: [bisbom-gen-workflow.png](https://github.com/tedg-dev/bisbom-gen/blob/main/docs/architecture/bisbom-gen-workflow.png)
 
 Pipeline visualization showing:
 - AWS EC2 + Docker container environment
-- bomtrace3/bomtrace2 build interception flow
+- Build interception flow
 - ADG generation → SPDX generation → HTML visualization
 - Output artifacts (analyzed + build SPDX JSON/HTML per binary)
 

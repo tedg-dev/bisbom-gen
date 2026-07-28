@@ -1,5 +1,5 @@
 /*
- * omnibor_java_intercept.c — LD_PRELOAD inline-hashing shim for Java.
+ * bisbom_java_intercept.c — LD_PRELOAD inline-hashing shim for Java.
  *
  * Design of record:
  *   docs/sidecar/java/inline-hashing-interception-design.md
@@ -14,7 +14,7 @@
  * or .jar artifact, computes its git-blob SHA-1 (bomsh treedb topology
  * key) and SHA-256 gitoid (SBOM identity) inline — while the bytes are
  * still warm in the page cache — then appends one JSON event to the
- * capture log named by $OMNIBOR_CAPTURE_LOG.
+ * capture log named by $BISBOM_CAPTURE_LOG.
  *
  * app/pipeline/java_capture.py:assemble_treedb() turns that log into the
  * exact bomsh treedb structure, so generate_adg() becomes an in-memory
@@ -36,8 +36,8 @@
  * rescan.  Enable it via config only after V1–V6 pass on EC2.
  *
  * Build:
- *   gcc -shared -fPIC -O2 -o libomnibor_java_intercept.so \
- *       omnibor_java_intercept.c -ldl -lcrypto -lpthread -lz
+ *   gcc -shared -fPIC -O2 -o libbisbom_java_intercept.so \
+ *       bisbom_java_intercept.c -ldl -lcrypto -lpthread -lz
  */
 
 #define _GNU_SOURCE
@@ -151,10 +151,10 @@ static enum artifact_kind classify(const char *path)
     return KIND_NONE;
 }
 
-/* True if the path is under $OMNIBOR_BUILD_ROOT (when set). */
+/* True if the path is under $BISBOM_BUILD_ROOT (when set). */
 static int under_build_root(const char *path)
 {
-    const char *root = getenv("OMNIBOR_BUILD_ROOT");
+    const char *root = getenv("BISBOM_BUILD_ROOT");
     if (!root || !*root)
         return 1;
     return strncmp(path, root, strlen(root)) == 0;
@@ -411,7 +411,7 @@ static void json_escape(const char *in, char *out, size_t cap)
 
 static void capture_append(const char *line)
 {
-    const char *log = getenv("OMNIBOR_CAPTURE_LOG");
+    const char *log = getenv("BISBOM_CAPTURE_LOG");
     if (!log || !*log)
         return;
     int fd = real_open(log, O_WRONLY | O_CREAT | O_APPEND, 0644);

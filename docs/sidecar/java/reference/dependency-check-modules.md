@@ -253,7 +253,7 @@ When discussing DependencyCheck SBOMs, lead with these points:
 Run the analysis in sidecar mode and compare against the golden baseline:
 
 ```bash
-docker compose -f docker/docker-compose.yml run --rm omnibor-sidecar \
+docker compose -f docker/docker-compose.yml run --rm bisbom-sidecar \
   bash -c "cd /workspace && python3 app/analyze.py \
   --repo dependency-check --mode sidecar --skip-clone"
 

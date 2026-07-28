@@ -1,5 +1,5 @@
 """
-Build interception strategies for OmniBOR Analysis.
+Build interception strategies for Build-Interception SBOM Generation.
 
 Defines the ``InterceptionStrategy`` ABC and concrete
 implementations for different build interception methods.
@@ -7,9 +7,9 @@ implementations for different build interception methods.
 Each strategy provides two operations:
 
 1. ``instrument_command()`` — modify a build command to
-   enable OmniBOR tracing (e.g. prepend bomtrace3, set
+   enable build tracing (e.g. prepend bomtrace3, set
    environment variables, or pass through unmodified).
-2. ``generate_adg()`` — produce the OmniBOR Artifact
+2. ``generate_adg()`` — produce the Artifact
    Dependency Graph from tracer output or build-tool
    dependency information.
 
@@ -40,7 +40,7 @@ def build_inline_hash_env(shim_path, capture_log, extra=None):
     (sidecar constraint C2/C3).
 
     Args:
-        shim_path: Absolute path to ``libomnibor_java_intercept.so``.
+        shim_path: Absolute path to ``libbisbom_java_intercept.so``.
         capture_log: Absolute path the shim appends capture events to.
         extra: Optional extra env vars (e.g. Gradle daemon disable).
 
@@ -214,7 +214,7 @@ def assemble_treedb_from_capture(
         "wall_sec": round(treedb_sec, 2),
     })
     print(
-        f"[OK] OmniBOR treedb assembled from {len(events)} "
+        f"[OK] bomsh treedb assembled from {len(events)} "
         f"capture events \u2192 {treedb_file} "
         f"({treedb_sec:.1f}s)"
     )
@@ -223,7 +223,7 @@ def assemble_treedb_from_capture(
 
 def build_java_treedb(
     inline_hash, capture_log, runner, repo_dir,
-    meta_dir, omnibor_cfg, substeps,
+    meta_dir, bisbom_cfg, substeps,
 ):
     """Build the Java treedb via inline assembly or legacy rescan.
 
@@ -237,7 +237,7 @@ def build_java_treedb(
             capture_log, repo_dir, meta_dir, substeps,
         )
     return _generate_java_treedb(
-        runner, repo_dir, meta_dir, omnibor_cfg, substeps,
+        runner, repo_dir, meta_dir, bisbom_cfg, substeps,
     )
 
 
@@ -249,7 +249,7 @@ def _write_adg_substeps(bom_path, substeps):
     performance analysis.
 
     Args:
-        bom_path: ``Path`` to the OmniBOR output directory.
+        bom_path: ``Path`` to the BOM output directory.
         substeps: List of timing dicts with ``name``,
             ``tool``, and ``wall_sec`` keys.
     """
@@ -259,9 +259,9 @@ def _write_adg_substeps(bom_path, substeps):
 
 
 def _generate_java_treedb(
-    runner, repo_dir, meta_dir, omnibor_cfg, substeps,
+    runner, repo_dir, meta_dir, bisbom_cfg, substeps,
 ):
-    """Generate the OmniBOR treedb for a Java workspace.
+    """Generate the bomsh treedb for a Java workspace.
 
     Runs ``bomsh_create_bom_java.py`` to map JAR -> class ->
     source from the built workspace.  This step is
@@ -274,14 +274,14 @@ def _generate_java_treedb(
         repo_dir: Path to the built repository workspace.
         meta_dir: ``Path`` to the bomsh metadata directory
             where the treedb is written.
-        omnibor_cfg: The ``omnibor`` config section.
+        bisbom_cfg: The ``bisbom`` config section.
         substeps: Mutable list of timing dicts; a ``treedb``
             entry is appended.
 
     Returns:
         True on success, False if the script fails.
     """
-    create_bom = omnibor_cfg.get(
+    create_bom = bisbom_cfg.get(
         "create_bom_script",
         "bomsh_create_bom_java.py",
     )
@@ -292,7 +292,7 @@ def _generate_java_treedb(
         f"-b {meta_dir} -m",
         cwd=str(repo_dir),
         description=(
-            "Generating OmniBOR treedb for Java workspace"
+            "Generating bomsh treedb for Java workspace"
         ),
     )
     treedb_sec = time.monotonic() - t0
@@ -305,14 +305,14 @@ def _generate_java_treedb(
         print("[ERROR] bomsh_create_bom_java.py failed")
         return False
     print(
-        f"[OK] OmniBOR treedb written to "
+        f"[OK] bomsh treedb written to "
         f"{treedb_file} ({treedb_sec:.1f}s)"
     )
     return True
 
 
 class InterceptionStrategy(ABC):
-    """Defines how a build is instrumented for OmniBOR tracing.
+    """Defines how a build is instrumented for build tracing.
 
     Concrete strategies implement distro-specific or
     language-specific instrumentation. The pipeline
@@ -330,7 +330,7 @@ class InterceptionStrategy(ABC):
 
     @abstractmethod
     def instrument_command(self, build_cmd, repo_dir):
-        """Modify a build command for OmniBOR tracing.
+        """Modify a build command for build tracing.
 
         Args:
             build_cmd: The original build command string.
@@ -344,13 +344,13 @@ class InterceptionStrategy(ABC):
         """
 
     @abstractmethod
-    def generate_adg(self, repo_dir, bom_dir, omnibor_cfg):
-        """Generate the OmniBOR Artifact Dependency Graph.
+    def generate_adg(self, repo_dir, bom_dir, bisbom_cfg):
+        """Generate the Artifact Dependency Graph.
 
         Args:
             repo_dir: Path to the repository root.
-            bom_dir: Path to the OmniBOR output directory.
-            omnibor_cfg: The ``omnibor`` config section.
+            bom_dir: Path to the BOM output directory.
+            bisbom_cfg: The ``bisbom`` config section.
 
         Returns:
             True on success, False on failure.
@@ -385,12 +385,12 @@ class PtraceStrategy(InterceptionStrategy):
         """
         return f"{self._tracer} {build_cmd}", {}
 
-    def generate_adg(self, repo_dir, bom_dir, omnibor_cfg):
+    def generate_adg(self, repo_dir, bom_dir, bisbom_cfg):
         """Run ``bomsh_create_bom.py`` on tracer output.
 
         The tracer writes a raw logfile during the build.
         ``bomsh_create_bom.py`` reads it to produce the
-        OmniBOR treedb and ADG documents.
+        bomsh treedb and ADG documents.
 
         Returns:
             True on success, False on failure.
@@ -398,10 +398,10 @@ class PtraceStrategy(InterceptionStrategy):
         from app.runner import CommandRunner
 
         runner = CommandRunner()
-        create_bom = omnibor_cfg.get(
+        create_bom = bisbom_cfg.get(
             "create_bom_script", "bomsh_create_bom.py",
         )
-        raw_logfile = omnibor_cfg.get(
+        raw_logfile = bisbom_cfg.get(
             "raw_logfile",
             "/tmp/bomsh_hook_raw_logfile.sha1",
         )
@@ -410,7 +410,7 @@ class PtraceStrategy(InterceptionStrategy):
             f"-b {bom_dir}",
             cwd=str(repo_dir),
             description=(
-                "Generating OmniBOR ADG documents"
+                "Generating ADG documents"
             ),
         )
         return rc == 0
@@ -420,7 +420,7 @@ class CcWrapperStrategy(InterceptionStrategy):
     """Sidecar C/C++: CC=/CXX=/AR=/LD= environment variables.
 
     Instead of ptrace, sets compiler environment variables
-    to point at OmniBOR wrapper scripts that intercept
+    to point at build wrapper scripts that intercept
     compilation without ``SYS_PTRACE``.
     """
 
@@ -447,7 +447,7 @@ class CcWrapperStrategy(InterceptionStrategy):
         }
         return build_cmd, env
 
-    def generate_adg(self, repo_dir, bom_dir, omnibor_cfg):
+    def generate_adg(self, repo_dir, bom_dir, bisbom_cfg):
         """Run ``bomsh_create_bom.py`` on wrapper output.
 
         Same as ``PtraceStrategy`` — both produce the same
@@ -455,7 +455,7 @@ class CcWrapperStrategy(InterceptionStrategy):
         """
         strategy = PtraceStrategy()
         return strategy.generate_adg(
-            repo_dir, bom_dir, omnibor_cfg,
+            repo_dir, bom_dir, bisbom_cfg,
         )
 
 
@@ -492,11 +492,11 @@ class GoToolexecStrategy(InterceptionStrategy):
         )
         return cmd, {}
 
-    def generate_adg(self, repo_dir, bom_dir, omnibor_cfg):
+    def generate_adg(self, repo_dir, bom_dir, bisbom_cfg):
         """Run ``bomsh_create_bom.py`` on wrapper output."""
         strategy = PtraceStrategy()
         return strategy.generate_adg(
-            repo_dir, bom_dir, omnibor_cfg,
+            repo_dir, bom_dir, bisbom_cfg,
         )
 
 
@@ -527,11 +527,11 @@ class RustcWrapperStrategy(InterceptionStrategy):
             "RUSTC_WRAPPER": self._wrapper,
         }
 
-    def generate_adg(self, repo_dir, bom_dir, omnibor_cfg):
+    def generate_adg(self, repo_dir, bom_dir, bisbom_cfg):
         """Run ``bomsh_create_bom.py`` on wrapper output."""
         strategy = PtraceStrategy()
         return strategy.generate_adg(
-            repo_dir, bom_dir, omnibor_cfg,
+            repo_dir, bom_dir, bisbom_cfg,
         )
 
 
@@ -542,7 +542,7 @@ class MavenDepTreeStrategy(InterceptionStrategy):
     ptrace.  This strategy:
 
     1. Runs the build command unmodified (no strace prefix).
-    2. Generates OmniBOR treedb via
+    2. Generates bomsh treedb via
        ``bomsh_create_bom_java.py`` — the same script used
        in standalone mode.  Without a strace log, it uses
        the ``SourceFile`` bytecode attribute + path
@@ -589,13 +589,13 @@ class MavenDepTreeStrategy(InterceptionStrategy):
             )
         return build_cmd, {}
 
-    def generate_adg(self, repo_dir, bom_dir, omnibor_cfg):
-        """Generate OmniBOR treedb and Maven dependency graph.
+    def generate_adg(self, repo_dir, bom_dir, bisbom_cfg):
+        """Generate bomsh treedb and Maven dependency graph.
 
         Two data sources for SPDX generation:
 
         1. ``bomsh_create_bom_java.py`` scans the build
-           workspace to produce the OmniBOR treedb
+           workspace to produce the bomsh treedb
            (JAR → class → source file provenance).
            Uses the same SourceFile bytecode attribute
            + path similarity as standalone mode.
@@ -620,14 +620,14 @@ class MavenDepTreeStrategy(InterceptionStrategy):
         meta_dir = bom_path / "metadata" / "bomsh"
         meta_dir.mkdir(parents=True, exist_ok=True)
 
-        # Step 1: Build the OmniBOR treedb — inline assembly from the
+        # Step 1: Build the bomsh treedb — inline assembly from the
         # shim's capture log when inline hashing is enabled, else the
         # legacy post-build rescan.  Shared by all Java sidecar
         # strategies (DRY) and build-tool-agnostic.
         if not build_java_treedb(
             self._inline_hash, self._capture_log,
             self._runner, repo_dir, meta_dir,
-            omnibor_cfg, substeps,
+            bisbom_cfg, substeps,
         ):
             _write_adg_substeps(bom_path, substeps)
             return False
@@ -680,7 +680,7 @@ class GradleDepTreeStrategy(InterceptionStrategy):
     for Gradle-based Java builds:
 
     1. Runs the build command unmodified.
-    2. Generates OmniBOR treedb via
+    2. Generates bomsh treedb via
        ``bomsh_create_bom_java.py`` (same as standalone).
     3. Runs ``./gradlew dependencies`` per subproject.
     4. Parses the indented tree output into structured data.
@@ -726,13 +726,13 @@ class GradleDepTreeStrategy(InterceptionStrategy):
             )
         return build_cmd, {}
 
-    def generate_adg(self, repo_dir, bom_dir, omnibor_cfg):
-        """Generate OmniBOR treedb and Gradle dependency graph.
+    def generate_adg(self, repo_dir, bom_dir, bisbom_cfg):
+        """Generate bomsh treedb and Gradle dependency graph.
 
         Two data sources for SPDX generation:
 
         1. ``bomsh_create_bom_java.py`` scans the build
-           workspace to produce the OmniBOR treedb
+           workspace to produce the bomsh treedb
            (JAR → class → source file provenance).
         2. ``./gradlew dependencies`` captures the declared
            Gradle dependency graph per subproject.
@@ -754,14 +754,14 @@ class GradleDepTreeStrategy(InterceptionStrategy):
         meta_dir = bom_path / "metadata" / "bomsh"
         meta_dir.mkdir(parents=True, exist_ok=True)
 
-        # Step 1: Build the OmniBOR treedb — inline assembly from the
+        # Step 1: Build the bomsh treedb — inline assembly from the
         # shim's capture log when inline hashing is enabled, else the
         # legacy post-build rescan.  Shared by all Java sidecar
         # strategies (DRY) and build-tool-agnostic.
         if not build_java_treedb(
             self._inline_hash, self._capture_log,
             self._runner, repo_dir, meta_dir,
-            omnibor_cfg, substeps,
+            bisbom_cfg, substeps,
         ):
             _write_adg_substeps(bom_path, substeps)
             return False

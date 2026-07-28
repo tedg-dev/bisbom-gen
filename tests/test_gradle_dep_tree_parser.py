@@ -54,7 +54,7 @@ _SINGLE_PROJECT_OUTPUT = (
 
 _DASHES = "-" * 60
 _MULTI_PROJECT_REPORT = (
-    "> Task :util:omniborDeps\n\n"
+    "> Task :util:bisbomDeps\n\n"
     f"{_DASHES}\n"
     # ':util' carries a ' - description' suffix to exercise the
     # header regex's optional trailing text.
@@ -63,7 +63,7 @@ _MULTI_PROJECT_REPORT = (
     "runtimeClasspath - Runtime classpath of source set 'main'.\n"
     "+--- com.a:b:1.0\n"
     "\\--- com.c:d:2.0\n\n"
-    "> Task :core:omniborDeps\n\n"
+    "> Task :core:bisbomDeps\n\n"
     f"{_DASHES}\n"
     "Project ':core'\n"
     f"{_DASHES}\n\n"
@@ -379,7 +379,7 @@ class TestRunGradleAllDepTrees(unittest.TestCase):
             out = run_gradle_all_dep_trees(td)
         self.assertEqual(out, _MULTI_PROJECT_REPORT)
         cmd = mock_run.call_args[0][0]
-        self.assertIn("omniborDeps", cmd)
+        self.assertIn("bisbomDeps", cmd)
         self.assertIn("--init-script", cmd)
         self.assertIn("--offline", cmd)
         self.assertIn("--continue", cmd)

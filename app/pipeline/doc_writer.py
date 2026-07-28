@@ -1,5 +1,5 @@
 """
-Documentation writer for OmniBOR Analysis.
+Documentation writer for Build-Interception SBOM Generation.
 
 Writes build logs and runtime performance metrics to
 timestamped markdown files.
@@ -268,7 +268,7 @@ class DocWriter:
             f"- Measured wall-clock time for "
             f"{tracer_name}-instrumented "
             f"`{build_cmd}`\n"
-            "- OmniBOR ADG + SPDX generated "
+            "- ADG + SPDX generated "
             "from build interception\n"
         )
 
@@ -292,7 +292,7 @@ _STEP_LABELS = {
     "prebuild": "Pre-Build",
     "build": "Build",
     "adg": "ADG Generation",
-    "omnibor_sbom": "OmniBOR SBOM",
+    "bisbom_sbom": "SBOM",
     "metadata": "Metadata",
     "spdx_gen": "SPDX Generation",
     "validate": "Validation",

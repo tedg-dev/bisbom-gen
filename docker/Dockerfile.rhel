@@ -5,7 +5,7 @@
 # and package metadata resolution on RPM-based distros.
 #
 # Build:
-#   docker compose -f docker/docker-compose.yml build omnibor-rhel
+#   docker compose -f docker/docker-compose.yml build bisbom-rhel
 # ============================================================
 
 FROM rockylinux:9

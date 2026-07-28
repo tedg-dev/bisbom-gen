@@ -1,5 +1,5 @@
 # =============================================================================
-# OmniBOR Analysis — AWS EC2 Build Host
+# bisbom-gen — AWS EC2 Build Host
 # =============================================================================
 # Provisions an EC2 instance for running OmniBOR build interception analysis.
 # See docs/aws-ec2-migration-recommendation.md for sizing rationale.

@@ -1,14 +1,14 @@
-# OmniBOR Analysis — Onboarding Guide
+# Build-Interception SBOM Generation — Onboarding Guide
 
-Welcome! This guide will get you from a fresh clone to running OmniBOR build
-interception analysis on any C/C++, Rust, Go, or Java GitHub repository,
-with Windsurf Cascade AI handling the heavy lifting.
+Welcome! This guide will get you from a fresh clone to generating
+build-interception SBOMs with **bisbom-gen** for any C/C++, Rust, Go, or Java
+GitHub repository, with Windsurf Cascade AI handling the heavy lifting.
 
 ## What This Project Does
 
-This project **instruments C/C++, Rust, Go, and Java builds** using [OmniBOR/Bomsh](https://github.com/omnibor/bomsh)
-to capture every compiler and linker invocation, then generates **SPDX 2.3 SBOMs**
-with full dependency breakdown:
+This project **instruments C/C++, Rust, Go, and Java builds** by intercepting
+the build to capture every compiler and linker invocation, then generates
+**SPDX 2.3 SBOMs** with full dependency breakdown:
 
 - **Vendored static libraries** (STATIC_LINK) — detected from source directory structure
 - **Dynamic system libraries** (DYNAMIC_LINK) — resolved via ldd/readelf + dpkg
@@ -21,10 +21,10 @@ with full dependency breakdown:
 |---|---|
 | **Windsurf IDE** | IDE with Cascade AI assistant |
 | **Python 3.9+** | Local development, testing, and repo configuration |
-| **Docker 20.10+** | Running the analysis container (any OS — Linux, macOS, or Windows) |
+| **Docker 20.10+** | Running the build-interception container (any OS — Linux, macOS, or Windows) |
 | **Git** | Version control |
 
-> **Important:** The analysis container runs as Linux x86_64. **Sidecar
+> **Important:** The build-interception container runs as Linux x86_64. **Sidecar
 > mode is the only supported mode** — it does not require `SYS_PTRACE` and
 > works in standard Docker and Kubernetes environments. Standalone mode is
 > **deprecated** (the initial ptrace-based implementation, retained only
@@ -34,8 +34,8 @@ with full dependency breakdown:
 ## Step 1: Clone and Open in Windsurf
 
 ```bash
-git clone https://github.com/tedg-dev/omnibor-analysis.git
-cd omnibor-analysis
+git clone https://github.com/tedg-dev/bisbom-gen.git
+cd bisbom-gen
 ```
 
 Open this directory in Windsurf IDE.
@@ -87,7 +87,7 @@ with Terraform. Creates a new VPC, security group, key pair, EC2 instance,
 and Elastic IP. Best if you have no existing AWS infrastructure.
 
 **[AWS Existing Environment Guide](aws-existing-environment-guide.md)** —
-Add an OmniBOR build host to an existing AWS account. Covers reusing existing
+Add a bisbom-gen build host to an existing AWS account. Covers reusing existing
 EC2 instances, launching new instances in existing VPCs, corporate networking
 (VPN, bastion, NAT Gateway, proxy), IAM permissions, and Graviton/ARM64
 compatibility assessment.
@@ -123,7 +123,7 @@ Both guides cover:
 Tell Cascade:
 
 ```
-Run analysis on curl
+Run bisbom-gen on curl
 ```
 
 Or use the workflow directly:
@@ -147,7 +147,7 @@ Pre-configured Java (Gradle) repos: **spring-boot**, **bc-java**
 Tell Cascade:
 
 ```
-Add openssl for analysis
+Add openssl for SBOM generation
 ```
 
 Or use the workflow:
@@ -162,14 +162,14 @@ to `config.yaml`.
 
 ## Step 6: View Results
 
-After analysis completes, you'll find:
+After generation completes, you'll find:
 
 | Output | Location | Description |
 |---|---|---|
 | SPDX SBOM (analyzed) | `output/spdx/{lang}/{repo}/{ts}/<binary>_analyzed.spdx.json` | Static deps compiled into the binary |
 | SPDX SBOM (build) | `output/spdx/{lang}/{repo}/{ts}/<binary>_build.spdx.json` | Full dependency graph (static + dynamic + transitive) |
 | HTML visualization | `output/spdx/{lang}/{repo}/{ts}/<binary>_*.spdx.html` | Interactive D3.js graph (one per SPDX file) |
-| OmniBOR ADG | `output/omnibor/{lang}/{repo}/{ts}/` | Cryptographic build provenance |
+| ADG (build provenance) | `output/omnibor/{lang}/{repo}/{ts}/` | Cryptographic build provenance |
 | Component metadata | `output/omnibor/{lang}/{repo}/{ts}/metadata/` | dpkg package resolution |
 
 `{lang}` is `c-cpp`, `rust`, `go`, or `java`. `{ts}` is `YYYY-MM-DD_HHMM`.
@@ -183,7 +183,7 @@ with color-coded nodes (purple=root, teal=vendored, red=dynamic, yellow=build to
 |---|---|
 | `/setup-environment` | Verify environment on every startup |
 | `/first-time-setup` | Complete first-time setup (one-time) |
-| `/add-repo` | Add a new GitHub repo for analysis |
+| `/add-repo` | Add a new GitHub repo for SBOM generation |
 | `/run-analysis` | Run build interception + SBOM generation |
 | `/docker-build` | Build or rebuild the Docker container |
 | `/merge-pr` | Merge a feature branch (after approval) |
@@ -191,7 +191,7 @@ with color-coded nodes (purple=root, teal=vendored, red=dynamic, yellow=build to
 ## Project Structure
 
 ```
-omnibor-analysis/
+bisbom-gen/
 \u251c\u2500\u2500 app/                    # Core application code
 \u2502   \u251c\u2500\u2500 pipeline/           # Build orchestration (10 steps + facade + runners)
 \u2502   \u251c\u2500\u2500 spdx/               # SPDX generation (parser \u2192 resolver \u2192 emitter)
@@ -236,12 +236,12 @@ omnibor-analysis/
 | bomtrace3 "Exec format error" | You're on ARM64 — need an x86_64 host |
 | "SYS_PTRACE" error | Docker must have `--cap-add=SYS_PTRACE` (set in docker-compose.yml) |
 | SBOM has no vendored libs | Add `vendored_dirs` to config.yaml (see nmap example) |
-| Analysis takes too long | FFmpeg is ~24 min; curl/redis/nmap are 3-5 min |
+| Generation takes too long | FFmpeg is ~24 min; curl/redis/nmap are 3-5 min |
 
 ## Further Reading
 
 - [AWS Greenfield Setup Guide](aws-setup-guide.md) — **New AWS environment from scratch (Cisco Duo SSO + Terraform)**
-- [AWS Existing Environment Guide](aws-existing-environment-guide.md) — **Add OmniBOR build host to existing AWS infrastructure**
+- [AWS Existing Environment Guide](aws-existing-environment-guide.md) — **Add a bisbom-gen build host to existing AWS infrastructure**
 - [Technical Overview](../architecture/technical-overview.md) — High-level system overview
 - [Workflow Guide](workflow-guide.md) — Detailed workflow descriptions
 - [Golden File Testing](../testing/golden-file-testing.md) — Regression testing framework

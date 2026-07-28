@@ -205,3 +205,25 @@ gh project item-edit --project-id PVT_kwDOEFp5Ds4Bb7Wk \
 
 When creating any new issue, set the epic in the same turn as creating
 it. There is NO exception — do not leave the Epic field empty.
+
+---
+
+## 6. Every New Issue Gets Priority and Assignee (MANDATORY)
+
+In the SAME turn as creating any issue or sub-issue — alongside Status,
+Walk (§2), and Epic (§5) — ALWAYS set two more fields:
+
+- **Priority** = `Med` (option id `b4c7e1fe`) unless the user specifies
+  otherwise. The Priority field id is `PVTSSF_lADOEFp5Ds4Bb7WkzhWoAdY`
+  (options: High `2aae35bc`, Med `b4c7e1fe`, Low `12ea92e6`). Set it with
+  the same `gh project item-edit` form shown for Status/Epic in §1.
+- **Assignee** = the user, `tedg_cisco`:
+
+  ```bash
+  gh issue edit <n> --repo CiscoSecurityServices/gambit --add-assignee tedg_cisco
+  ```
+
+**Verify the status stuck.** After setting Status (e.g. `In Development`),
+re-query and confirm it actually took — board status edits have silently
+no-op'd before, leaving a freshly created issue with no status. Never
+assume the edit succeeded; confirm via GraphQL or `gh project item-list`.

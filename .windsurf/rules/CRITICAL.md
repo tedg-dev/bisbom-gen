@@ -209,7 +209,7 @@ Violating any rule marked NEVER is a critical failure.
   chat when describing the customer scenario. Say "the native build team",
   not "you". Reserve `you` for the actual chat user.
 - [ ] **ALWAYS** keep the customer's **native build / native CI image /
-  native build team** distinct from the **OmniBOR analysis harness / our
+  native build team** distinct from the **bisbom-gen analysis harness / our
   image**. Never conflate them.
 - [ ] **NEVER** over-claim to reassure. "The native build never changes"
   (true) is a different claim from "where a file is placed" (a one-time

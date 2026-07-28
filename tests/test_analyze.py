@@ -42,7 +42,7 @@ class TestLoadConfig(unittest.TestCase):
         config = load_config()
         self.assertIn("repos", config)
         self.assertIn("paths", config)
-        self.assertIn("omnibor", config)
+        self.assertIn("bisbom", config)
 
     def test_loads_custom_path(self):
         import yaml
@@ -314,6 +314,50 @@ class TestRepoCloner(unittest.TestCase):
                 result, str(repo_dir)
             )
             runner.run.assert_not_called()
+
+    def test_reuse_cleans_stale_capture_dirs(self):
+        """Reusing a checkout removes leftover capture dirs.
+
+        A stale .bisbom/.omnibor dir from a prior run would break
+        builds that audit their own tree (e.g. Apache RAT), so the
+        cloner must strip them before returning the reused path.
+        """
+        with tempfile.TemporaryDirectory() as tmpdir:
+            repo_dir = Path(tmpdir) / "myrepo"
+            repo_dir.mkdir()
+            (repo_dir / "file.txt").touch()
+            bisbom = repo_dir / ".bisbom"
+            bisbom.mkdir()
+            (bisbom / "capture.jsonl").touch()
+            omnibor = repo_dir / ".omnibor"
+            omnibor.mkdir()
+            (omnibor / "capture.jsonl").touch()
+
+            runner = MagicMock()
+            cloner = RepoCloner(runner)
+            paths = {"repos_dir": tmpdir}
+            cfg = {"url": "x", "branch": "main"}
+
+            with patch("builtins.print"):
+                cloner.clone("myrepo", cfg, paths)
+
+            self.assertFalse(bisbom.exists())
+            self.assertFalse(omnibor.exists())
+            self.assertTrue((repo_dir / "file.txt").exists())
+            runner.run.assert_not_called()
+
+    def test_clean_stale_capture_dirs_noop_when_absent(self):
+        """Cleanup is a no-op when no capture dirs exist."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            repo_dir = Path(tmpdir) / "clean"
+            repo_dir.mkdir()
+            (repo_dir / "src").mkdir()
+
+            with patch("builtins.print") as mock_print:
+                RepoCloner._clean_stale_capture_dirs(repo_dir)
+
+            self.assertTrue((repo_dir / "src").exists())
+            mock_print.assert_not_called()
 
     def test_clones_new_repo(self):
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -848,7 +892,7 @@ class TestBomtraceBuilderJava(unittest.TestCase):
             self.assertEqual(runner.run.call_count, 3)
             # Verify strace log was archived
             bom_dir = list(
-                (Path(td) / "output" / "omnibor"
+                (Path(td) / "output" / "bisbom"
                  / "java" / "myapp").iterdir()
             )[0]
             archive = (
@@ -1109,7 +1153,7 @@ class TestSpdxGenerator(unittest.TestCase):
                 )
             self.assertIsNotNone(result)
             self.assertIn(
-                "curl_omnibor.spdx.json", result
+                "curl_bisbom.spdx.json", result
             )
             self.assertTrue(Path(result).exists())
 
@@ -1148,6 +1192,12 @@ class TestSpdxGenerator(unittest.TestCase):
                 spdx_dir
                 / "libcurl.syft.spdx-json"
             ).write_text('{"creationInfo":{}}')
+            # Non-primary file that keeps the upstream
+            # ``omnibor.`` prefix — must be rebranded.
+            (
+                spdx_dir
+                / "omnibor.libcurl.so.syft.spdx-json"
+            ).write_text('{"creationInfo":{}}')
 
             with patch("builtins.print"), \
                     patch.object(
@@ -1176,11 +1226,25 @@ class TestSpdxGenerator(unittest.TestCase):
                 "libcurl.syft.spdx.json", names
             )
 
+            # Leftover upstream ``omnibor.`` prefix on a
+            # non-primary file is rebranded to ``bisbom.``
+            self.assertIn(
+                "bisbom.libcurl.so.syft.spdx.json", names
+            )
+
             # No .spdx-json files should remain
             leftover = list(
                 spdx_dir.glob("*.spdx-json")
             )
             self.assertEqual(len(leftover), 0)
+
+            # No filename may retain the ``omnibor.`` prefix
+            self.assertFalse(
+                any(
+                    n.startswith("omnibor.")
+                    for n in names
+                )
+            )
 
     def test_generate_no_binaries_returns_none(self):
         with tempfile.TemporaryDirectory() as td:
@@ -1357,13 +1421,13 @@ class TestSpdxGeneratorMetadata(unittest.TestCase):
             )
             self.assertTrue(
                 any(
-                    "omnibor-analysis" in c
+                    "bisbom-gen" in c
                     for c in creators
                 )
             )
             # --- namespace ---
             ns = result["documentNamespace"]
-            self.assertIn("omnibor.io", ns)
+            self.assertIn("bisbom-gen", ns)
             self.assertIn("curl", ns)
             self.assertIn(
                 "a1b2c3d4-e5f6-7890-abcd-"
@@ -1471,7 +1535,7 @@ class TestSpdxGeneratorMetadata(unittest.TestCase):
                 Path(path).read_text()
             )
             ns = result["documentNamespace"]
-            self.assertIn("omnibor.io", ns)
+            self.assertIn("bisbom-gen", ns)
             self.assertIn(
                 "2026-02-12_1300", ns
             )
@@ -1546,7 +1610,7 @@ class TestSpdxGeneratorMetadata(unittest.TestCase):
                 )
             bom_dir = str(
                 Path(td) / "output"
-                / "omnibor" / "c-cpp" / "curl"
+                / "bisbom" / "c-cpp" / "curl"
                 / "2026-02-12_1300"
             )
             mock_patch.assert_called_once_with(
@@ -4498,7 +4562,7 @@ class TestAdgSpdxStep(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             # Create dirs
             bom_dir = (
-                Path(td) / "omnibor" / "c-cpp"
+                Path(td) / "bisbom" / "c-cpp"
                 / "nmap" / "2026-02-12_1300"
                 / "metadata" / "nmap"
             )
@@ -4564,7 +4628,7 @@ class TestAdgSpdxStep(unittest.TestCase):
             (core / "spring-boot-3.4.4.jar").write_bytes(b"PK")
             (bsrc / "buildSrc.jar").write_bytes(b"PK")
             bom_dir = (
-                Path(td) / "omnibor" / "java" / "springboot"
+                Path(td) / "bisbom" / "java" / "springboot"
                 / "2026-02-12_1300" / "metadata" / "springboot"
             )
             bom_dir.mkdir(parents=True)
@@ -4608,7 +4672,7 @@ class TestAdgSpdxStep(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             # Create per-binary metadata dir
             meta = (
-                Path(td) / "omnibor" / "c-cpp"
+                Path(td) / "bisbom" / "c-cpp"
                 / "curl" / "2026-02-12_1300"
                 / "metadata" / "curl"
             )
@@ -4687,7 +4751,7 @@ class TestMetadataCollector(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             # Set up directory structure
             bom_dir = (
-                Path(td) / "omnibor" / "c-cpp"
+                Path(td) / "bisbom" / "c-cpp"
                 / "nmap" / "2026-02-12_1300"
             )
             meta_dir = bom_dir / "metadata"
@@ -4763,7 +4827,7 @@ class TestMetadataCollector(unittest.TestCase):
         """Skips collection if dynamic_libs.json exists."""
         with tempfile.TemporaryDirectory() as td:
             bom_dir = (
-                Path(td) / "omnibor" / "c-cpp"
+                Path(td) / "bisbom" / "c-cpp"
                 / "nmap" / "2026-02-12_1300"
             )
             meta_dir = bom_dir / "metadata"
@@ -4811,7 +4875,7 @@ class TestMetadataCollector(unittest.TestCase):
         """Warns and continues if binary doesn't exist."""
         with tempfile.TemporaryDirectory() as td:
             bom_dir = (
-                Path(td) / "omnibor" / "c-cpp"
+                Path(td) / "bisbom" / "c-cpp"
                 / "nmap" / "2026-02-12_1300"
             )
             meta_dir = bom_dir / "metadata"
@@ -4847,7 +4911,7 @@ class TestMetadataCollector(unittest.TestCase):
         """Returns False if collect_metadata raises."""
         with tempfile.TemporaryDirectory() as td:
             bom_dir = (
-                Path(td) / "omnibor" / "c-cpp"
+                Path(td) / "bisbom" / "c-cpp"
                 / "nmap" / "2026-02-12_1300"
             )
             meta_dir = bom_dir / "metadata"

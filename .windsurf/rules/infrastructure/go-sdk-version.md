@@ -52,12 +52,12 @@ for r in releases[:2]:
 2. Rebuild the Docker image on EC2:
    ```bash
    rsync -avz docker/Dockerfile omnibor-build:/home/ubuntu/omnibor-analysis/docker/Dockerfile
-   ssh omnibor-build "cd /home/ubuntu/omnibor-analysis && docker-compose -f docker/docker-compose.yml build omnibor-env"
+   ssh omnibor-build "cd /home/ubuntu/omnibor-analysis && docker-compose -f docker/docker-compose.yml build bisbom-env"
    ```
 
 3. Verify by running a quick Go analysis:
    ```bash
-   ssh omnibor-build "cd /home/ubuntu/omnibor-analysis && docker-compose -f docker/docker-compose.yml run --rm omnibor-env go version"
+   ssh omnibor-build "cd /home/ubuntu/omnibor-analysis && docker-compose -f docker/docker-compose.yml run --rm bisbom-env go version"
    ```
 
 4. Commit the Dockerfile change and merge to main.

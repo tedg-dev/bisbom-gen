@@ -2,10 +2,10 @@
 
 This document maps every file under `app/`, shows how they call each
 other, and traces the execution flow from entry points to leaf modules.
-Use this as a guide to understand how the OmniBOR analysis pipeline
+Use this as a guide to understand how the bisbom-gen pipeline
 works end to end.
 
-> **Visual overview:** Open [`omnibor-analysis-workflow.drawio`](omnibor-analysis-workflow.drawio)
+> **Visual overview:** Open [`bisbom-gen-workflow.drawio`](bisbom-gen-workflow.drawio)
 > in [draw.io](https://app.diagrams.net/) for a high-level pipeline diagram.
 
 ---
@@ -34,7 +34,7 @@ There are five independent CLI entry points. Each can be run as
 | `app/analyze.py` | Full pipeline: clone → build → instrument → SPDX → validate → collect | Docker container (EC2) |
 | `app/spdx_from_adg.py` | Standalone ADG-to-SPDX generation (per-binary) | Docker container |
 | `app/spdx_visualize.py` | Generate HTML visualization from SPDX JSON | Local or container |
-| `app/compare.py` | Compare OmniBOR SBOM vs. proprietary scan SBOM | Local |
+| `app/compare.py` | Compare bisbom-gen SBOM vs. proprietary scan SBOM | Local |
 | `app/add_repo.py` | Auto-discover and add a new repo to config.yaml | Local |
 
 ## 2. Pipeline Workflow (analyze.py)
@@ -52,7 +52,7 @@ analyze.py
      │   ├─ DependencyValidator()       # Check apt deps are installed
      │   ├─ RepoCloner()               # git clone --branch <tag>
      │   ├─ BomtraceBuilder()          # Instrumented build (bomtrace2/3)
-     │   ├─ SpdxGenerator()            # bomsh_sbom.py → OmniBOR SPDX
+     │   ├─ SpdxGenerator()            # bomsh_sbom.py → SPDX SBOM
      │   ├─ SpdxValidator()            # JSON schema + semantic checks
      │   ├─ SyftGenerator()            # Syft manifest-based SBOM
      │   ├─ MetadataCollector()        # collect_metadata + collect_dynamic_libs
@@ -74,7 +74,7 @@ Step 1: Clone           RepoCloner.clone()
 Step 2: Syft SBOM       SyftGenerator.generate()                [if enabled]
 Step 3: Validate deps   DependencyValidator.validate()          [C/C++ only]
 Step 4: Build           BomtraceBuilder.build()                 [or sidecar strategy]
-Step 5a: OmniBOR SPDX   SpdxGenerator.generate()                [or generate_java()]
+Step 5a: SPDX SBOM      SpdxGenerator.generate()                [or generate_java()]
 Step 5b: Metadata        MetadataCollector.collect()
 Step 5c: ADG SPDX        AdgSpdxStep.generate()                 [or JavaSpdxGenerator]
 Step 6: Validate         SpdxValidator.validate()
@@ -264,7 +264,7 @@ The visualizer is called in two places:
 
 ## 5. SBOM Comparison (compare.py)
 
-`compare.py` is a standalone tool that compares an OmniBOR-generated
+`compare.py` is a standalone tool that compares a bisbom-gen
 SPDX against a proprietary binary scan SPDX. It is self-contained
 (does not import from `app/spdx/` or `app/pipeline/`).
 
@@ -307,7 +307,7 @@ These files are imported by multiple parts of the codebase:
 |------|-----------------|---------|
 | `app/config.py` | `load_config()`, `timestamp()`, `lang_subdir()` | pipeline/*, runners.py |
 | `app/runner.py` | `CommandRunner` (subprocess wrapper with logging) | pipeline/facade.py and 6 pipeline steps |
-| `app/config.yaml` | All repo definitions, paths, omnibor settings | config.py, runners.py |
+| `app/config.yaml` | All repo definitions, paths, build-interception settings | config.py, runners.py |
 | `app/data_loader.py` | `DataLoader` (Repology API, JSON cache) | repo_discovery/facade.py |
 
 ### Container-only utilities

@@ -142,7 +142,7 @@ ssh <YOUR_HOST> "cd ~/omnibor-analysis && docker-compose -f docker/docker-compos
 For local Docker:
 
 ```bash
-docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
+docker-compose -f docker/docker-compose.yml run --rm bisbom-env \
   bash -c 'which bomtrace2 && which bomtrace3 && syft version && go version'
 ```
 
@@ -153,7 +153,7 @@ For EC2, use `/ec2-start` which includes verification.
 Local:
 
 ```bash
-docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
+docker-compose -f docker/docker-compose.yml run --rm bisbom-env \
   python3 /workspace/app/analyze.py --list
 ```
 
@@ -161,7 +161,7 @@ EC2:
 
 ```bash
 ssh omnibor-build "cd ~/omnibor-analysis && \
-  docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
+  docker-compose -f docker/docker-compose.yml run --rm bisbom-env \
   python3 /workspace/app/analyze.py --list"
 ```
 

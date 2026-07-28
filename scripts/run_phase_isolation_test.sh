@@ -69,7 +69,7 @@ run_phase_test() {
 
     # Capture container hostname as unique container ID proof
     docker compose -f "$DOCKER_DIR/docker-compose.yml" \
-        run --rm -T omnibor-sidecar \
+        run --rm -T bisbom-sidecar \
         bash -c "echo CONTAINER_ID=\$(hostname) && \
             cd /workspace && python3 app/analyze.py \
             --repo $repo --mode sidecar --phase build \
@@ -164,7 +164,7 @@ run_phase_test() {
 
     # Capture container hostname as unique container ID proof
     docker compose -f "$DOCKER_DIR/docker-compose.yml" \
-        run --rm -T omnibor-sidecar \
+        run --rm -T bisbom-sidecar \
         bash -c "echo CONTAINER_ID=\$(hostname) && \
             cd /workspace && python3 app/analyze.py \
             --repo $repo --mode sidecar --phase spdx \

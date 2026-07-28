@@ -5,7 +5,7 @@ trigger: always_on
 
 # Release Build Policy
 
-All OmniBOR analysis builds MUST target **release/production binaries**.
+All bisbom-gen analysis builds MUST target **release/production binaries**.
 SPDX SBOMs must reflect what ships to customers, not debug or development artifacts.
 
 ## Language-Specific Requirements

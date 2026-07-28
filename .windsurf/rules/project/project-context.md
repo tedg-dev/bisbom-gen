@@ -2,7 +2,7 @@
 description: Project context and architecture for omnibor-analysis
 ---
 
-# Project: OmniBOR Analysis
+# Project: bisbom-gen
 
 This project instruments open-source builds with OmniBOR/Bomsh (build interception for C/C++)
 or Syft (manifest-based for Go) to generate SPDX 2.3 SBOMs with full dependency breakdown

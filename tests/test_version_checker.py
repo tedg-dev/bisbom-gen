@@ -204,7 +204,7 @@ class TestShouldSkipCheck(unittest.TestCase):
     def test_skip_env(self):
         with patch.dict(
             os.environ,
-            {"OMNIBOR_SKIP_VERSION_CHECK": "1"},
+            {"BISBOM_SKIP_VERSION_CHECK": "1"},
         ):
             self.assertTrue(should_skip_check())
 
@@ -215,7 +215,7 @@ class TestShouldSkipCheck(unittest.TestCase):
             # Remove CI and skip vars if present
             os.environ.pop("CI", None)
             os.environ.pop(
-                "OMNIBOR_SKIP_VERSION_CHECK", None
+                "BISBOM_SKIP_VERSION_CHECK", None
             )
             self.assertFalse(should_skip_check())
 

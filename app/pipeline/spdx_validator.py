@@ -1,5 +1,5 @@
 """
-SPDX validation for OmniBOR Analysis.
+SPDX validation for bisbom-gen.
 
 Two-phase validation of SPDX 2.3 JSON documents:
   1. JSON Schema — structural correctness

@@ -1,6 +1,6 @@
 # SPDX Output FAQ
 
-Common questions that arise when reviewing omnibor-analysis SPDX
+Common questions that arise when reviewing bisbom-gen SPDX
 documents and their HTML visualizations. Each entry explains **why**
 the output looks the way it does, with references to the SPDX 2.3
 spec and the code that implements the behavior.

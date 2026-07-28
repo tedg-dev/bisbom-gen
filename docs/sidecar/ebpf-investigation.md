@@ -41,7 +41,7 @@ the general enterprise solution.
 
 ---
 
-## 1. Current BPF/eBPF Usage in OmniBOR Analysis
+## 1. Current BPF/eBPF Usage in bisbom-gen
 
 | Technology | Where Used | Purpose |
 |-----------|-----------|---------|

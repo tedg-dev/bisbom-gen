@@ -1,5 +1,5 @@
 """
-Instrumented build with bomtrace for OmniBOR Analysis.
+Instrumented build with bomtrace for bisbom-gen.
 
 Runs pre-build steps, the instrumented build via bomtrace3/bomtrace2,
 and generates OmniBOR ADG documents.
@@ -95,7 +95,7 @@ class BomtraceBuilder:
         lang = lang_subdir(repo_cfg)
         bom_dir = (
             Path(paths_cfg["output_dir"])
-            / "omnibor" / lang / repo_name / ts
+            / "bisbom" / lang / repo_name / ts
         )
 
         # Pin the build JDK when the profile requires one (before any
@@ -316,7 +316,7 @@ class BomtraceBuilder:
         lang = lang_subdir(repo_cfg)
         bom_dir = (
             Path(paths_cfg["output_dir"])
-            / "omnibor" / lang / repo_name / ts
+            / "bisbom" / lang / repo_name / ts
         )
         bom_dir.mkdir(parents=True, exist_ok=True)
         meta_dir = bom_dir / "metadata" / "bomsh"

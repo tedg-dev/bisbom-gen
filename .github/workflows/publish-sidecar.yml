@@ -1,8 +1,8 @@
-# Publish OmniBOR sidecar Docker image to GitHub Container Registry
+# Publish bisbom sidecar Docker image to GitHub Container Registry
 #
 # Triggered manually or on pushes to main that change the sidecar image.
 # The sidecar image is used by external CI/CD pipelines (e.g.,
-# tedg-dev/omnibor-java-testapp) to generate SPDX SBOMs without
+# tedg-dev/bisbom-java-testapp) to generate SPDX SBOMs without
 # SYS_PTRACE.
 
 name: Publish Sidecar Image
@@ -27,7 +27,7 @@ permissions:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/omnibor-sidecar
+  IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/bisbom-sidecar
 
 jobs:
   build-and-push:

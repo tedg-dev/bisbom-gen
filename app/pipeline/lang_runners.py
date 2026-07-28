@@ -34,16 +34,16 @@ _KNOWN_JAVA_BUILD_TOOLS = (
 
 def run_c_cpp_pipeline(
     pipeline, repo_name, repo_cfg,
-    paths_cfg, omnibor_cfg, run_ts,
+    paths_cfg, bisbom_cfg, run_ts,
     vcs_uri="NOASSERTION",
 ):
     """C/C++ pipeline: apt validation, bomtrace3 build,
-    OmniBOR SPDX, metadata, ADG SPDX, validation,
+    SPDX, metadata, ADG SPDX, validation,
     binary collection.
 
     Returns ``TimingResult`` with per-step metrics.
     """
-    tracer = omnibor_cfg.get("tracer", "bomtrace3")
+    tracer = bisbom_cfg.get("tracer", "bomtrace3")
     timing = TimingResult(tracer=tracer)
 
     # Validate apt dependencies
@@ -62,7 +62,7 @@ def run_c_cpp_pipeline(
     # Phase 1: Build (clean + configure + build + ADG)
     build_result = pipeline.builder.build(
         repo_name, repo_cfg,
-        paths_cfg, omnibor_cfg,
+        paths_cfg, bisbom_cfg,
         run_ts=run_ts,
     )
     timing.steps.extend(build_result.steps)
@@ -77,7 +77,7 @@ def run_c_cpp_pipeline(
             paths_cfg, run_ts,
             sbom_fn=lambda: pipeline.spdx_gen.generate(
                 repo_name, repo_cfg,
-                paths_cfg, omnibor_cfg,
+                paths_cfg, bisbom_cfg,
                 run_ts=run_ts,
                 vcs_uri=vcs_uri,
             ),
@@ -99,11 +99,11 @@ def run_c_cpp_pipeline(
 
 def run_rust_pipeline(
     pipeline, repo_name, repo_cfg,
-    paths_cfg, omnibor_rust_cfg, run_ts,
+    paths_cfg, bisbom_rust_cfg, run_ts,
     vcs_uri="NOASSERTION",
 ):
     """Rust pipeline: bomtrace2 instrumented build,
-    OmniBOR ADG, SPDX generation, metadata, ADG SPDX,
+    ADG, SPDX generation, metadata, ADG SPDX,
     validation, binary collection.
 
     Uses bomtrace2 with the default bomtrace.conf.
@@ -116,7 +116,7 @@ def run_rust_pipeline(
 
     Returns ``TimingResult`` with per-step metrics.
     """
-    tracer = omnibor_rust_cfg.get(
+    tracer = bisbom_rust_cfg.get(
         "tracer", "bomtrace2",
     )
     timing = TimingResult(tracer=tracer)
@@ -124,7 +124,7 @@ def run_rust_pipeline(
     # Phase 1: Build
     build_result = pipeline.builder.build(
         repo_name, repo_cfg,
-        paths_cfg, omnibor_rust_cfg,
+        paths_cfg, bisbom_rust_cfg,
         run_ts=run_ts,
     )
     timing.steps.extend(build_result.steps)
@@ -139,7 +139,7 @@ def run_rust_pipeline(
             paths_cfg, run_ts,
             sbom_fn=lambda: pipeline.spdx_gen.generate(
                 repo_name, repo_cfg,
-                paths_cfg, omnibor_rust_cfg,
+                paths_cfg, bisbom_rust_cfg,
                 run_ts=run_ts,
                 vcs_uri=vcs_uri,
             ),
@@ -234,42 +234,51 @@ def _detect_java_build_tool(repo_dir, repo_cfg=None):
 
 
 _DEFAULT_INLINE_SHIM = (
-    "/opt/omnibor/lib/libomnibor_java_intercept.so"
+    "/opt/bisbom/lib/libbisbom_java_intercept.so"
 )
 
+# Capture logs live OUTSIDE the checked-out source tree.  Writing them
+# in-tree breaks native builds that audit their own working tree (e.g.
+# the Apache RAT license plugin rejects the unrecognized file).  The
+# default is a scratch dir; override via ``bisbom.capture_dir``.
+_DEFAULT_CAPTURE_DIR = "/tmp/bisbom-capture"
 
-def _java_inline_config(omnibor_cfg, repo_dir):
+
+def _java_inline_config(bisbom_cfg, repo_dir):
     """Resolve inline-hashing config for a Java sidecar build.
 
     Config-driven (never per-repo hardcoded): inline hashing is enabled
-    by ``omnibor.java_inline_hash`` and the shim path is overridable via
-    ``omnibor.inline_shim_path``.  The capture log lives at a
-    deterministic workspace-relative path shared by ``instrument_command``
+    by ``bisbom.java_inline_hash`` and the shim path is overridable via
+    ``bisbom.inline_shim_path``.  The capture log lives at a deterministic,
+    repo-scoped path **outside the source tree** (``capture_dir`` is
+    overridable via ``bisbom.capture_dir``), shared by ``instrument_command``
     (the shim writes it during the build) and ``generate_adg`` (the
     assembler reads it) \u2014 matching the CI/CD YAML example in the design.
 
     Returns:
         ``(inline_hash, shim_path, capture_log)``.
     """
-    cfg = omnibor_cfg or {}
+    cfg = bisbom_cfg or {}
     inline = bool(cfg.get("java_inline_hash"))
     if not inline:
         return False, None, None
     shim_path = cfg.get("inline_shim_path", _DEFAULT_INLINE_SHIM)
+    capture_dir = cfg.get("capture_dir", _DEFAULT_CAPTURE_DIR)
+    repo_name = Path(repo_dir).name
     capture_log = str(
-        Path(repo_dir) / ".omnibor" / "capture.jsonl"
+        Path(capture_dir) / repo_name / "capture.jsonl"
     )
     return True, shim_path, capture_log
 
 
 def _select_java_strategy(
-    repo_name, repo_cfg, paths_cfg, mode, omnibor_cfg=None,
+    repo_name, repo_cfg, paths_cfg, mode, bisbom_cfg=None,
 ):
     """Select interception strategy for Java builds.
 
     In sidecar mode, uses dep:tree strategies that avoid
     strace entirely.  Detects the build tool via
-    ``_detect_java_build_tool``.  When ``omnibor.java_inline_hash`` is
+    ``_detect_java_build_tool``.  When ``bisbom.java_inline_hash`` is
     set, the strategy also injects the ``LD_PRELOAD`` inline-hashing shim
     and assembles the treedb from its capture log instead of rescanning.
 
@@ -283,7 +292,7 @@ def _select_java_strategy(
     )
     tool = _detect_java_build_tool(str(repo_dir), repo_cfg)
     inline, shim_path, capture_log = _java_inline_config(
-        omnibor_cfg, repo_dir,
+        bisbom_cfg, repo_dir,
     )
 
     if tool == "gradle":
@@ -318,7 +327,7 @@ def _select_java_strategy(
 
 def run_java_phase1(
     pipeline, repo_name, repo_cfg,
-    paths_cfg, omnibor_java_cfg, run_ts,
+    paths_cfg, bisbom_java_cfg, run_ts,
     mode="standalone",
 ):
     """Java Phase 1: build interception only.
@@ -332,7 +341,7 @@ def run_java_phase1(
     """
     strategy = _select_java_strategy(
         repo_name, repo_cfg, paths_cfg, mode,
-        omnibor_cfg=omnibor_java_cfg,
+        bisbom_cfg=bisbom_java_cfg,
     )
     tracer = strategy.name if strategy else "strace"
     timing = TimingResult(tracer=tracer)
@@ -340,14 +349,14 @@ def run_java_phase1(
     if strategy:
         build_result = pipeline.builder.build(
             repo_name, repo_cfg,
-            paths_cfg, omnibor_java_cfg,
+            paths_cfg, bisbom_java_cfg,
             run_ts=run_ts,
             strategy=strategy,
         )
     else:
         build_result = pipeline.builder.build_java(
             repo_name, repo_cfg,
-            paths_cfg, omnibor_java_cfg,
+            paths_cfg, bisbom_java_cfg,
             run_ts=run_ts,
         )
     timing.steps.extend(build_result.steps)
@@ -389,7 +398,7 @@ def _persist_identity_index(
     lang = lang_subdir(repo_cfg)
     bom_dir = (
         Path(paths_cfg["output_dir"])
-        / "omnibor" / lang / repo_name / run_ts
+        / "bisbom" / lang / repo_name / run_ts
     )
     try:
         count = AdgParser(
@@ -410,7 +419,7 @@ def _persist_identity_index(
 
 def run_java_phase2(
     pipeline, repo_name, repo_cfg,
-    paths_cfg, omnibor_java_cfg, run_ts,
+    paths_cfg, bisbom_java_cfg, run_ts,
     vcs_uri="NOASSERTION",
     commit_sha="NOASSERTION",
     mode="standalone",
@@ -418,7 +427,7 @@ def run_java_phase2(
 ):
     """Java Phase 2: SPDX generation + validation.
 
-    Runs post-build analysis: OmniBOR SBOM, metadata,
+    Runs post-build analysis: SBOM, metadata,
     per-binary SPDX, validation, binary collection, and the
     Phase 2 SBOM hand-off manifest.
 
@@ -430,7 +439,7 @@ def run_java_phase2(
         sbom_fn=lambda: (
             pipeline.spdx_gen.generate_java(
                 repo_name, repo_cfg,
-                paths_cfg, omnibor_java_cfg,
+                paths_cfg, bisbom_java_cfg,
                 run_ts=run_ts,
             )
         ),
@@ -449,7 +458,7 @@ def run_java_phase2(
 
 def run_java_pipeline(
     pipeline, repo_name, repo_cfg,
-    paths_cfg, omnibor_java_cfg, run_ts,
+    paths_cfg, bisbom_java_cfg, run_ts,
     vcs_uri="NOASSERTION",
     mode="standalone",
     commit_sha="NOASSERTION",
@@ -467,7 +476,7 @@ def run_java_pipeline(
     """
     timing, _ = run_java_phase1(
         pipeline, repo_name, repo_cfg,
-        paths_cfg, omnibor_java_cfg, run_ts,
+        paths_cfg, bisbom_java_cfg, run_ts,
         mode=mode,
     )
     if not timing.success:
@@ -476,7 +485,7 @@ def run_java_pipeline(
     timing.steps.extend(
         run_java_phase2(
             pipeline, repo_name, repo_cfg,
-            paths_cfg, omnibor_java_cfg, run_ts,
+            paths_cfg, bisbom_java_cfg, run_ts,
             vcs_uri=vcs_uri,
             commit_sha=commit_sha,
             mode=mode,
@@ -511,7 +520,7 @@ def _find_module_dir(jar_path):
 
 
 def _jar_artifact_record(index, jar_path, bin_name):
-    """Resolve a JAR's OmniBOR identity for the hand-off manifest.
+    """Resolve a JAR's artifact identity for the hand-off manifest.
 
     Prefers the Phase-1 identity index (canonical, works offline);
     falls back to reading the JAR when it is still on disk (co-located
@@ -604,7 +613,7 @@ def generate_java_adg_spdx(
     lang = lang_subdir(repo_cfg)
     bom_dir = (
         Path(paths_cfg["output_dir"])
-        / "omnibor" / lang / repo_name / run_ts
+        / "bisbom" / lang / repo_name / run_ts
     )
     repos_dir = paths_cfg["repos_dir"]
     repo_dir = Path(repos_dir) / repo_name
@@ -622,7 +631,7 @@ def generate_java_adg_spdx(
         print(f"[ERROR] {e}")
         return []
 
-    # OmniBOR artifact identity per JAR is computed by reading the
+    # artifact identity per JAR is computed by reading the
     # built JAR itself in the generator (raw SHA-256 + SHA-256
     # gitOID); bomsh's SHA-1 treedb is topology only and is not
     # surfaced (see project/artifact-identity.md).
@@ -849,7 +858,7 @@ def generate_java_adg_spdx(
                 })
             else:
                 print(
-                    f"[WARN] {bin_name}: no OmniBOR identity "
+                    f"[WARN] {bin_name}: no artifact identity "
                     f"available; omitted from hand-off manifest"
                 )
 
@@ -866,11 +875,11 @@ def generate_java_adg_spdx(
 
 def run_go_pipeline(
     pipeline, repo_name, repo_cfg,
-    paths_cfg, omnibor_go_cfg, run_ts,
+    paths_cfg, bisbom_go_cfg, run_ts,
     vcs_uri="NOASSERTION",
 ):
     """Go pipeline: bomtrace2 instrumented build,
-    OmniBOR ADG, SPDX generation, metadata, ADG SPDX,
+    ADG, SPDX generation, metadata, ADG SPDX,
     validation, binary collection.
 
     Uses bomtrace2 with a Go-specific bomtrace.conf
@@ -884,7 +893,7 @@ def run_go_pipeline(
 
     Returns ``TimingResult`` with per-step metrics.
     """
-    tracer = omnibor_go_cfg.get(
+    tracer = bisbom_go_cfg.get(
         "tracer", "bomtrace2",
     )
     timing = TimingResult(tracer=tracer)
@@ -892,7 +901,7 @@ def run_go_pipeline(
     # Phase 1: Build
     build_result = pipeline.builder.build(
         repo_name, repo_cfg,
-        paths_cfg, omnibor_go_cfg,
+        paths_cfg, bisbom_go_cfg,
         run_ts=run_ts,
     )
     timing.steps.extend(build_result.steps)
@@ -907,7 +916,7 @@ def run_go_pipeline(
             paths_cfg, run_ts,
             sbom_fn=lambda: pipeline.spdx_gen.generate(
                 repo_name, repo_cfg,
-                paths_cfg, omnibor_go_cfg,
+                paths_cfg, bisbom_go_cfg,
                 run_ts=run_ts,
                 vcs_uri=vcs_uri,
             ),
@@ -937,7 +946,7 @@ def _run_post_build(
 
     Callers inject two callbacks to vary behavior:
 
-    - ``sbom_fn``: generates the OmniBOR SBOM
+    - ``sbom_fn``: generates the SBOM
       (``bomsh_sbom.py`` for C/Rust/Go, no-op for Java).
     - ``spdx_gen_fn``: generates per-binary SPDX
       (``AdgSpdxGenerator`` for C/Rust/Go,
@@ -947,9 +956,9 @@ def _run_post_build(
     """
     steps = []
 
-    # OmniBOR SBOM
+    # SBOM
     spdx_file = None
-    timer = StepTimer("omnibor_sbom", "phase2")
+    timer = StepTimer("bisbom_sbom", "phase2")
     with timer:
         if sbom_fn:
             spdx_file = sbom_fn()

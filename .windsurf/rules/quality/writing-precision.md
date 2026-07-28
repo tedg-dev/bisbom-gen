@@ -62,7 +62,7 @@ enterprise native-build team or a platform/security reviewer).
 </table>
 
 - **NEVER** write bare "the platform" — say "the native build team's platform
-  team" or "the OmniBOR analysis harness", whichever is meant.
+  team" or "the bisbom-gen analysis harness", whichever is meant.
 - **NEVER** write bare "the image" — say "the native build's CI image" or
   "the analysis harness image".
 
@@ -93,5 +93,5 @@ sentence and confirm:
 - [ ] The phase (when) and environment (where) are explicit where relevant.
 - [ ] Conversational `you` from chat has NOT leaked into a document.
 - [ ] The customer's native build/image/team is not conflated with the
-      OmniBOR analysis harness.
+      bisbom-gen analysis harness.
 - [ ] No claim over-reassures; footprints are stated exactly.

@@ -5,7 +5,7 @@
 | **Date** | 2026-05-13 21:46 UTC |
 | **Run** | [tedg-dev/omnibor-java-testapp #25828276164](https://github.com/tedg-dev/omnibor-java-testapp/actions/runs/25828276164) |
 | **Commit** | `7568d0e` on `main` |
-| **Sidecar image** | `ghcr.io/tedg-dev/omnibor-sidecar:latest` (published from omnibor-analysis `ac7c476`) |
+| **Sidecar image** | `ghcr.io/tedg-dev/bisbom-sidecar:latest` (published from omnibor-analysis `ac7c476`) |
 
 ## Objective
 

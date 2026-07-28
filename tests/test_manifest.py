@@ -129,13 +129,13 @@ class TestWriteManifest:
         data = json.loads(path.read_text())
         assert "repo_cfg" in data
 
-    def test_optional_omnibor_cfg(self, sample_kwargs):
-        sample_kwargs["omnibor_cfg"] = {
+    def test_optional_bisbom_cfg(self, sample_kwargs):
+        sample_kwargs["bisbom_cfg"] = {
             "strace_opts": "-f -e trace=openat",
         }
         path = write_manifest(**sample_kwargs)
         data = json.loads(path.read_text())
-        assert "omnibor_cfg" in data
+        assert "bisbom_cfg" in data
 
     def test_no_optional_fields_by_default(
         self, sample_kwargs,
@@ -143,7 +143,7 @@ class TestWriteManifest:
         path = write_manifest(**sample_kwargs)
         data = json.loads(path.read_text())
         assert "repo_cfg" not in data
-        assert "omnibor_cfg" not in data
+        assert "bisbom_cfg" not in data
 
     def test_missing_bom_dir_raises(self, sample_kwargs):
         del sample_kwargs["artifacts"]["bom_dir"]

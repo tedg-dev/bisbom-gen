@@ -4,7 +4,7 @@ description: Provision a new EC2 build host from scratch using Terraform
 
 # EC2 Provision (Greenfield)
 
-Provision a new AWS EC2 build host for OmniBOR analysis. Run this once
+Provision a new AWS EC2 build host for bisbom-gen analysis. Run this once
 per developer when setting up for the first time.
 
 **Prerequisites:** The user must have already completed:
@@ -213,7 +213,7 @@ ssh omnibor-build "cd ~/omnibor-analysis && \
 
 ```bash
 ssh omnibor-build "cd ~/omnibor-analysis && \
-  docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
+  docker-compose -f docker/docker-compose.yml run --rm bisbom-env \
   python3 /workspace/app/analyze.py --list"
 ```
 

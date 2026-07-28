@@ -7,12 +7,12 @@ package metadata and produces valid PURLs.
 
 Requirements:
   - Docker daemon running
-  - omnibor-env:rhel9 image built
+  - bisbom-env:rhel9 image built
 
 Run::
 
     docker compose -f docker/docker-compose.yml run --rm \\
-        omnibor-rhel python3 -m pytest \\
+        bisbom-rhel python3 -m pytest \\
         tests/test_resolver_rpm_integration.py -v
 
 Skip in normal test runs::

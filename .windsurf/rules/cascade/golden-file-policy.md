@@ -59,6 +59,36 @@ decisions — no exceptions.
 - Docker image rebuild
 - **Any other reason — there are NO exceptions**
 
+## Authorized Exception: `omnibor` -> `bisbom` Rebrand (bounded)
+
+The project rename from `omnibor` to `bisbom` is a **branding change, not a
+content change**. Golden files that predate the rename keep the `omnibor`
+spelling. The user has pre-approved the following two bounded behaviors —
+they do NOT relax any other part of this policy.
+
+### 1. Comparison normalization (keep it — do NOT re-baseline)
+
+`scripts/compare_golden.py` and `scripts/compare_java_golden.py` apply
+`_normalize_branding()` (`omnibor` -> `bisbom`) to **both** the golden
+baseline and the new candidate at load time. Because the identical
+substitution is applied to both sides, it can only mask the rename in
+names (repo/package/`SPDXID`/path/download location) — it can **never**
+hide a real content difference, since any genuine divergence survives the
+same substitution on both sides. This lets pre-rename goldens compare
+equal to post-rename output **without re-baselining**. Do NOT remove this
+normalization and do NOT edit goldens merely to change the name.
+
+### 2. One-time testapp golden replacement (content-identity gated)
+
+The Java testapp directory rename (`omnibor-java-testapp` ->
+`bisbom-java-testapp`) is the **single** case where a golden file may be
+replaced with the `bisbom`-named version. This is permitted ONLY after a
+real run whose comparison shows the content we care about (package set,
+versions, file set, checksums, relationships, external refs) is identical
+**modulo the `omnibor`<->`bisbom` name**. Cascade MUST show the user the
+comparison output first. This exception applies to this ONE repo only; it
+does not authorize any other golden update.
+
 ## Pinned Repos Requirement
 
 All repos in `config.yaml` MUST use pinned release tags (or commit

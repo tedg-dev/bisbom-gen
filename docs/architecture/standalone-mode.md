@@ -1,8 +1,8 @@
 # Standalone Mode (Deprecated)
 
 > **Deprecated — not a deployment option.** Standalone mode was the initial
-> ptrace-based implementation of the core omnibor/bomsh repositories and the
-> earliest `omnibor-analysis` testing. **Sidecar is the only supported
+> ptrace-based implementation and the earliest bisbom-gen testing.
+> **Sidecar is the only supported
 > mode.** Standalone must **not** be used or offered as an option; the sole
 > remaining possibility is a rare (~1%) embedded-systems corner case. This
 > page is retained as historical/technical reference for that corner case
@@ -44,12 +44,12 @@ enterprise Kubernetes/OpenShift environments typically prohibit.
 | Docker capability | `--cap-add SYS_PTRACE` |
 | Security option | `--security-opt seccomp:unconfined` |
 | Architecture | `linux/amd64` (x86_64 only — ptrace register decoding) |
-| Docker image target | `omnibor-env:standalone` |
+| Docker image target | `bisbom-env:standalone` |
 
 ## Running Standalone Mode
 
 ```bash
-docker compose -f docker/docker-compose.yml run --rm omnibor-env \
+docker compose -f docker/docker-compose.yml run --rm bisbom-env \
   python3 /workspace/app/analyze.py --repo <repo> --skip-clone
 ```
 

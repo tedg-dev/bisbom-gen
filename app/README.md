@@ -1,6 +1,6 @@
 # app/ — Application Code
 
-This directory contains the OmniBOR Analysis application: orchestration scripts,
+This directory contains the bisbom-gen application: orchestration scripts,
 SPDX generation, repo discovery, and supporting utilities.
 
 ## Entry Points

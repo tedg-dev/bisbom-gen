@@ -26,7 +26,7 @@ or tools change. "Upstream" includes:
 ## bomsh / bomtrace Changes
 
 These tools perform build interception — they are the foundation of
-all OmniBOR analysis. Any change can affect every output artifact.
+all bisbom-gen analysis. Any change can affect every output artifact.
 
 ### Before updating bomsh/bomtrace:
 

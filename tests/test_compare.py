@@ -99,13 +99,13 @@ class TestSpdxLoader(unittest.TestCase):
 
     def test_find_latest_existing(self):
         with tempfile.TemporaryDirectory() as tmpdir:
-            p1 = Path(tmpdir) / "a_omnibor_01.spdx.json"
-            p2 = Path(tmpdir) / "a_omnibor_02.spdx.json"
+            p1 = Path(tmpdir) / "a_bisbom_01.spdx.json"
+            p2 = Path(tmpdir) / "a_bisbom_02.spdx.json"
             p1.write_text("{}")
             p2.write_text("{}")
 
             result = SpdxLoader.find_latest(
-                tmpdir, "a_omnibor_*.spdx.json"
+                tmpdir, "a_bisbom_*.spdx.json"
             )
             self.assertIsNotNone(result)
 
@@ -207,7 +207,7 @@ class TestSbomComparator(unittest.TestCase):
         result = comp.compare(pkgs, pkgs)
         self.assertEqual(len(result["common"]), 2)
         self.assertEqual(
-            len(result["omnibor_only"]), 0
+            len(result["bisbom_only"]), 0
         )
         self.assertEqual(
             len(result["binary_only"]), 0
@@ -217,23 +217,23 @@ class TestSbomComparator(unittest.TestCase):
         )
 
     def test_compare_disjoint(self):
-        omnibor = self._pkgs([("curl", "8.0")])
+        bisbom = self._pkgs([("curl", "8.0")])
         binary = self._pkgs([("zlib", "1.3")])
         comp = SbomComparator()
-        result = comp.compare(omnibor, binary)
+        result = comp.compare(bisbom, binary)
         self.assertEqual(len(result["common"]), 0)
         self.assertEqual(
-            result["omnibor_only"], ["curl"]
+            result["bisbom_only"], ["curl"]
         )
         self.assertEqual(
             result["binary_only"], ["zlib"]
         )
 
     def test_compare_version_mismatch(self):
-        omnibor = self._pkgs([("curl", "8.0")])
+        bisbom = self._pkgs([("curl", "8.0")])
         binary = self._pkgs([("curl", "7.0")])
         comp = SbomComparator()
-        result = comp.compare(omnibor, binary)
+        result = comp.compare(bisbom, binary)
         self.assertEqual(len(result["common"]), 1)
         self.assertEqual(
             len(result["version_mismatch"]), 1
@@ -244,19 +244,19 @@ class TestSbomComparator(unittest.TestCase):
         )
 
     def test_compare_partial_overlap(self):
-        omnibor = self._pkgs([
+        bisbom = self._pkgs([
             ("curl", "8.0"), ("openssl", "3.0"),
         ])
         binary = self._pkgs([
             ("curl", "8.0"), ("zlib", "1.3"),
         ])
         comp = SbomComparator()
-        result = comp.compare(omnibor, binary)
+        result = comp.compare(bisbom, binary)
         self.assertEqual(
             result["common"], ["curl"]
         )
         self.assertEqual(
-            result["omnibor_only"], ["openssl"]
+            result["bisbom_only"], ["openssl"]
         )
         self.assertEqual(
             result["binary_only"], ["zlib"]
@@ -266,7 +266,7 @@ class TestSbomComparator(unittest.TestCase):
         comp = SbomComparator()
         result = comp.compare([], [])
         self.assertEqual(
-            result["omnibor_total"], 0
+            result["bisbom_total"], 0
         )
         self.assertEqual(
             result["binary_total"], 0
@@ -292,14 +292,14 @@ class TestReportGenerator(unittest.TestCase):
 
     def _result(self):
         return {
-            "omnibor_total": 2,
+            "bisbom_total": 2,
             "binary_total": 2,
             "common": ["curl"],
-            "omnibor_only": ["openssl"],
+            "bisbom_only": ["openssl"],
             "binary_only": ["zlib"],
             "version_match": [("curl", "8.0")],
             "version_mismatch": [],
-            "omnibor_map": {
+            "bisbom_map": {
                 "curl": {
                     "name": "curl",
                     "version": "8.0",
@@ -324,12 +324,12 @@ class TestReportGenerator(unittest.TestCase):
     def test_generate_report(self):
         report = ReportGenerator.generate(
             "curl", self._result(),
-            "omnibor.spdx.json",
+            "bisbom.spdx.json",
             "binary.spdx.json",
         )
         self.assertIn("curl", report)
         self.assertIn("SBOM Comparison Report", report)
-        self.assertIn("omnibor.spdx.json", report)
+        self.assertIn("bisbom.spdx.json", report)
         self.assertIn("binary.spdx.json", report)
         self.assertIn("openssl", report)
         self.assertIn("zlib", report)
@@ -363,14 +363,14 @@ class TestReportGenerator(unittest.TestCase):
 
     def test_report_empty_result(self):
         result = {
-            "omnibor_total": 0,
+            "bisbom_total": 0,
             "binary_total": 0,
             "common": [],
-            "omnibor_only": [],
+            "bisbom_only": [],
             "binary_only": [],
             "version_match": [],
             "version_mismatch": [],
-            "omnibor_map": {},
+            "bisbom_map": {},
             "binary_map": {},
         }
         report = ReportGenerator.generate(
@@ -384,7 +384,7 @@ class TestReportGenerator(unittest.TestCase):
             "a.json", "b.json",
         )
         self.assertIn(
-            "Generated by omnibor-analysis", report
+            "Generated by bisbom-gen", report
         )
 
 
@@ -423,7 +423,7 @@ class TestMainMissingFiles(unittest.TestCase):
         "sys.argv",
         ["compare.py", "--repo", "curl"],
     )
-    def test_no_omnibor_file(self, mock_cls):
+    def test_no_bisbom_file(self, mock_cls):
         p = ComparisonPipeline(
             loader=MagicMock(),
             comparator=MagicMock(),
@@ -471,7 +471,7 @@ class TestMainFullRun(unittest.TestCase):
         "sys.argv",
         [
             "compare.py", "--repo", "curl",
-            "--omnibor-file", "/tmp/o.json",
+            "--bisbom-file", "/tmp/o.json",
             "--binary-file", "/tmp/b.json",
         ],
     )
@@ -486,7 +486,7 @@ class TestMainFullRun(unittest.TestCase):
         )
         p.comparator.compare.return_value = {
             "common": ["curl"],
-            "omnibor_only": [],
+            "bisbom_only": [],
             "binary_only": [],
             "version_mismatch": [],
         }
@@ -536,7 +536,7 @@ class TestMainAutoDiscover(unittest.TestCase):
         p.loader.load.return_value = ({}, [])
         p.comparator.compare.return_value = {
             "common": [],
-            "omnibor_only": [],
+            "bisbom_only": [],
             "binary_only": [],
             "version_mismatch": [],
         }

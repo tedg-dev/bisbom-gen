@@ -34,7 +34,7 @@
         <mxCell id="e_b_p1_label" parent="1" style="text;html=1;fontSize=8;fontStyle=2;fontColor=#6c8ebf;align=center;" value="target/*.jar&#xa;on runner FS" vertex="1">
           <mxGeometry height="24" width="80" x="280" y="190" as="geometry" />
         </mxCell>
-        <mxCell id="p1_ctr" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;fontSize=11;fontStyle=1;verticalAlign=top;" value="Phase 1 Container&lt;br&gt;&lt;font style=&quot;font-weight:normal;font-size:9px;color:#2471a3&quot;&gt;ghcr.io/tedg-dev/omnibor-sidecar&lt;/font&gt;" vertex="1">
+        <mxCell id="p1_ctr" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;fontSize=11;fontStyle=1;verticalAlign=top;" value="Phase 1 Container&lt;br&gt;&lt;font style=&quot;font-weight:normal;font-size:9px;color:#2471a3&quot;&gt;ghcr.io/tedg-dev/bisbom-sidecar&lt;/font&gt;" vertex="1">
           <mxGeometry height="140" width="240" x="350" y="120" as="geometry" />
         </mxCell>
         <mxCell id="p1_step1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontSize=9;fontStyle=1" value="3. analyze.py --phase build&#xa;   bomsh_create_bom_java.py&#xa;   mvn dependency:tree" vertex="1">
@@ -105,7 +105,7 @@
         <mxCell id="checkout" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=9;fontStyle=1" value="7. actions/checkout&#xa;(for pom.xml structure)" vertex="1">
           <mxGeometry height="35" width="140" x="310" y="471" as="geometry" />
         </mxCell>
-        <mxCell id="p2_ctr" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#27ae60;strokeWidth=2;fontSize=11;fontStyle=1;verticalAlign=top;" value="Phase 2 Container (FRESH)&lt;br&gt;&lt;font style=&quot;font-weight:normal;font-size:9px;color:#1e8449&quot;&gt;ghcr.io/tedg-dev/omnibor-sidecar (different instance)&lt;/font&gt;" vertex="1">
+        <mxCell id="p2_ctr" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#27ae60;strokeWidth=2;fontSize=11;fontStyle=1;verticalAlign=top;" value="Phase 2 Container (FRESH)&lt;br&gt;&lt;font style=&quot;font-weight:normal;font-size:9px;color:#1e8449&quot;&gt;ghcr.io/tedg-dev/bisbom-sidecar (different instance)&lt;/font&gt;" vertex="1">
           <mxGeometry height="120" width="540" x="50" y="524" as="geometry" />
         </mxCell>
         <mxCell id="p2_step1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#27ae60;fontSize=9;fontStyle=1" value="8. analyze.py&#xa;   --phase spdx&#xa;   --manifest " vertex="1">

@@ -8,7 +8,7 @@ Compare an OmniBOR-generated SPDX SBOM against a proprietary binary scanner SPDX
 
 ## Prerequisites
 
-- OmniBOR analysis must have been run first (run `/run-analysis` workflow)
+- bisbom-gen analysis must have been run first (run `/run-analysis` workflow)
 - Binary scan SPDX file must be placed in `output/binary-scan/<repo>/`
 
 ## 1. Place the binary scan SBOM
@@ -23,14 +23,14 @@ output/binary-scan/curl/<filename>.spdx.json
 
 Auto-detect latest files:
 ```bash
-docker-compose -f docker/docker-compose.yml run --rm omnibor-env python3 /workspace/app/compare.py --repo curl
+docker-compose -f docker/docker-compose.yml run --rm bisbom-env python3 /workspace/app/compare.py --repo curl
 ```
 
 Or specify files explicitly:
 ```bash
-docker-compose -f docker/docker-compose.yml run --rm omnibor-env python3 /workspace/app/compare.py \
+docker-compose -f docker/docker-compose.yml run --rm bisbom-env python3 /workspace/app/compare.py \
   --repo curl \
-  --omnibor-file /workspace/output/spdx/curl/curl_omnibor_2026-02-10_1430.spdx.json \
+  --bisbom-file /workspace/output/spdx/curl/curl_omnibor_2026-02-10_1430.spdx.json \
   --binary-file /workspace/output/binary-scan/curl/bdba_export.spdx.json
 ```
 
@@ -40,7 +40,7 @@ The report is written to `output/build-logs/{lang}/<repo>/{ts}/` and includes:
 
 - **Summary table** — package counts, overlap percentage, version agreement
 - **Common packages** — detected by both methods, with version match/mismatch
-- **OmniBOR only** — build-time dependencies not found by binary scanner
+- **Build-interception only** — build-time dependencies not found by binary scanner
 - **Binary scan only** — pre-compiled/commercial components not seen during build
 - **Version mismatches** — same package, different version detected
 - **Analysis notes** — strengths of each method
@@ -49,7 +49,7 @@ The report is written to `output/build-logs/{lang}/<repo>/{ts}/` and includes:
 
 | Finding | Meaning |
 |---------|---------|
-| High OmniBOR-only count | Build interception sees transitive/header-only deps binary scanner misses |
+| High build-interception-only count | Build interception sees transitive/header-only deps binary scanner misses |
 | High binary-only count | Pre-compiled SDKs, static libs, or vendor binaries not compiled from source |
 | Version mismatches | Different detection methods resolve versions differently |
 | High overlap + version agreement | Both methods are consistent — high confidence in SBOM accuracy |

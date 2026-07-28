@@ -16,8 +16,8 @@ documented here for that corner case only, not as a deployment option.
 
 | Mode | Container Image | `SYS_PTRACE` | Mechanism | Primary Use |
 |------|----------------|:------------:|-----------|-------------|
-| **Sidecar** (only supported mode) | `omnibor-env:sidecar` | No | Language-specific strategies (dep:tree, `-toolexec`, `RUSTC_WRAPPER`, `LD_PRELOAD`) | Enterprise CI/CD |
-| **Standalone** (deprecated) | `omnibor-env:standalone` | Yes | `bomtrace3`/`bomtrace2` ptrace-based tracing | ~1% embedded corner case only |
+| **Sidecar** (only supported mode) | `bisbom-env:sidecar` | No | Language-specific strategies (dep:tree, `-toolexec`, `RUSTC_WRAPPER`, `LD_PRELOAD`) | Enterprise CI/CD |
+| **Standalone** (deprecated) | `bisbom-env:standalone` | Yes | `bomtrace3`/`bomtrace2` ptrace-based tracing | ~1% embedded corner case only |
 
 ## Host Requirements
 
@@ -97,7 +97,7 @@ Enabling native ARM64 standalone container support requires:
 3. **Test ptrace behavior** — ARM64 ptrace has subtle differences in syscall entry/exit handling
 4. **Multi-arch Docker build** — add `linux/arm64` platform to `docker buildx`
 
-This is a **code-level change to bomtrace3** in the upstream `omnibor/bomsh` repository, not a configuration or build change in `omnibor-analysis`.
+This is a **code-level change to `bomtrace3`** in its upstream source, not a configuration or build change in bisbom-gen.
 
 <a id="diagram-language"></a>
 

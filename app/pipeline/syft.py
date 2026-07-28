@@ -1,5 +1,5 @@
 """
-Syft baseline SBOM generation for OmniBOR Analysis.
+Syft baseline SBOM generation for bisbom-gen.
 
 Generates a manifest-based SPDX SBOM using Syft as a
 supplementary baseline — not part of the core OmniBOR

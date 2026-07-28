@@ -1,5 +1,5 @@
 """
-Metadata collection for OmniBOR Analysis.
+Metadata collection for bisbom-gen.
 
 Collects component metadata (dpkg) and dynamic library
 dependencies for each output binary after the instrumented build.
@@ -39,7 +39,7 @@ class MetadataCollector:
         lang = lang_subdir(repo_cfg)
         bom_dir = (
             Path(paths_cfg["output_dir"])
-            / "omnibor" / lang / repo_name / ts
+            / "bisbom" / lang / repo_name / ts
         )
         meta_dir = bom_dir / "metadata"
         repos_dir = paths_cfg["repos_dir"]

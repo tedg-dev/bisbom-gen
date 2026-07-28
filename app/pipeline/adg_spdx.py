@@ -1,5 +1,5 @@
 """
-Per-binary ADG SPDX generation for OmniBOR Analysis.
+Per-binary ADG SPDX generation for bisbom-gen.
 
 Wraps spdx_from_adg.AdgSpdxGenerator to produce one SPDX 2.3
 JSON file per output binary.
@@ -32,7 +32,7 @@ class AdgSpdxStep:
         lang = lang_subdir(repo_cfg)
         bom_dir = (
             Path(paths_cfg["output_dir"])
-            / "omnibor" / lang / repo_name / ts
+            / "bisbom" / lang / repo_name / ts
         )
         repos_dir = paths_cfg["repos_dir"]
         spdx_dir = (

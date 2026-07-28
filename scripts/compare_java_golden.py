@@ -19,9 +19,22 @@ OUTPUT_SPDX = PROJECT / "output" / "spdx" / "java"
 GOLDEN_DIR = PROJECT / "tests" / "golden" / "spdx"
 
 
+def _normalize_branding(text: str) -> str:
+    """Mask the ``omnibor`` -> ``bisbom`` project rename.
+
+    The rename is a branding change, not a content change.  Applying the
+    SAME substitution to BOTH the golden baseline and the new candidate
+    can only mask that rename in names (repo/package/path) -- it can never
+    hide a real content difference, because any genuine divergence survives
+    the identical substitution on both sides.  Golden files that predate
+    the rename keep the ``omnibor`` spelling; new output uses ``bisbom``.
+    """
+    return text.replace("omnibor", "bisbom")
+
+
 def _load_spdx(path: Path) -> dict:
     with open(path, encoding="utf-8") as f:
-        return json.load(f)
+        return json.loads(_normalize_branding(f.read()))
 
 
 def _extract_package_summary(doc: dict) -> dict:

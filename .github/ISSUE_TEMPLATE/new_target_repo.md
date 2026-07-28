@@ -1,6 +1,6 @@
 ---
 name: New Target Repository
-about: Propose a new C/C++ repository for OmniBOR analysis
+about: Propose a new C/C++ repository for bisbom-gen analysis
 title: "[REPO] "
 labels: new-repo
 ---
