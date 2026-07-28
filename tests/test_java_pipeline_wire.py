@@ -475,8 +475,33 @@ class TestJavaInlineConfig(unittest.TestCase):
         self.assertTrue(shim.endswith(
             "libbisbom_java_intercept.so",
         ))
+        # Capture log is repo-scoped and OUTSIDE the source tree, so a
+        # working-tree file/license audit (Apache RAT) never sees it.
         self.assertEqual(
-            cap, "/workspace/repos/app/.bisbom/capture.jsonl",
+            cap, "/tmp/bisbom-capture/app/capture.jsonl",
+        )
+
+    def test_capture_log_outside_repo_tree(self):
+        _inline, _shim, cap = _java_inline_config(
+            {"java_inline_hash": True},
+            "/workspace/repos/logging-log4j2",
+        )
+        self.assertNotIn("/workspace/repos", cap)
+        self.assertEqual(
+            cap,
+            "/tmp/bisbom-capture/logging-log4j2/capture.jsonl",
+        )
+
+    def test_enabled_custom_capture_dir(self):
+        _inline, _shim, cap = _java_inline_config(
+            {
+                "java_inline_hash": True,
+                "capture_dir": "/scratch/cap",
+            },
+            "/workspace/repos/jsoup",
+        )
+        self.assertEqual(
+            cap, "/scratch/cap/jsoup/capture.jsonl",
         )
 
     def test_enabled_custom_shim_path(self):

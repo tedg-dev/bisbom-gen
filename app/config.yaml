@@ -391,8 +391,8 @@ repos:
     description: Bouncy Castle crypto library (Gradle multi-module, building bcprov provider, JDK 21, Java25 MR classes excluded)
     output_binaries:
     - '**/build/libs/*.jar'
-  omnibor-java-testapp:
-    url: https://github.com/tedg-dev/omnibor-java-testapp.git
+  bisbom-java-testapp:
+    url: https://github.com/tedg-dev/bisbom-java-testapp.git
     branch: main
     language: java
     build_profile:

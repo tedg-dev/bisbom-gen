@@ -237,14 +237,21 @@ _DEFAULT_INLINE_SHIM = (
     "/opt/bisbom/lib/libbisbom_java_intercept.so"
 )
 
+# Capture logs live OUTSIDE the checked-out source tree.  Writing them
+# in-tree breaks native builds that audit their own working tree (e.g.
+# the Apache RAT license plugin rejects the unrecognized file).  The
+# default is a scratch dir; override via ``bisbom.capture_dir``.
+_DEFAULT_CAPTURE_DIR = "/tmp/bisbom-capture"
+
 
 def _java_inline_config(bisbom_cfg, repo_dir):
     """Resolve inline-hashing config for a Java sidecar build.
 
     Config-driven (never per-repo hardcoded): inline hashing is enabled
     by ``bisbom.java_inline_hash`` and the shim path is overridable via
-    ``bisbom.inline_shim_path``.  The capture log lives at a
-    deterministic workspace-relative path shared by ``instrument_command``
+    ``bisbom.inline_shim_path``.  The capture log lives at a deterministic,
+    repo-scoped path **outside the source tree** (``capture_dir`` is
+    overridable via ``bisbom.capture_dir``), shared by ``instrument_command``
     (the shim writes it during the build) and ``generate_adg`` (the
     assembler reads it) \u2014 matching the CI/CD YAML example in the design.
 
@@ -256,8 +263,10 @@ def _java_inline_config(bisbom_cfg, repo_dir):
     if not inline:
         return False, None, None
     shim_path = cfg.get("inline_shim_path", _DEFAULT_INLINE_SHIM)
+    capture_dir = cfg.get("capture_dir", _DEFAULT_CAPTURE_DIR)
+    repo_name = Path(repo_dir).name
     capture_log = str(
-        Path(repo_dir) / ".bisbom" / "capture.jsonl"
+        Path(capture_dir) / repo_name / "capture.jsonl"
     )
     return True, shim_path, capture_log
 

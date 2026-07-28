@@ -315,6 +315,50 @@ class TestRepoCloner(unittest.TestCase):
             )
             runner.run.assert_not_called()
 
+    def test_reuse_cleans_stale_capture_dirs(self):
+        """Reusing a checkout removes leftover capture dirs.
+
+        A stale .bisbom/.omnibor dir from a prior run would break
+        builds that audit their own tree (e.g. Apache RAT), so the
+        cloner must strip them before returning the reused path.
+        """
+        with tempfile.TemporaryDirectory() as tmpdir:
+            repo_dir = Path(tmpdir) / "myrepo"
+            repo_dir.mkdir()
+            (repo_dir / "file.txt").touch()
+            bisbom = repo_dir / ".bisbom"
+            bisbom.mkdir()
+            (bisbom / "capture.jsonl").touch()
+            omnibor = repo_dir / ".omnibor"
+            omnibor.mkdir()
+            (omnibor / "capture.jsonl").touch()
+
+            runner = MagicMock()
+            cloner = RepoCloner(runner)
+            paths = {"repos_dir": tmpdir}
+            cfg = {"url": "x", "branch": "main"}
+
+            with patch("builtins.print"):
+                cloner.clone("myrepo", cfg, paths)
+
+            self.assertFalse(bisbom.exists())
+            self.assertFalse(omnibor.exists())
+            self.assertTrue((repo_dir / "file.txt").exists())
+            runner.run.assert_not_called()
+
+    def test_clean_stale_capture_dirs_noop_when_absent(self):
+        """Cleanup is a no-op when no capture dirs exist."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            repo_dir = Path(tmpdir) / "clean"
+            repo_dir.mkdir()
+            (repo_dir / "src").mkdir()
+
+            with patch("builtins.print") as mock_print:
+                RepoCloner._clean_stale_capture_dirs(repo_dir)
+
+            self.assertTrue((repo_dir / "src").exists())
+            mock_print.assert_not_called()
+
     def test_clones_new_repo(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             runner = MagicMock()
@@ -1148,6 +1192,12 @@ class TestSpdxGenerator(unittest.TestCase):
                 spdx_dir
                 / "libcurl.syft.spdx-json"
             ).write_text('{"creationInfo":{}}')
+            # Non-primary file that keeps the upstream
+            # ``omnibor.`` prefix — must be rebranded.
+            (
+                spdx_dir
+                / "omnibor.libcurl.so.syft.spdx-json"
+            ).write_text('{"creationInfo":{}}')
 
             with patch("builtins.print"), \
                     patch.object(
@@ -1176,11 +1226,25 @@ class TestSpdxGenerator(unittest.TestCase):
                 "libcurl.syft.spdx.json", names
             )
 
+            # Leftover upstream ``omnibor.`` prefix on a
+            # non-primary file is rebranded to ``bisbom.``
+            self.assertIn(
+                "bisbom.libcurl.so.syft.spdx.json", names
+            )
+
             # No .spdx-json files should remain
             leftover = list(
                 spdx_dir.glob("*.spdx-json")
             )
             self.assertEqual(len(leftover), 0)
+
+            # No filename may retain the ``omnibor.`` prefix
+            self.assertFalse(
+                any(
+                    n.startswith("omnibor.")
+                    for n in names
+                )
+            )
 
     def test_generate_no_binaries_returns_none(self):
         with tempfile.TemporaryDirectory() as td:

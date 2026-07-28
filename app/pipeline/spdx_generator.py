@@ -414,14 +414,19 @@ class SpdxGenerator:
             f"[OK] SPDX SBOM: {spdx_file.name}"
         )
 
-        # Rename remaining files: fix extension
+        # Rename remaining files: fix the upstream
+        # ``.spdx-json`` extension and rebrand any leftover
+        # upstream ``omnibor.`` filename prefix to ``bisbom.``
+        # so all emitted filenames are consistent with the
+        # rebranded primary (``<repo>_bisbom.spdx.json``).
         for f in generated:
             if f == primary:
                 continue
-            new_name = f.with_suffix(".json").with_suffix(
-                ".spdx.json"
-            )
-            if f.exists():
+            base = f.name.replace(".spdx-json", ".spdx.json")
+            if base.startswith("omnibor."):
+                base = "bisbom." + base[len("omnibor."):]
+            new_name = f.with_name(base)
+            if f.exists() and new_name != f:
                 f.rename(new_name)
                 print(
                     f"[OK] Renamed: {f.name} -> "

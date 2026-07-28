@@ -4,10 +4,18 @@ Repository cloning for bisbom-gen.
 Handles shallow cloning of target repositories.
 """
 
+import shutil
 import subprocess
 from pathlib import Path
 
 from app.runner import CommandRunner
+
+# Instrumentation artifacts that must never persist across runs inside a
+# reused checkout.  Some native builds audit their own working tree (e.g.
+# the Apache RAT license plugin) and fail on unrecognized files, so a
+# stale capture dir from a previous run would break an otherwise-clean
+# build.  ``.omnibor`` is the pre-rebrand name, kept for legacy checkouts.
+_STALE_CAPTURE_DIRS = (".bisbom", ".omnibor")
 
 
 class RepoCloner:
@@ -24,6 +32,7 @@ class RepoCloner:
         if repo_dir.exists() and any(
             repo_dir.iterdir()
         ):
+            self._clean_stale_capture_dirs(repo_dir)
             print(
                 "[INFO] Repository already exists "
                 f"at {repo_dir}, skipping clone."
@@ -52,6 +61,23 @@ class RepoCloner:
             ),
         )
         return str(repo_dir)
+
+    @staticmethod
+    def _clean_stale_capture_dirs(repo_dir):
+        """Remove stale bisbom capture dirs from a reused checkout.
+
+        Instrumentation artifacts (``.bisbom`` / legacy ``.omnibor``)
+        must never persist into a later build: some native builds audit
+        their own working tree (e.g. the Apache RAT license plugin) and
+        fail on unrecognized files.  Missing dirs are ignored.
+        """
+        for name in _STALE_CAPTURE_DIRS:
+            stale = Path(repo_dir) / name
+            if stale.is_dir():
+                shutil.rmtree(stale, ignore_errors=True)
+                print(
+                    f"[INFO] Removed stale capture dir {stale}"
+                )
 
     @staticmethod
     def get_commit_sha(repo_dir):
