@@ -97,8 +97,8 @@ docs activity and carries a datetimestamped activity log.
 | Extend capture to static builds (eBPF/audit) | Main B -> **B3** / SI-3 (work items B3.1–B3.3) | #11011 | Ready |
 | C/C++ SBOMs from captured data, no workspace | Main B -> **B4** / SI-4 (C/C++) (work items B4.1–B4.5) | #11012 | Ready |
 | Shared Corona intake + auth + non-Java delivery | Main C -> **C1/C2** / SI-5 (shared) | #11013 | **Closed — not planned** (out of charter; Corona / Phase-2 team owns delivery + auth, consistent with A7 postponed and #11004 closed) |
-| Java sidecar capture log written into source tree breaks strict file/license audits (Apache RAT) | Phase 1 Build-Speed -> bug (child of #11005) | #11205 | **In Development** (Walk 22, Priority Med, assignee `tedg_cisco`). Move capture log outside the source tree + clean stale capture dirs on repo reuse. |
-| Rebrand as build-interception SBOM; obfuscate OmniBOR/bomsh tooling | Project / rebrand (parentless Main issue) | #11194 | **In Development** (Walk 21, Priority Med, assignee `tedg_cisco`). Repo renames + staged docs then machinery scrub; precedes the CiscoSecurityServices org migration. |
+| Java sidecar capture log written into source tree breaks strict file/license audits (Apache RAT) | Phase 1 Build-Speed -> bug (child of #11005) | #11205 | **In Review** (Walk 22, Priority Med, assignee `tedg_cisco`). Implemented in `tedg-dev/bisbom-gen#222` (merged): capture log moved outside the source tree + stale capture dirs cleaned on repo reuse. |
+| Rebrand as build-interception SBOM; obfuscate OmniBOR/bomsh tooling | Project / rebrand (parentless Main issue) | #11194 | **In Development** (Walk 21, Priority Med, assignee `tedg_cisco`). Repo renames + staged docs then machinery scrub; precedes the CiscoSecurityServices org migration. Migration-prep renames merged so far: `tedg-dev/bisbom-gen#222` (code/config/workflow + SPDX filename normalization), `tedg-dev/bisbom-gen#223` (active-doc identifier sweep), `tedg-dev/bisbom-java-testapp#17` (testapp package/pom/docs rename). |
 
 ---
 
