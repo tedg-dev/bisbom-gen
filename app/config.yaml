@@ -67,7 +67,7 @@ repos:
     - yasm
   nmap:
     url: https://github.com/nmap/nmap.git
-    branch: 508531ed5904c2382ad25e908b75adc1374baaee  # nmap has no release tags; pinned to a commit SHA (upstream-pinning policy)
+    branch: 8f0ebd84ad3b211d9f25f47d69fb81da722b38c1  # nmap has no release tags; pinned to the golden-baseline commit (upstream-pinning policy)
     language: c-cpp
     build_profile:
       tool: autotools
@@ -393,7 +393,7 @@ repos:
     - '**/build/libs/*.jar'
   bisbom-java-testapp:
     url: https://github.com/tedg-dev/bisbom-java-testapp.git
-    branch: 44849358dcedc486620eb3cdd78afe147f596c0d  # our testapp has no release tags; pinned to a commit SHA
+    branch: 93058e537cb8c6b0a32f20f761aaf87822626355  # our testapp has no release tags; pinned to the golden-baseline commit
     language: java
     build_profile:
       tool: maven
