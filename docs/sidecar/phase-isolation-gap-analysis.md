@@ -192,19 +192,19 @@ before any other libraries.
 # Injected automatically by the webhook — customer never sees this
 spec:
   initContainers:
-    - name: omnibor-init
+    - name: bisbom-init
       image: bisbom-env:init
-      command: ["cp", "/opt/bisbom/libintercept.so", "/omnibor/"]
+      command: ["cp", "/opt/bisbom/libintercept.so", "/bisbom/"]
       volumeMounts:
-        - name: omnibor-lib
-          mountPath: /omnibor
+        - name: bisbom-lib
+          mountPath: /bisbom
     - name: bisbom-sidecar
       image: bisbom-env:sidecar
       restartPolicy: Always    # K8s 1.28+ native sidecar
       volumeMounts:
         - name: workspace
           mountPath: /workspace
-        - name: omnibor-artifacts
+        - name: bisbom-artifacts
           mountPath: /artifacts
   containers:
     - name: build
@@ -213,12 +213,12 @@ spec:
       command: ["make", "-j16"]  # UNCHANGED
       env:
         - name: LD_PRELOAD        # Injected by webhook
-          value: /omnibor/libintercept.so
+          value: /bisbom/libintercept.so
       volumeMounts:
         - name: workspace
           mountPath: /workspace
-        - name: omnibor-lib
-          mountPath: /omnibor
+        - name: bisbom-lib
+          mountPath: /bisbom
 ```
 
 Industry precedent: This is exactly how `EnvProxy` (Vault secret

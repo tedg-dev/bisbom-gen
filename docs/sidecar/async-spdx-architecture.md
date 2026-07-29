@@ -782,7 +782,7 @@ For enterprise teams that want centralized SBOM management:
 build:
   script:
     - make build
-    - omnibor-intercept --phase build  # Adds ~2 min
+    - bisbom-intercept --phase build  # Adds ~2 min
     - upload-artifact omnibor-treedb
 
 # Pipeline B: Central SBOM pipeline (triggered by Pipeline A)
@@ -803,7 +803,7 @@ For organizations generating SBOMs across hundreds of repos:
 build:
   script:
     - make build
-    - omnibor-intercept --phase build
+    - bisbom-intercept --phase build
     - aws sqs send-message --queue-url $SBOM_QUEUE \
         --message-body '{"repo": "spring-boot", "treedb": "s3://..."}'
 
