@@ -67,7 +67,7 @@ repos:
     - yasm
   nmap:
     url: https://github.com/nmap/nmap.git
-    branch: master  # EXCEPTION: nmap has no stable release tags; pinning is not possible
+    branch: 508531ed5904c2382ad25e908b75adc1374baaee  # nmap has no release tags; pinned to a commit SHA (upstream-pinning policy)
     language: c-cpp
     build_profile:
       tool: autotools
@@ -393,7 +393,7 @@ repos:
     - '**/build/libs/*.jar'
   bisbom-java-testapp:
     url: https://github.com/tedg-dev/bisbom-java-testapp.git
-    branch: main
+    branch: 44849358dcedc486620eb3cdd78afe147f596c0d  # our testapp has no release tags; pinned to a commit SHA
     language: java
     build_profile:
       tool: maven
