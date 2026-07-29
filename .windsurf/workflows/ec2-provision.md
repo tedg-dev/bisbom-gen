@@ -70,7 +70,7 @@ ls -la ~/.ssh/id_ed25519.pub 2>/dev/null || echo "No SSH key found"
 If no key exists:
 
 ```bash
-ssh-keygen -t ed25519 -C "omnibor-build" -f ~/.ssh/id_ed25519 -N ""
+ssh-keygen -t ed25519 -C "bisbom-build" -f ~/.ssh/id_ed25519 -N ""
 ```
 
 ## 3. Create terraform.tfvars
@@ -128,7 +128,7 @@ Add SSH config entry. Determine the correct SSH key path for the platform:
 Add to `~/.ssh/config`:
 
 ```
-Host omnibor-build
+Host bisbom-build
     HostName <ELASTIC_IP>
     User ubuntu
     IdentityFile ~/.ssh/id_ed25519
@@ -140,7 +140,7 @@ Host omnibor-build
 Add to `~/.ssh/config` inside WSL (NOT the Windows `C:\Users\...\.ssh\config`):
 
 ```
-Host omnibor-build
+Host bisbom-build
     HostName <ELASTIC_IP>
     User ubuntu
     IdentityFile ~/.ssh/id_ed25519
@@ -150,13 +150,13 @@ Host omnibor-build
 Test connectivity:
 
 ```bash
-ssh -o ConnectTimeout=10 omnibor-build "echo SSH OK && uname -m"
+ssh -o ConnectTimeout=10 bisbom-build "echo SSH OK && uname -m"
 ```
 
 If port 22 is blocked (Cisco VPN), try port 443:
 
 ```bash
-ssh -p 443 -o ConnectTimeout=10 omnibor-build "echo SSH OK"
+ssh -p 443 -o ConnectTimeout=10 bisbom-build "echo SSH OK"
 ```
 
 If port 443 works, update `~/.ssh/config` to add `Port 443`.
@@ -184,13 +184,13 @@ The EC2 instance runs `user-data.sh` on first boot (~10-20 minutes).
 Check progress:
 
 ```bash
-ssh omnibor-build "tail -20 /var/log/cloud-init-output.log"
+ssh bisbom-build "tail -20 /var/log/cloud-init-output.log"
 ```
 
 If bootstrap is complete, verify Docker and bomtrace:
 
 ```bash
-ssh omnibor-build "docker --version && docker-compose --version"
+ssh bisbom-build "docker --version && docker-compose --version"
 ```
 
 If the repo clone failed during bootstrap (private repo), push code manually:
@@ -199,20 +199,20 @@ If the repo clone failed during bootstrap (private repo), push code manually:
 rsync -avz --exclude '.git' --exclude '__pycache__' --exclude '.venv' \
   --exclude 'output/' --exclude 'repos/' \
   --exclude 'terraform/.terraform/' --exclude 'terraform/terraform.tfstate*' \
-  -e ssh ./ omnibor-build:~/omnibor-analysis/
+  -e ssh ./ bisbom-build:~/bisbom-gen/
 ```
 
 Then build the Docker image:
 
 ```bash
-ssh omnibor-build "cd ~/omnibor-analysis && \
+ssh bisbom-build "cd ~/bisbom-gen && \
   docker-compose -f docker/docker-compose.yml build"
 ```
 
 ## 10. Run a test analysis
 
 ```bash
-ssh omnibor-build "cd ~/omnibor-analysis && \
+ssh bisbom-build "cd ~/bisbom-gen && \
   docker-compose -f docker/docker-compose.yml run --rm bisbom-env \
   python3 /workspace/app/analyze.py --list"
 ```

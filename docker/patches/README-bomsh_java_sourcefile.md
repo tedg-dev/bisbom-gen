@@ -3,7 +3,7 @@
 **File:** `scripts/bomsh_create_bom_java.py`
 **Upstream repo:** [omnibor/bomsh](https://github.com/omnibor/bomsh)
 **Date:** 2026-03-26
-**Author:** bisbom-gen project (tedg-dev/omnibor-analysis)
+**Author:** bisbom-gen project (tedg-dev/bisbom-gen)
 
 ## Bug Description
 

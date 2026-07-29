@@ -1,5 +1,5 @@
 ---
-description: Run OmniBOR build interception analysis on a target repository
+description: Run Bisbom build interception analysis on a target repository
 ---
 
 # Run Analysis
@@ -108,7 +108,7 @@ All generated artifacts (SBOMs, build-logs, runtime metrics) are under `output/`
 1. **Clone** — shallow clone of the target repo
 2. **Syft SBOM** — manifest-based baseline (go.mod/go.sum)
 4. **Instrumented build** — `bomtrace2 -c bomtrace_go.conf go build -a` (watches compile, link + openat)
-5a. **OmniBOR SPDX** — generated from ADG via bomsh_sbom.py
+5a. **Bisbom SPDX** — generated from ADG via bomsh_sbom.py
 5b. **Metadata collection** — component metadata
 5c. **ADG SPDX** — per-binary SPDX + HTML visualization
 6. **SPDX validation** — JSON Schema + semantic validation
@@ -123,10 +123,10 @@ The `<ts>` timestamp is generated once per run and shared across all output type
 
 | Artifact | Path |
 |----------|------|
-| OmniBOR ADG | `output/omnibor/<lang>/<repo>/<ts>/` |
-| Component metadata | `output/omnibor/<lang>/<repo>/<ts>/metadata/component_metadata.json` |
-| Dynamic libs (per binary) | `output/omnibor/<lang>/<repo>/<ts>/metadata/<binary>/dynamic_libs.json` |
-| SPDX SBOM (OmniBOR) | `output/spdx/<lang>/<repo>/<ts>/<repo>_omnibor.spdx.json` |
+| Bisbom ADG | `output/bisbom/<lang>/<repo>/<ts>/` |
+| Component metadata | `output/bisbom/<lang>/<repo>/<ts>/metadata/component_metadata.json` |
+| Dynamic libs (per binary) | `output/bisbom/<lang>/<repo>/<ts>/metadata/<binary>/dynamic_libs.json` |
+| SPDX SBOM (Bisbom) | `output/spdx/<lang>/<repo>/<ts>/<repo>_bisbom.spdx.json` |
 | SPDX SBOM (ADG, per binary) | `output/spdx/<lang>/<repo>/<ts>/<binary>_adg.spdx.json` |
 | Visualization (per binary) | `output/spdx/<lang>/<repo>/<ts>/<binary>_adg.spdx.html` |
 | SPDX SBOM (Syft) | `output/spdx/<lang>/<repo>/<ts>/<repo>_syft.spdx.json` |

@@ -42,7 +42,7 @@ class BomtraceBuilder:
 
     Works for both C/C++ (bomtrace3) and Go (bomtrace2 with
     Go-specific bomtrace.conf).  The tracer binary is specified
-    in the omnibor config section passed to build().
+    in the bisbom config section passed to build().
     """
 
     def __init__(self, runner=None):
@@ -72,7 +72,7 @@ class BomtraceBuilder:
 
     def build(
         self, repo_name, repo_cfg,
-        paths_cfg, omnibor_cfg,
+        paths_cfg, bisbom_cfg,
         run_ts=None, strategy=None,
     ):
         """Run pre-build steps, instrumented build, and ADG generation.
@@ -150,7 +150,7 @@ class BomtraceBuilder:
                 )
             )
         else:
-            tracer = omnibor_cfg["tracer"]
+            tracer = bisbom_cfg["tracer"]
             instrumented = f"{tracer} {make_cmd}"
             env = None
 
@@ -180,14 +180,14 @@ class BomtraceBuilder:
                 adg_ok = bool(
                     strategy.generate_adg(
                         str(repo_dir), str(bom_dir),
-                        omnibor_cfg,
+                        bisbom_cfg,
                     )
                 )
             else:
                 create_bom = (
-                    omnibor_cfg["create_bom_script"]
+                    bisbom_cfg["create_bom_script"]
                 )
-                raw_logfile = omnibor_cfg["raw_logfile"]
+                raw_logfile = bisbom_cfg["raw_logfile"]
                 rc = self.runner.run(
                     f"{create_bom} -r {raw_logfile} "
                     f"-b {bom_dir}",
@@ -296,7 +296,7 @@ class BomtraceBuilder:
 
     def build_java(
         self, repo_name, repo_cfg,
-        paths_cfg, omnibor_java_cfg,
+        paths_cfg, bisbom_java_cfg,
         run_ts=None,
     ):
         """Run Java build with strace, then bomsh_create_bom_java.py.
@@ -326,9 +326,9 @@ class BomtraceBuilder:
         # clean/build subprocess runs).
         self._apply_java_home(repo_cfg)
 
-        strace_opts = omnibor_java_cfg["strace_opts"]
-        strace_log = omnibor_java_cfg["strace_logfile"]
-        create_bom = omnibor_java_cfg["create_bom_script"]
+        strace_opts = bisbom_java_cfg["strace_opts"]
+        strace_log = bisbom_java_cfg["strace_logfile"]
+        create_bom = bisbom_java_cfg["create_bom_script"]
 
         # --- Phase 1a: Clean ---
         clean_cmd = repo_cfg.get("clean_cmd")

@@ -6,7 +6,7 @@ priority: critical
 
 # GitHub Repository Rulesets
 
-Branch protection on `tedg-dev/omnibor-analysis` is enforced via **GitHub
+Branch protection on `tedg-dev/bisbom-gen` is enforced via **GitHub
 Repository Rulesets** (not legacy branch protection rules). Rulesets provide
 granular per-rule bypass actors, replacing the all-or-nothing
 `enforce_admins` toggle.
@@ -120,25 +120,25 @@ can skip reviews.
 ### View current rulesets
 
 ```bash
-gh api repos/tedg-dev/omnibor-analysis/rulesets --jq '.[] | {id, name, enforcement}'
+gh api repos/tedg-dev/bisbom-gen/rulesets --jq '.[] | {id, name, enforcement}'
 ```
 
 ### View ruleset details
 
 ```bash
-gh api repos/tedg-dev/omnibor-analysis/rulesets/<ID> --jq '.'
+gh api repos/tedg-dev/bisbom-gen/rulesets/<ID> --jq '.'
 ```
 
 ### View legacy branch protection
 
 ```bash
-gh api repos/tedg-dev/omnibor-analysis/branches/main/protection --jq '{enforce_admins: .enforce_admins.enabled, reviews: .required_pull_request_reviews}'
+gh api repos/tedg-dev/bisbom-gen/branches/main/protection --jq '{enforce_admins: .enforce_admins.enabled, reviews: .required_pull_request_reviews}'
 ```
 
 ### Disable a ruleset (emergency only)
 
 ```bash
-gh api repos/tedg-dev/omnibor-analysis/rulesets/<ID> -X PUT --input <json> # set enforcement: disabled
+gh api repos/tedg-dev/bisbom-gen/rulesets/<ID> -X PUT --input <json> # set enforcement: disabled
 ```
 
 ### Add a CI status check (future)

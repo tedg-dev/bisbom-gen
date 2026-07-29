@@ -15,7 +15,7 @@ takes precedence over speed, convenience, or Cascade's own preferences.
 ### 1. Standards Compliance
 
 - Use established specifications — never invent ad-hoc formats when standards
-  exist (SPDX, OmniBOR, OpenAPI, JSON Schema, semver, PURL, CPE, etc.)
+  exist (SPDX, Bisbom, OpenAPI, JSON Schema, semver, PURL, CPE, etc.)
 - When a standard covers your use case, adopt it fully — do not cherry-pick
   fields or invent extensions without documenting why
 

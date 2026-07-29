@@ -1,5 +1,5 @@
 ---
-description: Project context and architecture for omnibor-analysis
+description: Project context and architecture for bisbom-gen
 ---
 
 # Project: bisbom-gen
@@ -30,7 +30,7 @@ and completeness.
   - **docs/issues/** — Upstream bug tracking and workarounds
 - **repos/** — Cloned target repositories (gitignored)
 - **output/** — All generated artifacts (gitignored)
-  - **output/omnibor/{lang}/{repo}/{ts}/** — OmniBOR ADG documents
+  - **output/bisbom/{lang}/{repo}/{ts}/** — Bisbom ADG documents
   - **output/spdx/{lang}/{repo}/{ts}/** — SPDX SBOMs + HTML visualizations
   - **output/binaries/{lang}/{repo}/{ts}/** — Compiled binaries
   - **output/build-logs/{lang}/{repo}/{ts}/** — Build environment logs
@@ -40,7 +40,7 @@ and completeness.
 ## Key Technologies
 
 - **Bomsh/Bomtrace3** — ptrace-based build interception from omnibor/bomsh (Linux x86_64 only, C/C++)
-- **OmniBOR** — Artifact Dependency Graph (ADG) standard (omnibor.io)
+- **Bisbom** — Artifact Dependency Graph (ADG) standard (omnibor.io)
 - **SPDX 2.3** — SBOM format (JSON output)
 - **Syft** — Manifest-based SBOM generation (primary for Go, baseline for C/C++)
 - **Go SDK** — Go 1.23+ installed in the container for building Go targets
@@ -49,12 +49,12 @@ and completeness.
 
 ## Analysis Pipeline (analyze.py)
 
-### C/C++ repos (full OmniBOR instrumentation)
+### C/C++ repos (full Bisbom instrumentation)
 1. Clone target repo
 2. Syft baseline SBOM (manifest-based)
 3. Validate apt dependencies
 4. Instrumented build with bomtrace3
-5a. OmniBOR SPDX via bomsh_sbom.py
+5a. Bisbom SPDX via bomsh_sbom.py
 5b. Metadata collection (collect_metadata.py + collect_dynamic_libs.py)
 5c. Per-binary ADG SPDX with vendored detection + HTML visualization
 6. SPDX validation (JSON Schema + semantic)
@@ -66,7 +66,7 @@ and completeness.
 2. Syft SBOM (manifest-based baseline from go.mod/go.sum)
 3. (no apt deps for Go)
 4. Instrumented build with bomtrace2 (`go build -a` + Go-specific bomtrace.conf)
-5a. OmniBOR SPDX via bomsh_sbom.py
+5a. Bisbom SPDX via bomsh_sbom.py
 5b. Metadata collection
 5c. Per-binary ADG SPDX + HTML visualization
 6. SPDX validation (JSON Schema + semantic)
@@ -94,7 +94,7 @@ and traces the openat syscall. The `-a` flag bypasses Go's build cache.
 | `app/spdx_visualize.py` | D3.js HTML dependency graph generator |
 | `app/collect_metadata.py` | Resolve system files to dpkg packages |
 | `app/collect_dynamic_libs.py` | Per-binary ldd/readelf dynamic lib analysis |
-| `app/compare.py` | Compare OmniBOR SBOM vs binary scanner SBOM |
+| `app/compare.py` | Compare Bisbom SBOM vs binary scanner SBOM |
 | `app/data_loader.py` | Shared data loading utilities |
 | `app/config.py` | Shared config loading, timestamp, lang_subdir |
 | `app/runner.py` | CommandRunner utility |
@@ -136,5 +136,5 @@ and traces the openat syscall. The `-a` flag bypasses Go's build cache.
 - Each repo has a `language` field (`c-cpp`, `go`, `rust`) that determines its output subfolder
 - Go repos use `BomtraceBuilder` with bomtrace2 (Go-specific conf) for instrumented builds
 - Rust repos use `BomtraceBuilder` with bomtrace2 (default conf) for instrumented builds
-- C/C++ repos use `BomtraceBuilder` (bomtrace3 instrumentation) and bomsh for OmniBOR SBOMs
+- C/C++ repos use `BomtraceBuilder` (bomtrace3 instrumentation) and bomsh for Bisbom SBOMs
 - Per-file test coverage must be 95%+, overall 97%+ (enforced in pre-commit.md)

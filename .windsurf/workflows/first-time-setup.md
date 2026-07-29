@@ -4,7 +4,7 @@ description: Complete first-time setup for a new contributor cloning this repo
 
 # First-Time Setup
 
-Run this workflow when you've just cloned the omnibor-analysis repository into
+Run this workflow when you've just cloned the bisbom-gen repository into
 a fresh Windsurf IDE installation and want to get everything working.
 
 ## 0. Read all project rules and workflows
@@ -133,8 +133,8 @@ If you have SSH access to any Linux x86_64 server with Docker:
 ```bash
 rsync -avz --exclude '.git' --exclude '__pycache__' --exclude '.venv' \
   --exclude 'output/' --exclude 'repos/' \
-  -e ssh ./ <YOUR_HOST>:~/omnibor-analysis/
-ssh <YOUR_HOST> "cd ~/omnibor-analysis && docker-compose -f docker/docker-compose.yml build"
+  -e ssh ./ <YOUR_HOST>:~/bisbom-gen/
+ssh <YOUR_HOST> "cd ~/bisbom-gen && docker-compose -f docker/docker-compose.yml build"
 ```
 
 ## 5. Verify container tools
@@ -160,7 +160,7 @@ docker-compose -f docker/docker-compose.yml run --rm bisbom-env \
 EC2:
 
 ```bash
-ssh omnibor-build "cd ~/omnibor-analysis && \
+ssh bisbom-build "cd ~/bisbom-gen && \
   docker-compose -f docker/docker-compose.yml run --rm bisbom-env \
   python3 /workspace/app/analyze.py --list"
 ```

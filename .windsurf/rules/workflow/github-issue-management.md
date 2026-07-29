@@ -28,9 +28,9 @@ crosswalk mirrors the live board; it is never a stand-in for it.
   gh auth switch --user tedg_cisco
   ```
 
-- **PRs** live in `tedg-dev/omnibor-analysis` and use the `tedg-dev`
+- **PRs** live in `tedg-dev/bisbom-gen` and use the `tedg-dev`
   account. Always reference PRs cross-repo as
-  `tedg-dev/omnibor-analysis#<n>` — never a bare `#<n>`.
+  `tedg-dev/bisbom-gen#<n>` — never a bare `#<n>`.
 - **Project board:** Corona, project number `255`, node id
   `PVT_kwDOEFp5Ds4Bb7Wk`.
 - **Status field** id `PVTSSF_lADOEFp5Ds4Bb7WkzhWoAck`, single-select

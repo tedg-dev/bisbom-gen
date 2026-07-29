@@ -1,11 +1,11 @@
 ---
-description: Every artifact's SPDX identity MUST carry its OmniBOR gitOID (SHA-256) and a valid raw SHA. Design of record.
+description: Every artifact's SPDX identity MUST carry its Bisbom gitOID (SHA-256) and a valid raw SHA. Design of record.
 ---
 
-# Artifact Identity (OmniBOR Core) — Design of Record
+# Artifact Identity (Bisbom Core) — Design of Record
 
-Recording the OmniBOR identity of **every** artifact is the entire point of
-OmniBOR. This rule is the **design of record** and supersedes any earlier
+Recording the Bisbom identity of **every** artifact is the entire point of
+Bisbom. This rule is the **design of record** and supersedes any earlier
 statement (in this file or elsewhere) that the SPDX checksum is the bomsh
 `SHA1` treedb value, or that we must not re-hash artifacts. Both were mistakes
 and are corrected below.
@@ -30,7 +30,7 @@ alternate encodings of one value:
 |---|---|---|
 | **raw hash** | `SHA-256` of the raw file content | files, objects, packages |
 | **artifact gitOID** | `gitoid:blob:sha256` of the artifact (git-blob framing + `SHA-256`) | files, objects, packages |
-| **Input Manifest gitOID (OMID)** | gitOID of the OmniBOR Input Manifest — the provenance identifier | built artifacts (packages) only |
+| **Input Manifest gitOID (OMID)** | gitOID of the Bisbom Input Manifest — the provenance identifier | built artifacts (packages) only |
 
 The raw hash and the artifact gitOID are **not** the same number: the gitOID
 prepends the git object header (`blob <len>\0`) before hashing. NEVER store the
@@ -40,15 +40,15 @@ gitOID under a `SHA` checksum label — that was the original bug.
 
 `SHA-256` is **mandated**, not merely preferred:
 
-- The OmniBOR specification permits **only** `SHA-256` for Artifact IDs.
+- The Bisbom specification permits **only** `SHA-256` for Artifact IDs.
 - NIST has formally retired `SHA-1`; full transition away is required by 2030,
   and `SHA-1` is disallowed for new signatures now.
 - git's `SHA-1` is actually `SHA-1DC` (collision-detecting), which breaks the
-  universal reproducibility OmniBOR requires.
+  universal reproducibility Bisbom requires.
 
 The identity model MUST be **parameterized by hash algorithm** (default
 `SHA-256`), never hardcoded, so a future migration (e.g. if `SHA-256` is
-broken) is a config change — mirroring OmniBOR's own `HashAlgorithm` design.
+broken) is a config change — mirroring Bisbom's own `HashAlgorithm` design.
 
 ## 4. Topology vs Identity — Why C/C++ Is Automatic and Java Isn't
 
@@ -76,7 +76,7 @@ is irrelevant and Java becomes as automatic as C:
    Maven/Gradle `dep:tree` for external deps). The treedb maps `sha1 → path`.
 2. For every node, read the file at its path and compute `gitoid:blob:sha256`
    and the raw `SHA-256`.
-3. Build each built artifact's Input Manifest per the OmniBOR spec and compute
+3. Build each built artifact's Input Manifest per the Bisbom spec and compute
    its OMID as the `SHA-256` git-blob of that manifest, re-keying bomsh's
    `SHA-1` nodes to our `SHA-256` IDs by joining on file path.
 
@@ -92,7 +92,7 @@ in the SBOM.
   fragile than `bomtrace3`; every `.class` in the JAR must trace back to a
   `.java`. Flag gaps rather than emit a silently-incomplete manifest.
 - **Maven/Gradle dependencies are leaves.** We did not build them; identify
-  them by their JAR's artifact gitOID (+ `purl`). This is correct OmniBOR
+  them by their JAR's artifact gitOID (+ `purl`). This is correct Bisbom
   behavior for externally-built artifacts.
 
 ## 5. Per-Version SPDX Rendering
@@ -146,7 +146,7 @@ the model and surfaced only when we move to 3.0.1.
   `SHA-256` + raw `SHA-256`). This **reverses** the earlier "do not re-hash the
   workspace" instruction: re-hashing in `SHA-256` is required because bomsh's
   treedb is `SHA-1` and cannot supply the mandated algorithm.
-- **OMID** — the OmniBOR Input Manifest, computed canonically per the OmniBOR
+- **OMID** — the Bisbom Input Manifest, computed canonically per the Bisbom
   spec (validated against the reference libraries), not read from bomsh's
   `SHA-1` doc-mapping.
 
@@ -160,7 +160,7 @@ Two distinct mistakes were made and are corrected by this rule:
    value under a `"SHA1"` checksum label on files and packages. That value is
    the artifact's gitOID, **not** its raw `SHA-1` — a consumer verifying the
    checksum gets a mismatch. The raw hash was never stored, and the gitOID was
-   `SHA-1` rather than the OmniBOR-mandated `SHA-256`.
+   `SHA-1` rather than the Bisbom-mandated `SHA-256`.
 
 ## Enforcement
 
@@ -193,6 +193,6 @@ the SPDX 2.3-mandated raw `SHA-1`, see §5.1). The bomsh `SHA-1` treedb is used
 only as a topology bridge and is never surfaced in the SBOM.
 
 Still pending: the Input Manifest gitOID (OMID) canonical computation per the
-OmniBOR spec, and the SPDX 3.0.1 renderer (`verifiedUsing` + `contentIdentifier`,
+Bisbom spec, and the SPDX 3.0.1 renderer (`verifiedUsing` + `contentIdentifier`,
 no SHA-1). Golden SPDX regeneration for the identity change is sequenced under
 USER review per `cascade/golden-file-policy.md`.

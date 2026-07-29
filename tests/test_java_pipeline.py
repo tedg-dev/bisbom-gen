@@ -45,12 +45,12 @@ class TestRunJavaPipeline(unittest.TestCase):
             "language": "java",
             "url": "https://github.com/test/test.git",
         }
-        omnibor_java_cfg = {
+        bisbom_java_cfg = {
             "strace_opts": "-f",
             "create_bom_script": "bomsh_bom_java.py",
             "strace_logfile": "/tmp/strace.log",
         }
-        return paths_cfg, repo_cfg, omnibor_java_cfg
+        return paths_cfg, repo_cfg, bisbom_java_cfg
 
     @patch(
         "app.pipeline.lang_runners.generate_java_adg_spdx"

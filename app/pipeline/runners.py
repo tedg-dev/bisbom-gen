@@ -523,7 +523,7 @@ def _run_phase2_only(
 
     # Use manifest values, fall back to CLI args
     m_repo_cfg = manifest.get("repo_cfg", {})
-    m_omnibor = manifest.get(
+    m_bisbom = manifest.get(
         "bisbom_cfg", bisbom_cfg,
     )
     m_vcs = manifest.get("vcs_uri", vcs_uri)
@@ -537,7 +537,7 @@ def _run_phase2_only(
 
     phase2_steps = run_java_phase2(
         pipeline, repo_name, m_repo_cfg,
-        paths_cfg, m_omnibor, m_ts,
+        paths_cfg, m_bisbom, m_ts,
         vcs_uri=m_vcs,
         commit_sha=m_commit,
         mode=m_mode,

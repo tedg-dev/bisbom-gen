@@ -71,7 +71,7 @@ The only thing *not* covered by git is the memory database, captured in §3.
 | `code-standards.md` | Cross-language code standards |
 | `golden-file-changelog.md` | Golden-file changelog rules |
 | `golden-spdx-regression.md` | SPDX regression gate |
-| `omnibor-rules.md` | OmniBOR-specific rules |
+| `bisbom-rules.md` | Bisbom-specific rules |
 | `output-binaries.md` | `output_binaries` config rules |
 | `pre-commit.md` | Pre-commit verification gate |
 | `project-context.md` | Project context |
@@ -177,15 +177,15 @@ Content:
 >    (per-repo treedb step before/after, dep_tree time, total
 >    before/after, % improvement). Pull old timings from prior
 >    `output/runtime/java/<repo>` runs and new `adg_substeps.json`.
-> 3. Run against `https://github.com/tedg-dev/omnibor-java-testapp` (add
+> 3. Run against `https://github.com/tedg-dev/bisbom-java-testapp` (add
 >    to `app/config.yaml` via `/add-repo` first).
->    3b. IMPORTANT: `omnibor-java-testapp` has problems because COMPLETE
+>    3b. IMPORTANT: `bisbom-java-testapp` has problems because COMPLETE
 >    ISOLATION between Phase 1 and Phase 2 was not implemented correctly.
 >    See `docs/deep-dive/phase-isolation-build-time-analysis.md` and
 >    related phase-isolation docs before/while running it.
 >
 > EC2: instance `i-02ef4bf118d6bae90`, profile `ted-admin`, alias
-> `omnibor-build`, repo path `/home/ubuntu/omnibor-analysis`. Stopped for
+> `bisbom-build`, repo path `/home/ubuntu/bisbom-gen`. Stopped for
 > the long weekend; restart via `/ec2-start`. `duo-sso --profile
 > ted-admin` to re-auth (~1hr expiry).
 

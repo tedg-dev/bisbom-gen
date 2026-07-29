@@ -313,7 +313,7 @@ class SpdxGenerator:
 
     def generate(
         self, repo_name, repo_cfg,
-        paths_cfg, omnibor_cfg,
+        paths_cfg, bisbom_cfg,
         run_ts=None,
         vcs_uri=None,
     ):
@@ -357,7 +357,7 @@ class SpdxGenerator:
             return None
 
         files_arg = ",".join(artifact_paths)
-        sbom_script = omnibor_cfg["sbom_script"]
+        sbom_script = bisbom_cfg["sbom_script"]
 
         rc = self.runner.run(
             f"{sbom_script} "
@@ -453,7 +453,7 @@ class SpdxGenerator:
 
     def generate_java(
         self, repo_name, repo_cfg,
-        paths_cfg, omnibor_java_cfg,
+        paths_cfg, bisbom_java_cfg,
         run_ts=None,
     ):
         """Generate SPDX SBOM for Java from bomsh_create_bom_java.py output.

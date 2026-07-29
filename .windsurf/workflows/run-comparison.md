@@ -1,10 +1,10 @@
 ---
-description: Compare OmniBOR SPDX SBOM against proprietary binary scan SBOM
+description: Compare Bisbom SPDX SBOM against proprietary binary scan SBOM
 ---
 
 # Run Comparison
 
-Compare an OmniBOR-generated SPDX SBOM against a proprietary binary scanner SPDX SBOM.
+Compare an Bisbom-generated SPDX SBOM against a proprietary binary scanner SPDX SBOM.
 
 ## Prerequisites
 
@@ -30,7 +30,7 @@ Or specify files explicitly:
 ```bash
 docker-compose -f docker/docker-compose.yml run --rm bisbom-env python3 /workspace/app/compare.py \
   --repo curl \
-  --bisbom-file /workspace/output/spdx/curl/curl_omnibor_2026-02-10_1430.spdx.json \
+  --bisbom-file /workspace/output/spdx/curl/curl_bisbom_2026-02-10_1430.spdx.json \
   --binary-file /workspace/output/binary-scan/curl/bdba_export.spdx.json
 ```
 

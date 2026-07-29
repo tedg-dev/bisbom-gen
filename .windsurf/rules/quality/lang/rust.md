@@ -63,7 +63,7 @@ description: Rust-specific best practices, tooling, and conventions
   `needs: check` to fail fast
 - **Warnings as errors**: `RUSTFLAGS: "-Dwarnings"` in the workflow env
 
-## Release Builds (OmniBOR)
+## Release Builds (Bisbom)
 
 - Always `cargo build --release` (never plain `cargo build`)
 - Output path must be `target/release/`, not `target/debug/`

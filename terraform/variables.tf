@@ -17,7 +17,7 @@ variable "aws_region" {
 variable "project_name" {
   description = "Project name used for resource naming and tagging"
   type        = string
-  default     = "omnibor"
+  default     = "bisbom"
 }
 
 variable "instance_type" {
@@ -45,7 +45,7 @@ variable "ssh_public_key_path" {
 }
 
 variable "repo_url" {
-  description = "Git URL for omnibor-analysis repository (HTTPS or SSH)"
+  description = "Git URL for bisbom-gen repository (HTTPS or SSH)"
   type        = string
-  default     = "https://github.com/tedg-dev/omnibor-analysis.git"
+  default     = "https://github.com/tedg-dev/bisbom-gen.git"
 }

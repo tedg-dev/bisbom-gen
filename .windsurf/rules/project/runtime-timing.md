@@ -46,7 +46,7 @@ and stored for comparison.
 | Timer | What it measures |
 |-------|-----------------|
 | `adg_dur` | `bomsh_create_bom.py` / `bomsh_create_bom_java.py` (+ dep:tree for Java sidecar) |
-| `omnibor_sbom_dur` | `bomsh_sbom.py` → `_omnibor.spdx.json` + metadata patch + HTML viz |
+| `bisbom_sbom_dur` | `bomsh_sbom.py` → `_bisbom.spdx.json` + metadata patch + HTML viz |
 | `metadata_dur` | `collect_metadata.py` + `collect_dynamic_libs.py` |
 | `spdx_gen_dur` | `AdgSpdxGenerator` / `JavaSpdxGenerator` → `_analyzed` + `_build` `.spdx.json` + HTML |
 | `validate_dur` | JSON schema + semantic validation |

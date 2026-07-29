@@ -64,7 +64,7 @@ description: Go-specific best practices, tooling, and conventions
 - **Test job**: `go test -race -coverprofile=coverage.out ./...`
 - **Race detector**: Always run tests with `-race` in CI
 
-## Release Builds (OmniBOR)
+## Release Builds (Bisbom)
 
 - Always include `-trimpath -ldflags="-s -w"` in `go build`
 - `-trimpath` strips local filesystem paths from the binary

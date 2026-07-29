@@ -58,12 +58,12 @@ def _make_cfg(td):
         "build_steps": ["mvn package -DskipTests -q"],
         "output_binaries": ["**/target/*.jar"],
     }
-    omnibor_cfg = {
+    bisbom_cfg = {
         "strace_opts": "-f",
         "create_bom_script": "bomsh_bom_java.py",
         "strace_logfile": "/tmp/strace.log",
     }
-    return paths_cfg, repo_cfg, omnibor_cfg
+    return paths_cfg, repo_cfg, bisbom_cfg
 
 
 # ── _validate_phase_args ─────────────────────────────────
