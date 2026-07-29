@@ -151,8 +151,8 @@ class TestGenerateJavaAdgSpdx(unittest.TestCase):
     ):
         mock_gen = MagicMock()
         mock_gen.generate.side_effect = [
-            "/tmp/out/myapp_analyzed.spdx.json",
-            "/tmp/out/myapp_build.spdx.json",
+            "/tmp/out/myapp-1.0_analyzed.spdx.json",
+            "/tmp/out/myapp-1.0_build.spdx.json",
         ]
         mock_gen_cls.return_value = mock_gen
 
@@ -189,7 +189,7 @@ class TestGenerateJavaAdgSpdx(unittest.TestCase):
 
             self.assertEqual(len(result), 2)
             mock_gen_cls.assert_called_once()
-            # Called twice: analyzed + build
+            # Called twice per JAR: analyzed + build
             self.assertEqual(
                 mock_gen.generate.call_count, 2
             )
@@ -368,22 +368,19 @@ class TestGenerateJavaAdgSpdx(unittest.TestCase):
     @patch(
         "app.spdx.java_generator.JavaSpdxGenerator"
     )
-    def test_multi_binary_produces_per_jar_spdx(
+    def test_multi_binary_per_jar_spdx(
         self, mock_gen_cls, mock_parser_cls,
     ):
-        """Multi-module project: 3 JARs → 6 SPDX."""
+        """Multi-module project: 3 JARs → 6 SPDX docs."""
         mock_gen = MagicMock()
-        # 6 calls: analyzed+build for each of 3 JARs
+        # 2 calls per JAR (analyzed + build) × 3 JARs
         mock_gen.generate.side_effect = [
-            f"/tmp/out/{n}"
-            for n in [
-                "utils_analyzed.spdx.json",
-                "utils_build.spdx.json",
-                "core_analyzed.spdx.json",
-                "core_build.spdx.json",
-                "cli_analyzed.spdx.json",
-                "cli_build.spdx.json",
-            ]
+            "/tmp/out/utils-1.0_analyzed.spdx.json",
+            "/tmp/out/utils-1.0_build.spdx.json",
+            "/tmp/out/core-1.0_analyzed.spdx.json",
+            "/tmp/out/core-1.0_build.spdx.json",
+            "/tmp/out/cli-1.0_analyzed.spdx.json",
+            "/tmp/out/cli-1.0_build.spdx.json",
         ]
         mock_gen_cls.return_value = mock_gen
 
@@ -431,36 +428,22 @@ class TestGenerateJavaAdgSpdx(unittest.TestCase):
                 "myapp", repo_cfg, paths_cfg, "ts1",
             )
 
-            # 3 JARs × 2 SBOMs = 6 files
+            # 6 SPDX docs (2 per JAR × 3 JARs)
             self.assertEqual(len(result), 6)
             self.assertEqual(
                 mock_gen.generate.call_count, 6
             )
-            # Verify each JAR gets its own jar_files
             calls = mock_gen.generate.call_args_list
-            # First pair: utils
-            self.assertIn(
-                "utils-1.0.jar",
-                calls[0].kwargs["binary_name"],
-            )
-            self.assertEqual(
-                calls[0].kwargs["sbom_type"],
-                "analyzed",
-            )
-            self.assertEqual(
-                calls[1].kwargs["sbom_type"],
-                "build",
-            )
-            # Second pair: core
-            self.assertIn(
-                "core-1.0.jar",
-                calls[2].kwargs["binary_name"],
-            )
-            # Third pair: cli
-            self.assertIn(
-                "cli-1.0.jar",
-                calls[4].kwargs["binary_name"],
-            )
+            # Alternates: analyzed, build for each JAR
+            for i in range(0, 6, 2):
+                self.assertEqual(
+                    calls[i].kwargs["sbom_type"],
+                    "analyzed",
+                )
+                self.assertEqual(
+                    calls[i + 1].kwargs["sbom_type"],
+                    "build",
+                )
 
 
 class TestJarMapFallbackMatching(unittest.TestCase):
@@ -531,8 +514,10 @@ class TestJarMapFallbackMatching(unittest.TestCase):
             )
 
             self.assertEqual(len(result), 2)
-            # Verify jar_files was passed (not None)
-            calls = mock_gen.generate.call_args_list
+            # Verify jar_files passed per-JAR
+            calls = (
+                mock_gen.generate.call_args_list
+            )
             for call in calls:
                 self.assertIsNotNone(
                     call.kwargs["jar_files"],

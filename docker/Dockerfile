@@ -345,7 +345,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     maven \
     && rm -rf /var/lib/apt/lists/*
 ENV JAVA_HOME="/usr/lib/jvm/java-21-openjdk-amd64"
-ENV MAVEN_VERSION=3.9.15
+ENV MAVEN_VERSION=3.9.16
 # Fetch Maven from the fast CDN mirror, falling back to the permanent
 # Apache archive when the mirror has pruned this pinned version
 # (dlcdn.apache.org only retains current releases).
@@ -417,6 +417,7 @@ ENV PATH="/opt/bomsh/bin:/opt/bomsh/scripts:${PATH}"
 # Local dev can still override via volume mounts.
 COPY app/ /workspace/app/
 COPY requirements.txt /workspace/requirements.txt
+
 
 WORKDIR /workspace
 

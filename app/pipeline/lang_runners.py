@@ -424,12 +424,17 @@ def run_java_phase2(
     commit_sha="NOASSERTION",
     mode="standalone",
     build_id=None,
+    manifest_binaries=None,
 ):
     """Java Phase 2: SPDX generation + validation.
 
     Runs post-build analysis: SBOM, metadata,
     per-binary SPDX, validation, binary collection, and the
     Phase 2 SBOM hand-off manifest.
+
+    Args:
+        manifest_binaries: optional enriched binary list
+            from manifest (dicts with path, sha1, sha256).
 
     Returns list of ``StepMetrics``.
     """
@@ -451,6 +456,7 @@ def run_java_phase2(
                 commit_sha=commit_sha,
                 mode=mode,
                 build_id=build_id,
+                manifest_binaries=manifest_binaries,
             )
         ),
     )
@@ -588,6 +594,7 @@ def generate_java_adg_spdx(
     commit_sha="NOASSERTION",
     mode="standalone",
     build_id=None,
+    manifest_binaries=None,
 ):
     """Generate per-binary Java SPDX.
 

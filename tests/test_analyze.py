@@ -904,6 +904,83 @@ class TestBomtraceBuilder(unittest.TestCase):
                     os.environ[key] = val
 
 
+class TestBomtraceBuilderSkipBuild(unittest.TestCase):
+    """Tests for skip_build flag in build()."""
+
+    def _cfg(self):
+        return (
+            {
+                "build_steps": [
+                    "mvn package -DskipTests -q",
+                ],
+                "clean_cmd": "mvn clean -q",
+                "language": "java",
+                "skip_build": True,
+            },
+            {
+                "repos_dir": "/repos",
+                "output_dir": "/out",
+            },
+            {
+                "tracer": "bomtrace3",
+                "raw_logfile": "/tmp/log",
+                "create_bom_script": "/usr/bin/bom",
+            },
+        )
+
+    def test_skip_build_skips_clean_and_build(self):
+        """skip_build skips clean/pre-build/build."""
+        runner = MagicMock()
+        runner.run.return_value = 0
+        builder = BomtraceBuilder(runner)
+        repo_cfg, paths, omnibor = self._cfg()
+
+        with patch("builtins.print"):
+            result = builder.build(
+                "WebGoat", repo_cfg, paths, omnibor,
+            )
+        self.assertTrue(result.success)
+        # Everything skipped — no runner calls
+        runner.run.assert_not_called()
+
+    def test_skip_build_with_strategy(self):
+        """skip_build + strategy: skips everything."""
+        runner = MagicMock()
+        runner.run.return_value = 0
+        strategy = MagicMock()
+        strategy.generate_adg.return_value = True
+        builder = BomtraceBuilder(runner)
+        repo_cfg, paths, omnibor = self._cfg()
+
+        with patch("builtins.print"):
+            result = builder.build(
+                "WebGoat", repo_cfg, paths, omnibor,
+                strategy=strategy,
+            )
+        self.assertTrue(result.success)
+        # Everything skipped — no runner or strategy calls
+        runner.run.assert_not_called()
+        strategy.generate_adg.assert_not_called()
+        strategy.instrument_command\
+            .assert_not_called()
+
+    def test_skip_build_false_runs_normally(self):
+        """skip_build=False runs full pipeline."""
+        runner = MagicMock()
+        runner.run.return_value = 0
+        builder = BomtraceBuilder(runner)
+        repo_cfg, paths, omnibor = self._cfg()
+        repo_cfg["skip_build"] = False
+
+        with patch("builtins.print"):
+            result = builder.build(
+                "WebGoat", repo_cfg, paths, omnibor,
+            )
+        self.assertTrue(result.success)
+        # clean + build + ADG = 3
+        self.assertEqual(runner.run.call_count, 3)
+
+
 class TestBomtraceBuilderBaseline(unittest.TestCase):
     """Tests for BomtraceBuilder.build_baseline()."""
 

@@ -118,13 +118,21 @@ def main():
         sys.exit(1)
 
     if args.repo not in config["repos"]:
-        print(
-            f"[ERROR] Unknown repo '{args.repo}'. "
-            "Use --list to see options."
-        )
-        sys.exit(1)
-
-    repo_cfg = config["repos"][args.repo]
+        # Phase 2 SPDX generation with a manifest is
+        # self-contained — the manifest carries repo_cfg.
+        if args.phase == "spdx" and args.manifest:
+            _m = json.loads(
+                Path(args.manifest).read_text()
+            )
+            repo_cfg = _m.get("repo_cfg", {})
+        else:
+            print(
+                f"[ERROR] Unknown repo '{args.repo}'. "
+                "Use --list to see options."
+            )
+            sys.exit(1)
+    else:
+        repo_cfg = config["repos"][args.repo]
     paths_cfg = config["paths"]
 
     # Language-aware bisbom config lookup
@@ -535,12 +543,18 @@ def _run_phase2_only(
     timing = TimingResult(tracer=tracer)
     timing.success = True
 
+    # Pass enriched binaries for SPDX checksum correlation
+    m_binaries = manifest.get("artifacts", {}).get(
+        "binaries", [],
+    )
+
     phase2_steps = run_java_phase2(
         pipeline, repo_name, m_repo_cfg,
         paths_cfg, m_bisbom, m_ts,
         vcs_uri=m_vcs,
         commit_sha=m_commit,
         mode=m_mode,
+        manifest_binaries=m_binaries,
     )
     timing.steps.extend(phase2_steps)
     return timing
