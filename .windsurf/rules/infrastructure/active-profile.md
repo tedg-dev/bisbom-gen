@@ -4,8 +4,8 @@ description: Infrastructure profiles for bisbom-gen analysis build hosts
 
 # Build Host Profiles
 
-Each contributor configures their own `~/.ssh/config` to alias `omnibor-build`
-to whichever host they use. The workflows reference `omnibor-build` generically.
+Each contributor configures their own `~/.ssh/config` to alias `bisbom-build`
+to whichever host they use. The workflows reference `bisbom-build` generically.
 
 ---
 
@@ -16,8 +16,8 @@ to whichever host they use. The workflows reference `omnibor-build` generically.
 | Field | Value |
 |-------|-------|
 | **Provider** | AWS EC2 |
-| **Instance Name** | `omnibor-build` |
-| **SSH alias** | `omnibor-build` |
+| **Instance Name** | `bisbom-build` |
+| **SSH alias** | `bisbom-build` |
 | **IP** | `54.215.15.253` (Elastic IP) |
 | **Instance ID** | `i-02ef4bf118d6bae90` |
 | **Region** | `us-west-1` |
@@ -27,12 +27,12 @@ to whichever host they use. The workflows reference `omnibor-build` generically.
 | **EBS** | 50 GB gp3 (3000 IOPS) |
 | **Security Group** | `sg-068fd31b70796c6c3` |
 | **AWS Profile** | `ted-admin` |
-| **Repo path on host** | `/home/ubuntu/omnibor-analysis` |
+| **Repo path on host** | `/home/ubuntu/bisbom-gen` |
 
 ### SSH Config
 
 ```
-Host omnibor-build
+Host bisbom-build
     HostName 54.215.15.253
     User ubuntu
     IdentityFile ~/.ssh/id_ed25519
@@ -61,15 +61,15 @@ aws ec2 stop-instances --profile ted-admin --instance-ids i-02ef4bf118d6bae90 --
 ### Running Analysis
 
 ```bash
-ssh omnibor-build "cd /home/ubuntu/omnibor-analysis && git pull origin main"
-ssh omnibor-build "cd /home/ubuntu/omnibor-analysis && docker-compose -f docker/docker-compose.yml run --rm bisbom-env python3 /workspace/app/analyze.py --repo <REPO_NAME>"
+ssh bisbom-build "cd /home/ubuntu/bisbom-gen && git pull origin main"
+ssh bisbom-build "cd /home/ubuntu/bisbom-gen && docker-compose -f docker/docker-compose.yml run --rm bisbom-env python3 /workspace/app/analyze.py --repo <REPO_NAME>"
 ```
 
 ### Syncing Results
 
 ```bash
 # Download results to local machine (all generated artifacts are under output/)
-rsync -avz omnibor-build:/home/ubuntu/omnibor-analysis/output/ output/
+rsync -avz bisbom-build:/home/ubuntu/bisbom-gen/output/ output/
 ```
 
 ### Cost
@@ -91,18 +91,18 @@ rsync -avz omnibor-build:/home/ubuntu/omnibor-analysis/output/ output/
 |-------|-------|
 | **Provider** | Local (SSH-accessible on-prem) |
 | **Hostname** | `corona210.cisco.com` |
-| **SSH alias** | `omnibor-build` |
+| **SSH alias** | `bisbom-build` |
 | **User** | `<userID>` |
 | **OS** | CentOS 7 x86_64 |
 | **Docker** | v24.0.5 + Compose v2.20.2 |
 | **Docker data-root** | `/home/docker` (moved from `/var/lib/docker` — see `/cisco-lab-proxy`) |
-| **Repo path on host** | `/home/<userID>/omnibor-analysis` |
+| **Repo path on host** | `/home/<userID>/bisbom-gen` |
 | **Proxy** | `http://proxy-wsa.esl.cisco.com:80` (see `docs/guides/cisco-lab-proxy.md`) |
 
 ### SSH Config
 
 ```
-Host omnibor-build
+Host bisbom-build
     HostName corona210.cisco.com
     User <userID>
 ```
@@ -116,14 +116,14 @@ Always-on host — no start/stop needed.
 Requires proxy override via `docker-compose.override.yml` (see `/cisco-lab-proxy`).
 
 ```bash
-ssh omnibor-build "cd ~/omnibor-analysis && docker compose -f docker/docker-compose.yml -f docker/docker-compose.override.yml run --rm bisbom-env python3 /workspace/app/analyze.py --repo <REPO_NAME>"
+ssh bisbom-build "cd ~/bisbom-gen && docker compose -f docker/docker-compose.yml -f docker/docker-compose.override.yml run --rm bisbom-env python3 /workspace/app/analyze.py --repo <REPO_NAME>"
 ```
 
 ### Syncing Results
 
 ```bash
-rsync -avz omnibor-build:~/omnibor-analysis/output/ output/
-rsync -avz omnibor-build:~/omnibor-analysis/docs/ docs/
+rsync -avz bisbom-build:~/bisbom-gen/output/ output/
+rsync -avz bisbom-build:~/bisbom-gen/docs/ docs/
 ```
 
 ### Cost
@@ -138,7 +138,7 @@ rsync -avz omnibor-build:~/omnibor-analysis/docs/ docs/
 
 | Field | Value |
 |-------|-------|
-| **Droplet Name** | `omnibor-build-ubuntu-s-1vcpu-2gb-sfo3-01` |
+| **Droplet Name** | `bisbom-build-ubuntu-s-1vcpu-2gb-sfo3-01` |
 | **IP** | `137.184.178.186` |
 | **Droplet ID** | `551297940` |
 | **Power off** | `doctl compute droplet-action power-off 551297940 --wait` |

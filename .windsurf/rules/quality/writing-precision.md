@@ -56,7 +56,7 @@ enterprise native-build team or a platform/security reviewer).
 <tr><td><strong>native build</strong></td><td>The customer's unmodified build: their source, build files (<code>Makefile</code>/<code>pom.xml</code>/etc.), compiler, build commands, and output binaries. This NEVER changes.</td></tr>
 <tr><td><strong>native build team</strong></td><td>The customer team that owns and runs the native build.</td></tr>
 <tr><td><strong>native build machine / CI runner</strong></td><td>The customer-controlled host/container where the native build executes.</td></tr>
-<tr><td><strong>platform team</strong></td><td>MUST be qualified. Usually the customer's own DevOps/platform team that does one-time setup. NEVER let it read as the OmniBOR vendor.</td></tr>
+<tr><td><strong>platform team</strong></td><td>MUST be qualified. Usually the customer's own DevOps/platform team that does one-time setup. NEVER let it read as the Bisbom vendor.</td></tr>
 <tr><td><strong>analysis harness / our image</strong></td><td>THIS repository's Docker image and pipeline. Distinct from the customer's CI build image. Never conflate the two.</td></tr>
 </tbody>
 </table>

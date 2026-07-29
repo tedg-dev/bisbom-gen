@@ -8,7 +8,7 @@ description: Java-specific best practices, tooling, and conventions
 
 - **Java version**: Target Java 17+ (LTS) unless the project requires older.
   Set `<maven.compiler.release>17</maven.compiler.release>` in pom.xml
-- **Build tool**: Maven (preferred for OmniBOR) or Gradle. Pin wrapper
+- **Build tool**: Maven (preferred for Bisbom) or Gradle. Pin wrapper
   versions (`mvnw`, `gradlew`)
 - **Layout**: Follow Maven standard directory layout:
   `src/main/java/`, `src/main/resources/`, `src/test/java/`
@@ -78,7 +78,7 @@ description: Java-specific best practices, tooling, and conventions
 - **Lint job**: `mvn checkstyle:check` or `mvn spotless:check`
 - **Test job**: `mvn test -B` (Surefire) + `mvn verify -B` (Failsafe for ITs)
 
-## Release Builds (OmniBOR)
+## Release Builds (Bisbom)
 
 - Always `mvn package -DskipTests` (skip test execution in release builds)
 - Standard Maven JAR packaging includes `target/classes/` only (main sources)

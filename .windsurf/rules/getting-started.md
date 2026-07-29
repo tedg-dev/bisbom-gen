@@ -15,7 +15,7 @@ When a new user opens this project, Cascade should:
 2. **Read `project/`** rules — project-specific context, code standards, pipelines
 3. **Read `cascade/`** rules — AI behavior, terminal safety, auto-run policy
 4. **Run `/setup-environment`** to verify the local development environment
-5. **Explain the project** — this is an OmniBOR build interception pipeline that
+5. **Explain the project** — this is an Bisbom build interception pipeline that
    generates SPDX 2.3 SBOMs from instrumented builds (C/C++, Go, Rust, Java)
 6. **Offer to run `/add-repo`** if the user wants to analyze a new GitHub repository
 

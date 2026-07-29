@@ -7,7 +7,7 @@ description: Languages supported by the current OmniBOR/bomsh version
 This file defines which programming languages are supported by the current
 OmniBOR/bomsh installation for build interception and SPDX generation.
 
-## Current Supported Languages (OmniBOR bomsh v2026.1)
+## Current Supported Languages (Bisbom bomsh v2026.1)
 
 | Language | Config Value | Tracer | Notes |
 |----------|-------------|--------|-------|
@@ -60,7 +60,7 @@ When OmniBOR/bomsh adds support for a new language:
    output/binaries/<lang>/.gitkeep
    output/binary-scan/<lang>/.gitkeep
    output/build-logs/<lang>/.gitkeep
-   output/omnibor/<lang>/.gitkeep
+   output/bisbom/<lang>/.gitkeep
    output/runtime/<lang>/.gitkeep
    output/spdx/<lang>/.gitkeep
    ```

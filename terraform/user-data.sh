@@ -18,7 +18,7 @@ echo "=== OmniBOR build host bootstrap starting ==="
 # Cisco VPN blocks port 22 to AWS IPs. Use a drop-in config file
 # to avoid conflicting with the default sshd_config.
 mkdir -p /etc/ssh/sshd_config.d
-cat > /etc/ssh/sshd_config.d/omnibor-ports.conf <<'EOF'
+cat > /etc/ssh/sshd_config.d/bisbom-ports.conf <<'EOF'
 # Listen on both 22 (off-VPN) and 443 (on Cisco VPN)
 Port 22
 Port 443
@@ -45,15 +45,15 @@ chmod +x /usr/local/bin/docker-compose
 # --- Install git and build essentials ---
 apt-get install -y git rsync
 
-# --- Clone omnibor-analysis repo ---
+# --- Clone bisbom-gen repo ---
 # If the repo is private, clone will fail here. User can clone manually via SSH.
-if sudo -u ubuntu git clone ${repo_url} /home/ubuntu/omnibor-analysis 2>/dev/null; then
+if sudo -u ubuntu git clone ${repo_url} /home/ubuntu/bisbom-gen 2>/dev/null; then
   echo "=== Repo cloned, building Docker image ==="
-  cd /home/ubuntu/omnibor-analysis
+  cd /home/ubuntu/bisbom-gen
   sudo -u ubuntu docker-compose -f docker/docker-compose.yml build
 else
   echo "=== Repo clone failed (private repo?) — user must clone manually ==="
-  echo "=== SSH in and run: git clone <repo_url> ~/omnibor-analysis ==="
+  echo "=== SSH in and run: git clone <repo_url> ~/bisbom-gen ==="
 fi
 
 echo "=== OmniBOR build host bootstrap complete ==="

@@ -1,5 +1,5 @@
 ---
-description: Infrastructure profile system for OmniBOR build hosts
+description: Infrastructure profile system for Bisbom build hosts
 ---
 
 # Infrastructure Profiles

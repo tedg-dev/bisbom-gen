@@ -1,10 +1,10 @@
 ---
-description: Run on every startup to verify the omnibor-analysis environment is ready
+description: Run on every startup to verify the bisbom-gen environment is ready
 ---
 
 # Setup Environment
 
-Run this workflow when opening the omnibor-analysis workspace.
+Run this workflow when opening the bisbom-gen workspace.
 
 ## 0. MANDATORY: Review all project rules
 

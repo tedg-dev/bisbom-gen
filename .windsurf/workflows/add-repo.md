@@ -46,7 +46,7 @@ If this is a **new language** (not an existing one like c-cpp, rust, go, java),
 also create `.gitkeep` files under all output categories:
 
 ```bash
-for dir in binaries binary-scan build-logs omnibor runtime spdx; do
+for dir in binaries binary-scan build-logs bisbom runtime spdx; do
   touch output/$dir/<new-lang>/.gitkeep
 done
 git add output/**/<new-lang>/.gitkeep

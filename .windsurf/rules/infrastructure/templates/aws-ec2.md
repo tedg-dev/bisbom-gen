@@ -1,5 +1,5 @@
 ---
-description: AWS EC2 instance template for OmniBOR build host
+description: AWS EC2 instance template for Bisbom build host
 ---
 
 # AWS EC2 — Build Host Profile
@@ -12,12 +12,12 @@ Copy this file to `../active-profile.md` and fill in your values.
 |-------|-------|
 | **Provider** | AWS EC2 |
 | **Instance ID** | `i-<YOUR_INSTANCE_ID>` |
-| **SSH alias** | `omnibor-build` |
+| **SSH alias** | `bisbom-build` |
 | **IP** | `<YOUR_ELASTIC_IP or PUBLIC_IP>` |
 | **Region** | `<REGION>` (e.g. us-west-2) |
 | **Instance Type** | `t3.medium` (recommended) |
 | **AMI** | Ubuntu 22.04 x86_64 |
-| **Repo path on host** | `/home/ubuntu/omnibor-analysis` |
+| **Repo path on host** | `/home/ubuntu/bisbom-gen` |
 
 ## Recommended Instance Types
 
@@ -33,7 +33,7 @@ Copy this file to `../active-profile.md` and fill in your values.
 Add to `~/.ssh/config`:
 
 ```
-Host omnibor-build
+Host bisbom-build
     HostName <YOUR_IP>
     User ubuntu
     IdentityFile ~/.ssh/<YOUR_KEY>.pem
@@ -166,7 +166,7 @@ aws ec2 run-instances \
   --instance-type t3.medium \
   --key-name <YOUR_KEY_NAME> \
   --security-group-ids <YOUR_SG_ID> \
-  --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=omnibor-build}]' \
+  --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=bisbom-build}]' \
   --block-device-mappings '[{"DeviceName":"/dev/sda1","Ebs":{"VolumeSize":30,"VolumeType":"gp3"}}]'
 
 # Allocate Elastic IP (optional, for stable IP across stop/start)
@@ -177,7 +177,7 @@ aws ec2 associate-address --instance-id i-<ID> --allocation-id eipalloc-<ID>
 Then install Docker:
 
 ```bash
-ssh omnibor-build "curl -fsSL https://get.docker.com | sh && sudo usermod -aG docker ubuntu"
+ssh bisbom-build "curl -fsSL https://get.docker.com | sh && sudo usermod -aG docker ubuntu"
 # Log out and back in for group change
 ```
 
@@ -192,25 +192,25 @@ ssh omnibor-build "curl -fsSL https://get.docker.com | sh && sudo usermod -aG do
 
 ```bash
 # Ensure latest code
-ssh omnibor-build "cd ~/omnibor-analysis && git pull origin main"
+ssh bisbom-build "cd ~/bisbom-gen && git pull origin main"
 
 # Run analysis
-ssh omnibor-build "cd ~/omnibor-analysis && docker-compose -f docker/docker-compose.yml run --rm bisbom-env python3 /workspace/app/analyze.py --repo <REPO_NAME>"
+ssh bisbom-build "cd ~/bisbom-gen && docker-compose -f docker/docker-compose.yml run --rm bisbom-env python3 /workspace/app/analyze.py --repo <REPO_NAME>"
 
 # Enter container interactively
-ssh omnibor-build "cd ~/omnibor-analysis && docker-compose -f docker/docker-compose.yml run --rm bisbom-env bash"
+ssh bisbom-build "cd ~/bisbom-gen && docker-compose -f docker/docker-compose.yml run --rm bisbom-env bash"
 
 # Rebuild Docker image
-ssh omnibor-build "cd ~/omnibor-analysis && docker-compose -f docker/docker-compose.yml build"
+ssh bisbom-build "cd ~/bisbom-gen && docker-compose -f docker/docker-compose.yml build"
 ```
 
 ## Syncing Results
 
 ```bash
 # Download results to local machine (all generated artifacts are under output/)
-rsync -avz omnibor-build:~/omnibor-analysis/output/ output/
+rsync -avz bisbom-build:~/bisbom-gen/output/ output/
 
 # Upload code to instance
 rsync -avz --exclude='.venv' --exclude='output' --exclude='repos' --exclude='.git' \
-  ./ omnibor-build:~/omnibor-analysis/
+  ./ bisbom-build:~/bisbom-gen/
 ```

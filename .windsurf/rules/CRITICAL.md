@@ -98,7 +98,7 @@ Violating any rule marked NEVER is a critical failure.
   `project/release-builds.md` for language-specific flags.
 - [ ] **ALWAYS** import SPDX relationship types from
   `app/spdx/relationships.py` — never hardcode strings.
-- [ ] **ALWAYS** attach the built artifact's OmniBOR GitOID + checksum to
+- [ ] **ALWAYS** attach the built artifact's Bisbom GitOID + checksum to
   its root SPDX package, in EVERY language emitter. A root artifact package
   without a `gitoid` `externalRef` and a `checksums` entry is a critical
   correctness failure. See `project/artifact-identity.md`.
@@ -132,9 +132,9 @@ Violating any rule marked NEVER is a critical failure.
   before any `gh issue` / `gh api .../gambit/...` / `gh project` call.
   The default `tedg-dev` account CANNOT resolve the issues repo.
 - [ ] **Issues live in `CiscoSecurityServices/gambit`** (Corona board
-  `#255`) — NOT in `tedg-dev/omnibor-analysis`. PRs live in
-  `tedg-dev/omnibor-analysis` (account `tedg-dev`); reference cross-repo
-  as `tedg-dev/omnibor-analysis#<n>`.
+  `#255`) — NOT in `tedg-dev/bisbom-gen`. PRs live in
+  `tedg-dev/bisbom-gen` (account `tedg-dev`); reference cross-repo
+  as `tedg-dev/bisbom-gen#<n>`.
 - [ ] **GitHub Issues access is ALWAYS available — it is NOT
   intermittent.** NEVER claim it is unavailable/limited, and NEVER
   defer issue creation to the planning crosswalk as a substitute.

@@ -1,4 +1,4 @@
-# Runtime Python dependencies for omnibor-analysis app scripts.
+# Runtime Python dependencies for bisbom-gen app scripts.
 # Used by BOTH the Docker container and local development.
 # Keep in sync: Dockerfile installs this file, local .venv installs this file.
 PyYAML==6.0.3

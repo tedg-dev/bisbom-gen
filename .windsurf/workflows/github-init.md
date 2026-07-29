@@ -11,12 +11,12 @@ This is the **only** time a direct commit to `main` is permitted (see pr-workflo
 
 - The GitHub repository must already exist (created via github.com UI)
 - The remote repo should be **empty** (no README, no .gitignore, no license from GitHub)
-- You must know the GitHub org/user and repo name (e.g., `tedg-cisco/omnibor-analysis`)
+- You must know the GitHub org/user and repo name (e.g., `tedg-dev/bisbom-gen`)
 
 ## 1. Confirm with user before proceeding
 
 **Ask the user:**
-- What is the GitHub remote URL? (e.g., `https://github.com/tedg-cisco/omnibor-analysis.git`)
+- What is the GitHub remote URL? (e.g., `https://github.com/tedg-dev/bisbom-gen.git`)
 - Has the empty repo been created on GitHub?
 - Are they ready to make the initial commit?
 

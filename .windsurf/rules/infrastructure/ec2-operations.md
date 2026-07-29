@@ -11,7 +11,7 @@ the current instance ID dynamically:
 
 ```bash
 aws ec2 describe-instances --profile ted-admin \
-  --filters "Name=tag:Name,Values=*omnibor*" \
+  --filters "Name=tag:Name,Values=*bisbom*" \
   --query "Reservations[].Instances[].{ID:InstanceId,State:State.Name}" \
   --output table --no-cli-pager
 ```

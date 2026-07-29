@@ -27,13 +27,13 @@ files in the `output/` directory.
 
 2. **Fix file ownership** (Docker creates files as root):
    ```bash
-   ssh ubuntu@<EC2_IP> "sudo chown -R ubuntu:ubuntu ~/omnibor-analysis/output/"
+   ssh ubuntu@<EC2_IP> "sudo chown -R ubuntu:ubuntu ~/bisbom-gen/output/"
    ```
 
 3. **Start filebrowser** on EC2 (port 8080, no auth, serving output/):
    ```bash
    ssh ubuntu@<EC2_IP> "pkill filebrowser 2>/dev/null; rm -f /tmp/filebrowser.db"
-   ssh ubuntu@<EC2_IP> "filebrowser config init -d /tmp/filebrowser.db -r /home/ubuntu/omnibor-analysis/output"
+   ssh ubuntu@<EC2_IP> "filebrowser config init -d /tmp/filebrowser.db -r /home/ubuntu/bisbom-gen/output"
    ssh ubuntu@<EC2_IP> "filebrowser users add admin adminadmin12 --perm.admin -d /tmp/filebrowser.db"
    ssh ubuntu@<EC2_IP> "nohup filebrowser -d /tmp/filebrowser.db -p 8080 -a 0.0.0.0 > /tmp/filebrowser.log 2>&1 &"
    ```
