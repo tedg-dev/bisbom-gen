@@ -4,7 +4,7 @@
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-        <mxCell id="main-title" parent="1" style="text;html=1;fontSize=20;fontStyle=1;align=center" value="OmniBOR Analysis: Rust Build Interception and SPDX Generation" vertex="1">
+        <mxCell id="main-title" parent="1" style="text;html=1;fontSize=20;fontStyle=1;align=center" value="bisbom-gen: Rust Build Interception and SPDX Generation" vertex="1">
           <mxGeometry height="40" width="750" x="120" y="20" as="geometry" />
         </mxCell>
         <mxCell id="legend-box" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#999999;dashed=1" value="" vertex="1">
@@ -40,7 +40,7 @@
         <mxCell id="leg5" parent="1" style="rounded=1;fillColor=#e6d0de;strokeColor=#996185" value="" vertex="1">
           <mxGeometry height="18" width="18" x="500" y="1145" as="geometry" />
         </mxCell>
-        <mxCell id="leg5t" parent="1" style="text;fontSize=10;align=left" value="omnibor-analysis" vertex="1">
+        <mxCell id="leg5t" parent="1" style="text;fontSize=10;align=left" value="bisbom-gen" vertex="1">
           <mxGeometry height="20" width="90" x="522" y="1143" as="geometry" />
         </mxCell>
         <mxCell id="leg6" parent="1" style="rounded=1;fillColor=#d5e8d4;strokeColor=#82b366" value="" vertex="1">
@@ -226,7 +226,7 @@
         <mxCell id="div2" parent="1" style="line;strokeWidth=3;strokeColor=#1D1D1D;dashed=1" value="" vertex="1">
           <mxGeometry height="10" width="980" x="40" y="778" as="geometry" />
         </mxCell>
-        <mxCell id="s3-title" parent="1" style="text;html=1;fontSize=16;fontStyle=1" value="Section 3: omnibor-analysis — SPDX Generation from ADG (Rust)" vertex="1">
+        <mxCell id="s3-title" parent="1" style="text;html=1;fontSize=16;fontStyle=1" value="Section 3: bisbom-gen — SPDX Generation from ADG (Rust)" vertex="1">
           <mxGeometry height="25" width="550" x="40" y="798" as="geometry" />
         </mxCell>
         <mxCell id="adg-in" parent="1" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;fontStyle=1" value="ADG&#xa;(.omnibor/)" vertex="1">

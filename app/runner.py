@@ -1,5 +1,5 @@
 """
-Command execution wrapper for OmniBOR Analysis.
+Command execution wrapper for bisbom-gen.
 
 Provides a unified interface for running shell commands
 with logging and error reporting.

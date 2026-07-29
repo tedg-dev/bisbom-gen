@@ -585,7 +585,7 @@ class JavaSpdxGenerator:
         info = {
             "created": created_ts,
             "creators": [
-                "Tool: omnibor-analysis",
+                "Tool: bisbom-gen",
                 "Tool: bomsh_create_bom_java.py",
             ],
             "licenseListVersion": "3.19",
@@ -636,7 +636,7 @@ class JavaSpdxGenerator:
             "SPDXID": "SPDXRef-DOCUMENT",
             "name": f"{self.repo_name}-{clean_name}",
             "documentNamespace": (
-                f"https://omnibor.io/spdx/"
+                f"https://github.com/tedg-dev/bisbom-gen/"
                 f"{self.repo_name}/{doc_uuid}"
             ),
             "creationInfo": self._creation_info(

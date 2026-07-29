@@ -24,14 +24,14 @@
 
 ## Generated Artifacts (not in docs/)
 
-Build logs and analysis output are generated per-run and live under
+Build logs and SBOM output are generated per-run and live under
 `output/` (gitignored):
 
 | Path | Contents |
 |------|----------|
 | `output/build-logs/{lang}/{repo}/{ts}/` | Build environment logs |
 | `output/spdx/{lang}/{repo}/{ts}/` | SPDX SBOMs + HTML visualizations |
-| `output/omnibor/{lang}/{repo}/{ts}/` | OmniBOR ADG documents |
+| `output/bisbom/{lang}/{repo}/{ts}/` | ADG documents (build provenance) |
 | `output/binaries/{lang}/{repo}/{ts}/` | Compiled output binaries |
 
 **Path convention:** `{lang}` is `c-cpp`, `rust`, `go`, or `java`.

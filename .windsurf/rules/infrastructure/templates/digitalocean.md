@@ -1,5 +1,5 @@
 ---
-description: DigitalOcean droplet template for OmniBOR build host
+description: DigitalOcean droplet template for Bisbom build host
 ---
 
 # DigitalOcean Droplet — Build Host Profile
@@ -12,20 +12,20 @@ Copy this file to `../active-profile.md` and fill in your values.
 |-------|-------|
 | **Provider** | DigitalOcean |
 | **Droplet Name** | `<YOUR_DROPLET_NAME>` |
-| **SSH alias** | `omnibor-build` |
+| **SSH alias** | `bisbom-build` |
 | **IP** | `<YOUR_DROPLET_IP>` |
 | **Droplet ID** | `<YOUR_DROPLET_ID>` |
 | **Region** | `<REGION>` (e.g. SFO3, NYC1) |
 | **Size** | `s-1vcpu-2gb` (minimum) or `s-2vcpu-4gb` (recommended) |
 | **OS** | Ubuntu 22.04 x86_64 |
-| **Repo path on host** | `/root/omnibor-analysis` |
+| **Repo path on host** | `/root/bisbom-gen` |
 
 ## SSH Config
 
 Add to `~/.ssh/config`:
 
 ```
-Host omnibor-build
+Host bisbom-build
     HostName <YOUR_DROPLET_IP>
     User root
     IdentityFile ~/.ssh/<YOUR_KEY>
@@ -61,7 +61,7 @@ doctl compute droplet-action power-off <YOUR_DROPLET_ID> --wait
 ## Creating a New Droplet
 
 ```bash
-doctl compute droplet create omnibor-build \
+doctl compute droplet create bisbom-build \
   --image ubuntu-22-04-x64 \
   --size s-2vcpu-4gb \
   --region sfo3 \
@@ -72,33 +72,33 @@ doctl compute droplet create omnibor-build \
 Then install Docker:
 
 ```bash
-ssh omnibor-build "curl -fsSL https://get.docker.com | sh"
+ssh bisbom-build "curl -fsSL https://get.docker.com | sh"
 ```
 
 ## Running Analysis
 
 ```bash
 # Ensure latest code
-ssh omnibor-build "cd /root/omnibor-analysis && git pull origin main"
+ssh bisbom-build "cd /root/bisbom-gen && git pull origin main"
 
 # Run analysis
-ssh omnibor-build "cd /root/omnibor-analysis && docker-compose -f docker/docker-compose.yml run --rm omnibor-env python3 /workspace/app/analyze.py --repo <REPO_NAME>"
+ssh bisbom-build "cd /root/bisbom-gen && docker-compose -f docker/docker-compose.yml run --rm bisbom-env python3 /workspace/app/analyze.py --repo <REPO_NAME>"
 
 # Enter container interactively
-ssh omnibor-build "cd /root/omnibor-analysis && docker-compose -f docker/docker-compose.yml run --rm omnibor-env bash"
+ssh bisbom-build "cd /root/bisbom-gen && docker-compose -f docker/docker-compose.yml run --rm bisbom-env bash"
 
 # Rebuild Docker image
-ssh omnibor-build "cd /root/omnibor-analysis && docker-compose -f docker/docker-compose.yml build"
+ssh bisbom-build "cd /root/bisbom-gen && docker-compose -f docker/docker-compose.yml build"
 ```
 
 ## Syncing Results
 
 ```bash
 # Download results to local machine
-rsync -avz omnibor-build:/root/omnibor-analysis/output/ output/
-rsync -avz omnibor-build:/root/omnibor-analysis/docs/ docs/
+rsync -avz bisbom-build:/root/bisbom-gen/output/ output/
+rsync -avz bisbom-build:/root/bisbom-gen/docs/ docs/
 
 # Upload code to droplet
 rsync -avz --exclude='.venv' --exclude='output' --exclude='repos' --exclude='.git' \
-  ./ omnibor-build:/root/omnibor-analysis/
+  ./ bisbom-build:/root/bisbom-gen/
 ```

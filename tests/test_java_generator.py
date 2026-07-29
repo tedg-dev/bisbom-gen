@@ -2129,7 +2129,7 @@ class TestCreationInfo(unittest.TestCase):
             info["created"], "2026-01-01T00:00:00Z",
         )
         self.assertIn(
-            "Tool: omnibor-analysis", info["creators"],
+            "Tool: bisbom-gen", info["creators"],
         )
         self.assertNotIn("comment", info)
 

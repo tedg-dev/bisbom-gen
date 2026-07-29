@@ -12,7 +12,7 @@ from unittest.mock import patch
 
 from app.config import (
     load_config,
-    resolve_omnibor_cfg,
+    resolve_bisbom_cfg,
     resolve_paths,
     validate_build_profile,
     validate_repos,
@@ -21,71 +21,71 @@ from app.config import (
     BUILD_STRUCTURES,
     VALID_MODES,
     DEFAULT_MODE,
-    _LANG_OMNIBOR_KEYS,
+    _LANG_BISBOM_KEYS,
 )
 
 
-class TestResolveOmniborCfgLegacy(unittest.TestCase):
+class TestResolveBisbomCfgLegacy(unittest.TestCase):
     """Tests for legacy flat config format."""
 
     def test_c_cpp_flat(self):
         config = {
-            "omnibor": {
+            "bisbom": {
                 "tracer": "bomtrace3",
                 "raw_logfile": "/tmp/log",
             },
         }
-        result = resolve_omnibor_cfg(config, "c-cpp")
+        result = resolve_bisbom_cfg(config, "c-cpp")
         self.assertEqual(result["tracer"], "bomtrace3")
 
     def test_go_flat(self):
         config = {
-            "omnibor_go": {
+            "bisbom_go": {
                 "tracer": "bomtrace2 -c go.conf",
             },
         }
-        result = resolve_omnibor_cfg(config, "go")
+        result = resolve_bisbom_cfg(config, "go")
         self.assertEqual(
             result["tracer"], "bomtrace2 -c go.conf",
         )
 
     def test_rust_flat(self):
         config = {
-            "omnibor_rust": {
+            "bisbom_rust": {
                 "tracer": "bomtrace2",
             },
         }
-        result = resolve_omnibor_cfg(config, "rust")
+        result = resolve_bisbom_cfg(config, "rust")
         self.assertEqual(result["tracer"], "bomtrace2")
 
     def test_java_flat(self):
         config = {
-            "omnibor_java": {
+            "bisbom_java": {
                 "strace_opts": "-f -e trace=openat",
             },
         }
-        result = resolve_omnibor_cfg(config, "java")
+        result = resolve_bisbom_cfg(config, "java")
         self.assertIn("strace_opts", result)
 
-    def test_unknown_lang_falls_back_to_omnibor(self):
+    def test_unknown_lang_falls_back_to_bisbom(self):
         config = {
-            "omnibor": {"tracer": "bomtrace3"},
+            "bisbom": {"tracer": "bomtrace3"},
         }
-        result = resolve_omnibor_cfg(
+        result = resolve_bisbom_cfg(
             config, "python",
         )
         self.assertEqual(result["tracer"], "bomtrace3")
 
     def test_missing_key_raises(self):
         with self.assertRaises(KeyError):
-            resolve_omnibor_cfg({}, "c-cpp")
+            resolve_bisbom_cfg({}, "c-cpp")
 
     def test_default_mode_is_standalone(self):
         config = {
-            "omnibor": {"tracer": "bomtrace3"},
+            "bisbom": {"tracer": "bomtrace3"},
         }
         # No 'mode' key — should use default
-        result = resolve_omnibor_cfg(config, "c-cpp")
+        result = resolve_bisbom_cfg(config, "c-cpp")
         self.assertEqual(result["tracer"], "bomtrace3")
 
 
@@ -95,7 +95,7 @@ class TestResolveOmniborCfgNested(unittest.TestCase):
     def test_standalone_selected(self):
         config = {
             "mode": "standalone",
-            "omnibor": {
+            "bisbom": {
                 "standalone": {
                     "tracer": "bomtrace3",
                 },
@@ -104,13 +104,13 @@ class TestResolveOmniborCfgNested(unittest.TestCase):
                 },
             },
         }
-        result = resolve_omnibor_cfg(config, "c-cpp")
+        result = resolve_bisbom_cfg(config, "c-cpp")
         self.assertEqual(result["tracer"], "bomtrace3")
 
     def test_sidecar_selected(self):
         config = {
             "mode": "sidecar",
-            "omnibor": {
+            "bisbom": {
                 "standalone": {
                     "tracer": "bomtrace3",
                 },
@@ -119,7 +119,7 @@ class TestResolveOmniborCfgNested(unittest.TestCase):
                 },
             },
         }
-        result = resolve_omnibor_cfg(config, "c-cpp")
+        result = resolve_bisbom_cfg(config, "c-cpp")
         self.assertEqual(
             result["wrapper"], "/opt/bomsh/hook.sh",
         )
@@ -127,7 +127,7 @@ class TestResolveOmniborCfgNested(unittest.TestCase):
     def test_java_nested_sidecar(self):
         config = {
             "mode": "sidecar",
-            "omnibor_java": {
+            "bisbom_java": {
                 "standalone": {
                     "strace_opts": "-f -e openat",
                 },
@@ -136,7 +136,7 @@ class TestResolveOmniborCfgNested(unittest.TestCase):
                 },
             },
         }
-        result = resolve_omnibor_cfg(config, "java")
+        result = resolve_bisbom_cfg(config, "java")
         self.assertEqual(
             result["strategy"], "maven_dep_tree",
         )
@@ -144,16 +144,16 @@ class TestResolveOmniborCfgNested(unittest.TestCase):
     def test_invalid_mode_raises(self):
         config = {
             "mode": "invalid",
-            "omnibor": {"tracer": "bomtrace3"},
+            "bisbom": {"tracer": "bomtrace3"},
         }
         with self.assertRaises(ValueError) as ctx:
-            resolve_omnibor_cfg(config, "c-cpp")
+            resolve_bisbom_cfg(config, "c-cpp")
         self.assertIn("invalid", str(ctx.exception))
 
     def test_missing_mode_subkey_raises(self):
         config = {
             "mode": "sidecar",
-            "omnibor": {
+            "bisbom": {
                 "standalone": {
                     "tracer": "bomtrace3",
                 },
@@ -161,7 +161,7 @@ class TestResolveOmniborCfgNested(unittest.TestCase):
             },
         }
         with self.assertRaises(ValueError) as ctx:
-            resolve_omnibor_cfg(config, "c-cpp")
+            resolve_bisbom_cfg(config, "c-cpp")
         self.assertIn("sidecar", str(ctx.exception))
 
 
@@ -204,10 +204,10 @@ class TestConstants(unittest.TestCase):
         self.assertEqual(DEFAULT_MODE, "standalone")
 
     def test_lang_keys_cover_all_languages(self):
-        self.assertIn("c-cpp", _LANG_OMNIBOR_KEYS)
-        self.assertIn("go", _LANG_OMNIBOR_KEYS)
-        self.assertIn("rust", _LANG_OMNIBOR_KEYS)
-        self.assertIn("java", _LANG_OMNIBOR_KEYS)
+        self.assertIn("c-cpp", _LANG_BISBOM_KEYS)
+        self.assertIn("go", _LANG_BISBOM_KEYS)
+        self.assertIn("rust", _LANG_BISBOM_KEYS)
+        self.assertIn("java", _LANG_BISBOM_KEYS)
 
 
 class TestResolvePaths(unittest.TestCase):

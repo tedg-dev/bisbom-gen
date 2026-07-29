@@ -26,14 +26,14 @@ with strategy details, Phase 1/2 artifacts, and implementation tasks:
 
 ## 1. Executive Summary
 
-**Sidecar is the only supported execution mode** for `omnibor-analysis`.
+**Sidecar is the only supported execution mode** for `bisbom-gen`.
 It uses the customer's native toolchains, requires no `SYS_PTRACE`, and is
 the authoritative mode for all enterprise repository build-interception
 SBOM generation — and the baseline from which golden files are generated.
 
 > **Standalone mode is deprecated — do not offer it as an option.** It was
 > the initial implementation of the core omnibor/bomsh repositories and the
-> earliest `omnibor-analysis` testing (ptrace-based `bomtrace3`/`bomtrace2`,
+> earliest `bisbom-gen` testing (ptrace-based `bomtrace3`/`bomtrace2`,
 > requiring `SYS_PTRACE`). It is **no longer used** for enterprise work. The
 > only remaining possibility is a rare (~1%) embedded-systems corner case;
 > it is not part of the enterprise flow and must not be presented as a
@@ -303,7 +303,7 @@ everything in memory.
 ### 4.2 Manifest Location
 
 ```
-output/omnibor/{lang}/{repo}/{run_ts}/phase1_manifest.json
+output/bisbom/{lang}/{repo}/{run_ts}/phase1_manifest.json
 ```
 
 This is inside `bom_dir`, co-located with the OmniBOR ADG artifacts.
@@ -324,7 +324,7 @@ during the build and has zero impact on build time.
 ### 4.4 Why Not Reuse `config.yaml`?
 
 Today, Phase 2 derives artifact locations from `config.yaml` paths plus
-naming conventions (e.g., `output/omnibor/{lang}/{repo}/{run_ts}/`). This
+naming conventions (e.g., `output/bisbom/{lang}/{repo}/{run_ts}/`). This
 works when both phases run in the same process because the config, source
 tree, and build environment are all available.
 
@@ -791,14 +791,14 @@ If Corona integration or cross-host Phase 2 requires config:
 ### 10.1 Truly-sidecar C/C++ — `LD_PRELOAD` shim (primary)
 
 The transparent C/C++ sidecar mechanism is an `LD_PRELOAD` shim
-(`libomnibor_intercept.so`) loaded via two CI/CD-YAML env vars (the
+(`libbisbom_intercept.so`) loaded via two CI/CD-YAML env vars (the
 Java-proven vector; or, on a self-managed cluster, an optional mutating
 webhook + init container), never by editing the build command. It
 interposes `execve`/`posix_spawn`/`close`/`rename`, records compiler/linker
 `argv`, hashes inputs and outputs inline, and writes the **same raw logfile
 format** as `bomtrace3` so `bomsh_create_bom.py` works unchanged. This C/C++
 shim is not yet implemented; it would be built in this repo, mirroring the
-delivered Java `LD_PRELOAD` shim (`docker/shim/omnibor_java_intercept.c`) —
+delivered Java `LD_PRELOAD` shim (`docker/shim/bisbom_java_intercept.c`) —
 it is not part of upstream `bomsh`.
 For `LD_PRELOAD`-blind builds on self-managed nodes, a node-level **eBPF or
 Linux audit** observer is the fallback; hermetic builds drop to the
@@ -878,21 +878,21 @@ COPY requirements.txt /workspace/requirements.txt
 `docker/docker-compose.yml` defines both services:
 
 ```yaml
-omnibor-standalone:
+bisbom-standalone:
   build: { target: standalone }
   cap_add: [SYS_PTRACE]  # required for bomtrace
 
-omnibor-sidecar:
+bisbom-sidecar:
   build: { target: sidecar }
   # No SYS_PTRACE needed
 ```
 
 ### 11.3 GHCR Publication
 
-The sidecar image is auto-published to `ghcr.io/tedg-dev/omnibor-sidecar`
+The sidecar image is auto-published to `ghcr.io/tedg-dev/bisbom-sidecar`
 on every push to `main` that changes `docker/Dockerfile`, `app/**`,
 `requirements.txt`, or the workflow itself. External CI/CD pipelines
-(e.g., `tedg-dev/omnibor-java-testapp`) pull this image for Phase 2.
+(e.g., `tedg-dev/bisbom-java-testapp`) pull this image for Phase 2.
 
 ---
 
@@ -959,7 +959,7 @@ The following regressions are covered:
 | 3 | Refactor `lang_runners.py` — split Java into `phase1`/`phase2`/`pipeline` | `lang_runners.py` | ✅ Done |
 | 4 | ~~Add `bom_dir` to `BuildResult`~~ | ~~`builder.py`~~ | ✅ Not needed — paths constructed in `_run_phase1_only()` |
 | 5 | Write unit tests for manifest (22) + phase isolation (13) | `tests/` | ✅ Done |
-| 6 | CI/CD integration test: Java `--phase build` + `--phase spdx` | `tedg-dev/omnibor-java-testapp` | ✅ Validated 2026-05-13 |
+| 6 | CI/CD integration test: Java `--phase build` + `--phase spdx` | `tedg-dev/bisbom-java-testapp` | ✅ Validated 2026-05-13 |
 
 **Delivered**: Java works with `--phase build` → `--phase spdx` across
 separate CI/CD runners with no shared filesystem. All existing tests
@@ -1045,7 +1045,7 @@ All three execution modes must pass independently:
 ### Standalone Full (golden file baseline + black-box builds)
 7. `python3 -m app.analyze --repo curl` (no new flags) produces identical
    output to current behavior — **zero regression**.
-8. Standalone remains the baseline for `omnibor-analysis` golden file
+8. Standalone remains the baseline for `bisbom-gen` golden file
    generation and development/debug mode.
 
 ### Cross-Cutting

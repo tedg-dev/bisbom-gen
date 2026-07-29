@@ -2,13 +2,13 @@
 description: Rules for OmniBOR/Bomsh build interception workflow
 ---
 
-# OmniBOR / Bomsh Rules
+# Bisbom / Bomsh Rules
 
 ## Terminology
 
 - **Build Interception** — instrumenting the compiler/linker to observe what is actually compiled
 - **Bomtrace3** — the preferred tracer (20% overhead vs 2-5x for bomtrace2)
-- **ADG** — Artifact Dependency Graph (OmniBOR's output format)
+- **ADG** — Artifact Dependency Graph (Bisbom's output format)
 - **Treedb** — bomsh's hash-tree database mapping gitoid hashes to file paths
 - **Vendored library** — third-party source compiled into the project (STATIC_LINK)
 - **Build Metadata Extraction** (Yocto SBOM, Maven plugins) is NOT true build interception;
@@ -22,7 +22,7 @@ description: Rules for OmniBOR/Bomsh build interception workflow
 4. Run pre-build steps (autoreconf, configure) WITHOUT bomtrace instrumentation
 5. Run the final `make` step WITH bomtrace3: `bomtrace3 make -j$(nproc)`
 6. `bomsh_create_bom.py` generates ADG from raw logfile → treedb + gitoid mappings
-7. `bomsh_sbom.py` generates OmniBOR SPDX SBOM from ADG
+7. `bomsh_sbom.py` generates Bisbom SPDX SBOM from ADG
 8. `collect_metadata.py` resolves system files in treedb to dpkg packages
 9. `collect_dynamic_libs.py` identifies per-binary dynamic libs via ldd/readelf
 10. `spdx_from_adg.py` generates per-binary ADG SPDX with:
@@ -44,7 +44,7 @@ compilation steps.
 2. Syft SBOM (manifest-based baseline from go.mod/go.sum)
 3. (no apt deps for Go)
 4. Instrumented build: `bomtrace2 -c bomtrace_go.conf go build -a -o <binary> .`
-5a. OmniBOR SPDX via bomsh_sbom.py
+5a. Bisbom SPDX via bomsh_sbom.py
 5b. Metadata collection
 5c. Per-binary ADG SPDX + HTML visualization
 6. SPDX validation (JSON Schema + semantic)
@@ -64,7 +64,7 @@ dependencies, so all crates get STATIC_LINK relationships.
 2. Syft SBOM (manifest-based baseline from Cargo.toml/Cargo.lock)
 3. (no apt deps for Rust)
 4. Instrumented build: `bomtrace2 cargo build --release`
-5a. OmniBOR SPDX via bomsh_sbom.py
+5a. Bisbom SPDX via bomsh_sbom.py
 5b. Metadata collection
 5c. Per-binary ADG SPDX + HTML visualization
 6. SPDX validation (JSON Schema + semantic)
@@ -93,12 +93,12 @@ See: https://github.com/omnibor/bomsh#software-vulnerability-cve-search-for-rust
 
 - Only the final `make` step should be instrumented — configure/autoreconf are not builds
 - bomtrace3 does NOT need bomsh_hook2.py — it has the functionality built in as C code
-- ADG output defaults to `${PWD}/.omnibor` but we redirect to `output/omnibor/<lang>/<repo>/` via `-b` flag
+- ADG output defaults to `${PWD}/.omnibor` but we redirect to `output/bisbom/<lang>/<repo>/` via `-b` flag
 - SPDX v2.3 is the supported version
 - `vendored_dirs` in config.yaml allows per-repo vendored directory patterns
 - `direct_only` mode prevents duplicate deps when a project has both executables and shared libs
 
-## OmniBOR Version Check
+## Bisbom Version Check
 
 Before running a new analysis session (not every repo run):
 

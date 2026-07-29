@@ -1,5 +1,5 @@
 ---
-description: Pin upstream OmniBOR build tools to a specific official version
+description: Pin upstream Bisbom build tools to a specific official version
 trigger: always_on
 priority: critical
 ---
@@ -7,7 +7,7 @@ priority: critical
 # Upstream Tool Pinning
 
 This rule governs **build-time tooling** cloned into the Docker image
-(`omnibor/bomsh` and any other upstream OmniBOR-related repos). It is
+(`omnibor/bomsh` and any other upstream Bisbom-related repos). It is
 distinct from `stable-tags.md` (which governs the *analyzed* repos in
 `config.yaml`) and from the golden-file policy (which governs SPDX
 baselines).

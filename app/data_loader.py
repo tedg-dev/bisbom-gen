@@ -48,8 +48,8 @@ class HttpClient:
     """Minimal HTTP client with user-agent and error handling."""
 
     DEFAULT_USER_AGENT = (
-        "omnibor-analysis/0.1 "
-        "(https://github.com/tedg-dev/omnibor-analysis)"
+        "bisbom-gen/0.1 "
+        "(https://github.com/tedg-dev/bisbom-gen)"
     )
 
     def __init__(self, user_agent=None, timeout=10):

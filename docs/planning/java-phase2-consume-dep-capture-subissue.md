@@ -8,7 +8,7 @@
 | **Applies to** | Java (Maven and Gradle) sidecar mode |
 | **Author** | Ted G. |
 | **Drafted** | 2026-06-24 (Cascade) |
-| **Status** | ✅ Delivered — A1 (#11003) implemented and merged in `tedg-dev/omnibor-analysis#194`; A2 (#11004, hand-off manifest) scoped |
+| **Status** | ✅ Delivered — A1 (#11003) implemented and merged in `tedg-dev/bisbom-gen#194`; A2 (#11004, hand-off manifest) scoped |
 | **Estimate** | ~3 AI-days (implementation + tests), excluding EC2 golden validation |
 | **Planned sub-issues** | (1) Generate from metadata — Maven and Gradle (see `docs/sidecar/phase2-consume-dep-capture.md` §8); (2) Deliver Java SBOMs to Corona (Java slice of SI-5) |
 | **Design** | `docs/sidecar/phase2-consume-dep-capture.md` |
@@ -35,7 +35,7 @@ Within that model:
   duplicate some of Phase 1's processing, but it must **never read the
   source tree**.
 
-As built (delivered in `tedg-dev/omnibor-analysis#194`), Java Phase 2
+As built (delivered in `tedg-dev/bisbom-gen#194`), Java Phase 2
 satisfies this constraint:
 
 - Phase 1 (`MavenDepTreeStrategy` / `GradleDepTreeStrategy` in

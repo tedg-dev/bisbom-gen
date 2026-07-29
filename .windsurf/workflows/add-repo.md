@@ -1,5 +1,5 @@
 ---
-description: Add a new target repository for OmniBOR analysis
+description: Add a new target repository for bisbom-gen analysis
 ---
 
 # Add a New Target Repository
@@ -46,7 +46,7 @@ If this is a **new language** (not an existing one like c-cpp, rust, go, java),
 also create `.gitkeep` files under all output categories:
 
 ```bash
-for dir in binaries binary-scan build-logs omnibor runtime spdx; do
+for dir in binaries binary-scan build-logs bisbom runtime spdx; do
   touch output/$dir/<new-lang>/.gitkeep
 done
 git add output/**/<new-lang>/.gitkeep
@@ -64,7 +64,7 @@ docker-compose -f docker/docker-compose.yml build
 ## 5. Run analysis
 
 ```bash
-docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
+docker-compose -f docker/docker-compose.yml run --rm bisbom-env \
   python3 /workspace/app/analyze.py --repo <NAME>
 ```
 
@@ -77,5 +77,5 @@ If the auto-detection is wrong, edit `app/config.yaml` directly. The key rules:
 ## Tips
 
 - Test the build manually inside the container first before running analyze.py
-- Use `docker-compose run --rm omnibor-env bash` to enter the container and experiment
+- Use `docker-compose run --rm bisbom-env bash` to enter the container and experiment
 - The script prefers C/C++ repos and exact name matches when searching GitHub

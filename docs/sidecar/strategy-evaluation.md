@@ -14,7 +14,7 @@
 
 **Sidecar is the ONLY actual strategy.** It is the authoritative and
 sole target mode for enterprise build-interception SBOM generation.
-The entire `omnibor-analysis` project exists to serve enterprise C/C++
+The entire `bisbom-gen` project exists to serve enterprise C/C++
 (and other language) build environments.
 
 **Standalone mode is being phased out.** It exists only as:

@@ -40,19 +40,19 @@ def _normalize_project_key(project):
 
 
 # Init script that registers a single-configuration dependency report
-# task (``omniborDeps``) on every project exposing a ``runtimeClasspath``
+# task (``bisbomDeps``) on every project exposing a ``runtimeClasspath``
 # configuration. One Gradle invocation with this init script emits every
 # module's runtime dependency tree, replacing one ``gradlew`` process per
 # subproject. Registration is deferred to ``afterEvaluate`` because the
 # Java plugin (which creates ``runtimeClasspath``) is applied during
 # project evaluation, after the init script's ``allprojects`` closure runs.
-_OMNIBOR_INIT_SCRIPT = """\
+_BISBOM_INIT_SCRIPT = """\
 import org.gradle.api.tasks.diagnostics.DependencyReportTask
 
 allprojects { p ->
     p.afterEvaluate {
         if (p.configurations.findByName('runtimeClasspath') != null) {
-            p.tasks.register('omniborDeps', DependencyReportTask) { t ->
+            p.tasks.register('bisbomDeps', DependencyReportTask) { t ->
                 t.configuration = 'runtimeClasspath'
             }
         }
@@ -96,11 +96,11 @@ def run_gradle_all_dep_trees(repo_dir, runner=None):
         with tempfile.NamedTemporaryFile(
             mode="w", suffix=".gradle", delete=False, encoding="utf-8",
         ) as handle:
-            handle.write(_OMNIBOR_INIT_SCRIPT)
+            handle.write(_BISBOM_INIT_SCRIPT)
             init_file = handle.name
         result = subprocess.run(
             [
-                str(gradlew), "omniborDeps",
+                str(gradlew), "bisbomDeps",
                 "--init-script", init_file,
                 "--offline", "--continue",
             ],
@@ -112,7 +112,7 @@ def run_gradle_all_dep_trees(repo_dir, runner=None):
         )
         return result.stdout or None
     except subprocess.TimeoutExpired:
-        print("[WARN] Gradle omniborDeps timed out (600s)")
+        print("[WARN] Gradle bisbomDeps timed out (600s)")
         return None
     except FileNotFoundError:
         print("[WARN] gradlew not found on PATH")

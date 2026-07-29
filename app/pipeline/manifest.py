@@ -74,7 +74,7 @@ def write_manifest(
     artifacts,
     paths,
     repo_cfg=None,
-    omnibor_cfg=None,
+    bisbom_cfg=None,
 ):
     """Write phase1_manifest.json after Phase 1 completes.
 
@@ -95,7 +95,7 @@ def write_manifest(
             ``spdx_dir``.
         repo_cfg: Optional subset of repo config needed by
             Phase 2 (output_binaries, vendored_dirs, etc.).
-        omnibor_cfg: Optional resolved omnibor config section.
+        bisbom_cfg: Optional resolved bisbom config section.
 
     Returns:
         Path to the written manifest file.
@@ -124,8 +124,8 @@ def write_manifest(
 
     if repo_cfg is not None:
         data["repo_cfg"] = repo_cfg
-    if omnibor_cfg is not None:
-        data["omnibor_cfg"] = omnibor_cfg
+    if bisbom_cfg is not None:
+        data["bisbom_cfg"] = bisbom_cfg
 
     # Compute gitoids for artifact files that exist
     data["gitoids"] = _compute_gitoids(artifacts)

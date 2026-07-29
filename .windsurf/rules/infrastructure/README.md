@@ -1,10 +1,10 @@
 ---
-description: Infrastructure profile system for OmniBOR build hosts
+description: Infrastructure profile system for Bisbom build hosts
 ---
 
 # Infrastructure Profiles
 
-Each contributor runs OmniBOR analysis on their own Linux x86_64 build host.
+Each contributor runs bisbom-gen analysis on their own Linux x86_64 build host.
 This directory contains **provider templates** (tracked in git) and each user's
 **active profile** (local-only, gitignored).
 

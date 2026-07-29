@@ -1,7 +1,7 @@
 """
 Pipeline package — Build interception and orchestration.
 
-Provides the classes that compose the OmniBOR analysis workflow:
+Provides the classes that compose the bisbom-gen analysis workflow:
 clone, dependency check, instrumented build, SPDX generation,
 metadata collection, binary collection, documentation, and
 the AnalysisPipeline facade that ties them together.

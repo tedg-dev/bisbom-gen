@@ -8,7 +8,7 @@ Design of record:
 In sidecar mode the CI/CD build phase is **ephemeral**: the workspace is
 destroyed when the build job ends, and every byte Phase 2 needs must be
 captured *inside* the build job.  The ``LD_PRELOAD`` shim
-(``libomnibor_java_intercept.so``) computes each artifact's git-blob
+(``libbisbom_java_intercept.so``) computes each artifact's git-blob
 ``SHA-1`` (treedb topology) and ``SHA-256`` gitoid (SBOM identity) inline,
 as the build writes each ``.class``/``.jar``, and appends one event per
 finalized artifact to a capture log (JSONL, one JSON object per line).
@@ -29,7 +29,7 @@ import re
 # Environment variable the shim reads for the capture-log path.  Set by
 # the interception strategy (and, in production, the CI/CD YAML) — never
 # hardcoded to a repo-specific location.
-CAPTURE_LOG_ENV = "OMNIBOR_CAPTURE_LOG"
+CAPTURE_LOG_ENV = "BISBOM_CAPTURE_LOG"
 
 # Event ``kind`` discriminants written by the shim.
 KIND_CLASS = "class"

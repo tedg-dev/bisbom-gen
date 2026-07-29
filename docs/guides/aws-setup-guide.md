@@ -1,8 +1,8 @@
 # AWS EC2 Setup Guide — Greenfield Install
 
 **Purpose:** Step-by-step instructions for a Cisco engineer to go from a fresh
-`omnibor-analysis` clone to a fully provisioned AWS EC2 build host running
-OmniBOR analysis.
+`bisbom-gen` clone to a fully provisioned AWS EC2 build host running
+bisbom-gen.
 
 **Audience:** Cisco employees using Duo SSO for AWS authentication.
 
@@ -323,8 +323,8 @@ The instance runs `user-data.sh` on first boot which:
 1. Configures sshd on ports 22 and 443
 2. Updates system packages
 3. Installs Docker and docker-compose
-4. Attempts to clone the omnibor-analysis repository
-5. Builds the Docker analysis image (~10-20 minutes)
+4. Attempts to clone the bisbom-gen repository
+5. Builds the Docker image (~10-20 minutes)
 
 > **Note:** If the repo is private, the automatic clone will fail.
 > Use `rsync` to push the repo from your local machine instead:
@@ -333,13 +333,13 @@ The instance runs `user-data.sh` on first boot which:
 > rsync -avz --exclude '.git' --exclude '__pycache__' --exclude '.venv' \
 >   --exclude 'output/' --exclude 'terraform/.terraform/' \
 >   --exclude 'terraform/terraform.tfstate*' --exclude 'terraform/terraform.tfvars' \
->   -e ssh ./ omnibor-build:~/omnibor-analysis/
+>   -e ssh ./ omnibor-build:~/bisbom-gen/
 > ```
 >
 > Then build the Docker image manually:
 >
 > ```bash
-> ssh omnibor-build "cd ~/omnibor-analysis && docker-compose -f docker/docker-compose.yml build"
+> ssh omnibor-build "cd ~/bisbom-gen && docker-compose -f docker/docker-compose.yml build"
 > ```
 
 Check bootstrap progress:
@@ -385,11 +385,11 @@ Elastic IP, etc.). This file is gitignored — your specific details stay local.
 ### Check Docker and bomtrace3
 
 ```bash
-ssh omnibor-build "docker-compose -f ~/omnibor-analysis/docker/docker-compose.yml \
-  run --rm omnibor-env bomtrace3 --version"
+ssh omnibor-build "docker-compose -f ~/bisbom-gen/docker/docker-compose.yml \
+  run --rm bisbom-env bomtrace3 --version"
 ```
 
-### Run a test analysis
+### Run a test SBOM generation
 
 ```bash
 # From your local machine, tell Cascade:
@@ -400,15 +400,15 @@ ssh omnibor-build "docker-compose -f ~/omnibor-analysis/docker/docker-compose.ym
 Or manually:
 
 ```bash
-ssh omnibor-build "cd ~/omnibor-analysis && \
-  docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
+ssh omnibor-build "cd ~/bisbom-gen && \
+  docker-compose -f docker/docker-compose.yml run --rm bisbom-env \
   python3 /workspace/app/analyze.py --repo redis"
 ```
 
 ### Sync results back
 
 ```bash
-rsync -avz omnibor-build:~/omnibor-analysis/output/ output/
+rsync -avz omnibor-build:~/bisbom-gen/output/ output/
 ```
 
 ---
@@ -426,7 +426,7 @@ aws ec2 start-instances --profile <YOUR_PROFILE_NAME> --instance-ids <INSTANCE_I
 # 3. Wait for it to be running
 aws ec2 wait instance-running --profile <YOUR_PROFILE_NAME> --instance-ids <INSTANCE_ID>
 
-# 4. Do your work (SSH, run analysis, etc.)
+# 4. Do your work (SSH, run bisbom-gen, etc.)
 
 # 5. Stop the instance when done (saves money!)
 aws ec2 stop-instances --profile <YOUR_PROFILE_NAME> --instance-ids <INSTANCE_ID> --no-cli-pager
@@ -512,7 +512,7 @@ key pair. **All data on the instance will be lost** — sync results first!
 
 ```bash
 # Sync results before destroying
-rsync -avz omnibor-build:~/omnibor-analysis/output/ output/
+rsync -avz omnibor-build:~/bisbom-gen/output/ output/
 
 # Then destroy
 terraform destroy

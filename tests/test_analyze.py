@@ -42,7 +42,7 @@ class TestLoadConfig(unittest.TestCase):
         config = load_config()
         self.assertIn("repos", config)
         self.assertIn("paths", config)
-        self.assertIn("omnibor", config)
+        self.assertIn("bisbom", config)
 
     def test_loads_custom_path(self):
         import yaml
@@ -306,7 +306,9 @@ class TestRepoCloner(unittest.TestCase):
             paths = {"repos_dir": tmpdir}
             cfg = {"url": "x", "branch": "main"}
 
-            with patch("builtins.print"):
+            with patch("builtins.print"), patch.object(
+                RepoCloner, "_at_pinned_ref", return_value=True
+            ):
                 result = cloner.clone(
                     "myrepo", cfg, paths
                 )
@@ -314,6 +316,52 @@ class TestRepoCloner(unittest.TestCase):
                 result, str(repo_dir)
             )
             runner.run.assert_not_called()
+
+    def test_reuse_cleans_stale_capture_dirs(self):
+        """Reusing a checkout removes leftover capture dirs.
+
+        A stale .bisbom/.omnibor dir from a prior run would break
+        builds that audit their own tree (e.g. Apache RAT), so the
+        cloner must strip them before returning the reused path.
+        """
+        with tempfile.TemporaryDirectory() as tmpdir:
+            repo_dir = Path(tmpdir) / "myrepo"
+            repo_dir.mkdir()
+            (repo_dir / "file.txt").touch()
+            bisbom = repo_dir / ".bisbom"
+            bisbom.mkdir()
+            (bisbom / "capture.jsonl").touch()
+            omnibor = repo_dir / ".omnibor"
+            omnibor.mkdir()
+            (omnibor / "capture.jsonl").touch()
+
+            runner = MagicMock()
+            cloner = RepoCloner(runner)
+            paths = {"repos_dir": tmpdir}
+            cfg = {"url": "x", "branch": "main"}
+
+            with patch("builtins.print"), patch.object(
+                RepoCloner, "_at_pinned_ref", return_value=True
+            ):
+                cloner.clone("myrepo", cfg, paths)
+
+            self.assertFalse(bisbom.exists())
+            self.assertFalse(omnibor.exists())
+            self.assertTrue((repo_dir / "file.txt").exists())
+            runner.run.assert_not_called()
+
+    def test_clean_stale_capture_dirs_noop_when_absent(self):
+        """Cleanup is a no-op when no capture dirs exist."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            repo_dir = Path(tmpdir) / "clean"
+            repo_dir.mkdir()
+            (repo_dir / "src").mkdir()
+
+            with patch("builtins.print") as mock_print:
+                RepoCloner._clean_stale_capture_dirs(repo_dir)
+
+            self.assertTrue((repo_dir / "src").exists())
+            mock_print.assert_not_called()
 
     def test_clones_new_repo(self):
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -350,6 +398,179 @@ class TestRepoCloner(unittest.TestCase):
             cloner.clone("repo", cfg, paths)
             call_args = runner.run.call_args
             self.assertIn("master", call_args[0][0])
+
+    def test_reclones_when_ref_mismatch(self):
+        """A checkout not at the pinned ref is wiped and re-cloned."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            repo_dir = Path(tmpdir) / "myrepo"
+            repo_dir.mkdir()
+            (repo_dir / "file.txt").touch()
+
+            runner = MagicMock()
+            runner.run.return_value = 0
+            cloner = RepoCloner(runner)
+            paths = {"repos_dir": tmpdir}
+            cfg = {
+                "url": "https://github.com/x/y.git",
+                "branch": "main",
+            }
+
+            with patch("builtins.print"), patch.object(
+                RepoCloner, "_at_pinned_ref", return_value=False
+            ):
+                cloner.clone("myrepo", cfg, paths)
+
+            self.assertFalse((repo_dir / "file.txt").exists())
+            self.assertIn(
+                "git clone",
+                runner.run.call_args_list[0][0][0],
+            )
+
+    def test_clones_commit_sha(self):
+        """A 40-char SHA ref uses init+fetch, not --branch."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            runner = MagicMock()
+            runner.run.return_value = 0
+            cloner = RepoCloner(runner)
+            paths = {"repos_dir": tmpdir}
+            sha = "a" * 40
+            cfg = {
+                "url": "https://github.com/x/y.git",
+                "branch": sha,
+            }
+
+            cloner.clone("sharepo", cfg, paths)
+            self.assertEqual(runner.run.call_count, 1)
+            cmd = runner.run.call_args_list[0][0][0]
+            self.assertIn(
+                f"fetch --depth 1 origin {sha}", cmd
+            )
+            self.assertIn("checkout -q FETCH_HEAD", cmd)
+            self.assertNotIn("--branch", cmd)
+
+    def test_resolve_ref_sha_passthrough(self):
+        """A 40-char SHA resolves to itself (lowercased)."""
+        self.assertEqual(
+            RepoCloner._resolve_ref_sha("x", "url", "A" * 40),
+            "a" * 40,
+        )
+
+    def test_at_pinned_ref_sha_match(self):
+        """_at_pinned_ref matches HEAD against a pinned SHA."""
+        sha = "b" * 40
+        cloner = RepoCloner(MagicMock())
+        with patch.object(
+            RepoCloner, "get_commit_sha", return_value=sha
+        ):
+            self.assertTrue(
+                cloner._at_pinned_ref("d", "url", sha)
+            )
+            self.assertFalse(
+                cloner._at_pinned_ref("d", "url", "c" * 40)
+            )
+
+    def test_at_pinned_ref_no_head(self):
+        """_at_pinned_ref is False when HEAD cannot be read."""
+        cloner = RepoCloner(MagicMock())
+        with patch.object(
+            RepoCloner, "get_commit_sha", return_value=None
+        ):
+            self.assertFalse(
+                cloner._at_pinned_ref("d", "url", "e" * 40)
+            )
+
+    def test_resolve_ref_sha_local_then_remote(self):
+        """Local rev-parse wins; ls-remote is the fallback."""
+        with patch.object(
+            RepoCloner, "_rev_parse", return_value="f" * 40
+        ):
+            self.assertEqual(
+                RepoCloner._resolve_ref_sha("d", "url", "v1"),
+                "f" * 40,
+            )
+        with patch.object(
+            RepoCloner, "_rev_parse", return_value=None
+        ), patch.object(
+            RepoCloner, "_ls_remote_sha", return_value="0" * 40
+        ):
+            self.assertEqual(
+                RepoCloner._resolve_ref_sha("d", "url", "v1"),
+                "0" * 40,
+            )
+
+    def test_ls_remote_sha_prefers_peeled(self):
+        """_ls_remote_sha prefers the peeled (commit) entry."""
+        out = (
+            "1111111111111111111111111111111111111111\t"
+            "refs/tags/v1\n"
+            "2222222222222222222222222222222222222222\t"
+            "refs/tags/v1^{}\n"
+        )
+        with patch(
+            "app.pipeline.cloner.subprocess.run",
+            return_value=MagicMock(returncode=0, stdout=out),
+        ):
+            self.assertEqual(
+                RepoCloner._ls_remote_sha("url", "v1"),
+                "2" * 40,
+            )
+
+    def test_ls_remote_sha_plain_branch(self):
+        """_ls_remote_sha returns the plain SHA for a branch."""
+        out = (
+            "garbage-line-without-a-tab\n"
+            "3333333333333333333333333333333333333333\t"
+            "refs/heads/main\n"
+        )
+        with patch(
+            "app.pipeline.cloner.subprocess.run",
+            return_value=MagicMock(returncode=0, stdout=out),
+        ):
+            self.assertEqual(
+                RepoCloner._ls_remote_sha("url", "main"),
+                "3" * 40,
+            )
+
+    def test_ls_remote_sha_failure(self):
+        """_ls_remote_sha returns None on nonzero exit / error."""
+        with patch(
+            "app.pipeline.cloner.subprocess.run",
+            return_value=MagicMock(returncode=1, stdout=""),
+        ):
+            self.assertIsNone(
+                RepoCloner._ls_remote_sha("url", "x")
+            )
+        with patch(
+            "app.pipeline.cloner.subprocess.run",
+            side_effect=OSError,
+        ):
+            self.assertIsNone(
+                RepoCloner._ls_remote_sha("url", "x")
+            )
+
+    def test_rev_parse_valid_and_invalid(self):
+        """_rev_parse returns a 40-char SHA or None."""
+        with patch(
+            "app.pipeline.cloner.subprocess.run",
+            return_value=MagicMock(stdout="d" * 40 + "\n"),
+        ):
+            self.assertEqual(
+                RepoCloner._rev_parse("d", "HEAD"), "d" * 40
+            )
+        with patch(
+            "app.pipeline.cloner.subprocess.run",
+            return_value=MagicMock(stdout="short\n"),
+        ):
+            self.assertIsNone(
+                RepoCloner._rev_parse("d", "HEAD")
+            )
+        with patch(
+            "app.pipeline.cloner.subprocess.run",
+            side_effect=OSError,
+        ):
+            self.assertIsNone(
+                RepoCloner._rev_parse("d", "HEAD")
+            )
 
     def test_get_commit_sha_valid_repo(self):
         """get_commit_sha returns 40-char SHA for a real git repo."""
@@ -925,7 +1146,7 @@ class TestBomtraceBuilderJava(unittest.TestCase):
             self.assertEqual(runner.run.call_count, 3)
             # Verify strace log was archived
             bom_dir = list(
-                (Path(td) / "output" / "omnibor"
+                (Path(td) / "output" / "bisbom"
                  / "java" / "myapp").iterdir()
             )[0]
             archive = (
@@ -1186,7 +1407,7 @@ class TestSpdxGenerator(unittest.TestCase):
                 )
             self.assertIsNotNone(result)
             self.assertIn(
-                "curl_omnibor.spdx.json", result
+                "curl_bisbom.spdx.json", result
             )
             self.assertTrue(Path(result).exists())
 
@@ -1225,6 +1446,12 @@ class TestSpdxGenerator(unittest.TestCase):
                 spdx_dir
                 / "libcurl.syft.spdx-json"
             ).write_text('{"creationInfo":{}}')
+            # Non-primary file that keeps the upstream
+            # ``omnibor.`` prefix — must be rebranded.
+            (
+                spdx_dir
+                / "omnibor.libcurl.so.syft.spdx-json"
+            ).write_text('{"creationInfo":{}}')
 
             with patch("builtins.print"), \
                     patch.object(
@@ -1253,11 +1480,25 @@ class TestSpdxGenerator(unittest.TestCase):
                 "libcurl.syft.spdx.json", names
             )
 
+            # Leftover upstream ``omnibor.`` prefix on a
+            # non-primary file is rebranded to ``bisbom.``
+            self.assertIn(
+                "bisbom.libcurl.so.syft.spdx.json", names
+            )
+
             # No .spdx-json files should remain
             leftover = list(
                 spdx_dir.glob("*.spdx-json")
             )
             self.assertEqual(len(leftover), 0)
+
+            # No filename may retain the ``omnibor.`` prefix
+            self.assertFalse(
+                any(
+                    n.startswith("omnibor.")
+                    for n in names
+                )
+            )
 
     def test_generate_no_binaries_returns_none(self):
         with tempfile.TemporaryDirectory() as td:
@@ -1434,13 +1675,13 @@ class TestSpdxGeneratorMetadata(unittest.TestCase):
             )
             self.assertTrue(
                 any(
-                    "omnibor-analysis" in c
+                    "bisbom-gen" in c
                     for c in creators
                 )
             )
             # --- namespace ---
             ns = result["documentNamespace"]
-            self.assertIn("omnibor.io", ns)
+            self.assertIn("bisbom-gen", ns)
             self.assertIn("curl", ns)
             self.assertIn(
                 "a1b2c3d4-e5f6-7890-abcd-"
@@ -1548,7 +1789,7 @@ class TestSpdxGeneratorMetadata(unittest.TestCase):
                 Path(path).read_text()
             )
             ns = result["documentNamespace"]
-            self.assertIn("omnibor.io", ns)
+            self.assertIn("bisbom-gen", ns)
             self.assertIn(
                 "2026-02-12_1300", ns
             )
@@ -1623,7 +1864,7 @@ class TestSpdxGeneratorMetadata(unittest.TestCase):
                 )
             bom_dir = str(
                 Path(td) / "output"
-                / "omnibor" / "c-cpp" / "curl"
+                / "bisbom" / "c-cpp" / "curl"
                 / "2026-02-12_1300"
             )
             mock_patch.assert_called_once_with(
@@ -4575,7 +4816,7 @@ class TestAdgSpdxStep(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             # Create dirs
             bom_dir = (
-                Path(td) / "omnibor" / "c-cpp"
+                Path(td) / "bisbom" / "c-cpp"
                 / "nmap" / "2026-02-12_1300"
                 / "metadata" / "nmap"
             )
@@ -4641,7 +4882,7 @@ class TestAdgSpdxStep(unittest.TestCase):
             (core / "spring-boot-3.4.4.jar").write_bytes(b"PK")
             (bsrc / "buildSrc.jar").write_bytes(b"PK")
             bom_dir = (
-                Path(td) / "omnibor" / "java" / "springboot"
+                Path(td) / "bisbom" / "java" / "springboot"
                 / "2026-02-12_1300" / "metadata" / "springboot"
             )
             bom_dir.mkdir(parents=True)
@@ -4685,7 +4926,7 @@ class TestAdgSpdxStep(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             # Create per-binary metadata dir
             meta = (
-                Path(td) / "omnibor" / "c-cpp"
+                Path(td) / "bisbom" / "c-cpp"
                 / "curl" / "2026-02-12_1300"
                 / "metadata" / "curl"
             )
@@ -4764,7 +5005,7 @@ class TestMetadataCollector(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             # Set up directory structure
             bom_dir = (
-                Path(td) / "omnibor" / "c-cpp"
+                Path(td) / "bisbom" / "c-cpp"
                 / "nmap" / "2026-02-12_1300"
             )
             meta_dir = bom_dir / "metadata"
@@ -4840,7 +5081,7 @@ class TestMetadataCollector(unittest.TestCase):
         """Skips collection if dynamic_libs.json exists."""
         with tempfile.TemporaryDirectory() as td:
             bom_dir = (
-                Path(td) / "omnibor" / "c-cpp"
+                Path(td) / "bisbom" / "c-cpp"
                 / "nmap" / "2026-02-12_1300"
             )
             meta_dir = bom_dir / "metadata"
@@ -4888,7 +5129,7 @@ class TestMetadataCollector(unittest.TestCase):
         """Warns and continues if binary doesn't exist."""
         with tempfile.TemporaryDirectory() as td:
             bom_dir = (
-                Path(td) / "omnibor" / "c-cpp"
+                Path(td) / "bisbom" / "c-cpp"
                 / "nmap" / "2026-02-12_1300"
             )
             meta_dir = bom_dir / "metadata"
@@ -4924,7 +5165,7 @@ class TestMetadataCollector(unittest.TestCase):
         """Returns False if collect_metadata raises."""
         with tempfile.TemporaryDirectory() as td:
             bom_dir = (
-                Path(td) / "omnibor" / "c-cpp"
+                Path(td) / "bisbom" / "c-cpp"
                 / "nmap" / "2026-02-12_1300"
             )
             meta_dir = bom_dir / "metadata"

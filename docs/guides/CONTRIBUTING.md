@@ -1,4 +1,4 @@
-# Contributing to OmniBOR Analysis
+# Contributing to Build-Interception SBOM Generation
 
 Thank you for your interest in contributing. This document outlines the workflow, conventions, and processes for this project.
 
@@ -55,7 +55,7 @@ Use [Conventional Commits](https://www.conventionalcommits.org/) format:
 ```
 feat(app): add OpenSSL as target repository
 fix(docker): resolve bomtrace3 SYS_PTRACE permission issue
-docs(readme): add FFmpeg analysis results
+docs(readme): add FFmpeg SBOM results
 chore(docker): update Ubuntu base image to 22.04.4
 test(spdx): add unit tests for SPDX package extraction
 ```
@@ -142,17 +142,17 @@ before committing:
 
 ### Integration Tests (for pipeline changes)
 
-- Run analysis scripts against at least one target repo before submitting changes to `app/`
+- Run the pipeline against at least one target repo before submitting changes to `app/`
 - Verify Docker image builds successfully after Dockerfile changes
 - Test inside the container, not on the macOS host
 
 ```bash
 # Build and verify
 docker-compose -f docker/docker-compose.yml build
-docker-compose -f docker/docker-compose.yml run --rm omnibor-env bomtrace3 --version
+docker-compose -f docker/docker-compose.yml run --rm bisbom-env bomtrace3 --version
 
-# Run analysis
-docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
+# Run SBOM generation
+docker-compose -f docker/docker-compose.yml run --rm bisbom-env \
   python3 /workspace/app/analyze.py --repo curl
 ```
 
@@ -239,17 +239,17 @@ git add output/**/<new-lang>/.gitkeep
 ### 5. Test the build manually first
 
 ```bash
-docker-compose -f docker/docker-compose.yml run --rm omnibor-env bash
+docker-compose -f docker/docker-compose.yml run --rm bisbom-env bash
 cd /workspace/repos
 git clone --depth 1 https://github.com/org/newrepo.git
 cd newrepo
 # Run build steps manually to verify they work
 ```
 
-### 6. Run analysis
+### 6. Run SBOM generation
 
 ```bash
-docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
+docker-compose -f docker/docker-compose.yml run --rm bisbom-env \
   python3 /workspace/app/analyze.py --repo newrepo
 ```
 

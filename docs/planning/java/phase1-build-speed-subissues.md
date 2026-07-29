@@ -6,7 +6,7 @@
 | **Epic** | Single epic — this main issue is added to it later by the issues team |
 | **Author** | Ted G. |
 | **Drafted** | 2026-06-24 (Cascade) |
-| **Status** | US-2 delivered & merged (PR `tedg-dev/omnibor-analysis#196`, golden-clean on bc-java + spring-boot); US-5 delivered & merged (inline GitOID capture, PR `tedg-dev/omnibor-analysis#212`; #11097 In Development); US-6 added (inline-hashing golden-clean validation — MRJAR/multi-module correctness + build-logic JAR exclusion — #11100 In Development, golden-clean on all 7 Java repos, PR pending); US-4 deferred (in-memory JAR processing); US-3 optional/low; US-1 moved — see below |
+| **Status** | US-2 delivered & merged (PR `tedg-dev/bisbom-gen#196`, golden-clean on bc-java + spring-boot); US-5 delivered & merged (inline GitOID capture, PR `tedg-dev/bisbom-gen#212`; #11097 In Development); US-6 added (inline-hashing golden-clean validation — MRJAR/multi-module correctness + build-logic JAR exclusion — #11100 In Development, golden-clean on all 7 Java repos, PR pending); US-4 deferred (in-memory JAR processing); US-3 optional/low; US-1 moved — see below |
 | **Scope** | **Java builds** (Maven and Gradle). Other languages capture inline during the build and are not affected. |
 | **Detailed design** | `docs/sidecar/java/reference/phase1-build-speed-design.md` (single engineering reference — design, evidence, code-level plan). |
 
@@ -175,7 +175,7 @@ classreader patches in `docker/patches/`. Deferred per the follow-up noted in
 
 **Status:** Delivered & merged (Python assembler + Maven/Gradle strategy
 wiring + config flag + `LD_PRELOAD` shim) in PR
-`tedg-dev/omnibor-analysis#212`. The config flag
+`tedg-dev/bisbom-gen#212`. The config flag
 (`omnibor_java.java_inline_hash`) now defaults to `true` after the byte-identity
 gate (US-6) passed golden-clean on the EC2 build host; it remains as an explicit
 override to force the legacy rescan on platforms where the shim cannot interpose
@@ -234,7 +234,7 @@ step over an append-only capture log.
 ## US-6 — Validate inline hashing golden-clean (MRJAR/multi-module correctness + build-logic JAR exclusion)
 
 **Status:** Implemented on branch `feat/java-inline-hashing` (follow-on to
-the merged US-5 / PR `tedg-dev/omnibor-analysis#212`); **golden-clean on all
+the merged US-5 / PR `tedg-dev/bisbom-gen#212`); **golden-clean on all
 eight Java repos at package and file level** (re-validated on EC2 with the flag
 on — spring-boot and dependency-check confirmed 0 file diffs); the flag is now
 defaulted `true` in the same PR (#213). GitHub sub-issue

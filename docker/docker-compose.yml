@@ -1,18 +1,18 @@
 services:
   # --------------------------------------------------------
   # Standalone: full image with toolchains + bomtrace
-  # Usage: docker compose up omnibor-standalone
+  # Usage: docker compose up bisbom-standalone
   # --------------------------------------------------------
-  omnibor-standalone:
+  bisbom-standalone:
     # REQUIRED: bomtrace3 needs x86 (sys/reg.h). Uses QEMU on Apple Silicon.
     platform: linux/amd64
     build:
       context: ..
       dockerfile: docker/Dockerfile
       target: standalone
-    image: omnibor-env:standalone
+    image: bisbom-env:standalone
     # No fixed container_name: with `run --rm` it is unnecessary,
-    # blocks concurrent runs, and collides with the omnibor-env
+    # blocks concurrent runs, and collides with the bisbom-env
     # alias that extends this service.
     volumes:
       - ../repos:/workspace/repos
@@ -34,14 +34,14 @@ services:
 
   # --------------------------------------------------------
   # Sidecar: minimal image (no toolchains, no SYS_PTRACE)
-  # Usage: docker compose up omnibor-sidecar
+  # Usage: docker compose up bisbom-sidecar
   # --------------------------------------------------------
-  omnibor-sidecar:
+  bisbom-sidecar:
     build:
       context: ..
       dockerfile: docker/Dockerfile
       target: sidecar
-    image: omnibor-env:sidecar
+    image: bisbom-env:sidecar
     volumes:
       - ../repos:/workspace/repos
       - ../output:/workspace/output
@@ -57,22 +57,22 @@ services:
 
   # --------------------------------------------------------
   # Default (backward compatible alias for standalone)
-  # Usage: docker compose up omnibor-env
+  # Usage: docker compose up bisbom-env
   # --------------------------------------------------------
-  omnibor-env:
+  bisbom-env:
     extends:
-      service: omnibor-standalone
+      service: bisbom-standalone
 
   # --------------------------------------------------------
   # RHEL 9 (Rocky): integration testing for RpmResolver
-  # Usage: docker compose run --rm omnibor-rhel pytest ...
+  # Usage: docker compose run --rm bisbom-rhel pytest ...
   # --------------------------------------------------------
-  omnibor-rhel:
+  bisbom-rhel:
     platform: linux/amd64
     build:
       context: ..
       dockerfile: docker/Dockerfile.rhel
-    image: omnibor-env:rhel9
+    image: bisbom-env:rhel9
     volumes:
       - ../app:/workspace/app:ro
       - ../tests:/workspace/tests:ro
@@ -82,14 +82,14 @@ services:
 
   # --------------------------------------------------------
   # Alpine 3.19: integration testing for ApkResolver
-  # Usage: docker compose run --rm omnibor-alpine pytest ...
+  # Usage: docker compose run --rm bisbom-alpine pytest ...
   # --------------------------------------------------------
-  omnibor-alpine:
+  bisbom-alpine:
     platform: linux/amd64
     build:
       context: ..
       dockerfile: docker/Dockerfile.alpine
-    image: omnibor-env:alpine
+    image: bisbom-env:alpine
     volumes:
       - ../app:/workspace/app:ro
       - ../tests:/workspace/tests:ro

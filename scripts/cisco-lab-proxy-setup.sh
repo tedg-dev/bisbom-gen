@@ -127,7 +127,7 @@ else
             mkdir -p "$(dirname "$OVERRIDE_FILE")"
             cat > "$OVERRIDE_FILE" << YAML
 services:
-  omnibor-env:
+  bisbom-env:
     environment:
       - HTTP_PROXY=${PROXY_URL}
       - HTTPS_PROXY=${PROXY_URL}

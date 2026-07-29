@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-OmniBOR Analysis — Smart repo discovery and config generation (shim).
+bisbom-gen — Smart repo discovery and config generation (shim).
 
 This module re-exports all classes and the CLI entry point from
 the refactored ``app.repo_discovery`` package so that existing

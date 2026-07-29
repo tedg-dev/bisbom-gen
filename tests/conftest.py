@@ -26,7 +26,7 @@ def pytest_configure(config):
     config.addinivalue_line(
         "markers",
         "docker_integration: marks tests that require "
-        "a running Docker daemon and omnibor-env image "
+        "a running Docker daemon and bisbom-env image "
         "(deselect with '-m \"not docker_integration\"')",
     )
     config.addinivalue_line(

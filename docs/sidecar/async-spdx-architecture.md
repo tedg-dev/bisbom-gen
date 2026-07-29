@@ -19,7 +19,7 @@
 > source tree or build tools — it consumes the Phase 1 dependency capture
 > (`maven_deps.json` / `gradle_deps.json`) via
 > `app/spdx/dep_capture_reader.py`, and the `--phase build` / `--phase spdx`
-> split is implemented (delivered in `tedg-dev/omnibor-analysis#194`).
+> split is implemented (delivered in `tedg-dev/bisbom-gen#194`).
 > Statements below that Java Phase 2 re-runs `dep:tree` or requires
 > JDK/Gradle/Maven describe the pre-#194 design and are superseded.
 
@@ -233,7 +233,7 @@ stages:
       docker run --rm \
         -v $WORKSPACE:/workspace/repos/spring-boot \
         -v $WORKSPACE/output:/workspace/output \
-        omnibor-env:sidecar \
+        bisbom-env:sidecar \
         python3 /workspace/app/analyze.py \
           --repo spring-boot --skip-clone --mode sidecar
       # ^^^ This blocks for ~23 minutes
@@ -447,12 +447,12 @@ python3 analyze.py --repo fzf --phase build                         # Go
 python3 analyze.py --repo spring-boot --mode sidecar --phase build  # Java
 
 # Output (C/C++ example):
-#   output/omnibor/c-cpp/curl/<ts>/metadata/bomsh/bomsh_hook_raw_logfile
-#   output/omnibor/c-cpp/curl/<ts>/phase1_manifest.json
+#   output/bisbom/c-cpp/curl/<ts>/metadata/bomsh/bomsh_hook_raw_logfile
+#   output/bisbom/c-cpp/curl/<ts>/phase1_manifest.json
 
 # Output (Java example):
-#   output/omnibor/java/spring-boot/<ts>/metadata/bomsh/bomsh_omnibor_treedb
-#   output/omnibor/java/spring-boot/<ts>/phase1_manifest.json
+#   output/bisbom/java/spring-boot/<ts>/metadata/bomsh/bomsh_omnibor_treedb
+#   output/bisbom/java/spring-boot/<ts>/phase1_manifest.json
 ```
 
 ### Phase 1 Manifest
@@ -470,7 +470,7 @@ contract between the two phases:
   "timestamp": "2026-05-05_2302",
   "build_success": true,
   "artifacts": {
-    "treedb": "output/omnibor/java/spring-boot/2026-05-05_2302/metadata/bomsh/bomsh_omnibor_treedb",
+    "treedb": "output/bisbom/java/spring-boot/2026-05-05_2302/metadata/bomsh/bomsh_omnibor_treedb",
     "repo_dir": "/workspace/repos/spring-boot",
     "build_dir": "/workspace/repos/spring-boot/spring-boot-project/spring-boot/build"
   },
@@ -528,16 +528,16 @@ overhead) and the treedb is generated from the raw logfile in seconds.
 ```bash
 # Phase 2: SPDX generation from Phase 1 artifacts (any language)
 python3 analyze.py --repo curl --phase spdx \
-  --manifest output/omnibor/c-cpp/curl/<ts>/phase1_manifest.json        # C/C++
+  --manifest output/bisbom/c-cpp/curl/<ts>/phase1_manifest.json        # C/C++
 
 python3 analyze.py --repo oxipng --phase spdx \
-  --manifest output/omnibor/rust/oxipng/<ts>/phase1_manifest.json       # Rust
+  --manifest output/bisbom/rust/oxipng/<ts>/phase1_manifest.json       # Rust
 
 python3 analyze.py --repo fzf --phase spdx \
-  --manifest output/omnibor/go/fzf/<ts>/phase1_manifest.json            # Go
+  --manifest output/bisbom/go/fzf/<ts>/phase1_manifest.json            # Go
 
 python3 analyze.py --repo spring-boot --mode sidecar --phase spdx \
-  --manifest output/omnibor/java/spring-boot/<ts>/phase1_manifest.json  # Java
+  --manifest output/bisbom/java/spring-boot/<ts>/phase1_manifest.json  # Java
 ```
 
 ### Where Phase 2 Runs
@@ -642,8 +642,8 @@ jobs:
         run: |
           docker run --rm \
             -v ${{ github.workspace }}:/workspace/repos/spring-boot \
-            -v ${{ github.workspace }}/omnibor-output:/workspace/output \
-            omnibor-env:sidecar \
+            -v ${{ github.workspace }}/bisbom-output:/workspace/output \
+            bisbom-env:sidecar \
             python3 /workspace/app/analyze.py \
               --repo spring-boot --skip-clone --mode sidecar --phase build
 
@@ -651,7 +651,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: omnibor-treedb
-          path: omnibor-output/omnibor/
+          path: bisbom-output/bisbom/
 
   test:
     needs: build
@@ -671,23 +671,23 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: omnibor-treedb
-          path: omnibor-output/omnibor/
+          path: bisbom-output/bisbom/
 
       - name: Generate SPDX (Phase 2)
         run: |
           docker run --rm \
             -v ${{ github.workspace }}:/workspace/repos/spring-boot \
-            -v ${{ github.workspace }}/omnibor-output:/workspace/output \
-            omnibor-env:sidecar \
+            -v ${{ github.workspace }}/bisbom-output:/workspace/output \
+            bisbom-env:sidecar \
             python3 /workspace/app/analyze.py \
               --repo spring-boot --mode sidecar --phase spdx \
-              --manifest /workspace/output/omnibor/java/spring-boot/*/phase1_manifest.json
+              --manifest /workspace/output/bisbom/java/spring-boot/*/phase1_manifest.json
 
       - name: Upload SPDX artifacts
         uses: actions/upload-artifact@v4
         with:
           name: spdx-sbom
-          path: omnibor-output/spdx/
+          path: bisbom-output/spdx/
 
   deploy:
     needs: [build, test]
@@ -725,8 +725,8 @@ pipeline {
                 sh """
                     docker run --rm \\
                         -v \${WORKSPACE}:/workspace/repos/spring-boot \\
-                        -v \${WORKSPACE}/omnibor-output:/workspace/output \\
-                        omnibor-env:sidecar \\
+                        -v \${WORKSPACE}/bisbom-output:/workspace/output \\
+                        bisbom-env:sidecar \\
                         python3 /workspace/app/analyze.py \\
                             --repo spring-boot --skip-clone \\
                             --mode sidecar --phase build
@@ -746,12 +746,12 @@ pipeline {
                         sh """
                             docker run --rm \\
                                 -v \${WORKSPACE}:/workspace/repos/spring-boot \\
-                                -v \${WORKSPACE}/omnibor-output:/workspace/output \\
-                                omnibor-env:sidecar \\
+                                -v \${WORKSPACE}/bisbom-output:/workspace/output \\
+                                bisbom-env:sidecar \\
                                 python3 /workspace/app/analyze.py \\
                                     --repo spring-boot --mode sidecar \\
                                     --phase spdx \\
-                                    --manifest /workspace/output/omnibor/java/spring-boot/*/phase1_manifest.json
+                                    --manifest /workspace/output/bisbom/java/spring-boot/*/phase1_manifest.json
                         """
                     }
                 }
@@ -766,7 +766,7 @@ pipeline {
 
         stage('Publish SBOM') {
             steps {
-                archiveArtifacts artifacts: 'omnibor-output/spdx/**/*.spdx.json'
+                archiveArtifacts artifacts: 'bisbom-output/spdx/**/*.spdx.json'
             }
         }
     }
@@ -782,7 +782,7 @@ For enterprise teams that want centralized SBOM management:
 build:
   script:
     - make build
-    - omnibor-intercept --phase build  # Adds ~2 min
+    - bisbom-intercept --phase build  # Adds ~2 min
     - upload-artifact omnibor-treedb
 
 # Pipeline B: Central SBOM pipeline (triggered by Pipeline A)
@@ -803,7 +803,7 @@ For organizations generating SBOMs across hundreds of repos:
 build:
   script:
     - make build
-    - omnibor-intercept --phase build
+    - bisbom-intercept --phase build
     - aws sqs send-message --queue-url $SBOM_QUEUE \
         --message-body '{"repo": "spring-boot", "treedb": "s3://..."}'
 
@@ -1432,7 +1432,7 @@ processing:
 | **S3 bucket watch** | Monitors the designated S3 prefix for new `phase1_manifest.json` uploads |
 | **Artifact retrieval** | Downloads treedb, raw logfile, and source metadata from S3 |
 | **Integrity verification** | Verifies SHA-256 digests of treedb against manifest |
-| **SPDX construction** | Runs the `omnibor-analysis` Phase 2 pipeline (Python) |
+| **SPDX construction** | Runs the `bisbom-gen` Phase 2 pipeline (Python) |
 | **PRI placement** | Stores the resulting SPDX at the correct Product/Release/Image |
 | **Status reporting** | Updates a status record so CI/CD can optionally poll for completion |
 | **Error handling** | Logs failures, retries transient errors, alerts on persistent failures |
@@ -1501,7 +1501,7 @@ SBOMs stored alongside them in the same PRI location, Corona can:
 4. **Automate vulnerability enrichment** — Corona's existing vuln
    matching runs automatically on newly ingested OmniBOR SBOMs
 
-This is the `run-comparison` workflow that `omnibor-analysis` already
+This is the `run-comparison` workflow that `bisbom-gen` already
 supports, but executed server-side in Corona rather than ad-hoc locally.
 
 ### Implementation Considerations
@@ -1525,7 +1525,7 @@ supports, but executed server-side in Corona rather than ad-hoc locally.
 </tr>
 <tr>
   <td><strong>Corona agent runtime</strong></td>
-  <td>Python 3.11+, <code>omnibor-analysis</code> package installed; for Java repos, also needs JDK/Gradle</td>
+  <td>Python 3.11+, <code>bisbom-gen</code> package installed; for Java repos, also needs JDK/Gradle</td>
 </tr>
 <tr>
   <td><strong>Source tree access</strong></td>
@@ -1562,7 +1562,7 @@ supports, but executed server-side in Corona rather than ad-hoc locally.
 <tr>
   <td><strong>Stage 3</strong></td>
   <td>CI/CD runs Phase 1 only. Uploads raw metadata to Corona S3. Corona agent runs Phase 2 and constructs the SPDX.</td>
-  <td>Medium &mdash; Corona agent needs <code>omnibor-analysis</code> runtime</td>
+  <td>Medium &mdash; Corona agent needs <code>bisbom-gen</code> runtime</td>
 </tr>
 <tr>
   <td><strong>Stage 4</strong></td>

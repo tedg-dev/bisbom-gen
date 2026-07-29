@@ -1,5 +1,5 @@
 ---
-description: Local Linux / WSL2 / bare metal template for OmniBOR build host
+description: Local Linux / WSL2 / bare metal template for Bisbom build host
 ---
 
 # Local Linux — Build Host Profile
@@ -15,7 +15,7 @@ WSL2 on Windows, or a local VM).
 | **Provider** | Local |
 | **SSH alias** | _(none — runs locally)_ |
 | **OS** | Ubuntu 22.04 x86_64 |
-| **Repo path** | `<YOUR_CLONE_PATH>` (e.g. `/home/user/omnibor-analysis`) |
+| **Repo path** | `<YOUR_CLONE_PATH>` (e.g. `/home/user/bisbom-gen`) |
 
 ## Prerequisites
 
@@ -58,11 +58,11 @@ sudo systemctl stop docker
 
 ```bash
 # Run analysis (from repo root)
-docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
+docker-compose -f docker/docker-compose.yml run --rm bisbom-env \
   python3 /workspace/app/analyze.py --repo <REPO_NAME>
 
 # Enter container interactively
-docker-compose -f docker/docker-compose.yml run --rm omnibor-env bash
+docker-compose -f docker/docker-compose.yml run --rm bisbom-env bash
 
 # Rebuild Docker image
 docker-compose -f docker/docker-compose.yml build

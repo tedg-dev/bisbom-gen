@@ -3,9 +3,9 @@
 | Field | Value |
 |-------|-------|
 | **Date** | 2026-05-13 21:46 UTC |
-| **Run** | [tedg-dev/omnibor-java-testapp #25828276164](https://github.com/tedg-dev/omnibor-java-testapp/actions/runs/25828276164) |
+| **Run** | [tedg-dev/bisbom-java-testapp #25828276164](https://github.com/tedg-dev/bisbom-java-testapp/actions/runs/25828276164) |
 | **Commit** | `7568d0e` on `main` |
-| **Sidecar image** | `ghcr.io/tedg-dev/omnibor-sidecar:latest` (published from omnibor-analysis `ac7c476`) |
+| **Sidecar image** | `ghcr.io/tedg-dev/bisbom-sidecar:latest` (published from bisbom-gen `ac7c476`) |
 
 ## Objective
 
@@ -47,18 +47,18 @@ Phase 1 uploaded artifacts → Phase 2 downloaded them via
 ### Phase 1 Artifact Contents (Downloaded by Phase 2)
 
 ```
-spdx-output/runtime/java/omnibor-java-testapp/2026-05-13_2147/runtime.md
-spdx-output/runtime/java/omnibor-java-testapp/2026-05-13_2147/runtime.json
-spdx-output/omnibor/java/omnibor-java-testapp/2026-05-13_2147/maven_deps.json
-spdx-output/omnibor/java/omnibor-java-testapp/2026-05-13_2147/phase1_manifest.json
-spdx-output/omnibor/java/omnibor-java-testapp/2026-05-13_2147/metadata/bomsh/bomsh_omnibor_treedb
-spdx-output/build-logs/java/omnibor-java-testapp/2026-05-13_2147/build.md
+spdx-output/runtime/java/bisbom-java-testapp/2026-05-13_2147/runtime.md
+spdx-output/runtime/java/bisbom-java-testapp/2026-05-13_2147/runtime.json
+spdx-output/bisbom/java/bisbom-java-testapp/2026-05-13_2147/maven_deps.json
+spdx-output/bisbom/java/bisbom-java-testapp/2026-05-13_2147/phase1_manifest.json
+spdx-output/bisbom/java/bisbom-java-testapp/2026-05-13_2147/metadata/bomsh/bomsh_omnibor_treedb
+spdx-output/build-logs/java/bisbom-java-testapp/2026-05-13_2147/build.md
 ```
 
 ### Build Output (JARs)
 
 ```
-target/omnibor-java-testapp-1.0.0.jar
+target/bisbom-java-testapp-1.0.0.jar
 ```
 
 ### Download Integrity
@@ -73,13 +73,13 @@ SHA256: 3eb1b9001e234e51199ef823aec14d68b8835bc935c79a0fa198d42ff6d6b929
 Phase 2 located and read the Phase 1 manifest:
 
 ```
-[OK] Manifest: spdx-output/omnibor/java/omnibor-java-testapp/2026-05-13_2147/phase1_manifest.json
+[OK] Manifest: spdx-output/bisbom/java/bisbom-java-testapp/2026-05-13_2147/phase1_manifest.json
 ```
 
 Container path mapping worked correctly:
 ```
-Host:      spdx-output/omnibor/java/omnibor-java-testapp/2026-05-13_2147/phase1_manifest.json
-Container: /workspace/output/omnibor/java/omnibor-java-testapp/2026-05-13_2147/phase1_manifest.json
+Host:      spdx-output/bisbom/java/bisbom-java-testapp/2026-05-13_2147/phase1_manifest.json
+Container: /workspace/output/bisbom/java/bisbom-java-testapp/2026-05-13_2147/phase1_manifest.json
 ```
 
 ## Proof 4: GitOID Artifact Integrity Verification
@@ -100,15 +100,15 @@ downloaded artifacts:
 
 | SPDX File | Packages | Files | Relationships |
 |-----------|----------|-------|--------------|
-| `omnibor-java-testapp-1.0.0_analyzed.spdx.json` | 1 | 2 | 3 |
-| `omnibor-java-testapp-1.0.0_build.spdx.json` | 7 | 2 | 9 |
+| `bisbom-java-testapp-1.0.0_analyzed.spdx.json` | 1 | 2 | 3 |
+| `bisbom-java-testapp-1.0.0_build.spdx.json` | 7 | 2 | 9 |
 
 Plus HTML visualizations for each.
 
 Binary collection also succeeded:
 ```
-[OK] Collected omnibor-java-testapp-1.0.0.jar (4,974 bytes)
-[OK] 1 binary(ies) saved to .../binaries/java/omnibor-java-testapp/2026-05-13_2147
+[OK] Collected bisbom-java-testapp-1.0.0.jar (4,974 bytes)
+[OK] 1 binary(ies) saved to .../binaries/java/bisbom-java-testapp/2026-05-13_2147
 ```
 
 ## Proof 6: Phase 1 Build Interception Correct
@@ -193,8 +193,8 @@ SPDX files were still produced and are structurally valid JSON.
 
 ## Links
 
-- **Workflow run**: https://github.com/tedg-dev/omnibor-java-testapp/actions/runs/25828276164
-- **Workflow source**: https://github.com/tedg-dev/omnibor-java-testapp/blob/main/.github/workflows/sbom.yml
-- **Architecture diagram**: `docs/sidecar/phase-isolation-ci-cd.drawio` (omnibor-analysis)
-- **Phase isolation docs**: `docs/sidecar/phase-isolation-system-test.md` (omnibor-analysis)
-- **Sidecar publish run**: https://github.com/tedg-dev/omnibor-analysis/actions/runs/25828000962
+- **Workflow run**: https://github.com/tedg-dev/bisbom-java-testapp/actions/runs/25828276164
+- **Workflow source**: https://github.com/tedg-dev/bisbom-java-testapp/blob/main/.github/workflows/sbom.yml
+- **Architecture diagram**: `docs/sidecar/phase-isolation-ci-cd.drawio` (bisbom-gen)
+- **Phase isolation docs**: `docs/sidecar/phase-isolation-system-test.md` (bisbom-gen)
+- **Sidecar publish run**: https://github.com/tedg-dev/bisbom-gen/actions/runs/25828000962

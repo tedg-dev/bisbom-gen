@@ -51,7 +51,7 @@ All three patterns use the same CLI interface (`--phase build`,
 ### Phase 1 — Container A (build + manifest)
 
 ```bash
-docker compose run --rm -T omnibor-sidecar \
+docker compose run --rm -T bisbom-sidecar \
   bash -c "echo CONTAINER_ID=\$(hostname) && \
     cd /workspace && python3 app/analyze.py \
     --repo <repo> --mode sidecar --phase build \
@@ -60,7 +60,7 @@ docker compose run --rm -T omnibor-sidecar \
 
 1. Builds the repo inside a fresh sidecar container
 2. Writes `phase1_manifest.json` to
-   `output/omnibor/<lang>/<repo>/<ts>/`
+   `output/bisbom/<lang>/<repo>/<ts>/`
 3. The manifest includes:
    - `version` — manifest schema version (`"1.0"`)
    - `repo_name` — repository name
@@ -83,7 +83,7 @@ docker compose run --rm -T omnibor-sidecar \
 The test script parses the Phase 1 log for:
 
 ```
-Phase 1 manifest: /workspace/output/omnibor/<lang>/<repo>/<ts>/phase1_manifest.json
+Phase 1 manifest: /workspace/output/bisbom/<lang>/<repo>/<ts>/phase1_manifest.json
 ```
 
 ### Pre-Phase 2 Assertions
@@ -101,7 +101,7 @@ Before starting Container B, the test:
 ### Phase 2 — Container B (SPDX generation)
 
 ```bash
-docker compose run --rm -T omnibor-sidecar \
+docker compose run --rm -T bisbom-sidecar \
   bash -c "echo CONTAINER_ID=\$(hostname) && \
     cd /workspace && python3 app/analyze.py \
     --repo <repo> --mode sidecar --phase spdx \

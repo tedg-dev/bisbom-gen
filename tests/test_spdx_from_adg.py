@@ -1192,7 +1192,7 @@ class TestSpdxEmitter(unittest.TestCase):
             doc["dataLicense"], "CC0-1.0"
         )
         self.assertIn(
-            "omnibor.io",
+            "bisbom-gen",
             doc["documentNamespace"],
         )
         self.assertEqual(
@@ -1562,7 +1562,7 @@ class TestSpdxEmitter(unittest.TestCase):
             "Tool: bomsh-0.0.1-abc", creators
         )
         self.assertTrue(
-            any("omnibor-analysis" in c for c in creators)
+            any("bisbom-gen" in c for c in creators)
         )
 
 

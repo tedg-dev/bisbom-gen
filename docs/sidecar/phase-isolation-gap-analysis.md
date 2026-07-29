@@ -11,7 +11,7 @@
 >
 > **Status**: Architecture gap analysis. **Java: RESOLVED** — Phase 2 runs
 > from Phase 1 metadata with no `repo_dir` access, and the `--phase` split
-> is implemented (delivered in `tedg-dev/omnibor-analysis#194`).
+> is implemented (delivered in `tedg-dev/bisbom-gen#194`).
 > **C/C++, Rust, Go: still open** — this audit remains valid for them.
 >
 > **Requirement**: Phase isolation is MANDATORY. Phase 2 must operate
@@ -39,7 +39,7 @@ requires Phase 2 to work without `repo_dir`.
 
 ## 2. Complete Audit: What Phase 2 Reads from `repo_dir`
 
-### 2.1 Java — RESOLVED (Phase 2 is metadata-only; delivered in `tedg-dev/omnibor-analysis#194`)
+### 2.1 Java — RESOLVED (Phase 2 is metadata-only; delivered in `tedg-dev/bisbom-gen#194`)
 
 > **✅ Java gap closed.** Java Phase 2 no longer reads `repo_dir`: it
 > consumes the Phase 1 capture (`maven_deps.json` / `gradle_deps.json`) via
@@ -65,7 +65,7 @@ requires Phase 2 to work without `repo_dir`.
 **Resolved (was an irony):** Phase 1 sidecar runs `mvn dependency:tree`
 and saves `maven_deps.json` to `bom_dir`; Phase 2 now **reads that capture**
 instead of re-running the command against the source tree (delivered in
-`tedg-dev/omnibor-analysis#194`).
+`tedg-dev/bisbom-gen#194`).
 
 ### 2.2 C/C++ (sidecar NOT implemented, standalone only)
 
@@ -192,19 +192,19 @@ before any other libraries.
 # Injected automatically by the webhook — customer never sees this
 spec:
   initContainers:
-    - name: omnibor-init
-      image: omnibor-env:init
-      command: ["cp", "/opt/omnibor/libintercept.so", "/omnibor/"]
+    - name: bisbom-init
+      image: bisbom-env:init
+      command: ["cp", "/opt/bisbom/libintercept.so", "/bisbom/"]
       volumeMounts:
-        - name: omnibor-lib
-          mountPath: /omnibor
-    - name: omnibor-sidecar
-      image: omnibor-env:sidecar
+        - name: bisbom-lib
+          mountPath: /bisbom
+    - name: bisbom-sidecar
+      image: bisbom-env:sidecar
       restartPolicy: Always    # K8s 1.28+ native sidecar
       volumeMounts:
         - name: workspace
           mountPath: /workspace
-        - name: omnibor-artifacts
+        - name: bisbom-artifacts
           mountPath: /artifacts
   containers:
     - name: build
@@ -213,12 +213,12 @@ spec:
       command: ["make", "-j16"]  # UNCHANGED
       env:
         - name: LD_PRELOAD        # Injected by webhook
-          value: /omnibor/libintercept.so
+          value: /bisbom/libintercept.so
       volumeMounts:
         - name: workspace
           mountPath: /workspace
-        - name: omnibor-lib
-          mountPath: /omnibor
+        - name: bisbom-lib
+          mountPath: /bisbom
 ```
 
 Industry precedent: This is exactly how `EnvProxy` (Vault secret

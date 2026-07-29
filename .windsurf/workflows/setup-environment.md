@@ -1,10 +1,10 @@
 ---
-description: Run on every startup to verify the omnibor-analysis environment is ready
+description: Run on every startup to verify the bisbom-gen environment is ready
 ---
 
 # Setup Environment
 
-Run this workflow when opening the omnibor-analysis workspace.
+Run this workflow when opening the bisbom-gen workspace.
 
 ## 0. MANDATORY: Review all project rules
 
@@ -79,7 +79,7 @@ docker --version 2>/dev/null || echo "Docker not available locally — you may n
 
 If Docker is available locally:
 ```bash
-docker-compose -f docker/docker-compose.yml run --rm omnibor-env bomtrace3 --version 2>/dev/null || echo "Container image not built yet — run /docker-build workflow"
+docker-compose -f docker/docker-compose.yml run --rm bisbom-env bomtrace3 --version 2>/dev/null || echo "Container image not built yet — run /docker-build workflow"
 ```
 
 ## 6. Check for existing output artifacts

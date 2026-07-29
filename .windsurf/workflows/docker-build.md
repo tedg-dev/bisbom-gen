@@ -1,5 +1,5 @@
 ---
-description: Build or rebuild the Docker container for OmniBOR analysis
+description: Build or rebuild the Docker container for bisbom-gen analysis
 ---
 
 # Docker Build
@@ -19,19 +19,19 @@ Subsequent builds use Docker layer cache and are fast.
 ## 2. Verify bomtrace3 is available
 
 ```bash
-docker-compose -f docker/docker-compose.yml run --rm omnibor-env bomtrace3 --version
+docker-compose -f docker/docker-compose.yml run --rm bisbom-env bomtrace3 --version
 ```
 
 ## 3. Verify syft is available
 
 ```bash
-docker-compose -f docker/docker-compose.yml run --rm omnibor-env syft version
+docker-compose -f docker/docker-compose.yml run --rm bisbom-env syft version
 ```
 
 ## 4. Enter the container interactively
 
 ```bash
-docker-compose -f docker/docker-compose.yml run --rm omnibor-env bash
+docker-compose -f docker/docker-compose.yml run --rm bisbom-env bash
 ```
 
 ## Notes

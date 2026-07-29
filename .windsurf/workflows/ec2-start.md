@@ -18,7 +18,7 @@ Extract these values from the profile and use them in **all subsequent steps**:
 
 - **AWS_PROFILE** — the `AWS Profile` field (e.g. `ted-admin`)
 - **INSTANCE_ID** — the `Instance ID` field
-- **SSH_ALIAS** — the `SSH alias` field (e.g. `omnibor-build`)
+- **SSH_ALIAS** — the `SSH alias` field (e.g. `bisbom-build`)
 - **REPO_PATH** — the `Repo path on host` field
 
 **NEVER hardcode these values.** Always read them from the profile.
@@ -28,7 +28,7 @@ Extract these values from the profile and use them in **all subsequent steps**:
 // turbo
 ```bash
 aws ec2 describe-instances --profile <AWS_PROFILE> \
-  --filters "Name=tag:Name,Values=*omnibor*" \
+  --filters "Name=tag:Name,Values=*bisbom*" \
   --query "Reservations[].Instances[].{ID:InstanceId,State:State.Name,IP:PublicIpAddress,Name:Tags[?Key=='Name'].Value|[0]}" \
   --output table --no-cli-pager
 ```
@@ -117,7 +117,7 @@ If a full rebuild is needed, add `--no-cache` (takes 10-20 min).
 
 ```bash
 ssh <SSH_ALIAS> "cd <REPO_PATH> && \
-  docker compose -f docker/docker-compose.yml run --rm omnibor-env \
+  docker compose -f docker/docker-compose.yml run --rm bisbom-env \
   bash -c 'which bomtrace2 && which bomtrace3 && syft version && go version && \
   echo \"bomtrace_go.conf:\" && head -1 /opt/bomsh/bin/bomtrace_go.conf'"
 ```

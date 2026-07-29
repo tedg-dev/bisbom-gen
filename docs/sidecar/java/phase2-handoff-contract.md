@@ -2,8 +2,8 @@
 
 | | |
 |---|---|
-| **Audience** | omnibor-analysis maintainers (producers) and any downstream consumer of the generated SBOM set |
-| **Owner (producer side)** | omnibor-analysis (USER + Cascade) |
+| **Audience** | bisbom-gen maintainers (producers) and any downstream consumer of the generated SBOM set |
+| **Owner (producer side)** | bisbom-gen (USER + Cascade) |
 | **Scope specified** | Phase 2 **SBOM-generation output set** (consumer-agnostic) |
 | **Example consumer** | Corona SBOM filing / storage layer (other team) — one possible downstream, NOT part of Phase 2 |
 | **Out of scope** | How / where Phase 2 runs (the wrapper environment); transport / delivery / intake |
@@ -25,7 +25,7 @@ This document specifies the **producer-side output contract**: the artifact
 set Phase 2 generates and the `sbom_handoff_manifest.json` that enumerates and
 makes it verifiable. The manifest is a **consumer-agnostic output descriptor**
 — any downstream (Corona included) can ingest the set without reading the
-source tree, the JARs, or any omnibor-analysis internals.
+source tree, the JARs, or any bisbom-gen internals.
 
 It is **design-first**: the schema below is proposed for review by peer teams
 that consume the output (e.g. the Corona delivery layer). Field names and
@@ -58,9 +58,9 @@ consumer — it defines only **what** Phase 2 generates.
 
 | Concern | Part of Phase 2? |
 |---|---|
-| Generating the SBOM artifact set (`_build` + `_analyzed` per JAR) | Yes — omnibor-analysis |
-| Writing the `sbom_handoff_manifest.json` output descriptor | Yes — omnibor-analysis |
-| Digest computation (SHA-256 + OmniBOR GitOID) over the output | Yes — omnibor-analysis |
+| Generating the SBOM artifact set (`_build` + `_analyzed` per JAR) | Yes — bisbom-gen |
+| Writing the `sbom_handoff_manifest.json` output descriptor | Yes — bisbom-gen |
+| Digest computation (SHA-256 + OmniBOR GitOID) over the output | Yes — bisbom-gen |
 | How / where Phase 2 is invoked (the wrapper environment) | **Not Phase 2** (secondary concern) |
 | Corona intake mechanism (S3 bucket vs API) and data model | **Not Phase 2** (a consumer's concern) |
 | Product / Release / Image pathing inside Corona | **Not Phase 2** (a consumer's concern) |
@@ -83,8 +83,8 @@ of SPDX 2.3 documents following the CISA SBOM-type taxonomy:
 | `{jar_stem}_analyzed.spdx.html` | — | Interactive D3.js visualization of the analyzed SBOM | No (informational) |
 
 Where `{jar_stem}` is the JAR filename with the `.jar` suffix removed
-(e.g. JAR `omnibor-java-testapp-1.0.0.jar` -> stem
-`omnibor-java-testapp-1.0.0`).
+(e.g. JAR `bisbom-java-testapp-1.0.0.jar` -> stem
+`bisbom-java-testapp-1.0.0`).
 
 ### Directory layout
 
@@ -94,10 +94,10 @@ paths). The default, mirroring the current pipeline, is:
 ```text
 <output_dir>/spdx/java/<repo_name>/<run_ts>/
 ├── sbom_handoff_manifest.json                        <- the output descriptor (this contract)
-├── omnibor-java-testapp-1.0.0_build.spdx.json
-├── omnibor-java-testapp-1.0.0_analyzed.spdx.json
-├── omnibor-java-testapp-1.0.0_build.spdx.html        (informational)
-└── omnibor-java-testapp-1.0.0_analyzed.spdx.html     (informational)
+├── bisbom-java-testapp-1.0.0_build.spdx.json
+├── bisbom-java-testapp-1.0.0_analyzed.spdx.json
+├── bisbom-java-testapp-1.0.0_build.spdx.html        (informational)
+└── bisbom-java-testapp-1.0.0_analyzed.spdx.html     (informational)
 ```
 
 For a multi-module project, each production JAR contributes its own
@@ -140,7 +140,7 @@ Top-level object:
 
 | Field | Type | Required | Description |
 |---|---|---|---|
-| `tool` | string | yes | Producing tool (`"omnibor-analysis"`) |
+| `tool` | string | yes | Producing tool (`"bisbom-gen"`) |
 | `phase` | string | yes | `"phase2"` |
 | `mode` | string | yes | `"sidecar"` or `"standalone"` |
 
@@ -156,7 +156,7 @@ Each `sboms[]` entry:
 
 | Field | Type | Required | Description |
 |---|---|---|---|
-| `name` | string | yes | JAR filename (e.g. `omnibor-java-testapp-1.0.0.jar`) |
+| `name` | string | yes | JAR filename (e.g. `bisbom-java-testapp-1.0.0.jar`) |
 | `sha256` | string | yes | Plain SHA-256 of the JAR (hex), sourced from Phase 1 metadata |
 | `gitoid` | string | yes | OmniBOR GitOID of the JAR, `gitoid:blob:sha256:<hex>` |
 
@@ -175,30 +175,30 @@ Each SBOM file record (`build`, `analyzed`):
   "version": "1.0",
   "generated_ts": "2026-06-29T23:12:04Z",
   "producer": {
-    "tool": "omnibor-analysis",
+    "tool": "bisbom-gen",
     "phase": "phase2",
     "mode": "sidecar"
   },
-  "repo_name": "omnibor-java-testapp",
+  "repo_name": "bisbom-java-testapp",
   "language": "java",
   "commit_sha": "0a1b2c3d4e5f60718293a4b5c6d7e8f901234567",
-  "vcs_uri": "https://github.com/tedg-dev/omnibor-java-testapp.git",
+  "vcs_uri": "https://github.com/tedg-dev/bisbom-java-testapp.git",
   "build_id": "2026-06-29_2312",
   "source_manifest": "phase1_manifest.json",
   "sboms": [
     {
       "artifact": {
-        "name": "omnibor-java-testapp-1.0.0.jar",
+        "name": "bisbom-java-testapp-1.0.0.jar",
         "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
         "gitoid": "gitoid:blob:sha256:a94a8fe5ccb19ba61c4c0873d391e987982fbbd3"
       },
       "build": {
-        "path": "omnibor-java-testapp-1.0.0_build.spdx.json",
+        "path": "bisbom-java-testapp-1.0.0_build.spdx.json",
         "sha256": "b1946ac92492d2347c6235b4d2611184a1b2c3d4e5f60718293a4b5c6d7e8f90",
         "gitoid": "gitoid:blob:sha256:2ef7bde608ce5404e97d5f042f95f89f1c232871"
       },
       "analyzed": {
-        "path": "omnibor-java-testapp-1.0.0_analyzed.spdx.json",
+        "path": "bisbom-java-testapp-1.0.0_analyzed.spdx.json",
         "sha256": "c2c53d66948214258a26ca9ca845d7ac0c17f8e7a5f2b3c4d5e6f708192a3b4c",
         "gitoid": "gitoid:blob:sha256:3f786850e387550fdab836ed7e6dc881de23001b"
       }

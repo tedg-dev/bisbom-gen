@@ -21,7 +21,7 @@ class SpdxGenerator:
     this class patches ``creationInfo.creators`` to
     credit the actual tools that produced the data:
     bomtrace3 (build interception), bomsh (ADG + SPDX
-    enrichment), and omnibor-analysis (orchestration).
+    enrichment), and bisbom-gen (orchestration).
     """
 
     # Bomsh install dir — used to detect git commit
@@ -113,7 +113,7 @@ class SpdxGenerator:
 
     # Namespace prefix for OmniBOR-generated SBOMs
     NAMESPACE_PREFIX = (
-        "https://omnibor.io/omnibor-analysis"
+        "https://github.com/tedg-dev/bisbom-gen"
     )
 
     @staticmethod
@@ -125,7 +125,7 @@ class SpdxGenerator:
 
         1. Replaces ``documentNamespace`` with an
            OmniBOR-based URI (preserving the UUID).
-        2. Adds bomtrace3, bomsh, and omnibor-analysis
+        2. Adds bomtrace3, bomsh, and bisbom-gen
            to ``creationInfo.creators``.
         3. Injects OmniBOR ExternalRefs into packages
            when ``bom_dir`` is provided.
@@ -176,8 +176,8 @@ class SpdxGenerator:
         extra = [
             f"Tool: bomtrace3-{bt_ver}",
             f"Tool: bomsh-{bomsh_ver}",
-            "Tool: omnibor-analysis"
-            " (github.com/tedg-dev/omnibor-analysis)",
+            "Tool: bisbom-gen"
+            " (github.com/tedg-dev/bisbom-gen)",
         ]
 
         for entry in extra:
@@ -313,7 +313,7 @@ class SpdxGenerator:
 
     def generate(
         self, repo_name, repo_cfg,
-        paths_cfg, omnibor_cfg,
+        paths_cfg, bisbom_cfg,
         run_ts=None,
         vcs_uri=None,
     ):
@@ -331,7 +331,7 @@ class SpdxGenerator:
         lang = lang_subdir(repo_cfg)
         bom_dir = (
             Path(paths_cfg["output_dir"])
-            / "omnibor" / lang / repo_name / ts
+            / "bisbom" / lang / repo_name / ts
         )
         spdx_dir = (
             Path(paths_cfg["output_dir"])
@@ -357,7 +357,7 @@ class SpdxGenerator:
             return None
 
         files_arg = ",".join(artifact_paths)
-        sbom_script = omnibor_cfg["sbom_script"]
+        sbom_script = bisbom_cfg["sbom_script"]
 
         rc = self.runner.run(
             f"{sbom_script} "
@@ -383,7 +383,7 @@ class SpdxGenerator:
         # standard .spdx.json extension.
         spdx_file = (
             spdx_dir
-            / f"{repo_name}_omnibor.spdx.json"
+            / f"{repo_name}_bisbom.spdx.json"
         )
         generated = sorted(spdx_dir.glob(
             "*.spdx-json"
@@ -414,14 +414,19 @@ class SpdxGenerator:
             f"[OK] SPDX SBOM: {spdx_file.name}"
         )
 
-        # Rename remaining files: fix extension
+        # Rename remaining files: fix the upstream
+        # ``.spdx-json`` extension and rebrand any leftover
+        # upstream ``omnibor.`` filename prefix to ``bisbom.``
+        # so all emitted filenames are consistent with the
+        # rebranded primary (``<repo>_bisbom.spdx.json``).
         for f in generated:
             if f == primary:
                 continue
-            new_name = f.with_suffix(".json").with_suffix(
-                ".spdx.json"
-            )
-            if f.exists():
+            base = f.name.replace(".spdx-json", ".spdx.json")
+            if base.startswith("omnibor."):
+                base = "bisbom." + base[len("omnibor."):]
+            new_name = f.with_name(base)
+            if f.exists() and new_name != f:
                 f.rename(new_name)
                 print(
                     f"[OK] Renamed: {f.name} -> "
@@ -448,7 +453,7 @@ class SpdxGenerator:
 
     def generate_java(
         self, repo_name, repo_cfg,
-        paths_cfg, omnibor_java_cfg,
+        paths_cfg, bisbom_java_cfg,
         run_ts=None,
     ):
         """Generate SPDX SBOM for Java from bomsh_create_bom_java.py output.

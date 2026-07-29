@@ -49,7 +49,7 @@ class SpdxEmitter:
     """
 
     NAMESPACE_PREFIX = (
-        "https://omnibor.io/omnibor-analysis"
+        "https://github.com/tedg-dev/bisbom-gen"
     )
 
     def __init__(
@@ -208,9 +208,9 @@ class SpdxEmitter:
                     f"-{self.bomtrace_version}",
                     f"Tool: bomsh"
                     f"-{self.bomsh_version}",
-                    "Tool: omnibor-analysis"
+                    "Tool: bisbom-gen"
                     " (github.com/tedg-dev"
-                    "/omnibor-analysis)",
+                    "/bisbom-gen)",
                 ],
                 "licenseListVersion": "3.19",
             },

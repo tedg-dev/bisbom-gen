@@ -35,14 +35,14 @@ at build time. This creates three problems for SBOM generation:
   guarantees that every build of `curl-8_19_0` produces the same
   dependency graph.
 
-- **Meaningless comparisons.** When comparing an OmniBOR-generated SBOM
-  against a proprietary binary scan, both sides must agree on what
-  version of the software was analyzed. A moving branch target makes
-  this impossible.
+- **Meaningless comparisons.** When comparing a bisbom-gen SBOM
+  against a proprietary binary scan, both sides must agree on which
+  version of the software is being compared. A moving branch target
+  makes this impossible.
 
 ## 2. The Redis 255.255.255 Incident
 
-This problem was discovered during analysis of the Redis repository.
+This problem was discovered while running bisbom-gen on the Redis repository.
 
 ### What happened
 
@@ -102,7 +102,7 @@ Downstream consumers rely on this field for:
 | **Vulnerability scanners** | Match `pkg:generic/redis@8.0.6` against CVE databases | `255.255.255` matches nothing |
 | **License compliance** | Identify which license applies to a specific release | Dev branches may have license changes in progress |
 | **Reproducibility audits** | Rebuild the exact same binary | Branch tip moves between builds |
-| **SBOM comparison** | Compare OmniBOR SBOM vs. Syft/proprietary scan | Both must analyze the same code |
+| **SBOM comparison** | Compare bisbom-gen SBOM vs. Syft/proprietary scan | Both must describe the same code |
 | **Regulatory submissions** | NTIA/CISA minimum elements require accurate version | Placeholder versions fail compliance |
 
 ## 4. Current Tag Map

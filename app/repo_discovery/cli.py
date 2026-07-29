@@ -13,7 +13,7 @@ from app.repo_discovery.facade import RepoDiscovery
 def main():
     parser = argparse.ArgumentParser(
         description=(
-            "OmniBOR — Smart repo discovery "
+            "bisbom-gen — Smart repo discovery "
             "and config generation"
         )
     )
@@ -36,7 +36,7 @@ def main():
 
     print(f"\n{'='*60}")
     print(
-        f"  OmniBOR — Add Repository: {args.repo}"
+        f"  bisbom-gen — Add Repository: {args.repo}"
     )
     print(f"{'='*60}\n")
 

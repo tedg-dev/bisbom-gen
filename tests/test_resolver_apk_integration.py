@@ -7,12 +7,12 @@ metadata and produces valid PURLs.
 
 Requirements:
   - Docker daemon running
-  - omnibor-env:alpine image built
+  - bisbom-env:alpine image built
 
 Run::
 
     docker compose -f docker/docker-compose.yml run --rm \\
-        omnibor-alpine python3 -m pytest \\
+        bisbom-alpine python3 -m pytest \\
         tests/test_resolver_apk_integration.py -v
 
 Skip in normal test runs::

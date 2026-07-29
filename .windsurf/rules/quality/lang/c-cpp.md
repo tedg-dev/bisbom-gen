@@ -79,7 +79,7 @@ description: C/C++-specific best practices, tooling, and conventions
 - **Test job**: `ctest --test-dir build --output-on-failure`
 - **Static analysis job**: `clang-tidy` on changed files
 
-## Release Builds (OmniBOR)
+## Release Builds (Bisbom)
 
 - `./configure` without `--enable-debug` or `CFLAGS="-g -O0"`
 - `make` with default optimization (typically `-O2`)

@@ -6,6 +6,21 @@ import sys
 from pathlib import Path
 
 
+def _normalize_branding(text):
+    """Mask the ``omnibor`` -> ``bisbom`` project rename.
+
+    The rename is a branding change, not a content change.  Applying the
+    SAME substitution to BOTH the golden baseline and the new candidate
+    can only mask that rename in names (repo/package/SPDXID/path/download
+    location) -- it can never hide a real content difference, because any
+    genuine divergence survives the identical substitution on both sides.
+    Golden files that predate the rename keep the ``omnibor`` spelling; new
+    output uses ``bisbom``.  Normalizing both sides lets them compare equal
+    without re-baselining the goldens.
+    """
+    return text.replace("omnibor", "bisbom")
+
+
 def _normalize_ref(ref):
     """Normalize an external ref for comparison.
 
@@ -54,9 +69,9 @@ def rel_counts(rels):
 
 def compare(golden_path, new_path):
     with open(golden_path, encoding="utf-8") as fh:
-        g = json.load(fh)
+        g = json.loads(_normalize_branding(fh.read()))
     with open(new_path, encoding="utf-8") as fh:
-        n = json.load(fh)
+        n = json.loads(_normalize_branding(fh.read()))
     gp = g.get("packages", [])
     np_ = n.get("packages", [])
     gf = g.get("files", [])

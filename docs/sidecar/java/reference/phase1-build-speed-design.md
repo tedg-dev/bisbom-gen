@@ -7,7 +7,7 @@
 | **Consolidates** | `docs/_archived/performance/phase-isolation-build-time-analysis.md`, the Java-efficiency portions of `../phase-isolation-gap-analysis.md`, and `docs/_archived/performance/bomsh-java-performance-optimization.md` |
 | **Scope** | Java builds (Maven and Gradle). Other languages capture inline during the build and have no separate dependency-resolution step. |
 | **Status** | Active design; baseline + US-1 + US-2 delivered (US-2 validated golden-clean on bc-java + spring-boot); US-3 conditional |
-| **Author** | OmniBOR Analysis project |
+| **Author** | bisbom-gen project |
 | **Drafted** | 2026-06-24 (Cascade) |
 
 > This is the **single detailed engineering reference** for Phase 1
@@ -95,13 +95,13 @@ multi-module output volume.
 
 **Net effect on this plan:** with treedb no longer dominant, dependency
 resolution already offline, and the duplicate Phase 2 resolution now
-**eliminated** (Section 4, delivered in `tedg-dev/omnibor-analysis#194`),
+**eliminated** (Section 4, delivered in `tedg-dev/bisbom-gen#194`),
 the largest remaining *Gradle-specific* cost is **per-subproject query
 start-up** (Section 5.2).
 
 ---
 
-## 4. Duplicate dependency resolution — RESOLVED (delivered in `tedg-dev/omnibor-analysis#194`)
+## 4. Duplicate dependency resolution — RESOLVED (delivered in `tedg-dev/bisbom-gen#194`)
 
 > **✅ Delivered.** This section originally described the largest remaining
 > inefficiency — Java resolving dependencies **twice** (Phase 1 saved the
@@ -135,7 +135,7 @@ once in Phase 1 (saved, then ignored) and again in Phase 2.
 
 ### 5.1 US-1 — Phase 2 reuses captured dependency data
 
-**Status:** ✅ Implemented and merged (`tedg-dev/omnibor-analysis#194`,
+**Status:** ✅ Implemented and merged (`tedg-dev/bisbom-gen#194`,
 A1 / #11003). Phase 2 consumes the Phase 1 capture; the text below reflects
 the as-built approach.
 

@@ -3,11 +3,11 @@
 # logging each to /tmp/jval/<repo>.log. Each repo runs in its own
 # ephemeral --rm container, so /tmp treedb cannot cross-contaminate.
 set -uo pipefail
-cd /home/ubuntu/omnibor-analysis
+cd /home/ubuntu/bisbom-gen
 
 REPOS="${*:-bc-java checkstyle crawler4j dependency-check jsoup logging-log4j2 spring-boot}"
 mkdir -p /tmp/jval
-DC="docker compose -f docker/docker-compose.yml run --rm --remove-orphans omnibor-sidecar"
+DC="docker compose -f docker/docker-compose.yml run --rm --remove-orphans bisbom-sidecar"
 
 for r in $REPOS; do
     echo "=== $r START $(date -u +%H:%M:%S) ==="

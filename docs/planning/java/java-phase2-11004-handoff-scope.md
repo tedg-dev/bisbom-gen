@@ -1,11 +1,11 @@
-# #11004 — Java Phase 2 SBOM Output & Hand-Off Contract (omnibor-analysis side)
+# #11004 — Java Phase 2 SBOM Output & Hand-Off Contract (bisbom-gen side)
 
 |  |  |
 |---|---|
 | **Inferred JIRA/issue ID** | #11004 (mapping inferred from repo structure; issue tracker currently unavailable) |
 | **Parent** | Java Phase 2: Generate SBOMs From Phase 1 Metadata Without the Source Tree |
-| **Predecessor** | #11003 — generate Java SBOMs from Phase 1 metadata (PR `tedg-dev/omnibor-analysis#194`) |
-| **Charter** | Us (the USER + Cascade): Phase 1 + Phase 2 omnibor-analysis work **only** |
+| **Predecessor** | #11003 — generate Java SBOMs from Phase 1 metadata (PR `tedg-dev/bisbom-gen#194`) |
+| **Charter** | Us (the USER + Cascade): Phase 1 + Phase 2 bisbom-gen work **only** |
 | **Author** | Ted G. |
 | **Drafted** | 2026-06-26 (Cascade) |
 | **Status** | Draft scope — for review |
@@ -16,7 +16,7 @@
 
 "Our charter" = **us (the USER + Cascade)** — the actors doing this work,
 not a separate team. We own **Phase 1 (interception/capture)** and **Phase 2
-(SBOM generation)** in omnibor-analysis — full stop.
+(SBOM generation)** in bisbom-gen — full stop.
 
 A **different team** owns the **S3 bucket** side and **how the Phase 2
 output integrates/works with Corona** — which most likely includes the
@@ -25,7 +25,7 @@ and auth.
 
 Therefore this sub-issue ("Deliver Java SBOMs to Corona") is **most likely
 the other team's**. Our deliverable ends at **producing the Phase 2 SBOM
-output** in omnibor-analysis — which #11003 already does. The items below
+output** in bisbom-gen — which #11003 already does. The items below
 are a **candidate** in-charter remainder **only if** the USER confirms any
 of it is ours; otherwise our Java Phase 1/Phase 2 work is complete at
 #11003.
@@ -75,7 +75,7 @@ I want Phase 2 to write a complete, well-specified SBOM artifact set plus a
 hand-off manifest to a known location,
 
 so that the delivery team can ingest it into the central SBOM system without
-needing the source tree or any omnibor-analysis internals.
+needing the source tree or any bisbom-gen internals.
 
 ---
 
@@ -131,5 +131,5 @@ needing the source tree or any omnibor-analysis internals.
 
 #11003 made Phase 2 **generate** Java SBOMs from Phase 1 metadata without
 the source tree. #11004 makes Phase 2 **package and hand off** those SBOMs
-at a documented boundary — the last omnibor-analysis step before the
+at a documented boundary — the last bisbom-gen step before the
 delivery team takes over.

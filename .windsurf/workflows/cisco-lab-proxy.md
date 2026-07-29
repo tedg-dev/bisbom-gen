@@ -53,7 +53,7 @@ Create `docker/docker-compose.override.yml` on the host:
 
 ```yaml
 services:
-  omnibor-env:
+  bisbom-env:
     environment:
       - HTTP_PROXY=http://proxy-wsa.esl.cisco.com:80
       - HTTPS_PROXY=http://proxy-wsa.esl.cisco.com:80
@@ -70,7 +70,7 @@ Then always include both compose files:
 docker compose \
   -f docker/docker-compose.yml \
   -f docker/docker-compose.override.yml \
-  run --rm omnibor-env <COMMAND>
+  run --rm bisbom-env <COMMAND>
 ```
 
 ## 4. Maven / Java (special handling required)
@@ -96,13 +96,13 @@ sudo systemctl start docker
 # Container can reach the internet
 docker compose -f docker/docker-compose.yml \
   -f docker/docker-compose.override.yml \
-  run --rm omnibor-env bash -c \
+  run --rm bisbom-env bash -c \
   'curl -sI https://github.com | head -1'
 
 # Maven Central reachable
 docker compose -f docker/docker-compose.yml \
   -f docker/docker-compose.override.yml \
-  run --rm omnibor-env bash -c \
+  run --rm bisbom-env bash -c \
   'mvn --version 2>&1 | head -1'
 ```
 

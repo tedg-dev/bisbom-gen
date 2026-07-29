@@ -31,6 +31,13 @@ may now proceed. **Main C** still follows Main B. (Historically this was a
 hard gate requiring 100% of Main A before any Main B work; that gate is now
 cleared per the project lead.)
 
+**Current active work — Project Rebrand (Main R, #11194):** the project is
+being repositioned publicly as **build-interception SBOM** generation, with the
+underlying tooling (OmniBOR/bomsh) de-emphasized in public-facing framing.
+This cross-cutting rebrand is **In Development now and takes priority over
+C/C++ (Main B)** — B1.1 (#11176) was moved back to `Ready` for it — and
+**precedes** the CiscoSecurityServices org migration. See **Main R** below.
+
 ## Index
 
 ### Main A — Complete Java Sidecar Phase Isolation (TOP PRIORITY)
@@ -62,7 +69,7 @@ always available via the `tedg_cisco` account):
 | A7 | Deliver Java build evidence to Corona (Java delivery slice) | Postponed — out of charter (Corona / Phase 2-incorporation team owns delivery + verification) | SI-5 (Java) |
 | A8 | Build efficiency — fully in-memory JAR class processing (no extract-to-disk) | **Merged (PR #211)** — tested (1886 pass, 99% cov, patch files 100%) + EC2 golden-validated 2026-07-14 (jsoup/checkstyle identical). Note: EC2 validation predates the inline-hashing default, so A8 now primarily benefits the `java_inline_hash: false` fallback path | US-4 / #11055 |
 | A9 | Support non-Maven/Gradle Java builds (Ant/Ivy, Bazel, `make`) | **Backlog** — parentless issue, not in the initial pilot; **excluded from the Main A completion gate** | #11066 (Proposed) / [java/java-nonmaven-gradle-build-tools-subissue.md](java/java-nonmaven-gradle-build-tools-subissue.md) |
-| A10 | Build efficiency — inline GitOID capture during the build (eliminate post-build rescan) | Delivered & merged (PR #212); **enabled by default** (`java_inline_hash: true`), golden-validated via A11 (PR #213) | US-5 / #11097 (child of #11005, In Review) / PR tedg-dev/omnibor-analysis#212 — [java/phase1-build-speed-subissues.md](java/phase1-build-speed-subissues.md) |
+| A10 | Build efficiency — inline GitOID capture during the build (eliminate post-build rescan) | Delivered & merged (PR #212); **enabled by default** (`java_inline_hash: true`), golden-validated via A11 (PR #213) | US-5 / #11097 (child of #11005, In Review) / PR tedg-dev/bisbom-gen#212 — [java/phase1-build-speed-subissues.md](java/phase1-build-speed-subissues.md) |
 | A11 | Inline-hashing golden-clean validation — MRJAR/multi-module correctness + build-logic JAR exclusion | **Merged (PR #213)**; golden-clean on all 7 Java repos; A10 flag enabled by default | US-6 / #11100 (child of #11005, In Review) — [java/phase1-build-speed-subissues.md](java/phase1-build-speed-subissues.md) |
 | A12 | Build efficiency — capture the Gradle dependency graph during the build (eliminate the post-build re-resolution) | **In Development** (Walk 21); design doc merged, no code PR yet | #11104 (child of #11005) — [../sidecar/java/gradle-inline-dep-capture-design.md](../sidecar/java/gradle-inline-dep-capture-design.md) |
 
@@ -77,7 +84,7 @@ likely not required for the initial pilot: the universal artifact-based
 capture path (`.class` + classpath JAR GitOID via treedb) already covers
 Ant and `make`/`javac` without a declared-graph adapter, and the Ivy/Bazel
 declared-graph adapters are post-pilot accuracy enrichments. The parked
-work is `tedg-dev/omnibor-analysis#201` (Ivy parser, `backlog` label) and
+work is `tedg-dev/bisbom-gen#201` (Ivy parser, `backlog` label) and
 `#202` (tables non-Maven/Gradle for the pilot, `Proposed` label). The
 generic build-tool detection + shared treedb helper (#199/#200) is **pilot
 foundation** tracked in #11069 (AF), not under A9. **Java delivery
@@ -100,7 +107,7 @@ only when Main B work begins.
 
 | Sub | Title (higher-level user story) | Work items | Lang | Status | Maps to |
 |-----|-------|------|------|--------|---------|
-| B1 | Agree how we observe C/C++ builds without changing them | B1.1–B1.3 (#11176–#11178) | C/C++ | Ready (B1.1 #11176 In Development) | SI-1 / #11009 |
+| B1 | Agree how we observe C/C++ builds without changing them | B1.1–B1.3 (#11176–#11178) | C/C++ | Ready (B1.1–B1.3 all Ready; paused for rebrand #11194) | SI-1 / #11009 |
 | B2 | Auto-capture C/C++ components during a normal build (`LD_PRELOAD` primary) | B2.1–B2.5 | C/C++ | Ready | SI-2 / #11010 |
 | B3 | Extend capture to self-contained (static) builds (eBPF/audit node observers) | B3.1–B3.3 | C/C++, Go | Ready | SI-3 / #11011 |
 | B4 | C/C++ realization — SBOMs from captured data, no workspace | B4.1–B4.5 | C/C++ | Ready | SI-4 (C/C++) / #11012 |
@@ -115,6 +122,20 @@ After Java (Main A); coordinated with / after C/C++ (Main B). Detail:
 | C1 | Shared Corona intake + auth model (build once, reuse existing patterns) | all | Out of charter — Corona owns (#11013 closed, not planned) | SI-5 (shared) |
 | C2 | Deliver build evidence for C/C++, Rust, Go | C/C++, Rust, Go | Out of charter — Corona owns (#11013 closed, not planned) | SI-5 (non-Java) |
 | C3 | SI-4 realizations for Rust and Go | Rust, Go | Planned | SI-4 (Rust/Go) |
+
+### Main R — Project Rebrand & Tooling Obfuscation (active, cross-cutting)
+
+Reposition the project publicly as **Build-Interception SBOM Generation**
+(`bisbom-gen`); de-emphasize OmniBOR/bomsh in public-facing framing. Repo renames (`bisbom-gen` → `bisbom-gen`;
+`bisbom-java-testapp` → `bisbom-java-testapp`), staged so the low-risk docs
+rebrand lands separately from the higher-risk code-identifier scrub. Precedes
+the CiscoSecurityServices org migration.
+
+| Sub | Title | Stage | Status | Maps to |
+|-----|-------|-------|--------|---------|
+| R1 | Public-facing docs rebrand (README, architecture, guides, ONBOARDING) + planning/rule sync | Stage 0 + A | In Development (Walk 21) | #11194 |
+| R2 | Machinery / code-identifier scrub (GHCR `bisbom-sidecar`, `bisbom*` config/identifiers, `.windsurf/`) | Stage B | Planned (names finalized) | #11194 |
+| R3 | Repo renames + reference cutover (git remotes, config, terraform, workflow, docs) | Stage C | Planned | #11194 |
 
 ## Adding new work
 

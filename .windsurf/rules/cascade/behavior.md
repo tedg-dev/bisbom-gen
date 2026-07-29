@@ -22,7 +22,7 @@ Before making ANY business logic, design, or implementation choice,
 verify the approach follows industry-standard best practices.
 
 1. **Standards compliance** — use established specifications (SPDX 2.3,
-   OmniBOR, PEP, semver, PURL, etc.) not ad-hoc formats
+   Bisbom, PEP, semver, PURL, etc.) not ad-hoc formats
 2. **Recognized patterns** — use well-known design patterns (strategy,
    facade, factory) not novel inventions
 3. **Idiomatic code** — follow language conventions (PEP 8 for Python,

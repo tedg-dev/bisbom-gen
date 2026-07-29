@@ -1,13 +1,13 @@
 # ============================================================
-# Multi-stage Dockerfile for OmniBOR Analysis
+# Multi-stage Dockerfile for bisbom-gen
 #
 # Targets:
 #   standalone — full image with toolchains + bomtrace (default)
 #   sidecar    — minimal image with analysis pipeline only
 #
 # Build:
-#   docker build --target standalone -t omnibor-env:standalone .
-#   docker build --target sidecar    -t omnibor-env:sidecar .
+#   docker build --target standalone -t bisbom-env:standalone .
+#   docker build --target sidecar    -t bisbom-env:sidecar .
 # ============================================================
 
 # ============================================================
@@ -304,16 +304,16 @@ RUN python3 /tmp/apply_inmemory_jar.py && rm /tmp/apply_inmemory_jar.py
 # Java inline-hashing shim (sidecar): an LD_PRELOAD library that computes
 # each .class/.jar git-blob SHA-1 + SHA-256 gitoid inline as the build
 # finalizes it, appending a JSONL capture log.  generate_adg() then
-# assembles the OmniBOR treedb from that log instead of rescanning the
-# workspace.  Enabled per-run via config (omnibor.java_inline_hash) which
-# injects LD_PRELOAD + OMNIBOR_CAPTURE_LOG; the native build is untouched.
+# assembles the bomsh treedb from that log instead of rescanning the
+# workspace.  Enabled per-run via config (bisbom.java_inline_hash) which
+# injects LD_PRELOAD + BISBOM_CAPTURE_LOG; the native build is untouched.
 # See docs/sidecar/java/inline-hashing-interception-design.md.
-COPY docker/shim/omnibor_java_intercept.c /tmp/omnibor_java_intercept.c
-RUN mkdir -p /opt/omnibor/lib && \
+COPY docker/shim/bisbom_java_intercept.c /tmp/bisbom_java_intercept.c
+RUN mkdir -p /opt/bisbom/lib && \
     gcc -shared -fPIC -O2 \
-        -o /opt/omnibor/lib/libomnibor_java_intercept.so \
-        /tmp/omnibor_java_intercept.c -ldl -lcrypto -lpthread -lz && \
-    rm /tmp/omnibor_java_intercept.c
+        -o /opt/bisbom/lib/libbisbom_java_intercept.so \
+        /tmp/bisbom_java_intercept.c -ldl -lcrypto -lpthread -lz && \
+    rm /tmp/bisbom_java_intercept.c
 
 # Go-specific bomtrace2 config (watches go compile/link tools + openat syscall)
 COPY docker/bomtrace_go.conf /opt/bomsh/bin/bomtrace_go.conf
@@ -407,8 +407,8 @@ RUN python3 /tmp/apply_inmemory_jar.py && \
 # stage so the lean sidecar image needs no C toolchain.  libcrypto is
 # already present (openjdk/maven depend on libssl) for the runtime link.
 COPY --from=standalone \
-    /opt/omnibor/lib/libomnibor_java_intercept.so \
-    /opt/omnibor/lib/libomnibor_java_intercept.so
+    /opt/bisbom/lib/libbisbom_java_intercept.so \
+    /opt/bisbom/lib/libbisbom_java_intercept.so
 
 ENV PATH="/opt/bomsh/bin:/opt/bomsh/scripts:${PATH}"
 

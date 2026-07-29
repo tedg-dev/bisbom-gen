@@ -389,7 +389,7 @@ or `JavaSpdxGenerator` — they consume the canonical dep dict unchanged.
 0. **Investigate real repositories** — **done; findings recorded in §13**
    (`maven_install.json` structure, Ivy report XML schema, `ant-ivy` build
    facts, finalized verifier repos). Remaining: confirm the Bazel example
-   repo path (post toolchain decision) and create `omnibor-java-make-testapp`.
+   repo path (post toolchain decision) and create `bisbom-java-make-testapp`.
 1. Extract shared `_generate_java_treedb()` helper (pure refactor, golden-clean).
 2. `_detect_java_build_tool()` + config override + unit tests.
 3. Ivy: `ivy_report_parser` + `IvyDepCaptureStrategy` + reader support + tests
@@ -469,7 +469,7 @@ Drives `ivy_report_parser`:
 | Build tool | Repo | Pin | Build entry | Evidence |
 |---|---|---|---|---|
 | Ant + Ivy | `apache/ant-ivy` | release tag (e.g. `2.5.2`) | `ant jar` (resolve -> compile -> jar) | §13.2/§13.3 — real Ivy report + unforked javac |
-| `make`/`javac` (artifact-only) | new `omnibor-java-make-testapp` (we own) | `main` | `make` | controlled `Makefile` -> `javac` -> `jar`; exercises §8.1 PATH shim |
+| `make`/`javac` (artifact-only) | new `bisbom-java-make-testapp` (we own) | `main` | `make` | controlled `Makefile` -> `javac` -> `jar`; exercises §8.1 PATH shim |
 | Bazel | candidate `bazelbuild/examples` (Java + `rules_jvm_external`) — **exact path TBD** | commit SHA | `bazel build //...` | §13.1 lockfile format; **gated on Bazel toolchain decision** |
 | Ant (no Ivy) | optional `apache/ant` | release tag | bootstrap build | confirms artifact-only path; heavier bootstrap — lower priority |
 

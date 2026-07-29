@@ -2,10 +2,10 @@
 
 **Purpose:** Step-by-step instructions for developers who already have an AWS
 account and infrastructure (VPCs, subnets, security groups, IAM roles) and want
-to add an OmniBOR analysis build host to their existing environment.
+to add a bisbom-gen build host to their existing environment.
 
 **Audience:** Developers and platform engineers with an established AWS presence
-who need to integrate an OmniBOR build host alongside existing workloads.
+who need to integrate a bisbom-gen build host alongside existing workloads.
 
 **Complementary guide:** If you are starting from scratch with no AWS
 infrastructure, see the [Greenfield AWS Setup Guide](aws-setup-guide.md) which
@@ -27,7 +27,7 @@ uses Terraform to provision everything from zero.
 - [Step 3: Install Docker and Build the Container](#step-3-install-docker-and-build-the-container)
 - [Step 4: Validate the Environment](#step-4-validate-the-environment)
 - [Step 5: Configure Your Infrastructure Profile](#step-5-configure-your-infrastructure-profile)
-- [Step 6: Run a Test Analysis](#step-6-run-a-test-analysis)
+- [Step 6: Run a Test SBOM Generation](#step-6-run-a-test-analysis)
 - [Networking Requirements](#networking-requirements)
 - [Corporate and Enterprise Considerations](#corporate-and-enterprise-considerations)
 - [IAM Permissions Reference](#iam-permissions-reference)
@@ -41,7 +41,7 @@ uses Terraform to provision everything from zero.
 
 ## Hard Requirements
 
-OmniBOR build interception uses `bomtrace3`, a ptrace-based tool that reads
+Build interception uses `bomtrace3`, a ptrace-based tool that reads
 x86_64 CPU registers directly via `<sys/reg.h>`. This creates **non-negotiable
 platform constraints** that cannot be worked around with configuration changes.
 
@@ -52,13 +52,13 @@ platform constraints** that cannot be worked around with configuration changes.
 | **Docker 20.10+** | Container runtime with `SYS_PTRACE` capability and `seccomp:unconfined` | Podman may work but is untested |
 | **glibc-based Linux** | `bomtrace3` and bomsh scripts assume glibc | Alpine Linux (musl) **will not work** |
 | **Ubuntu 22.04 LTS** | Tested and verified base image; Dockerfile is built on `ubuntu:22.04` | Other glibc distros (Debian 11+, RHEL 8+, Amazon Linux 2023) likely work but are untested |
-| **50 GB disk** (recommended) | Docker image (~8 GB) + cloned repos + build artifacts | 30 GB minimum for single-repo analysis |
+| **50 GB disk** (recommended) | Docker image (~8 GB) + cloned repos + build artifacts | 30 GB minimum for a single-repo run |
 | **4 GB RAM** (minimum) | Docker build + compilation workloads | 2 GB will OOM on large repos (FFmpeg, Node.js) |
 | **Outbound internet access** | Cloning repos, pulling Docker images, downloading build dependencies | Air-gapped environments require pre-staged images and repos |
 
 > **Critical:** AWS Graviton instances (ARM64) are **architecturally
 > incompatible** with `bomtrace3`. This is not a configuration issue — it
-> requires code changes to the upstream `omnibor/bomsh` project. See
+> requires code changes to the upstream build-interception tooling. See
 > [Platform Support](../architecture/platform-support.md) for details.
 
 ---
@@ -160,7 +160,7 @@ Use this to quickly determine the right path:
 ## Scenario A: Reuse an Existing EC2 Instance
 
 Use this scenario when you have an x86_64 EC2 instance that you can dedicate
-(or share) for OmniBOR analysis.
+(or share) for bisbom-gen.
 
 ### Prerequisites checklist
 
@@ -226,10 +226,10 @@ sudo chmod +x /usr/local/bin/docker-compose
 
 ```bash
 # Clone the repository
-git clone https://github.com/tedg-dev/omnibor-analysis.git ~/omnibor-analysis
+git clone https://github.com/tedg-dev/bisbom-gen.git ~/bisbom-gen
 
 # Build the Docker image (~15-20 minutes on first build)
-cd ~/omnibor-analysis
+cd ~/bisbom-gen
 docker-compose -f docker/docker-compose.yml build
 ```
 
@@ -239,7 +239,7 @@ docker-compose -f docker/docker-compose.yml build
 > ```bash
 > rsync -avz --exclude '.git' --exclude '__pycache__' --exclude '.venv' \
 >   --exclude 'output/' --exclude 'repos/' \
->   -e ssh ./ your-ssh-alias:~/omnibor-analysis/
+>   -e ssh ./ your-ssh-alias:~/bisbom-gen/
 > ```
 
 ### A5. Proceed to [Step 3](#step-3-install-docker-and-build-the-container)
@@ -254,7 +254,7 @@ validation.
 ## Scenario B: Launch a New EC2 in an Existing VPC
 
 Use this scenario when you have an AWS account with existing networking
-infrastructure but need a new EC2 instance for OmniBOR analysis.
+infrastructure but need a new EC2 instance for bisbom-gen.
 
 ### B1. Choose your approach
 
@@ -294,7 +294,7 @@ it is sufficient. Otherwise, create a dedicated one:
 # Create a security group in your existing VPC
 SG_ID=$(aws ec2 create-security-group \
   --group-name omnibor-build-sg \
-  --description "OmniBOR build host — SSH inbound" \
+  --description "bisbom-gen build host — SSH inbound" \
   --vpc-id vpc-YOUR_VPC_ID \
   --query 'GroupId' --output text --no-cli-pager)
 
@@ -430,7 +430,7 @@ ssh omnibor-build "sudo apt-get install -y git rsync"
 ### B10. Clone the repo and build the Docker image
 
 ```bash
-ssh omnibor-build "git clone https://github.com/tedg-dev/omnibor-analysis.git ~/omnibor-analysis"
+ssh omnibor-build "git clone https://github.com/tedg-dev/bisbom-gen.git ~/bisbom-gen"
 ```
 
 If the repo is private, push via rsync from your local machine:
@@ -439,13 +439,13 @@ If the repo is private, push via rsync from your local machine:
 rsync -avz --exclude '.git' --exclude '__pycache__' --exclude '.venv' \
   --exclude 'output/' --exclude 'repos/' \
   --exclude 'terraform/.terraform/' --exclude 'terraform/terraform.tfstate*' \
-  -e ssh ./ omnibor-build:~/omnibor-analysis/
+  -e ssh ./ omnibor-build:~/bisbom-gen/
 ```
 
 Build the Docker image (~15-20 minutes):
 
 ```bash
-ssh omnibor-build "cd ~/omnibor-analysis && docker-compose -f docker/docker-compose.yml build"
+ssh omnibor-build "cd ~/bisbom-gen && docker-compose -f docker/docker-compose.yml build"
 ```
 
 ---
@@ -503,8 +503,8 @@ sudo chmod +x /usr/local/bin/docker-compose
 ### C4. Clone, build, validate
 
 ```bash
-git clone https://github.com/tedg-dev/omnibor-analysis.git ~/omnibor-analysis
-cd ~/omnibor-analysis
+git clone https://github.com/tedg-dev/bisbom-gen.git ~/bisbom-gen
+cd ~/bisbom-gen
 docker-compose -f docker/docker-compose.yml build
 ```
 
@@ -532,7 +532,7 @@ security_opt:
 
 These settings are non-negotiable. If your Docker installation or
 orchestration platform restricts `SYS_PTRACE` or enforces seccomp profiles,
-OmniBOR analysis **will not work**.
+bisbom-gen **will not work**.
 
 ### Docker on managed platforms
 
@@ -553,7 +553,7 @@ OmniBOR analysis **will not work**.
 ### Build the Docker image
 
 ```bash
-# From the omnibor-analysis repository root on the build host
+# From the bisbom-gen repository root on the build host
 docker-compose -f docker/docker-compose.yml build
 ```
 
@@ -589,14 +589,14 @@ docker-compose --version
 ### 4c. bomtrace3 check
 
 ```bash
-docker-compose -f docker/docker-compose.yml run --rm omnibor-env bomtrace3 --version
+docker-compose -f docker/docker-compose.yml run --rm bisbom-env bomtrace3 --version
 # Expected: strace -- version 6.11 (or similar)
 ```
 
 ### 4d. Container capabilities check
 
 ```bash
-docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
+docker-compose -f docker/docker-compose.yml run --rm bisbom-env \
   sh -c 'cat /proc/self/status | grep CapEff'
 # Should show capabilities including SYS_PTRACE (bit 19)
 ```
@@ -604,7 +604,7 @@ docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
 ### 4e. Outbound connectivity check
 
 ```bash
-docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
+docker-compose -f docker/docker-compose.yml run --rm bisbom-env \
   sh -c 'curl -s https://github.com > /dev/null && echo "GitHub OK" && \
          curl -s https://registry-1.docker.io > /dev/null && echo "Docker Hub OK"'
 ```
@@ -612,8 +612,8 @@ docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
 ### 4f. Quick functional test
 
 ```bash
-# Run a fast analysis (redis takes ~2 minutes)
-docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
+# Run a fast SBOM generation (redis takes ~2 minutes)
+docker-compose -f docker/docker-compose.yml run --rm bisbom-env \
   python3 /workspace/app/analyze.py --repo redis
 ```
 
@@ -644,7 +644,7 @@ Edit `active-profile.md` with your actual values:
 | IP | `10.0.1.50` or `54.215.15.253` |
 | Region | `us-west-2` |
 | Instance Type | `c6i.xlarge` |
-| Repo path on host | `/home/ubuntu/omnibor-analysis` |
+| Repo path on host | `/home/ubuntu/bisbom-gen` |
 
 ### For local Docker hosts
 
@@ -660,7 +660,7 @@ cp .windsurf/rules/infrastructure/templates/local-linux.md \
 
 <a id="step-6-run-a-test-analysis"></a>
 
-## Step 6: Run a Test Analysis
+## Step 6: Run a Test SBOM Generation
 
 ### From Cascade (recommended)
 
@@ -675,15 +675,15 @@ Choose `redis` for a quick ~2 minute test.
 ### Manually via SSH
 
 ```bash
-ssh omnibor-build "cd ~/omnibor-analysis && \
-  docker-compose -f docker/docker-compose.yml run --rm omnibor-env \
+ssh omnibor-build "cd ~/bisbom-gen && \
+  docker-compose -f docker/docker-compose.yml run --rm bisbom-env \
   python3 /workspace/app/analyze.py --repo redis"
 ```
 
 ### Sync results to local machine
 
 ```bash
-rsync -avz omnibor-build:~/omnibor-analysis/output/ output/
+rsync -avz omnibor-build:~/bisbom-gen/output/ output/
 ```
 
 Results will be in `output/spdx/c-cpp/redis/<timestamp>/`.
@@ -756,7 +756,7 @@ WireGuard, etc.):
 
 If your AWS account is shared across teams:
 
-- **Tag your resources:** Add `Project=omnibor-analysis` and `Owner=<your-name>` tags to all resources
+- **Tag your resources:** Add `Project=bisbom-gen` and `Owner=<your-name>` tags to all resources
 - **Use a dedicated security group:** Do not modify shared security groups
 - **Naming convention:** Prefix resources with `omnibor-` for easy identification
 - **Cost allocation:** Use AWS Cost Explorer tags to track spending
@@ -888,8 +888,7 @@ You only need:
 
 ### Instance profile (attached to the EC2 instance itself)
 
-The EC2 instance does **not** need an IAM instance profile for OmniBOR
-analysis. All work happens locally on the instance (Docker, git, builds).
+The EC2 instance does **not** need an IAM instance profile for bisbom-gen. All work happens locally on the instance (Docker, git, builds).
 
 An instance profile is only needed if you want:
 
@@ -925,12 +924,12 @@ An instance profile is only needed if you want:
 
 | Size | Use case |
 |---|---|
-| 30 GB gp3 | Minimum — single repo analysis |
+| 30 GB gp3 | Minimum — single repo run |
 | 50 GB gp3 | **Recommended** — multiple repos, Docker image cache |
 | 100 GB gp3 | Heavy use — Node.js (large build), all repos simultaneously |
 
 > **gp3 baseline:** 3000 IOPS and 125 MB/s throughput are included at no
-> extra cost. This is sufficient for all OmniBOR workloads.
+> extra cost. This is sufficient for all bisbom-gen workloads.
 
 ### Build time estimates
 
@@ -962,16 +961,16 @@ aws ec2 wait instance-running --instance-ids i-YOUR_ID
 # 3. Sync latest code
 rsync -avz --exclude '.git' --exclude '__pycache__' --exclude '.venv' \
   --exclude 'output/' --exclude 'repos/' \
-  -e ssh ./ omnibor-build:~/omnibor-analysis/
+  -e ssh ./ omnibor-build:~/bisbom-gen/
 
-# 4. Run analysis, iterate, etc.
+# 4. Run bisbom-gen, iterate, etc.
 ```
 
 ### End of day
 
 ```bash
 # 1. Sync results
-rsync -avz omnibor-build:~/omnibor-analysis/output/ output/
+rsync -avz omnibor-build:~/bisbom-gen/output/ output/
 
 # 2. Stop the instance (saves money!)
 aws ec2 stop-instances --instance-ids i-YOUR_ID --no-cli-pager
@@ -999,7 +998,7 @@ running but costs ~$3.60/month while stopped.
 | SSH timeout (public subnet) | Security group missing SSH rule | Add inbound TCP/22 from your IP |
 | `docker: permission denied` | User not in docker group | Run `sudo usermod -aG docker $USER`, then log out/in |
 | Out of disk space | EBS volume too small | Resize: `aws ec2 modify-volume --size 100 --volume-id vol-XXX` then `sudo growpart` + `sudo resize2fs` |
-| Analysis runs but SPDX is empty | Clean build needed | Run with `make distclean` or `cargo clean` before analysis |
+| A run produces an empty SPDX | Clean build needed | Run `make distclean` or `cargo clean` before the run |
 | Graviton instance already provisioned | Need x86_64, have ARM64 | Launch a new x86_64 instance (Scenario B); cannot convert |
 
 ### Verifying architecture when unsure

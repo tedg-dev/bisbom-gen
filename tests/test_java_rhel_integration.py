@@ -7,13 +7,13 @@ and produce valid SPDX with pkg:rpm PURLs.
 
 Requirements:
   - Docker daemon running
-  - omnibor-env:rhel9 image built
+  - bisbom-env:rhel9 image built
   - Network access (Maven downloads dependencies)
 
 Run::
 
     docker compose -f docker/docker-compose.yml run --rm \\
-        omnibor-rhel python3 -m pytest \\
+        bisbom-rhel python3 -m pytest \\
         tests/test_java_rhel_integration.py -v
 
 Skip in normal test runs::
@@ -36,7 +36,7 @@ import pytest
 _has_docker = shutil.which("docker") is not None
 
 
-def _image_exists(tag="omnibor-env:rhel9"):
+def _image_exists(tag="bisbom-env:rhel9"):
     """Check if the Docker image exists locally."""
     if not _has_docker:
         return False
@@ -60,9 +60,9 @@ skip_no_docker = pytest.mark.skipif(
 skip_no_image = pytest.mark.skipif(
     not _has_image,
     reason=(
-        "omnibor-env:rhel9 image not built. "
+        "bisbom-env:rhel9 image not built. "
         "Run: docker compose -f docker/"
-        "docker-compose.yml build omnibor-rhel"
+        "docker-compose.yml build bisbom-rhel"
     ),
 )
 
@@ -112,7 +112,7 @@ class TestJavaOnRhel(unittest.TestCase):
                 ":/workspace/app/config.yaml:ro"
             ),
             "-w", "/workspace",
-            "omnibor-env:rhel9",
+            "bisbom-env:rhel9",
             "python3", "/workspace/app/analyze.py",
             "--repo", "crawler4j",
             "--mode", "sidecar",

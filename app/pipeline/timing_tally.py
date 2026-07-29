@@ -63,11 +63,11 @@ def find_latest_runtimes(runtime_lang_dir):
     return result
 
 
-def read_adg_substeps(omnibor_lang_dir, repo, run_ts):
+def read_adg_substeps(bisbom_lang_dir, repo, run_ts):
     """Return the treedb and dep-tree wall times for a run.
 
     Args:
-        omnibor_lang_dir: ``output/omnibor/<lang>`` directory.
+        bisbom_lang_dir: ``output/bisbom/<lang>`` directory.
         repo: Repository name.
         run_ts: Run timestamp (the run's output subdirectory).
 
@@ -76,7 +76,7 @@ def read_adg_substeps(omnibor_lang_dir, repo, run_ts):
         file or entries yield ``0.0`` for that key.
     """
     path = (
-        Path(omnibor_lang_dir) / repo / run_ts
+        Path(bisbom_lang_dir) / repo / run_ts
         / "adg_substeps.json"
     )
     out = {"treedb": 0.0, "dep_tree": 0.0}
@@ -119,13 +119,13 @@ def _step_wall(steps, name):
     return 0.0
 
 
-def build_row(repo, runtime_path, omnibor_lang_dir):
+def build_row(repo, runtime_path, bisbom_lang_dir):
     """Parse one ``runtime.json`` into a tally row.
 
     Args:
         repo: Repository name.
         runtime_path: Path to the repo's ``runtime.json``.
-        omnibor_lang_dir: ``output/omnibor/<lang>`` directory,
+        bisbom_lang_dir: ``output/bisbom/<lang>`` directory,
             used to locate ``adg_substeps.json``.
 
     Returns:
@@ -138,7 +138,7 @@ def build_row(repo, runtime_path, omnibor_lang_dir):
     steps = data.get("steps", [])
     run_ts = Path(runtime_path).parent.name
     totals = _category_totals(steps)
-    sub = read_adg_substeps(omnibor_lang_dir, repo, run_ts)
+    sub = read_adg_substeps(bisbom_lang_dir, repo, run_ts)
     return {
         "repo": repo,
         "run_ts": run_ts,
@@ -172,10 +172,10 @@ def collect_rows(output_dir, lang="java"):
         A list of row dicts sorted by repository name.
     """
     runtime_lang = Path(output_dir) / "runtime" / lang
-    omnibor_lang = Path(output_dir) / "omnibor" / lang
+    bisbom_lang = Path(output_dir) / "bisbom" / lang
     latest = find_latest_runtimes(runtime_lang)
     return [
-        build_row(repo, latest[repo], omnibor_lang)
+        build_row(repo, latest[repo], bisbom_lang)
         for repo in sorted(latest)
     ]
 
